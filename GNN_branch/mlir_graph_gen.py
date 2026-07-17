@@ -1,99 +1,55 @@
 #!/usr/bin/env python3
-"""
-Deterministic MLIR graph construction for the MailoHLS GNN pipeline.
+"""Build one MailoHLS training graph directly from a C or C++ kernel.
 
-This file intentionally keeps the public structure and the serialized GEXF
-contract of the original graph_gen_deterministic.py and of the first
-mlir_graph_gen_deterministic.py prototype:
+The script deliberately exposes a small end-to-end interface:
 
-  * the same operation/value/immediate/pragma/array-scope node types;
-  * the same four output folders used by data.py;
-  * deterministic canonical relabeling and GEXF serialization;
-  * pseudo-block, connected-block, and loop-hierarchy graph variants.
+    C/C++ source
+        -> Polygeist/cgeist at -O0
+        -> Affine + SCF + MemRef + Arith + Func MLIR
+        -> one deterministic, action-aligned GEXF graph
 
-The important change is semantic, not cosmetic.  The original MLIR prototype
-parsed one textual line at a time.  This version walks the actual MLIR
-Operation -> Region -> Block -> Value object model through the official MLIR
-Python bindings.  Consequently it preserves:
+Why this MLIR level?  Affine operations retain static loop bounds and affine
+array subscripts when Polygeist can prove them; SCF remains the lossless
+fallback for dynamic or non-affine control; MemRef retains array shape, views,
+and accesses; Arith retains typed computation; Func retains calls.  We stop
+before CF/LLVM lowering because that would erase the loop, region, and array
+semantics that are most useful to HLS optimization.
 
-  * repeated operands and their positions;
-  * operation results and block arguments;
-  * real blocks, successors, nested regions, and structured-control entry/exit;
-  * SCF/Affine loop nesting and loop-carried values;
-  * function calls, actual/formal arguments, and returned values;
-  * memref roots, views, read/write accesses, and conservative memory hazards;
-  * a stable action contract between MailoHLS Lk placeholders and MLIR scopes.
+The final graph is the single representation expected for MLIR GNN training:
+semantic MLIR nodes and edges, real block adjacency, one pseudo scope per MLIR
+block, direct loop hierarchy, memory roots/accesses/dependencies, and stable
+MailoHLS Lk pragma/array scopes.  It preserves the node/edge contract consumed
+by the existing edge-aware TransformerConv backbone, but MLIR encoders must be
+regenerated and the GNN retrained.
 
-The GNN architecture does not need to change.  data.py already learns one-hot
-node/edge vocabularies, so the extra flow types below are consumed by the same
-edge-aware TransformerConv backbone after regenerating encoders and retraining
-the GNN.  Existing LLVM/ProGraML encoders and checkpoints must not be reused.
+The action JSON is required.  Polygeist does not reliably preserve C/C++ source
+locations, so inferring Lk-to-loop mappings from source line proximity would be
+scientifically unsafe.  A loop action therefore names function + loop_ordinal
+(deterministic preorder at -O0); an array action names a function argument.
 
-Required runtime
-----------------
-Use the MLIR Python package built from the same LLVM/MLIR revision as the
-Polygeist/cgeist binary that produced the input.  This is normally exposed as:
+Example:
 
-    export PYTHONPATH=/path/to/llvm-build/tools/mlir/python_packages/mlir_core
+    PYTHONHASHSEED=0 python mlir_graph_gen.py gemv.cpp \
+      --kernel gemv --actions gemv.actions.json --output gemv_mlir.gexf
 
-An unrelated package named "mlir" from PyPI is not a substitute.
-
-Recommended action manifest
----------------------------
-MLIR transformations may rename SSA values, so action locations must not be
-recovered by substring matching.  Give each optimization position a stable Lk
-either as a mailohls.action_id operation attribute or with this manifest:
-
-{
-  "schema_version": 1,
-  "actions": [
-    {
-      "id": "L4",
-      "kind": "loop",
-      "function": "gemv",
-      "loop_ordinal": 0,
-      "directives": ["pipeline", "unroll"]
-    },
-    {
-      "id": "L1",
-      "kind": "array",
-      "function": "gemv",
-      "argument_index": 0,
-      "variable": "A",
-      "directives": ["array_partition"]
-    }
-  ]
-}
-
-loop_ordinal is the deterministic preorder among loops in one function and is
-provided only as a migration bridge.  The strongest contract is to preserve
-mailohls.action_id = "Lk" directly on the MLIR operation.  For a publication
-pipeline, run with --require-actions so every manifest action must resolve
-exactly once and every pragma scope remains compatible with
-gexf_to_pt_zero.py's Lk-aligned structural memory.
-
-Scope of the dependence graph
------------------------------
-The default memory-dependence pass is deliberately conservative.  It emits
-may-RAW, may-WAR, and may-WAW edges between accesses to the same traced memref
-root.  It never claims that a dependence is absent merely because Python MLIR
-bindings do not expose a complete affine/alias analysis.  Exact dependence
-edges from a C++ MLIR analysis pass may be overlaid with
---dependence-manifest.  This distinction is essential for scientific claims:
-the graph captures compiler-visible HLS-relevant dependencies, not post-route
-timing, placement, routing, or resource-binding effects.
+Use the official MLIR Python bindings built from the same LLVM revision as
+cgeist.  Add their ``mlir_core`` directory to PYTHONPATH; do not install the
+unrelated PyPI package named ``mlir``.
 """
 
 from __future__ import annotations
 
 import argparse
-import csv
 import hashlib
 import json
 import math
 import os
 import re
+import shlex
+import shutil
+import subprocess
 import sys
+import tempfile
 from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -155,7 +111,7 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-v2"
+SCHEMA_VERSION = "mailohls-mlir-graph"
 ACTION_ID_RE = re.compile(r"^L([1-9][0-9]*)$")
 ACTION_ID_SEARCH_RE = re.compile(r"\bL([1-9][0-9]*)\b")
 
@@ -214,7 +170,7 @@ MEMORY_ACCESS_POSITION = {
 
 # ---------------------------------------------------------------------------
 # Small immutable records.  These make the graph construction auditable and
-# keep the code close to the dataclass-based structure of the first prototype.
+# keep the structure close to the one of the first prototype.
 # ---------------------------------------------------------------------------
 
 @dataclass
@@ -2329,46 +2285,146 @@ def validate_graph(
     return report
 
 
-def graph_counts(name: str, graph: nx.MultiDiGraph) -> dict[str, Any]:
-    return {"name": name, "num_node": graph.number_of_nodes(), "num_edge": graph.number_of_edges()}
+# ---------------------------------------------------------------------------
+# C/C++ -> canonical HLS-oriented MLIR frontend.
+# ---------------------------------------------------------------------------
+
+SOURCE_SUFFIXES = {".c", ".cc", ".cp", ".cpp", ".cxx", ".c++", ".C"}
 
 
-def augmented_counts(
-    name: str,
-    previous: nx.MultiDiGraph,
-    current: nx.MultiDiGraph,
-) -> dict[str, Any]:
-    row = {
-        "name": name,
-        "prev_node": previous.number_of_nodes(),
-        "prev_edge": previous.number_of_edges(),
-        "new_node": current.number_of_nodes(),
-        "new_edge": current.number_of_edges(),
+def resolve_cgeist(requested: str) -> str:
+    """Resolve cgeist without silently selecting a different frontend."""
+    expanded = Path(requested).expanduser()
+    if expanded.is_absolute() or expanded.parent != Path("."):
+        if not expanded.is_file():
+            raise FileNotFoundError(f"cgeist was not found at {expanded}")
+        if not os.access(expanded, os.X_OK):
+            raise PermissionError(f"cgeist is not executable: {expanded}")
+        return str(expanded.resolve())
+
+    found = shutil.which(requested)
+    if found is None:
+        raise FileNotFoundError(
+            f"Could not find {requested!r} on PATH. Pass --cgeist /absolute/path/to/cgeist."
+        )
+    return str(Path(found).resolve())
+
+
+def validate_cgeist_flags(flags: Sequence[str]) -> list[str]:
+    """Allow preprocessing/target flags, but protect the representation level.
+
+    Include paths, macro definitions, language-standard flags, and target flags
+    are legitimate.  Optimization/lowering/output flags would silently change
+    the graph semantics or overwrite the temporary MLIR and are rejected.
+    """
+    forbidden_exact = {
+        "-O1",
+        "-O2",
+        "-O3",
+        "-emit-llvm",
+        "--emit-llvm",
+        "-immediate",
+        "--immediate",
+        "-raise-scf-to-affine",
+        "--raise-scf-to-affine",
+        "-memref-fullrank",
+        "--memref-fullrank",
+        "-S",
+        "-c",
     }
-    blocks = {
-        (int(data.get("function", -1)), int(data.get("block", -1)))
-        for _, data in current.nodes(data=True)
-        if int(data.get("type", -1)) == NODE_TYPE_PSEUDO_BLOCK
-    }
-    if blocks:
-        row["block"] = len(blocks)
-    return row
+    forbidden_prefixes = ("-function=", "--function=", "-o=", "--output=")
+    cleaned = [str(flag) for flag in flags]
+    for flag in cleaned:
+        if flag in forbidden_exact or flag == "-o" or flag.startswith(forbidden_prefixes):
+            raise ValueError(
+                f"Conflicting --cflag={flag!r}. mlir_graph_gen.py fixes -O0, "
+                "full-rank MemRefs, affine raising, the kernel, and the output path."
+            )
+    return cleaned
 
 
-def write_csv(path: Path, fieldnames: Sequence[str], rows: Sequence[dict[str, Any]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
+def build_cgeist_command(
+    *,
+    executable: str,
+    source: Path,
+    kernel: str,
+    mlir_output: Path,
+    cflags: Sequence[str],
+) -> list[str]:
+    """Return the pinned frontend command used for every dataset example."""
+    if not kernel or kernel == "*":
+        raise ValueError("--kernel must name exactly one C/C++ top function")
+    return [
+        executable,
+        # compile_source_to_mlir runs with cwd=source.parent.  Passing only the
+        # basename prevents machine-specific absolute paths entering the IR.
+        source.name,
+        *validate_cgeist_flags(cflags),
+        f"-function={kernel}",
+        "-S",
+        "-O0",
+        "-memref-fullrank",
+        "-raise-scf-to-affine",
+        "-o",
+        str(mlir_output),
+    ]
 
 
-def write_json(path: Path, payload: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
+def compile_source_to_mlir(
+    *,
+    source: Path,
+    kernel: str,
+    mlir_output: Path,
+    cgeist: str,
+    cflags: Sequence[str],
+) -> tuple[list[str], str]:
+    """Run Polygeist and return (command, MLIR text), failing with context."""
+    if not source.is_file():
+        raise FileNotFoundError(f"C/C++ input does not exist: {source}")
+    if source.suffix not in SOURCE_SUFFIXES:
+        raise ValueError(
+            f"Expected a C/C++ source suffix {sorted(SOURCE_SUFFIXES)}, got {source.name!r}"
+        )
+
+    executable = resolve_cgeist(cgeist)
+    command = build_cgeist_command(
+        executable=executable,
+        source=source,
+        kernel=kernel,
+        mlir_output=mlir_output,
+        cflags=cflags,
     )
+    completed = subprocess.run(
+        command,
+        cwd=source.parent,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or completed.stdout.strip() or "no diagnostics"
+        raise RuntimeError(
+            "cgeist failed while translating the kernel.\n"
+            f"Command: {shlex.join(command)}\n"
+            f"Diagnostics:\n{detail}"
+        )
+    if not mlir_output.is_file():
+        raise RuntimeError(
+            "cgeist returned success but did not create the requested MLIR file:\n"
+            f"  {mlir_output}"
+        )
+
+    text = mlir_output.read_text(encoding="utf-8")
+    if not re.search(r"\b(?:func\.func|llvm\.func)\b", text):
+        hint = (
+            "For C++, --kernel must be the mangled symbol understood by cgeist; "
+            "declaring the HLS top as extern \"C\" avoids that ambiguity."
+        )
+        raise RuntimeError(
+            f"Polygeist produced no function body for kernel {kernel!r}. {hint}"
+        )
+    return command, text
 
 
 def create_initial_graph(
@@ -2402,236 +2458,127 @@ def create_initial_graph(
 # CLI, deliberately close to the first MLIR prototype.
 # ---------------------------------------------------------------------------
 
-def run(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace) -> Path:
+    """Compile one source kernel and write the one graph used for training."""
     require_pythonhashseed()
-    mlir_path = Path(args.input).resolve()
-    out_dir = Path(args.out_dir).resolve()
-    kernel = args.kernel or mlir_path.stem.split(".")[0]
-
-    context, result = create_initial_graph(
-        mlir_path,
-        action_manifest=Path(args.action_manifest).resolve() if args.action_manifest else None,
-        dependence_manifest=(
-            Path(args.dependence_manifest).resolve()
-            if args.dependence_manifest
-            else None
-        ),
-        allow_unregistered_dialects=args.allow_unregistered_dialects,
-        conservative_memory_dependencies=args.conservative_memory_dependencies,
-        require_actions=args.require_actions,
+    source = Path(args.source).expanduser().resolve()
+    actions = Path(args.actions).expanduser().resolve()
+    output = (
+        Path(args.output).expanduser().resolve()
+        if args.output
+        else source.with_name(f"{args.kernel}_mlir.gexf")
     )
-    try:
-        initial = result.graph
-        reports: dict[str, Any] = {}
 
-        if args.mode in {"initial", "all"}:
-            path = out_dir / "processed" / "original" / f"{kernel}_processed_result.gexf"
-            reports["initial"] = validate_graph(
-                initial,
-                require_actions=args.require_actions,
-                require_single_loop_anchor=False,
-            )
-            write_gexf_deterministic(initial, path)
-            write_csv(
-                out_dir / "initial.csv",
-                ["name", "num_node", "num_edge"],
-                [graph_counts(kernel, initial)],
-            )
-
-        if args.mode == "all":
-            auxiliary = add_auxiliary_nodes(initial, connected=False)
-            reports["auxiliary"] = validate_graph(
-                auxiliary,
-                require_actions=args.require_actions,
-                require_single_loop_anchor=True,
-            )
-            write_gexf_deterministic(
-                auxiliary,
-                out_dir
-                / "processed"
-                / "extended-pseudo-block-base"
-                / f"{kernel}_processed_result.gexf",
-            )
-            write_csv(
-                out_dir / "auxiliary_False.csv",
-                ["name", "prev_node", "prev_edge", "new_node", "new_edge", "block"],
-                [augmented_counts(kernel, initial, auxiliary)],
-            )
-
-            connected = add_auxiliary_nodes(initial, connected=True)
-            reports["connected"] = validate_graph(
-                connected,
-                require_actions=args.require_actions,
-                require_single_loop_anchor=True,
-            )
-            write_gexf_deterministic(
-                connected,
-                out_dir
-                / "processed"
-                / "extended-pseudo-block-connected"
-                / f"{kernel}_processed_result.gexf",
-            )
-            write_csv(
-                out_dir / "auxiliary_True.csv",
-                ["name", "prev_node", "prev_edge", "new_node", "new_edge", "block"],
-                [augmented_counts(kernel, initial, connected)],
-            )
-
-            hierarchy = add_loop_hierarchy(
-                connected,
-                result.loops,
-                transitive=args.hierarchy_transitive,
-            )
-            reports["hierarchy"] = validate_graph(
-                hierarchy,
-                require_actions=args.require_actions,
-                require_single_loop_anchor=True,
-            )
-            write_gexf_deterministic(
-                hierarchy,
-                out_dir
-                / "processed"
-                / "extended-pseudo-block-connected-hierarchy"
-                / f"{kernel}_processed_result.gexf",
-            )
-            write_csv(
-                out_dir / "hierarchy.csv",
-                ["name", "prev_node", "prev_edge", "new_node", "new_edge", "block"],
-                [augmented_counts(kernel, connected, hierarchy)],
-            )
-
-        elif args.mode == "auxiliary":
-            auxiliary = add_auxiliary_nodes(initial, connected=args.connected)
-            reports["auxiliary"] = validate_graph(
-                auxiliary,
-                require_actions=args.require_actions,
-                require_single_loop_anchor=True,
-            )
-            folder = (
-                "extended-pseudo-block-connected"
-                if args.connected
-                else "extended-pseudo-block-base"
-            )
-            write_gexf_deterministic(
-                auxiliary,
-                out_dir / "processed" / folder / f"{kernel}_processed_result.gexf",
-            )
-
-        elif args.mode == "hierarchy":
-            connected = add_auxiliary_nodes(initial, connected=True)
-            hierarchy = add_loop_hierarchy(
-                connected,
-                result.loops,
-                transitive=args.hierarchy_transitive,
-            )
-            reports["hierarchy"] = validate_graph(
-                hierarchy,
-                require_actions=args.require_actions,
-                require_single_loop_anchor=True,
-            )
-            write_gexf_deterministic(
-                hierarchy,
-                out_dir
-                / "processed"
-                / "extended-pseudo-block-connected-hierarchy"
-                / f"{kernel}_processed_result.gexf",
-            )
-
-        write_json(
-            out_dir / f"{kernel}.mlir_graph_manifest.json",
-            {
-                "schema_version": SCHEMA_VERSION,
-                "kernel": kernel,
-                "input": str(mlir_path),
-                "input_sha256": initial.graph.get("input_sha256"),
-                "toolchain_id": args.toolchain_id,
-                "action_manifest": args.action_manifest,
-                "dependence_manifest": args.dependence_manifest,
-                "conservative_memory_dependencies": args.conservative_memory_dependencies,
-                "hierarchy_transitive": args.hierarchy_transitive,
-                "matched_actions": sorted(
-                    spec.action_id for spec in result.actions if spec.matched
-                ),
-                "unmatched_actions": sorted(
-                    spec.action_id for spec in result.actions if not spec.matched
-                ),
-                "reports": reports,
-            },
+    with tempfile.TemporaryDirectory(prefix="mailohls_mlir_") as directory:
+        mlir_path = Path(directory) / f"{source.stem}.hls.mlir"
+        _, mlir_text = compile_source_to_mlir(
+            source=source,
+            kernel=args.kernel,
+            mlir_output=mlir_path,
+            cgeist=args.cgeist,
+            cflags=args.cflag,
         )
-    finally:
-        # Explicitly leave the context only after all wrappers have been used.
-        context.__exit__(None, None, None)
 
-    print(f"Generated deterministic MLIR graph artifacts for {kernel} under {out_dir}")
+        context, result = create_initial_graph(
+            mlir_path,
+            action_manifest=actions,
+            dependence_manifest=None,
+            # cgeist may emit Polygeist-specific operations.  The generic MLIR
+            # object model still exposes their operands/results/regions.
+            allow_unregistered_dialects=True,
+            # Python cannot prove complete alias/affine dependences.  Same-root
+            # RAW/WAR/WAW edges are retained and explicitly marked as "may".
+            conservative_memory_dependencies=True,
+            # Training graphs must never lose or ambiguously attach an Lk.
+            require_actions=True,
+        )
+        try:
+            initial = result.graph
+            initial.graph.update(
+                {
+                    "kernel": args.kernel,
+                    "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+                    "action_sha256": hashlib.sha256(actions.read_bytes()).hexdigest(),
+                    "mlir_level": "affine+scf+memref+arith+func",
+                    "frontend_policy": "cgeist:-O0,memref-fullrank,raise-scf-to-affine",
+                    "mlir_sha256": hashlib.sha256(mlir_text.encode("utf-8")).hexdigest(),
+                }
+            )
+
+            # This is the only exported representation: semantic MLIR plus
+            # real block adjacency, MailoHLS scope nodes, and direct loop
+            # hierarchy.  No clique edges and no transitive ancestor shortcuts.
+            connected = add_auxiliary_nodes(initial, connected=True)
+            training_graph = add_loop_hierarchy(
+                connected,
+                result.loops,
+                transitive=False,
+            )
+            report = validate_graph(
+                training_graph,
+                require_actions=True,
+                require_single_loop_anchor=True,
+            )
+            write_gexf_deterministic(training_graph, output)
+        finally:
+            # MLIR Python wrappers are valid only while their Context is alive.
+            context.__exit__(None, None, None)
+
+    action_count = len(report["actions"])
+    print(
+        f"Wrote {output} "
+        f"({report['nodes']} nodes, {report['edges']} edges, {action_count} actions)"
+    )
+    return output
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", required=True, help="SCF/Affine/MemRef MLIR input")
-    parser.add_argument("--kernel", default=None, help="Kernel/output name")
+    parser.add_argument("source", help="C or C++ source file")
     parser.add_argument(
-        "--out-dir",
-        default="mlir_harp",
+        "--kernel",
+        required=True,
         help=(
-            "Backend-specific output root.  Use a separate root from LLVM/ProGraML "
-            "to prevent accidental encoder/checkpoint mixing."
+            "Exact top-function symbol passed to cgeist. For C++, prefer an "
+            "extern \"C\" HLS top or pass the mangled symbol."
         ),
     )
     parser.add_argument(
-        "--mode",
-        choices=["initial", "auxiliary", "hierarchy", "all"],
-        default="all",
+        "--actions",
+        required=True,
+        help="MailoHLS schema-v1 JSON mapping Lk actions to loop/array scopes",
     )
     parser.add_argument(
-        "--connected",
-        action="store_true",
-        help="For --mode auxiliary, add real MLIR block-adjacency edges.",
-    )
-    parser.add_argument(
-        "--action-manifest",
+        "--output",
         default=None,
-        help="JSON file mapping stable MailoHLS Lk actions to MLIR scopes.",
+        help="Output GEXF path (default: <kernel>_mlir.gexf beside the source)",
     )
     parser.add_argument(
-        "--dependence-manifest",
-        default=None,
+        "--cgeist",
+        default=os.environ.get("CGEIST", "cgeist"),
+        help="cgeist executable or absolute path (default: $CGEIST or PATH)",
+    )
+    parser.add_argument(
+        "--cflag",
+        action="append",
+        default=[],
+        metavar="FLAG",
         help=(
-            "Optional exact RAW/WAR/WAW edges emitted by a C++ MLIR affine/alias "
-            "analysis pass, keyed by deterministic per-function op ordinals."
+            "Forward one include/define/language/target flag to cgeist; repeat as "
+            "needed and use --cflag=-I/path for flags beginning with '-'."
         ),
-    )
-    parser.add_argument(
-        "--require-actions",
-        action="store_true",
-        help="Fail unless all manifest actions resolve and keep valid Lk placeholders.",
-    )
-    parser.add_argument(
-        "--allow-unregistered-dialects",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Allow Polygeist or project-specific operations not registered in Python.",
-    )
-    parser.add_argument(
-        "--conservative-memory-dependencies",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Emit conservative same-root may-RAW/WAR/WAW edges.",
-    )
-    parser.add_argument(
-        "--hierarchy-transitive",
-        action="store_true",
-        help=(
-            "Also connect all loop ancestors.  Off by default because direct "
-            "parent-child hierarchy is the scientifically clean baseline."
-        ),
-    )
-    parser.add_argument(
-        "--toolchain-id",
-        default="unknown",
-        help="Pinned LLVM/MLIR/Polygeist commit or container digest for the manifest.",
     )
     return parser
 
 
+def main() -> int:
+    try:
+        run(build_arg_parser().parse_args())
+    except (FileNotFoundError, PermissionError, ValueError, RuntimeError) as exc:
+        print(f"mlir_graph_gen.py: error: {exc}", file=sys.stderr)
+        return 2
+    return 0
+
+
 if __name__ == "__main__":
-    run(build_arg_parser().parse_args())
+    raise SystemExit(main())
