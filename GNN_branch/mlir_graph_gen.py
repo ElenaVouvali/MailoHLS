@@ -22,15 +22,13 @@ MailoHLS Lk pragma/array scopes.  It preserves the node/edge contract consumed
 by the existing edge-aware TransformerConv backbone, but MLIR encoders must be
 regenerated and the GNN retrained.
 
-The action JSON is required.  Polygeist does not reliably preserve C/C++ source
-locations, so inferring Lk-to-loop mappings from source line proximity would be
-scientifically unsafe.  A loop action therefore names function + loop_ordinal
-(deterministic preorder at -O0); an array action names a function argument.
+Actions are read from ``kernel_info.txt`` beside the labeled source.  The source
+labels identify each action's function and deterministic loop order, while the
+array metadata identifies the corresponding local MLIR allocation.
 
 Example:
 
-    PYTHONHASHSEED=0 python mlir_graph_gen.py gemv.cpp \
-      --kernel gemv --actions gemv.actions.json --output gemv_mlir.gexf
+    PYTHONHASHSEED=0 python mlir_graph_gen.py gemv.cpp --output gemv_mlir.gexf
 
 Use the official MLIR Python bindings built from the same LLVM revision as
 cgeist.  Add their ``mlir_core`` directory to PYTHONPATH; do not install the
@@ -115,6 +113,24 @@ SCHEMA_VERSION = "mailohls-mlir-graph"
 ACTION_ID_RE = re.compile(r"^L([1-9][0-9]*)$")
 ACTION_ID_SEARCH_RE = re.compile(r"\bL([1-9][0-9]*)\b")
 
+# Minimal labeled-C/C++ parser used by kernel_info.txt integration.  These
+# patterns intentionally recognize only the dataset contract: function bodies,
+# Lk labels, for-loops, and labeled local array declarations.
+SOURCE_LABEL_RE = re.compile(
+    r"^\s*(?P<label>L\d+)\s*:\s*(?:[A-Za-z_]\w*\s*:\s*)?(?P<body>.*)$",
+    re.IGNORECASE,
+)
+SOURCE_FUNCTION_RE = re.compile(
+    r'\b(?:extern\s+"C"\s*)?(?:[A-Za-z_]\w*[\w:\<\>\s\*&]*\s+)+'
+    r'(?P<name>[A-Za-z_]\w*)\s*\([^;{}]*\)\s*\{',
+    re.MULTILINE,
+)
+SOURCE_ARRAY_RE = re.compile(
+    r"^\s*[A-Za-z_][\w:\<\>\s\*&]*?\s+(?P<name>[A-Za-z_]\w*)"
+    r"\s*(?:\[[^\]]+\]\s*)+\s*(?:=\s*[^;]+)?;"
+)
+CONTROL_WORDS = {"if", "for", "while", "switch", "else", "do"}
+
 LOOP_OPS = {
     "scf.for",
     "scf.forall",
@@ -180,11 +196,8 @@ class ActionSpec:
     function: str
     directives: tuple[str, ...]
     loop_ordinal: int | None = None
-    location: str | None = None
-    op_name: str | None = None
-    argument_index: int | None = None
-    value_name: str | None = None
     variable: str | None = None
+    array_dimensions: tuple[int, ...] = ()
     matched: bool = False
 
 
@@ -266,6 +279,7 @@ class ParseResult:
 # ---------------------------------------------------------------------------
 
 def require_pythonhashseed() -> None:
+    """Require a fixed hash seed so graph IDs and output bytes are reproducible."""
     if os.environ.get("PYTHONHASHSEED", "") == "":
         raise RuntimeError(
             "Determinism requires PYTHONHASHSEED to be set before Python starts.\n"
@@ -275,11 +289,13 @@ def require_pythonhashseed() -> None:
 
 
 def det_sha_label(obj: Any) -> str:
+    """Compute a deterministic sha label for the deterministic MLIR-to-MailoHLS graph pipeline."""
     text = json.dumps(obj, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def det_get_full_text(data: dict[str, Any]) -> str:
+    """Compute a deterministic get full text for the deterministic MLIR-to-MailoHLS graph pipeline."""
     if data.get("full_text") is not None:
         return str(data["full_text"])
     features = data.get("features")
@@ -291,6 +307,7 @@ def det_get_full_text(data: dict[str, Any]) -> str:
 
 
 def det_node_sort_key(node: Any, data: dict[str, Any]) -> tuple[Any, ...]:
+    """Compute a deterministic node sort key for the deterministic MLIR-to-MailoHLS graph pipeline."""
     return (
         int(data.get("function", -1)),
         int(data.get("block", -1)),
@@ -309,6 +326,7 @@ def det_edge_sort_key(
     data: dict[str, Any],
     node_rank: dict[Any, int],
 ) -> tuple[Any, ...]:
+    """Compute a deterministic edge sort key for the deterministic MLIR-to-MailoHLS graph pipeline."""
     return (
         node_rank.get(source, 10**18),
         node_rank.get(target, 10**18),
@@ -321,6 +339,7 @@ def det_edge_sort_key(
 
 
 def canonicalize_graph(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
+    """Reinsert nodes, edges, and attributes in a canonical order for reproducible output."""
     canonical = nx.MultiDiGraph()
     canonical.graph.update(deepcopy(graph.graph))
     nodes = sorted(graph.nodes(data=True), key=lambda item: det_node_sort_key(item[0], item[1]))
@@ -341,6 +360,7 @@ def canonicalize_graph(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
 
 
 def relabel_nodes_canonically(graph: nx.MultiDiGraph, rounds: int = 3) -> nx.MultiDiGraph:
+    """Replace temporary IDs with IDs derived from stable structural graph signatures."""
     labels = {
         node: det_sha_label(det_node_sort_key(node, data))
         for node, data in graph.nodes(data=True)
@@ -387,6 +407,7 @@ def relabel_nodes_canonically(graph: nx.MultiDiGraph, rounds: int = 3) -> nx.Mul
 
 
 def stringify_attr(value: Any) -> Any:
+    """Convert attr for the deterministic MLIR-to-MailoHLS graph pipeline."""
     if isinstance(value, (str, int, float, bool)):
         return value
     if value is None:
@@ -395,6 +416,7 @@ def stringify_attr(value: Any) -> Any:
 
 
 def prepare_graph_for_write(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
+    """Prepare graph for write for the deterministic MLIR-to-MailoHLS graph pipeline."""
     output = nx.MultiDiGraph()
     output.graph.update({key: stringify_attr(value) for key, value in graph.graph.items()})
     for node, data in graph.nodes(data=True):
@@ -410,11 +432,13 @@ def prepare_graph_for_write(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
 
 
 def write_gexf_deterministic(graph: nx.MultiDiGraph, path: Path) -> None:
+    """Write gexf deterministic for the deterministic MLIR-to-MailoHLS graph pipeline."""
     path.parent.mkdir(parents=True, exist_ok=True)
     nx.write_gexf(prepare_graph_for_write(graph), path, prettyprint=False)
 
 
 def prune_redundant_nodes(graph: nx.MultiDiGraph) -> None:
+    """Remove redundant nodes for the deterministic MLIR-to-MailoHLS graph pipeline."""
     while True:
         isolated = [
             node for node in sorted(graph.nodes(), key=str)
@@ -426,6 +450,7 @@ def prune_redundant_nodes(graph: nx.MultiDiGraph) -> None:
 
 
 def finalize_graph(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
+    """Run cleanup and canonical relabeling before the graph leaves this module."""
     prune_redundant_nodes(graph)
     graph = canonicalize_graph(graph)
     graph = relabel_nodes_canonically(graph, rounds=3)
@@ -433,10 +458,11 @@ def finalize_graph(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
 
 
 # ---------------------------------------------------------------------------
-# Action and exact-dependence manifests.
+# Action discovery from kernel_info.txt and labeled source.
 # ---------------------------------------------------------------------------
 
 def _normalise_action_id(value: Any) -> str:
+    """Normalize action ID for the deterministic MLIR-to-MailoHLS graph pipeline."""
     text = str(value).strip().strip('"').strip("'")
     if text.startswith("_L"):
         text = text[1:]
@@ -449,88 +475,139 @@ def _normalise_action_id(value: Any) -> str:
     return action_id
 
 
-def load_action_manifest(path: Path | None) -> list[ActionSpec]:
-    if path is None:
-        return []
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    if isinstance(payload, list):
-        raw_actions = payload
-    elif isinstance(payload, dict):
-        if int(payload.get("schema_version", 1)) != 1:
-            raise ValueError(f"Unsupported action-manifest schema: {payload.get('schema_version')}")
-        raw_actions = payload.get("actions", [])
-    else:
-        raise TypeError("Action manifest must be a JSON object or list.")
+def _strip_source_comments(text: str) -> str:
+    """Remove C/C++ comments while preserving line and brace positions."""
+    text = re.sub(
+        r"/\*.*?\*/",
+        lambda match: "\n" * match.group(0).count("\n"),
+        text,
+        flags=re.DOTALL,
+    )
+    return re.sub(r"//.*", "", text)
 
-    actions: list[ActionSpec] = []
-    seen: set[str] = set()
-    for raw in raw_actions:
-        action_id = _normalise_action_id(raw["id"])
-        if action_id in seen:
-            raise ValueError(f"Duplicate action id in manifest: {action_id}")
-        seen.add(action_id)
 
-        kind = str(raw["kind"]).strip().lower()
-        if kind not in {"loop", "array"}:
-            raise ValueError(f"Action {action_id}: kind must be loop or array, got {kind!r}")
+def _source_function_spans(text: str) -> list[tuple[str, int, int]]:
+    """Find function body ranges with lightweight brace matching."""
+    clean = _strip_source_comments(text)
+    spans: list[tuple[str, int, int]] = []
+    for match in SOURCE_FUNCTION_RE.finditer(clean):
+        name = match.group("name")
+        if name in CONTROL_WORDS:
+            continue
+        brace = clean.find("{", match.end() - 1)
+        depth = 0
+        for position in range(brace, len(clean)):
+            if clean[position] == "{":
+                depth += 1
+            elif clean[position] == "}":
+                depth -= 1
+                if depth == 0:
+                    start_line = clean.count("\n", 0, match.start()) + 1
+                    end_line = clean.count("\n", 0, position) + 1
+                    spans.append((name, start_line, end_line))
+                    break
+    return spans
 
-        default_directives = ("pipeline", "unroll") if kind == "loop" else ("array_partition",)
-        directives = tuple(
-            str(item).strip().lower()
-            for item in raw.get("directives", default_directives)
+
+def _source_actions(source: Path) -> dict[str, dict[str, str]]:
+    """Map each Lk label to its function, kind, and optional array name."""
+    text = source.read_text(encoding="utf-8", errors="replace")
+    spans = _source_function_spans(text)
+    actions: dict[str, dict[str, str]] = {}
+    for line_number, line in enumerate(text.splitlines(), start=1):
+        match = SOURCE_LABEL_RE.match(line)
+        if not match:
+            continue
+        action_id = _normalise_action_id(match.group("label"))
+        function = next(
+            (name for name, start, end in spans if start <= line_number <= end),
+            "GLOBAL",
         )
-        allowed = {"pipeline", "unroll"} if kind == "loop" else {"array_partition"}
-        if not directives or not set(directives) <= allowed:
-            raise ValueError(
-                f"Action {action_id}: invalid directives {directives}; allowed={sorted(allowed)}"
-            )
-
-        function = str(raw.get("function", "")).strip()
-        if not function:
-            raise ValueError(f"Action {action_id}: function is required.")
-
-        action = ActionSpec(
-            action_id=action_id,
-            kind=kind,
-            function=function,
-            directives=directives,
-            loop_ordinal=(
-                int(raw["loop_ordinal"]) if raw.get("loop_ordinal") is not None else None
-            ),
-            location=(str(raw["location"]) if raw.get("location") is not None else None),
-            op_name=(str(raw["op_name"]) if raw.get("op_name") is not None else None),
-            argument_index=(
-                int(raw["argument_index"])
-                if raw.get("argument_index") is not None
-                else None
-            ),
-            value_name=(
-                str(raw["value_name"]) if raw.get("value_name") is not None else None
-            ),
-            variable=(str(raw["variable"]) if raw.get("variable") is not None else None),
-        )
-
-        if kind == "array" and action.argument_index is None and action.value_name is None:
-            raise ValueError(
-                f"Array action {action_id}: provide argument_index or value_name."
-            )
-        actions.append(action)
+        body = match.group("body").strip()
+        array_match = SOURCE_ARRAY_RE.match(body)
+        if re.search(r"\bfor\s*\(", body, re.IGNORECASE):
+            actions[action_id] = {"kind": "loop", "function": function}
+        elif array_match:
+            actions[action_id] = {
+                "kind": "array",
+                "function": function,
+                "array_name": array_match.group("name"),
+            }
+        else:
+            actions[action_id] = {"kind": "unknown", "function": function}
     return actions
 
 
-def load_dependence_manifest(path: Path | None) -> list[dict[str, Any]]:
-    if path is None:
-        return []
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    dependencies = payload if isinstance(payload, list) else payload.get("dependencies", [])
-    for dep in dependencies:
-        if str(dep.get("kind", "")).upper() not in MEMORY_DEPENDENCE_POSITION:
-            raise ValueError(f"Invalid exact memory dependence: {dep}")
-        if "function" not in dep or "source_op" not in dep or "target_op" not in dep:
+def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list[ActionSpec]]:
+    """Build action specifications from kernel_info.txt and labeled source."""
+    lines = [
+        line.strip() for line in kernel_info.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    if not lines:
+        raise ValueError(f"Empty kernel_info.txt: {kernel_info}")
+    top_function = lines[0]
+    source_actions = _source_actions(source)
+
+    loop_ordinals: dict[str, int] = defaultdict(int)
+    ordinal_by_label: dict[str, int] = {}
+    for action_id, item in sorted(
+        source_actions.items(), key=lambda value: int(value[0][1:])
+    ):
+        if item["kind"] == "loop":
+            function = item["function"]
+            ordinal_by_label[action_id] = loop_ordinals[function]
+            loop_ordinals[function] += 1
+
+    actions: list[ActionSpec] = []
+    seen: set[str] = set()
+    for line_number, line in enumerate(lines[1:], start=2):
+        fields = [field.strip() for field in line.split(",")]
+        if len(fields) < 2:
+            raise ValueError(f"{kernel_info}:{line_number}: malformed action line: {line!r}")
+        action_id = _normalise_action_id(fields[0])
+        kind = fields[1].lower()
+        if action_id in seen:
+            raise ValueError(f"{kernel_info}:{line_number}: duplicate action {action_id}")
+        seen.add(action_id)
+        if kind not in {"loop", "array"}:
+            raise ValueError(f"{kernel_info}:{line_number}: unsupported kind {kind!r}")
+        source_action = source_actions.get(action_id)
+        if source_action is None:
+            raise ValueError(f"{kernel_info}:{line_number}: {action_id} is absent from {source.name}")
+        if source_action["kind"] != kind:
             raise ValueError(
-                "Each exact dependence requires function, source_op, target_op, and kind."
+                f"{kernel_info}:{line_number}: {action_id} is {kind}, but the source label "
+                f"identifies a {source_action['kind']}"
             )
-    return dependencies
+        function = source_action["function"]
+        if kind == "loop":
+            actions.append(ActionSpec(
+                action_id=action_id, kind=kind, function=function,
+                directives=("pipeline", "unroll"),
+                loop_ordinal=ordinal_by_label[action_id],
+            ))
+            continue
+
+        if len(fields) < 5 or (len(fields) - 3) % 2:
+            raise ValueError(
+                f"{kernel_info}:{line_number}: array syntax must be "
+                "Lk,array,name,dim,size[,dim,size...]"
+            )
+        dimensions = tuple(int(fields[index]) for index in range(4, len(fields), 2))
+        variable = fields[2]
+        source_variable = source_action.get("array_name")
+        if source_variable and source_variable != variable:
+            raise ValueError(
+                f"{kernel_info}:{line_number}: variable {variable!r} disagrees with "
+                f"source declaration {source_variable!r}"
+            )
+        actions.append(ActionSpec(
+            action_id=action_id, kind=kind, function=function,
+            directives=("array_partition",), variable=variable,
+            array_dimensions=dimensions,
+        ))
+    return top_function, actions
 
 
 # ---------------------------------------------------------------------------
@@ -538,6 +615,7 @@ def load_dependence_manifest(path: Path | None) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 def import_mlir_ir() -> Any:
+    """Import mlir ir for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         from mlir import ir  # type: ignore
     except Exception as exc:
@@ -550,10 +628,12 @@ def import_mlir_ir() -> Any:
 
 
 def raw_operation(operation: Any) -> Any:
+    """Return the underlying operation for the deterministic MLIR-to-MailoHLS graph pipeline."""
     return getattr(operation, "operation", operation)
 
 
 def object_key(obj: Any) -> tuple[str, int]:
+    """Return an identity key for key for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return (type(obj).__name__, hash(obj))
     except Exception:
@@ -561,15 +641,18 @@ def object_key(obj: Any) -> tuple[str, int]:
 
 
 def operation_name(operation: Any) -> str:
+    """Return operation name for the deterministic MLIR-to-MailoHLS graph pipeline."""
     return str(raw_operation(operation).name)
 
 
 def operation_first_line(operation: Any) -> str:
+    """Return operation first line for the deterministic MLIR-to-MailoHLS graph pipeline."""
     text = str(raw_operation(operation)).strip()
     return text.splitlines()[0].strip() if text else operation_name(operation)
 
 
 def operation_location(operation: Any) -> str:
+    """Return operation location for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return str(raw_operation(operation).location)
     except Exception:
@@ -577,6 +660,7 @@ def operation_location(operation: Any) -> str:
 
 
 def attribute_items(operation: Any) -> dict[str, str]:
+    """Handle items for the deterministic MLIR-to-MailoHLS graph pipeline."""
     attrs = raw_operation(operation).attributes
     out: dict[str, str] = {}
 
@@ -606,6 +690,7 @@ def attribute_items(operation: Any) -> dict[str, str]:
 
 
 def get_attribute(operation: Any, *names: str) -> str | None:
+    """Return attribute for the deterministic MLIR-to-MailoHLS graph pipeline."""
     attrs = raw_operation(operation).attributes
     for name in names:
         try:
@@ -616,6 +701,7 @@ def get_attribute(operation: Any, *names: str) -> str | None:
 
 
 def strip_mlir_string(value: str | None) -> str:
+    """Strip mlir string for the deterministic MLIR-to-MailoHLS graph pipeline."""
     if value is None:
         return ""
     text = value.strip().strip('"').strip("'")
@@ -625,6 +711,7 @@ def strip_mlir_string(value: str | None) -> str:
 
 
 def operation_regions(operation: Any) -> list[Any]:
+    """Return operation regions for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return list(raw_operation(operation).regions)
     except Exception:
@@ -632,6 +719,7 @@ def operation_regions(operation: Any) -> list[Any]:
 
 
 def region_blocks(region: Any) -> list[Any]:
+    """Return region blocks for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return list(region.blocks)
     except Exception:
@@ -642,6 +730,7 @@ def region_blocks(region: Any) -> list[Any]:
 
 
 def block_operations(block: Any) -> list[Any]:
+    """Return block operations for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return list(block.operations)
     except Exception:
@@ -649,6 +738,7 @@ def block_operations(block: Any) -> list[Any]:
 
 
 def block_arguments(block: Any) -> list[Any]:
+    """Return block arguments for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return list(block.arguments)
     except Exception:
@@ -656,6 +746,7 @@ def block_arguments(block: Any) -> list[Any]:
 
 
 def operation_operands(operation: Any) -> list[Any]:
+    """Return operation operands for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return list(raw_operation(operation).operands)
     except Exception:
@@ -663,6 +754,7 @@ def operation_operands(operation: Any) -> list[Any]:
 
 
 def operation_results(operation: Any) -> list[Any]:
+    """Return operation results for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return list(raw_operation(operation).results)
     except Exception:
@@ -670,6 +762,7 @@ def operation_results(operation: Any) -> list[Any]:
 
 
 def operation_successors(operation: Any) -> list[Any]:
+    """Return operation successors for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return list(raw_operation(operation).successors)
     except Exception:
@@ -677,6 +770,7 @@ def operation_successors(operation: Any) -> list[Any]:
 
 
 def value_type(value: Any) -> str:
+    """Return value type for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return str(value.type)
     except Exception:
@@ -684,6 +778,7 @@ def value_type(value: Any) -> str:
 
 
 def value_text(value: Any) -> str:
+    """Return value text for the deterministic MLIR-to-MailoHLS graph pipeline."""
     try:
         return str(value)
     except Exception:
@@ -691,6 +786,7 @@ def value_text(value: Any) -> str:
 
 
 def canonical_type_token(type_text: str) -> str:
+    """Handle type token for the deterministic MLIR-to-MailoHLS graph pipeline."""
     compact = re.sub(r"\s+", "", type_text)
     if compact.startswith("memref<"):
         rank = compact.split("<", 1)[1].split("x")
@@ -714,6 +810,7 @@ def canonical_type_token(type_text: str) -> str:
 
 
 def is_memory_type(type_text: str) -> bool:
+    """Test whether memory type for the deterministic MLIR-to-MailoHLS graph pipeline."""
     compact = type_text.replace(" ", "")
     return (
         compact.startswith("memref<")
@@ -723,31 +820,15 @@ def is_memory_type(type_text: str) -> bool:
 
 
 def parse_integer_attr(text: str | None) -> int | None:
+    """Parse integer attr for the deterministic MLIR-to-MailoHLS graph pipeline."""
     if text is None:
         return None
     match = re.search(r"(?<![A-Za-z0-9_])-?[0-9]+", text)
     return int(match.group(0)) if match else None
 
 
-def action_id_from_attributes(attributes: dict[str, str]) -> str | None:
-    candidates = (
-        "mailohls.action_id",
-        "hls.action_id",
-        "action_id",
-        "mailohls.label",
-        "hls.label",
-    )
-    for name in candidates:
-        if name not in attributes:
-            continue
-        try:
-            return _normalise_action_id(attributes[name])
-        except ValueError:
-            continue
-    return None
-
-
 def parse_mlir_module(path: Path, allow_unregistered_dialects: bool) -> tuple[Any, Any, str]:
+    """Parse MLIR and return its live Context; wrappers become invalid when this Context closes."""
     ir = import_mlir_ir()
     text = path.read_text(encoding="utf-8")
     context = ir.Context()
@@ -772,14 +853,13 @@ class MlirGraphBuilder:
         module: Any,
         mlir_text: str,
         actions: list[ActionSpec],
-        exact_dependencies: list[dict[str, Any]],
         conservative_memory_dependencies: bool = True,
         require_actions: bool = False,
     ) -> None:
+        """Handle init for the deterministic MLIR-to-MailoHLS graph pipeline."""
         self.module = module
         self.mlir_text = mlir_text
         self.actions = actions
-        self.exact_dependencies = exact_dependencies
         self.conservative_memory_dependencies = conservative_memory_dependencies
         self.require_actions = require_actions
 
@@ -817,6 +897,7 @@ class MlirGraphBuilder:
         self.attached_action_ids: set[str] = set()
 
     def build(self) -> ParseResult:
+        """Run graph-building passes in dependency order and return the graph plus loop metadata."""
         functions = self._discover_functions()
         if not functions:
             raise RuntimeError("No func.func or llvm.func operation found in the MLIR module.")
@@ -867,15 +948,18 @@ class MlirGraphBuilder:
         )
 
     def _new_node(self, attrs: dict[str, Any]) -> int:
+        """Allocate one temporary node ID and insert its normalized metadata."""
         node = self.next_node_id
         self.next_node_id += 1
         self.graph.add_node(node, **attrs)
         return node
 
     def _discover_functions(self) -> list[tuple[str, Any]]:
+        """Index all functions first so calls can resolve definitions that appear later."""
         found: list[tuple[str, Any]] = []
 
         def visit(operation: Any) -> None:
+            """Recursively find functions even when a dialect nests them below a module."""
             name = operation_name(operation)
             if name in {"func.func", "llvm.func"}:
                 symbol = strip_mlir_string(
@@ -899,6 +983,7 @@ class MlirGraphBuilder:
         return sorted(found, key=lambda item: item[0])
 
     def _assign_blocks(self, operation: Any, function_id: int) -> None:
+        """Assign stable block IDs before any edge records refer to those blocks."""
         for region_index, region in enumerate(operation_regions(operation)):
             for block in region_blocks(region):
                 key = object_key(block)
@@ -917,6 +1002,7 @@ class MlirGraphBuilder:
                     self._assign_blocks(child, function_id)
 
     def _entry_block_id(self, function_operation: Any) -> int:
+        """Return the entry block that anchors function arguments and helper nodes."""
         regions = operation_regions(function_operation)
         if not regions or not region_blocks(regions[0]):
             # Declaration-only functions get one synthetic deterministic block.
@@ -926,6 +1012,7 @@ class MlirGraphBuilder:
         return self.blocks[object_key(region_blocks(regions[0])[0])].block_id
 
     def _index_function(self, function_id: int, function_name: str, operation: Any) -> None:
+        """Create a function node, its argument values, and indexes for its nested body."""
         self._assign_blocks(operation, function_id)
         entry_block = self._entry_block_id(operation)
         attributes = attribute_items(operation)
@@ -973,6 +1060,7 @@ class MlirGraphBuilder:
         function_name: str,
         loop_stack: tuple[int, ...],
     ) -> None:
+        """Walk nested MLIR operations in deterministic preorder and record loop nesting."""
         for region_index, region in enumerate(operation_regions(owner_operation)):
             for block in region_blocks(region):
                 block_key = object_key(block)
@@ -1098,6 +1186,7 @@ class MlirGraphBuilder:
         is_block_argument: bool,
         argument_index: int,
     ) -> int:
+        """Intern each SSA value once so definitions and uses share one graph node."""
         key = object_key(value)
         if key in self.value_nodes:
             return self.value_nodes[key]
@@ -1123,6 +1212,7 @@ class MlirGraphBuilder:
         return node
 
     def _add_ssa_edges(self) -> None:
+        """Connect definitions, values, and users while retaining operand/result positions."""
         for record in sorted(
             self.operation_records,
             key=lambda item: (item.function_id, item.function_ordinal),
@@ -1181,6 +1271,7 @@ class MlirGraphBuilder:
                         self.constant_values[object_key(result)] = integer
 
     def _add_control_and_region_edges(self) -> None:
+        """Encode direct operation order, CFG successors, and region ownership."""
         for block in sorted(self.blocks.values(), key=lambda item: item.block_id):
             operations = sorted(block.operations, key=lambda item: item.block_order)
             for left, right in zip(operations[:-1], operations[1:]):
@@ -1259,9 +1350,11 @@ class MlirGraphBuilder:
                 )
 
     def _constant_from_value(self, value: Any) -> int | None:
+        """Handle from value for the deterministic MLIR-to-MailoHLS graph pipeline."""
         return self.constant_values.get(object_key(value))
 
     def _annotate_loop_features(self, loop: LoopInfo) -> None:
+        """Extract loop bounds, step, depth, and static trip-count features."""
         record = loop.op_record
         lower: int | None = None
         upper: int | None = None
@@ -1319,6 +1412,7 @@ class MlirGraphBuilder:
             )
 
     def _add_loop_carried_edges(self) -> None:
+        """Expose iter_args and yields that carry data between loop iterations."""
         for loop in self.loops:
             record = loop.op_record
             regions = operation_regions(record.operation)
@@ -1380,6 +1474,7 @@ class MlirGraphBuilder:
                     )
 
     def _callee_name(self, record: OperationRecord) -> str:
+        """Handle name for the deterministic MLIR-to-MailoHLS graph pipeline."""
         if record.op_name not in {"func.call", "llvm.call"}:
             return ""
         for name in ("callee", "callee_name"):
@@ -1390,6 +1485,7 @@ class MlirGraphBuilder:
         return match.group(1) if match else ""
 
     def _add_call_edges(self) -> None:
+        """Connect call sites, function definitions, actual values, and formal arguments."""
         for record in self.operation_records:
             callee_name = self._callee_name(record)
             if not callee_name or callee_name not in self.function_name_to_id:
@@ -1435,6 +1531,7 @@ class MlirGraphBuilder:
                     )
 
     def _memory_operands(self, record: OperationRecord) -> list[tuple[int, str]]:
+        """Handle operands for the deterministic MLIR-to-MailoHLS graph pipeline."""
         memory_positions = [
             index
             for index, value in enumerate(record.operands)
@@ -1476,6 +1573,7 @@ class MlirGraphBuilder:
         # First establish canonical roots.  View-like results inherit the root
         # of their first memory operand; allocations, globals, arguments, and
         # unknown producers remain distinct roots.
+        """Trace views and casts to memory roots, then index every access to each root."""
         for key, node in self.value_nodes.items():
             if int(self.graph.nodes[node].get("is_memory", 0)) == 1:
                 self.memory_root_by_value[key] = node
@@ -1571,7 +1669,6 @@ class MlirGraphBuilder:
 
         if self.conservative_memory_dependencies:
             self._add_conservative_memory_dependencies()
-        self._add_exact_memory_dependencies()
 
     def _add_memory_dependence(
         self,
@@ -1581,6 +1678,7 @@ class MlirGraphBuilder:
         certainty: str,
         distance: Any = None,
     ) -> None:
+        """Add memory dependence for the deterministic MLIR-to-MailoHLS graph pipeline."""
         if source == target:
             return
         self.graph.add_edge(
@@ -1594,6 +1692,7 @@ class MlirGraphBuilder:
         )
 
     def _add_conservative_memory_dependencies(self) -> None:
+        """Add same-root may-depend edges when exact alias analysis is unavailable."""
         groups: dict[tuple[int, int], list[MemoryAccess]] = defaultdict(list)
         for access in self.memory_accesses:
             groups[(access.function_id, access.root_node)].append(access)
@@ -1636,57 +1735,12 @@ class MlirGraphBuilder:
                 if reads and not writes:
                     reads_since_write.append(access)
 
-    def _add_exact_memory_dependencies(self) -> None:
-        for dependency in self.exact_dependencies:
-            function = str(dependency["function"])
-            source_key = (function, int(dependency["source_op"]))
-            target_key = (function, int(dependency["target_op"]))
-            source = self.operation_by_uid.get(source_key)
-            target = self.operation_by_uid.get(target_key)
-            if source is None or target is None:
-                raise RuntimeError(
-                    "Exact dependence references an unknown deterministic op ordinal: "
-                    f"{dependency}"
-                )
-            self._add_memory_dependence(
-                source.node,
-                target.node,
-                str(dependency["kind"]).upper(),
-                "must",
-                dependency.get("distance", []),
-            )
-
     @staticmethod
     def _loop_matches_spec(loop: LoopInfo, spec: ActionSpec) -> bool:
+        """Handle matches spec for the deterministic MLIR-to-MailoHLS graph pipeline."""
         if spec.kind != "loop" or spec.function != loop.function_name:
             return False
-        if spec.loop_ordinal is not None and spec.loop_ordinal != loop.loop_ordinal:
-            return False
-        if spec.location is not None and spec.location not in loop.op_record.location:
-            return False
-        if spec.op_name is not None and spec.op_name != loop.op_record.op_name:
-            return False
-        return True
-
-    @staticmethod
-    def _loop_embedded_action_id(loop: LoopInfo) -> str | None:
-        action_id = action_id_from_attributes(loop.op_record.attributes)
-        if action_id is not None:
-            return action_id
-        raw_id = get_attribute(
-            loop.op_record.operation,
-            "mailohls.action_id",
-            "hls.action_id",
-            "action_id",
-            "mailohls.label",
-            "hls.label",
-        )
-        if raw_id is None:
-            return None
-        try:
-            return _normalise_action_id(raw_id)
-        except ValueError:
-            return None
+        return spec.loop_ordinal == loop.loop_ordinal
 
     def _add_pragma_node(
         self,
@@ -1698,6 +1752,7 @@ class MlirGraphBuilder:
         block_id: int,
         semantic_anchor: int,
     ) -> int:
+        """Add pragma node for the deterministic MLIR-to-MailoHLS graph pipeline."""
         upper = kind.upper()
         node = self._new_node(
             {
@@ -1717,28 +1772,14 @@ class MlirGraphBuilder:
         return node
 
     def _attach_loop_actions(self) -> None:
-        # Resolve the whole manifest before mutating the graph.  This catches an
-        # op_name-only locator that would otherwise silently select the first of
-        # several scf.for operations.
+        """Attach every loop Lk exactly once and create its tunable directive nodes."""
         manifest_by_loop: dict[int, ActionSpec] = {}
         for spec in [item for item in self.actions if item.kind == "loop"]:
-            has_locator = any(
-                locator is not None
-                for locator in (spec.loop_ordinal, spec.location, spec.op_name)
-            )
-            if has_locator:
-                matches = [
-                    loop_index
-                    for loop_index, loop in enumerate(self.loops)
-                    if self._loop_matches_spec(loop, spec)
-                ]
-            else:
-                matches = [
-                    loop_index
-                    for loop_index, loop in enumerate(self.loops)
-                    if loop.function_name == spec.function
-                    and self._loop_embedded_action_id(loop) == spec.action_id
-                ]
+            matches = [
+                loop_index
+                for loop_index, loop in enumerate(self.loops)
+                if self._loop_matches_spec(loop, spec)
+            ]
             if len(matches) != 1:
                 raise RuntimeError(
                     f"Loop action {spec.action_id} matched {len(matches)} MLIR loops; "
@@ -1755,45 +1796,9 @@ class MlirGraphBuilder:
             manifest_by_loop[loop_index] = spec
 
         for loop_index, loop in enumerate(self.loops):
-            attr_id = self._loop_embedded_action_id(loop)
             spec = manifest_by_loop.get(loop_index)
-
-            if attr_id is not None:
-                if spec is not None and spec.action_id != attr_id:
-                    raise RuntimeError(
-                        f"Loop {loop.function_name}#{loop.loop_ordinal} carries "
-                        f"{attr_id} in MLIR but the manifest assigns {spec.action_id}."
-                    )
-                action_id = attr_id
-                if spec is not None:
-                    directives = spec.directives
-                else:
-                    directive_attr = (
-                        loop.op_record.attributes.get("mailohls.directives")
-                        or get_attribute(
-                            loop.op_record.operation,
-                            "mailohls.directives",
-                        )
-                        or ""
-                    ).lower()
-                    parsed = tuple(
-                        directive
-                        for directive in ("pipeline", "unroll")
-                        if directive in directive_attr
-                    )
-                    if not parsed:
-                        parsed = tuple(
-                            directive
-                            for directive, legacy_attr in (
-                                ("pipeline", "loop_pipeline_ii"),
-                                ("unroll", "loop_unroll_factor"),
-                            )
-                            if legacy_attr in loop.op_record.attributes
-                        )
-                    directives = parsed or ("pipeline", "unroll")
-            else:
-                action_id = spec.action_id if spec else None
-                directives = spec.directives if spec else ()
+            action_id = spec.action_id if spec else None
+            directives = spec.directives if spec else ()
 
             if action_id is None:
                 continue
@@ -1828,46 +1833,36 @@ class MlirGraphBuilder:
                 )
 
     def _array_argument_node(self, spec: ActionSpec) -> tuple[int, int, int]:
+        """Resolve an array Lk to a memory argument or uniquely shaped local allocation."""
         function_id = self.function_name_to_id.get(spec.function)
         if function_id is None:
             raise RuntimeError(
                 f"Array action {spec.action_id}: unknown function {spec.function!r}"
             )
-        args = self.function_arguments.get(function_id, [])
-        if spec.argument_index is not None:
-            if not 0 <= spec.argument_index < len(args):
-                raise RuntimeError(
-                    f"Array action {spec.action_id}: argument_index={spec.argument_index} "
-                    f"is outside function {spec.function}'s {len(args)} arguments."
-                )
-            node = args[spec.argument_index]
-            if int(self.graph.nodes[node].get("is_memory", 0)) != 1:
-                raise RuntimeError(
-                    f"Array action {spec.action_id}: function argument "
-                    f"{spec.argument_index} is not a memref/pointer value."
-                )
-            return function_id, node, int(self.graph.nodes[node]["block"])
-
-        expected = str(spec.value_name)
-        matches = [
-            node
-            for node in args
-            if str(self.graph.nodes[node].get("value_name", "")) == expected
-        ]
-        if len(matches) != 1:
+        dimensions = "x".join(str(value) for value in spec.array_dimensions)
+        candidates: list[int] = []
+        for record in self.operation_records:
+            if record.function_id != function_id or record.op_name not in {
+                "memref.alloc", "memref.alloca", "llvm.alloca"
+            }:
+                continue
+            for result in record.results:
+                node = self.value_nodes[object_key(result)]
+                type_text = str(self.graph.nodes[node].get("value_type", ""))
+                if dimensions and re.search(
+                    rf"(?:memref|vector)<{re.escape(dimensions)}x", type_text
+                ):
+                    candidates.append(node)
+        if len(candidates) != 1:
             raise RuntimeError(
-                f"Array action {spec.action_id}: value_name={expected!r} matched "
-                f"{len(matches)} function arguments; use argument_index."
+                f"Array action {spec.action_id}: dimensions={spec.array_dimensions} "
+                f"matched {len(candidates)} local allocations in {spec.function}."
             )
-        node = matches[0]
-        if int(self.graph.nodes[node].get("is_memory", 0)) != 1:
-            raise RuntimeError(
-                f"Array action {spec.action_id}: value {expected!r} is not "
-                "a memref/pointer argument."
-            )
+        node = candidates[0]
         return function_id, node, int(self.graph.nodes[node]["block"])
 
     def _attach_array_actions(self) -> None:
+        """Connect array-partition actions to their root allocation and all accesses."""
         for spec in [item for item in self.actions if item.kind == "array"]:
             if spec.action_id in self.attached_action_ids:
                 raise RuntimeError(
@@ -1884,7 +1879,7 @@ class MlirGraphBuilder:
                 ),
                 argument_node,
             )
-            variable = spec.variable or spec.value_name or f"arg{spec.argument_index}"
+            variable = str(spec.variable)
             full_text = (
                 "#pragma HLS ARRAY_PARTITION "
                 f"variable={variable} "
@@ -1966,6 +1961,7 @@ class MlirGraphBuilder:
             self.attached_action_ids.add(spec.action_id)
 
     def _attach_actions(self) -> None:
+        """Attach all Lk actions and reject missing or duplicate semantic anchors."""
         self._attach_loop_actions()
         self._attach_array_actions()
         unmatched = [spec.action_id for spec in self.actions if not spec.matched]
@@ -1978,6 +1974,7 @@ class MlirGraphBuilder:
             )
 
     def _refresh_record_node_ids(self) -> None:
+        """Refresh record node IDs for the deterministic MLIR-to-MailoHLS graph pipeline."""
         op_uid_to_node = {
             str(data.get("op_uid")): int(node)
             for node, data in self.graph.nodes(data=True)
@@ -2014,6 +2011,7 @@ class MlirGraphBuilder:
 # ---------------------------------------------------------------------------
 
 def parse_block_edges(graph: nx.MultiDiGraph) -> list[tuple[int, int, int, int]]:
+    """Parse block edges for the deterministic MLIR-to-MailoHLS graph pipeline."""
     value = graph.graph.get("block_edges", [])
     if isinstance(value, str):
         try:
@@ -2032,6 +2030,7 @@ def add_auxiliary_nodes(
     source: nx.MultiDiGraph,
     connected: bool,
 ) -> nx.MultiDiGraph:
+    """Add function/block helpers required by the existing MailoHLS graph contract."""
     graph = deepcopy(source)
     original_nodes = sorted(
         list(graph.nodes(data=True)),
@@ -2082,6 +2081,7 @@ def add_auxiliary_nodes(
 
 
 def index_pseudo_blocks(graph: nx.MultiDiGraph) -> dict[tuple[int, int], int]:
+    """Index pseudo blocks for the deterministic MLIR-to-MailoHLS graph pipeline."""
     output: dict[tuple[int, int], int] = {}
     for node, data in graph.nodes(data=True):
         if int(data.get("type", -1)) != NODE_TYPE_PSEUDO_BLOCK:
@@ -2098,6 +2098,7 @@ def add_loop_hierarchy(
     loops: list[LoopInfo],
     transitive: bool = False,
 ) -> nx.MultiDiGraph:
+    """Add direct loop parent-child relationships without redundant ancestor edges."""
     graph = deepcopy(source)
     pseudo_by_block = index_pseudo_blocks(graph)
     pairs: dict[tuple[int, int], int] = {}
@@ -2146,6 +2147,7 @@ def add_loop_hierarchy(
 # ---------------------------------------------------------------------------
 
 def _pragma_action_id(data: dict[str, Any]) -> str | None:
+    """Handle action ID for the deterministic MLIR-to-MailoHLS graph pipeline."""
     value = data.get("action_id")
     if value:
         try:
@@ -2162,6 +2164,7 @@ def validate_graph(
     require_actions: bool,
     require_single_loop_anchor: bool,
 ) -> dict[str, Any]:
+    """Enforce graph and action invariants before emitting training data."""
     errors: list[str] = []
     warnings: list[str] = []
 
@@ -2363,7 +2366,6 @@ def build_cgeist_command(
         f"-function={kernel}",
         "-S",
         "-O0",
-        "-memref-fullrank",
         "-raise-scf-to-affine",
         "-o",
         str(mlir_output),
@@ -2430,14 +2432,12 @@ def compile_source_to_mlir(
 def create_initial_graph(
     mlir_path: Path,
     *,
-    action_manifest: Path | None,
-    dependence_manifest: Path | None,
+    actions: list[ActionSpec],
     allow_unregistered_dialects: bool,
     conservative_memory_dependencies: bool,
     require_actions: bool,
 ) -> tuple[Any, ParseResult]:
-    actions = load_action_manifest(action_manifest)
-    dependencies = load_dependence_manifest(dependence_manifest)
+    """Build the semantic graph while returning the Context needed to keep MLIR objects alive."""
     context, module, mlir_text = parse_mlir_module(
         mlir_path,
         allow_unregistered_dialects=allow_unregistered_dialects,
@@ -2446,7 +2446,6 @@ def create_initial_graph(
         module=module,
         mlir_text=mlir_text,
         actions=actions,
-        exact_dependencies=dependencies,
         conservative_memory_dependencies=conservative_memory_dependencies,
         require_actions=require_actions,
     )
@@ -2455,65 +2454,75 @@ def create_initial_graph(
 
 
 # ---------------------------------------------------------------------------
-# CLI, deliberately close to the first MLIR prototype.
+# CLI orchestration.  This layer deliberately stays small: graph semantics
+# belong in the builder above, while this code handles paths, subprocesses,
+# validation, and the lifetime of MLIR's native Context.
 # ---------------------------------------------------------------------------
 
 def run(args: argparse.Namespace) -> Path:
-    """Compile one source kernel and write the one graph used for training."""
+    """Compile one labeled kernel and write its validated deterministic training graph."""
     require_pythonhashseed()
     source = Path(args.source).expanduser().resolve()
-    actions = Path(args.actions).expanduser().resolve()
+    kernel_info = source.parent / "kernel_info.txt"
+    if not kernel_info.is_file():
+        raise FileNotFoundError(f"Expected kernel metadata beside the source: {kernel_info}")
+
+    # kernel_info supplies the optimization contract; source labels supply the
+    # semantic function/loop locations that the compact text file omits.
+    metadata_kernel, actions = load_kernel_info_actions(source, kernel_info)
+    kernel = args.kernel or metadata_kernel
+    if args.kernel and args.kernel != metadata_kernel:
+        raise ValueError(
+            f"--kernel={args.kernel!r} disagrees with the first line of "
+            f"{kernel_info.name}: {metadata_kernel!r}"
+        )
+
+    # Prevent cgeist from inlining helpers that own labeled loops.  Inlining can
+    # duplicate loop actions and optimize away top-function local array buffers.
+    helper_functions = sorted({item.function for item in actions if item.function != kernel})
+    cflags = [
+        *args.cflag,
+        *(f"--force-attribute={name}:noinline" for name in helper_functions),
+    ]
     output = (
         Path(args.output).expanduser().resolve()
         if args.output
-        else source.with_name(f"{args.kernel}_mlir.gexf")
+        else source.with_name(f"{kernel}_mlir.gexf")
     )
 
+    # Temporary MLIR is an implementation artifact.  The deterministic GEXF is
+    # the sole persisted representation consumed by training.
     with tempfile.TemporaryDirectory(prefix="mailohls_mlir_") as directory:
         mlir_path = Path(directory) / f"{source.stem}.hls.mlir"
         _, mlir_text = compile_source_to_mlir(
             source=source,
-            kernel=args.kernel,
+            kernel=kernel,
             mlir_output=mlir_path,
             cgeist=args.cgeist,
-            cflags=args.cflag,
+            cflags=cflags,
         )
 
         context, result = create_initial_graph(
             mlir_path,
-            action_manifest=actions,
-            dependence_manifest=None,
-            # cgeist may emit Polygeist-specific operations.  The generic MLIR
-            # object model still exposes their operands/results/regions.
+            actions=actions,
             allow_unregistered_dialects=True,
-            # Python cannot prove complete alias/affine dependences.  Same-root
-            # RAW/WAR/WAW edges are retained and explicitly marked as "may".
             conservative_memory_dependencies=True,
-            # Training graphs must never lose or ambiguously attach an Lk.
             require_actions=True,
         )
         try:
             initial = result.graph
             initial.graph.update(
                 {
-                    "kernel": args.kernel,
+                    "kernel": kernel,
                     "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
-                    "action_sha256": hashlib.sha256(actions.read_bytes()).hexdigest(),
+                    "action_sha256": hashlib.sha256(kernel_info.read_bytes()).hexdigest(),
                     "mlir_level": "affine+scf+memref+arith+func",
-                    "frontend_policy": "cgeist:-O0,memref-fullrank,raise-scf-to-affine",
+                    "frontend_policy": "cgeist:-O0,noinline-helpers,raise-scf-to-affine",
                     "mlir_sha256": hashlib.sha256(mlir_text.encode("utf-8")).hexdigest(),
                 }
             )
-
-            # This is the only exported representation: semantic MLIR plus
-            # real block adjacency, MailoHLS scope nodes, and direct loop
-            # hierarchy.  No clique edges and no transitive ancestor shortcuts.
             connected = add_auxiliary_nodes(initial, connected=True)
-            training_graph = add_loop_hierarchy(
-                connected,
-                result.loops,
-                transitive=False,
-            )
+            training_graph = add_loop_hierarchy(connected, result.loops, transitive=False)
             report = validate_graph(
                 training_graph,
                 require_actions=True,
@@ -2521,32 +2530,26 @@ def run(args: argparse.Namespace) -> Path:
             )
             write_gexf_deterministic(training_graph, output)
         finally:
-            # MLIR Python wrappers are valid only while their Context is alive.
+            # MLIR Python wrappers own native handles tied to this Context.  It
+            # must outlive graph construction and be closed even on validation failure.
             context.__exit__(None, None, None)
 
-    action_count = len(report["actions"])
     print(
         f"Wrote {output} "
-        f"({report['nodes']} nodes, {report['edges']} edges, {action_count} actions)"
+        f"({report['nodes']} nodes, {report['edges']} edges, "
+        f"{len(report['actions'])} actions)"
     )
     return output
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
+    """Define the CLI; kernel_info.txt normally supplies both actions and the top function."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", help="C or C++ source file")
     parser.add_argument(
         "--kernel",
-        required=True,
-        help=(
-            "Exact top-function symbol passed to cgeist. For C++, prefer an "
-            "extern \"C\" HLS top or pass the mangled symbol."
-        ),
-    )
-    parser.add_argument(
-        "--actions",
-        required=True,
-        help="MailoHLS schema-v1 JSON mapping Lk actions to loop/array scopes",
+        default=None,
+        help="Optional top-function override (default: first line of kernel_info.txt).",
     )
     parser.add_argument(
         "--output",
@@ -2555,8 +2558,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--cgeist",
-        default=os.environ.get("CGEIST", "cgeist"),
-        help="cgeist executable or absolute path (default: $CGEIST or PATH)",
+        default=os.environ.get(
+            "CGEIST", "/home/elvouvali/tools/Polygeist/build/bin/cgeist"
+        ),
+        help="cgeist executable (default: $CGEIST or this account's Polygeist build)",
     )
     parser.add_argument(
         "--cflag",
@@ -2572,6 +2577,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
+    """Run the CLI and turn expected user errors into a concise nonzero exit status."""
     try:
         run(build_arg_parser().parse_args())
     except (FileNotFoundError, PermissionError, ValueError, RuntimeError) as exc:
