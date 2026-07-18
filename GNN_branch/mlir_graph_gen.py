@@ -23,8 +23,9 @@ by the existing edge-aware TransformerConv backbone, but MLIR encoders must be
 regenerated and the GNN retrained.
 
 Actions are read from ``kernel_info.txt`` beside the labeled source.  The source
-labels identify each action's function and deterministic loop order, while the
-array metadata identifies the corresponding local MLIR allocation.
+labels identify each action's exact source location.  Polygeist carries that
+location into MLIR, so even same-shaped local arrays remain distinguishable;
+loop order and array shape are retained only as strict compatibility fallbacks.
 
 Example:
 
@@ -48,7 +49,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from collections import defaultdict
+from collections import Counter, defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -109,15 +110,20 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-v2"
+SCHEMA_VERSION = "mailohls-mlir-graph-v3"
 ACTION_ID_RE = re.compile(r"^L([1-9][0-9]*)$")
 ACTION_ID_SEARCH_RE = re.compile(r"\bL([1-9][0-9]*)\b")
 
 # Minimal labeled-C/C++ parser used by kernel_info.txt integration.  These
 # patterns intentionally recognize only the dataset contract: function bodies,
 # Lk labels, for-loops, and labeled local array declarations.
+# MailoHLS datasets contain both real C labels (``L1: for (...)``) and labels
+# kept inside comments (``/*L1:*/ for (...)``).  The latter are common in
+# MachSuite and vendor-style C++ kernels, where a real C label would interfere
+# with transformations.  Treat both spellings as the same dataset contract.
 SOURCE_LABEL_RE = re.compile(
-    r"^\s*(?P<label>L\d+)\s*:\s*(?:[A-Za-z_]\w*\s*:\s*)?(?P<body>.*)$",
+    r"^\s*(?:/\*\s*)?(?P<label>L\d+)\s*:\s*(?:\*/\s*)?"
+    r"(?:[A-Za-z_]\w*\s*:\s*)?(?P<body>.*)$",
     re.IGNORECASE,
 )
 SOURCE_FUNCTION_RE = re.compile(
@@ -217,7 +223,21 @@ class ActionSpec:
     loop_ordinal: int | None = None
     variable: str | None = None
     array_dimensions: tuple[int, ...] = ()
+    # Source positions come from the labeled C/C++ contract.  They are matched
+    # against Polygeist's native MLIR locations, not against printed MLIR text.
+    source_file: str = ""
+    source_line: int = 0
+    source_column: int = 0
     matched: bool = False
+
+
+@dataclass(frozen=True, order=True)
+class SourcePoint:
+    """One concrete file/line/column carried by an MLIR Location."""
+
+    filename: str
+    line: int
+    column: int
 
 
 @dataclass
@@ -251,6 +271,7 @@ class OperationRecord:
     loop_stack: tuple[int, ...]
     attributes: dict[str, str]
     location: str
+    source_points: tuple[SourcePoint, ...]
     operands: list[Any]
     results: list[Any]
     operand_keys: list[Any] = field(default_factory=list)
@@ -532,11 +553,11 @@ def _source_function_spans(text: str) -> list[tuple[str, int, int]]:
     return spans
 
 
-def _source_actions(source: Path) -> dict[str, dict[str, str]]:
-    """Map each Lk label to its function, kind, and optional array name."""
+def _source_actions(source: Path) -> dict[str, dict[str, Any]]:
+    """Map each Lk label to its semantic kind and exact source position."""
     text = source.read_text(encoding="utf-8", errors="replace")
     spans = _source_function_spans(text)
-    actions: dict[str, dict[str, str]] = {}
+    actions: dict[str, dict[str, Any]] = {}
     for line_number, line in enumerate(text.splitlines(), start=1):
         match = SOURCE_LABEL_RE.match(line)
         if not match:
@@ -548,16 +569,34 @@ def _source_actions(source: Path) -> dict[str, dict[str, str]]:
         )
         body = match.group("body").strip()
         array_match = SOURCE_ARRAY_RE.match(body)
-        if re.search(r"\bfor\s*\(", body, re.IGNORECASE):
-            actions[action_id] = {"kind": "loop", "function": function}
+        loop_match = re.search(r"\bfor\s*\(", body, re.IGNORECASE)
+        common = {
+            "function": function,
+            "source_file": source.name,
+            "source_line": line_number,
+        }
+        if loop_match:
+            actions[action_id] = {
+                **common,
+                "kind": "loop",
+                # Columns are one-based in MLIR FileLineColLoc.
+                "source_column": match.start("body") + loop_match.start() + 1,
+            }
         elif array_match:
             actions[action_id] = {
+                **common,
                 "kind": "array",
-                "function": function,
                 "array_name": array_match.group("name"),
+                "source_column": (
+                    match.start("body") + array_match.start("name") + 1
+                ),
             }
         else:
-            actions[action_id] = {"kind": "unknown", "function": function}
+            actions[action_id] = {
+                **common,
+                "kind": "unknown",
+                "source_column": match.start("body") + 1,
+            }
     return actions
 
 
@@ -609,6 +648,9 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                 action_id=action_id, kind=kind, function=function,
                 directives=("pipeline", "unroll"),
                 loop_ordinal=ordinal_by_label[action_id],
+                source_file=str(source_action["source_file"]),
+                source_line=int(source_action["source_line"]),
+                source_column=int(source_action["source_column"]),
             ))
             continue
 
@@ -629,6 +671,9 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
             action_id=action_id, kind=kind, function=function,
             directives=("array_partition",), variable=variable,
             array_dimensions=dimensions,
+            source_file=str(source_action["source_file"]),
+            source_line=int(source_action["source_line"]),
+            source_column=int(source_action["source_column"]),
         ))
     return top_function, actions
 
@@ -680,6 +725,67 @@ def operation_location(operation: Any) -> str:
         return str(raw_operation(operation).location)
     except Exception:
         return "loc(unknown)"
+
+
+def operation_source_points(ir: Any, operation: Any) -> tuple[SourcePoint, ...]:
+    """Return every concrete source point nested in an MLIR Location.
+
+    Polygeist attaches FileLineColLoc objects to the MLIR it emits.  MLIR
+    transformations may wrap those locations in NameLoc, CallSiteLoc, or
+    FusedLoc, so walking the typed location tree is more robust than parsing
+    the printed ``loc(...)`` spelling.  Older bindings that do not expose one
+    of these typed casts simply fall through to the conservative action
+    matching fallback.
+    """
+    try:
+        root = raw_operation(operation).location
+    except Exception:
+        return ()
+
+    points: set[SourcePoint] = set()
+    visited: set[str] = set()
+
+    def visit(location: Any) -> None:
+        marker = str(location)
+        if marker in visited:
+            return
+        visited.add(marker)
+
+        try:
+            file_loc = ir.FileLineColLoc(location)
+            points.add(SourcePoint(
+                filename=str(file_loc.filename),
+                line=int(file_loc.start_line),
+                column=int(file_loc.start_col),
+            ))
+            return
+        except (TypeError, ValueError, AttributeError):
+            pass
+
+        try:
+            named = ir.NameLoc(location)
+            visit(named.child_loc)
+            return
+        except (TypeError, ValueError, AttributeError):
+            pass
+
+        try:
+            callsite = ir.CallSiteLoc(location)
+            visit(callsite.callee)
+            visit(callsite.caller)
+            return
+        except (TypeError, ValueError, AttributeError):
+            pass
+
+        try:
+            fused = ir.FusedLoc(location)
+            for child in fused.locations:
+                visit(child)
+        except (TypeError, ValueError, AttributeError):
+            pass
+
+    visit(root)
+    return tuple(sorted(points))
 
 
 def attribute_items(operation: Any) -> dict[str, str]:
@@ -1134,6 +1240,15 @@ class MlirGraphBuilder:
         self._assign_blocks(operation, function_id)
         entry_block = self._entry_block_id(operation)
         attributes = attribute_items(operation)
+        function_points = operation_source_points(self.ir, operation)
+        source_attrs: dict[str, Any] = {}
+        if function_points:
+            point = function_points[0]
+            source_attrs = {
+                "source_file": point.filename,
+                "source_line": point.line,
+                "source_column": point.column,
+            }
         function_node = self._new_node(
             {
                 "block": entry_block,
@@ -1145,6 +1260,7 @@ class MlirGraphBuilder:
                 "source_location": operation_location(operation),
                 "op_uid": f"{function_name}:function",
                 "is_function": 1,
+                **source_attrs,
             }
         )
         self.function_nodes[function_id] = function_node
@@ -1206,6 +1322,15 @@ class MlirGraphBuilder:
                 for block_order, operation in enumerate(operations):
                     op_name = operation_name(operation)
                     attributes = attribute_items(operation)
+                    source_points = operation_source_points(self.ir, operation)
+                    source_attrs: dict[str, Any] = {}
+                    if source_points:
+                        point = source_points[0]
+                        source_attrs = {
+                            "source_file": point.filename,
+                            "source_line": point.line,
+                            "source_column": point.column,
+                        }
                     ordinal = self.next_function_op_ordinal[function_id]
                     self.next_function_op_ordinal[function_id] += 1
                     op_uid = f"{function_name}:op{ordinal}"
@@ -1227,6 +1352,7 @@ class MlirGraphBuilder:
                             "result_count": len(operation_results(operation)),
                             "operand_types": [value_type(v) for v in operation_operands(operation)],
                             "result_types": [value_type(v) for v in operation_results(operation)],
+                            **source_attrs,
                         }
                     )
                     op_record = OperationRecord(
@@ -1245,6 +1371,7 @@ class MlirGraphBuilder:
                         loop_stack=loop_stack,
                         attributes=attributes,
                         location=operation_location(operation),
+                        source_points=source_points,
                         operands=operation_operands(operation),
                         results=operation_results(operation),
                     )
@@ -2600,11 +2727,74 @@ class MlirGraphBuilder:
                     reads_since_write.append(access)
 
     @staticmethod
-    def _loop_matches_spec(loop: LoopInfo, spec: ActionSpec) -> bool:
-        """Handle matches spec for the deterministic MLIR-to-MailoHLS graph pipeline."""
-        if spec.kind != "loop" or spec.function != loop.function_name:
+    def _same_source_file(left: str, right: str) -> bool:
+        """Compare source files while ignoring machine-specific path prefixes."""
+        if not left or not right:
             return False
-        return spec.loop_ordinal == loop.loop_ordinal
+        # Some cgeist builds spell the single translation unit as stdin even
+        # when diagnostics retain line/column information.  This script always
+        # compiles exactly one source file, so that spelling is unambiguous.
+        if left in {"-", "<stdin>"} or right in {"-", "<stdin>"}:
+            return True
+        return Path(left).name == Path(right).name
+
+    def _source_distance(
+        self,
+        record: OperationRecord,
+        spec: ActionSpec,
+    ) -> int | None:
+        """Return column distance for an operation on an action's source line."""
+        distances = [
+            abs(point.column - spec.source_column)
+            for point in record.source_points
+            if self._same_source_file(point.filename, spec.source_file)
+            and point.line == spec.source_line
+        ]
+        return min(distances) if distances else None
+
+    def _resolve_loop_action(self, spec: ActionSpec) -> tuple[int, str]:
+        """Resolve a loop action by MLIR location, then by source-order fallback."""
+        candidates = [
+            (loop_index, loop)
+            for loop_index, loop in enumerate(self.loops)
+            if loop.function_name == spec.function
+        ]
+        located = [
+            (self._source_distance(loop.op_record, spec), loop_index, loop)
+            for loop_index, loop in candidates
+        ]
+        located = [item for item in located if item[0] is not None]
+        if located:
+            best_distance = min(int(item[0]) for item in located)
+            best = [item for item in located if int(item[0]) == best_distance]
+            if len(best) == 1:
+                return best[0][1], "source_location"
+
+            # A fused location can legally place two loop ops on the same
+            # source line.  Use the dataset's source-order ordinal only to
+            # break that already location-constrained tie.
+            tied_by_ordinal = [
+                item for item in best if item[2].loop_ordinal == spec.loop_ordinal
+            ]
+            if len(tied_by_ordinal) == 1:
+                return tied_by_ordinal[0][1], "source_location+ordinal"
+            raise RuntimeError(
+                f"Loop action {spec.action_id} at {spec.source_file}:"
+                f"{spec.source_line}:{spec.source_column} matches {len(best)} "
+                "equally close MLIR loops."
+            )
+
+        ordinal = [
+            loop_index
+            for loop_index, loop in candidates
+            if loop.loop_ordinal == spec.loop_ordinal
+        ]
+        if len(ordinal) == 1:
+            return ordinal[0], "function+ordinal-fallback"
+        raise RuntimeError(
+            f"Loop action {spec.action_id} matched {len(ordinal)} MLIR loops; "
+            f"no loop was found at {spec.source_file}:{spec.source_line}."
+        )
 
     def _add_pragma_node(
         self,
@@ -2637,30 +2827,22 @@ class MlirGraphBuilder:
 
     def _attach_loop_actions(self) -> None:
         """Attach every loop Lk exactly once and create its tunable directive nodes."""
-        manifest_by_loop: dict[int, ActionSpec] = {}
+        manifest_by_loop: dict[int, tuple[ActionSpec, str]] = {}
         for spec in [item for item in self.actions if item.kind == "loop"]:
-            matches = [
-                loop_index
-                for loop_index, loop in enumerate(self.loops)
-                if self._loop_matches_spec(loop, spec)
-            ]
-            if len(matches) != 1:
-                raise RuntimeError(
-                    f"Loop action {spec.action_id} matched {len(matches)} MLIR loops; "
-                    "use function + loop_ordinal or a preserved source location."
-                )
-            loop_index = matches[0]
+            loop_index, resolution = self._resolve_loop_action(spec)
             if loop_index in manifest_by_loop:
-                other = manifest_by_loop[loop_index]
+                other, _ = manifest_by_loop[loop_index]
                 raise RuntimeError(
                     f"MLIR loop {self.loops[loop_index].function_name}#"
                     f"{self.loops[loop_index].loop_ordinal} maps to both "
                     f"{other.action_id} and {spec.action_id}."
                 )
-            manifest_by_loop[loop_index] = spec
+            manifest_by_loop[loop_index] = (spec, resolution)
 
         for loop_index, loop in enumerate(self.loops):
-            spec = manifest_by_loop.get(loop_index)
+            match = manifest_by_loop.get(loop_index)
+            spec = match[0] if match else None
+            resolution = match[1] if match else ""
             action_id = spec.action_id if spec else None
             directives = spec.directives if spec else ()
 
@@ -2675,6 +2857,10 @@ class MlirGraphBuilder:
             loop.action_id = action_id
             self.attached_action_ids.add(action_id)
             self.graph.nodes[loop.op_node]["action_id"] = action_id
+            self.graph.nodes[loop.op_node]["action_resolution"] = resolution
+            self.graph.nodes[loop.op_node]["action_source_file"] = spec.source_file
+            self.graph.nodes[loop.op_node]["action_source_line"] = spec.source_line
+            self.graph.nodes[loop.op_node]["action_source_column"] = spec.source_column
 
             for directive in directives:
                 if directive == "pipeline":
@@ -2696,34 +2882,74 @@ class MlirGraphBuilder:
                     semantic_anchor=loop.op_node,
                 )
 
-    def _array_argument_node(self, spec: ActionSpec) -> tuple[int, int, int]:
-        """Resolve an array Lk to a memory argument or uniquely shaped local allocation."""
+    def _array_argument_node(self, spec: ActionSpec) -> tuple[int, int, int, str]:
+        """Resolve an array action to its physical allocation.
+
+        Source location is the primary key because two independent buffers can
+        have identical element type and shape.  Shape remains a useful
+        compatibility fallback only when it identifies exactly one allocation.
+        """
         function_id = self.function_name_to_id.get(spec.function)
         if function_id is None:
             raise RuntimeError(
                 f"Array action {spec.action_id}: unknown function {spec.function!r}"
             )
         dimensions = "x".join(str(value) for value in spec.array_dimensions)
-        candidates: list[int] = []
+        candidates: list[tuple[OperationRecord, int]] = []
         for record in self.operation_records:
             if record.function_id != function_id or record.op_name not in {
                 "memref.alloc", "memref.alloca", "llvm.alloca"
             }:
                 continue
-            for result, result_key in zip(record.results, record.result_keys):
+            for result_key in record.result_keys:
                 node = self.value_nodes[result_key]
-                type_text = str(self.graph.nodes[node].get("value_type", ""))
-                if dimensions and re.search(
-                    rf"(?:memref|vector)<{re.escape(dimensions)}x", type_text
-                ):
-                    candidates.append(node)
-        if len(candidates) != 1:
+                if is_memory_type(str(self.graph.nodes[node].get("value_type", ""))):
+                    candidates.append((record, node))
+
+        located = [
+            (self._source_distance(record, spec), record, node)
+            for record, node in candidates
+        ]
+        located = [item for item in located if item[0] is not None]
+        if located:
+            best_distance = min(int(item[0]) for item in located)
+            best = [item for item in located if int(item[0]) == best_distance]
+            if len(best) > 1 and dimensions:
+                shaped = [
+                    item
+                    for item in best
+                    if re.search(
+                        rf"(?:memref|vector)<{re.escape(dimensions)}x",
+                        str(self.graph.nodes[item[2]].get("value_type", "")),
+                    )
+                ]
+                if len(shaped) == 1:
+                    best = shaped
+            if len(best) != 1:
+                raise RuntimeError(
+                    f"Array action {spec.action_id} at {spec.source_file}:"
+                    f"{spec.source_line}:{spec.source_column} matches {len(best)} "
+                    "equally close MLIR allocations."
+                )
+            _, record, node = best[0]
+            return function_id, node, record.block_id, "source_location"
+
+        shape_candidates = [
+            (record, node)
+            for record, node in candidates
+            if dimensions and re.search(
+                rf"(?:memref|vector)<{re.escape(dimensions)}x",
+                str(self.graph.nodes[node].get("value_type", "")),
+            )
+        ]
+        if len(shape_candidates) != 1:
             raise RuntimeError(
                 f"Array action {spec.action_id}: dimensions={spec.array_dimensions} "
-                f"matched {len(candidates)} local allocations in {spec.function}."
+                f"matched {len(shape_candidates)} local allocations in {spec.function}, "
+                f"and none was found at {spec.source_file}:{spec.source_line}."
             )
-        node = candidates[0]
-        return function_id, node, int(self.graph.nodes[node]["block"])
+        record, node = shape_candidates[0]
+        return function_id, node, record.block_id, "unique-shape-fallback"
 
     def _attach_array_actions(self) -> None:
         """Connect array-partition actions to their root allocation and all accesses."""
@@ -2732,7 +2958,7 @@ class MlirGraphBuilder:
                 raise RuntimeError(
                     f"Action {spec.action_id} is attached to multiple MLIR scopes."
                 )
-            function_id, argument_node, block_id = self._array_argument_node(spec)
+            function_id, argument_node, block_id, resolution = self._array_argument_node(spec)
             # A local allocation is itself the physical root.  Alias solving
             # propagates this node through casts and into callee formals, so the
             # scope below can include accesses performed inside helper
@@ -2768,6 +2994,10 @@ class MlirGraphBuilder:
                     "action_id": spec.action_id,
                     "array_var": variable,
                     "memory_root_text": det_get_full_text(self.graph.nodes[root]),
+                    "action_resolution": resolution,
+                    "action_source_file": spec.source_file,
+                    "action_source_line": spec.source_line,
+                    "action_source_column": spec.source_column,
                 }
             )
             attrs = {
@@ -3096,8 +3326,19 @@ def validate_graph(
 
     action_to_kinds: dict[str, set[str]] = defaultdict(set)
     loop_action_to_pseudos: dict[str, set[int]] = defaultdict(set)
+    action_resolutions: Counter[str] = Counter()
     for node, data in graph.nodes(data=True):
         node_type = int(data.get("type", -1))
+        if data.get("action_id") and int(data.get("is_loop", 0)) == 1:
+            resolution = str(data.get("action_resolution", ""))
+            if not resolution and require_actions:
+                errors.append(f"Loop action anchor {node} has no resolution provenance.")
+            elif resolution:
+                action_resolutions[resolution] += 1
+                if resolution.endswith("fallback"):
+                    warnings.append(
+                        f"Loop action anchor {node} used {resolution}; check preserved MLIR locations."
+                    )
         if node_type == NODE_TYPE_PRAGMA:
             action_id = _pragma_action_id(data)
             if action_id is None:
@@ -3128,6 +3369,15 @@ def validate_graph(
                         loop_action_to_pseudos[action_id].add(int(neighbour))
 
         if node_type == NODE_TYPE_ARRAY_SCOPE:
+            resolution = str(data.get("action_resolution", ""))
+            if not resolution and require_actions:
+                errors.append(f"Array scope node {node} has no resolution provenance.")
+            elif resolution:
+                action_resolutions[resolution] += 1
+                if resolution.endswith("fallback"):
+                    warnings.append(
+                        f"Array scope node {node} used {resolution}; check preserved MLIR locations."
+                    )
             if not any(
                 int(attrs.get("flow", -1)) == FLOW_PRAGMA
                 for _, _, attrs in graph.edges(node, data=True)
@@ -3176,6 +3426,7 @@ def validate_graph(
         "actions": {
             action: sorted(kinds) for action, kinds in sorted(action_to_kinds.items())
         },
+        "action_resolutions": dict(sorted(action_resolutions.items())),
         "ssa": {
             "values": len(ssa_ids),
             "values_with_definition_and_use": ssa_with_def_and_use,
@@ -3422,7 +3673,7 @@ def run(args: argparse.Namespace) -> Path:
     # the sole persisted representation consumed by training.
     with tempfile.TemporaryDirectory(prefix="mailohls_mlir_") as directory:
         mlir_path = Path(directory) / f"{source.stem}.hls.mlir"
-        _, mlir_text = compile_source_to_mlir(
+        frontend_command, mlir_text = compile_source_to_mlir(
             source=source,
             kernel=kernel,
             mlir_output=mlir_path,
@@ -3449,6 +3700,12 @@ def run(args: argparse.Namespace) -> Path:
                         "cgeist:-O0,noinline-helpers,memref-fullrank,"
                         "raise-scf-to-affine"
                     ),
+                    # The exact frontend binary is part of the experimental
+                    # representation, so persist its content hash without
+                    # leaking a machine-specific absolute path into the graph.
+                    "cgeist_sha256": hashlib.sha256(
+                        Path(frontend_command[0]).read_bytes()
+                    ).hexdigest(),
                     "mlir_sha256": hashlib.sha256(mlir_text.encode("utf-8")).hexdigest(),
                 }
             )
@@ -3459,16 +3716,23 @@ def run(args: argparse.Namespace) -> Path:
                 require_actions=True,
                 require_single_loop_anchor=True,
             )
+            training_graph.graph["action_resolutions"] = report["action_resolutions"]
             write_gexf_deterministic(training_graph, output)
         finally:
             # MLIR Python wrappers own native handles tied to this Context.  It
             # must outlive graph construction and be closed even on validation failure.
             context.__exit__(None, None, None)
 
+    for warning in report["warnings"]:
+        print(f"mlir_graph_gen.py: warning: {warning}", file=sys.stderr)
+    resolution_text = ",".join(
+        f"{name}:{count}"
+        for name, count in report["action_resolutions"].items()
+    )
     print(
         f"Wrote {output} "
         f"({report['nodes']} nodes, {report['edges']} edges, "
-        f"{len(report['actions'])} actions)"
+        f"{len(report['actions'])} actions; mappings={resolution_text})"
     )
     return output
 
@@ -3489,10 +3753,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--cgeist",
-        default=os.environ.get(
-            "CGEIST", "/home/elvouvali/tools/Polygeist/build/bin/cgeist"
-        ),
-        help="cgeist executable (default: $CGEIST or this account's Polygeist build)",
+        default=os.environ.get("CGEIST", "cgeist"),
+        help="cgeist executable (default: $CGEIST or cgeist on PATH)",
     )
     parser.add_argument(
         "--cflag",
