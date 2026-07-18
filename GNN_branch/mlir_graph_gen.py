@@ -109,7 +109,7 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph"
+SCHEMA_VERSION = "mailohls-mlir-graph-v2"
 ACTION_ID_RE = re.compile(r"^L([1-9][0-9]*)$")
 ACTION_ID_SEARCH_RE = re.compile(r"\bL([1-9][0-9]*)\b")
 
@@ -144,7 +144,10 @@ RETURN_OPS = {"func.return", "llvm.return"}
 
 VIEW_OPS = {
     "memref.cast",
+    "memref.view",
     "memref.subview",
+    "memref.reshape",
+    "memref.transpose",
     "memref.reinterpret_cast",
     "memref.collapse_shape",
     "memref.expand_shape",
@@ -153,10 +156,23 @@ VIEW_OPS = {
     "unrealized_conversion_cast",
 }
 
+CALL_OPS = {"func.call", "llvm.call"}
+
+# Region terminators whose operands define the parent operation's results.
+# Loop iter_args are handled separately because they also define a backedge to
+# the loop-body block arguments.
+REGION_YIELD_OPS = {
+    "scf.yield",
+    "affine.yield",
+    "memref.alloca_scope.return",
+}
+
 READ_OPS = {
     "memref.load",
     "affine.load",
+    "affine.vector_load",
     "vector.load",
+    "vector.maskedload",
     "vector.transfer_read",
     "memref.prefetch",
 }
@@ -164,12 +180,15 @@ READ_OPS = {
 WRITE_OPS = {
     "memref.store",
     "affine.store",
+    "affine.vector_store",
     "vector.store",
+    "vector.maskedstore",
     "vector.transfer_write",
 }
 
 READ_WRITE_OPS = {
     "memref.atomic_rmw",
+    "memref.atomic_cas",
     "memref.generic_atomic_rmw",
 }
 
@@ -209,7 +228,9 @@ class BlockRecord:
     parent_op_node: int
     parent_op_block: int
     region_index: int
+    block: Any | None = None
     arguments: list[Any] = field(default_factory=list)
+    argument_keys: list[Any] = field(default_factory=list)
     operations: list["OperationRecord"] = field(default_factory=list)
 
 
@@ -232,6 +253,8 @@ class OperationRecord:
     location: str
     operands: list[Any]
     results: list[Any]
+    operand_keys: list[Any] = field(default_factory=list)
+    result_keys: list[Any] = field(default_factory=list)
 
 
 @dataclass
@@ -284,7 +307,7 @@ def require_pythonhashseed() -> None:
         raise RuntimeError(
             "Determinism requires PYTHONHASHSEED to be set before Python starts.\n"
             "Run, for example:\n"
-            "  PYTHONHASHSEED=0 python mlir_graph_gen_deterministic.py ..."
+            "  PYTHONHASHSEED=0 python mlir_graph_gen.py ..."
         )
 
 
@@ -700,6 +723,17 @@ def get_attribute(operation: Any, *names: str) -> str | None:
     return None
 
 
+def get_raw_attribute(operation: Any, *names: str) -> Any | None:
+    """Return an MLIR Attribute object instead of its printed spelling."""
+    attrs = raw_operation(operation).attributes
+    for name in names:
+        try:
+            return attrs[name]
+        except Exception:
+            continue
+    return None
+
+
 def strip_mlir_string(value: str | None) -> str:
     """Strip mlir string for the deterministic MLIR-to-MailoHLS graph pipeline."""
     if value is None:
@@ -827,6 +861,15 @@ def parse_integer_attr(text: str | None) -> int | None:
     return int(match.group(0)) if match else None
 
 
+def merge_memory_modes(left: str | None, right: str) -> str:
+    """Join read/write effects in the small lattice used by graph edges."""
+    if left is None:
+        return right
+    if left == right:
+        return left
+    return "readwrite"
+
+
 def parse_mlir_module(path: Path, allow_unregistered_dialects: bool) -> tuple[Any, Any, str]:
     """Parse MLIR and return its live Context; wrappers become invalid when this Context closes."""
     ir = import_mlir_ir()
@@ -858,6 +901,12 @@ class MlirGraphBuilder:
     ) -> None:
         """Handle init for the deterministic MLIR-to-MailoHLS graph pipeline."""
         self.module = module
+        # The official bindings define Value as either OpResult or
+        # BlockArgument.  Keeping the module here lets us use those concrete
+        # owners instead of the Python wrapper class/hash combination used by
+        # the first prototype (generic Value and OpResult wrappers may alias the
+        # same SSA value).
+        self.ir = import_mlir_ir()
         self.mlir_text = mlir_text
         self.actions = actions
         self.conservative_memory_dependencies = conservative_memory_dependencies
@@ -885,16 +934,82 @@ class MlirGraphBuilder:
         self.operation_by_key: dict[Any, OperationRecord] = {}
         self.operation_by_uid: dict[tuple[str, int], OperationRecord] = {}
         self.value_nodes: dict[Any, int] = {}
+        self.value_objects: dict[Any, Any] = {}
+        self.value_function: dict[Any, int] = {}
         self.value_def_op: dict[Any, int] = {}
         self.value_is_block_argument: set[Any] = set()
         self.constant_values: dict[Any, int] = {}
+        self.function_argument_keys: dict[int, list[Any]] = {}
 
         self.loops: list[LoopInfo] = []
         self.loop_count_by_function: dict[int, int] = defaultdict(int)
-        self.memory_root_by_value: dict[Any, int] = {}
+        # A value can have more than one root after a select, region merge, or
+        # a helper called with different actual buffers.  Sets preserve that
+        # may-alias fact instead of choosing an arbitrary root.
+        self.memory_roots_by_value: dict[Any, set[int]] = {}
+        self.memory_alias_sources: dict[Any, set[Any]] = defaultdict(set)
+        self.function_memory_effects: dict[int, dict[int, str]] = defaultdict(dict)
         self.memory_accesses: list[MemoryAccess] = []
         self.block_edges: set[tuple[int, int, int, int]] = set()
         self.attached_action_ids: set[str] = set()
+
+    def _value_key(self, value: Any) -> tuple[str, Any, int]:
+        """Return the structural MLIR identity of an SSA value.
+
+        MLIR's Python traversal may expose one underlying value once as a
+        generic ``Value`` and elsewhere as ``OpResult``/``BlockArgument``.
+        Including ``type(value).__name__`` in a key therefore splits a legal
+        use-def chain.  MLIR already gives the exact identity we need: the
+        defining operation plus result number, or the owning block plus
+        argument number.
+        """
+        try:
+            result = self.ir.OpResult(value)
+            return (
+                "op_result",
+                raw_operation(result.owner),
+                int(result.result_number),
+            )
+        except (TypeError, ValueError):
+            pass
+        try:
+            argument = self.ir.BlockArgument(value)
+            return (
+                "block_argument",
+                argument.owner,
+                int(argument.arg_number),
+            )
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError(
+                f"MLIR value is neither OpResult nor BlockArgument: {value_text(value)}"
+            ) from exc
+
+    def _value_descriptor(
+        self,
+        value: Any,
+        function_id: int,
+    ) -> tuple[Any, str, str, int]:
+        """Return (key, stable id, SSA kind, defining position)."""
+        key = self._value_key(value)
+        function_name = self.functions[function_id]
+        if key[0] == "op_result":
+            owner_record = self.operation_by_key.get(object_key(key[1]))
+            if owner_record is None:
+                raise RuntimeError(
+                    "Result owner was not indexed before its SSA value: "
+                    f"{value_text(value)}"
+                )
+            position = int(key[2])
+            return key, f"{function_name}:op{owner_record.function_ordinal}:r{position}", "op_result", position
+
+        block_record = self.blocks.get(object_key(key[1]))
+        if block_record is None:
+            raise RuntimeError(
+                "Block owner was not indexed before its argument: "
+                f"{value_text(value)}"
+            )
+        position = int(key[2])
+        return key, f"{function_name}:b{block_record.block_id}:a{position}", "block_argument", position
 
     def build(self) -> ParseResult:
         """Run graph-building passes in dependency order and return the graph plus loop metadata."""
@@ -912,8 +1027,10 @@ class MlirGraphBuilder:
             self._index_function(function_id, name, operation)
 
         self._add_ssa_edges()
+        self._add_memory_shape_features()
         for loop in self.loops:
             self._annotate_loop_features(loop)
+        self._add_affine_access_features()
         self._add_control_and_region_edges()
         self._add_loop_carried_edges()
         self._add_call_edges()
@@ -995,6 +1112,7 @@ class MlirGraphBuilder:
                         parent_op_node=-1,
                         parent_op_block=-1,
                         region_index=region_index,
+                        block=block,
                         arguments=block_arguments(block),
                     )
                     self.next_block_id += 1
@@ -1043,12 +1161,15 @@ class MlirGraphBuilder:
         regions = operation_regions(operation)
         if regions and region_blocks(regions[0]):
             args = block_arguments(region_blocks(regions[0])[0])
+            keys = [self._value_key(argument) for argument in args]
+            self.function_argument_keys[function_id] = keys
             self.function_arguments[function_id] = [
-                self.value_nodes[object_key(argument)] for argument in args
+                self.value_nodes[key] for key in keys
             ]
             for argument_index, node in enumerate(self.function_arguments[function_id]):
                 self.graph.nodes[node]["function_argument_index"] = argument_index
         else:
+            self.function_argument_keys[function_id] = []
             self.function_arguments[function_id] = []
 
     def _index_regions(
@@ -1077,6 +1198,9 @@ class MlirGraphBuilder:
                         is_block_argument=True,
                         argument_index=arg_index,
                     )
+                record.argument_keys = [
+                    self._value_key(argument) for argument in block_arguments(block)
+                ]
 
                 operations = block_operations(block)
                 for block_order, operation in enumerate(operations):
@@ -1128,8 +1252,16 @@ class MlirGraphBuilder:
                     self.operation_records.append(op_record)
                     self.operation_by_key[op_record.key] = op_record
                     self.operation_by_uid[(function_name, ordinal)] = op_record
+                    op_record.operand_keys = [
+                        self._value_key(value) for value in op_record.operands
+                    ]
+                    op_record.result_keys = [
+                        self._value_key(value) for value in op_record.results
+                    ]
 
-                    for result_index, result in enumerate(op_record.results):
+                    for result_index, (result, result_key) in enumerate(
+                        zip(op_record.results, op_record.result_keys)
+                    ):
                         self._get_or_create_value(
                             result,
                             function_id,
@@ -1137,7 +1269,7 @@ class MlirGraphBuilder:
                             is_block_argument=False,
                             argument_index=result_index,
                         )
-                        self.value_def_op[object_key(result)] = node
+                        self.value_def_op[result_key] = node
 
                     if op_name in RETURN_OPS:
                         self.function_returns[function_id].append(op_record)
@@ -1187,7 +1319,9 @@ class MlirGraphBuilder:
         argument_index: int,
     ) -> int:
         """Intern each SSA value once so definitions and uses share one graph node."""
-        key = object_key(value)
+        key, ssa_id, ssa_kind, defining_position = self._value_descriptor(
+            value, function_id
+        )
         if key in self.value_nodes:
             return self.value_nodes[key]
         type_text = value_type(value)
@@ -1201,40 +1335,36 @@ class MlirGraphBuilder:
                 "full_text": f"{value_text(value)} : {type_text}",
                 "value_name": value_text(value),
                 "value_type": type_text,
+                "ssa_id": ssa_id,
+                "ssa_kind": ssa_kind,
+                "ssa_position": defining_position,
                 "is_block_argument": 1 if is_block_argument else 0,
                 "argument_index": argument_index,
                 "is_memory": 1 if is_memory_type(type_text) else 0,
             }
         )
         self.value_nodes[key] = node
+        self.value_objects[key] = value
+        self.value_function[key] = function_id
         if is_block_argument:
             self.value_is_block_argument.add(key)
         return node
 
     def _add_ssa_edges(self) -> None:
-        """Connect definitions, values, and users while retaining operand/result positions."""
+        """Connect MLIR's native use-def chains and retain exact positions.
+
+        ``Value.uses`` is the authoritative MLIR relation.  It avoids matching
+        printed SSA names and, unlike the first implementation, does not depend
+        on whether a traversal returned a generic Value or a concrete OpResult.
+        A compatibility fallback uses the same structural keys for older
+        Polygeist builds whose Python package predates ``Value.uses``.
+        """
         for record in sorted(
             self.operation_records,
             key=lambda item: (item.function_id, item.function_ordinal),
         ):
-            for position, operand in enumerate(record.operands):
-                value_node = self._get_or_create_value(
-                    operand,
-                    record.function_id,
-                    record.block_id,
-                    is_block_argument=False,
-                    argument_index=-1,
-                )
-                self.graph.add_edge(
-                    value_node,
-                    record.node,
-                    flow=FLOW_DATA,
-                    position=position,
-                    role="operand",
-                )
-
-            for position, result in enumerate(record.results):
-                value_node = self.value_nodes[object_key(result)]
+            for position, result_key in enumerate(record.result_keys):
+                value_node = self.value_nodes[result_key]
                 self.graph.add_edge(
                     record.node,
                     value_node,
@@ -1267,8 +1397,63 @@ class MlirGraphBuilder:
                     role="immediate",
                 )
                 if integer is not None:
-                    for result in record.results:
-                        self.constant_values[object_key(result)] = integer
+                    for result_key in record.result_keys:
+                        self.constant_values[result_key] = integer
+
+        resolved_uses: list[tuple[int, OperationRecord, int]] = []
+        native_uses_available = True
+        try:
+            for key, value in sorted(
+                self.value_objects.items(),
+                key=lambda item: self.value_nodes[item[0]],
+            ):
+                for use in value.uses:
+                    owner = raw_operation(use.owner)
+                    user = self.operation_by_key.get(object_key(owner))
+                    if user is None:
+                        raise RuntimeError(
+                            "SSA use owner is outside the indexed function graph: "
+                            f"{operation_first_line(owner)}"
+                        )
+                    resolved_uses.append(
+                        (self.value_nodes[key], user, int(use.operand_number))
+                    )
+        except AttributeError:
+            native_uses_available = False
+            resolved_uses = []
+
+        if not native_uses_available:
+            for record in self.operation_records:
+                for position, (operand, key) in enumerate(
+                    zip(record.operands, record.operand_keys)
+                ):
+                    if key not in self.value_nodes:
+                        self._get_or_create_value(
+                            operand,
+                            record.function_id,
+                            record.block_id,
+                            is_block_argument=False,
+                            argument_index=-1,
+                        )
+                    resolved_uses.append((self.value_nodes[key], record, position))
+
+        use_count_by_value: dict[int, int] = defaultdict(int)
+        for value_node, user, position in sorted(
+            resolved_uses,
+            key=lambda item: (item[1].function_id, item[1].function_ordinal, item[2], item[0]),
+        ):
+            self.graph.add_edge(
+                value_node,
+                user.node,
+                flow=FLOW_DATA,
+                position=position,
+                role="operand",
+            )
+            use_count_by_value[value_node] += 1
+
+        for node in self.value_nodes.values():
+            self.graph.nodes[node]["ssa_use_count"] = use_count_by_value.get(node, 0)
+        self.graph.graph["ssa_use_api"] = "Value.uses" if native_uses_available else "operand_fallback"
 
     def _add_control_and_region_edges(self) -> None:
         """Encode direct operation order, CFG successors, and region ownership."""
@@ -1351,7 +1536,296 @@ class MlirGraphBuilder:
 
     def _constant_from_value(self, value: Any) -> int | None:
         """Handle from value for the deterministic MLIR-to-MailoHLS graph pipeline."""
-        return self.constant_values.get(object_key(value))
+        return self.constant_values.get(self._value_key(value))
+
+    def _add_memory_shape_features(self) -> None:
+        """Expose MemRef shape/layout facts that the current encoder can learn."""
+        for key, value in sorted(
+            self.value_objects.items(),
+            key=lambda item: self.value_nodes[item[0]],
+        ):
+            value_node = self.value_nodes[key]
+            if int(self.graph.nodes[value_node].get("is_memory", 0)) != 1:
+                continue
+            try:
+                memref = self.ir.MemRefType(value.type)
+                shape = [int(dimension) for dimension in memref.shape]
+                rank = int(memref.rank)
+                static_shape = bool(memref.has_static_shape)
+            except (TypeError, ValueError, AttributeError):
+                continue
+
+            tokens = [f"memref_rank_{rank}"]
+            tokens.append("memref_static_shape" if static_shape else "memref_dynamic_shape")
+            total_elements = 1
+            has_static_elements = True
+            for dimension_index, dimension in enumerate(shape):
+                try:
+                    dynamic = bool(memref.is_dynamic_dim(dimension_index))
+                except (TypeError, ValueError, AttributeError):
+                    dynamic = dimension < 0
+                if dynamic or dimension <= 0:
+                    tokens.append(f"memref_dim_{dimension_index}_dynamic")
+                    has_static_elements = False
+                    continue
+                total_elements *= dimension
+                bucket = 0 if dimension <= 1 else int(math.ceil(math.log2(dimension)))
+                tokens.append(f"memref_dim_{dimension_index}_log2_{bucket}")
+            if has_static_elements:
+                bucket = 0 if total_elements <= 1 else int(math.ceil(math.log2(total_elements)))
+                tokens.append(f"memref_elements_log2_{bucket}")
+
+            strides: list[int] = []
+            offset: int | None = None
+            try:
+                raw_strides, raw_offset = memref.get_strides_and_offset()
+                strides = [int(value) for value in raw_strides]
+                offset = int(raw_offset)
+                expected = 1
+                contiguous = True
+                for dimension, stride in reversed(list(zip(shape, strides))):
+                    if dimension < 0 or stride != expected:
+                        contiguous = False
+                        break
+                    expected *= dimension
+                tokens.append(
+                    "memref_contiguous_layout"
+                    if contiguous
+                    else "memref_strided_or_dynamic_layout"
+                )
+            except (TypeError, ValueError, AttributeError):
+                tokens.append("memref_layout_unknown")
+
+            data = self.graph.nodes[value_node]
+            data["memory_shape"] = shape
+            data["memory_rank"] = rank
+            data["memory_static_shape"] = 1 if static_shape else 0
+            data["memory_strides"] = strides
+            data["memory_offset"] = offset if offset is not None else "dynamic"
+
+            for position, token in enumerate(dict.fromkeys(tokens)):
+                feature = self._new_node(
+                    {
+                        "block": int(data["block"]),
+                        "function": int(data["function"]),
+                        "text": token,
+                        "type": NODE_TYPE_IMMEDIATE,
+                        "full_text": str(value.type),
+                        "feature_kind": "memory_shape",
+                    }
+                )
+                self.graph.add_edge(
+                    feature,
+                    value_node,
+                    flow=FLOW_DATA,
+                    position=930 + position,
+                    role="memory_shape_feature",
+                )
+
+    def _integer_attribute(self, operation: Any, *names: str) -> int | None:
+        """Read an IntegerAttr through MLIR, with text only as API fallback."""
+        attribute = get_raw_attribute(operation, *names)
+        if attribute is None:
+            return None
+        try:
+            return int(self.ir.IntegerAttr(attribute).value)
+        except (TypeError, ValueError, AttributeError):
+            return parse_integer_attr(str(attribute))
+
+    def _affine_map_attribute(self, operation: Any, *names: str) -> Any | None:
+        """Downcast one operation attribute to the official AffineMap object."""
+        attribute = get_raw_attribute(operation, *names)
+        if attribute is None:
+            return None
+        try:
+            return self.ir.AffineMapAttr(attribute).value
+        except (TypeError, ValueError, AttributeError):
+            return None
+
+    def _constant_affine_bound(self, operation: Any, *names: str) -> int | None:
+        """Return a nullary single-result affine-map constant, if present."""
+        affine_map = self._affine_map_attribute(operation, *names)
+        if affine_map is None:
+            return None
+        try:
+            if affine_map.n_dims != 0 or affine_map.n_symbols != 0:
+                return None
+            results = list(affine_map.results)
+            if len(results) != 1:
+                return None
+            return int(self.ir.AffineConstantExpr(results[0]).value)
+        except (TypeError, ValueError, AttributeError):
+            return None
+
+    def _affine_linear_form(
+        self,
+        expression: Any,
+    ) -> tuple[dict[str, int], int, set[str]]:
+        """Summarize an AffineExpr using its typed AST, never printed SSA text.
+
+        The coefficient map is exact for affine add/multiply-by-constant forms.
+        Mod/floor-div/ceil-div remain explicitly marked because their result is
+        piecewise affine and should not be mislabelled as a unit-stride access.
+        """
+        def cast(name: str) -> Any | None:
+            try:
+                return getattr(self.ir, name)(expression)
+            except (TypeError, ValueError, AttributeError):
+                return None
+
+        constant = cast("AffineConstantExpr")
+        if constant is not None:
+            return {}, int(constant.value), set()
+        dimension = cast("AffineDimExpr")
+        if dimension is not None:
+            return {f"d{int(dimension.position)}": 1}, 0, set()
+        symbol = cast("AffineSymbolExpr")
+        if symbol is not None:
+            return {f"s{int(symbol.position)}": 1}, 0, set()
+
+        for class_name, flag in (
+            ("AffineAddExpr", "add"),
+            ("AffineMulExpr", "mul"),
+            ("AffineModExpr", "mod"),
+            ("AffineFloorDivExpr", "floordiv"),
+            ("AffineCeilDivExpr", "ceildiv"),
+        ):
+            binary = cast(class_name)
+            if binary is None:
+                continue
+            left_coeffs, left_constant, left_flags = self._affine_linear_form(binary.lhs)
+            right_coeffs, right_constant, right_flags = self._affine_linear_form(binary.rhs)
+            flags = set(left_flags) | set(right_flags) | {flag}
+
+            if flag == "add":
+                coefficients = dict(left_coeffs)
+                for variable, coefficient in right_coeffs.items():
+                    coefficients[variable] = coefficients.get(variable, 0) + coefficient
+                return coefficients, left_constant + right_constant, flags
+
+            if flag == "mul":
+                if not left_coeffs:
+                    factor = left_constant
+                    return (
+                        {name: factor * value for name, value in right_coeffs.items()},
+                        factor * right_constant,
+                        flags,
+                    )
+                if not right_coeffs:
+                    factor = right_constant
+                    return (
+                        {name: factor * value for name, value in left_coeffs.items()},
+                        factor * left_constant,
+                        flags,
+                    )
+                return {}, 0, flags | {"complex"}
+
+            # Division and modulo are intentionally not linearized.  Retain the
+            # numerator coefficients only for scale bucketing and mark the
+            # piecewise operation explicitly.
+            return left_coeffs, left_constant, flags
+
+        return {}, 0, {"unknown"}
+
+    def _add_affine_access_features(self) -> None:
+        """Materialize stable affine-map facts as nodes consumed by data.py.
+
+        Numeric node attributes alone are currently ignored by MailoHLS's
+        encoder.  Small categorical feature nodes let the unchanged
+        TransformerConv receive access rank, map class, unit/non-unit stride,
+        offsets, and piecewise-affine operators without using kernel-specific
+        SSA names or an unbounded vocabulary of complete map strings.
+
+        Notice that a coefficient of one in the last affine-map result is not
+        necessarily a physical unit-stride access: an ``affine.apply`` may sit
+        between the surrounding loop IV and the map operand, and a non-identity
+        memref layout may change the physical stride.  We therefore name that
+        bounded feature exactly (``unit_coefficient``), while preserving the
+        complete SSA chain and the exact map text for a later MLIR C++
+        dependence-analysis pass.  This avoids teaching the GNN a false fact.
+        """
+        for record in self.operation_records:
+            affine_map = self._affine_map_attribute(record.operation, "map")
+            if affine_map is None:
+                continue
+            try:
+                results = list(affine_map.results)
+                dimension_count = int(affine_map.n_dims)
+                symbol_count = int(affine_map.n_symbols)
+                is_permutation = bool(affine_map.is_permutation)
+                is_projected = bool(affine_map.is_projected_permutation)
+            except (TypeError, ValueError, AttributeError):
+                continue
+
+            summaries = [self._affine_linear_form(expr) for expr in results]
+            all_flags = set().union(*(item[2] for item in summaries)) if summaries else set()
+            all_coefficients = [
+                abs(value)
+                for coefficients, _, _ in summaries
+                for value in coefficients.values()
+                if value != 0
+            ]
+            max_coefficient = max(all_coefficients, default=0)
+            offsets = [constant for _, constant, _ in summaries]
+
+            if is_permutation:
+                map_class = "affine_permutation"
+            elif is_projected:
+                map_class = "affine_projected_permutation"
+            else:
+                map_class = "affine_general_map"
+
+            tokens = [
+                f"affine_rank_{len(results)}",
+                f"affine_dims_{dimension_count}",
+                f"affine_symbols_{symbol_count}",
+                map_class,
+            ]
+            if record.op_name in READ_OPS | WRITE_OPS | READ_WRITE_OPS:
+                last_coefficients, _, last_flags = summaries[-1] if summaries else ({}, 0, set())
+                last_unit = (
+                    any(abs(value) == 1 for value in last_coefficients.values())
+                    and not (last_flags & {"mod", "floordiv", "ceildiv", "complex", "unknown"})
+                )
+                tokens.append(
+                    "affine_last_result_unit_coefficient"
+                    if last_unit
+                    else "affine_last_result_nonunit_or_piecewise"
+                )
+            if any(value != 0 for value in offsets):
+                tokens.append("affine_has_constant_offset")
+            for flag in ("mod", "floordiv", "ceildiv"):
+                if flag in all_flags:
+                    tokens.append(f"affine_has_{flag}")
+            if max_coefficient > 1:
+                bucket = int(math.ceil(math.log2(max_coefficient)))
+                tokens.append(f"affine_max_coeff_log2_{bucket}")
+
+            node_data = self.graph.nodes[record.node]
+            node_data["affine_map"] = str(affine_map)
+            node_data["affine_dims"] = dimension_count
+            node_data["affine_symbols"] = symbol_count
+            node_data["affine_results"] = len(results)
+            node_data["affine_map_class"] = map_class
+
+            for position, token in enumerate(dict.fromkeys(tokens)):
+                feature = self._new_node(
+                    {
+                        "block": record.block_id,
+                        "function": record.function_id,
+                        "text": token,
+                        "type": NODE_TYPE_IMMEDIATE,
+                        "full_text": str(affine_map),
+                        "feature_kind": "affine_access",
+                    }
+                )
+                self.graph.add_edge(
+                    feature,
+                    record.node,
+                    flow=FLOW_DATA,
+                    position=910 + position,
+                    role="affine_feature",
+                )
 
     def _annotate_loop_features(self, loop: LoopInfo) -> None:
         """Extract loop bounds, step, depth, and static trip-count features."""
@@ -1365,16 +1839,23 @@ class MlirGraphBuilder:
             upper = self._constant_from_value(record.operands[1])
             step = self._constant_from_value(record.operands[2])
         elif record.op_name == "affine.for":
-            line = operation_first_line(record.operation)
-            match = re.search(
-                r"affine\.for\s+%[^=]+\s*=\s*(-?[0-9]+)\s+to\s+(-?[0-9]+)"
-                r"(?:\s+step\s+(-?[0-9]+))?",
-                line,
-            )
-            if match:
-                lower = int(match.group(1))
-                upper = int(match.group(2))
-                step = int(match.group(3) or 1)
+            lower = self._constant_affine_bound(record.operation, "lowerBoundMap")
+            upper = self._constant_affine_bound(record.operation, "upperBoundMap")
+            step = self._integer_attribute(record.operation, "step") or 1
+
+            # Compatibility for old Polygeist bindings that parse the dialect
+            # but do not expose AffineMapAttr downcasts in Python.
+            if lower is None or upper is None:
+                line = operation_first_line(record.operation)
+                match = re.search(
+                    r"affine\.for\s+%[^=]+\s*=\s*(-?[0-9]+)\s+to\s+(-?[0-9]+)"
+                    r"(?:\s+step\s+(-?[0-9]+))?",
+                    line,
+                )
+                if match:
+                    lower = int(match.group(1))
+                    upper = int(match.group(2))
+                    step = int(match.group(3) or 1)
 
         trip_count: int | None = None
         if lower is not None and upper is not None and step not in (None, 0):
@@ -1418,6 +1899,77 @@ class MlirGraphBuilder:
             regions = operation_regions(record.operation)
             if not regions or not region_blocks(regions[0]):
                 continue
+
+            if record.op_name == "scf.while":
+                if len(regions) < 2 or not region_blocks(regions[1]):
+                    continue
+                before = region_blocks(regions[0])[0]
+                after = region_blocks(regions[1])[0]
+                before_args = block_arguments(before)
+                after_args = block_arguments(after)
+                before_record = self.blocks.get(object_key(before))
+                after_record = self.blocks.get(object_key(after))
+                condition = (
+                    before_record.operations[-1]
+                    if before_record is not None and before_record.operations
+                    else None
+                )
+                yielded = (
+                    after_record.operations[-1]
+                    if after_record is not None and after_record.operations
+                    else None
+                )
+
+                for position, (initial, argument) in enumerate(
+                    zip(record.operands, before_args)
+                ):
+                    self.graph.add_edge(
+                        self.value_nodes[self._value_key(initial)],
+                        self.value_nodes[self._value_key(argument)],
+                        flow=FLOW_LOOP_CARRIED,
+                        position=position,
+                        role="while_init",
+                    )
+                forwarded = (
+                    condition.operands[1:]
+                    if condition is not None and condition.op_name == "scf.condition"
+                    else []
+                )
+                for position, value in enumerate(forwarded):
+                    value_node = self.value_nodes[self._value_key(value)]
+                    if position < len(after_args):
+                        self.graph.add_edge(
+                            value_node,
+                            self.value_nodes[self._value_key(after_args[position])],
+                            flow=FLOW_LOOP_CARRIED,
+                            position=100 + position,
+                            role="while_condition_to_after",
+                        )
+                    if position < len(record.results):
+                        self.graph.add_edge(
+                            value_node,
+                            self.value_nodes[record.result_keys[position]],
+                            flow=FLOW_LOOP_CARRIED,
+                            position=200 + position,
+                            role="while_result",
+                        )
+                back_values = (
+                    yielded.operands
+                    if yielded is not None and yielded.op_name == "scf.yield"
+                    else []
+                )
+                for position, (value, argument) in enumerate(
+                    zip(back_values, before_args)
+                ):
+                    self.graph.add_edge(
+                        self.value_nodes[self._value_key(value)],
+                        self.value_nodes[self._value_key(argument)],
+                        flow=FLOW_LOOP_CARRIED,
+                        position=300 + position,
+                        role="while_backedge",
+                    )
+                continue
+
             body = region_blocks(regions[0])[0]
             arguments = block_arguments(body)
 
@@ -1434,8 +1986,8 @@ class MlirGraphBuilder:
                 continue
 
             for position, (initial, argument) in enumerate(zip(init_values, iter_args)):
-                initial_node = self.value_nodes[object_key(initial)]
-                argument_node = self.value_nodes[object_key(argument)]
+                initial_node = self.value_nodes[self._value_key(initial)]
+                argument_node = self.value_nodes[self._value_key(argument)]
                 self.graph.add_edge(
                     initial_node,
                     argument_node,
@@ -1453,9 +2005,9 @@ class MlirGraphBuilder:
                 continue
             loop_results = record.results
             for position, yielded in enumerate(terminator.operands):
-                yielded_node = self.value_nodes[object_key(yielded)]
+                yielded_node = self.value_nodes[self._value_key(yielded)]
                 if position < len(iter_args):
-                    iter_node = self.value_nodes[object_key(iter_args[position])]
+                    iter_node = self.value_nodes[self._value_key(iter_args[position])]
                     self.graph.add_edge(
                         yielded_node,
                         iter_node,
@@ -1464,7 +2016,7 @@ class MlirGraphBuilder:
                         role="loop_backedge",
                     )
                 if position < len(loop_results):
-                    result_node = self.value_nodes[object_key(loop_results[position])]
+                    result_node = self.value_nodes[self._value_key(loop_results[position])]
                     self.graph.add_edge(
                         yielded_node,
                         result_node,
@@ -1475,7 +2027,7 @@ class MlirGraphBuilder:
 
     def _callee_name(self, record: OperationRecord) -> str:
         """Handle name for the deterministic MLIR-to-MailoHLS graph pipeline."""
-        if record.op_name not in {"func.call", "llvm.call"}:
+        if record.op_name not in CALL_OPS:
             return ""
         for name in ("callee", "callee_name"):
             if name in record.attributes:
@@ -1502,7 +2054,7 @@ class MlirGraphBuilder:
 
             formals = self.function_arguments.get(callee_id, [])
             for position, (actual, formal_node) in enumerate(zip(record.operands, formals)):
-                actual_node = self.value_nodes[object_key(actual)]
+                actual_node = self.value_nodes[self._value_key(actual)]
                 self.graph.add_edge(
                     actual_node,
                     formal_node,
@@ -1520,8 +2072,8 @@ class MlirGraphBuilder:
                 for position, (returned, call_result) in enumerate(
                     zip(return_record.operands, record.results)
                 ):
-                    returned_node = self.value_nodes[object_key(returned)]
-                    call_result_node = self.value_nodes[object_key(call_result)]
+                    returned_node = self.value_nodes[self._value_key(returned)]
+                    call_result_node = self.value_nodes[self._value_key(call_result)]
                     self.graph.add_edge(
                         returned_node,
                         call_result_node,
@@ -1530,8 +2082,19 @@ class MlirGraphBuilder:
                         role="return_to_call",
                     )
 
-    def _memory_operands(self, record: OperationRecord) -> list[tuple[int, str]]:
-        """Handle operands for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    def _intrinsic_memory_operands(
+        self,
+        record: OperationRecord,
+    ) -> list[tuple[int, str]]:
+        """Return effects defined by the operation itself, excluding calls.
+
+        MLIR's generated dialect documentation identifies affine/memref reads
+        and writes through interfaces, but the currently published Python
+        ``MemoryEffectsOpInterface`` does not expose an effect-query method.
+        The small dialect-semantic table below is therefore deliberately the
+        only fallback; call effects are inferred from callee bodies rather than
+        being hard-coded as read-write.
+        """
         memory_positions = [
             index
             for index, value in enumerate(record.operands)
@@ -1556,11 +2119,8 @@ class MlirGraphBuilder:
             return [(memory_positions[0], "readwrite")]
         if name.startswith("linalg."):
             return [(position, "readwrite") for position in memory_positions]
-        if name in {"func.call", "llvm.call"}:
-            # Without an interprocedural effect summary, treating memref actuals
-            # as read-write is conservative and scientifically safer than
-            # silently assuming purity.
-            return [(position, "readwrite") for position in memory_positions]
+        if name in CALL_OPS:
+            return []
         if "load" in name or name.endswith(".read"):
             return [(memory_positions[0], "read")]
         if "store" in name or name.endswith(".write"):
@@ -1569,103 +2129,407 @@ class MlirGraphBuilder:
             return [(memory_positions[0], "readwrite")]
         return []
 
-    def _build_memory_relations(self) -> None:
-        # First establish canonical roots.  View-like results inherit the root
-        # of their first memory operand; allocations, globals, arguments, and
-        # unknown producers remain distinct roots.
-        """Trace views and casts to memory roots, then index every access to each root."""
-        for key, node in self.value_nodes.items():
-            if int(self.graph.nodes[node].get("is_memory", 0)) == 1:
-                self.memory_root_by_value[key] = node
+    def _add_alias_source(self, source: Any, target: Any) -> None:
+        """Record that a memory-typed target may refer to source storage."""
+        if source == target:
+            return
+        if source not in self.value_nodes or target not in self.value_nodes:
+            return
+        if not is_memory_type(str(self.graph.nodes[self.value_nodes[source]].get("value_type", ""))):
+            return
+        if not is_memory_type(str(self.graph.nodes[self.value_nodes[target]].get("value_type", ""))):
+            return
+        self.memory_alias_sources[target].add(source)
 
-        for record in sorted(
-            self.operation_records,
-            key=lambda item: (item.function_id, item.function_ordinal),
-        ):
-            memory_operands = [
-                operand
-                for operand in record.operands
-                if is_memory_type(value_type(operand))
+    def _collect_memory_aliases(self) -> None:
+        """Build SSA forwarding constraints for views, regions, loops, and calls."""
+        for record in self.operation_records:
+            memory_operand_keys = [
+                key
+                for value, key in zip(record.operands, record.operand_keys)
+                if is_memory_type(value_type(value))
             ]
-            if record.op_name in VIEW_OPS and memory_operands:
-                source_key = object_key(memory_operands[0])
-                root = self.memory_root_by_value.get(
-                    source_key,
-                    self.value_nodes[source_key],
-                )
-                for result in record.results:
-                    if not is_memory_type(value_type(result)):
-                        continue
-                    result_key = object_key(result)
-                    result_node = self.value_nodes[result_key]
-                    self.memory_root_by_value[result_key] = root
-                    self.graph.add_edge(
-                        root,
-                        result_node,
-                        flow=FLOW_MEMORY_VIEW,
-                        position=0,
-                        role="view_of",
+            memory_result_keys = [
+                key
+                for value, key in zip(record.results, record.result_keys)
+                if is_memory_type(value_type(value))
+            ]
+
+            if record.op_name in VIEW_OPS and memory_operand_keys:
+                if len(memory_operand_keys) == len(memory_result_keys):
+                    pairs = zip(memory_operand_keys, memory_result_keys)
+                elif len(memory_operand_keys) == 1:
+                    pairs = (
+                        (memory_operand_keys[0], target)
+                        for target in memory_result_keys
                     )
-                    self.graph.add_edge(
-                        result_node,
-                        root,
-                        flow=FLOW_MEMORY_VIEW,
-                        position=1,
-                        role="view_to_root",
+                else:
+                    pairs = (
+                        (source, target)
+                        for source in memory_operand_keys
+                        for target in memory_result_keys
+                    )
+                for source, target in pairs:
+                    self._add_alias_source(source, target)
+            elif record.op_name == "arith.select" and memory_result_keys:
+                # The condition is scalar; every memory operand is a possible
+                # selected root.
+                for source in memory_operand_keys:
+                    for target in memory_result_keys:
+                        self._add_alias_source(source, target)
+
+            if record.op_name in CALL_OPS:
+                callee_name = self._callee_name(record)
+                callee_id = self.function_name_to_id.get(callee_name)
+                if callee_id is not None:
+                    for actual, formal in zip(
+                        record.operand_keys,
+                        self.function_argument_keys.get(callee_id, []),
+                    ):
+                        self._add_alias_source(actual, formal)
+                    for return_record in self.function_returns.get(callee_id, []):
+                        for returned, call_result in zip(
+                            return_record.operand_keys,
+                            record.result_keys,
+                        ):
+                            self._add_alias_source(returned, call_result)
+
+            # Region results (e.g. scf.if/affine.if) alias any corresponding
+            # memory value yielded by an executable region.
+            if record.op_name not in LOOP_OPS and record.result_keys:
+                for region in operation_regions(record.operation):
+                    for block in region_blocks(region):
+                        block_record = self.blocks.get(object_key(block))
+                        if block_record is None or not block_record.operations:
+                            continue
+                        terminator = block_record.operations[-1]
+                        if terminator.op_name not in REGION_YIELD_OPS:
+                            continue
+                        for yielded, result in zip(
+                            terminator.operand_keys,
+                            record.result_keys,
+                        ):
+                            self._add_alias_source(yielded, result)
+
+        # Loop inits/yields forward to both iter_args and final results.  This
+        # includes memref loop-carried state without pretending scalar
+        # reductions are memory aliases.
+        for loop in self.loops:
+            record = loop.op_record
+            regions = operation_regions(record.operation)
+            if not regions or not region_blocks(regions[0]):
+                continue
+            if record.op_name == "scf.while":
+                if len(regions) < 2 or not region_blocks(regions[1]):
+                    continue
+                before = region_blocks(regions[0])[0]
+                after = region_blocks(regions[1])[0]
+                before_args = block_arguments(before)
+                after_args = block_arguments(after)
+                before_record = self.blocks.get(object_key(before))
+                after_record = self.blocks.get(object_key(after))
+                condition = (
+                    before_record.operations[-1]
+                    if before_record is not None and before_record.operations
+                    else None
+                )
+                yielded = (
+                    after_record.operations[-1]
+                    if after_record is not None and after_record.operations
+                    else None
+                )
+                for initial, argument in zip(record.operands, before_args):
+                    self._add_alias_source(
+                        self._value_key(initial), self._value_key(argument)
+                    )
+                forwarded = (
+                    condition.operands[1:]
+                    if condition is not None and condition.op_name == "scf.condition"
+                    else []
+                )
+                for position, value in enumerate(forwarded):
+                    source = self._value_key(value)
+                    if position < len(after_args):
+                        self._add_alias_source(
+                            source, self._value_key(after_args[position])
+                        )
+                    if position < len(record.result_keys):
+                        self._add_alias_source(source, record.result_keys[position])
+                back_values = (
+                    yielded.operands
+                    if yielded is not None and yielded.op_name == "scf.yield"
+                    else []
+                )
+                for value, argument in zip(back_values, before_args):
+                    self._add_alias_source(
+                        self._value_key(value), self._value_key(argument)
+                    )
+                continue
+            if record.op_name not in {"scf.for", "affine.for"}:
+                continue
+            body = region_blocks(regions[0])[0]
+            arguments = block_arguments(body)
+            iter_args = arguments[1:] if arguments else []
+            init_values = (
+                record.operands[3:]
+                if record.op_name == "scf.for"
+                else record.operands[-len(iter_args):] if iter_args else []
+            )
+            block_record = self.blocks.get(object_key(body))
+            terminator = (
+                block_record.operations[-1]
+                if block_record is not None and block_record.operations
+                else None
+            )
+            yielded_values = (
+                terminator.operands
+                if terminator is not None and terminator.op_name in REGION_YIELD_OPS
+                else []
+            )
+            for initial, argument in zip(init_values, iter_args):
+                self._add_alias_source(
+                    self._value_key(initial), self._value_key(argument)
+                )
+            for position, yielded in enumerate(yielded_values):
+                yielded_key = self._value_key(yielded)
+                if position < len(iter_args):
+                    self._add_alias_source(
+                        yielded_key, self._value_key(iter_args[position])
+                    )
+                if position < len(record.result_keys):
+                    self._add_alias_source(yielded_key, record.result_keys[position])
+
+    def _compute_function_memory_effects(self) -> None:
+        """Infer argument effects from callee bodies to a fixed point."""
+        formal_origins: dict[Any, set[int]] = defaultdict(set)
+        for function_id, keys in self.function_argument_keys.items():
+            for index, key in enumerate(keys):
+                if key in self.value_nodes and is_memory_type(
+                    str(self.graph.nodes[self.value_nodes[key]].get("value_type", ""))
+                ):
+                    formal_origins[key].add(index)
+
+        # Propagate only within one function.  Cross-function actual->formal
+        # aliases are for physical roots, not for defining a callee's summary.
+        changed = True
+        while changed:
+            changed = False
+            for target, sources in self.memory_alias_sources.items():
+                target_function = self.value_function.get(target)
+                for source in sources:
+                    if target_function != self.value_function.get(source):
+                        continue
+                    before = len(formal_origins[target])
+                    formal_origins[target].update(formal_origins.get(source, set()))
+                    changed |= len(formal_origins[target]) != before
+
+        # Intraprocedural effects establish the base of the summary lattice.
+        for record in self.operation_records:
+            if record.op_name in CALL_OPS:
+                continue
+            for operand_index, mode in self._intrinsic_memory_operands(record):
+                key = record.operand_keys[operand_index]
+                for argument_index in formal_origins.get(key, set()):
+                    previous = self.function_memory_effects[record.function_id].get(
+                        argument_index
+                    )
+                    self.function_memory_effects[record.function_id][argument_index] = (
+                        merge_memory_modes(previous, mode)
                     )
 
-            for result in record.results:
-                key = object_key(result)
-                if key in self.memory_root_by_value:
-                    root = self.memory_root_by_value[key]
-                    self.graph.nodes[root]["is_memory_root"] = 1
+        # Then propagate callee summaries through callers.  This is exact for
+        # direct calls in the module and converges for recursive call graphs.
+        changed = True
+        while changed:
+            changed = False
+            for record in self.operation_records:
+                if record.op_name not in CALL_OPS:
+                    continue
+                callee_name = self._callee_name(record)
+                callee_id = self.function_name_to_id.get(callee_name)
+                callee_has_body = False
+                if callee_id is not None:
+                    operation = self.function_operations[callee_id]
+                    callee_has_body = any(
+                        region_blocks(region) for region in operation_regions(operation)
+                    )
+                for operand_index, key in enumerate(record.operand_keys):
+                    if not is_memory_type(value_type(record.operands[operand_index])):
+                        continue
+                    if callee_id is None or not callee_has_body:
+                        mode = "readwrite"
+                    else:
+                        mode = self.function_memory_effects[callee_id].get(operand_index)
+                        if mode is None:
+                            continue
+                    for argument_index in formal_origins.get(key, set()):
+                        previous = self.function_memory_effects[record.function_id].get(
+                            argument_index
+                        )
+                        merged = merge_memory_modes(previous, mode)
+                        if merged != previous:
+                            self.function_memory_effects[record.function_id][argument_index] = merged
+                            changed = True
+
+        self.graph.graph["function_memory_effects"] = {
+            self.functions[function_id]: {
+                str(index): mode for index, mode in sorted(effects.items())
+            }
+            for function_id, effects in sorted(self.function_memory_effects.items())
+        }
+
+    def _memory_operands(self, record: OperationRecord) -> list[tuple[int, str]]:
+        """Return direct effects or the inferred summary at a call site."""
+        if record.op_name not in CALL_OPS:
+            return self._intrinsic_memory_operands(record)
+
+        memory_positions = [
+            index
+            for index, value in enumerate(record.operands)
+            if is_memory_type(value_type(value))
+        ]
+        callee_name = self._callee_name(record)
+        callee_id = self.function_name_to_id.get(callee_name)
+        if callee_id is None:
+            return [(position, "readwrite") for position in memory_positions]
+        operation = self.function_operations[callee_id]
+        if not any(region_blocks(region) for region in operation_regions(operation)):
+            return [(position, "readwrite") for position in memory_positions]
+        effects = self.function_memory_effects.get(callee_id, {})
+        return [
+            (position, effects[position])
+            for position in memory_positions
+            if position in effects
+        ]
+
+    def _solve_memory_roots(self) -> None:
+        """Solve the may-alias constraints and add root<->view graph edges."""
+        memory_keys = [
+            key
+            for key, node in self.value_nodes.items()
+            if int(self.graph.nodes[node].get("is_memory", 0)) == 1
+        ]
+        roots: dict[Any, set[int]] = {
+            key: (set() if self.memory_alias_sources.get(key) else {self.value_nodes[key]})
+            for key in memory_keys
+        }
+
+        for _ in range(max(1, len(memory_keys))):
+            changed = False
+            for target in memory_keys:
+                inherited = set().union(
+                    *(roots.get(source, set()) for source in self.memory_alias_sources.get(target, set()))
+                ) if self.memory_alias_sources.get(target) else set()
+                before = len(roots[target])
+                roots[target].update(inherited)
+                changed |= len(roots[target]) != before
+            if not changed:
+                break
+
+        # A closed recursive/select SCC without an external seed is still a
+        # distinct may-alias root.  Seed it deterministically and propagate once
+        # more rather than dropping its memory accesses.
+        unresolved = [key for key in memory_keys if not roots[key]]
+        for key in unresolved:
+            roots[key].add(self.value_nodes[key])
+        if unresolved:
+            for _ in range(len(memory_keys)):
+                changed = False
+                for target in memory_keys:
+                    inherited = set().union(
+                        *(roots.get(source, set()) for source in self.memory_alias_sources.get(target, set()))
+                    ) if self.memory_alias_sources.get(target) else set()
+                    before = len(roots[target])
+                    roots[target].update(inherited)
+                    changed |= len(roots[target]) != before
+                if not changed:
+                    break
+
+        self.memory_roots_by_value = roots
+        for key, value_roots in roots.items():
+            value_node = self.value_nodes[key]
+            self.graph.nodes[value_node]["memory_root_count"] = len(value_roots)
+            for root in sorted(value_roots):
+                self.graph.nodes[root]["is_memory_root"] = 1
+                if root == value_node:
+                    continue
+                self.graph.add_edge(
+                    root,
+                    value_node,
+                    flow=FLOW_MEMORY_VIEW,
+                    position=0,
+                    role="may_alias_root",
+                )
+                self.graph.add_edge(
+                    value_node,
+                    root,
+                    flow=FLOW_MEMORY_VIEW,
+                    position=1,
+                    role="may_alias_root_reverse",
+                )
+
+    def _build_memory_relations(self) -> None:
+        """Build alias-aware roots, call effects, accesses, and dependencies."""
+        self._collect_memory_aliases()
+        self._compute_function_memory_effects()
+        self._solve_memory_roots()
+        self.graph.graph["memory_alias_model"] = (
+            "ssa-views+region-yields+loop-carried+context-insensitive-calls"
+        )
+        self.graph.graph["call_effect_model"] = "body-summary-fixed-point"
+        # The emitted memory-order edges are conservative may-dependences over
+        # alias roots.  Exact affine dependence distances require the MLIR C++
+        # APIs (MemRefAccess/checkMemrefAccessDependence), which are not exposed
+        # by the current Python bindings.  Recording that boundary prevents a
+        # downstream experiment from accidentally claiming exact dependence
+        # analysis for this pure-Python graph generator.
+        self.graph.graph["memory_dependence_model"] = "conservative-may-order"
+        self.graph.graph["exact_affine_dependence"] = 0
 
         for record in sorted(
             self.operation_records,
             key=lambda item: (item.function_id, item.function_ordinal),
         ):
             for operand_index, mode in self._memory_operands(record):
-                value = record.operands[operand_index]
-                key = object_key(value)
+                key = record.operand_keys[operand_index]
                 value_node = self.value_nodes[key]
-                root = self.memory_root_by_value.get(key, value_node)
-                self.graph.nodes[root]["is_memory_root"] = 1
+                roots = self.memory_roots_by_value.get(key, {value_node})
+                for root in sorted(roots):
+                    if mode == "read":
+                        forward, reverse = root, record.node
+                    elif mode == "write":
+                        forward, reverse = record.node, root
+                    else:
+                        forward, reverse = root, record.node
 
-                if mode == "read":
-                    forward, reverse = root, record.node
-                elif mode == "write":
-                    forward, reverse = record.node, root
-                else:
-                    forward, reverse = root, record.node
-
-                self.graph.add_edge(
-                    forward,
-                    reverse,
-                    flow=FLOW_MEMORY_ACCESS,
-                    position=MEMORY_ACCESS_POSITION[(mode, "forward")],
-                    role=mode,
-                    operand_index=operand_index,
-                )
-                self.graph.add_edge(
-                    reverse,
-                    forward,
-                    flow=FLOW_MEMORY_ACCESS,
-                    position=MEMORY_ACCESS_POSITION[(mode, "reverse")],
-                    role=f"{mode}_reverse",
-                    operand_index=operand_index,
-                )
-
-                self.memory_accesses.append(
-                    MemoryAccess(
-                        function_id=record.function_id,
-                        op_node=record.node,
-                        op_ordinal=record.function_ordinal,
-                        block_id=record.block_id,
-                        root_node=root,
-                        mode=mode,
-                        loop_stack=record.loop_stack,
+                    self.graph.add_edge(
+                        forward,
+                        reverse,
+                        flow=FLOW_MEMORY_ACCESS,
+                        position=MEMORY_ACCESS_POSITION[(mode, "forward")],
+                        role=mode,
+                        operand_index=operand_index,
                     )
-                )
+                    self.graph.add_edge(
+                        reverse,
+                        forward,
+                        flow=FLOW_MEMORY_ACCESS,
+                        position=MEMORY_ACCESS_POSITION[(mode, "reverse")],
+                        role=f"{mode}_reverse",
+                        operand_index=operand_index,
+                    )
+
+                    self.memory_accesses.append(
+                        MemoryAccess(
+                            function_id=record.function_id,
+                            op_node=record.node,
+                            op_ordinal=record.function_ordinal,
+                            block_id=record.block_id,
+                            root_node=root,
+                            mode=mode,
+                            loop_stack=record.loop_stack,
+                        )
+                    )
 
         if self.conservative_memory_dependencies:
             self._add_conservative_memory_dependencies()
@@ -1846,8 +2710,8 @@ class MlirGraphBuilder:
                 "memref.alloc", "memref.alloca", "llvm.alloca"
             }:
                 continue
-            for result in record.results:
-                node = self.value_nodes[object_key(result)]
+            for result, result_key in zip(record.results, record.result_keys):
+                node = self.value_nodes[result_key]
                 type_text = str(self.graph.nodes[node].get("value_type", ""))
                 if dimensions and re.search(
                     rf"(?:memref|vector)<{re.escape(dimensions)}x", type_text
@@ -1869,16 +2733,11 @@ class MlirGraphBuilder:
                     f"Action {spec.action_id} is attached to multiple MLIR scopes."
                 )
             function_id, argument_node, block_id = self._array_argument_node(spec)
-            root = self.memory_root_by_value.get(
-                next(
-                    (
-                        key for key, node in self.value_nodes.items()
-                        if node == argument_node
-                    ),
-                    ("missing", -1),
-                ),
-                argument_node,
-            )
+            # A local allocation is itself the physical root.  Alias solving
+            # propagates this node through casts and into callee formals, so the
+            # scope below can include accesses performed inside helper
+            # functions as well as the top-level call operation.
+            root = argument_node
             variable = str(spec.variable)
             full_text = (
                 "#pragma HLS ARRAY_PARTITION "
@@ -1938,9 +2797,9 @@ class MlirGraphBuilder:
                 (
                     item
                     for item in self.memory_accesses
-                    if item.function_id == function_id and item.root_node == root
+                    if item.root_node == root
                 ),
-                key=lambda item: item.op_ordinal,
+                key=lambda item: (item.function_id, item.op_ordinal),
             ):
                 mode_position = {"read": 1, "write": 2, "readwrite": 3}[access.mode]
                 self.graph.add_edge(
@@ -1949,6 +2808,7 @@ class MlirGraphBuilder:
                     flow=FLOW_ARRAY_SCOPE,
                     position=mode_position,
                     role=f"array_{access.mode}",
+                    access_function=access.function_id,
                 )
                 self.graph.add_edge(
                     access.op_node,
@@ -1956,6 +2816,7 @@ class MlirGraphBuilder:
                     flow=FLOW_ARRAY_SCOPE,
                     position=10 + mode_position,
                     role=f"array_{access.mode}_reverse",
+                    access_function=access.function_id,
                 )
             spec.matched = True
             self.attached_action_ids.add(spec.action_id)
@@ -2180,6 +3041,52 @@ def validate_graph(
         if graph.degree(node) == 0:
             errors.append(f"Node {node} is isolated.")
 
+    # A scientifically valid program graph must preserve one node per MLIR SSA
+    # value.  This catches the generic-Value/OpResult duplication bug directly
+    # instead of allowing a visually plausible but disconnected graph to train.
+    ssa_ids: dict[str, list[int]] = defaultdict(list)
+    ssa_with_def_and_use = 0
+    for node, data in graph.nodes(data=True):
+        if int(data.get("type", -1)) != NODE_TYPE_VALUE:
+            continue
+        ssa_id = str(data.get("ssa_id", ""))
+        if not ssa_id:
+            errors.append(f"Value node {node} has no structural ssa_id.")
+        else:
+            ssa_ids[ssa_id].append(int(node))
+
+        definition_edges = [
+            attrs
+            for _, _, attrs in graph.in_edges(node, data=True)
+            if int(attrs.get("flow", -1)) == FLOW_DATA
+            and attrs.get("role") == "result"
+        ]
+        use_edges = [
+            attrs
+            for _, _, attrs in graph.out_edges(node, data=True)
+            if int(attrs.get("flow", -1)) == FLOW_DATA
+            and attrs.get("role") == "operand"
+        ]
+        kind = str(data.get("ssa_kind", ""))
+        if kind == "op_result" and len(definition_edges) != 1:
+            errors.append(
+                f"SSA result {ssa_id or node} has {len(definition_edges)} definitions; expected one."
+            )
+        if kind == "block_argument" and definition_edges:
+            errors.append(f"Block argument {ssa_id or node} incorrectly has an op definition.")
+        expected_uses = int(data.get("ssa_use_count", -1))
+        if expected_uses >= 0 and len(use_edges) != expected_uses:
+            errors.append(
+                f"SSA value {ssa_id or node} has {len(use_edges)} graph uses but "
+                f"MLIR reports {expected_uses}."
+            )
+        if definition_edges and use_edges:
+            ssa_with_def_and_use += 1
+
+    for ssa_id, nodes in sorted(ssa_ids.items()):
+        if len(nodes) != 1:
+            errors.append(f"Structural SSA id {ssa_id} occurs on nodes {nodes}.")
+
     for source, target, data in graph.edges(data=True):
         if "flow" not in data or "position" not in data:
             errors.append(f"Edge {source}->{target} misses flow/position.")
@@ -2226,6 +3133,17 @@ def validate_graph(
                 for _, _, attrs in graph.edges(node, data=True)
             ):
                 errors.append(f"Array scope node {node} is not attached to a pragma.")
+            scope_edges = [
+                attrs
+                for _, _, attrs in graph.out_edges(node, data=True)
+                if int(attrs.get("flow", -1)) == FLOW_ARRAY_SCOPE
+            ]
+            if not any(attrs.get("role") == "array_root" for attrs in scope_edges):
+                errors.append(f"Array scope node {node} has no physical memory root.")
+            if not any(str(attrs.get("role", "")).startswith("array_read") or
+                       str(attrs.get("role", "")).startswith("array_write")
+                       for attrs in scope_edges):
+                warnings.append(f"Array scope node {node} has no resolved memory access.")
 
     if require_single_loop_anchor:
         loop_actions = {
@@ -2257,6 +3175,11 @@ def validate_graph(
         ),
         "actions": {
             action: sorted(kinds) for action, kinds in sorted(action_to_kinds.items())
+        },
+        "ssa": {
+            "values": len(ssa_ids),
+            "values_with_definition_and_use": ssa_with_def_and_use,
+            "use_source": graph.graph.get("ssa_use_api", "unknown"),
         },
         "node_types": {
             str(node_type): sum(
@@ -2366,6 +3289,11 @@ def build_cgeist_command(
         f"-function={kernel}",
         "-S",
         "-O0",
+        # Preserve every statically-known C array dimension in the MemRef type.
+        # Polygeist's own verification suite uses this flag for exactly that
+        # contract; without it, a function parameter such as A[10][20] may lose
+        # rank/shape information before the graph builder ever sees the IR.
+        "-memref-fullrank",
         "-raise-scf-to-affine",
         "-o",
         str(mlir_output),
@@ -2517,7 +3445,10 @@ def run(args: argparse.Namespace) -> Path:
                     "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
                     "action_sha256": hashlib.sha256(kernel_info.read_bytes()).hexdigest(),
                     "mlir_level": "affine+scf+memref+arith+func",
-                    "frontend_policy": "cgeist:-O0,noinline-helpers,raise-scf-to-affine",
+                    "frontend_policy": (
+                        "cgeist:-O0,noinline-helpers,memref-fullrank,"
+                        "raise-scf-to-affine"
+                    ),
                     "mlir_sha256": hashlib.sha256(mlir_text.encode("utf-8")).hexdigest(),
                 }
             )
