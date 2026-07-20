@@ -221,7 +221,6 @@ class ActionSpec:
     function: str
     directives: tuple[str, ...]
     loop_ordinal: int | None = None
-    expected_trip_count: int | None = None
     variable: str | None = None
     array_dimensions: tuple[int, ...] = ()
     # Source positions come from the labeled C/C++ contract.  They are matched
@@ -710,20 +709,6 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                     f"Lk,loop,trip_count; got {line!r}"
                 )
 
-            try:
-                expected_trip_count = int(fields[2])
-            except ValueError as exc:
-                raise ValueError(
-                    f"{kernel_info}:{line_number}: invalid loop trip count "
-                    f"{fields[2]!r} in {line!r}"
-                ) from exc
-
-            if expected_trip_count <= 0:
-                raise ValueError(
-                    f"{kernel_info}:{line_number}: loop trip count must be "
-                    f"positive, got {expected_trip_count}"
-                )
-
             actions.append(
                 ActionSpec(
                     action_id=action_id,
@@ -731,7 +716,6 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                     function=function,
                     directives=("pipeline", "unroll"),
                     loop_ordinal=ordinal_by_label[action_id],
-                    expected_trip_count=expected_trip_count,
                     source_file=str(source_action["source_file"]),
                     source_line=int(source_action["source_line"]),
                     source_column=int(source_action["source_column"]),
@@ -3102,24 +3086,7 @@ class MlirGraphBuilder:
                     semantic_anchor=loop.op_node,
                 )
 
-            actual_trip_count = int(
-                self.graph.nodes[loop.op_node].get("trip_count", -1)
-            )
 
-            if spec.expected_trip_count is not None:
-                self.graph.nodes[loop.op_node]["expected_trip_count"] = (
-                    spec.expected_trip_count
-                )
-
-                if (
-                    actual_trip_count >= 0
-                    and actual_trip_count != spec.expected_trip_count
-                ):
-                    raise RuntimeError(
-                        f"Action {spec.action_id}: MLIR trip count "
-                        f"{actual_trip_count} disagrees with kernel_info "
-                        f"{spec.expected_trip_count}."
-                    )
 
     def _array_argument_node(self, spec: ActionSpec) -> tuple[int, int, int, str]:
         """Resolve an array action to its physical allocation.

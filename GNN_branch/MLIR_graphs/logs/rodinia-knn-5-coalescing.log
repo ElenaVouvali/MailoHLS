@@ -1,26 +1,26 @@
 mlir_graph_gen.py: error: cgeist failed while translating the kernel.
-Command: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist knn.cpp --force-attribute=compute:noinline --force-attribute=load:noinline --force-attribute=store:noinline -function=workload -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_owrb5ti7/knn.hls.mlir
+Command: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist knn.cpp --force-attribute=compute:noinline --force-attribute=load:noinline --force-attribute=store:noinline -function=workload -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir__axftfb8/knn.hls.mlir
 Diagnostics:
 cgeist: /home/elvouvali/tools/Polygeist/lib/polygeist/Passes/PolygeistMem2Reg.cpp:1692: bool {anonymous}::PolygeistMem2Reg::forwardStoreToLoad(mlir::Value, std::vector<Offset>, llvm::SmallVectorImpl<mlir::Operation*>&, mlir::DenseMap<mlir::Operation*, llvm::SmallVector<mlir::Operation*> >&): Assertion `val.getType() == elType' failed.
 PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace.
 Stack dump:
-0.	Program arguments: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist knn.cpp --force-attribute=compute:noinline --force-attribute=load:noinline --force-attribute=store:noinline -function=workload -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_owrb5ti7/knn.hls.mlir
- #0 0x000055e963ab842f llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1bc642f)
- #1 0x000055e963ab5ab4 SignalHandler(int) Signals.cpp:0:0
- #2 0x00007f1a36feb420 __restore_rt (/lib/x86_64-linux-gnu/libpthread.so.0+0x14420)
- #3 0x00007f1a36a8800b raise /build/glibc-FcRMwW/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
- #4 0x00007f1a36a67859 abort /build/glibc-FcRMwW/glibc-2.31/stdlib/abort.c:81:7
- #5 0x00007f1a36a67729 get_sysdep_segment_value /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:509:8
- #6 0x00007f1a36a67729 _nl_load_domain /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:970:34
- #7 0x00007f1a36a78fd6 (/lib/x86_64-linux-gnu/libc.so.6+0x33fd6)
- #8 0x000055e963d4e705 (anonymous namespace)::PolygeistMem2Reg::forwardStoreToLoad(mlir::Value, std::vector<Offset, std::allocator<Offset>>, llvm::SmallVectorImpl<mlir::Operation*>&, llvm::DenseMap<mlir::Operation*, llvm::SmallVector<mlir::Operation*, 6u>, llvm::DenseMapInfo<mlir::Operation*, void>, llvm::detail::DenseMapPair<mlir::Operation*, llvm::SmallVector<mlir::Operation*, 6u>>>&) (.isra.0) PolygeistMem2Reg.cpp:0:0
- #9 0x000055e963d50d31 (anonymous namespace)::PolygeistMem2Reg::runOnOperation() PolygeistMem2Reg.cpp:0:0
-#10 0x000055e96454df7e mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bf7e)
-#11 0x000055e96454e45a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
-#12 0x000055e96454f28b mlir::detail::OpToOpPassAdaptor::runOnOperationImpl(bool) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265d28b)
-#13 0x000055e96454dd1a mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bd1a)
-#14 0x000055e96454e45a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
-#15 0x000055e96454ec84 mlir::PassManager::run(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265cc84)
-#16 0x000055e9626c11dc main (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x7cf1dc)
-#17 0x00007f1a36a69083 __libc_start_main /build/glibc-FcRMwW/glibc-2.31/csu/../csu/libc-start.c:342:3
-#18 0x000055e96276f29e _start (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x87d29e)
+0.	Program arguments: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist knn.cpp --force-attribute=compute:noinline --force-attribute=load:noinline --force-attribute=store:noinline -function=workload -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir__axftfb8/knn.hls.mlir
+ #0 0x0000563d9217042f llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1bc642f)
+ #1 0x0000563d9216dab4 SignalHandler(int) Signals.cpp:0:0
+ #2 0x00007fbdc6638420 __restore_rt (/lib/x86_64-linux-gnu/libpthread.so.0+0x14420)
+ #3 0x00007fbdc60d500b raise /build/glibc-FcRMwW/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
+ #4 0x00007fbdc60b4859 abort /build/glibc-FcRMwW/glibc-2.31/stdlib/abort.c:81:7
+ #5 0x00007fbdc60b4729 get_sysdep_segment_value /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:509:8
+ #6 0x00007fbdc60b4729 _nl_load_domain /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:970:34
+ #7 0x00007fbdc60c5fd6 (/lib/x86_64-linux-gnu/libc.so.6+0x33fd6)
+ #8 0x0000563d92406705 (anonymous namespace)::PolygeistMem2Reg::forwardStoreToLoad(mlir::Value, std::vector<Offset, std::allocator<Offset>>, llvm::SmallVectorImpl<mlir::Operation*>&, llvm::DenseMap<mlir::Operation*, llvm::SmallVector<mlir::Operation*, 6u>, llvm::DenseMapInfo<mlir::Operation*, void>, llvm::detail::DenseMapPair<mlir::Operation*, llvm::SmallVector<mlir::Operation*, 6u>>>&) (.isra.0) PolygeistMem2Reg.cpp:0:0
+ #9 0x0000563d92408d31 (anonymous namespace)::PolygeistMem2Reg::runOnOperation() PolygeistMem2Reg.cpp:0:0
+#10 0x0000563d92c05f7e mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bf7e)
+#11 0x0000563d92c0645a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
+#12 0x0000563d92c0728b mlir::detail::OpToOpPassAdaptor::runOnOperationImpl(bool) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265d28b)
+#13 0x0000563d92c05d1a mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bd1a)
+#14 0x0000563d92c0645a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
+#15 0x0000563d92c06c84 mlir::PassManager::run(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265cc84)
+#16 0x0000563d90d791dc main (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x7cf1dc)
+#17 0x00007fbdc60b6083 __libc_start_main /build/glibc-FcRMwW/glibc-2.31/csu/../csu/libc-start.c:342:3
+#18 0x0000563d90e2729e _start (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x87d29e)
