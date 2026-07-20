@@ -221,6 +221,7 @@ class ActionSpec:
     function: str
     directives: tuple[str, ...]
     loop_ordinal: int | None = None
+    expected_trip_count: int | None = None
     variable: str | None = None
     array_dimensions: tuple[int, ...] = ()
     # Source positions come from the labeled C/C++ contract.  They are matched
@@ -667,14 +668,23 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                 f"{kernel_info}:{line_number}: variable {variable!r} disagrees with "
                 f"source declaration {source_variable!r}"
             )
-        actions.append(ActionSpec(
-            action_id=action_id, kind=kind, function=function,
-            directives=("array_partition",), variable=variable,
-            array_dimensions=dimensions,
-            source_file=str(source_action["source_file"]),
-            source_line=int(source_action["source_line"]),
-            source_column=int(source_action["source_column"]),
-        ))
+        expected_trip_count = None
+        if len(fields) >= 3 and fields[2]:
+            expected_trip_count = int(fields[2])
+
+        actions.append(
+            ActionSpec(
+                action_id=action_id,
+                kind=kind,
+                function=function,
+                directives=("pipeline", "unroll"),
+                loop_ordinal=ordinal_by_label[action_id],
+                expected_trip_count=expected_trip_count,
+                source_file=str(source_action["source_file"]),
+                source_line=int(source_action["source_line"]),
+                source_column=int(source_action["source_column"]),
+            )
+        )
     return top_function, actions
 
 
@@ -2882,6 +2892,25 @@ class MlirGraphBuilder:
                     semantic_anchor=loop.op_node,
                 )
 
+            actual_trip_count = int(
+                self.graph.nodes[loop.op_node].get("trip_count", -1)
+            )
+
+            if spec.expected_trip_count is not None:
+                self.graph.nodes[loop.op_node]["expected_trip_count"] = (
+                    spec.expected_trip_count
+                )
+
+                if (
+                    actual_trip_count >= 0
+                    and actual_trip_count != spec.expected_trip_count
+                ):
+                    raise RuntimeError(
+                        f"Action {spec.action_id}: MLIR trip count "
+                        f"{actual_trip_count} disagrees with kernel_info "
+                        f"{spec.expected_trip_count}."
+                    )
+
     def _array_argument_node(self, spec: ActionSpec) -> tuple[int, int, int, str]:
         """Resolve an array action to its physical allocation.
 
@@ -3681,6 +3710,11 @@ def run(args: argparse.Namespace) -> Path:
             cflags=cflags,
         )
 
+        if args.mlir_output:
+            audit_mlir = Path(args.mlir_output).expanduser().resolve()
+            audit_mlir.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(mlir_path, audit_mlir)
+
         context, result = create_initial_graph(
             mlir_path,
             actions=actions,
@@ -3717,6 +3751,18 @@ def run(args: argparse.Namespace) -> Path:
                 require_single_loop_anchor=True,
             )
             training_graph.graph["action_resolutions"] = report["action_resolutions"]
+            fallbacks = {
+                name: count
+                for name, count in report["action_resolutions"].items()
+                if "fallback" in name
+            }
+
+            if fallbacks and not args.allow_action_fallbacks:
+                raise RuntimeError(
+                    "Non-exact action mappings were detected: "
+                    f"{fallbacks}. Final training graphs require source-location mappings. "
+                    "Use --allow-action-fallbacks only for debugging."
+                )
             write_gexf_deterministic(training_graph, output)
         finally:
             # MLIR Python wrappers own native handles tied to this Context.  It
@@ -3765,6 +3811,19 @@ def build_arg_parser() -> argparse.ArgumentParser:
             "Forward one include/define/language/target flag to cgeist; repeat as "
             "needed and use --cflag=-I/path for flags beginning with '-'."
         ),
+    )
+    parser.add_argument(
+        "--allow-action-fallbacks",
+        action="store_true",
+        help=(
+            "Allow function/ordinal or unique-shape action matching. "
+            "Disabled by default for final training graphs."
+        ),
+    )
+    parser.add_argument(
+        "--mlir-output",
+        default="",
+        help="Optional path at which to preserve the emitted MLIR.",
     )
     return parser
 
