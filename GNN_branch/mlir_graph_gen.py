@@ -555,105 +555,51 @@ def _source_function_spans(text: str) -> list[tuple[str, int, int]]:
 
 
 def _source_actions(source: Path) -> dict[str, dict[str, Any]]:
-    """Map each MailoHLS Lk source label to its semantic action and location.
-
-    Recognized forms include:
-        L1: for (...)
-        L1: LOOP_NAME: for (...)
-        /*L1:*/ for (...)
-        /*L1:*/ LOOP_NAME: for (...)
-        L2: float local_array[N];
-
-    The search is performed on the original physical source line so that the
-    resulting source column remains aligned with Polygeist FileLineColLoc data.
-    """
+    """Map each Lk label to its semantic kind and exact source position."""
     text = source.read_text(encoding="utf-8", errors="replace")
     spans = _source_function_spans(text)
-
-    # Do not require Lk to be the first non-whitespace token. This tolerates a
-    # UTF-8 BOM and other harmless source-prefix characters while still
-    # requiring an independent L<number>: token.
-    label_re = re.compile(
-        r"(?<![A-Za-z0-9_])"
-        r"(?:/\*\s*)?"
-        r"(?P<label>L[1-9][0-9]*)\s*:\s*"
-        r"(?:\*/\s*)?",
-        re.IGNORECASE,
-    )
-
-    secondary_label_re = re.compile(
-        r"\s*[A-Za-z_]\w*\s*:\s*"
-    )
-
     actions: dict[str, dict[str, Any]] = {}
-
     for line_number, line in enumerate(text.splitlines(), start=1):
-        label_match = label_re.search(line)
-        if label_match is None:
+        match = SOURCE_LABEL_RE.match(line)
+        if not match:
             continue
-
-        action_id = _normalise_action_id(label_match.group("label"))
-
-        if action_id in actions:
-            raise ValueError(
-                f"{source}:{line_number}: duplicate source action {action_id}"
-            )
-
+        action_id = _normalise_action_id(match.group("label"))
         function = next(
-            (
-                name
-                for name, start_line, end_line in spans
-                if start_line <= line_number <= end_line
-            ),
+            (name for name, start, end in spans if start <= line_number <= end),
             "GLOBAL",
         )
-
-        # Start immediately after Lk: or /*Lk:*/.
-        semantic_start = label_match.end()
-        remaining = line[semantic_start:]
-
-        # Skip a secondary C/C++ label such as LOAD_TILE:.
-        secondary_match = secondary_label_re.match(remaining)
-        if secondary_match is not None:
-            semantic_start += secondary_match.end()
-            remaining = line[semantic_start:]
-
-        loop_match = re.search(r"\bfor\s*\(", remaining, re.IGNORECASE)
-        array_match = SOURCE_ARRAY_RE.match(remaining)
-
+        body = match.group("body").strip()
+        array_match = SOURCE_ARRAY_RE.match(body)
+        loop_match = re.search(r"\bfor\s*\(", body, re.IGNORECASE)
         common = {
             "function": function,
             "source_file": source.name,
             "source_line": line_number,
         }
-
-        if loop_match is not None:
+        if loop_match:
             actions[action_id] = {
                 **common,
                 "kind": "loop",
-                # MLIR source locations use one-based columns.
-                "source_column": semantic_start + loop_match.start() + 1,
+                # Columns are one-based in MLIR FileLineColLoc.
+                "source_column": match.start("body") + loop_match.start() + 1,
             }
-            continue
-
-        if array_match is not None:
+        elif array_match:
             actions[action_id] = {
                 **common,
                 "kind": "array",
                 "array_name": array_match.group("name"),
                 "source_column": (
-                    semantic_start + array_match.start("name") + 1
+                    match.start("body") + array_match.start("name") + 1
                 ),
             }
-            continue
-
-        actions[action_id] = {
-            **common,
-            "kind": "unknown",
-            "source_column": semantic_start + 1,
-        }
-
+        else:
+            actions[action_id] = {
+                **common,
+                "kind": "unknown",
+                "source_column": match.start("body") + 1,
+            }
     return actions
+
 
 def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list[ActionSpec]]:
     """Build action specifications from kernel_info.txt and labeled source."""
@@ -697,115 +643,48 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                 f"{kernel_info}:{line_number}: {action_id} is {kind}, but the source label "
                 f"identifies a {source_action['kind']}"
             )
-        
         function = source_action["function"]
-
-        # ---------------------------------------------------------------
-        # Loop action:
-        #   Lk,loop,trip_count
-        # ---------------------------------------------------------------
         if kind == "loop":
-            if len(fields) != 3:
-                raise ValueError(
-                    f"{kernel_info}:{line_number}: loop syntax must be "
-                    f"Lk,loop,trip_count; got {line!r}"
-                )
-
-            try:
-                expected_trip_count = int(fields[2])
-            except ValueError as exc:
-                raise ValueError(
-                    f"{kernel_info}:{line_number}: invalid loop trip count "
-                    f"{fields[2]!r} in {line!r}"
-                ) from exc
-
-            if expected_trip_count <= 0:
-                raise ValueError(
-                    f"{kernel_info}:{line_number}: loop trip count must be "
-                    f"positive, got {expected_trip_count}"
-                )
-
-            actions.append(
-                ActionSpec(
-                    action_id=action_id,
-                    kind="loop",
-                    function=function,
-                    directives=("pipeline", "unroll"),
-                    loop_ordinal=ordinal_by_label[action_id],
-                    expected_trip_count=expected_trip_count,
-                    source_file=str(source_action["source_file"]),
-                    source_line=int(source_action["source_line"]),
-                    source_column=int(source_action["source_column"]),
-                )
-            )
+            actions.append(ActionSpec(
+                action_id=action_id, kind=kind, function=function,
+                directives=("pipeline", "unroll"),
+                loop_ordinal=ordinal_by_label[action_id],
+                source_file=str(source_action["source_file"]),
+                source_line=int(source_action["source_line"]),
+                source_column=int(source_action["source_column"]),
+            ))
             continue
 
-        # ---------------------------------------------------------------
-        # Array action:
-        #   Lk,array,name,dim,size[,dim,size...]
-        # ---------------------------------------------------------------
-        if len(fields) < 5 or (len(fields) - 3) % 2 != 0:
+        if len(fields) < 5 or (len(fields) - 3) % 2:
             raise ValueError(
                 f"{kernel_info}:{line_number}: array syntax must be "
-                f"Lk,array,name,dim,size[,dim,size...]; got {line!r}"
+                "Lk,array,name,dim,size[,dim,size...]"
             )
-
+        dimensions = tuple(int(fields[index]) for index in range(4, len(fields), 2))
         variable = fields[2]
-
-        try:
-            dimension_indices = tuple(
-                int(fields[index])
-                for index in range(3, len(fields), 2)
-            )
-            dimensions = tuple(
-                int(fields[index])
-                for index in range(4, len(fields), 2)
-            )
-        except ValueError as exc:
-            raise ValueError(
-                f"{kernel_info}:{line_number}: array dimensions and sizes "
-                f"must be integers; got {line!r}"
-            ) from exc
-
-        if any(index <= 0 for index in dimension_indices):
-            raise ValueError(
-                f"{kernel_info}:{line_number}: array dimension indices must "
-                f"be positive; got {dimension_indices}"
-            )
-
-        if len(set(dimension_indices)) != len(dimension_indices):
-            raise ValueError(
-                f"{kernel_info}:{line_number}: duplicate array dimensions "
-                f"in {dimension_indices}"
-            )
-
-        if any(size <= 0 for size in dimensions):
-            raise ValueError(
-                f"{kernel_info}:{line_number}: array sizes must be positive; "
-                f"got {dimensions}"
-            )
-
         source_variable = source_action.get("array_name")
         if source_variable and source_variable != variable:
             raise ValueError(
-                f"{kernel_info}:{line_number}: variable {variable!r} "
-                f"disagrees with source declaration {source_variable!r}"
+                f"{kernel_info}:{line_number}: variable {variable!r} disagrees with "
+                f"source declaration {source_variable!r}"
             )
+        expected_trip_count = None
+        if len(fields) >= 3 and fields[2]:
+            expected_trip_count = int(fields[2])
 
         actions.append(
             ActionSpec(
                 action_id=action_id,
-                kind="array",
+                kind=kind,
                 function=function,
-                directives=("array_partition",),
-                variable=variable,
-                array_dimensions=dimensions,
+                directives=("pipeline", "unroll"),
+                loop_ordinal=ordinal_by_label[action_id],
+                expected_trip_count=expected_trip_count,
                 source_file=str(source_action["source_file"]),
                 source_line=int(source_action["source_line"]),
                 source_column=int(source_action["source_column"]),
             )
         )
-
     return top_function, actions
 
 
