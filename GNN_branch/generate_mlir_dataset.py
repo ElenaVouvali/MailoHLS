@@ -207,6 +207,7 @@ def parse_args() -> argparse.Namespace:
         default=os.environ.get("CGEIST", ""),
         help="cgeist executable; default is $CGEIST, then mlir_graph_gen.py resolves PATH.",
     )
+    parser.add_argument("--cflag", action="append", default=[])
     parser.add_argument(
         "--only",
         nargs="+",
@@ -342,6 +343,8 @@ def main() -> int:
             cgeist=args.cgeist or None,
             mlir_audit_dir=audit_dir,
         )
+        for flag in args.cflag:
+            command += ["--cflag", flag]
         print(f"[{index:02d}/{len(selected):02d}] RUN  {app_name}")
         print("  " + subprocess.list2cmdline(command))
 
