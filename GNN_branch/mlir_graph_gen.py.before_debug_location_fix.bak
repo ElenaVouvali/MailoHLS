@@ -3745,8 +3745,6 @@ def validate_cgeist_flags(flags: Sequence[str]) -> list[str]:
         "--raise-scf-to-affine",
         "-memref-fullrank",
         "--memref-fullrank",
-        "-print-debug-info",
-        "--print-debug-info",
         "-S",
         "-c",
     }
@@ -3781,10 +3779,6 @@ def build_cgeist_command(
         f"-function={kernel}",
         "-S",
         "-O0",
-        # Source locations are part of the MailoHLS action-mapping contract.
-        # Without this cgeist retains locations internally but omits them from
-        # the serialized MLIR, forcing unsafe ordinal/shape action fallbacks.
-        "-print-debug-info",
         # Preserve every statically-known C array dimension in the MemRef type.
         # Polygeist's own verification suite uses this flag for exactly that
         # contract; without it, a function parameter such as A[10][20] may lose
@@ -3842,21 +3836,6 @@ def compile_source_to_mlir(
         )
 
     text = mlir_output.read_text(encoding="utf-8")
-
-    # Exact Lk attachment requires the source file/line/column to survive
-    # textual MLIR serialization. Detect a frontend/printer configuration
-    # error here rather than much later as nine misleading action fallbacks.
-    source_location_pattern = re.compile(
-        rf'"(?:[^"]*/)?{re.escape(source.name)}":[0-9]+:[0-9]+'
-    )
-    if source_location_pattern.search(text) is None:
-        raise RuntimeError(
-            "cgeist emitted MLIR without source locations for "
-            f"{source.name}. The frontend command must include "
-            "-print-debug-info. Exact MailoHLS action mapping is impossible "
-            "without serialized FileLineColLoc information."
-        )
-
     if not re.search(r"\b(?:func\.func|llvm\.func)\b", text):
         hint = (
             "For C++, --kernel must be the mangled symbol understood by cgeist; "
@@ -3962,8 +3941,8 @@ def run(args: argparse.Namespace) -> Path:
                     "action_sha256": hashlib.sha256(kernel_info.read_bytes()).hexdigest(),
                     "mlir_level": "affine+scf+memref+arith+func",
                     "frontend_policy": (
-                        "cgeist:-O0,print-debug-info,noinline-helpers,"
-                        "memref-fullrank,raise-scf-to-affine"
+                        "cgeist:-O0,noinline-helpers,memref-fullrank,"
+                        "raise-scf-to-affine"
                     ),
                     # The exact frontend binary is part of the experimental
                     # representation, so persist its content hash without
