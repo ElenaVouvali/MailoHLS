@@ -555,105 +555,51 @@ def _source_function_spans(text: str) -> list[tuple[str, int, int]]:
 
 
 def _source_actions(source: Path) -> dict[str, dict[str, Any]]:
-    """Map each MailoHLS Lk source label to its semantic action and location.
-
-    Recognized forms include:
-        L1: for (...)
-        L1: LOOP_NAME: for (...)
-        /*L1:*/ for (...)
-        /*L1:*/ LOOP_NAME: for (...)
-        L2: float local_array[N];
-
-    The search is performed on the original physical source line so that the
-    resulting source column remains aligned with Polygeist FileLineColLoc data.
-    """
+    """Map each Lk label to its semantic kind and exact source position."""
     text = source.read_text(encoding="utf-8", errors="replace")
     spans = _source_function_spans(text)
-
-    # Do not require Lk to be the first non-whitespace token. This tolerates a
-    # UTF-8 BOM and other harmless source-prefix characters while still
-    # requiring an independent L<number>: token.
-    label_re = re.compile(
-        r"(?<![A-Za-z0-9_])"
-        r"(?:/\*\s*)?"
-        r"(?P<label>L[1-9][0-9]*)\s*:\s*"
-        r"(?:\*/\s*)?",
-        re.IGNORECASE,
-    )
-
-    secondary_label_re = re.compile(
-        r"\s*[A-Za-z_]\w*\s*:\s*"
-    )
-
     actions: dict[str, dict[str, Any]] = {}
-
     for line_number, line in enumerate(text.splitlines(), start=1):
-        label_match = label_re.search(line)
-        if label_match is None:
+        match = SOURCE_LABEL_RE.match(line)
+        if not match:
             continue
-
-        action_id = _normalise_action_id(label_match.group("label"))
-
-        if action_id in actions:
-            raise ValueError(
-                f"{source}:{line_number}: duplicate source action {action_id}"
-            )
-
+        action_id = _normalise_action_id(match.group("label"))
         function = next(
-            (
-                name
-                for name, start_line, end_line in spans
-                if start_line <= line_number <= end_line
-            ),
+            (name for name, start, end in spans if start <= line_number <= end),
             "GLOBAL",
         )
-
-        # Start immediately after Lk: or /*Lk:*/.
-        semantic_start = label_match.end()
-        remaining = line[semantic_start:]
-
-        # Skip a secondary C/C++ label such as LOAD_TILE:.
-        secondary_match = secondary_label_re.match(remaining)
-        if secondary_match is not None:
-            semantic_start += secondary_match.end()
-            remaining = line[semantic_start:]
-
-        loop_match = re.search(r"\bfor\s*\(", remaining, re.IGNORECASE)
-        array_match = SOURCE_ARRAY_RE.match(remaining)
-
+        body = match.group("body").strip()
+        array_match = SOURCE_ARRAY_RE.match(body)
+        loop_match = re.search(r"\bfor\s*\(", body, re.IGNORECASE)
         common = {
             "function": function,
             "source_file": source.name,
             "source_line": line_number,
         }
-
-        if loop_match is not None:
+        if loop_match:
             actions[action_id] = {
                 **common,
                 "kind": "loop",
-                # MLIR source locations use one-based columns.
-                "source_column": semantic_start + loop_match.start() + 1,
+                # Columns are one-based in MLIR FileLineColLoc.
+                "source_column": match.start("body") + loop_match.start() + 1,
             }
-            continue
-
-        if array_match is not None:
+        elif array_match:
             actions[action_id] = {
                 **common,
                 "kind": "array",
                 "array_name": array_match.group("name"),
                 "source_column": (
-                    semantic_start + array_match.start("name") + 1
+                    match.start("body") + array_match.start("name") + 1
                 ),
             }
-            continue
-
-        actions[action_id] = {
-            **common,
-            "kind": "unknown",
-            "source_column": semantic_start + 1,
-        }
-
+        else:
+            actions[action_id] = {
+                **common,
+                "kind": "unknown",
+                "source_column": match.start("body") + 1,
+            }
     return actions
+
 
 def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list[ActionSpec]]:
     """Build action specifications from kernel_info.txt and labeled source."""
