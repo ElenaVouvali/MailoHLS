@@ -856,15 +856,21 @@ def operation_location(operation: Any) -> str:
         return "loc(unknown)"
 
 
-def operation_source_points(ir: Any, operation: Any) -> tuple[SourcePoint, ...]:
-    """Return every concrete source point nested in an MLIR Location.
+def operation_source_points(
+    ir: Any,
+    operation: Any,
+) -> tuple[SourcePoint, ...]:
+    """Return every exact file/line/column point nested in an MLIR Location.
 
-    Polygeist attaches FileLineColLoc objects to the MLIR it emits.  MLIR
-    transformations may wrap those locations in NameLoc, CallSiteLoc, or
-    FusedLoc, so walking the typed location tree is more robust than parsing
-    the printed ``loc(...)`` spelling.  Older bindings that do not expose one
-    of these typed casts simply fall through to the conservative action
-    matching fallback.
+    Prefer the typed MLIR Python location API when available. Older MLIR Python
+    packages may not expose FileLineColLoc/NameLoc/CallSiteLoc/FusedLoc
+    inspection even though the underlying MLIR contains exact source locations.
+    In that case, parse only the canonical printed location syntax:
+
+        "file.cpp":line:column
+
+    This remains an exact source-location mapping; it is not an ordinal or
+    shape-based semantic fallback.
     """
     try:
         root = raw_operation(operation).location
@@ -874,48 +880,133 @@ def operation_source_points(ir: Any, operation: Any) -> tuple[SourcePoint, ...]:
     points: set[SourcePoint] = set()
     visited: set[str] = set()
 
+    # Matches every exact FileLineColLoc embedded in simple, fused, named, or
+    # call-site printed location syntax.
+    printed_file_loc_re = re.compile(
+        r'"(?P<filename>(?:\\.|[^"\\])+)":'
+        r'(?P<line>[0-9]+):'
+        r'(?P<column>[0-9]+)'
+    )
+
+    def normalize_filename(value: Any) -> str:
+        text = str(value).strip()
+
+        # StringAttr may print as "knn.cpp" rather than knn.cpp.
+        if len(text) >= 2 and text[0] == '"' and text[-1] == '"':
+            try:
+                text = json.loads(text)
+            except Exception:
+                text = text[1:-1]
+
+        return text
+
+    def add_point(filename: Any, line: Any, column: Any) -> None:
+        try:
+            filename_text = normalize_filename(filename)
+            line_number = int(line)
+            column_number = int(column)
+        except (TypeError, ValueError):
+            return
+
+        if (
+            not filename_text
+            or line_number <= 0
+            or column_number <= 0
+        ):
+            return
+
+        points.add(
+            SourcePoint(
+                filename=filename_text,
+                line=line_number,
+                column=column_number,
+            )
+        )
+
+    def add_points_from_printed_location(marker: str) -> None:
+        for match in printed_file_loc_re.finditer(marker):
+            raw_filename = match.group("filename")
+
+            # Decode standard MLIR/JSON-style escapes when possible.
+            try:
+                filename = json.loads(f'"{raw_filename}"')
+            except Exception:
+                filename = (
+                    raw_filename
+                    .replace(r"\"", '"')
+                    .replace(r"\\", "\\")
+                )
+
+            add_point(
+                filename,
+                match.group("line"),
+                match.group("column"),
+            )
+
     def visit(location: Any) -> None:
         marker = str(location)
+
         if marker in visited:
             return
         visited.add(marker)
 
-        try:
-            file_loc = ir.FileLineColLoc(location)
-            points.add(SourcePoint(
-                filename=str(file_loc.filename),
-                line=int(file_loc.start_line),
-                column=int(file_loc.start_col),
-            ))
-            return
-        except (TypeError, ValueError, AttributeError):
-            pass
+        # Always inspect the canonical printed representation. This makes the
+        # function compatible with older Python bindings while retaining exact
+        # source file/line/column information.
+        add_points_from_printed_location(marker)
 
-        try:
-            named = ir.NameLoc(location)
-            visit(named.child_loc)
-            return
-        except (TypeError, ValueError, AttributeError):
-            pass
+        file_loc_class = getattr(ir, "FileLineColLoc", None)
+        if file_loc_class is not None:
+            try:
+                file_loc = file_loc_class(location)
 
-        try:
-            callsite = ir.CallSiteLoc(location)
-            visit(callsite.callee)
-            visit(callsite.caller)
-            return
-        except (TypeError, ValueError, AttributeError):
-            pass
+                line = getattr(file_loc, "start_line", None)
+                if line is None:
+                    line = getattr(file_loc, "line", None)
 
-        try:
-            fused = ir.FusedLoc(location)
-            for child in fused.locations:
-                visit(child)
-        except (TypeError, ValueError, AttributeError):
-            pass
+                column = getattr(file_loc, "start_col", None)
+                if column is None:
+                    column = getattr(file_loc, "column", None)
+
+                add_point(
+                    getattr(file_loc, "filename", ""),
+                    line,
+                    column,
+                )
+                return
+            except (TypeError, ValueError, AttributeError):
+                pass
+
+        name_loc_class = getattr(ir, "NameLoc", None)
+        if name_loc_class is not None:
+            try:
+                named = name_loc_class(location)
+                visit(named.child_loc)
+                return
+            except (TypeError, ValueError, AttributeError):
+                pass
+
+        callsite_loc_class = getattr(ir, "CallSiteLoc", None)
+        if callsite_loc_class is not None:
+            try:
+                callsite = callsite_loc_class(location)
+                visit(callsite.callee)
+                visit(callsite.caller)
+                return
+            except (TypeError, ValueError, AttributeError):
+                pass
+
+        fused_loc_class = getattr(ir, "FusedLoc", None)
+        if fused_loc_class is not None:
+            try:
+                fused = fused_loc_class(location)
+                for child in fused.locations:
+                    visit(child)
+            except (TypeError, ValueError, AttributeError):
+                pass
 
     visit(root)
     return tuple(sorted(points))
-
 
 def attribute_items(operation: Any) -> dict[str, str]:
     """Handle items for the deterministic MLIR-to-MailoHLS graph pipeline."""
