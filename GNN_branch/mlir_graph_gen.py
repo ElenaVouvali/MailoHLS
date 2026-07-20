@@ -698,42 +698,107 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                 f"identifies a {source_action['kind']}"
             )
         function = source_action["function"]
+
+        # ---------------------------------------------------------------
+        # Loop action:
+        #   Lk,loop,trip_count
+        # ---------------------------------------------------------------
         if kind == "loop":
-            actions.append(ActionSpec(
-                action_id=action_id, kind=kind, function=function,
-                directives=("pipeline", "unroll"),
-                loop_ordinal=ordinal_by_label[action_id],
-                source_file=str(source_action["source_file"]),
-                source_line=int(source_action["source_line"]),
-                source_column=int(source_action["source_column"]),
-            ))
+            if len(fields) != 3:
+                raise ValueError(
+                    f"{kernel_info}:{line_number}: loop syntax must be "
+                    f"Lk,loop,trip_count; got {line!r}"
+                )
+
+            try:
+                expected_trip_count = int(fields[2])
+            except ValueError as exc:
+                raise ValueError(
+                    f"{kernel_info}:{line_number}: invalid loop trip count "
+                    f"{fields[2]!r} in {line!r}"
+                ) from exc
+
+            if expected_trip_count <= 0:
+                raise ValueError(
+                    f"{kernel_info}:{line_number}: loop trip count must be "
+                    f"positive, got {expected_trip_count}"
+                )
+
+            actions.append(
+                ActionSpec(
+                    action_id=action_id,
+                    kind="loop",
+                    function=function,
+                    directives=("pipeline", "unroll"),
+                    loop_ordinal=ordinal_by_label[action_id],
+                    expected_trip_count=expected_trip_count,
+                    source_file=str(source_action["source_file"]),
+                    source_line=int(source_action["source_line"]),
+                    source_column=int(source_action["source_column"]),
+                )
+            )
             continue
 
-        if len(fields) < 5 or (len(fields) - 3) % 2:
+        # ---------------------------------------------------------------
+        # Array action:
+        #   Lk,array,name,dim,size[,dim,size...]
+        # ---------------------------------------------------------------
+        if len(fields) < 5 or (len(fields) - 3) % 2 != 0:
             raise ValueError(
                 f"{kernel_info}:{line_number}: array syntax must be "
-                "Lk,array,name,dim,size[,dim,size...]"
+                f"Lk,array,name,dim,size[,dim,size...]; got {line!r}"
             )
-        dimensions = tuple(int(fields[index]) for index in range(4, len(fields), 2))
+
         variable = fields[2]
+
+        try:
+            dimension_indices = tuple(
+                int(fields[index])
+                for index in range(3, len(fields), 2)
+            )
+            dimensions = tuple(
+                int(fields[index])
+                for index in range(4, len(fields), 2)
+            )
+        except ValueError as exc:
+            raise ValueError(
+                f"{kernel_info}:{line_number}: array dimensions and sizes "
+                f"must be integers; got {line!r}"
+            ) from exc
+
+        if any(index <= 0 for index in dimension_indices):
+            raise ValueError(
+                f"{kernel_info}:{line_number}: array dimension indices must "
+                f"be positive; got {dimension_indices}"
+            )
+
+        if len(set(dimension_indices)) != len(dimension_indices):
+            raise ValueError(
+                f"{kernel_info}:{line_number}: duplicate array dimensions "
+                f"in {dimension_indices}"
+            )
+
+        if any(size <= 0 for size in dimensions):
+            raise ValueError(
+                f"{kernel_info}:{line_number}: array sizes must be positive; "
+                f"got {dimensions}"
+            )
+
         source_variable = source_action.get("array_name")
         if source_variable and source_variable != variable:
             raise ValueError(
-                f"{kernel_info}:{line_number}: variable {variable!r} disagrees with "
-                f"source declaration {source_variable!r}"
+                f"{kernel_info}:{line_number}: variable {variable!r} "
+                f"disagrees with source declaration {source_variable!r}"
             )
-        expected_trip_count = None
-        if len(fields) >= 3 and fields[2]:
-            expected_trip_count = int(fields[2])
 
         actions.append(
             ActionSpec(
                 action_id=action_id,
-                kind=kind,
+                kind="array",
                 function=function,
-                directives=("pipeline", "unroll"),
-                loop_ordinal=ordinal_by_label[action_id],
-                expected_trip_count=expected_trip_count,
+                directives=("array_partition",),
+                variable=variable,
+                array_dimensions=dimensions,
                 source_file=str(source_action["source_file"]),
                 source_line=int(source_action["source_line"]),
                 source_column=int(source_action["source_column"]),
