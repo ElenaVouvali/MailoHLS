@@ -467,7 +467,7 @@ def build_command(
         command += ["--mlir-output", str(mlir_output)]
 
     for flag in cflags:
-        command += ["--cflag", flag]
+        command.append(f"--cflag={flag}")
 
     return command
 
