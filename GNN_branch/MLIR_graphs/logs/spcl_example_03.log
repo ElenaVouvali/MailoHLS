@@ -1,9 +1,1 @@
-mlir_graph_gen.py: error: cgeist failed while translating the kernel.
-Command: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist Example3.cpp -function=Stencil2D -S -O0 -scal-rep=0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_n58gj9ej/Example3.hls.mlir
-Diagnostics:
-Example3.cpp:3:17: error: declaration of 'Stencil2D' has a different language linkage
-    3 | extern "C" void Stencil2D(float const memory_in[N * M], float memory_out[N * M]) {
-      |                 ^
-./Example3.h:7:6: note: previous declaration is here
-    7 | void Stencil2D(float const memory_in[N * M], float memory_out[N * M]);
-      |      ^
+Wrote /home/elvouvali/MailoHLS/GNN_branch/MLIR_graphs/.spcl_example_03.gexf.tmp (83 nodes, 307 edges, 6 actions; mappings=source_location:6)
