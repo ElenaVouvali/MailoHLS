@@ -111,7 +111,7 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-v3"
+SCHEMA_VERSION = "mailohls-mlir-graph"
 ACTION_ID_RE = re.compile(r"^L([1-9][0-9]*)$")
 ACTION_ID_SEARCH_RE = re.compile(r"\bL([1-9][0-9]*)\b")
 

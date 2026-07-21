@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate the complete 55-kernel MailoHLS MLIR GEXF dataset.
+Generate and strictly validate the complete MailoHLS MLIR GEXF dataset.
 
 The authoritative kernel set is read from GNN_branch/config.py::ALL_KERNEL.
 Source filenames and top-level functions are read from
@@ -10,9 +10,9 @@ Each kernel is processed by GNN_branch/mlir_graph_gen.py:
 
     C/C++ -> cgeist/Polygeist MLIR -> validated deterministic GEXF
 
-This batch driver only reuses a graph when it matches the current:
+A graph is reusable only when it matches the current:
 
-  * graph schema;
+  * MailoHLS MLIR graph schema;
   * top-level function;
   * complete kernel_info.txt action set;
   * source-file SHA-256;
@@ -20,28 +20,32 @@ This batch driver only reuses a graph when it matches the current:
   * cgeist binary SHA-256;
   * strict action-mapping policy (no fallback resolutions).
 
+Generation is atomic: a new graph is first written to a temporary path,
+strictly validated, and only then replaces the previous graph. Therefore a
+failed forced regeneration never destroys a previously valid graph.
+
 Examples
 --------
-From the MailoHLS repository root:
+From the repository root:
 
     PYTHONHASHSEED=0 \
-    python GNN_branch/generate_mlir_dataset.py
+    PYTHONPATH="$MLIR_PYTHON_ROOT" \
+    "$MLIR_PYTHON" GNN_branch/generate_mlir_dataset.py
 
 Regenerate everything:
 
     PYTHONHASHSEED=0 \
-    python GNN_branch/generate_mlir_dataset.py --force
+    PYTHONPATH="$MLIR_PYTHON_ROOT" \
+    "$MLIR_PYTHON" GNN_branch/generate_mlir_dataset.py \
+      --force --keep-mlir --continue-on-error
 
-Test selected kernels first:
+Test selected kernels:
 
     PYTHONHASHSEED=0 \
-    python GNN_branch/generate_mlir_dataset.py \
-      --force \
-      --keep-mlir \
-      --continue-on-error \
-      --only rodinia-knn-1-tiling machsuite-viterbi
-
-The cgeist executable is resolved from --cgeist, $CGEIST, or PATH.
+    PYTHONPATH="$MLIR_PYTHON_ROOT" \
+    "$MLIR_PYTHON" GNN_branch/generate_mlir_dataset.py \
+      --force --keep-mlir --continue-on-error \
+      --only machsuite-viterbi rodinia-knn-5-coalescing
 """
 
 from __future__ import annotations
@@ -50,6 +54,7 @@ import argparse
 import ast
 import csv
 import hashlib
+import json
 import os
 import re
 import shutil
@@ -64,7 +69,9 @@ import networkx as nx
 
 
 EXPECTED_SCHEMA_VERSION = "mailohls-mlir-graph"
+GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 ACTION_ID_RE = re.compile(r"^L[1-9][0-9]*$")
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 @dataclass(frozen=True)
@@ -84,7 +91,6 @@ class KernelContract:
 
 
 def repository_root() -> Path:
-    # This script is expected at <repo>/GNN_branch/generate_mlir_dataset.py.
     return Path(__file__).resolve().parents[1]
 
 
@@ -118,17 +124,19 @@ def resolve_executable(requested: str) -> Path:
 
 
 def load_all_kernel_names(config_path: Path) -> list[str]:
-    """Parse ALL_KERNEL without importing config.py, which parses CLI flags."""
+    """Parse ALL_KERNEL without importing config.py."""
     tree = ast.parse(
         config_path.read_text(encoding="utf-8"),
         filename=str(config_path),
     )
+
     for node in tree.body:
         if not isinstance(node, ast.Assign):
             continue
         for target in node.targets:
             if not isinstance(target, ast.Name) or target.id != "ALL_KERNEL":
                 continue
+
             value = ast.literal_eval(node.value)
             if not isinstance(value, list) or not all(
                 isinstance(item, str) for item in value
@@ -141,6 +149,7 @@ def load_all_kernel_names(config_path: Path) -> list[str]:
                     "GNN_branch/config.py::ALL_KERNEL contains duplicates."
                 )
             return value
+
     raise RuntimeError(f"Could not find ALL_KERNEL in {config_path}")
 
 
@@ -168,6 +177,7 @@ def load_application_rows(csv_path: Path) -> dict[str, KernelRow]:
                 file_name=raw["file_name"].strip(),
                 file_name_extension=raw["file_name_extension"].strip(),
             )
+
             if not row.app_name:
                 continue
             if row.app_name in rows:
@@ -182,6 +192,7 @@ def load_application_rows(csv_path: Path) -> dict[str, KernelRow]:
                 raise RuntimeError(
                     f"{csv_path}: {row.app_name} has no file_name"
                 )
+
             rows[row.app_name] = row
 
     return rows
@@ -192,7 +203,7 @@ def load_kernel_contract(
     kernel_info: Path,
     expected_top: str,
 ) -> KernelContract:
-    """Read and validate the exact source/action contract for one kernel."""
+    """Read and validate the exact source/action contract."""
     if not source.is_file():
         raise FileNotFoundError(f"Source does not exist: {source}")
     if not kernel_info.is_file():
@@ -226,12 +237,13 @@ def load_kernel_contract(
 
     if not action_ids:
         raise RuntimeError(f"{kernel_info} defines no MailoHLS actions")
-    if len(action_ids) != len(set(action_ids)):
-        duplicates = sorted(
-            action_id
-            for action_id in set(action_ids)
-            if action_ids.count(action_id) > 1
-        )
+
+    duplicates = sorted(
+        action_id
+        for action_id in set(action_ids)
+        if action_ids.count(action_id) > 1
+    )
+    if duplicates:
         raise RuntimeError(
             f"{kernel_info} contains duplicate action ids: {duplicates}"
         )
@@ -261,12 +273,45 @@ def graph_fallback_resolutions(graph: nx.MultiDiGraph) -> set[str]:
     }
 
 
+def read_graph_metadata(graph: nx.MultiDiGraph) -> tuple[dict[str, object] | None, str]:
+    """Decode the deterministic metadata envelope stored in the GEXF name."""
+    raw_name = str(graph.graph.get("name", "")).strip()
+
+    if not raw_name:
+        return None, "GEXF has no MailoHLS metadata envelope"
+
+    if not raw_name.startswith(GRAPH_METADATA_PREFIX):
+        return (
+            None,
+            "GEXF graph name does not start with "
+            f"{GRAPH_METADATA_PREFIX!r}",
+        )
+
+    payload = raw_name[len(GRAPH_METADATA_PREFIX):]
+    try:
+        metadata = json.loads(payload)
+    except json.JSONDecodeError as exc:
+        return None, f"invalid MailoHLS metadata JSON: {exc}"
+
+    if not isinstance(metadata, dict):
+        return None, "MailoHLS metadata envelope is not a JSON object"
+
+    return metadata, ""
+
+
+def _metadata_string(
+    metadata: dict[str, object],
+    key: str,
+) -> str:
+    return str(metadata.get(key, "")).strip()
+
+
 def validate_existing_graph(
     path: Path,
     contract: KernelContract,
     expected_cgeist_sha256: str,
 ) -> tuple[bool, str]:
-    """Return whether a GEXF is safe to reuse as a current training graph."""
+    """Return whether a GEXF is safe to reuse as current training data."""
     if not path.is_file() or path.stat().st_size == 0:
         return False, "missing or empty"
 
@@ -278,7 +323,11 @@ def validate_existing_graph(
     if graph.number_of_nodes() == 0 or graph.number_of_edges() == 0:
         return False, "empty graph"
 
-    schema = str(graph.graph.get("schema_version", "")).strip()
+    metadata, metadata_error = read_graph_metadata(graph)
+    if metadata is None:
+        return False, metadata_error
+
+    schema = _metadata_string(metadata, "schema_version")
     if schema != EXPECTED_SCHEMA_VERSION:
         return (
             False,
@@ -286,7 +335,7 @@ def validate_existing_graph(
             f"expected {EXPECTED_SCHEMA_VERSION!r}",
         )
 
-    kernel = str(graph.graph.get("kernel", "")).strip()
+    kernel = _metadata_string(metadata, "kernel")
     if kernel != contract.top_level_function:
         return (
             False,
@@ -313,7 +362,23 @@ def validate_existing_graph(
             f"{sorted(fallback_resolutions)}",
         )
 
-    source_sha256 = str(graph.graph.get("source_sha256", "")).strip()
+    metadata_resolutions = metadata.get("action_resolutions", {})
+    if not isinstance(metadata_resolutions, dict):
+        return False, "metadata action_resolutions is not an object"
+
+    metadata_fallbacks = {
+        str(name)
+        for name, count in metadata_resolutions.items()
+        if "fallback" in str(name).lower() and int(count) > 0
+    }
+    if metadata_fallbacks:
+        return (
+            False,
+            "metadata contains non-exact action mappings: "
+            f"{sorted(metadata_fallbacks)}",
+        )
+
+    source_sha256 = _metadata_string(metadata, "source_sha256")
     if source_sha256 != contract.source_sha256:
         return (
             False,
@@ -321,7 +386,7 @@ def validate_existing_graph(
             "source revision",
         )
 
-    action_sha256 = str(graph.graph.get("action_sha256", "")).strip()
+    action_sha256 = _metadata_string(metadata, "action_sha256")
     if action_sha256 != contract.action_sha256:
         return (
             False,
@@ -329,13 +394,21 @@ def validate_existing_graph(
             "kernel_info.txt revision",
         )
 
-    cgeist_sha256 = str(graph.graph.get("cgeist_sha256", "")).strip()
+    cgeist_sha256 = _metadata_string(metadata, "cgeist_sha256")
     if cgeist_sha256 != expected_cgeist_sha256:
         return (
             False,
             "cgeist_sha256 mismatch: graph was generated with a different "
             "Polygeist frontend binary",
         )
+
+    mlir_sha256 = _metadata_string(metadata, "mlir_sha256")
+    if not SHA256_RE.fullmatch(mlir_sha256):
+        return False, "metadata contains an invalid or missing mlir_sha256"
+
+    frontend_policy = _metadata_string(metadata, "frontend_policy")
+    if not frontend_policy:
+        return False, "metadata contains no frontend_policy"
 
     return (
         True,
@@ -352,7 +425,7 @@ def build_command(
     source: Path,
     output: Path,
     cgeist: Path,
-    mlir_audit_dir: Path | None,
+    mlir_output: Path | None,
     cflags: list[str],
 ) -> list[str]:
     command = [
@@ -365,11 +438,8 @@ def build_command(
         str(cgeist),
     ]
 
-    if mlir_audit_dir is not None:
-        command += [
-            "--mlir-output",
-            str(mlir_audit_dir / f"{output.stem}.mlir"),
-        ]
+    if mlir_output is not None:
+        command += ["--mlir-output", str(mlir_output)]
 
     for flag in cflags:
         command += ["--cflag", flag]
@@ -377,16 +447,9 @@ def build_command(
     return command
 
 
-def remove_stale_artifacts(
-    *,
-    output: Path,
-    log_path: Path,
-    audit_path: Path | None,
-) -> None:
-    """Ensure a failed attempt cannot leave or reuse an older graph."""
-    for path in (output, log_path, audit_path):
-        if path is not None and path.exists():
-            path.unlink()
+def remove_if_exists(path: Path | None) -> None:
+    if path is not None and path.exists():
+        path.unlink()
 
 
 def write_manifest(
@@ -403,6 +466,7 @@ def write_manifest(
         "detail",
         "command",
     ]
+
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
@@ -411,6 +475,7 @@ def write_manifest(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+
     parser.add_argument(
         "--repo-root",
         type=Path,
@@ -426,32 +491,30 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--python",
         default=sys.executable,
-        help="Python with matching MLIR bindings (default: current interpreter).",
+        help="Python with matching MLIR bindings.",
     )
     parser.add_argument(
         "--cgeist",
         default=os.environ.get("CGEIST", ""),
-        help=(
-            "cgeist executable; default is $CGEIST, then cgeist on PATH."
-        ),
+        help="cgeist executable; default is $CGEIST, then cgeist on PATH.",
     )
     parser.add_argument(
         "--cflag",
         action="append",
         default=[],
-        help="Forward one additional flag to mlir_graph_gen.py; repeat as needed.",
+        help="Forward one additional flag to mlir_graph_gen.py.",
     )
     parser.add_argument(
         "--only",
         nargs="+",
         default=None,
         metavar="KERNEL",
-        help="Generate only these kernel directory names.",
+        help="Generate only these configured kernel directory names.",
     )
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Regenerate outputs even when a strictly valid GEXF exists.",
+        help="Regenerate even when a strictly valid graph already exists.",
     )
     parser.add_argument(
         "--keep-mlir",
@@ -463,6 +526,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Attempt remaining kernels after a failure.",
     )
+
     return parser.parse_args()
 
 
@@ -496,6 +560,7 @@ def main() -> int:
         if args.output_dir is not None
         else repo / "GNN_branch" / "MLIR_graphs"
     )
+
     generator = repo / "GNN_branch" / "mlir_graph_gen.py"
     config_path = repo / "GNN_branch" / "config.py"
     app_csv = repo / "Data" / "ApplicationInformation.csv"
@@ -548,11 +613,7 @@ def main() -> int:
     log_dir = output_dir / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    audit_dir = (
-        output_dir / "audit_mlir"
-        if args.keep_mlir
-        else None
-    )
+    audit_dir = output_dir / "audit_mlir" if args.keep_mlir else None
     if audit_dir is not None:
         audit_dir.mkdir(parents=True, exist_ok=True)
 
@@ -575,13 +636,24 @@ def main() -> int:
         row = rows[app_name]
         source = dataset_root / app_name / row.file_name
         kernel_info = source.parent / "kernel_info.txt"
+
         output = output_dir / f"{app_name}.gexf"
+        temporary_output = output_dir / f".{app_name}.gexf.tmp"
         log_path = log_dir / f"{app_name}.log"
-        audit_path = (
+
+        audit_output = (
             audit_dir / f"{app_name}.mlir"
             if audit_dir is not None
             else None
         )
+        temporary_audit = (
+            audit_dir / f".{app_name}.mlir.tmp"
+            if audit_dir is not None
+            else None
+        )
+
+        remove_if_exists(temporary_output)
+        remove_if_exists(temporary_audit)
 
         try:
             contract = load_kernel_contract(
@@ -640,28 +712,17 @@ def main() -> int:
             )
             continue
 
-        # Remove every old artifact whenever this kernel is going to run.
-        # Therefore, a failed regeneration cannot be mistaken for a current
-        # valid output during the final recount.
-        remove_stale_artifacts(
-            output=output,
-            log_path=log_path,
-            audit_path=audit_path,
-        )
-
         command = build_command(
             python_executable=args.python,
             generator=generator,
             source=source,
-            output=output,
+            output=temporary_output,
             cgeist=cgeist,
-            mlir_audit_dir=audit_dir,
+            mlir_output=temporary_audit,
             cflags=list(args.cflag),
         )
 
-        print(
-            f"[{index:02d}/{len(selected):02d}] RUN  {app_name}"
-        )
+        print(f"[{index:02d}/{len(selected):02d}] RUN  {app_name}")
         print("  " + subprocess.list2cmdline(command))
 
         start = time.monotonic()
@@ -678,9 +739,8 @@ def main() -> int:
         log_path.write_text(completed.stdout, encoding="utf-8")
 
         if completed.returncode != 0:
-            # Remove any partial output created before the subprocess failed.
-            if output.exists():
-                output.unlink()
+            remove_if_exists(temporary_output)
+            remove_if_exists(temporary_audit)
 
             detail = (
                 f"exit={completed.returncode}; log={log_path}"
@@ -690,22 +750,32 @@ def main() -> int:
             status = "failed"
         else:
             valid, detail = validate_existing_graph(
-                output,
+                temporary_output,
                 contract,
                 cgeist_sha256,
             )
+
             if not valid:
-                if output.exists():
-                    output.unlink()
+                remove_if_exists(temporary_output)
+                remove_if_exists(temporary_audit)
 
                 failures.append(app_name)
                 status = "failed"
                 detail = (
-                    "generator returned success but strict output "
+                    "generator returned success but strict temporary-output "
                     f"validation failed: {detail}"
                 )
                 print(f"  FAIL in {seconds:.2f}s: {detail}")
             else:
+                os.replace(temporary_output, output)
+
+                if temporary_audit is not None:
+                    if temporary_audit.is_file():
+                        assert audit_output is not None
+                        os.replace(temporary_audit, audit_output)
+                    else:
+                        remove_if_exists(audit_output)
+
                 status = "generated"
                 print(f"  OK   in {seconds:.2f}s: {detail}")
 
@@ -743,6 +813,7 @@ def main() -> int:
                     kernel_info,
                     row.top_level_function,
                 )
+
             valid, detail = validate_existing_graph(
                 output_dir / f"{app_name}.gexf",
                 contract,
@@ -763,9 +834,7 @@ def main() -> int:
             invalid_outputs.append((app_name, detail))
 
     print()
-    print(
-        f"Valid outputs: {len(valid_outputs)}/{len(selected)}"
-    )
+    print(f"Valid outputs: {len(valid_outputs)}/{len(selected)}")
     print(f"Manifest:      {manifest}")
 
     if invalid_outputs:
