@@ -21,7 +21,7 @@ L1:  for (int i = 1; i < N - 1; ++i) {
   }
 }
 // Top-level entry function, not relevant for this example
-void Example1_Pipelined(float const *in, float *out) {
+extern "C" void Example1_Pipelined(float const *in, float *out) {
   #pragma HLS INTERFACE m_axi port=in bundle=gmem0 offset=slave
   #pragma HLS INTERFACE m_axi port=out bundle=gmem1 offset=slave
   #pragma HLS INTERFACE s_axilite port=in

@@ -4108,45 +4108,25 @@ def compile_source_to_mlir(
 
     text = mlir_output.read_text(encoding="utf-8")
 
-    # Exact Lk attachment requires the source file/line/column to survive
-    # textual MLIR serialization. Detect a frontend/printer configuration
-    # error here rather than much later as nine misleading action fallbacks.
-    printed_file_loc_re = re.compile(
-        r'"(?P<filename>(?:\\.|[^"\\])+)":'
-        r'[0-9]+:[0-9]+'
+    function_body_re = re.compile(
+        r"(?m)^\s*(?:func\.func|llvm\.func)\b[^{\n]*\{"
     )
-    location_files = {
-        match.group("filename")
-        for match in printed_file_loc_re.finditer(text)
-    }
 
-    if not location_files:
-        raise RuntimeError(
-            f"cgeist emitted MLIR without any FileLineColLoc "
-            f"information for {source.name}. The frontend command "
-            "must include -print-debug-info."
-        )
+    if function_body_re.search(text) is None:
+        cpp_hint = ""
+        if source.suffix in {
+            ".cc", ".cp", ".cpp", ".cxx", ".c++", ".C"
+        }:
+            cpp_hint = (
+                ' The selected top is C++; declare it extern "C" '
+                "or provide the exact mangled symbol understood by cgeist."
+            )
 
-    source_location_found = any(
-        filename in {"-", "<stdin>"}
-        or Path(filename).name == source.name
-        for filename in location_files
-    )
-    if not source_location_found:
         raise RuntimeError(
-            f"cgeist emitted source locations, but none correspond "
-            f"to {source.name}. Found location files: "
-            f"{sorted(location_files)}"
+            f"Polygeist produced no function body for "
+            f"kernel {kernel!r}.{cpp_hint}"
         )
 
-    if not re.search(r"\b(?:func\.func|llvm\.func)\b", text):
-        hint = (
-            "For C++, --kernel must be the mangled symbol understood by cgeist; "
-            "declaring the HLS top as extern \"C\" avoids that ambiguity."
-        )
-        raise RuntimeError(
-            f"Polygeist produced no function body for kernel {kernel!r}. {hint}"
-        )
     return command, text
 
 

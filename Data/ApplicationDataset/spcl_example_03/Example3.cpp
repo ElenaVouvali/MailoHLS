@@ -1,6 +1,6 @@
 #include "Example3.h" // Defines N, M, and T
 
-void Stencil2D(float const memory_in[N * M], float memory_out[N * M]) {
+extern "C" void Stencil2D(float const memory_in[N * M], float memory_out[N * M]) {
 
 L1:  float above_buffer[M];
 L2:  float center_buffer[M];

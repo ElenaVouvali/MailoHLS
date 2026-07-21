@@ -1,6 +1,6 @@
 #include "Example5.h"
 
-void MatrixMultiplication(const double A[], const double B[], double C[]) {
+extern "C" void MatrixMultiplication(const double A[], const double B[], double C[]) {
 L1:  for (int n = 0; n < N; ++n) {
 L2:    double acc[M];  // Buffer an output row of C
 
