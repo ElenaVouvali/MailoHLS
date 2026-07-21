@@ -1,0 +1,31 @@
+#loc1 = loc("gemm.c":3:6)
+#loc3 = loc("gemm.c":8:23)
+#loc4 = loc("gemm.c":9:28)
+#loc5 = loc("gemm.c":12:31)
+module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<"dlti.endianness", "little">, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
+  func.func @gemm(%arg0: memref<4096xf64> loc("gemm.c":3:6), %arg1: memref<4096xf64> loc("gemm.c":3:6), %arg2: memref<4096xf64> loc("gemm.c":3:6)) attributes {llvm.linkage = #llvm.linkage<external>} {
+    %cst = arith.constant 0.000000e+00 : f64 loc(#loc2)
+    affine.for %arg3 loc("gemm.c":8:23) = 0 to 64 {
+      affine.for %arg4 loc("gemm.c":9:28) = 0 to 64 {
+        %0 = affine.for %arg5 loc("gemm.c":12:31) = 0 to 64 iter_args(%arg6 = %cst) -> (f64) {
+          %1 = affine.load %arg0[%arg5 + %arg3 * 64] : memref<4096xf64> loc(#loc6)
+          %2 = affine.load %arg1[%arg4 + %arg5 * 64] : memref<4096xf64> loc(#loc7)
+          %3 = arith.mulf %1, %2 : f64 loc(#loc8)
+          %4 = arith.addf %arg6, %3 : f64 loc(#loc9)
+          affine.yield %4 : f64 loc(#loc10)
+        } loc(#loc5)
+        affine.store %0, %arg2[%arg4 + %arg3 * 64] : memref<4096xf64> loc(#loc11)
+      } loc(#loc4)
+    } loc(#loc3)
+    return loc(#loc12)
+  } loc(#loc1)
+} loc(#loc)
+#loc = loc(unknown)
+#loc2 = loc("gemm.c":11:24)
+#loc6 = loc("gemm.c":14:24)
+#loc7 = loc("gemm.c":14:40)
+#loc8 = loc("gemm.c":14:38)
+#loc9 = loc("gemm.c":15:21)
+#loc10 = loc("gemm.c":12:22)
+#loc11 = loc("gemm.c":17:30)
+#loc12 = loc("gemm.c":20:1)
