@@ -1,1 +1,20 @@
-mlir_graph_gen.py: error: Loop action L3 matched 0 MLIR loops; no loop was found at lavaMD.cpp:21.
+mlir_graph_gen.py: error: Array action L1/d: no allocation with exact shape (4,) exists in resolved MLIR function '_Z22lavaMD_baseline_paddedPfS_S_'.
+Candidate allocations:
+[
+  {
+    "operation": "memref.alloca",
+    "function": "_Z22lavaMD_baseline_paddedPfS_S_",
+    "location": "loc(\"lavaMD.cpp\":19:8)",
+    "shape": [
+      27,
+      3
+    ],
+    "type": "memref<27x3xi32>",
+    "access_source_lines": [
+      19,
+      40,
+      41,
+      42
+    ]
+  }
+]

@@ -229,6 +229,9 @@ class ActionSpec:
     source_file: str = ""
     source_line: int = 0
     source_column: int = 0
+    # Exact source lines where an array variable is read or written. These are
+    # used only to disambiguate multiple same-shaped physical allocations.
+    source_use_lines: tuple[int, ...] = ()
     matched: bool = False
 
 
@@ -569,6 +572,7 @@ def _source_actions(source: Path) -> dict[str, dict[str, Any]]:
     """
     text = source.read_text(encoding="utf-8", errors="replace")
     spans = _source_function_spans(text)
+    clean_lines = _strip_source_comments(text).splitlines()
 
     # Do not require Lk to be the first non-whitespace token. This tolerates a
     # UTF-8 BOM and other harmless source-prefix characters while still
@@ -599,13 +603,13 @@ def _source_actions(source: Path) -> dict[str, dict[str, Any]]:
                 f"{source}:{line_number}: duplicate source action {action_id}"
             )
 
-        function = next(
+        function, function_start_line, function_end_line = next(
             (
-                name
+                (name, start_line, end_line)
                 for name, start_line, end_line in spans
                 if start_line <= line_number <= end_line
             ),
-            "GLOBAL",
+            ("GLOBAL", 1, len(clean_lines)),
         )
 
         # Start immediately after Lk: or /*Lk:*/.
@@ -637,10 +641,27 @@ def _source_actions(source: Path) -> dict[str, dict[str, Any]]:
             continue
 
         if array_match is not None:
+            variable = array_match.group("name")
+            identifier_re = re.compile(
+                rf"\b{re.escape(variable)}\b"
+            )
+            source_use_lines = tuple(
+                candidate_line
+                for candidate_line in range(
+                    function_start_line,
+                    function_end_line + 1,
+                )
+                if candidate_line != line_number
+                and candidate_line <= len(clean_lines)
+                and identifier_re.search(
+                    clean_lines[candidate_line - 1]
+                )
+            )
             actions[action_id] = {
                 **common,
                 "kind": "array",
-                "array_name": array_match.group("name"),
+                "array_name": variable,
+                "source_use_lines": source_use_lines,
                 "source_column": (
                     semantic_start + array_match.start("name") + 1
                 ),
@@ -787,6 +808,13 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                 source_file=str(source_action["source_file"]),
                 source_line=int(source_action["source_line"]),
                 source_column=int(source_action["source_column"]),
+                source_use_lines=tuple(
+                    int(value)
+                    for value in source_action.get(
+                        "source_use_lines",
+                        (),
+                    )
+                ),
             )
         )
     return top_function, actions
@@ -1263,6 +1291,12 @@ class MlirGraphBuilder:
         self.memory_accesses: list[MemoryAccess] = []
         self.block_edges: set[tuple[int, int, int, int]] = set()
         self.attached_action_ids: set[str] = set()
+        # Source-level C++ helper names may be mangled in MLIR. Exact loop
+        # source locations provide a deterministic source-function -> MLIR
+        # function mapping that array actions can safely reuse.
+        self.source_function_ids_from_exact_loops: dict[str, set[int]] = (
+            defaultdict(set)
+        )
 
     def _value_key(self, value: Any) -> tuple[str, Any, int]:
         """Return the structural MLIR identity of an SSA value.
@@ -2957,49 +2991,68 @@ class MlirGraphBuilder:
         ]
         return min(distances) if distances else None
 
+
     def _resolve_loop_action(self, spec: ActionSpec) -> tuple[int, str]:
-        """Resolve a loop action by MLIR location, then by source-order fallback."""
-        candidates = [
+        """Resolve an action by exact source location.
+
+        MLIR symbols may be C++-mangled, so source-level function names must not
+        filter exact FileLineColLoc candidates.
+        """
+        located: list[tuple[int, int, LoopInfo]] = []
+
+        for loop_index, loop in enumerate(self.loops):
+            distance = self._source_distance(loop.op_record, spec)
+            if distance is not None:
+                located.append((distance, loop_index, loop))
+
+        if located:
+            best_distance = min(item[0] for item in located)
+            best = [
+                item
+                for item in located
+                if item[0] == best_distance
+            ]
+
+            if len(best) == 1:
+                return best[0][1], "source_location"
+
+            # Ordinal is only a tie-breaker after exact file and line matching.
+            tied_by_ordinal = [
+                item
+                for item in best
+                if item[2].loop_ordinal == spec.loop_ordinal
+            ]
+
+            if len(tied_by_ordinal) == 1:
+                return tied_by_ordinal[0][1], "source_location+ordinal"
+
+            raise RuntimeError(
+                f"Loop action {spec.action_id} at "
+                f"{spec.source_file}:{spec.source_line}:{spec.source_column} "
+                f"matches {len(best)} equally close MLIR loops."
+            )
+
+        # Compatibility fallback only. This must remain forbidden in final graphs.
+        same_function = [
             (loop_index, loop)
             for loop_index, loop in enumerate(self.loops)
             if loop.function_name == spec.function
         ]
-        located = [
-            (self._source_distance(loop.op_record, spec), loop_index, loop)
-            for loop_index, loop in candidates
-        ]
-        located = [item for item in located if item[0] is not None]
-        if located:
-            best_distance = min(int(item[0]) for item in located)
-            best = [item for item in located if int(item[0]) == best_distance]
-            if len(best) == 1:
-                return best[0][1], "source_location"
-
-            # A fused location can legally place two loop ops on the same
-            # source line.  Use the dataset's source-order ordinal only to
-            # break that already location-constrained tie.
-            tied_by_ordinal = [
-                item for item in best if item[2].loop_ordinal == spec.loop_ordinal
-            ]
-            if len(tied_by_ordinal) == 1:
-                return tied_by_ordinal[0][1], "source_location+ordinal"
-            raise RuntimeError(
-                f"Loop action {spec.action_id} at {spec.source_file}:"
-                f"{spec.source_line}:{spec.source_column} matches {len(best)} "
-                "equally close MLIR loops."
-            )
 
         ordinal = [
             loop_index
-            for loop_index, loop in candidates
+            for loop_index, loop in same_function
             if loop.loop_ordinal == spec.loop_ordinal
         ]
+
         if len(ordinal) == 1:
             return ordinal[0], "function+ordinal-fallback"
+
         raise RuntimeError(
             f"Loop action {spec.action_id} matched {len(ordinal)} MLIR loops; "
             f"no loop was found at {spec.source_file}:{spec.source_line}."
         )
+
 
     def _add_pragma_node(
         self,
@@ -3035,6 +3088,12 @@ class MlirGraphBuilder:
         manifest_by_loop: dict[int, tuple[ActionSpec, str]] = {}
         for spec in [item for item in self.actions if item.kind == "loop"]:
             loop_index, resolution = self._resolve_loop_action(spec)
+            if resolution.startswith("source_location"):
+                self.source_function_ids_from_exact_loops[
+                    spec.function
+                ].add(
+                    self.loops[loop_index].function_id
+                )
             if loop_index in manifest_by_loop:
                 other, _ = manifest_by_loop[loop_index]
                 raise RuntimeError(
@@ -3088,75 +3147,302 @@ class MlirGraphBuilder:
                 )
 
 
+    def _resolve_action_function_id(
+        self,
+        spec: ActionSpec,
+    ) -> tuple[int, str]:
+        """Resolve a source-level function name to one MLIR function ID.
 
-    def _array_argument_node(self, spec: ActionSpec) -> tuple[int, int, int, str]:
-        """Resolve an array action to its physical allocation.
-
-        Source location is the primary key because two independent buffers can
-        have identical element type and shape.  Shape remains a useful
-        compatibility fallback only when it identifies exactly one allocation.
+        extern "C" functions retain their source symbol. Ordinary C++ helpers
+        can be mangled, so reuse only a mapping already proven by an exact loop
+        FileLineColLoc match.
         """
-        function_id = self.function_name_to_id.get(spec.function)
-        if function_id is None:
-            raise RuntimeError(
-                f"Array action {spec.action_id}: unknown function {spec.function!r}"
+        direct = self.function_name_to_id.get(spec.function)
+        if direct is not None:
+            return direct, "function_symbol"
+
+        candidates = sorted(
+            self.source_function_ids_from_exact_loops.get(
+                spec.function,
+                set(),
             )
-        dimensions = "x".join(str(value) for value in spec.array_dimensions)
-        candidates: list[tuple[OperationRecord, int]] = []
+        )
+        if len(candidates) == 1:
+            return candidates[0], "function_from_exact_loop"
+
+        if len(candidates) > 1:
+            symbols = [
+                self.functions[function_id]
+                for function_id in candidates
+            ]
+            raise RuntimeError(
+                f"Source function {spec.function!r} maps to multiple "
+                f"MLIR functions through exact loop locations: {symbols}"
+            )
+
+        raise RuntimeError(
+            f"Could not map source function {spec.function!r} to an "
+            "MLIR function symbol. No exact source-location loop mapping "
+            "was available."
+        )
+
+    def _node_memory_shape(
+        self,
+        node: int,
+    ) -> tuple[int, ...]:
+        """Return the structured MemRef shape already extracted for a node."""
+        raw_shape = self.graph.nodes[node].get(
+            "memory_shape",
+            [],
+        )
+
+        if isinstance(raw_shape, str):
+            try:
+                raw_shape = json.loads(raw_shape)
+            except json.JSONDecodeError:
+                return ()
+
+        if not isinstance(raw_shape, (list, tuple)):
+            return ()
+
+        try:
+            return tuple(int(value) for value in raw_shape)
+        except (TypeError, ValueError):
+            return ()
+
+    def _root_access_source_lines(
+        self,
+        root: int,
+        source_file: str,
+    ) -> set[int]:
+        """Return exact source lines of accesses rooted at one allocation."""
+        records_by_node = {
+            record.node: record
+            for record in self.operation_records
+        }
+        lines: set[int] = set()
+
+        for access in self.memory_accesses:
+            if access.root_node != root:
+                continue
+
+            record = records_by_node.get(access.op_node)
+            if record is None:
+                continue
+
+            for point in record.source_points:
+                if self._same_source_file(
+                    point.filename,
+                    source_file,
+                ):
+                    lines.add(point.line)
+
+        return lines
+
+    def _array_argument_node(
+        self,
+        spec: ActionSpec,
+    ) -> tuple[int, int, int, str]:
+        """Resolve an array without changing the graph's action semantics.
+
+        Priority:
+          1. exact allocation declaration location;
+          2. resolved source function + exact structured MemRef shape;
+          3. when same-shaped allocations remain, exact source access lines.
+
+        No declaration-order or global shape-only fallback is introduced.
+        """
+        all_candidates: list[tuple[OperationRecord, int]] = []
+
         for record in self.operation_records:
-            if record.function_id != function_id or record.op_name not in {
-                "memref.alloc", "memref.alloca", "llvm.alloca"
+            if record.op_name not in {
+                "memref.alloc",
+                "memref.alloca",
+                "llvm.alloca",
             }:
                 continue
+
             for result_key in record.result_keys:
                 node = self.value_nodes[result_key]
-                if is_memory_type(str(self.graph.nodes[node].get("value_type", ""))):
-                    candidates.append((record, node))
+                type_text = str(
+                    self.graph.nodes[node].get(
+                        "value_type",
+                        "",
+                    )
+                )
+                if is_memory_type(type_text):
+                    all_candidates.append((record, node))
 
+        # Exact declaration location remains the primary key and is searched
+        # globally so C++ symbol mangling cannot hide the owning helper.
         located = [
             (self._source_distance(record, spec), record, node)
-            for record, node in candidates
+            for record, node in all_candidates
         ]
-        located = [item for item in located if item[0] is not None]
+        located = [
+            item
+            for item in located
+            if item[0] is not None
+        ]
+
         if located:
-            best_distance = min(int(item[0]) for item in located)
-            best = [item for item in located if int(item[0]) == best_distance]
-            if len(best) > 1 and dimensions:
+            best_distance = min(
+                int(item[0])
+                for item in located
+            )
+            best = [
+                item
+                for item in located
+                if int(item[0]) == best_distance
+            ]
+
+            if len(best) > 1:
                 shaped = [
                     item
                     for item in best
-                    if re.search(
-                        rf"(?:memref|vector)<{re.escape(dimensions)}x",
-                        str(self.graph.nodes[item[2]].get("value_type", "")),
-                    )
+                    if self._node_memory_shape(item[2])
+                    == spec.array_dimensions
                 ]
                 if len(shaped) == 1:
                     best = shaped
+
             if len(best) != 1:
                 raise RuntimeError(
-                    f"Array action {spec.action_id} at {spec.source_file}:"
-                    f"{spec.source_line}:{spec.source_column} matches {len(best)} "
+                    f"Array action {spec.action_id} at "
+                    f"{spec.source_file}:{spec.source_line}:"
+                    f"{spec.source_column} matches {len(best)} "
                     "equally close MLIR allocations."
                 )
+
             _, record, node = best[0]
-            return function_id, node, record.block_id, "source_location"
+            return (
+                record.function_id,
+                node,
+                record.block_id,
+                "source_location",
+            )
+
+        function_id, function_resolution = (
+            self._resolve_action_function_id(spec)
+        )
+
+        function_candidates = [
+            (record, node)
+            for record, node in all_candidates
+            if record.function_id == function_id
+        ]
 
         shape_candidates = [
             (record, node)
-            for record, node in candidates
-            if dimensions and re.search(
-                rf"(?:memref|vector)<{re.escape(dimensions)}x",
-                str(self.graph.nodes[node].get("value_type", "")),
-            )
+            for record, node in function_candidates
+            if self._node_memory_shape(node)
+            == spec.array_dimensions
         ]
-        if len(shape_candidates) != 1:
-            raise RuntimeError(
-                f"Array action {spec.action_id}: dimensions={spec.array_dimensions} "
-                f"matched {len(shape_candidates)} local allocations in {spec.function}, "
-                f"and none was found at {spec.source_file}:{spec.source_line}."
+
+        if len(shape_candidates) == 1:
+            record, node = shape_candidates[0]
+            return (
+                function_id,
+                node,
+                record.block_id,
+                f"{function_resolution}+unique_shape",
             )
-        record, node = shape_candidates[0]
-        return function_id, node, record.block_id, "unique-shape-fallback"
+
+        # Polygeist may place several equal-shaped allocas at function entry.
+        # Distinguish them only when their rooted MLIR accesses overlap the
+        # exact source lines where the named C/C++ array is used.
+        if len(shape_candidates) > 1 and spec.source_use_lines:
+            expected_lines = set(spec.source_use_lines)
+            scored: list[
+                tuple[
+                    int,
+                    set[int],
+                    OperationRecord,
+                    int,
+                ]
+            ] = []
+
+            for record, node in shape_candidates:
+                access_lines = self._root_access_source_lines(
+                    node,
+                    spec.source_file,
+                )
+                overlap = access_lines & expected_lines
+                scored.append(
+                    (
+                        len(overlap),
+                        overlap,
+                        record,
+                        node,
+                    )
+                )
+
+            best_score = max(
+                score
+                for score, _, _, _ in scored
+            )
+            best = [
+                item
+                for item in scored
+                if item[0] == best_score
+            ]
+
+            if best_score > 0 and len(best) == 1:
+                _, overlap, record, node = best[0]
+                self.graph.nodes[node][
+                    "action_source_use_overlap"
+                ] = sorted(overlap)
+                return (
+                    function_id,
+                    node,
+                    record.block_id,
+                    (
+                        f"{function_resolution}"
+                        "+shape+source_access"
+                    ),
+                )
+
+        candidate_report = [
+            {
+                "operation": record.op_name,
+                "function": record.function_name,
+                "location": record.location,
+                "shape": self._node_memory_shape(node),
+                "type": self.graph.nodes[node].get(
+                    "value_type",
+                    "",
+                ),
+                "access_source_lines": sorted(
+                    self._root_access_source_lines(
+                        node,
+                        spec.source_file,
+                    )
+                ),
+            }
+            for record, node in function_candidates
+        ]
+
+        if not shape_candidates:
+            raise RuntimeError(
+                f"Array action {spec.action_id}/{spec.variable}: "
+                f"no allocation with exact shape "
+                f"{spec.array_dimensions} exists in resolved MLIR "
+                f"function {self.functions[function_id]!r}.\n"
+                f"Candidate allocations:\n"
+                f"{json.dumps(candidate_report, indent=2)}"
+            )
+
+        raise RuntimeError(
+            f"Array action {spec.action_id}/{spec.variable}: "
+            f"shape {spec.array_dimensions} matches "
+            f"{len(shape_candidates)} allocations in resolved "
+            f"MLIR function {self.functions[function_id]!r}, "
+            "and exact source access lines did not identify one "
+            "unique physical root.\n"
+            f"Candidate allocations:\n"
+            f"{json.dumps(candidate_report, indent=2)}"
+        )
+
 
     def _attach_array_actions(self) -> None:
         """Connect array-partition actions to their root allocation and all accesses."""
@@ -3718,13 +4004,21 @@ def validate_cgeist_flags(flags: Sequence[str]) -> list[str]:
         "-S",
         "-c",
     }
-    forbidden_prefixes = ("-function=", "--function=", "-o=", "--output=")
+    forbidden_prefixes = (
+        "-function=",
+        "--function=",
+        "-o=",
+        "--output=",
+        "-scal-rep=",
+        "--scal-rep=",
+    )
     cleaned = [str(flag) for flag in flags]
     for flag in cleaned:
         if flag in forbidden_exact or flag == "-o" or flag.startswith(forbidden_prefixes):
             raise ValueError(
                 f"Conflicting --cflag={flag!r}. mlir_graph_gen.py fixes -O0, "
-                "full-rank MemRefs, affine raising, the kernel, and the output path."
+                "disables affine scalar replacement, preserves full-rank MemRefs, "
+                "raises SCF to Affine, and fixes the kernel and output path."
             )
     return cleaned
 
@@ -3749,6 +4043,9 @@ def build_cgeist_command(
         f"-function={kernel}",
         "-S",
         "-O0",
+        # ARRAY_PARTITION action points must remain represented as MemRefs.
+        # Polygeist enables affine scalar replacement by default even at -O0.
+        "-scal-rep=0",
         # Source locations are part of the MailoHLS action-mapping contract.
         # Without this cgeist retains locations internally but omits them from
         # the serialized MLIR, forcing unsafe ordinal/shape action fallbacks.
@@ -3814,15 +4111,32 @@ def compile_source_to_mlir(
     # Exact Lk attachment requires the source file/line/column to survive
     # textual MLIR serialization. Detect a frontend/printer configuration
     # error here rather than much later as nine misleading action fallbacks.
-    source_location_pattern = re.compile(
-        rf'"(?:[^"]*/)?{re.escape(source.name)}":[0-9]+:[0-9]+'
+    printed_file_loc_re = re.compile(
+        r'"(?P<filename>(?:\\.|[^"\\])+)":'
+        r'[0-9]+:[0-9]+'
     )
-    if source_location_pattern.search(text) is None:
+    location_files = {
+        match.group("filename")
+        for match in printed_file_loc_re.finditer(text)
+    }
+
+    if not location_files:
         raise RuntimeError(
-            "cgeist emitted MLIR without source locations for "
-            f"{source.name}. The frontend command must include "
-            "-print-debug-info. Exact MailoHLS action mapping is impossible "
-            "without serialized FileLineColLoc information."
+            f"cgeist emitted MLIR without any FileLineColLoc "
+            f"information for {source.name}. The frontend command "
+            "must include -print-debug-info."
+        )
+
+    source_location_found = any(
+        filename in {"-", "<stdin>"}
+        or Path(filename).name == source.name
+        for filename in location_files
+    )
+    if not source_location_found:
+        raise RuntimeError(
+            f"cgeist emitted source locations, but none correspond "
+            f"to {source.name}. Found location files: "
+            f"{sorted(location_files)}"
         )
 
     if not re.search(r"\b(?:func\.func|llvm\.func)\b", text):
@@ -3948,8 +4262,9 @@ def run(args: argparse.Namespace) -> Path:
                     "action_sha256": hashlib.sha256(kernel_info.read_bytes()).hexdigest(),
                     "mlir_level": "affine+scf+memref+arith+func",
                     "frontend_policy": (
-                        "cgeist:-O0,print-debug-info,noinline-helpers,"
-                        "memref-fullrank,raise-scf-to-affine"
+                        "cgeist:-O0,scal-rep=0,print-debug-info,"
+                        "noinline-helpers,memref-fullrank,"
+                        "raise-scf-to-affine"
                     ),
                     # The exact frontend binary is part of the experimental
                     # representation, so persist its content hash without
