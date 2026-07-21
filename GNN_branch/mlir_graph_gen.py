@@ -49,6 +49,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import gc
 from collections import Counter, defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -3843,20 +3844,38 @@ def create_initial_graph(
     conservative_memory_dependencies: bool,
     require_actions: bool,
 ) -> tuple[Any, ParseResult]:
-    """Build the semantic graph while returning the Context needed to keep MLIR objects alive."""
+    """Build the semantic graph and keep its MLIR Context alive.
+    """
     context, module, mlir_text = parse_mlir_module(
         mlir_path,
         allow_unregistered_dialects=allow_unregistered_dialects,
     )
-    builder = MlirGraphBuilder(
-        module=module,
-        mlir_text=mlir_text,
-        actions=actions,
-        conservative_memory_dependencies=conservative_memory_dependencies,
-        require_actions=require_actions,
-    )
-    result = builder.build()
-    return context, result
+
+    builder: MlirGraphBuilder | None = None
+
+    try:
+        builder = MlirGraphBuilder(
+            module=module,
+            mlir_text=mlir_text,
+            actions=actions,
+            conservative_memory_dependencies=(
+                conservative_memory_dependencies
+            ),
+            require_actions=require_actions,
+        )
+
+        result = builder.build()
+        return context, result
+
+    except BaseException:
+        # Release Python wrappers carrying native MLIR handles before
+        # closing the explicitly entered Context.
+        builder = None
+        module = None
+        gc.collect()
+
+        context.__exit__(*sys.exc_info())
+        raise
 
 
 # ---------------------------------------------------------------------------
@@ -3963,8 +3982,10 @@ def run(args: argparse.Namespace) -> Path:
                 )
             write_gexf_deterministic(training_graph, output)
         finally:
-            # MLIR Python wrappers own native handles tied to this Context.  It
-            # must outlive graph construction and be closed even on validation failure.
+            # Drop records containing MLIR operation/value wrappers before
+            # closing their native Context.
+            result = None
+            gc.collect()
             context.__exit__(None, None, None)
 
     for warning in report["warnings"]:

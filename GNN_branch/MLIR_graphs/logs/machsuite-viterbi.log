@@ -1,34 +1,34 @@
 mlir_graph_gen.py: error: cgeist failed while translating the kernel.
-Command: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist viterbi.c -function=viterbi -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_7ndrxzzo/viterbi.hls.mlir
+Command: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist viterbi.c -function=viterbi -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_k60n_cv9/viterbi.hls.mlir
 Diagnostics:
 cgeist: /home/elvouvali/tools/Polygeist/llvm-project/mlir/lib/IR/PatternMatch.cpp:326: mlir::RewriterBase::eraseOp(mlir::Operation*)::<lambda(mlir::Operation*)>: Assertion `mayBeGraphRegion(*op->getParentRegion()) && "expected that op has no uses"' failed.
 PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace.
 Stack dump:
-0.	Program arguments: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist viterbi.c -function=viterbi -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_7ndrxzzo/viterbi.hls.mlir
- #0 0x0000557674c4442f llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1bc642f)
- #1 0x0000557674c41ab4 SignalHandler(int) Signals.cpp:0:0
- #2 0x00007f83005f1420 __restore_rt (/lib/x86_64-linux-gnu/libpthread.so.0+0x14420)
- #3 0x00007f830008e00b raise /build/glibc-FcRMwW/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
- #4 0x00007f830006d859 abort /build/glibc-FcRMwW/glibc-2.31/stdlib/abort.c:81:7
- #5 0x00007f830006d729 get_sysdep_segment_value /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:509:8
- #6 0x00007f830006d729 _nl_load_domain /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:970:34
- #7 0x00007f830007efd6 (/lib/x86_64-linux-gnu/libc.so.6+0x33fd6)
- #8 0x00005576750ba92e mlir::RewriterBase::eraseOp(mlir::Operation*)::'lambda0'(mlir::Operation*)::operator()(mlir::Operation*) const (.isra.0) PatternMatch.cpp:0:0
- #9 0x00005576750ba126 mlir::RewriterBase::eraseOp(mlir::Operation*)::'lambda0'(mlir::Operation*)::operator()(mlir::Operation*) const (.isra.0) PatternMatch.cpp:0:0
-#10 0x00005576750bac06 mlir::RewriterBase::eraseOp(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x203cc06)
-#11 0x00005576750b7ee3 mlir::RewriterBase::replaceOp(mlir::Operation*, mlir::ValueRange) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x2039ee3)
-#12 0x0000557674eb09c6 MoveWhileToFor::matchAndRewrite(mlir::scf::WhileOp, mlir::PatternRewriter&) const (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1e329c6)
-#13 0x0000557674e9b638 mlir::detail::OpOrInterfaceRewritePatternBase<mlir::scf::WhileOp>::matchAndRewrite(mlir::Operation*, mlir::PatternRewriter&) const (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1e1d638)
-#14 0x0000557678875588 mlir::PatternApplicator::matchAndRewrite(mlir::Operation*, mlir::PatternRewriter&, llvm::function_ref<bool (mlir::Pattern const&)>, llvm::function_ref<void (mlir::Pattern const&)>, llvm::function_ref<mlir::LogicalResult (mlir::Pattern const&)>) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x57f7588)
-#15 0x0000557675711cfc (anonymous namespace)::GreedyPatternRewriteDriver::processWorklist() GreedyPatternRewriteDriver.cpp:0:0
-#16 0x000055767571681b mlir::applyPatternsAndFoldGreedily(mlir::Region&, mlir::FrozenRewritePatternSet const&, mlir::GreedyRewriteConfig, bool*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x269881b)
-#17 0x0000557674eada2a (anonymous namespace)::CanonicalizeFor::runOnOperation() CanonicalizeFor.cpp:0:0
-#18 0x00005576756d9f7e mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bf7e)
-#19 0x00005576756da45a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
-#20 0x00005576756db28b mlir::detail::OpToOpPassAdaptor::runOnOperationImpl(bool) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265d28b)
-#21 0x00005576756d9d1a mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bd1a)
-#22 0x00005576756da45a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
-#23 0x00005576756dac84 mlir::PassManager::run(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265cc84)
-#24 0x000055767384d1dc main (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x7cf1dc)
-#25 0x00007f830006f083 __libc_start_main /build/glibc-FcRMwW/glibc-2.31/csu/../csu/libc-start.c:342:3
-#26 0x00005576738fb29e _start (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x87d29e)
+0.	Program arguments: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist viterbi.c -function=viterbi -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_k60n_cv9/viterbi.hls.mlir
+ #0 0x000055b0800de42f llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1bc642f)
+ #1 0x000055b0800dbab4 SignalHandler(int) Signals.cpp:0:0
+ #2 0x00007feb4eb3c420 __restore_rt (/lib/x86_64-linux-gnu/libpthread.so.0+0x14420)
+ #3 0x00007feb4e5d900b raise /build/glibc-FcRMwW/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
+ #4 0x00007feb4e5b8859 abort /build/glibc-FcRMwW/glibc-2.31/stdlib/abort.c:81:7
+ #5 0x00007feb4e5b8729 get_sysdep_segment_value /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:509:8
+ #6 0x00007feb4e5b8729 _nl_load_domain /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:970:34
+ #7 0x00007feb4e5c9fd6 (/lib/x86_64-linux-gnu/libc.so.6+0x33fd6)
+ #8 0x000055b08055492e mlir::RewriterBase::eraseOp(mlir::Operation*)::'lambda0'(mlir::Operation*)::operator()(mlir::Operation*) const (.isra.0) PatternMatch.cpp:0:0
+ #9 0x000055b080554126 mlir::RewriterBase::eraseOp(mlir::Operation*)::'lambda0'(mlir::Operation*)::operator()(mlir::Operation*) const (.isra.0) PatternMatch.cpp:0:0
+#10 0x000055b080554c06 mlir::RewriterBase::eraseOp(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x203cc06)
+#11 0x000055b080551ee3 mlir::RewriterBase::replaceOp(mlir::Operation*, mlir::ValueRange) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x2039ee3)
+#12 0x000055b08034a9c6 MoveWhileToFor::matchAndRewrite(mlir::scf::WhileOp, mlir::PatternRewriter&) const (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1e329c6)
+#13 0x000055b080335638 mlir::detail::OpOrInterfaceRewritePatternBase<mlir::scf::WhileOp>::matchAndRewrite(mlir::Operation*, mlir::PatternRewriter&) const (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1e1d638)
+#14 0x000055b083d0f588 mlir::PatternApplicator::matchAndRewrite(mlir::Operation*, mlir::PatternRewriter&, llvm::function_ref<bool (mlir::Pattern const&)>, llvm::function_ref<void (mlir::Pattern const&)>, llvm::function_ref<mlir::LogicalResult (mlir::Pattern const&)>) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x57f7588)
+#15 0x000055b080babcfc (anonymous namespace)::GreedyPatternRewriteDriver::processWorklist() GreedyPatternRewriteDriver.cpp:0:0
+#16 0x000055b080bb081b mlir::applyPatternsAndFoldGreedily(mlir::Region&, mlir::FrozenRewritePatternSet const&, mlir::GreedyRewriteConfig, bool*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x269881b)
+#17 0x000055b080347a2a (anonymous namespace)::CanonicalizeFor::runOnOperation() CanonicalizeFor.cpp:0:0
+#18 0x000055b080b73f7e mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bf7e)
+#19 0x000055b080b7445a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
+#20 0x000055b080b7528b mlir::detail::OpToOpPassAdaptor::runOnOperationImpl(bool) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265d28b)
+#21 0x000055b080b73d1a mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bd1a)
+#22 0x000055b080b7445a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
+#23 0x000055b080b74c84 mlir::PassManager::run(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265cc84)
+#24 0x000055b07ece71dc main (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x7cf1dc)
+#25 0x00007feb4e5ba083 __libc_start_main /build/glibc-FcRMwW/glibc-2.31/csu/../csu/libc-start.c:342:3
+#26 0x000055b07ed9529e _start (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x87d29e)

@@ -1,111 +1,111 @@
 mlir_graph_gen.py: error: cgeist failed while translating the kernel.
-Command: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist kernel.cpp -function=krnl_KALMAN -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_rt0x62ur/kernel.hls.mlir
+Command: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist kernel.cpp -function=krnl_KALMAN -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_heqfrmbk/kernel.hls.mlir
 Diagnostics:
-BinaryOperator 0x5557ced76160 'int' lvalue '='
-|-MemberExpr 0x5557ced75488 'int' lvalue .raw_val 0x5557ced6ff70
-| `-DeclRefExpr 0x5557ced75468 'raw_float':'raw_float' lvalue Var 0x5557ced74450 't' 'raw_float':'raw_float'
-`-ImplicitCastExpr 0x5557ced76148 'int' <IntegralCast>
-  `-ImplicitCastExpr 0x5557ced76130 'std::uint64_t':'unsigned long' <UserDefinedConversion>
-    `-CXXMemberCallExpr 0x5557ced76008 'std::uint64_t':'unsigned long'
-      `-MemberExpr 0x5557ced75fd8 '<bound member function type>' .operator unsigned long 0x5557ced75d80
-        `-ImplicitCastExpr 0x5557ced75fc0 'const struct ap_uint<256>::range_proxy' lvalue <NoOp>
-          `-MaterializeTemporaryExpr 0x5557ced75fa8 'range_proxy':'struct ap_uint<256>::range_proxy' lvalue
-            `-CXXMemberCallExpr 0x5557ced75860 'range_proxy':'struct ap_uint<256>::range_proxy'
-              |-MemberExpr 0x5557ced75830 '<bound member function type>' .range 0x5557ced72698
-              | `-DeclRefExpr 0x5557ced754b8 'INTERFACE_WIDTH':'struct ap_uint<256>' lvalue Var 0x5557ced71da8 'temp' 'INTERFACE_WIDTH':'struct ap_uint<256>'
-              |-ImplicitCastExpr 0x5557ced75e60 'int' <IntegralCast>
-              | `-BinaryOperator 0x5557ced756f0 'unsigned long' '-'
-              |   |-BinaryOperator 0x5557ced75698 'unsigned long' '*'
-              |   | |-ImplicitCastExpr 0x5557ced75680 'unsigned long' <IntegralCast>
-              |   | | `-ParenExpr 0x5557ced755b0 'int'
-              |   | |   `-BinaryOperator 0x5557ced75590 'int' '+'
-              |   | |     |-ImplicitCastExpr 0x5557ced75578 'int' <LValueToRValue>
-              |   | |     | `-DeclRefExpr 0x5557ced75538 'int' lvalue Var 0x5557ced74170 'j' 'int'
-              |   | |     `-IntegerLiteral 0x5557ced75558 'int' 1
-              |   | `-ParenExpr 0x5557ced75660 'unsigned long'
-              |   |   `-BinaryOperator 0x5557ced75640 'unsigned long' '*'
-              |   |     |-UnaryExprOrTypeTraitExpr 0x5557ced755e8 'unsigned long' sizeof 'float'
-              |   |     `-ImplicitCastExpr 0x5557ced75628 'unsigned long' <IntegralCast>
-              |   |       `-IntegerLiteral 0x5557ced75608 'int' 8
-              |   `-ImplicitCastExpr 0x5557ced756d8 'unsigned long' <IntegralCast>
-              |     `-IntegerLiteral 0x5557ced756b8 'int' 1
-              `-ImplicitCastExpr 0x5557ced75e78 'int' <IntegralCast>
-                `-BinaryOperator 0x5557ced75810 'unsigned long' '*'
-                  |-ImplicitCastExpr 0x5557ced757f8 'unsigned long' <IntegralCast>
-                  | `-ImplicitCastExpr 0x5557ced757e0 'int' <LValueToRValue>
-                  |   `-DeclRefExpr 0x5557ced75710 'int' lvalue Var 0x5557ced74170 'j' 'int'
-                  `-ParenExpr 0x5557ced757c0 'unsigned long'
-                    `-BinaryOperator 0x5557ced757a0 'unsigned long' '*'
-                      |-UnaryExprOrTypeTraitExpr 0x5557ced75748 'unsigned long' sizeof 'float'
-                      `-ImplicitCastExpr 0x5557ced75788 'unsigned long' <IntegralCast>
-                        `-IntegerLiteral 0x5557ced75768 'int' 8
+BinaryOperator 0x556ee91796a0 'int' lvalue '='
+|-MemberExpr 0x556ee91789c8 'int' lvalue .raw_val 0x556ee91734b0
+| `-DeclRefExpr 0x556ee91789a8 'raw_float':'raw_float' lvalue Var 0x556ee9177990 't' 'raw_float':'raw_float'
+`-ImplicitCastExpr 0x556ee9179688 'int' <IntegralCast>
+  `-ImplicitCastExpr 0x556ee9179670 'std::uint64_t':'unsigned long' <UserDefinedConversion>
+    `-CXXMemberCallExpr 0x556ee9179548 'std::uint64_t':'unsigned long'
+      `-MemberExpr 0x556ee9179518 '<bound member function type>' .operator unsigned long 0x556ee91792c0
+        `-ImplicitCastExpr 0x556ee9179500 'const struct ap_uint<256>::range_proxy' lvalue <NoOp>
+          `-MaterializeTemporaryExpr 0x556ee91794e8 'range_proxy':'struct ap_uint<256>::range_proxy' lvalue
+            `-CXXMemberCallExpr 0x556ee9178da0 'range_proxy':'struct ap_uint<256>::range_proxy'
+              |-MemberExpr 0x556ee9178d70 '<bound member function type>' .range 0x556ee9175bd8
+              | `-DeclRefExpr 0x556ee91789f8 'INTERFACE_WIDTH':'struct ap_uint<256>' lvalue Var 0x556ee91752e8 'temp' 'INTERFACE_WIDTH':'struct ap_uint<256>'
+              |-ImplicitCastExpr 0x556ee91793a0 'int' <IntegralCast>
+              | `-BinaryOperator 0x556ee9178c30 'unsigned long' '-'
+              |   |-BinaryOperator 0x556ee9178bd8 'unsigned long' '*'
+              |   | |-ImplicitCastExpr 0x556ee9178bc0 'unsigned long' <IntegralCast>
+              |   | | `-ParenExpr 0x556ee9178af0 'int'
+              |   | |   `-BinaryOperator 0x556ee9178ad0 'int' '+'
+              |   | |     |-ImplicitCastExpr 0x556ee9178ab8 'int' <LValueToRValue>
+              |   | |     | `-DeclRefExpr 0x556ee9178a78 'int' lvalue Var 0x556ee91776b0 'j' 'int'
+              |   | |     `-IntegerLiteral 0x556ee9178a98 'int' 1
+              |   | `-ParenExpr 0x556ee9178ba0 'unsigned long'
+              |   |   `-BinaryOperator 0x556ee9178b80 'unsigned long' '*'
+              |   |     |-UnaryExprOrTypeTraitExpr 0x556ee9178b28 'unsigned long' sizeof 'float'
+              |   |     `-ImplicitCastExpr 0x556ee9178b68 'unsigned long' <IntegralCast>
+              |   |       `-IntegerLiteral 0x556ee9178b48 'int' 8
+              |   `-ImplicitCastExpr 0x556ee9178c18 'unsigned long' <IntegralCast>
+              |     `-IntegerLiteral 0x556ee9178bf8 'int' 1
+              `-ImplicitCastExpr 0x556ee91793b8 'int' <IntegralCast>
+                `-BinaryOperator 0x556ee9178d50 'unsigned long' '*'
+                  |-ImplicitCastExpr 0x556ee9178d38 'unsigned long' <IntegralCast>
+                  | `-ImplicitCastExpr 0x556ee9178d20 'int' <LValueToRValue>
+                  |   `-DeclRefExpr 0x556ee9178c50 'int' lvalue Var 0x556ee91776b0 'j' 'int'
+                  `-ParenExpr 0x556ee9178d00 'unsigned long'
+                    `-BinaryOperator 0x556ee9178ce0 'unsigned long' '*'
+                      |-UnaryExprOrTypeTraitExpr 0x556ee9178c88 'unsigned long' sizeof 'float'
+                      `-ImplicitCastExpr 0x556ee9178cc8 'unsigned long' <IntegralCast>
+                        `-IntegerLiteral 0x556ee9178ca8 'int' 8
 cleanup not handled
-CXXOperatorCallExpr 0x5557ced7b6e0 'range_proxy':'struct ap_uint<256>::range_proxy' lvalue '='
-|-ImplicitCastExpr 0x5557ced7b6c8 'range_proxy &(*)(std::uint64_t)' <FunctionToPointerDecay>
-| `-DeclRefExpr 0x5557ced7b650 'range_proxy &(std::uint64_t)' lvalue CXXMethod 0x5557ced75cc0 'operator=' 'range_proxy &(std::uint64_t)'
-|-MaterializeTemporaryExpr 0x5557ced7b638 'range_proxy':'struct ap_uint<256>::range_proxy' lvalue
-| `-CXXMemberCallExpr 0x5557ced7ad98 'range_proxy':'struct ap_uint<256>::range_proxy'
-|   |-MemberExpr 0x5557ced7ad68 '<bound member function type>' .range 0x5557ced72698
-|   | `-DeclRefExpr 0x5557ced7a9f0 'INTERFACE_WIDTH':'struct ap_uint<256>' lvalue Var 0x5557ced71da8 'temp' 'INTERFACE_WIDTH':'struct ap_uint<256>'
-|   |-ImplicitCastExpr 0x5557ced7adc8 'int' <IntegralCast>
-|   | `-BinaryOperator 0x5557ced7ac28 'unsigned long' '-'
-|   |   |-BinaryOperator 0x5557ced7abd0 'unsigned long' '*'
-|   |   | |-ImplicitCastExpr 0x5557ced7abb8 'unsigned long' <IntegralCast>
-|   |   | | `-ParenExpr 0x5557ced7aae8 'int'
-|   |   | |   `-BinaryOperator 0x5557ced7aac8 'int' '+'
-|   |   | |     |-ImplicitCastExpr 0x5557ced7aab0 'int' <LValueToRValue>
-|   |   | |     | `-DeclRefExpr 0x5557ced7aa70 'int' lvalue Var 0x5557ced7a570 'j' 'int'
-|   |   | |     `-IntegerLiteral 0x5557ced7aa90 'int' 1
-|   |   | `-ParenExpr 0x5557ced7ab98 'unsigned long'
-|   |   |   `-BinaryOperator 0x5557ced7ab78 'unsigned long' '*'
-|   |   |     |-UnaryExprOrTypeTraitExpr 0x5557ced7ab20 'unsigned long' sizeof 'float'
-|   |   |     `-ImplicitCastExpr 0x5557ced7ab60 'unsigned long' <IntegralCast>
-|   |   |       `-IntegerLiteral 0x5557ced7ab40 'int' 8
-|   |   `-ImplicitCastExpr 0x5557ced7ac10 'unsigned long' <IntegralCast>
-|   |     `-IntegerLiteral 0x5557ced7abf0 'int' 1
-|   `-ImplicitCastExpr 0x5557ced7ade0 'int' <IntegralCast>
-|     `-BinaryOperator 0x5557ced7ad48 'unsigned long' '*'
-|       |-ImplicitCastExpr 0x5557ced7ad30 'unsigned long' <IntegralCast>
-|       | `-ImplicitCastExpr 0x5557ced7ad18 'int' <LValueToRValue>
-|       |   `-DeclRefExpr 0x5557ced7ac48 'int' lvalue Var 0x5557ced7a570 'j' 'int'
-|       `-ParenExpr 0x5557ced7acf8 'unsigned long'
-|         `-BinaryOperator 0x5557ced7acd8 'unsigned long' '*'
-|           |-UnaryExprOrTypeTraitExpr 0x5557ced7ac80 'unsigned long' sizeof 'float'
-|           `-ImplicitCastExpr 0x5557ced7acc0 'unsigned long' <IntegralCast>
-|             `-IntegerLiteral 0x5557ced7aca0 'int' 8
-`-ImplicitCastExpr 0x5557ced7b620 'std::uint64_t':'unsigned long' <IntegralCast>
-  `-ImplicitCastExpr 0x5557ced7b608 'int' <LValueToRValue>
-    `-MemberExpr 0x5557ced7ae18 'int' lvalue .raw_val 0x5557ced6ff70
-      `-DeclRefExpr 0x5557ced7adf8 'raw_float':'raw_float' lvalue Var 0x5557ced7a7f0 't' 'raw_float':'raw_float'
+CXXOperatorCallExpr 0x556ee917ec20 'range_proxy':'struct ap_uint<256>::range_proxy' lvalue '='
+|-ImplicitCastExpr 0x556ee917ec08 'range_proxy &(*)(std::uint64_t)' <FunctionToPointerDecay>
+| `-DeclRefExpr 0x556ee917eb90 'range_proxy &(std::uint64_t)' lvalue CXXMethod 0x556ee9179200 'operator=' 'range_proxy &(std::uint64_t)'
+|-MaterializeTemporaryExpr 0x556ee917eb78 'range_proxy':'struct ap_uint<256>::range_proxy' lvalue
+| `-CXXMemberCallExpr 0x556ee917e2d8 'range_proxy':'struct ap_uint<256>::range_proxy'
+|   |-MemberExpr 0x556ee917e2a8 '<bound member function type>' .range 0x556ee9175bd8
+|   | `-DeclRefExpr 0x556ee917df30 'INTERFACE_WIDTH':'struct ap_uint<256>' lvalue Var 0x556ee91752e8 'temp' 'INTERFACE_WIDTH':'struct ap_uint<256>'
+|   |-ImplicitCastExpr 0x556ee917e308 'int' <IntegralCast>
+|   | `-BinaryOperator 0x556ee917e168 'unsigned long' '-'
+|   |   |-BinaryOperator 0x556ee917e110 'unsigned long' '*'
+|   |   | |-ImplicitCastExpr 0x556ee917e0f8 'unsigned long' <IntegralCast>
+|   |   | | `-ParenExpr 0x556ee917e028 'int'
+|   |   | |   `-BinaryOperator 0x556ee917e008 'int' '+'
+|   |   | |     |-ImplicitCastExpr 0x556ee917dff0 'int' <LValueToRValue>
+|   |   | |     | `-DeclRefExpr 0x556ee917dfb0 'int' lvalue Var 0x556ee917dab0 'j' 'int'
+|   |   | |     `-IntegerLiteral 0x556ee917dfd0 'int' 1
+|   |   | `-ParenExpr 0x556ee917e0d8 'unsigned long'
+|   |   |   `-BinaryOperator 0x556ee917e0b8 'unsigned long' '*'
+|   |   |     |-UnaryExprOrTypeTraitExpr 0x556ee917e060 'unsigned long' sizeof 'float'
+|   |   |     `-ImplicitCastExpr 0x556ee917e0a0 'unsigned long' <IntegralCast>
+|   |   |       `-IntegerLiteral 0x556ee917e080 'int' 8
+|   |   `-ImplicitCastExpr 0x556ee917e150 'unsigned long' <IntegralCast>
+|   |     `-IntegerLiteral 0x556ee917e130 'int' 1
+|   `-ImplicitCastExpr 0x556ee917e320 'int' <IntegralCast>
+|     `-BinaryOperator 0x556ee917e288 'unsigned long' '*'
+|       |-ImplicitCastExpr 0x556ee917e270 'unsigned long' <IntegralCast>
+|       | `-ImplicitCastExpr 0x556ee917e258 'int' <LValueToRValue>
+|       |   `-DeclRefExpr 0x556ee917e188 'int' lvalue Var 0x556ee917dab0 'j' 'int'
+|       `-ParenExpr 0x556ee917e238 'unsigned long'
+|         `-BinaryOperator 0x556ee917e218 'unsigned long' '*'
+|           |-UnaryExprOrTypeTraitExpr 0x556ee917e1c0 'unsigned long' sizeof 'float'
+|           `-ImplicitCastExpr 0x556ee917e200 'unsigned long' <IntegralCast>
+|             `-IntegerLiteral 0x556ee917e1e0 'int' 8
+`-ImplicitCastExpr 0x556ee917eb60 'std::uint64_t':'unsigned long' <IntegralCast>
+  `-ImplicitCastExpr 0x556ee917eb48 'int' <LValueToRValue>
+    `-MemberExpr 0x556ee917e358 'int' lvalue .raw_val 0x556ee91734b0
+      `-DeclRefExpr 0x556ee917e338 'raw_float':'raw_float' lvalue Var 0x556ee917dd30 't' 'raw_float':'raw_float'
 cleanup not handled
 cgeist: /home/elvouvali/tools/Polygeist/llvm-project/mlir/lib/IR/PatternMatch.cpp:326: mlir::RewriterBase::eraseOp(mlir::Operation*)::<lambda(mlir::Operation*)>: Assertion `mayBeGraphRegion(*op->getParentRegion()) && "expected that op has no uses"' failed.
 PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace.
 Stack dump:
-0.	Program arguments: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist kernel.cpp -function=krnl_KALMAN -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_rt0x62ur/kernel.hls.mlir
- #0 0x00005557a4b3e42f llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1bc642f)
- #1 0x00005557a4b3bab4 SignalHandler(int) Signals.cpp:0:0
- #2 0x00007f08ea8e1420 __restore_rt (/lib/x86_64-linux-gnu/libpthread.so.0+0x14420)
- #3 0x00007f08ea37e00b raise /build/glibc-FcRMwW/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
- #4 0x00007f08ea35d859 abort /build/glibc-FcRMwW/glibc-2.31/stdlib/abort.c:81:7
- #5 0x00007f08ea35d729 get_sysdep_segment_value /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:509:8
- #6 0x00007f08ea35d729 _nl_load_domain /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:970:34
- #7 0x00007f08ea36efd6 (/lib/x86_64-linux-gnu/libc.so.6+0x33fd6)
- #8 0x00005557a4fb492e mlir::RewriterBase::eraseOp(mlir::Operation*)::'lambda0'(mlir::Operation*)::operator()(mlir::Operation*) const (.isra.0) PatternMatch.cpp:0:0
- #9 0x00005557a4fb4126 mlir::RewriterBase::eraseOp(mlir::Operation*)::'lambda0'(mlir::Operation*)::operator()(mlir::Operation*) const (.isra.0) PatternMatch.cpp:0:0
-#10 0x00005557a4fb4c06 mlir::RewriterBase::eraseOp(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x203cc06)
-#11 0x00005557a4fb1ee3 mlir::RewriterBase::replaceOp(mlir::Operation*, mlir::ValueRange) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x2039ee3)
-#12 0x00005557a4daa9c6 MoveWhileToFor::matchAndRewrite(mlir::scf::WhileOp, mlir::PatternRewriter&) const (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1e329c6)
-#13 0x00005557a4d95638 mlir::detail::OpOrInterfaceRewritePatternBase<mlir::scf::WhileOp>::matchAndRewrite(mlir::Operation*, mlir::PatternRewriter&) const (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1e1d638)
-#14 0x00005557a876f588 mlir::PatternApplicator::matchAndRewrite(mlir::Operation*, mlir::PatternRewriter&, llvm::function_ref<bool (mlir::Pattern const&)>, llvm::function_ref<void (mlir::Pattern const&)>, llvm::function_ref<mlir::LogicalResult (mlir::Pattern const&)>) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x57f7588)
-#15 0x00005557a560bcfc (anonymous namespace)::GreedyPatternRewriteDriver::processWorklist() GreedyPatternRewriteDriver.cpp:0:0
-#16 0x00005557a561081b mlir::applyPatternsAndFoldGreedily(mlir::Region&, mlir::FrozenRewritePatternSet const&, mlir::GreedyRewriteConfig, bool*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x269881b)
-#17 0x00005557a4da7a2a (anonymous namespace)::CanonicalizeFor::runOnOperation() CanonicalizeFor.cpp:0:0
-#18 0x00005557a55d3f7e mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bf7e)
-#19 0x00005557a55d445a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
-#20 0x00005557a55d528b mlir::detail::OpToOpPassAdaptor::runOnOperationImpl(bool) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265d28b)
-#21 0x00005557a55d3d1a mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bd1a)
-#22 0x00005557a55d445a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
-#23 0x00005557a55d4c84 mlir::PassManager::run(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265cc84)
-#24 0x00005557a37471dc main (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x7cf1dc)
-#25 0x00007f08ea35f083 __libc_start_main /build/glibc-FcRMwW/glibc-2.31/csu/../csu/libc-start.c:342:3
-#26 0x00005557a37f529e _start (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x87d29e)
+0.	Program arguments: /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist kernel.cpp -function=krnl_KALMAN -S -O0 -print-debug-info -memref-fullrank -raise-scf-to-affine -o /tmp/mailohls_mlir_heqfrmbk/kernel.hls.mlir
+ #0 0x0000556ed62f642f llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1bc642f)
+ #1 0x0000556ed62f3ab4 SignalHandler(int) Signals.cpp:0:0
+ #2 0x00007fc785b9a420 __restore_rt (/lib/x86_64-linux-gnu/libpthread.so.0+0x14420)
+ #3 0x00007fc78563700b raise /build/glibc-FcRMwW/glibc-2.31/signal/../sysdeps/unix/sysv/linux/raise.c:51:1
+ #4 0x00007fc785616859 abort /build/glibc-FcRMwW/glibc-2.31/stdlib/abort.c:81:7
+ #5 0x00007fc785616729 get_sysdep_segment_value /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:509:8
+ #6 0x00007fc785616729 _nl_load_domain /build/glibc-FcRMwW/glibc-2.31/intl/loadmsgcat.c:970:34
+ #7 0x00007fc785627fd6 (/lib/x86_64-linux-gnu/libc.so.6+0x33fd6)
+ #8 0x0000556ed676c92e mlir::RewriterBase::eraseOp(mlir::Operation*)::'lambda0'(mlir::Operation*)::operator()(mlir::Operation*) const (.isra.0) PatternMatch.cpp:0:0
+ #9 0x0000556ed676c126 mlir::RewriterBase::eraseOp(mlir::Operation*)::'lambda0'(mlir::Operation*)::operator()(mlir::Operation*) const (.isra.0) PatternMatch.cpp:0:0
+#10 0x0000556ed676cc06 mlir::RewriterBase::eraseOp(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x203cc06)
+#11 0x0000556ed6769ee3 mlir::RewriterBase::replaceOp(mlir::Operation*, mlir::ValueRange) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x2039ee3)
+#12 0x0000556ed65629c6 MoveWhileToFor::matchAndRewrite(mlir::scf::WhileOp, mlir::PatternRewriter&) const (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1e329c6)
+#13 0x0000556ed654d638 mlir::detail::OpOrInterfaceRewritePatternBase<mlir::scf::WhileOp>::matchAndRewrite(mlir::Operation*, mlir::PatternRewriter&) const (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x1e1d638)
+#14 0x0000556ed9f27588 mlir::PatternApplicator::matchAndRewrite(mlir::Operation*, mlir::PatternRewriter&, llvm::function_ref<bool (mlir::Pattern const&)>, llvm::function_ref<void (mlir::Pattern const&)>, llvm::function_ref<mlir::LogicalResult (mlir::Pattern const&)>) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x57f7588)
+#15 0x0000556ed6dc3cfc (anonymous namespace)::GreedyPatternRewriteDriver::processWorklist() GreedyPatternRewriteDriver.cpp:0:0
+#16 0x0000556ed6dc881b mlir::applyPatternsAndFoldGreedily(mlir::Region&, mlir::FrozenRewritePatternSet const&, mlir::GreedyRewriteConfig, bool*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x269881b)
+#17 0x0000556ed655fa2a (anonymous namespace)::CanonicalizeFor::runOnOperation() CanonicalizeFor.cpp:0:0
+#18 0x0000556ed6d8bf7e mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bf7e)
+#19 0x0000556ed6d8c45a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
+#20 0x0000556ed6d8d28b mlir::detail::OpToOpPassAdaptor::runOnOperationImpl(bool) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265d28b)
+#21 0x0000556ed6d8bd1a mlir::detail::OpToOpPassAdaptor::run(mlir::Pass*, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265bd1a)
+#22 0x0000556ed6d8c45a mlir::detail::OpToOpPassAdaptor::runPipeline(mlir::OpPassManager&, mlir::Operation*, mlir::AnalysisManager, bool, unsigned int, mlir::PassInstrumentor*, mlir::PassInstrumentation::PipelineParentInfo const*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265c45a)
+#23 0x0000556ed6d8cc84 mlir::PassManager::run(mlir::Operation*) (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x265cc84)
+#24 0x0000556ed4eff1dc main (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x7cf1dc)
+#25 0x00007fc785618083 __libc_start_main /build/glibc-FcRMwW/glibc-2.31/csu/../csu/libc-start.c:342:3
+#26 0x0000556ed4fad29e _start (/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist+0x87d29e)
