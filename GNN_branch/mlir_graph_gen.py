@@ -112,6 +112,18 @@ ALL_FLOWS = {
 
 ARRAY_SCOPE_TEXT = "array_scope"
 SCHEMA_VERSION = "mailohls-mlir-graph"
+GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
+PERSISTED_GRAPH_METADATA_KEYS = (
+    "kernel",
+    "source_sha256",
+    "action_sha256",
+    "cgeist_sha256",
+    "generator_sha256",
+    "mlir_sha256",
+    "mlir_level",
+    "frontend_policy",
+    "action_resolutions",
+)
 ACTION_ID_RE = re.compile(r"^L([1-9][0-9]*)$")
 ACTION_ID_SEARCH_RE = re.compile(r"\bL([1-9][0-9]*)\b")
 
@@ -463,19 +475,90 @@ def stringify_attr(value: Any) -> Any:
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
+def _metadata_json_value(value: Any) -> Any:
+    """Convert graph provenance to deterministic JSON-compatible values."""
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, dict):
+        return {
+            str(key): _metadata_json_value(item)
+            for key, item in sorted(
+                value.items(),
+                key=lambda pair: str(pair[0]),
+            )
+        }
+    if isinstance(value, (list, tuple)):
+        return [_metadata_json_value(item) for item in value]
+    if isinstance(value, set):
+        return sorted(_metadata_json_value(item) for item in value)
+    return str(value)
+
+
+def encode_graph_metadata(graph: nx.MultiDiGraph) -> str:
+    """Encode provenance in a GEXF field that survives write/read round trips.
+
+    NetworkX does not preserve arbitrary ``graph.graph`` keys in GEXF. The
+    standard graph ``name`` field is preserved, so a deterministic JSON
+    envelope is stored there. This adds no node or edge and does not change the
+    representation consumed by the GNN.
+    """
+    missing = [
+        key
+        for key in PERSISTED_GRAPH_METADATA_KEYS
+        if key not in graph.graph or graph.graph[key] in (None, "")
+    ]
+    if missing:
+        raise RuntimeError(
+            "Cannot serialize MailoHLS graph provenance; missing graph "
+            f"metadata: {missing}"
+        )
+
+    metadata = {
+        "schema_version": SCHEMA_VERSION,
+        **{
+            key: _metadata_json_value(graph.graph[key])
+            for key in PERSISTED_GRAPH_METADATA_KEYS
+        },
+    }
+    return GRAPH_METADATA_PREFIX + json.dumps(
+        metadata,
+        sort_keys=True,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+
+
 def prepare_graph_for_write(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
-    """Prepare graph for write for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Prepare a deterministic GEXF while preserving graph provenance."""
     output = nx.MultiDiGraph()
-    output.graph.update({key: stringify_attr(value) for key, value in graph.graph.items()})
+    output.graph.update(
+        {
+            key: stringify_attr(value)
+            for key, value in graph.graph.items()
+        }
+    )
+    output.graph["name"] = encode_graph_metadata(graph)
+
     for node, data in graph.nodes(data=True):
-        output.add_node(node, **{key: stringify_attr(value) for key, value in data.items()})
+        output.add_node(
+            node,
+            **{
+                key: stringify_attr(value)
+                for key, value in data.items()
+            },
+        )
+
     for source, target, key, data in graph.edges(keys=True, data=True):
         output.add_edge(
             source,
             target,
             key=key,
-            **{name: stringify_attr(value) for name, value in data.items()},
+            **{
+                name: stringify_attr(value)
+                for name, value in data.items()
+            },
         )
+
     return output
 
 
@@ -4111,17 +4194,20 @@ def compile_source_to_mlir(
     function_body_re = re.compile(
         r"(?m)^\s*(?:func\.func|llvm\.func)\b[^{\n]*\{"
     )
-
     if function_body_re.search(text) is None:
         cpp_hint = ""
         if source.suffix in {
-            ".cc", ".cp", ".cpp", ".cxx", ".c++", ".C"
+            ".cc",
+            ".cp",
+            ".cpp",
+            ".cxx",
+            ".c++",
+            ".C",
         }:
             cpp_hint = (
                 ' The selected top is C++; declare it extern "C" '
                 "or provide the exact mangled symbol understood by cgeist."
             )
-
         raise RuntimeError(
             f"Polygeist produced no function body for "
             f"kernel {kernel!r}.{cpp_hint}"
@@ -4252,7 +4338,12 @@ def run(args: argparse.Namespace) -> Path:
                     "cgeist_sha256": hashlib.sha256(
                         Path(frontend_command[0]).read_bytes()
                     ).hexdigest(),
-                    "mlir_sha256": hashlib.sha256(mlir_text.encode("utf-8")).hexdigest(),
+                    "generator_sha256": hashlib.sha256(
+                        Path(__file__).read_bytes()
+                    ).hexdigest(),
+                    "mlir_sha256": hashlib.sha256(
+                        mlir_text.encode("utf-8")
+                    ).hexdigest(),
                 }
             )
             connected = add_auxiliary_nodes(initial, connected=True)

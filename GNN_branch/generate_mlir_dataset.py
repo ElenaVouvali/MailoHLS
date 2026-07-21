@@ -310,6 +310,7 @@ def validate_existing_graph(
     path: Path,
     contract: KernelContract,
     expected_cgeist_sha256: str,
+    expected_generator_sha256: str,
 ) -> tuple[bool, str]:
     """Return whether a GEXF is safe to reuse as current training data."""
     if not path.is_file() or path.stat().st_size == 0:
@@ -366,16 +367,32 @@ def validate_existing_graph(
     if not isinstance(metadata_resolutions, dict):
         return False, "metadata action_resolutions is not an object"
 
+    normalized_resolutions: dict[str, int] = {}
+    try:
+        for name, count in metadata_resolutions.items():
+            normalized_resolutions[str(name)] = int(count)
+    except (TypeError, ValueError) as exc:
+        return False, f"invalid action_resolutions counts: {exc}"
+
     metadata_fallbacks = {
-        str(name)
-        for name, count in metadata_resolutions.items()
-        if "fallback" in str(name).lower() and int(count) > 0
+        name
+        for name, count in normalized_resolutions.items()
+        if "fallback" in name.lower() and count > 0
     }
     if metadata_fallbacks:
         return (
             False,
             "metadata contains non-exact action mappings: "
             f"{sorted(metadata_fallbacks)}",
+        )
+
+    mapped_action_count = sum(normalized_resolutions.values())
+    if mapped_action_count != len(expected_actions):
+        return (
+            False,
+            "action-resolution count mismatch: "
+            f"metadata={mapped_action_count}, "
+            f"expected={len(expected_actions)}",
         )
 
     source_sha256 = _metadata_string(metadata, "source_sha256")
@@ -400,6 +417,14 @@ def validate_existing_graph(
             False,
             "cgeist_sha256 mismatch: graph was generated with a different "
             "Polygeist frontend binary",
+        )
+
+    generator_sha256 = _metadata_string(metadata, "generator_sha256")
+    if generator_sha256 != expected_generator_sha256:
+        return (
+            False,
+            "generator_sha256 mismatch: graph was generated with a different "
+            "mlir_graph_gen.py revision",
         )
 
     mlir_sha256 = _metadata_string(metadata, "mlir_sha256")
@@ -467,10 +492,14 @@ def write_manifest(
         "command",
     ]
 
-    with path.open("w", newline="", encoding="utf-8") as handle:
+    temporary = path.with_name(f".{path.name}.tmp")
+    with temporary.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         writer.writerows(records)
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(temporary, path)
 
 
 def parse_args() -> argparse.Namespace:
@@ -581,6 +610,7 @@ def main() -> int:
 
     cgeist = resolve_executable(args.cgeist)
     cgeist_sha256 = sha256_file(cgeist)
+    generator_sha256 = sha256_file(generator)
 
     all_kernels = load_all_kernel_names(config_path)
     rows = load_application_rows(app_csv)
@@ -629,7 +659,8 @@ def main() -> int:
     print(f"Output:     {output_dir}")
     print(f"Python:     {args.python}")
     print(f"cgeist:    {cgeist}")
-    print(f"cgeist SHA-256: {cgeist_sha256}")
+    print(f"cgeist SHA-256:  {cgeist_sha256}")
+    print(f"generator SHA-256: {generator_sha256}")
     print()
 
     for index, app_name in enumerate(selected, start=1):
@@ -693,6 +724,7 @@ def main() -> int:
             output,
             contract,
             cgeist_sha256,
+            generator_sha256,
         )
         if reusable and not args.force:
             print(
@@ -753,6 +785,7 @@ def main() -> int:
                 temporary_output,
                 contract,
                 cgeist_sha256,
+                generator_sha256,
             )
 
             if not valid:
@@ -818,6 +851,7 @@ def main() -> int:
                 output_dir / f"{app_name}.gexf",
                 contract,
                 cgeist_sha256,
+                generator_sha256,
             )
         except (
             FileNotFoundError,
