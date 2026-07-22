@@ -1,5 +1,3 @@
-
-
 import argparse
 import json
 import math
@@ -22,6 +20,9 @@ from torch.utils.data import Dataset, DataLoader
 from einops import rearrange
 from einops_exts import rearrange_many
 from torch import einsum
+
+import hashlib
+import random
 
 from transformers import (
     AutoTokenizer,
@@ -117,6 +118,8 @@ PERIOD_TOKEN_MAP = {
     3.33: "<CLK=3P33NS>",
 }
 
+CLOCK_ANCHOR_TOKEN = "<CLOCK>"
+
 TARGET_PLATFORM_TOKENS = (
     sorted(set(DEVICE_TOKEN_MAP.values()))
     + [UNKNOWN_DEVICE_TOKEN]
@@ -140,6 +143,88 @@ def period_token_from_clock(clock_period: Any) -> str:
     return f"<CLK={int(cp)}NS>"
 
 
+def prepend_selected_clock(
+    target_text: str,
+    selected_clock_period: float,
+) -> str:
+    period = _norm_clock(selected_clock_period)
+    return (
+        f"{CLOCK_ANCHOR_TOKEN}\n"
+        f"selected_clock_period_ns = {period:g}\n"
+        f"{target_text.strip()}"
+    )
+
+
+def auto_frequency_bucket_key(row: dict):
+    return (
+        row["kernel_name"],
+        _norm_device(row.get("device", "")),
+        *_avail_resource_tuple(row),
+    )
+
+
+def select_auto_frequency_rows(
+    rows: List[dict],
+    goal_mode: str,
+    top_k: int,
+    domination_penalty: float,
+    max_dominated_gap: float,
+):
+    by_case = defaultdict(list)
+
+    for row in rows:
+        by_case[auto_frequency_bucket_key(row)].append(row)
+
+    selected = []
+
+    for case_key, candidates in by_case.items():
+        # Candidates include all available clock periods.
+        ranked = rank_goal_candidates(
+            candidates,
+            goal_mode=goal_mode,
+            domination_penalty=domination_penalty,
+            max_dominated_gap=max_dominated_gap,
+        )
+
+        seen = set()
+        unique = []
+
+        for rec in ranked:
+            row = rec["row"]
+            completion = canonical_completion_key(
+                row["input"], row["target"]
+            )
+            key = (
+                _norm_clock(
+                    row.get(
+                        "clock_period",
+                        row.get("Clock_Period_nsec"),
+                    )
+                ),
+                completion,
+            )
+
+            if key in seen:
+                continue
+
+            seen.add(key)
+            unique.append(rec)
+
+        for rank, rec in enumerate(unique[:top_k]):
+            row = dict(rec["row"])
+            row["frequency_mode"] = "auto"
+            row["selected_clock_period"] = _norm_clock(
+                row.get(
+                    "clock_period",
+                    row.get("Clock_Period_nsec"),
+                )
+            )
+            row["_rank_within_kernel"] = rank
+            selected.append(row)
+
+    return selected
+
+
 def _avail_resource_tuple(row: dict) -> Tuple[int, int, int, int]:
     """
     Resource budget visible to the model. If a row has synthetic available-resource
@@ -161,37 +246,61 @@ def _avail_resource_tuple(row: dict) -> Tuple[int, int, int, int]:
     )
 
 
-def target_bucket_key(row: dict) -> Tuple[str, str, float, int, int, int, int]:
-    """
-    Goal selection bucket.
-    The SFT target must be selected separately for each (device, period, resource budget) 
-    under the same optimization objective.
-    """
+def target_bucket_key(row: dict):
     return (
         row["kernel_name"],
         _norm_device(row.get("device", "")),
-        _norm_clock(row.get("clock_period", row.get("Clock_Period_nsec"))),
+        str(row.get("frequency_mode", "specified")),
+        (
+            _norm_clock(
+                row.get("clock_period", row.get("Clock_Period_nsec"))
+            )
+            if row.get("frequency_mode", "specified") == "specified"
+            else None
+        ),
         *_avail_resource_tuple(row),
     )
 
 
-def target_prompt_fields(row: Optional[dict], device_token_dropout: float = 0.0) -> dict:
+def target_prompt_fields(
+    row: Optional[dict],
+    device_token_dropout: float = 0.0,
+) -> dict:
     row = row or {}
-    device = _norm_device(row.get("device", row.get("Device", "")))
-    clock_period = row.get("clock_period", row.get("Clock_Period_nsec", 10.0))
 
-    device_token = DEVICE_TOKEN_MAP.get(device, UNKNOWN_DEVICE_TOKEN)
+    device = _norm_device(
+        row.get("device", row.get("Device", ""))
+    )
+    device_token = DEVICE_TOKEN_MAP.get(
+        device, UNKNOWN_DEVICE_TOKEN
+    )
 
-    # Training-time device dropout: keep numeric resources, hide device identity.
-    # This encourages the model to use the resource envelope instead of only memorizing device names.
-    if device_token_dropout > 0.0 and random.random() < device_token_dropout:
+    if (
+        device_token_dropout > 0.0
+        and random.random() < device_token_dropout
+    ):
         device_token = UNKNOWN_DEVICE_TOKEN
 
-    avail_bram, avail_dsp, avail_ff, avail_lut = _avail_resource_tuple(row)
+    frequency_mode = row.get(
+        "frequency_mode", "specified"
+    )
+
+    if frequency_mode == "auto":
+        period_token = AUTO_PERIOD_TOKEN
+    else:
+        clock_period = row.get(
+            "clock_period",
+            row.get("Clock_Period_nsec", 10.0),
+        )
+        period_token = period_token_from_clock(clock_period)
+
+    avail_bram, avail_dsp, avail_ff, avail_lut = (
+        _avail_resource_tuple(row)
+    )
 
     return {
         "device_token": device_token,
-        "period_token": period_token_from_clock(clock_period),
+        "period_token": period_token,
         "avail_bram": avail_bram,
         "avail_dsp": avail_dsp,
         "avail_ff": avail_ff,
@@ -270,6 +379,14 @@ SOURCE_PLACEHOLDER_IN_CODE_RE = re.compile(
 LHS_KIND_RE = re.compile(
     r"^auto\{_([A-Z0-9]+(?:_[A-Z0-9]+)*)_L\d+\}$",
     re.IGNORECASE,
+)
+
+AUTO_PERIOD_TOKEN = "<CLK=AUTO>"
+TARGET_PLATFORM_TOKENS = (
+    sorted(set(DEVICE_TOKEN_MAP.values()))
+    + [UNKNOWN_DEVICE_TOKEN]
+    + list(PERIOD_TOKEN_MAP.values())
+    + [AUTO_PERIOD_TOKEN]
 )
 
 
@@ -367,6 +484,42 @@ def reorder_target_by_source_order(source_text: str, target_text: str) -> str:
 
     out.extend(extras)
     return "\n".join(out)
+
+
+def print_target_coverage(rows):
+    counts = Counter(
+        (
+            row["kernel_name"],
+            _norm_device(row.get("device", "")),
+            _norm_clock(
+                row.get(
+                    "clock_period",
+                    row.get("Clock_Period_nsec"),
+                )
+            ),
+        )
+        for row in rows
+    )
+
+    clocks_by_kernel_device = defaultdict(set)
+
+    for kernel, device, clock in counts:
+        clocks_by_kernel_device[(kernel, device)].add(clock)
+
+    multi_clock = sum(
+        len(clocks) >= 2
+        for clocks in clocks_by_kernel_device.values()
+    )
+
+    print(
+        f"[CLOCK-COVERAGE] multi-clock cases="
+        f"{multi_clock}/{len(clocks_by_kernel_device)}"
+    )
+
+    print("[CLOCK-COVERAGE]", Counter(
+        len(clocks)
+        for clocks in clocks_by_kernel_device.values()
+    ))
 
 
 def extract_ordered_lhs_plan(source_text: str) -> List[Tuple[str, str]]:
@@ -545,6 +698,27 @@ def load_rows(jsonl_path: str) -> List[dict]:
     return rows
 
 
+def row_used_resources_abs(row: dict) -> Dict[str, float]:
+    """
+    Convert measured utilization percentages into absolute resource usage
+    for the row's own measured device.
+    """
+    device = _norm_device(row.get("device", row.get("Device", "")))
+    caps = DEVICE_RESOURCES.get(device)
+    if caps is None:
+        return {res: 0.0 for res in RESOURCE_KEYS}
+
+    used = {}
+    for res in RESOURCE_KEYS:
+        util_field = UTIL_FIELD_BY_RESOURCE[res]
+        if util_field is None or util_field not in row:
+            used[res] = 0.0
+        else:
+            used[res] = float(row[util_field]) / 100.0 * float(caps[res])
+    return used
+
+
+
 def parse_resource_budget_fracs(spec: str) -> List[float]:
     """
     Parses comma-separated resource-budget fractions.
@@ -565,26 +739,6 @@ def parse_resource_budget_fracs(spec: str) -> List[float]:
             raise ValueError(f"Invalid resource budget fraction: {part}")
         vals.append(round(v, 4))
     return sorted(set(vals))
-
-
-def row_used_resources_abs(row: dict) -> Dict[str, float]:
-    """
-    Convert measured utilization percentages into absolute resource usage
-    for the row's own measured device.
-    """
-    device = _norm_device(row.get("device", row.get("Device", "")))
-    caps = DEVICE_RESOURCES.get(device)
-    if caps is None:
-        return {res: 0.0 for res in RESOURCE_KEYS}
-
-    used = {}
-    for res in RESOURCE_KEYS:
-        util_field = UTIL_FIELD_BY_RESOURCE[res]
-        if util_field is None or util_field not in row:
-            used[res] = 0.0
-        else:
-            used[res] = float(row[util_field]) / 100.0 * float(caps[res])
-    return used
 
 
 def make_resource_conditioned_row(row: dict, budget_frac: float) -> Optional[dict]:
@@ -643,6 +797,196 @@ def augment_rows_with_resource_budgets(rows: List[dict], budget_fracs: List[floa
     print(f"[RES-BUDGET] fractions={budget_fracs}")
     print(f"[RES-BUDGET] rows before={len(rows)} after={len(out)} kept={dict(sorted(kept.items()))}")
     return out
+
+
+def design_fits_budget(
+    row: dict,
+    budget: ResourceBudget,
+    tolerance: float = 1e-9,
+) -> bool:
+    device = _norm_device(row.get("device", row.get("Device", "")))
+    caps = DEVICE_RESOURCES.get(device)
+
+    if caps is None:
+        return False
+
+    used = row_used_resources_abs(row)
+    fractions = budget.as_dict()
+
+    for resource in RESOURCE_KEYS:
+        available = float(caps[resource]) * fractions[resource]
+        if used[resource] > available + tolerance:
+            return False
+
+    return True
+
+
+def attach_budget(row: dict, budget: ResourceBudget) -> dict:
+    device = _norm_device(row.get("device", row.get("Device", "")))
+    caps = DEVICE_RESOURCES[device]
+    fractions = budget.as_dict()
+
+    out = dict(row)
+
+    for resource in RESOURCE_KEYS:
+        available = float(caps[resource]) * fractions[resource]
+        out[AVAIL_FIELD_BY_RESOURCE[resource]] = int(round(available))
+
+    out["resource_budget_frac_bram"] = budget.bram_frac
+    out["resource_budget_frac_dsp"] = budget.dsp_frac
+    out["resource_budget_frac_ff"] = budget.ff_frac
+    out["resource_budget_frac_lut"] = budget.lut_frac
+
+    used = row_used_resources_abs(row)
+    out["resource_pressure"] = max(
+        used[resource]
+        / max(
+            float(caps[resource]) * fractions[resource],
+            1e-9,
+        )
+        for resource in RESOURCE_KEYS
+    )
+
+    return out
+
+
+def augment_rows_with_random_resource_budgets(
+    rows: List[dict],
+    num_budgets_per_case: int,
+    seed: int,
+    min_feasible_candidates: int = 2,
+) -> List[dict]:
+    """
+    For every (kernel, device, clock) candidate pool:
+      1. generate shared resource budgets;
+      2. filter every design under each budget;
+      3. create a valid optimization bucket only when enough alternatives fit.
+    """
+    by_case = defaultdict(list)
+
+    for row in rows:
+        by_case[base_target_key(row)].append(row)
+
+    augmented = []
+    stats = Counter()
+
+    for case_key, candidates in sorted(by_case.items()):
+        budgets = sample_resource_budgets(
+            case_key=case_key,
+            num_budgets=num_budgets_per_case,
+            seed=seed,
+        )
+
+        for budget_id, budget in enumerate(budgets):
+            feasible = [
+                row
+                for row in candidates
+                if design_fits_budget(row, budget)
+            ]
+
+            if len(feasible) < min_feasible_candidates:
+                stats["empty_or_singleton"] += 1
+                continue
+
+            for row in feasible:
+                conditioned = attach_budget(row, budget)
+                conditioned["resource_budget_id"] = budget_id
+                augmented.append(conditioned)
+
+            stats["kept_budgets"] += 1
+            stats["kept_rows"] += len(feasible)
+
+    print("[RANDOM-BUDGET]", dict(stats))
+    print(
+        f"[RANDOM-BUDGET] rows before={len(rows)} "
+        f"after={len(augmented)}"
+    )
+    return augmented
+
+
+@dataclass(frozen=True)
+class ResourceBudget:
+    bram_frac: float
+    dsp_frac: float
+    ff_frac: float
+    lut_frac: float
+
+    def as_dict(self) -> Dict[str, float]:
+        return {
+            "BRAM_18K": self.bram_frac,
+            "DSP": self.dsp_frac,
+            "FF": self.ff_frac,
+            "LUT": self.lut_frac,
+        }
+
+
+def base_target_key(row: dict) -> Tuple[str, str, float]:
+    """A candidate pool before applying a synthetic resource budget."""
+    return (
+        row["kernel_name"],
+        _norm_device(row.get("device", row.get("Device", ""))),
+        _norm_clock(
+            row.get("clock_period", row.get("Clock_Period_nsec"))
+        ),
+    )
+
+
+def stable_case_seed(case_key: tuple, global_seed: int) -> int:
+    """
+    Python's built-in hash is process-dependent unless PYTHONHASHSEED is fixed.
+    Use a stable digest so budget generation is reproducible.
+    """
+    text = repr((case_key, int(global_seed))).encode("utf-8")
+    return int.from_bytes(hashlib.sha256(text).digest()[:8], "big")
+
+
+def sample_resource_budgets(
+    case_key: tuple,
+    num_budgets: int,
+    seed: int,
+    min_frac: float = 0.10,
+    full_budget_probability: float = 0.15,
+    correlated_probability: float = 0.20,
+) -> List[ResourceBudget]:
+    rng = random.Random(stable_case_seed(case_key, seed))
+
+    budgets = {
+        ResourceBudget(1.0, 1.0, 1.0, 1.0)
+    }
+
+    while len(budgets) < num_budgets:
+        p = rng.random()
+
+        if p < full_budget_probability:
+            values = [1.0] * 4
+
+        elif p < full_budget_probability + correlated_probability:
+            # Retain some scalar-resource-envelope examples.
+            frac = rng.uniform(min_frac, 1.0)
+            values = [frac] * 4
+
+        else:
+            # Independent resource pressures.
+            values = [
+                min_frac + (1.0 - min_frac) * rng.betavariate(2.0, 1.5)
+                for _ in range(4)
+            ]
+
+        # Quantization controls the number of unique buckets and makes
+        # prompts easier for the LLM to interpolate between.
+        values = [round(v, 2) for v in values]
+
+        budgets.add(ResourceBudget(*values))
+
+    return sorted(
+        budgets,
+        key=lambda b: (
+            b.bram_frac,
+            b.dsp_frac,
+            b.ff_frac,
+            b.lut_frac,
+        ),
+    )
 
 
 def split_by_family(rows: List[dict], val_fams: set, test_fams: set):
@@ -3394,19 +3738,47 @@ def run_single_training(args):
         print(f"[INFO] random design-point split with val_ratio={args.val_ratio}, test_ratio={args.test_ratio}, split_seed={args.split_seed}, stratify_by_kernel={args.stratify_by_kernel}")
 
     print(f"[INFO] Raw split sizes: train={len(raw_train_rows)} val={len(raw_val_rows)} test={len(raw_test_rows)}")
+    eval_seed = args.seed + 10_000
 
     if args.save_split_json:
         save_split_spec(args.save_split_json, raw_train_rows, raw_val_rows, raw_test_rows)
         print(f"[INFO] Saved split spec -> {args.save_split_json}")
 
-    if args.use_resource_budgets:
-        resource_budget_fracs = parse_resource_budget_fracs(args.resource_budget_fracs)
-        raw_train_rows = augment_rows_with_resource_budgets(raw_train_rows, resource_budget_fracs)
-        raw_val_rows = augment_rows_with_resource_budgets(raw_val_rows, resource_budget_fracs)
-        raw_test_rows = augment_rows_with_resource_budgets(raw_test_rows, resource_budget_fracs)
-        print(
-            f"[INFO] Resource-budget augmented split sizes: "
-            f"train={len(raw_train_rows)} val={len(raw_val_rows)} test={len(raw_test_rows)}"
+    if args.resource_budget_mode == "fixed":
+        fractions = parse_resource_budget_fracs(
+            args.resource_budget_fracs
+        )
+        raw_train_rows = augment_rows_with_resource_budgets(
+            raw_train_rows, fractions
+        )
+        raw_val_rows = augment_rows_with_resource_budgets(
+            raw_val_rows, fractions
+        )
+        raw_test_rows = augment_rows_with_resource_budgets(
+            raw_test_rows, fractions
+        )
+
+    elif args.resource_budget_mode == "random":
+        raw_train_rows = augment_rows_with_random_resource_budgets(
+            raw_train_rows,
+            num_budgets_per_case=args.random_budgets_per_case,
+            seed=args.seed,
+            min_feasible_candidates=(
+                args.min_feasible_candidates_per_budget
+            ),
+        )
+        raw_val_rows = augment_rows_with_random_resource_budgets(
+            raw_val_rows,
+            num_budgets_per_case=args.random_budgets_per_case,
+            seed=eval_seed,
+            min_feasible_candidates=3,
+        )
+
+        raw_test_rows = augment_rows_with_random_resource_budgets(
+            raw_test_rows,
+            num_budgets_per_case=args.random_budgets_per_case,
+            seed=eval_seed + 1,
+            min_feasible_candidates=3,
         )
 
     goal_key = GOALS[args.objective]["tag"]
@@ -3790,8 +4162,41 @@ def main():
     ap.add_argument("--score_weight_min", type=float, default=0.6)
     ap.add_argument("--score_weight_power", type=float, default=1.0)
     ap.add_argument("--device_token_dropout", type=float, default=0.30)
-    ap.add_argument("--use_resource_budgets", action="store_true")
-    ap.add_argument("--resource_budget_fracs", type=str, default="10,25,50,75,100")
+    ap.add_argument(
+        "--resource_budget_mode",
+        choices=["none", "fixed", "random"],
+        default="random",
+    )
+
+    ap.add_argument(
+        "--resource_budget_fracs",
+        type=str,
+        default="10,25,50,75,100",
+    )
+
+    ap.add_argument(
+        "--random_budgets_per_case",
+        type=int,
+        default=24,
+    )
+
+    ap.add_argument(
+        "--random_budget_min_frac",
+        type=float,
+        default=0.10,
+    )
+
+    ap.add_argument(
+        "--min_feasible_candidates_per_budget",
+        type=int,
+        default=3,
+    )
+
+    ap.add_argument(
+        "--auto_frequency_fraction",
+        type=float,
+        default=0.30,
+    )
 
     # Training Params
     ap.add_argument("--max_length", type=int, default=7168)
