@@ -50,8 +50,8 @@ def natural_keys(text):
 
 
 def get_root_path():
-    # return dirname(dirname(abspath(__file__)))
-    return '/home/ubuntu'
+    return dirname(dirname(abspath(__file__)))
+    # return '/home/ubuntu'
 
 def get_save_path():
     return join(get_root_path(), 'save')
@@ -693,7 +693,7 @@ def get_model_info_as_str(FLAGS):
 
 
 def extract_config_code():
-    with open(join(get_root_path(), 'src/config.py')) as f:
+    with open(join(get_root_path(), 'GNN_branch/config.py')) as f:
         return f.read()
 
 

@@ -51,7 +51,7 @@ ALL_KERNEL = ['machsuite-gemm-blocked', 'machsuite-gemm-ncubed', 'machsuite-md-k
               'serrano-kalman-filter', 'spcl_example_00', 'spcl_example_01', 'spcl_example_03', 'spcl_example_05']
 
 
-parser.add_argument('--force_regen', type=bool, default=False) ## must be set to True for the first time to generate the dataset
+parser.add_argument('--force_regen', type=bool, default=True) ## must be set to True for the first time to generate the dataset
 
 parser.add_argument('--min_allowed_latency', type=float, default=0.1) ## if latency is less than this, prune the point (used when synthesis is not valid)
 EPSILON = 1e-6
@@ -84,7 +84,7 @@ else:
     all_kernels = False
 parser.add_argument('--all_kernels', type = bool, default=all_kernels)
 
-dataset = 'harp' # machsuite and poly
+dataset = 'mlir' # 'harp' 'mlir'
 parser.add_argument('--dataset', default=dataset)
 
 benchmark = ['machsuite', 'poly']

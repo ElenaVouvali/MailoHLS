@@ -5,9 +5,18 @@
 from config import FLAGS
 from saver import saver
 from utils import MLP, OurTimer, MLP_multi_objective, plot_loss_trend, _get_y_with_target, create_dir_if_not_exists, plot_lr_trend
-from data import MyOwnDataset, get_kernel_samples, split_dataset, split_dataset_resample, split_train_test_kernel
-import data
+# from data import MyOwnDataset, get_kernel_samples, split_dataset, split_dataset_resample, split_train_test_kernel
+# import data
+from mlir_data import (
+    MyOwnDataset,
+    get_kernel_samples,
+    split_dataset,
+    split_dataset_resample,
+    split_train_test_kernel,
+)
+import mlir_data as data
 SAVE_DIR = data.SAVE_DIR
+
 from model import Net
 
 from sklearn.metrics import mean_squared_error, mean_absolute_error, max_error, \

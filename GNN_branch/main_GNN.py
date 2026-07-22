@@ -12,8 +12,11 @@ from os.path import join, exists
 import config
 TARGETS = config.TARGETS
 
-from data import get_data_list, MyOwnDataset
-import data
+# from data import get_data_list, MyOwnDataset
+# import data
+
+from mlir_data import get_data_list, MyOwnDataset
+import mlir_data as data
 
 SAVE_DIR = data.SAVE_DIR
 
