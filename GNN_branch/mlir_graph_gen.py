@@ -84,7 +84,7 @@ FLOW_PSEUDO_CONNECTED = 5
 FLOW_LOOP_HIERARCHY = 6
 FLOW_ARRAY_SCOPE = 7
 
-# New MLIR relations.  data.py treats flow as a learned categorical feature,
+# data.py treats flow as a learned categorical feature, 
 # so these relations keep the existing GNN architecture unchanged.
 FLOW_REGION = 8
 FLOW_MEMORY_VIEW = 9
