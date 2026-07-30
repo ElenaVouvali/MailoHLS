@@ -93,7 +93,7 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph"
+SCHEMA_VERSION = "mailohls-mlir-graph-v2-native"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 PERSISTED_GRAPH_METADATA_KEYS = (
     "kernel",
@@ -105,6 +105,12 @@ PERSISTED_GRAPH_METADATA_KEYS = (
     "mlir_level",
     "frontend_policy",
     "action_resolutions",
+    "native_analysis_schema",
+    "binding_sha256",
+    "native_analysis_coverage",
+    "exact_edge_count",
+    "proven_independent_count",
+    "fallback_count",
 )
 ACTION_ID_RE = re.compile(r"^L([1-9][0-9]*)$")
 ACTION_ID_SEARCH_RE = re.compile(r"\bL([1-9][0-9]*)\b")
@@ -1319,6 +1325,8 @@ class MlirGraphBuilder:
         module: Any,
         mlir_text: str,
         actions: list[ActionSpec],
+        native_analysis: dict[str, Any] | None = None,
+        binding_sha256: str = "",
         conservative_memory_dependencies: bool = True,
         require_actions: bool = False,
     ) -> None:
@@ -1330,6 +1338,8 @@ class MlirGraphBuilder:
         self.ir = import_mlir_ir()
         self.mlir_text = mlir_text
         self.actions = actions
+        self.native_analysis = native_analysis
+        self.binding_sha256 = binding_sha256
         self.conservative_memory_dependencies = conservative_memory_dependencies
         self.require_actions = require_actions
 
@@ -1379,6 +1389,7 @@ class MlirGraphBuilder:
         self.source_function_ids_from_exact_loops: dict[str, set[int]] = (
             defaultdict(set)
         )
+        self.native_effects: dict[tuple[str, int], dict[str, Any]] = {}
 
     def _value_key(self, value: Any) -> tuple[str, Any, int]:
         """
@@ -1449,6 +1460,7 @@ class MlirGraphBuilder:
             self.function_operations[function_id] = operation
             self._index_function(function_id, name, operation)
 
+        self._validate_native_analysis()
         self._add_ssa_edges()
         self._add_memory_shape_features()
         for loop in self.loops:
@@ -1485,6 +1497,48 @@ class MlirGraphBuilder:
             operation_records=self.operation_records,
             memory_accesses=self.memory_accesses,
             actions=self.actions,
+        )
+
+    def _validate_native_analysis(self) -> None:
+        if self.native_analysis is None:
+            self.graph.graph.update(
+                native_analysis_schema="conservative-only-debug",
+                binding_sha256="",
+                native_analysis_coverage={},
+            )
+            return
+        if self.native_analysis.get("schema") != "mailohls-native-analysis-v1":
+            raise RuntimeError(
+                f"Unsupported native analysis schema: {self.native_analysis.get('schema')!r}"
+            )
+        native_ids = [
+            (str(item["function"]), int(item["ordinal"]), str(item["op_name"]))
+            for item in self.native_analysis.get("operations", [])
+        ]
+        python_ids = [
+            (self.functions[item.function_id], item.function_ordinal, item.op_name)
+            for item in self.operation_records
+        ]
+        if len(native_ids) != len(set(native_ids)):
+            raise RuntimeError("Native analysis contains duplicate operation identities")
+        if native_ids != python_ids:
+            missing = sorted(set(python_ids) - set(native_ids))
+            extra = sorted(set(native_ids) - set(python_ids))
+            raise RuntimeError(
+                "Native/Python operation identity mismatch: "
+                f"missing={missing[:5]}, extra={extra[:5]}"
+            )
+        self.native_effects = {
+            (str(item["function"]), int(item["ordinal"])): item
+            for item in self.native_analysis.get("effects", [])
+        }
+        verification = self.native_analysis.get("verification", {})
+        if verification != {"before": True, "after": True, "unchanged": True}:
+            raise RuntimeError(f"Native analysis verification failed: {verification}")
+        self.graph.graph.update(
+            native_analysis_schema=self.native_analysis["schema"],
+            binding_sha256=self.binding_sha256,
+            native_analysis_coverage=self.native_analysis.get("coverage", {}),
         )
 
     def _new_node(self, attrs: dict[str, Any]) -> int:
@@ -2823,6 +2877,23 @@ class MlirGraphBuilder:
 
     def _memory_operands(self, record: OperationRecord) -> list[tuple[int, str]]:
         """Return direct effects or the inferred summary at a call site."""
+        native = self.native_effects.get(
+            (self.functions[record.function_id], record.function_ordinal)
+        )
+        if native is not None and native.get("status") != "unknown":
+            kinds = {str(effect.get("kind")) for effect in native.get("effects", [])}
+            positions = [
+                index
+                for index, value in enumerate(record.operands)
+                if is_memory_type(value_type(value))
+            ]
+            if positions and ("read" in kinds or "write" in kinds):
+                mode = (
+                    "readwrite"
+                    if {"read", "write"} <= kinds
+                    else ("write" if "write" in kinds else "read")
+                )
+                return [(position, mode) for position in positions]
         if record.op_name not in CALL_OPS:
             return self._intrinsic_memory_operands(record)
 
@@ -2976,6 +3047,7 @@ class MlirGraphBuilder:
 
         if self.conservative_memory_dependencies:
             self._add_conservative_memory_dependencies()
+        self._apply_native_dependences()
 
     def _add_memory_dependence(
         self,
@@ -2984,6 +3056,10 @@ class MlirGraphBuilder:
         kind: str,
         certainty: str,
         distance: Any = None,
+        dependence_depth: int = 0,
+        distance_known: bool = False,
+        first_nonzero_distance: int = 0,
+        loop_carried: bool = False,
     ) -> None:
         """Add memory dependence for the deterministic MLIR-to-MailoHLS graph pipeline."""
         if source == target:
@@ -2996,6 +3072,94 @@ class MlirGraphBuilder:
             role=kind,
             certainty=certainty,
             distance=[] if distance is None else distance,
+            analysis="native-affine" if certainty == "proven" else "conservative",
+            dependence_depth=int(dependence_depth),
+            distance_known=bool(distance_known),
+            first_nonzero_distance=int(first_nonzero_distance),
+            loop_carried=bool(loop_carried),
+        )
+
+    def _remove_memory_dependence(self, source: int, target: int, kind: str) -> None:
+        edge_data = self.graph.get_edge_data(source, target, default={})
+        for key, attrs in list(edge_data.items()):
+            if (
+                int(attrs.get("flow", -1)) == FLOW_MEMORY_DEPENDENCE
+                and str(attrs.get("role")) == kind
+            ):
+                self.graph.remove_edge(source, target, key)
+
+    def _apply_native_dependences(self) -> None:
+        if self.native_analysis is None:
+            fallback = sum(
+                int(data.get("flow", -1)) == FLOW_MEMORY_DEPENDENCE
+                for _, _, data in self.graph.edges(data=True)
+            )
+            self.graph.graph.update(
+                exact_edge_count=0,
+                proven_independent_count=0,
+                fallback_count=fallback,
+                memory_dependence_model="conservative-only-debug",
+                exact_affine_dependence=0,
+            )
+            return
+        exact = independent = 0
+        for query in self.native_analysis.get("dependences", []):
+            source_id, target_id = query["source"], query["target"]
+            source = self.operation_by_uid[
+                (str(source_id["function"]), int(source_id["ordinal"]))
+            ].node
+            target = self.operation_by_uid[
+                (str(target_id["function"]), int(target_id["ordinal"]))
+            ].node
+            kind, outcome = str(query["kind"]), str(query["result"])
+            if outcome == "unknown":
+                continue
+            self._remove_memory_dependence(source, target, kind)
+            if outcome == "no_dependence":
+                independent += 1
+                continue
+            components = query.get("components", [])
+            bounds = [
+                [component.get("lower"), component.get("upper")]
+                for component in components
+            ]
+            exact_values = [
+                int(component["lower"])
+                for component in components
+                if component.get("lower") is not None
+                and component.get("lower") == component.get("upper")
+            ]
+            self._add_memory_dependence(
+                source,
+                target,
+                kind,
+                "proven",
+                distance=json.dumps(bounds, separators=(",", ":")),
+                dependence_depth=int(query.get("dependence_depth", 0)),
+                distance_known=bool(components)
+                and all(
+                    item.get("lower") is not None
+                    and item.get("lower") == item.get("upper")
+                    for item in components
+                ),
+                first_nonzero_distance=next(
+                    (value for value in exact_values if value), 0
+                ),
+                loop_carried=bool(query.get("loop_carried", False)),
+            )
+            if source != target:
+                exact += 1
+        fallback = sum(
+            int(data.get("flow", -1)) == FLOW_MEMORY_DEPENDENCE
+            and str(data.get("certainty")) != "proven"
+            for _, _, data in self.graph.edges(data=True)
+        )
+        self.graph.graph.update(
+            exact_edge_count=exact,
+            proven_independent_count=independent,
+            fallback_count=fallback,
+            memory_dependence_model="native-affine-with-conservative-fallback",
+            exact_affine_dependence=exact,
         )
 
     def _add_conservative_memory_dependencies(self) -> None:
@@ -4216,6 +4380,7 @@ def create_initial_graph(
     allow_unregistered_dialects: bool,
     conservative_memory_dependencies: bool,
     require_actions: bool,
+    allow_conservative_only: bool = False,
 ) -> tuple[Any, ParseResult]:
     """Build the semantic graph and keep its MLIR Context alive.
     """
@@ -4223,6 +4388,21 @@ def create_initial_graph(
         mlir_path,
         allow_unregistered_dialects=allow_unregistered_dialects,
     )
+    native_analysis = None
+    binding_sha256 = ""
+    try:
+        from mlir._mlir_libs import _mailohls_analysis
+
+        native_analysis = _mailohls_analysis.analyze_module(module.operation)
+        binding_sha256 = hashlib.sha256(
+            Path(_mailohls_analysis.__file__).read_bytes()
+        ).hexdigest()
+    except (ImportError, AttributeError) as exc:
+        if not allow_conservative_only:
+            context.__exit__(*sys.exc_info())
+            raise RuntimeError(
+                "The _mailohls_analysis native binding is required in production"
+            ) from exc
 
     builder: MlirGraphBuilder | None = None
 
@@ -4231,6 +4411,8 @@ def create_initial_graph(
             module=module,
             mlir_text=mlir_text,
             actions=actions,
+            native_analysis=native_analysis,
+            binding_sha256=binding_sha256,
             conservative_memory_dependencies=(
                 conservative_memory_dependencies
             ),
@@ -4323,6 +4505,7 @@ def run(args: argparse.Namespace) -> Path:
             allow_unregistered_dialects=True,
             conservative_memory_dependencies=True,
             require_actions=True,
+            allow_conservative_only=args.allow_conservative_only,
         )
         try:
             initial = result.graph
@@ -4440,6 +4623,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--mlir-output",
         default="",
         help="Optional path at which to preserve the emitted MLIR.",
+    )
+    parser.add_argument(
+        "--allow-conservative-only",
+        action="store_true",
+        help="Debug only: permit graph generation without the native analysis binding.",
     )
     return parser
 

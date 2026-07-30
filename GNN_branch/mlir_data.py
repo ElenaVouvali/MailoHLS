@@ -168,6 +168,7 @@ INDEX_PATH = SAVE_DIR / "index.pt"
 ENCODER_PATH = SAVE_DIR / "encoders.pkl"
 PRAGMA_DIM_PATH = SAVE_DIR / "pragma_dim.pt"
 SCHEMA_PATH = SAVE_DIR / "feature_schema.json"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v2-native-dependence"
 
 
 # ---------------------------------------------------------------------------
@@ -182,6 +183,8 @@ NODE_TYPE_PRAGMA = 100
 NODE_TYPE_ARRAY_SCOPE = 104
 
 FLOW_PRAGMA = 200
+EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v2-native"
+GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 
 PRAGMA_VECTOR_WIDTH = 5
 PIPELINE_COL = 0
@@ -819,20 +822,23 @@ def _distance_scalar(value: Any) -> float:
 def edge_numeric_features(attrs: Mapping[str, Any]) -> list[float]:
     position = _as_int(attrs.get("position"), 0)
     operand_index = _as_int(attrs.get("operand_index"), -1)
-    access_function = attrs.get("access_function", "")
     return [
         _signed_log1p(max(-1, min(position, 1024))),
         _signed_log1p(max(-1, min(operand_index, 1024))),
-        _as_bool01(str(access_function).strip() not in {"", "0", "None"}),
-        _distance_scalar(attrs.get("distance")),
+        _as_bool01(attrs.get("distance_known", False)),
+        _signed_log1p(_as_int(attrs.get("dependence_depth"), 0)),
+        _signed_log1p(_as_int(attrs.get("first_nonzero_distance"), 0)),
+        _as_bool01(attrs.get("loop_carried", False)),
     ]
 
 
 EDGE_NUMERIC_NAMES = [
     "signed_log1p_position",
     "signed_log1p_operand_index",
-    "has_affine_access_function",
-    "signed_log1p_dependence_distance",
+    "distance_known",
+    "signed_log1p_dependence_depth",
+    "signed_log1p_first_nonzero_distance",
+    "loop_carried",
 ]
 
 
@@ -1031,6 +1037,22 @@ EDGE_CATEGORICAL_FIELDS = (
 )
 
 
+def _require_native_graph(graph: nx.Graph, label: str) -> None:
+    name = str(graph.graph.get("name", ""))
+    if not name.startswith(GRAPH_METADATA_PREFIX):
+        raise RuntimeError(f"{label}: missing native MailoHLS graph metadata")
+    try:
+        metadata = json.loads(name[len(GRAPH_METADATA_PREFIX):])
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"{label}: invalid MailoHLS graph metadata") from exc
+    if metadata.get("schema_version") != EXPECTED_GRAPH_SCHEMA_VERSION:
+        raise RuntimeError(
+            f"{label}: old/incompatible graph schema; force_regen=True is required"
+        )
+    if metadata.get("native_analysis_schema") != "mailohls-native-analysis-v1":
+        raise RuntimeError(f"{label}: conservative-only graph rejected in production")
+
+
 def node_categorical_row(attrs: Mapping[str, Any]) -> list[str]:
     return [
         node_kind(attrs),
@@ -1061,6 +1083,7 @@ def fit_encoders(graph_files: Sequence[Path]) -> dict[str, Any]:
 
     for graph_file in graph_files:
         graph = nx.read_gexf(graph_file)
+        _require_native_graph(graph, graph_file.name)
         ordered_nodes, _ = _node_id_order(graph)
 
         for node in ordered_nodes:
@@ -1112,6 +1135,7 @@ def encode_static_graph(
     kernel_name: str,
     encoders: Mapping[str, Any],
 ) -> dict[str, Any]:
+    _require_native_graph(graph, graph_name)
     ordered_nodes, node_to_index = _node_id_order(graph)
 
     node_categories = [
@@ -1547,6 +1571,7 @@ def _write_schema(
 ) -> None:
     schema = {
         "dataset": DATASET_NAME,
+        "feature_schema_version": MLIR_FEATURE_SCHEMA_VERSION,
         "node_categorical_fields": list(NODE_CATEGORICAL_FIELDS),
         "node_numeric_fields": NODE_NUMERIC_NAMES,
         "edge_categorical_fields": list(EDGE_CATEGORICAL_FIELDS),

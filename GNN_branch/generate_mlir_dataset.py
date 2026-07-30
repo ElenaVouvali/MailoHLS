@@ -68,7 +68,8 @@ from typing import Iterable
 import networkx as nx
 
 
-EXPECTED_SCHEMA_VERSION = "mailohls-mlir-graph"
+EXPECTED_SCHEMA_VERSION = "mailohls-mlir-graph-v2-native"
+EXPECTED_NATIVE_ANALYSIS_SCHEMA = "mailohls-native-analysis-v1"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 ACTION_ID_RE = re.compile(r"^L[1-9][0-9]*$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -311,6 +312,7 @@ def validate_existing_graph(
     contract: KernelContract,
     expected_cgeist_sha256: str,
     expected_generator_sha256: str,
+    expected_binding_sha256: str,
 ) -> tuple[bool, str]:
     """Return whether a GEXF is safe to reuse as current training data."""
     if not path.is_file() or path.stat().st_size == 0:
@@ -335,6 +337,13 @@ def validate_existing_graph(
             f"schema_version={schema!r}, "
             f"expected {EXPECTED_SCHEMA_VERSION!r}",
         )
+    if _metadata_string(metadata, "native_analysis_schema") != EXPECTED_NATIVE_ANALYSIS_SCHEMA:
+        return False, "missing or incompatible native-analysis schema"
+    if _metadata_string(metadata, "binding_sha256") != expected_binding_sha256:
+        return False, "native analysis binding SHA-256 mismatch"
+    coverage = metadata.get("native_analysis_coverage")
+    if not isinstance(coverage, dict) or int(coverage.get("operations", 0)) <= 0:
+        return False, "missing native-analysis coverage metadata"
 
     kernel = _metadata_string(metadata, "kernel")
     if kernel != contract.top_level_function:
@@ -611,6 +620,11 @@ def main() -> int:
     cgeist = resolve_executable(args.cgeist)
     cgeist_sha256 = sha256_file(cgeist)
     generator_sha256 = sha256_file(generator)
+    try:
+        from mlir._mlir_libs import _mailohls_analysis
+    except ImportError as exc:
+        raise RuntimeError("The _mailohls_analysis binding is required") from exc
+    binding_sha256 = sha256_file(Path(_mailohls_analysis.__file__))
 
     all_kernels = load_all_kernel_names(config_path)
     rows = load_application_rows(app_csv)
@@ -725,6 +739,7 @@ def main() -> int:
             contract,
             cgeist_sha256,
             generator_sha256,
+            binding_sha256,
         )
         if reusable and not args.force:
             print(
@@ -786,6 +801,7 @@ def main() -> int:
                 contract,
                 cgeist_sha256,
                 generator_sha256,
+                binding_sha256,
             )
 
             if not valid:
@@ -852,6 +868,7 @@ def main() -> int:
                 contract,
                 cgeist_sha256,
                 generator_sha256,
+                binding_sha256,
             )
         except (
             FileNotFoundError,
