@@ -1,39 +1,21 @@
 #!/usr/bin/env python3
-"""Build one MailoHLS training graph directly from a C or C++ kernel.
+""" 
+C/C++ source -> Polygeist/cgeist at -O0 -> Affine + SCF + MemRef + Arith + Func MLIR -> deterministic, action-aligned GEXF graph
 
-The script deliberately exposes a small end-to-end interface:
+    - Affine operations retain static loop bounds and affine array subscripts when Polygeist can prove them; 
+    - SCF remains the fallback for dynamic or non-affine control; 
+    - MemRef retains array shape, views, and accesses; 
+    - Arith retains typed computation; 
+    - Func retains calls.
+    
+(We stop before CF/LLVM lowering because that would erase the loop, region, and array
+semantics that are most useful to HLS optimization)
 
-    C/C++ source
-        -> Polygeist/cgeist at -O0
-        -> Affine + SCF + MemRef + Arith + Func MLIR
-        -> one deterministic, action-aligned GEXF graph
+export POLYGEIST_BUILD="$HOME/tools/Polygeist/build-mailohls-assertions"
+export CGEIST="$POLYGEIST_BUILD/bin/cgeist"
+export MLIR_PYTHON="$HOME/.mlir-python311/bin/python"
+export MLIR_PYTHON_ROOT="$POLYGEIST_BUILD/tools/mlir/python_packages/mlir_core"
 
-Why this MLIR level?  Affine operations retain static loop bounds and affine
-array subscripts when Polygeist can prove them; SCF remains the lossless
-fallback for dynamic or non-affine control; MemRef retains array shape, views,
-and accesses; Arith retains typed computation; Func retains calls.  We stop
-before CF/LLVM lowering because that would erase the loop, region, and array
-semantics that are most useful to HLS optimization.
-
-The final graph is the single representation expected for MLIR GNN training:
-semantic MLIR nodes and edges, real block adjacency, one pseudo scope per MLIR
-block, direct loop hierarchy, memory roots/accesses/dependencies, and stable
-MailoHLS Lk pragma/array scopes.  It preserves the node/edge contract consumed
-by the existing edge-aware TransformerConv backbone, but MLIR encoders must be
-regenerated and the GNN retrained.
-
-Actions are read from ``kernel_info.txt`` beside the labeled source.  The source
-labels identify each action's exact source location.  Polygeist carries that
-location into MLIR, so even same-shaped local arrays remain distinguishable;
-loop order and array shape are retained only as strict compatibility fallbacks.
-
-Example:
-
-    PYTHONHASHSEED=0 python mlir_graph_gen.py gemv.cpp --output gemv_mlir.gexf
-
-Use the official MLIR Python bindings built from the same LLVM revision as
-cgeist.  Add their ``mlir_core`` directory to PYTHONPATH; do not install the
-unrelated PyPI package named ``mlir``.
 """
 
 from __future__ import annotations
@@ -921,19 +903,16 @@ def action_memref_shape_keys(
     )
 
 
-# ---------------------------------------------------------------------------
-# Thin compatibility layer over MLIR Python bindings.
-# ---------------------------------------------------------------------------
 
 def import_mlir_ir() -> Any:
-    """Import mlir ir for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Import mlir ir for the deterministic graph gen pipeline."""
     try:
         from mlir import ir  # type: ignore
     except Exception as exc:
         raise RuntimeError(
             "Could not import the official MLIR Python bindings. Build MLIR with "
             "MLIR_ENABLE_BINDINGS_PYTHON=ON and add the matching mlir_core package "
-            "to PYTHONPATH. Do not install the unrelated PyPI package named mlir."
+            "to PYTHONPATH."
         ) from exc
     return ir
 
@@ -1328,6 +1307,10 @@ def parse_mlir_module(path: Path, allow_unregistered_dialects: bool) -> tuple[An
 
 # ---------------------------------------------------------------------------
 # MLIR object-model graph builder.
+# Output : networkx.MultiDiGraph --> the same two nodes may simultaneously have 
+# a data, control, memory and loop-carried relationship.
+# Node types --> 0 = operation, 1 = SSA value, 2 = immediate/semantic feature, 
+#                100 = pragma placeholder, 104 = array-action scope
 # ---------------------------------------------------------------------------
 
 class MlirGraphBuilder:
@@ -1339,13 +1322,11 @@ class MlirGraphBuilder:
         conservative_memory_dependencies: bool = True,
         require_actions: bool = False,
     ) -> None:
-        """Handle init for the deterministic MLIR-to-MailoHLS graph pipeline."""
         self.module = module
         # The official bindings define Value as either OpResult or
-        # BlockArgument.  Keeping the module here lets us use those concrete
-        # owners instead of the Python wrapper class/hash combination used by
-        # the first prototype (generic Value and OpResult wrappers may alias the
-        # same SSA value).
+        # BlockArgument. This prevents one SSA value from being duplicated.
+        # The Python wrapper used in the first version exposed it 
+        # once as a generic Value and elsewhere as an OpResult.
         self.ir = import_mlir_ir()
         self.mlir_text = mlir_text
         self.actions = actions
@@ -1400,14 +1381,10 @@ class MlirGraphBuilder:
         )
 
     def _value_key(self, value: Any) -> tuple[str, Any, int]:
-        """Return the structural MLIR identity of an SSA value.
-
-        MLIR's Python traversal may expose one underlying value once as a
-        generic ``Value`` and elsewhere as ``OpResult``/``BlockArgument``.
-        Including ``type(value).__name__`` in a key therefore splits a legal
-        use-def chain.  MLIR already gives the exact identity we need: the
-        defining operation plus result number, or the owning block plus
-        argument number.
+        """
+        Return the structural MLIR identity of an SSA value:
+        - Operation result: defining operation plus result number
+        - Block argument: owning block plus argument number
         """
         try:
             result = self.ir.OpResult(value)
@@ -1818,13 +1795,8 @@ class MlirGraphBuilder:
         return node
 
     def _add_ssa_edges(self) -> None:
-        """Connect MLIR's native use-def chains and retain exact positions.
-
-        ``Value.uses`` is the authoritative MLIR relation.  It avoids matching
-        printed SSA names and, unlike the first implementation, does not depend
-        on whether a traversal returned a generic Value or a concrete OpResult.
-        A compatibility fallback uses the same structural keys for older
-        Polygeist builds whose Python package predates ``Value.uses``.
+        """
+        Connect MLIR's native use-def chains (Value.uses) and retain exact positions.
         """
         for record in sorted(
             self.operation_records,
@@ -2002,11 +1974,12 @@ class MlirGraphBuilder:
                 )
 
     def _constant_from_value(self, value: Any) -> int | None:
-        """Handle from value for the deterministic MLIR-to-MailoHLS graph pipeline."""
         return self.constant_values.get(self._value_key(value))
 
     def _add_memory_shape_features(self) -> None:
-        """Expose MemRef shape/layout facts that the current encoder can learn."""
+        """
+        Expose MemRef shape/layout facts that the current encoder can learn.
+        """
         for key, value in sorted(
             self.value_objects.items(),
             key=lambda item: self.value_nodes[item[0]],
@@ -2195,19 +2168,18 @@ class MlirGraphBuilder:
         return {}, 0, {"unknown"}
 
     def _add_affine_access_features(self) -> None:
-        """Materialize stable affine-map facts as nodes consumed by data.py.
-
+        """
         Numeric node attributes alone are currently ignored by MailoHLS's
         encoder.  Small categorical feature nodes let the unchanged
         TransformerConv receive access rank, map class, unit/non-unit stride,
         offsets, and piecewise-affine operators without using kernel-specific
         SSA names or an unbounded vocabulary of complete map strings.
 
-        Notice that a coefficient of one in the last affine-map result is not
-        necessarily a physical unit-stride access: an ``affine.apply`` may sit
+        A coefficient of one in the last affine-map result is not
+        necessarily a physical unit-stride access: an "affine.apply" may sit
         between the surrounding loop IV and the map operand, and a non-identity
         memref layout may change the physical stride.  We therefore name that
-        bounded feature exactly (``unit_coefficient``), while preserving the
+        bounded feature exactly ("unit_coefficient"), while preserving the
         complete SSA chain and the exact map text for a later MLIR C++
         dependence-analysis pass.  This avoids teaching the GNN a false fact.
         """
@@ -2295,7 +2267,9 @@ class MlirGraphBuilder:
                 )
 
     def _annotate_loop_features(self, loop: LoopInfo) -> None:
-        """Extract loop bounds, step, depth, and static trip-count features."""
+        """
+        Extract loop bounds, step, depth, and static trip-count features.
+        """
         record = loop.op_record
         lower: int | None = None
         upper: int | None = None
@@ -2360,7 +2334,10 @@ class MlirGraphBuilder:
             )
 
     def _add_loop_carried_edges(self) -> None:
-        """Expose iter_args and yields that carry data between loop iterations."""
+        """
+        Expose iter_args and yields that carry data between loop iterations.
+        Very important for pipeline prediction.
+        """
         for loop in self.loops:
             record = loop.op_record
             regions = operation_regions(record.operation)
@@ -2493,7 +2470,6 @@ class MlirGraphBuilder:
                     )
 
     def _callee_name(self, record: OperationRecord) -> str:
-        """Handle name for the deterministic MLIR-to-MailoHLS graph pipeline."""
         if record.op_name not in CALL_OPS:
             return ""
         for name in ("callee", "callee_name"):
@@ -2557,7 +2533,7 @@ class MlirGraphBuilder:
 
         MLIR's generated dialect documentation identifies affine/memref reads
         and writes through interfaces, but the currently published Python
-        ``MemoryEffectsOpInterface`` does not expose an effect-query method.
+        "MemoryEffectsOpInterface" does not expose an effect-query method.
         The small dialect-semantic table below is therefore deliberately the
         only fallback; call effects are inferred from callee bodies rather than
         being hard-coded as read-write.
@@ -3023,7 +2999,7 @@ class MlirGraphBuilder:
         )
 
     def _add_conservative_memory_dependencies(self) -> None:
-        """Add same-root may-depend edges when exact alias analysis is unavailable."""
+        """Add same-root may-depend edges (RAW, WAW, WAR) when exact alias analysis is unavailable."""
         groups: dict[tuple[int, int], list[MemoryAccess]] = defaultdict(list)
         for access in self.memory_accesses:
             groups[(access.function_id, access.root_node)].append(access)
@@ -4132,7 +4108,7 @@ def build_cgeist_command(
     mlir_output: Path,
     cflags: Sequence[str],
 ) -> list[str]:
-    """Return the pinned frontend command used for every dataset example."""
+    """Return the command used for every dataset example."""
     if not kernel or kernel == "*":
         raise ValueError("--kernel must name exactly one C/C++ top function")
     return [
@@ -4147,13 +4123,12 @@ def build_cgeist_command(
         # ARRAY_PARTITION action points must remain represented as MemRefs.
         # Polygeist enables affine scalar replacement by default even at -O0.
         "-scal-rep=0",
-        # Source locations are part of the MailoHLS action-mapping contract.
+        # Source locations are part of the MailoHLS action point mapping logic.
         # Without this cgeist retains locations internally but omits them from
-        # the serialized MLIR, forcing unsafe ordinal/shape action fallbacks.
+        # the serialized MLIR.
         "-print-debug-info",
         # Preserve every statically-known C array dimension in the MemRef type.
-        # Polygeist's own verification suite uses this flag for exactly that
-        # contract; without it, a function parameter such as A[10][20] may lose
+        # Without it, a function parameter such as A[10][20] may lose
         # rank/shape information before the graph builder ever sees the IR.
         "-memref-fullrank",
         "-raise-scf-to-affine",
@@ -4170,7 +4145,7 @@ def compile_source_to_mlir(
     cgeist: str,
     cflags: Sequence[str],
 ) -> tuple[list[str], str]:
-    """Run Polygeist and return (command, MLIR text), failing with context."""
+    """Run Polygeist and return (command, MLIR text)"""
     if not source.is_file():
         raise FileNotFoundError(f"C/C++ input does not exist: {source}")
     if source.suffix not in SOURCE_SUFFIXES:
@@ -4277,7 +4252,7 @@ def create_initial_graph(
 
 
 # ---------------------------------------------------------------------------
-# CLI orchestration.  This layer deliberately stays small: graph semantics
+# This "run" layer deliberately stays small: graph semantics
 # belong in the builder above, while this code handles paths, subprocesses,
 # validation, and the lifetime of MLIR's native Context.
 # ---------------------------------------------------------------------------
@@ -4290,7 +4265,7 @@ def run(args: argparse.Namespace) -> Path:
     if not kernel_info.is_file():
         raise FileNotFoundError(f"Expected kernel metadata beside the source: {kernel_info}")
 
-    # kernel_info supplies the optimization contract; source labels supply the
+    # kernel_info supplies the optimization target; source labels supply the
     # semantic function/loop locations that the compact text file omits.
     metadata_kernel, actions = load_kernel_info_actions(source, kernel_info)
     preserved_memref_shapes = action_memref_shape_keys(actions)
