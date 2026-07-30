@@ -93,7 +93,7 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-v2-native"
+SCHEMA_VERSION = "mailohls-mlir-graph-v3-native-semantic"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 PERSISTED_GRAPH_METADATA_KEYS = (
     "kernel",
@@ -1390,6 +1390,13 @@ class MlirGraphBuilder:
             defaultdict(set)
         )
         self.native_effects: dict[tuple[str, int], dict[str, Any]] = {}
+        self.native_views: list[dict[str, Any]] = []
+        self.native_aliases: list[dict[str, Any]] = []
+        self.native_affine_loops: dict[tuple[str, int], dict[str, Any]] = {}
+        self.native_no_alias_pairs: set[frozenset[str]] = set()
+        self.native_alias_constraint_pairs: set[tuple[Any, Any]] = set()
+        self.native_trip_count_agreements = 0
+        self.native_trip_count_known = 0
 
     def _value_key(self, value: Any) -> tuple[str, Any, int]:
         """
@@ -1507,7 +1514,7 @@ class MlirGraphBuilder:
                 native_analysis_coverage={},
             )
             return
-        if self.native_analysis.get("schema") != "mailohls-native-analysis-v1":
+        if self.native_analysis.get("schema") != "mailohls-native-analysis-v2":
             raise RuntimeError(
                 f"Unsupported native analysis schema: {self.native_analysis.get('schema')!r}"
             )
@@ -1531,6 +1538,17 @@ class MlirGraphBuilder:
         self.native_effects = {
             (str(item["function"]), int(item["ordinal"])): item
             for item in self.native_analysis.get("effects", [])
+        }
+        self.native_views = list(self.native_analysis.get("views", []))
+        self.native_aliases = list(self.native_analysis.get("aliases", []))
+        self.native_affine_loops = {
+            (str(item["function"]), int(item["ordinal"])): item
+            for item in self.native_analysis.get("affine_loops", [])
+        }
+        self.native_no_alias_pairs = {
+            frozenset((str(item["lhs"]), str(item["rhs"])))
+            for item in self.native_aliases
+            if item.get("result") == "no_alias"
         }
         verification = self.native_analysis.get("verification", {})
         if verification != {"before": True, "after": True, "unchanged": True}:
@@ -2359,6 +2377,24 @@ class MlirGraphBuilder:
             else:
                 trip_count = max(0, math.ceil((lower - upper) / (-step)))
 
+        if record.op_name == "affine.for":
+            native = self.native_affine_loops.get(
+                (self.functions[record.function_id], record.function_ordinal)
+            )
+            if native is not None and native.get("status") == "known":
+                native_trip_count = int(native["trip_count"])
+                self.native_trip_count_known += 1
+                if trip_count is not None and trip_count != native_trip_count:
+                    raise RuntimeError(
+                        "Native/Python affine trip-count mismatch for "
+                        f"{self.functions[record.function_id]}:op"
+                        f"{record.function_ordinal}: native={native_trip_count}, "
+                        f"python={trip_count}"
+                    )
+                if trip_count is not None:
+                    self.native_trip_count_agreements += 1
+                trip_count = native_trip_count
+
         data = self.graph.nodes[loop.op_node]
         data["loop_ordinal"] = loop.loop_ordinal
         data["loop_lower"] = lower if lower is not None else -1
@@ -2386,6 +2422,10 @@ class MlirGraphBuilder:
                 position=900,
                 role="loop_trip_count",
             )
+        self.graph.graph["native_trip_count_known"] = self.native_trip_count_known
+        self.graph.graph["native_trip_count_agreements"] = (
+            self.native_trip_count_agreements
+        )
 
     def _add_loop_carried_edges(self) -> None:
         """
@@ -2796,6 +2836,77 @@ class MlirGraphBuilder:
                 if position < len(record.result_keys):
                     self._add_alias_source(yielded_key, record.result_keys[position])
 
+        fallback_constraints = sum(
+            len(sources) for sources in self.memory_alias_sources.values()
+        )
+        native_value_keys = {
+            str(self.graph.nodes[node].get("ssa_id")): key
+            for key, node in self.value_nodes.items()
+        }
+        native_view_constraints = 0
+        for relation in self.native_views:
+            source_id = str(relation["source"])
+            target_id = str(relation["target"])
+            source = native_value_keys.get(source_id)
+            target = native_value_keys.get(target_id)
+            if source is None or target is None:
+                raise RuntimeError(
+                    f"Native view references unknown value: {source_id}->{target_id}"
+                )
+            self._add_alias_source(source, target)
+            self.native_alias_constraint_pairs.add((source, target))
+            self.graph.add_edge(
+                self.value_nodes[source],
+                self.value_nodes[target],
+                flow=FLOW_MEMORY_VIEW,
+                position=2,
+                role="native_derived_view",
+                certainty="proven",
+            )
+            native_view_constraints += 1
+
+        alias_counts: Counter[str] = Counter()
+        for relation in self.native_aliases:
+            lhs_id = str(relation["lhs"])
+            rhs_id = str(relation["rhs"])
+            classification = str(relation["result"])
+            alias_counts[classification] += 1
+            lhs = native_value_keys.get(lhs_id)
+            rhs = native_value_keys.get(rhs_id)
+            if lhs is None or rhs is None:
+                raise RuntimeError(
+                    f"Native alias references unknown value: {lhs_id}, {rhs_id}"
+                )
+            if classification == "no_alias":
+                continue
+            if classification not in {"must_alias", "may_alias", "partial_alias"}:
+                raise RuntimeError(
+                    f"Unknown native alias classification: {classification}"
+                )
+            self._add_alias_source(lhs, rhs)
+            self._add_alias_source(rhs, lhs)
+            self.native_alias_constraint_pairs.update(((lhs, rhs), (rhs, lhs)))
+            certainty = {
+                "must_alias": "proven",
+                "may_alias": "may",
+                "partial_alias": "partial",
+            }[classification]
+            for source, target, position in ((lhs, rhs, 3), (rhs, lhs, 4)):
+                self.graph.add_edge(
+                    self.value_nodes[source],
+                    self.value_nodes[target],
+                    flow=FLOW_MEMORY_VIEW,
+                    position=position,
+                    role=classification,
+                    certainty=certainty,
+                )
+
+        self.graph.graph["fallback_view_constraints"] = fallback_constraints
+        self.graph.graph["native_view_constraints"] = native_view_constraints
+        self.graph.graph["native_alias_classifications"] = dict(
+            sorted(alias_counts.items())
+        )
+
     def _compute_function_memory_effects(self) -> None:
         """Infer argument effects from callee bodies to a fixed point."""
         formal_origins: dict[Any, set[int]] = defaultdict(set)
@@ -2881,19 +2992,28 @@ class MlirGraphBuilder:
             (self.functions[record.function_id], record.function_ordinal)
         )
         if native is not None and native.get("status") != "unknown":
-            kinds = {str(effect.get("kind")) for effect in native.get("effects", [])}
-            positions = [
-                index
-                for index, value in enumerate(record.operands)
-                if is_memory_type(value_type(value))
-            ]
-            if positions and ("read" in kinds or "write" in kinds):
-                mode = (
-                    "readwrite"
-                    if {"read", "write"} <= kinds
-                    else ("write" if "write" in kinds else "read")
+            by_operand: dict[int, str] = {}
+            for effect in native.get("effects", []):
+                kind = str(effect.get("kind"))
+                if kind not in {"read", "write"}:
+                    continue
+                operand_index = effect.get("operand_index")
+                if operand_index is None:
+                    # This is a real operation-level effect, not evidence about
+                    # an arbitrary MemRef operand.
+                    continue
+                position = int(operand_index)
+                if position < 0 or position >= len(record.operands):
+                    raise RuntimeError(
+                        f"Native effect operand {position} is out of range for "
+                        f"{record.op_name}"
+                    )
+                if not is_memory_type(value_type(record.operands[position])):
+                    continue
+                by_operand[position] = merge_memory_modes(
+                    by_operand.get(position), kind
                 )
-                return [(position, mode) for position in positions]
+            return sorted(by_operand.items())
         if record.op_name not in CALL_OPS:
             return self._intrinsic_memory_operands(record)
 
@@ -2960,6 +3080,20 @@ class MlirGraphBuilder:
                     break
 
         self.memory_roots_by_value = roots
+        native_value_keys = {
+            str(self.graph.nodes[node].get("ssa_id")): key
+            for key, node in self.value_nodes.items()
+        }
+        for pair in self.native_no_alias_pairs:
+            lhs_id, rhs_id = sorted(pair)
+            lhs = native_value_keys.get(lhs_id)
+            rhs = native_value_keys.get(rhs_id)
+            if lhs is not None and rhs is not None and roots[lhs] & roots[rhs]:
+                raise RuntimeError(
+                    "Native NoAlias values acquired a common memory root: "
+                    f"{lhs_id}, {rhs_id}"
+                )
+        native_root_edges = fallback_root_edges = 0
         for key, value_roots in roots.items():
             value_node = self.value_nodes[key]
             self.graph.nodes[value_node]["memory_root_count"] = len(value_roots)
@@ -2974,6 +3108,15 @@ class MlirGraphBuilder:
                     position=0,
                     role="may_alias_root",
                 )
+                sources = self.memory_alias_sources.get(key, set())
+                if any(
+                    (source, key) in self.native_alias_constraint_pairs
+                    and root in roots.get(source, set())
+                    for source in sources
+                ):
+                    native_root_edges += 1
+                elif sources:
+                    fallback_root_edges += 1
                 self.graph.add_edge(
                     value_node,
                     root,
@@ -2981,6 +3124,8 @@ class MlirGraphBuilder:
                     position=1,
                     role="may_alias_root_reverse",
                 )
+        self.graph.graph["native_root_edges"] = native_root_edges
+        self.graph.graph["fallback_root_edges"] = fallback_root_edges
 
     def _build_memory_relations(self) -> None:
         """Build alias-aware roots, call effects, accesses, and dependencies."""
@@ -3062,7 +3207,7 @@ class MlirGraphBuilder:
         loop_carried: bool = False,
     ) -> None:
         """Add memory dependence for the deterministic MLIR-to-MailoHLS graph pipeline."""
-        if source == target:
+        if source == target and not loop_carried:
             return
         self.graph.add_edge(
             source,
@@ -3112,7 +3257,7 @@ class MlirGraphBuilder:
                 (str(target_id["function"]), int(target_id["ordinal"]))
             ].node
             kind, outcome = str(query["kind"]), str(query["result"])
-            if outcome == "unknown":
+            if outcome in {"unknown", "not_applicable"}:
                 continue
             self._remove_memory_dependence(source, target, kind)
             if outcome == "no_dependence":
@@ -3147,7 +3292,7 @@ class MlirGraphBuilder:
                 ),
                 loop_carried=bool(query.get("loop_carried", False)),
             )
-            if source != target:
+            if source != target or bool(query.get("loop_carried", False)):
                 exact += 1
         fallback = sum(
             int(data.get("flow", -1)) == FLOW_MEMORY_DEPENDENCE

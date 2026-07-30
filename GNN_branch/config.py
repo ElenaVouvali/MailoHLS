@@ -52,6 +52,11 @@ ALL_KERNEL = ['machsuite-gemm-blocked', 'machsuite-gemm-ncubed', 'machsuite-md-k
 
 
 parser.add_argument('--force_regen', type=bool, default=False) ## must be set to True for the first time to generate the dataset
+parser.add_argument(
+    '--allow_incomplete_dataset',
+    action='store_true',
+    help='Debug/research only: allow missing, failed, stale, or incompatible MLIR graphs.',
+)
 
 parser.add_argument('--min_allowed_latency', type=float, default=0.1) ## if latency is less than this, prune the point (used when synthesis is not valid)
 EPSILON = 1e-6
@@ -348,4 +353,3 @@ if FLAGS.tiny_overfit:
 
     FLAGS.save_model = True
     FLAGS.model_tag = f"tiny_overfit_{FLAGS.tiny_overfit_kernel}"
-

@@ -68,8 +68,8 @@ from typing import Iterable
 import networkx as nx
 
 
-EXPECTED_SCHEMA_VERSION = "mailohls-mlir-graph-v2-native"
-EXPECTED_NATIVE_ANALYSIS_SCHEMA = "mailohls-native-analysis-v1"
+EXPECTED_SCHEMA_VERSION = "mailohls-mlir-graph-v3-native-semantic"
+EXPECTED_NATIVE_ANALYSIS_SCHEMA = "mailohls-native-analysis-v2"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 ACTION_ID_RE = re.compile(r"^L[1-9][0-9]*$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")

@@ -106,8 +106,8 @@ the node and edge vocabularies are different.
 
 from __future__ import annotations
 
-import csv
 import gc
+import csv
 import json
 import math
 import os
@@ -168,7 +168,7 @@ INDEX_PATH = SAVE_DIR / "index.pt"
 ENCODER_PATH = SAVE_DIR / "encoders.pkl"
 PRAGMA_DIM_PATH = SAVE_DIR / "pragma_dim.pt"
 SCHEMA_PATH = SAVE_DIR / "feature_schema.json"
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v2-native-dependence"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v3-native-semantic"
 
 
 # ---------------------------------------------------------------------------
@@ -183,7 +183,7 @@ NODE_TYPE_PRAGMA = 100
 NODE_TYPE_ARRAY_SCOPE = 104
 
 FLOW_PRAGMA = 200
-EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v2-native"
+EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v3-native-semantic"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 
 PRAGMA_VECTOR_WIDTH = 5
@@ -808,17 +808,6 @@ def edge_certainty(attrs: Mapping[str, Any]) -> str:
     return certainty if certainty else "<none>"
 
 
-def _distance_scalar(value: Any) -> float:
-    """
-    Dependence distances may be plain integers or strings/lists.  Use the first
-    integer as a compact directional signal and leave unknown distance at zero.
-    """
-    if value is None:
-        return 0.0
-    match = INTEGER_RE.search(str(value))
-    return _signed_log1p(match.group(0)) if match else 0.0
-
-
 def edge_numeric_features(attrs: Mapping[str, Any]) -> list[float]:
     position = _as_int(attrs.get("position"), 0)
     operand_index = _as_int(attrs.get("operand_index"), -1)
@@ -826,7 +815,7 @@ def edge_numeric_features(attrs: Mapping[str, Any]) -> list[float]:
         _signed_log1p(max(-1, min(position, 1024))),
         _signed_log1p(max(-1, min(operand_index, 1024))),
         _as_bool01(attrs.get("distance_known", False)),
-        _signed_log1p(_as_int(attrs.get("dependence_depth"), 0)),
+        math.log1p(max(0, _as_int(attrs.get("dependence_depth"), 0))),
         _signed_log1p(_as_int(attrs.get("first_nonzero_distance"), 0)),
         _as_bool01(attrs.get("loop_carried", False)),
     ]
@@ -1049,7 +1038,7 @@ def _require_native_graph(graph: nx.Graph, label: str) -> None:
         raise RuntimeError(
             f"{label}: old/incompatible graph schema; force_regen=True is required"
         )
-    if metadata.get("native_analysis_schema") != "mailohls-native-analysis-v1":
+    if metadata.get("native_analysis_schema") != "mailohls-native-analysis-v2":
         raise RuntimeError(f"{label}: conservative-only graph rejected in production")
 
 
@@ -1292,10 +1281,50 @@ def discover_graph_files() -> list[Path]:
     gexf_dir = _first_existing_dir(
         GEXF_DIR_CANDIDATES, "MLIR graph directory"
     )
-    files = sorted(gexf_dir.glob("*.gexf"))
+    manifest = gexf_dir / "generation_manifest.csv"
+    allow_incomplete = bool(
+        getattr(FLAGS, "allow_incomplete_dataset", False)
+    )
+    if not manifest.is_file():
+        if not allow_incomplete:
+            raise RuntimeError(
+                f"Missing generation manifest: {manifest}; "
+                "use --allow_incomplete_dataset only for debugging/research"
+            )
+        files = sorted(gexf_dir.glob("*.gexf"))
+    else:
+        with manifest.open(newline="", encoding="utf-8") as handle:
+            rows = list(csv.DictReader(handle))
+        by_kernel = {str(row.get("app_name", "")): row for row in rows}
+        failures: list[str] = []
+        files = []
+        for kernel in ALL_KERNEL:
+            row = by_kernel.get(kernel)
+            path = gexf_dir / f"{kernel}.gexf"
+            if row is None:
+                failures.append(f"{kernel}: missing manifest row")
+                continue
+            status = str(row.get("status", "")).lower()
+            if status not in {"generated", "skipped"}:
+                failures.append(f"{kernel}: status={status or '<missing>'}")
+                continue
+            if not path.is_file() or path.stat().st_size == 0:
+                failures.append(f"{kernel}: missing/empty graph")
+                continue
+            try:
+                graph = nx.read_gexf(path)
+                _require_native_graph(graph, path.name)
+            except Exception as exc:
+                failures.append(f"{kernel}: stale/incompatible ({exc})")
+                continue
+            files.append(path)
+        if failures and not allow_incomplete:
+            raise RuntimeError(
+                "Incomplete/stale MLIR dataset:\n  " + "\n  ".join(failures)
+            )
     if not files:
-        raise RuntimeError(f"No .gexf files found in {gexf_dir}")
-    return files
+        raise RuntimeError(f"No usable .gexf files found in {gexf_dir}")
+    return sorted(files)
 
 
 def resolve_kernel_from_graph(graph_file: Path) -> str:
@@ -1599,6 +1628,20 @@ def _write_schema(
     )
 
 
+def _validate_cached_schema() -> None:
+    if not SCHEMA_PATH.is_file():
+        raise RuntimeError("Missing MLIR feature schema; use force_regen=True")
+
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    actual = schema.get("feature_schema_version")
+
+    if actual != MLIR_FEATURE_SCHEMA_VERSION:
+        raise RuntimeError(
+            f"Cached MLIR feature schema {actual!r} is incompatible with "
+            f"{MLIR_FEATURE_SCHEMA_VERSION!r}; use force_regen=True"
+        )
+
+
 def get_data_list():
     """
     Build or load the compact MLIR MailoHLS dataset.
@@ -1617,6 +1660,7 @@ def get_data_list():
         graph_records.append((graph_file, kernel))
 
     if not bool(getattr(FLAGS, "force_regen", False)):
+        _validate_cached_schema()
         if not INDEX_PATH.is_file():
             raise FileNotFoundError(
                 f"{INDEX_PATH} does not exist. Set force_regen=True once."
