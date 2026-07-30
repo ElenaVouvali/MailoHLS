@@ -1293,9 +1293,18 @@ def normalize_targets(
 # ---------------------------------------------------------------------------
 
 def discover_graph_files() -> list[Path]:
-    gexf_dir = _first_existing_dir(
-        GEXF_DIR_CANDIDATES, "MLIR graph directory"
-    )
+
+    requested = getattr(FLAGS, "mlir_graph_dir", None)
+
+    if requested:
+        gexf_dir = Path(requested).expanduser().resolve()
+        if not gexf_dir.is_dir():
+            raise RuntimeError(f"MLIR graph directory does not exist: {gexf_dir}")
+    else:
+        gexf_dir = _first_existing_dir(
+            GEXF_DIR_CANDIDATES, "MLIR graph directory"
+        )
+
     manifest = gexf_dir / "generation_manifest.csv"
     allow_incomplete = bool(
         getattr(FLAGS, "allow_incomplete_dataset", False)

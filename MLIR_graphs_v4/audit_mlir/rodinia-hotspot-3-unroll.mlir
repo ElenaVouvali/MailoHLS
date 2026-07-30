@@ -1,432 +1,1467 @@
 #loc1 = loc("hotspot.cpp":62:6)
-#loc47 = loc("hotspot.cpp":98:23)
-#loc48 = loc("hotspot.cpp":99:27)
-#loc51 = loc("hotspot.cpp":100:13)
-#loc52 = loc("hotspot.cpp":101:13)
-#loc54 = loc("hotspot.cpp":105:13)
-#loc55 = loc("hotspot.cpp":108:27)
-#loc58 = loc("hotspot.cpp":109:13)
-#loc59 = loc("hotspot.cpp":110:13)
-#loc61 = loc("hotspot.cpp":114:13)
-#loc63 = loc("hotspot.cpp":18:6)
-#loc80 = loc("hotspot.cpp":29:23)
-#loc81 = loc("hotspot.cpp":30:28)
-#loc86 = loc("hotspot.cpp":35:23)
-#loc88 = loc("hotspot.cpp":36:27)
-#loc134 = loc("hotspot.cpp":52:27)
-#loc135 = loc("hotspot.cpp":53:31)
-#loc141 = loc("hotspot.cpp":4:7)
-#set = affine_set<(d0) : (-d0 + 31 >= 0)>
-#set1 = affine_set<(d0) : (d0 - 2016 >= 0)>
-#set2 = affine_set<(d0) : (d0 mod 32 == 0)>
-#set3 = affine_set<(d0) : (d0 mod 32 - 31 == 0)>
-module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>, #dlti.dl_entry<"dlti.endianness", "little">>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
+#loc10 = loc("hotspot.cpp":99:39)
+#loc11 = loc("hotspot.cpp":98:33)
+#loc88 = loc("hotspot.cpp":108:39)
+#loc122 = loc("hotspot.cpp":18:6)
+#loc132 = loc("hotspot.cpp":35:35)
+#loc133 = loc("./hotspot.h":18:21)
+#loc134 = loc("hotspot.cpp":29:35)
+#loc156 = loc("hotspot.cpp":30:28)
+#loc257 = loc("hotspot.cpp":53:43)
+#loc280 = loc("hotspot.cpp":4:7)
+module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>, #dlti.dl_entry<"dlti.endianness", "little">>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
   func.func @workload(%arg0: memref<262144xf32> loc("hotspot.cpp":62:6), %arg1: memref<262144xf32> loc("hotspot.cpp":62:6), %arg2: memref<262144xf32> loc("hotspot.cpp":62:6)) attributes {llvm.linkage = #llvm.linkage<external>} {
     %cst = arith.constant 3.125000e-05 : f64 loc(#loc2)
     %cst_0 = arith.constant 4.375000e+02 : f64 loc(#loc3)
     %cst_1 = arith.constant 1.000000e-01 : f64 loc(#loc4)
     %cst_2 = arith.constant 68.571428571428569 : f64 loc(#loc5)
-    %c32768_i32 = arith.constant 32768 : i32 loc(#loc158)
-    %c4 = arith.constant 4 : index loc(#loc8)
-    %cst_3 = arith.constant 1.000000e+00 : f32 loc(#loc9)
-    %cst_4 = arith.constant 1.000000e+03 : f64 loc(#loc10)
-    %cst_5 = arith.constant 1.000000e-03 : f64 loc(#loc11)
-    %cst_6 = arith.constant 1.000000e+02 : f32 loc(#loc12)
-    %cst_7 = arith.constant 5.000000e-04 : f64 loc(#loc13)
-    %alloca = memref.alloca() : memref<32768xf32> loc(#loc14)
-    %alloca_8 = memref.alloca() : memref<33792xf32> loc(#loc15)
-    %alloca_9 = memref.alloca() : memref<32768xf32> loc(#loc16)
-    %0 = arith.truncf %cst : f64 to f32 loc(#loc17)
-    %1 = arith.extf %0 : f32 to f64 loc(#loc18)
-    %2 = arith.mulf %1, %cst_0 : f64 loc(#loc19)
-    %3 = arith.mulf %2, %1 : f64 loc(#loc20)
-    %4 = arith.truncf %3 : f64 to f32 loc(#loc21)
-    %5 = arith.extf %0 : f32 to f64 loc(#loc22)
-    %6 = arith.mulf %5, %cst_1 : f64 loc(#loc23)
-    %7 = arith.divf %5, %6 : f64 loc(#loc24)
-    %8 = arith.truncf %7 : f64 to f32 loc(#loc22)
-    %9 = arith.mulf %0, %cst_6 : f32 loc(#loc25)
-    %10 = arith.mulf %9, %0 : f32 loc(#loc26)
-    %11 = arith.extf %10 : f32 to f64 loc(#loc27)
-    %12 = arith.divf %cst_7, %11 : f64 loc(#loc28)
-    %13 = arith.truncf %12 : f64 to f32 loc(#loc13)
-    %14 = arith.truncf %cst_2 : f64 to f32 loc(#loc29)
-    %15 = arith.extf %14 : f32 to f64 loc(#loc30)
-    %16 = arith.divf %cst_5, %15 : f64 loc(#loc31)
-    %17 = arith.divf %16, %cst_4 : f64 loc(#loc32)
-    %18 = arith.truncf %17 : f64 to f32 loc(#loc11)
-    %19 = arith.divf %cst_3, %8 : f32 loc(#loc33)
-    %20 = arith.divf %cst_3, %13 : f32 loc(#loc34)
-    %21 = arith.divf %18, %4 : f32 loc(#loc35)
-    %22 = "polygeist.memref2pointer"(%alloca_8) : (memref<33792xf32>) -> !llvm.ptr loc(#loc36)
-    %23 = "polygeist.memref2pointer"(%arg1) : (memref<262144xf32>) -> !llvm.ptr loc(#loc37)
-    %24 = "polygeist.memref2pointer"(%alloca) : (memref<32768xf32>) -> !llvm.ptr loc(#loc38)
-    %25 = "polygeist.memref2pointer"(%arg2) : (memref<262144xf32>) -> !llvm.ptr loc(#loc39)
-    %26 = "polygeist.memref2pointer"(%arg0) : (memref<262144xf32>) -> !llvm.ptr loc(#loc40)
-    %27 = "polygeist.memref2pointer"(%alloca_9) : (memref<32768xf32>) -> !llvm.ptr loc(#loc41)
-    %28 = "polygeist.memref2pointer"(%alloca_8) : (memref<33792xf32>) -> !llvm.ptr loc(#loc42)
-    %29 = "polygeist.memref2pointer"(%arg0) : (memref<262144xf32>) -> !llvm.ptr loc(#loc43)
-    %30 = "polygeist.memref2pointer"(%alloca) : (memref<32768xf32>) -> !llvm.ptr loc(#loc44)
-    %31 = "polygeist.memref2pointer"(%arg2) : (memref<262144xf32>) -> !llvm.ptr loc(#loc45)
-    %32 = "polygeist.memref2pointer"(%arg1) : (memref<262144xf32>) -> !llvm.ptr loc(#loc8)
-    %33 = "polygeist.memref2pointer"(%alloca_9) : (memref<32768xf32>) -> !llvm.ptr loc(#loc46)
-    affine.for %arg3 loc("hotspot.cpp":98:23) = 0 to 32 {
-      affine.for %arg4 loc("hotspot.cpp":99:27) = 0 to 8 {
-        %34 = arith.index_cast %arg4 : index to i32 loc(#loc48)
-        %35 = arith.muli %34, %c32768_i32 : i32 loc(#loc159)
-        %36 = arith.index_cast %35 : i32 to index loc(#loc50)
-        %37 = arith.muli %36, %c4 : index loc(#loc37)
-        %38 = arith.index_cast %37 : index to i64 loc(#loc37)
-        %39 = llvm.getelementptr %23[%38] : (!llvm.ptr, i64) -> !llvm.ptr, i8 loc(#loc37)
-        %40 = llvm.getelementptr %39[-512] : (!llvm.ptr) -> !llvm.ptr, f32 loc(#loc37)
-        affine.for %arg5 loc("hotspot.cpp":100:13) = 0 to 135168 {
-          %43 = arith.index_cast %arg5 : index to i32 loc(#loc51)
-          %44 = llvm.getelementptr %40[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc51)
-          %45 = llvm.load %44 : !llvm.ptr -> i8 loc(#loc51)
-          %46 = llvm.getelementptr %22[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc51)
-          llvm.store %45, %46 : i8, !llvm.ptr loc(#loc51)
-        } loc(#loc51)
-        %41 = llvm.getelementptr %25[%38] : (!llvm.ptr, i64) -> !llvm.ptr, i8 loc(#loc39)
-        affine.for %arg5 loc("hotspot.cpp":101:13) = 0 to 131072 {
-          %43 = arith.index_cast %arg5 : index to i32 loc(#loc52)
-          %44 = llvm.getelementptr %41[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc52)
-          %45 = llvm.load %44 : !llvm.ptr -> i8 loc(#loc52)
-          %46 = llvm.getelementptr %24[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc52)
-          llvm.store %45, %46 : i8, !llvm.ptr loc(#loc52)
-        } loc(#loc52)
-        func.call @hotspot(%alloca_9, %alloca_8, %alloca, %21, %19, %19, %20, %34) : (memref<32768xf32>, memref<33792xf32>, memref<32768xf32>, f32, f32, f32, f32, i32) -> () loc(#loc53)
-        %42 = llvm.getelementptr %26[%38] : (!llvm.ptr, i64) -> !llvm.ptr, i8 loc(#loc40)
-        affine.for %arg5 loc("hotspot.cpp":105:13) = 0 to 131072 {
-          %43 = arith.index_cast %arg5 : index to i32 loc(#loc54)
-          %44 = llvm.getelementptr %27[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc54)
-          %45 = llvm.load %44 : !llvm.ptr -> i8 loc(#loc54)
-          %46 = llvm.getelementptr %42[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc54)
-          llvm.store %45, %46 : i8, !llvm.ptr loc(#loc54)
-        } loc(#loc54)
-      } loc(#loc48)
-      affine.for %arg4 loc("hotspot.cpp":108:27) = 0 to 8 {
-        %34 = arith.index_cast %arg4 : index to i32 loc(#loc55)
-        %35 = arith.muli %34, %c32768_i32 : i32 loc(#loc160)
-        %36 = arith.index_cast %35 : i32 to index loc(#loc57)
-        %37 = arith.muli %36, %c4 : index loc(#loc43)
-        %38 = arith.index_cast %37 : index to i64 loc(#loc43)
-        %39 = llvm.getelementptr %29[%38] : (!llvm.ptr, i64) -> !llvm.ptr, i8 loc(#loc43)
-        %40 = llvm.getelementptr %39[-512] : (!llvm.ptr) -> !llvm.ptr, f32 loc(#loc43)
-        affine.for %arg5 loc("hotspot.cpp":109:13) = 0 to 135168 {
-          %43 = arith.index_cast %arg5 : index to i32 loc(#loc58)
-          %44 = llvm.getelementptr %40[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc58)
-          %45 = llvm.load %44 : !llvm.ptr -> i8 loc(#loc58)
-          %46 = llvm.getelementptr %28[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc58)
-          llvm.store %45, %46 : i8, !llvm.ptr loc(#loc58)
-        } loc(#loc58)
-        %41 = llvm.getelementptr %31[%38] : (!llvm.ptr, i64) -> !llvm.ptr, i8 loc(#loc45)
-        affine.for %arg5 loc("hotspot.cpp":110:13) = 0 to 131072 {
-          %43 = arith.index_cast %arg5 : index to i32 loc(#loc59)
-          %44 = llvm.getelementptr %41[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc59)
-          %45 = llvm.load %44 : !llvm.ptr -> i8 loc(#loc59)
-          %46 = llvm.getelementptr %30[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc59)
-          llvm.store %45, %46 : i8, !llvm.ptr loc(#loc59)
-        } loc(#loc59)
-        func.call @hotspot(%alloca_9, %alloca_8, %alloca, %21, %19, %19, %20, %34) : (memref<32768xf32>, memref<33792xf32>, memref<32768xf32>, f32, f32, f32, f32, i32) -> () loc(#loc60)
-        %42 = llvm.getelementptr %32[%38] : (!llvm.ptr, i64) -> !llvm.ptr, i8 loc(#loc8)
-        affine.for %arg5 loc("hotspot.cpp":114:13) = 0 to 131072 {
-          %43 = arith.index_cast %arg5 : index to i32 loc(#loc61)
-          %44 = llvm.getelementptr %33[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc61)
-          %45 = llvm.load %44 : !llvm.ptr -> i8 loc(#loc61)
-          %46 = llvm.getelementptr %42[%43] : (!llvm.ptr, i32) -> !llvm.ptr, i8 loc(#loc61)
-          llvm.store %45, %46 : i8, !llvm.ptr loc(#loc61)
-        } loc(#loc61)
-      } loc(#loc55)
-    } loc(#loc47)
-    return loc(#loc62)
+    %c1_i32 = arith.constant 1 : i32 loc(#loc6)
+    %c64_i64 = arith.constant 64 : i64 loc(#loc7)
+    %c512_i64 = arith.constant 512 : i64 loc(#loc8)
+    %c66_i64 = arith.constant 66 : i64 loc(#loc9)
+    %c512_i32 = arith.constant 512 : i32 loc(#loc8)
+    %c64_i32 = arith.constant 64 : i32 loc(#loc7)
+    %c8_i32 = arith.constant 8 : i32 loc(#loc10)
+    %c32_i32 = arith.constant 32 : i32 loc(#loc11)
+    %c0_i32 = arith.constant 0 : i32 loc(#loc12)
+    %cst_3 = arith.constant 1.000000e+00 : f32 loc(#loc13)
+    %cst_4 = arith.constant 1.000000e+03 : f64 loc(#loc14)
+    %cst_5 = arith.constant 1.000000e-03 : f64 loc(#loc15)
+    %cst_6 = arith.constant 1.000000e+02 : f32 loc(#loc16)
+    %cst_7 = arith.constant 5.000000e-04 : f64 loc(#loc17)
+    %true = arith.constant true loc(#loc18)
+    %0 = "polygeist.undef"() : () -> f32 loc(#loc19)
+    %alloca = memref.alloca() : memref<32768xf32> loc(#loc20)
+    %alloca_8 = memref.alloca() : memref<33792xf32> loc(#loc21)
+    %alloca_9 = memref.alloca() : memref<32768xf32> loc(#loc22)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc23)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc24)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc25)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    %1 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.truncf %cst : f64 to f32 loc(#loc26)
+            scf.yield %16 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %2 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.truncf %cst : f64 to f32 loc(#loc27)
+            scf.yield %16 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %3 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.extf %2 : f32 to f64 loc(#loc28)
+            %17 = arith.mulf %16, %cst_0 : f64 loc(#loc29)
+            %18 = arith.extf %1 : f32 to f64 loc(#loc30)
+            %19 = arith.mulf %17, %18 : f64 loc(#loc31)
+            %20 = arith.truncf %19 : f64 to f32 loc(#loc32)
+            scf.yield %20 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %4 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.extf %2 : f32 to f64 loc(#loc33)
+            %17 = arith.extf %1 : f32 to f64 loc(#loc34)
+            %18 = arith.mulf %17, %cst_1 : f64 loc(#loc35)
+            %19 = arith.divf %16, %18 : f64 loc(#loc36)
+            %20 = arith.truncf %19 : f64 to f32 loc(#loc33)
+            scf.yield %20 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %5 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.extf %1 : f32 to f64 loc(#loc37)
+            %17 = arith.extf %2 : f32 to f64 loc(#loc38)
+            %18 = arith.mulf %17, %cst_1 : f64 loc(#loc39)
+            %19 = arith.divf %16, %18 : f64 loc(#loc40)
+            %20 = arith.truncf %19 : f64 to f32 loc(#loc37)
+            scf.yield %20 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %6 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.mulf %1, %cst_6 : f32 loc(#loc41)
+            %17 = arith.mulf %16, %2 : f32 loc(#loc42)
+            %18 = arith.extf %17 : f32 to f64 loc(#loc43)
+            %19 = arith.divf %cst_7, %18 : f64 loc(#loc44)
+            %20 = arith.truncf %19 : f64 to f32 loc(#loc17)
+            scf.yield %20 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %7 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.truncf %cst_2 : f64 to f32 loc(#loc45)
+            scf.yield %16 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %8 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.extf %7 : f32 to f64 loc(#loc46)
+            %17 = arith.divf %cst_5, %16 : f64 loc(#loc47)
+            %18 = arith.divf %17, %cst_4 : f64 loc(#loc48)
+            %19 = arith.truncf %18 : f64 to f32 loc(#loc15)
+            scf.yield %19 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %9 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.divf %cst_3, %4 : f32 loc(#loc49)
+            scf.yield %16 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %10 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.divf %cst_3, %5 : f32 loc(#loc50)
+            scf.yield %16 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %11 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.divf %cst_3, %6 : f32 loc(#loc51)
+            scf.yield %16 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %12 = scf.if %true -> (f32) {
+      %13 = scf.execute_region -> f32 {
+        %14 = scf.if %true -> (f32) {
+          %15 = scf.execute_region -> f32 {
+            %16 = arith.divf %8, %3 : f32 loc(#loc52)
+            scf.yield %16 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %15 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %14 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %13 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc53)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            %13 = scf.while (%arg3 = %c0_i32) : (i32) -> i32 {
+              %14 = arith.cmpi slt, %arg3, %c32_i32 : i32 loc(#loc54)
+              scf.condition(%14) %arg3 : i32 loc(#loc55)
+            } do {
+            ^bb0(%arg3: i32 loc("hotspot.cpp":98:33)):
+              scf.if %true {
+                scf.execute_region {
+                  cf.br ^bb1 loc(#loc56)
+                ^bb1:  // pred: ^bb0
+                  scf.if %true {
+                    scf.execute_region {
+                      %15 = scf.while (%arg4 = %c0_i32) : (i32) -> i32 {
+                        %16 = arith.cmpi slt, %arg4, %c8_i32 : i32 loc(#loc57)
+                        scf.condition(%16) %arg4 : i32 loc(#loc58)
+                      } do {
+                      ^bb0(%arg4: i32 loc("hotspot.cpp":99:39)):
+                        scf.if %true {
+                          scf.execute_region {
+                            %17 = "polygeist.memref2pointer"(%alloca_8) : (memref<33792xf32>) -> !llvm.ptr loc(#loc59)
+                            %18 = arith.muli %arg4, %c64_i32 : i32 loc(#loc60)
+                            %19 = arith.muli %18, %c512_i32 : i32 loc(#loc61)
+                            %20 = arith.index_cast %19 : i32 to index loc(#loc62)
+                            %21 = "polygeist.subindex"(%arg1, %20) : (memref<262144xf32>, index) -> memref<?xf32> loc(#loc62)
+                            %22 = "polygeist.memref2pointer"(%21) : (memref<?xf32>) -> !llvm.ptr loc(#loc63)
+                            %23 = llvm.getelementptr %22[-512] : (!llvm.ptr) -> !llvm.ptr, f32 loc(#loc63)
+                            %24 = "polygeist.typeSize"() <{source = f32}> : () -> index loc(#loc64)
+                            %25 = arith.index_cast %24 : index to i64 loc(#loc64)
+                            %26 = arith.muli %25, %c66_i64 : i64 loc(#loc65)
+                            %27 = arith.muli %26, %c512_i64 : i64 loc(#loc66)
+                            "llvm.intr.memcpy"(%17, %23, %27) <{isVolatile = false}> : (!llvm.ptr, !llvm.ptr, i64) -> () loc(#loc67)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %17 = "polygeist.memref2pointer"(%alloca) : (memref<32768xf32>) -> !llvm.ptr loc(#loc68)
+                            %18 = arith.muli %arg4, %c64_i32 : i32 loc(#loc69)
+                            %19 = arith.muli %18, %c512_i32 : i32 loc(#loc70)
+                            %20 = arith.index_cast %19 : i32 to index loc(#loc71)
+                            %21 = "polygeist.subindex"(%arg2, %20) : (memref<262144xf32>, index) -> memref<?xf32> loc(#loc71)
+                            %22 = "polygeist.memref2pointer"(%21) : (memref<?xf32>) -> !llvm.ptr loc(#loc72)
+                            %23 = "polygeist.typeSize"() <{source = f32}> : () -> index loc(#loc73)
+                            %24 = arith.index_cast %23 : index to i64 loc(#loc73)
+                            %25 = arith.muli %24, %c64_i64 : i64 loc(#loc74)
+                            %26 = arith.muli %25, %c512_i64 : i64 loc(#loc75)
+                            "llvm.intr.memcpy"(%17, %22, %26) <{isVolatile = false}> : (!llvm.ptr, !llvm.ptr, i64) -> () loc(#loc76)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            func.call @hotspot(%alloca_9, %alloca_8, %alloca, %12, %9, %10, %11, %arg4) : (memref<32768xf32>, memref<33792xf32>, memref<32768xf32>, f32, f32, f32, f32, i32) -> () loc(#loc77)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %17 = arith.muli %arg4, %c64_i32 : i32 loc(#loc78)
+                            %18 = arith.muli %17, %c512_i32 : i32 loc(#loc79)
+                            %19 = arith.index_cast %18 : i32 to index loc(#loc80)
+                            %20 = "polygeist.subindex"(%arg0, %19) : (memref<262144xf32>, index) -> memref<?xf32> loc(#loc80)
+                            %21 = "polygeist.memref2pointer"(%20) : (memref<?xf32>) -> !llvm.ptr loc(#loc81)
+                            %22 = "polygeist.memref2pointer"(%alloca_9) : (memref<32768xf32>) -> !llvm.ptr loc(#loc82)
+                            %23 = "polygeist.typeSize"() <{source = f32}> : () -> index loc(#loc83)
+                            %24 = arith.index_cast %23 : index to i64 loc(#loc83)
+                            %25 = arith.muli %24, %c64_i64 : i64 loc(#loc84)
+                            %26 = arith.muli %25, %c512_i64 : i64 loc(#loc85)
+                            "llvm.intr.memcpy"(%21, %22, %26) <{isVolatile = false}> : (!llvm.ptr, !llvm.ptr, i64) -> () loc(#loc86)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        %16 = scf.if %true -> (i32) {
+                          %17 = scf.execute_region -> i32 {
+                            %18 = arith.addi %arg4, %c1_i32 : i32 loc(#loc6)
+                            scf.yield %18 : i32 loc(#loc)
+                          } loc(#loc)
+                          scf.yield %17 : i32 loc(#loc)
+                        } else {
+                          scf.yield %arg4 : i32 loc(#loc)
+                        } loc(#loc)
+                        scf.yield %16 : i32 loc(#loc58)
+                      } loc(#loc10)
+                      scf.yield loc(#loc)
+                    } loc(#loc)
+                  } loc(#loc)
+                  scf.yield loc(#loc)
+                } loc(#loc)
+              } loc(#loc)
+              scf.if %true {
+                scf.execute_region {
+                  cf.br ^bb1 loc(#loc87)
+                ^bb1:  // pred: ^bb0
+                  scf.if %true {
+                    scf.execute_region {
+                      %15 = scf.while (%arg4 = %c0_i32) : (i32) -> i32 {
+                        %16 = arith.cmpi slt, %arg4, %c8_i32 : i32 loc(#loc89)
+                        scf.condition(%16) %arg4 : i32 loc(#loc90)
+                      } do {
+                      ^bb0(%arg4: i32 loc("hotspot.cpp":108:39)):
+                        scf.if %true {
+                          scf.execute_region {
+                            %17 = "polygeist.memref2pointer"(%alloca_8) : (memref<33792xf32>) -> !llvm.ptr loc(#loc91)
+                            %18 = arith.muli %arg4, %c64_i32 : i32 loc(#loc92)
+                            %19 = arith.muli %18, %c512_i32 : i32 loc(#loc93)
+                            %20 = arith.index_cast %19 : i32 to index loc(#loc94)
+                            %21 = "polygeist.subindex"(%arg0, %20) : (memref<262144xf32>, index) -> memref<?xf32> loc(#loc94)
+                            %22 = "polygeist.memref2pointer"(%21) : (memref<?xf32>) -> !llvm.ptr loc(#loc95)
+                            %23 = llvm.getelementptr %22[-512] : (!llvm.ptr) -> !llvm.ptr, f32 loc(#loc95)
+                            %24 = "polygeist.typeSize"() <{source = f32}> : () -> index loc(#loc96)
+                            %25 = arith.index_cast %24 : index to i64 loc(#loc96)
+                            %26 = arith.muli %25, %c66_i64 : i64 loc(#loc97)
+                            %27 = arith.muli %26, %c512_i64 : i64 loc(#loc98)
+                            "llvm.intr.memcpy"(%17, %23, %27) <{isVolatile = false}> : (!llvm.ptr, !llvm.ptr, i64) -> () loc(#loc99)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %17 = "polygeist.memref2pointer"(%alloca) : (memref<32768xf32>) -> !llvm.ptr loc(#loc100)
+                            %18 = arith.muli %arg4, %c64_i32 : i32 loc(#loc101)
+                            %19 = arith.muli %18, %c512_i32 : i32 loc(#loc102)
+                            %20 = arith.index_cast %19 : i32 to index loc(#loc103)
+                            %21 = "polygeist.subindex"(%arg2, %20) : (memref<262144xf32>, index) -> memref<?xf32> loc(#loc103)
+                            %22 = "polygeist.memref2pointer"(%21) : (memref<?xf32>) -> !llvm.ptr loc(#loc104)
+                            %23 = "polygeist.typeSize"() <{source = f32}> : () -> index loc(#loc105)
+                            %24 = arith.index_cast %23 : index to i64 loc(#loc105)
+                            %25 = arith.muli %24, %c64_i64 : i64 loc(#loc106)
+                            %26 = arith.muli %25, %c512_i64 : i64 loc(#loc107)
+                            "llvm.intr.memcpy"(%17, %22, %26) <{isVolatile = false}> : (!llvm.ptr, !llvm.ptr, i64) -> () loc(#loc108)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            func.call @hotspot(%alloca_9, %alloca_8, %alloca, %12, %9, %10, %11, %arg4) : (memref<32768xf32>, memref<33792xf32>, memref<32768xf32>, f32, f32, f32, f32, i32) -> () loc(#loc109)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %17 = arith.muli %arg4, %c64_i32 : i32 loc(#loc110)
+                            %18 = arith.muli %17, %c512_i32 : i32 loc(#loc111)
+                            %19 = arith.index_cast %18 : i32 to index loc(#loc112)
+                            %20 = "polygeist.subindex"(%arg1, %19) : (memref<262144xf32>, index) -> memref<?xf32> loc(#loc112)
+                            %21 = "polygeist.memref2pointer"(%20) : (memref<?xf32>) -> !llvm.ptr loc(#loc113)
+                            %22 = "polygeist.memref2pointer"(%alloca_9) : (memref<32768xf32>) -> !llvm.ptr loc(#loc114)
+                            %23 = "polygeist.typeSize"() <{source = f32}> : () -> index loc(#loc115)
+                            %24 = arith.index_cast %23 : index to i64 loc(#loc115)
+                            %25 = arith.muli %24, %c64_i64 : i64 loc(#loc116)
+                            %26 = arith.muli %25, %c512_i64 : i64 loc(#loc117)
+                            "llvm.intr.memcpy"(%21, %22, %26) <{isVolatile = false}> : (!llvm.ptr, !llvm.ptr, i64) -> () loc(#loc118)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        %16 = scf.if %true -> (i32) {
+                          %17 = scf.execute_region -> i32 {
+                            %18 = arith.addi %arg4, %c1_i32 : i32 loc(#loc119)
+                            scf.yield %18 : i32 loc(#loc)
+                          } loc(#loc)
+                          scf.yield %17 : i32 loc(#loc)
+                        } else {
+                          scf.yield %arg4 : i32 loc(#loc)
+                        } loc(#loc)
+                        scf.yield %16 : i32 loc(#loc90)
+                      } loc(#loc88)
+                      scf.yield loc(#loc)
+                    } loc(#loc)
+                  } loc(#loc)
+                  scf.yield loc(#loc)
+                } loc(#loc)
+              } loc(#loc)
+              %14 = scf.if %true -> (i32) {
+                %15 = scf.execute_region -> i32 {
+                  %16 = arith.addi %arg3, %c1_i32 : i32 loc(#loc120)
+                  scf.yield %16 : i32 loc(#loc)
+                } loc(#loc)
+                scf.yield %15 : i32 loc(#loc)
+              } else {
+                scf.yield %arg3 : i32 loc(#loc)
+              } loc(#loc)
+              scf.yield %14 : i32 loc(#loc55)
+            } loc(#loc11)
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    return loc(#loc121)
   } loc(#loc1)
   func.func @hotspot(%arg0: memref<32768xf32> loc("hotspot.cpp":18:6), %arg1: memref<33792xf32> loc("hotspot.cpp":18:6), %arg2: memref<32768xf32> loc("hotspot.cpp":18:6), %arg3: f32 loc("hotspot.cpp":18:6), %arg4: f32 loc("hotspot.cpp":18:6), %arg5: f32 loc("hotspot.cpp":18:6), %arg6: f32 loc("hotspot.cpp":18:6), %arg7: i32 loc("hotspot.cpp":18:6)) attributes {llvm.linkage = #llvm.linkage<external>} {
-    %c17_i32 = arith.constant 17 : i32 loc(#loc161)
-    %c7_i32 = arith.constant 7 : i32 loc(#loc66)
-    %c64 = arith.constant 64 : index loc(#loc67)
-    %c15_i32 = arith.constant 15 : i32 loc(#loc68)
-    %false = arith.constant false loc(#loc69)
-    %c32_i32 = arith.constant 32 : i32 loc(#loc70)
-    %c16_i32 = arith.constant 16 : i32 loc(#loc71)
-    %c0_i32 = arith.constant 0 : i32 loc(#loc72)
-    %alloca = memref.alloca() : memref<16x65xf32> loc(#loc73)
-    %alloca_0 = memref.alloca() : memref<16xf32> loc(#loc74)
-    %alloca_1 = memref.alloca() : memref<16xf32> loc(#loc75)
-    %alloca_2 = memref.alloca() : memref<16xf32> loc(#loc76)
-    %alloca_3 = memref.alloca() : memref<16xf32> loc(#loc77)
-    %alloca_4 = memref.alloca() : memref<16xf32> loc(#loc78)
-    %alloca_5 = memref.alloca() : memref<16xf32> loc(#loc79)
-    affine.for %arg8 loc("hotspot.cpp":29:23) = 0 to 65 {
-      affine.for %arg9 loc("hotspot.cpp":30:28) = 0 to 16 {
-        %2 = affine.load %arg1[%arg9 + %arg8 * 16] : memref<33792xf32> loc(#loc82)
-        affine.store %2, %alloca[%arg9, %arg8] : memref<16x65xf32> loc(#loc83)
-      } loc(#loc81)
-    } loc(#loc80)
-    %0 = arith.cmpi eq, %arg7, %c0_i32 : i32 loc(#loc84)
-    %1 = arith.cmpi eq, %arg7, %c7_i32 : i32 loc(#loc85)
-    affine.for %arg8 loc("hotspot.cpp":35:23) = 0 to 2048 {
-      %2 = affine.if #set(%arg8) -> i1 {
-        affine.yield %0 : i1 loc(#loc69)
-      } else {
-        affine.yield %false : i1 loc(#loc69)
-      } loc(#loc69)
-      %3 = affine.if #set1(%arg8) -> i1 {
-        affine.yield %1 : i1 loc(#loc87)
-      } else {
-        affine.yield %false : i1 loc(#loc87)
-      } loc(#loc87)
-      affine.for %arg9 loc("hotspot.cpp":36:27) = 0 to 16 {
-        %4 = arith.index_cast %arg9 : index to i32 loc(#loc88)
-        %5 = affine.load %alloca[%arg9, 32] : memref<16x65xf32> loc(#loc89)
-        affine.store %5, %alloca_1[%arg9] : memref<16xf32> loc(#loc90)
-        %6 = scf.if %2 -> (memref<?xf32>) {
-          %24 = "polygeist.subindex"(%alloca_1, %arg9) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc92)
-          scf.yield %24 : memref<?xf32> loc(#loc91)
-        } else {
-          %24 = "polygeist.subindex"(%alloca, %arg9) : (memref<16x65xf32>, index) -> memref<?xf32> loc(#loc93)
-          scf.yield %24 : memref<?xf32> loc(#loc91)
-        } loc(#loc91)
-        %7 = affine.load %6[0] : memref<?xf32> loc(#loc91)
-        affine.store %7, %alloca_5[%arg9] : memref<16xf32> loc(#loc94)
-        %8 = affine.if #set2(%arg8) -> i1 {
-          %24 = arith.cmpi eq, %4, %c0_i32 : i32 loc(#loc96)
-          affine.yield %24 : i1 loc(#loc95)
-        } else {
-          affine.yield %false : i1 loc(#loc95)
-        } loc(#loc95)
-        %9 = scf.if %8 -> (memref<?xf32>) {
-          %24 = "polygeist.subindex"(%alloca_1, %arg9) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc98)
-          scf.yield %24 : memref<?xf32> loc(#loc97)
-        } else {
-          %24 = arith.addi %4, %c15_i32 : i32 loc(#loc162)
-          %25 = arith.remsi %24, %c16_i32 : i32 loc(#loc100)
-          %26 = arith.index_cast %25 : i32 to index loc(#loc101)
-          %27 = "polygeist.subindex"(%alloca, %26) : (memref<16x65xf32>, index) -> memref<65xf32> loc(#loc102)
-          %28 = arith.cmpi eq, %4, %c0_i32 : i32 loc(#loc103)
-          %29 = arith.extui %28 : i1 to i32 loc(#loc104)
-          %30 = arith.subi %c32_i32, %29 : i32 loc(#loc105)
-          %31 = arith.index_cast %30 : i32 to index loc(#loc106)
-          %32 = "polygeist.subindex"(%27, %31) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc102)
-          scf.yield %32 : memref<?xf32> loc(#loc97)
-        } loc(#loc97)
-        %10 = affine.load %9[0] : memref<?xf32> loc(#loc97)
-        affine.store %10, %alloca_4[%arg9] : memref<16xf32> loc(#loc107)
-        %11 = affine.if #set3(%arg8) -> i1 {
-          %24 = arith.cmpi eq, %4, %c15_i32 : i32 loc(#loc109)
-          affine.yield %24 : i1 loc(#loc108)
-        } else {
-          affine.yield %false : i1 loc(#loc108)
-        } loc(#loc108)
-        %12 = scf.if %11 -> (memref<?xf32>) {
-          %24 = "polygeist.subindex"(%alloca_1, %arg9) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc111)
-          scf.yield %24 : memref<?xf32> loc(#loc110)
-        } else {
-          %24 = arith.addi %4, %c17_i32 : i32 loc(#loc161)
-          %25 = arith.remsi %24, %c16_i32 : i32 loc(#loc112)
-          %26 = arith.index_cast %25 : i32 to index loc(#loc113)
-          %27 = "polygeist.subindex"(%alloca, %26) : (memref<16x65xf32>, index) -> memref<65xf32> loc(#loc114)
-          %28 = arith.cmpi eq, %4, %c15_i32 : i32 loc(#loc115)
-          %29 = arith.extui %28 : i1 to i32 loc(#loc116)
-          %30 = arith.addi %29, %c32_i32 : i32 loc(#loc117)
-          %31 = arith.index_cast %30 : i32 to index loc(#loc118)
-          %32 = "polygeist.subindex"(%27, %31) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc114)
-          scf.yield %32 : memref<?xf32> loc(#loc110)
-        } loc(#loc110)
-        %13 = affine.load %12[0] : memref<?xf32> loc(#loc110)
-        affine.store %13, %alloca_3[%arg9] : memref<16xf32> loc(#loc119)
-        %14 = scf.if %3 -> (memref<?xf32>) {
-          %24 = "polygeist.subindex"(%alloca_1, %arg9) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc121)
-          scf.yield %24 : memref<?xf32> loc(#loc120)
-        } else {
-          %24 = "polygeist.subindex"(%alloca, %arg9) : (memref<16x65xf32>, index) -> memref<65xf32> loc(#loc122)
-          %25 = "polygeist.subindex"(%24, %c64) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc122)
-          scf.yield %25 : memref<?xf32> loc(#loc120)
-        } loc(#loc120)
-        %15 = affine.load %14[0] : memref<?xf32> loc(#loc120)
-        affine.store %15, %alloca_2[%arg9] : memref<16xf32> loc(#loc123)
-        %16 = affine.load %arg2[%arg9 + %arg8 * 16] : memref<32768xf32> loc(#loc124)
-        affine.store %16, %alloca_0[%arg9] : memref<16xf32> loc(#loc125)
-        %17 = affine.load %alloca_5[%arg9] : memref<16xf32> loc(#loc126)
-        %18 = affine.load %alloca_4[%arg9] : memref<16xf32> loc(#loc127)
-        %19 = affine.load %alloca_3[%arg9] : memref<16xf32> loc(#loc128)
-        %20 = affine.load %alloca_2[%arg9] : memref<16xf32> loc(#loc129)
-        %21 = affine.load %alloca_1[%arg9] : memref<16xf32> loc(#loc130)
-        %22 = affine.load %alloca_0[%arg9] : memref<16xf32> loc(#loc131)
-        %23 = func.call @hotspot_stencil_core(%17, %18, %19, %20, %21, %22, %arg3, %arg4, %arg5, %arg6) : (f32, f32, f32, f32, f32, f32, f32, f32, f32, f32) -> f32 loc(#loc132)
-        affine.store %23, %arg0[%arg9 + %arg8 * 16] : memref<32768xf32> loc(#loc133)
-      } loc(#loc88)
-      affine.for %arg9 loc("hotspot.cpp":52:27) = 0 to 16 {
-        affine.for %arg10 loc("hotspot.cpp":53:31) = 0 to 64 {
-          %5 = affine.load %alloca[%arg9, %arg10 + 1] : memref<16x65xf32> loc(#loc136)
-          affine.store %5, %alloca[%arg9, %arg10] : memref<16x65xf32> loc(#loc137)
-        } loc(#loc135)
-        %4 = affine.load %arg1[%arg9 + %arg8 * 16 + 1040] : memref<33792xf32> loc(#loc138)
-        affine.store %4, %alloca[%arg9, 64] : memref<16x65xf32> loc(#loc139)
-      } loc(#loc134)
-    } loc(#loc86)
-    return loc(#loc140)
-  } loc(#loc63)
+    %c-1_i32 = arith.constant -1 : i32 loc(#loc123)
+    %c65_i32 = arith.constant 65 : i32 loc(#loc124)
+    %c2048_i32 = arith.constant 2048 : i32 loc(#loc125)
+    %c32 = arith.constant 32 : index loc(#loc126)
+    %c31_i32 = arith.constant 31 : i32 loc(#loc127)
+    %c2016_i32 = arith.constant 2016 : i32 loc(#loc128)
+    %c7_i32 = arith.constant 7 : i32 loc(#loc129)
+    %c64 = arith.constant 64 : index loc(#loc130)
+    %c15_i32 = arith.constant 15 : i32 loc(#loc131)
+    %c64_i32 = arith.constant 64 : i32 loc(#loc7)
+    %c32_i32 = arith.constant 32 : i32 loc(#loc132)
+    %false = arith.constant false loc(#loc)
+    %c1_i32 = arith.constant 1 : i32 loc(#loc123)
+    %c16_i32 = arith.constant 16 : i32 loc(#loc133)
+    %c1024_i32 = arith.constant 1024 : i32 loc(#loc134)
+    %c0_i32 = arith.constant 0 : i32 loc(#loc135)
+    %true = arith.constant true loc(#loc136)
+    %c0 = arith.constant 0 : index loc(#loc137)
+    %alloca = memref.alloca() : memref<16x65xf32> loc(#loc138)
+    %alloca_0 = memref.alloca() : memref<16xf32> loc(#loc139)
+    %alloca_1 = memref.alloca() : memref<16xf32> loc(#loc140)
+    %alloca_2 = memref.alloca() : memref<16xf32> loc(#loc141)
+    %alloca_3 = memref.alloca() : memref<16xf32> loc(#loc142)
+    %alloca_4 = memref.alloca() : memref<16xf32> loc(#loc143)
+    %alloca_5 = memref.alloca() : memref<16xf32> loc(#loc144)
+    scf.if %true {
+      scf.execute_region {
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc145)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc146)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc147)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc148)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc149)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc150)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc151)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc152)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            %0 = scf.while (%arg8 = %c0_i32) : (i32) -> i32 {
+              %1 = arith.cmpi slt, %arg8, %c65_i32 : i32 loc(#loc153)
+              scf.condition(%1) %arg8 : i32 loc(#loc154)
+            } do {
+            ^bb0(%arg8: i32 loc("hotspot.cpp":29:35)):
+              scf.if %true {
+                scf.execute_region {
+                  cf.br ^bb1 loc(#loc155)
+                ^bb1:  // pred: ^bb0
+                  scf.if %true {
+                    scf.execute_region {
+                      %2 = scf.while (%arg9 = %c0_i32) : (i32) -> i32 {
+                        %3 = arith.cmpi slt, %arg9, %c16_i32 : i32 loc(#loc156)
+                        scf.condition(%3) %arg9 : i32 loc(#loc157)
+                      } do {
+                      ^bb0(%arg9: i32 loc("hotspot.cpp":30:28)):
+                        scf.if %true {
+                          scf.execute_region {
+                            %4 = arith.index_cast %arg9 : i32 to index loc(#loc158)
+                            %5 = "polygeist.subindex"(%alloca, %4) : (memref<16x65xf32>, index) -> memref<?x65xf32> loc(#loc159)
+                            %6 = "polygeist.subindex"(%5, %c0) : (memref<?x65xf32>, index) -> memref<65xf32> loc(#loc159)
+                            %7 = arith.index_cast %arg8 : i32 to index loc(#loc160)
+                            %8 = "polygeist.subindex"(%6, %7) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc159)
+                            %9 = arith.muli %arg8, %c16_i32 : i32 loc(#loc161)
+                            %10 = arith.addi %9, %arg9 : i32 loc(#loc162)
+                            %11 = arith.index_cast %10 : i32 to index loc(#loc163)
+                            %12 = "polygeist.subindex"(%arg1, %11) : (memref<33792xf32>, index) -> memref<?xf32> loc(#loc164)
+                            %13 = affine.load %12[0] : memref<?xf32> loc(#loc164)
+                            affine.store %13, %8[0] : memref<?xf32> loc(#loc165)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        %3 = scf.if %true -> (i32) {
+                          %4 = scf.execute_region -> i32 {
+                            %5 = arith.addi %arg9, %c1_i32 : i32 loc(#loc166)
+                            scf.yield %5 : i32 loc(#loc)
+                          } loc(#loc)
+                          scf.yield %4 : i32 loc(#loc)
+                        } else {
+                          scf.yield %arg9 : i32 loc(#loc)
+                        } loc(#loc)
+                        scf.yield %3 : i32 loc(#loc157)
+                      } loc(#loc156)
+                      scf.yield loc(#loc)
+                    } loc(#loc)
+                  } loc(#loc)
+                  scf.yield loc(#loc)
+                } loc(#loc)
+              } loc(#loc)
+              %1 = scf.if %true -> (i32) {
+                %2 = scf.execute_region -> i32 {
+                  %3 = arith.addi %arg8, %c1_i32 : i32 loc(#loc167)
+                  scf.yield %3 : i32 loc(#loc)
+                } loc(#loc)
+                scf.yield %2 : i32 loc(#loc)
+              } else {
+                scf.yield %arg8 : i32 loc(#loc)
+              } loc(#loc)
+              scf.yield %1 : i32 loc(#loc154)
+            } loc(#loc134)
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        cf.br ^bb1 loc(#loc168)
+      ^bb1:  // pred: ^bb0
+        scf.if %true {
+          scf.execute_region {
+            %0 = scf.while (%arg8 = %c0_i32) : (i32) -> i32 {
+              %1 = arith.cmpi slt, %arg8, %c2048_i32 : i32 loc(#loc169)
+              scf.condition(%1) %arg8 : i32 loc(#loc170)
+            } do {
+            ^bb0(%arg8: i32 loc("hotspot.cpp":35:35)):
+              scf.if %true {
+                scf.execute_region {
+                  cf.br ^bb1 loc(#loc171)
+                ^bb1:  // pred: ^bb0
+                  scf.if %true {
+                    scf.execute_region {
+                      %2 = scf.while (%arg9 = %c0_i32) : (i32) -> i32 {
+                        %3 = arith.cmpi slt, %arg9, %c16_i32 : i32 loc(#loc172)
+                        scf.condition(%3) %arg9 : i32 loc(#loc173)
+                      } do {
+                      ^bb0(%arg9: i32 loc("./hotspot.h":18:21)):
+                        scf.if %true {
+                          scf.execute_region {
+                            %4 = arith.index_cast %arg9 : i32 to index loc(#loc174)
+                            %5 = "polygeist.subindex"(%alloca_1, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc175)
+                            %6 = "polygeist.subindex"(%alloca, %4) : (memref<16x65xf32>, index) -> memref<?x65xf32> loc(#loc176)
+                            %7 = "polygeist.subindex"(%6, %c0) : (memref<?x65xf32>, index) -> memref<65xf32> loc(#loc176)
+                            %8 = "polygeist.subindex"(%7, %c32) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc176)
+                            %9 = affine.load %8[0] : memref<?xf32> loc(#loc176)
+                            affine.store %9, %5[0] : memref<?xf32> loc(#loc177)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %4 = arith.index_cast %arg9 : i32 to index loc(#loc178)
+                            %5 = "polygeist.subindex"(%alloca_5, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc179)
+                            %6 = arith.cmpi slt, %arg8, %c32_i32 : i32 loc(#loc180)
+                            %7 = scf.if %6 -> (i1) {
+                              %10 = arith.cmpi eq, %arg7, %c0_i32 : i32 loc(#loc182)
+                              scf.yield %10 : i1 loc(#loc181)
+                            } else {
+                              scf.yield %false : i1 loc(#loc181)
+                            } loc(#loc181)
+                            %8 = scf.if %7 -> (memref<?xf32>) {
+                              %10 = "polygeist.subindex"(%alloca_1, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc184)
+                              scf.yield %10 : memref<?xf32> loc(#loc183)
+                            } else {
+                              %10 = "polygeist.subindex"(%alloca, %4) : (memref<16x65xf32>, index) -> memref<?x65xf32> loc(#loc185)
+                              %11 = "polygeist.subindex"(%10, %c0) : (memref<?x65xf32>, index) -> memref<65xf32> loc(#loc185)
+                              %cast = memref.cast %11 : memref<65xf32> to memref<?xf32> loc(#loc185)
+                              scf.yield %cast : memref<?xf32> loc(#loc183)
+                            } loc(#loc183)
+                            %9 = affine.load %8[0] : memref<?xf32> loc(#loc183)
+                            affine.store %9, %5[0] : memref<?xf32> loc(#loc186)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %4 = arith.index_cast %arg9 : i32 to index loc(#loc187)
+                            %5 = "polygeist.subindex"(%alloca_4, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc188)
+                            %6 = arith.remsi %arg8, %c32_i32 : i32 loc(#loc189)
+                            %7 = arith.cmpi eq, %6, %c0_i32 : i32 loc(#loc190)
+                            %8 = scf.if %7 -> (i1) {
+                              %11 = arith.cmpi eq, %arg9, %c0_i32 : i32 loc(#loc192)
+                              scf.yield %11 : i1 loc(#loc191)
+                            } else {
+                              scf.yield %false : i1 loc(#loc191)
+                            } loc(#loc191)
+                            %9 = scf.if %8 -> (memref<?xf32>) {
+                              %11 = "polygeist.subindex"(%alloca_1, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc194)
+                              scf.yield %11 : memref<?xf32> loc(#loc193)
+                            } else {
+                              %11 = arith.addi %arg9, %c-1_i32 : i32 loc(#loc195)
+                              %12 = arith.addi %11, %c16_i32 : i32 loc(#loc196)
+                              %13 = arith.remsi %12, %c16_i32 : i32 loc(#loc197)
+                              %14 = arith.index_cast %13 : i32 to index loc(#loc198)
+                              %15 = "polygeist.subindex"(%alloca, %14) : (memref<16x65xf32>, index) -> memref<?x65xf32> loc(#loc199)
+                              %16 = "polygeist.subindex"(%15, %c0) : (memref<?x65xf32>, index) -> memref<65xf32> loc(#loc199)
+                              %17 = arith.cmpi eq, %arg9, %c0_i32 : i32 loc(#loc200)
+                              %18 = arith.extui %17 : i1 to i32 loc(#loc201)
+                              %19 = arith.subi %c32_i32, %18 : i32 loc(#loc202)
+                              %20 = arith.index_cast %19 : i32 to index loc(#loc203)
+                              %21 = "polygeist.subindex"(%16, %20) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc199)
+                              scf.yield %21 : memref<?xf32> loc(#loc193)
+                            } loc(#loc193)
+                            %10 = affine.load %9[0] : memref<?xf32> loc(#loc193)
+                            affine.store %10, %5[0] : memref<?xf32> loc(#loc204)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %4 = arith.index_cast %arg9 : i32 to index loc(#loc205)
+                            %5 = "polygeist.subindex"(%alloca_3, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc206)
+                            %6 = arith.remsi %arg8, %c32_i32 : i32 loc(#loc207)
+                            %7 = arith.cmpi eq, %6, %c31_i32 : i32 loc(#loc208)
+                            %8 = scf.if %7 -> (i1) {
+                              %11 = arith.cmpi eq, %arg9, %c15_i32 : i32 loc(#loc210)
+                              scf.yield %11 : i1 loc(#loc209)
+                            } else {
+                              scf.yield %false : i1 loc(#loc209)
+                            } loc(#loc209)
+                            %9 = scf.if %8 -> (memref<?xf32>) {
+                              %11 = "polygeist.subindex"(%alloca_1, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc212)
+                              scf.yield %11 : memref<?xf32> loc(#loc211)
+                            } else {
+                              %11 = arith.addi %arg9, %c1_i32 : i32 loc(#loc213)
+                              %12 = arith.addi %11, %c16_i32 : i32 loc(#loc214)
+                              %13 = arith.remsi %12, %c16_i32 : i32 loc(#loc215)
+                              %14 = arith.index_cast %13 : i32 to index loc(#loc216)
+                              %15 = "polygeist.subindex"(%alloca, %14) : (memref<16x65xf32>, index) -> memref<?x65xf32> loc(#loc217)
+                              %16 = "polygeist.subindex"(%15, %c0) : (memref<?x65xf32>, index) -> memref<65xf32> loc(#loc217)
+                              %17 = arith.cmpi eq, %arg9, %c15_i32 : i32 loc(#loc218)
+                              %18 = arith.extui %17 : i1 to i32 loc(#loc219)
+                              %19 = arith.addi %18, %c32_i32 : i32 loc(#loc220)
+                              %20 = arith.index_cast %19 : i32 to index loc(#loc221)
+                              %21 = "polygeist.subindex"(%16, %20) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc217)
+                              scf.yield %21 : memref<?xf32> loc(#loc211)
+                            } loc(#loc211)
+                            %10 = affine.load %9[0] : memref<?xf32> loc(#loc211)
+                            affine.store %10, %5[0] : memref<?xf32> loc(#loc222)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %4 = arith.index_cast %arg9 : i32 to index loc(#loc223)
+                            %5 = "polygeist.subindex"(%alloca_2, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc224)
+                            %6 = arith.cmpi sge, %arg8, %c2016_i32 : i32 loc(#loc225)
+                            %7 = scf.if %6 -> (i1) {
+                              %10 = arith.cmpi eq, %arg7, %c7_i32 : i32 loc(#loc227)
+                              scf.yield %10 : i1 loc(#loc226)
+                            } else {
+                              scf.yield %false : i1 loc(#loc226)
+                            } loc(#loc226)
+                            %8 = scf.if %7 -> (memref<?xf32>) {
+                              %10 = "polygeist.subindex"(%alloca_1, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc229)
+                              scf.yield %10 : memref<?xf32> loc(#loc228)
+                            } else {
+                              %10 = "polygeist.subindex"(%alloca, %4) : (memref<16x65xf32>, index) -> memref<?x65xf32> loc(#loc230)
+                              %11 = "polygeist.subindex"(%10, %c0) : (memref<?x65xf32>, index) -> memref<65xf32> loc(#loc230)
+                              %12 = "polygeist.subindex"(%11, %c64) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc230)
+                              scf.yield %12 : memref<?xf32> loc(#loc228)
+                            } loc(#loc228)
+                            %9 = affine.load %8[0] : memref<?xf32> loc(#loc228)
+                            affine.store %9, %5[0] : memref<?xf32> loc(#loc231)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %4 = arith.index_cast %arg9 : i32 to index loc(#loc232)
+                            %5 = "polygeist.subindex"(%alloca_0, %4) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc233)
+                            %6 = arith.muli %arg8, %c16_i32 : i32 loc(#loc234)
+                            %7 = arith.addi %6, %arg9 : i32 loc(#loc235)
+                            %8 = arith.index_cast %7 : i32 to index loc(#loc236)
+                            %9 = "polygeist.subindex"(%arg2, %8) : (memref<32768xf32>, index) -> memref<?xf32> loc(#loc237)
+                            %10 = affine.load %9[0] : memref<?xf32> loc(#loc237)
+                            affine.store %10, %5[0] : memref<?xf32> loc(#loc238)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %4 = arith.muli %arg8, %c16_i32 : i32 loc(#loc239)
+                            %5 = arith.addi %4, %arg9 : i32 loc(#loc240)
+                            %6 = arith.index_cast %5 : i32 to index loc(#loc241)
+                            %7 = "polygeist.subindex"(%arg0, %6) : (memref<32768xf32>, index) -> memref<?xf32> loc(#loc242)
+                            %8 = arith.index_cast %arg9 : i32 to index loc(#loc243)
+                            %9 = "polygeist.subindex"(%alloca_5, %8) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc244)
+                            %10 = affine.load %9[0] : memref<?xf32> loc(#loc244)
+                            %11 = "polygeist.subindex"(%alloca_4, %8) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc245)
+                            %12 = affine.load %11[0] : memref<?xf32> loc(#loc245)
+                            %13 = "polygeist.subindex"(%alloca_3, %8) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc246)
+                            %14 = affine.load %13[0] : memref<?xf32> loc(#loc246)
+                            %15 = "polygeist.subindex"(%alloca_2, %8) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc247)
+                            %16 = affine.load %15[0] : memref<?xf32> loc(#loc247)
+                            %17 = "polygeist.subindex"(%alloca_1, %8) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc248)
+                            %18 = affine.load %17[0] : memref<?xf32> loc(#loc248)
+                            %19 = "polygeist.subindex"(%alloca_0, %8) : (memref<16xf32>, index) -> memref<?xf32> loc(#loc249)
+                            %20 = affine.load %19[0] : memref<?xf32> loc(#loc249)
+                            %21 = func.call @hotspot_stencil_core(%10, %12, %14, %16, %18, %20, %arg3, %arg4, %arg5, %arg6) : (f32, f32, f32, f32, f32, f32, f32, f32, f32, f32) -> f32 loc(#loc250)
+                            affine.store %21, %7[0] : memref<?xf32> loc(#loc251)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        %3 = scf.if %true -> (i32) {
+                          %4 = scf.execute_region -> i32 {
+                            %5 = arith.addi %arg9, %c1_i32 : i32 loc(#loc252)
+                            scf.yield %5 : i32 loc(#loc)
+                          } loc(#loc)
+                          scf.yield %4 : i32 loc(#loc)
+                        } else {
+                          scf.yield %arg9 : i32 loc(#loc)
+                        } loc(#loc)
+                        scf.yield %3 : i32 loc(#loc173)
+                      } loc(#loc133)
+                      scf.yield loc(#loc)
+                    } loc(#loc)
+                  } loc(#loc)
+                  scf.yield loc(#loc)
+                } loc(#loc)
+              } loc(#loc)
+              scf.if %true {
+                scf.execute_region {
+                  cf.br ^bb1 loc(#loc253)
+                ^bb1:  // pred: ^bb0
+                  scf.if %true {
+                    scf.execute_region {
+                      %2 = scf.while (%arg9 = %c0_i32) : (i32) -> i32 {
+                        %3 = arith.cmpi slt, %arg9, %c16_i32 : i32 loc(#loc254)
+                        scf.condition(%3) %arg9 : i32 loc(#loc255)
+                      } do {
+                      ^bb0(%arg9: i32 loc("./hotspot.h":18:21)):
+                        scf.if %true {
+                          scf.execute_region {
+                            cf.br ^bb1 loc(#loc256)
+                          ^bb1:  // pred: ^bb0
+                            scf.if %true {
+                              scf.execute_region {
+                                %4 = scf.while (%arg10 = %c0_i32) : (i32) -> i32 {
+                                  %5 = arith.cmpi slt, %arg10, %c64_i32 : i32 loc(#loc258)
+                                  scf.condition(%5) %arg10 : i32 loc(#loc259)
+                                } do {
+                                ^bb0(%arg10: i32 loc("hotspot.cpp":53:43)):
+                                  scf.if %true {
+                                    scf.execute_region {
+                                      %6 = arith.index_cast %arg9 : i32 to index loc(#loc260)
+                                      %7 = "polygeist.subindex"(%alloca, %6) : (memref<16x65xf32>, index) -> memref<?x65xf32> loc(#loc261)
+                                      %8 = "polygeist.subindex"(%7, %c0) : (memref<?x65xf32>, index) -> memref<65xf32> loc(#loc261)
+                                      %9 = arith.index_cast %arg10 : i32 to index loc(#loc262)
+                                      %10 = "polygeist.subindex"(%8, %9) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc261)
+                                      %11 = arith.addi %arg10, %c1_i32 : i32 loc(#loc263)
+                                      %12 = arith.index_cast %11 : i32 to index loc(#loc264)
+                                      %13 = "polygeist.subindex"(%8, %12) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc265)
+                                      %14 = affine.load %13[0] : memref<?xf32> loc(#loc265)
+                                      affine.store %14, %10[0] : memref<?xf32> loc(#loc266)
+                                      scf.yield loc(#loc)
+                                    } loc(#loc)
+                                  } loc(#loc)
+                                  %5 = scf.if %true -> (i32) {
+                                    %6 = scf.execute_region -> i32 {
+                                      %7 = arith.addi %arg10, %c1_i32 : i32 loc(#loc267)
+                                      scf.yield %7 : i32 loc(#loc)
+                                    } loc(#loc)
+                                    scf.yield %6 : i32 loc(#loc)
+                                  } else {
+                                    scf.yield %arg10 : i32 loc(#loc)
+                                  } loc(#loc)
+                                  scf.yield %5 : i32 loc(#loc259)
+                                } loc(#loc257)
+                                scf.yield loc(#loc)
+                              } loc(#loc)
+                            } loc(#loc)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        scf.if %true {
+                          scf.execute_region {
+                            %4 = arith.index_cast %arg9 : i32 to index loc(#loc268)
+                            %5 = "polygeist.subindex"(%alloca, %4) : (memref<16x65xf32>, index) -> memref<?x65xf32> loc(#loc269)
+                            %6 = "polygeist.subindex"(%5, %c0) : (memref<?x65xf32>, index) -> memref<65xf32> loc(#loc269)
+                            %7 = "polygeist.subindex"(%6, %c64) : (memref<65xf32>, index) -> memref<?xf32> loc(#loc269)
+                            %8 = arith.addi %arg8, %c1_i32 : i32 loc(#loc270)
+                            %9 = arith.muli %8, %c16_i32 : i32 loc(#loc271)
+                            %10 = arith.addi %9, %c1024_i32 : i32 loc(#loc272)
+                            %11 = arith.addi %10, %arg9 : i32 loc(#loc273)
+                            %12 = arith.index_cast %11 : i32 to index loc(#loc274)
+                            %13 = "polygeist.subindex"(%arg1, %12) : (memref<33792xf32>, index) -> memref<?xf32> loc(#loc275)
+                            %14 = affine.load %13[0] : memref<?xf32> loc(#loc275)
+                            affine.store %14, %7[0] : memref<?xf32> loc(#loc276)
+                            scf.yield loc(#loc)
+                          } loc(#loc)
+                        } loc(#loc)
+                        %3 = scf.if %true -> (i32) {
+                          %4 = scf.execute_region -> i32 {
+                            %5 = arith.addi %arg9, %c1_i32 : i32 loc(#loc277)
+                            scf.yield %5 : i32 loc(#loc)
+                          } loc(#loc)
+                          scf.yield %4 : i32 loc(#loc)
+                        } else {
+                          scf.yield %arg9 : i32 loc(#loc)
+                        } loc(#loc)
+                        scf.yield %3 : i32 loc(#loc255)
+                      } loc(#loc133)
+                      scf.yield loc(#loc)
+                    } loc(#loc)
+                  } loc(#loc)
+                  scf.yield loc(#loc)
+                } loc(#loc)
+              } loc(#loc)
+              %1 = scf.if %true -> (i32) {
+                %2 = scf.execute_region -> i32 {
+                  %3 = arith.addi %arg8, %c1_i32 : i32 loc(#loc278)
+                  scf.yield %3 : i32 loc(#loc)
+                } loc(#loc)
+                scf.yield %2 : i32 loc(#loc)
+              } else {
+                scf.yield %arg8 : i32 loc(#loc)
+              } loc(#loc)
+              scf.yield %1 : i32 loc(#loc170)
+            } loc(#loc132)
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    scf.if %true {
+      scf.execute_region {
+        scf.if %true {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+        } loc(#loc)
+        scf.yield loc(#loc)
+      } loc(#loc)
+    } loc(#loc)
+    return loc(#loc279)
+  } loc(#loc122)
   func.func @hotspot_stencil_core(%arg0: f32 loc("hotspot.cpp":4:7), %arg1: f32 loc("hotspot.cpp":4:7), %arg2: f32 loc("hotspot.cpp":4:7), %arg3: f32 loc("hotspot.cpp":4:7), %arg4: f32 loc("hotspot.cpp":4:7), %arg5: f32 loc("hotspot.cpp":4:7), %arg6: f32 loc("hotspot.cpp":4:7), %arg7: f32 loc("hotspot.cpp":4:7), %arg8: f32 loc("hotspot.cpp":4:7), %arg9: f32 loc("hotspot.cpp":4:7)) -> f32 attributes {llvm.linkage = #llvm.linkage<external>} {
-    %cst = arith.constant 8.000000e+01 : f32 loc(#loc142)
-    %0 = arith.addf %arg4, %arg4 : f32 loc(#loc143)
-    %1 = arith.addf %arg0, %arg3 : f32 loc(#loc144)
-    %2 = arith.subf %1, %0 : f32 loc(#loc145)
-    %3 = arith.addf %arg1, %arg2 : f32 loc(#loc146)
-    %4 = arith.subf %3, %0 : f32 loc(#loc147)
-    %5 = arith.subf %cst, %arg4 : f32 loc(#loc148)
-    %6 = arith.mulf %2, %arg8 : f32 loc(#loc149)
-    %7 = arith.addf %arg5, %6 : f32 loc(#loc150)
-    %8 = arith.mulf %4, %arg7 : f32 loc(#loc151)
-    %9 = arith.addf %7, %8 : f32 loc(#loc152)
-    %10 = arith.mulf %5, %arg9 : f32 loc(#loc153)
-    %11 = arith.addf %9, %10 : f32 loc(#loc154)
-    %12 = arith.mulf %arg6, %11 : f32 loc(#loc155)
-    %13 = arith.addf %arg4, %12 : f32 loc(#loc156)
-    return %13 : f32 loc(#loc157)
-  } loc(#loc141)
+    %cst = arith.constant 8.000000e+01 : f32 loc(#loc281)
+    %true = arith.constant true loc(#loc282)
+    %0 = "polygeist.undef"() : () -> f32 loc(#loc283)
+    %1 = scf.if %true -> (f32) {
+      %10 = scf.execute_region -> f32 {
+        %11 = scf.if %true -> (f32) {
+          %12 = scf.execute_region -> f32 {
+            %13 = arith.addf %arg4, %arg4 : f32 loc(#loc284)
+            scf.yield %13 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %12 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %11 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %10 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %2 = scf.if %true -> (f32) {
+      %10 = scf.execute_region -> f32 {
+        %11 = scf.if %true -> (f32) {
+          %12 = scf.execute_region -> f32 {
+            %13 = arith.addf %arg0, %arg3 : f32 loc(#loc285)
+            %14 = arith.subf %13, %1 : f32 loc(#loc286)
+            scf.yield %14 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %12 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %11 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %10 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %3 = scf.if %true -> (f32) {
+      %10 = scf.execute_region -> f32 {
+        %11 = scf.if %true -> (f32) {
+          %12 = scf.execute_region -> f32 {
+            %13 = arith.addf %arg1, %arg2 : f32 loc(#loc287)
+            %14 = arith.subf %13, %1 : f32 loc(#loc288)
+            scf.yield %14 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %12 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %11 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %10 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %4 = scf.if %true -> (f32) {
+      %10 = scf.execute_region -> f32 {
+        %11 = scf.if %true -> (f32) {
+          %12 = scf.execute_region -> f32 {
+            %13 = arith.subf %cst, %arg4 : f32 loc(#loc289)
+            scf.yield %13 : f32 loc(#loc)
+          } loc(#loc)
+          scf.yield %12 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %11 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %10 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    %5 = scf.if %true -> (f32) {
+      %10 = scf.execute_region -> f32 {
+        %11 = arith.mulf %2, %arg8 : f32 loc(#loc290)
+        %12 = arith.addf %arg5, %11 : f32 loc(#loc291)
+        scf.yield %12 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %10 : f32 loc(#loc)
+    } else {
+      scf.yield %arg5 : f32 loc(#loc)
+    } loc(#loc)
+    %6 = scf.if %true -> (f32) {
+      %10 = scf.execute_region -> f32 {
+        %11 = arith.mulf %3, %arg7 : f32 loc(#loc292)
+        %12 = arith.addf %5, %11 : f32 loc(#loc293)
+        scf.yield %12 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %10 : f32 loc(#loc)
+    } else {
+      scf.yield %5 : f32 loc(#loc)
+    } loc(#loc)
+    %7 = scf.if %true -> (f32) {
+      %10 = scf.execute_region -> f32 {
+        %11 = arith.mulf %4, %arg9 : f32 loc(#loc294)
+        %12 = arith.addf %6, %11 : f32 loc(#loc295)
+        scf.yield %12 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %10 : f32 loc(#loc)
+    } else {
+      scf.yield %6 : f32 loc(#loc)
+    } loc(#loc)
+    %8 = scf.if %true -> (f32) {
+      %10 = scf.execute_region -> f32 {
+        %11 = arith.mulf %arg6, %7 : f32 loc(#loc296)
+        %12 = arith.addf %arg4, %11 : f32 loc(#loc297)
+        scf.yield %12 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %10 : f32 loc(#loc)
+    } else {
+      scf.yield %arg4 : f32 loc(#loc)
+    } loc(#loc)
+    %9 = scf.if %true -> (f32) {
+      %10 = scf.execute_region -> f32 {
+        %11 = scf.if %true -> (f32) {
+          scf.execute_region {
+            scf.yield loc(#loc)
+          } loc(#loc)
+          scf.yield %8 : f32 loc(#loc)
+        } else {
+          scf.yield %0 : f32 loc(#loc)
+        } loc(#loc)
+        scf.yield %11 : f32 loc(#loc)
+      } loc(#loc)
+      scf.yield %10 : f32 loc(#loc)
+    } else {
+      scf.yield %0 : f32 loc(#loc)
+    } loc(#loc)
+    return %9 : f32 loc(#loc298)
+  } loc(#loc280)
 } loc(#loc)
 #loc = loc(unknown)
 #loc2 = loc("hotspot.cpp":80:35)
 #loc3 = loc("hotspot.cpp":82:44)
 #loc4 = loc("hotspot.cpp":84:42)
 #loc5 = loc("hotspot.cpp":87:30)
-#loc6 = loc("hotspot.cpp":114:41)
+#loc6 = loc("hotspot.cpp":99:53)
 #loc7 = loc("./hotspot.h":16:19)
-#loc8 = loc("hotspot.cpp":114:20)
-#loc9 = loc("hotspot.cpp":90:16)
-#loc10 = loc("hotspot.cpp":88:42)
-#loc11 = loc("./hotspot.h":27:19)
-#loc12 = loc("./hotspot.h":29:14)
-#loc13 = loc("./hotspot.h":36:16)
-#loc14 = loc("hotspot.cpp":77:9)
-#loc15 = loc("hotspot.cpp":76:9)
-#loc16 = loc("hotspot.cpp":75:9)
-#loc17 = loc("./hotspot.h":37:21)
-#loc18 = loc("hotspot.cpp":82:55)
-#loc19 = loc("hotspot.cpp":82:53)
-#loc20 = loc("hotspot.cpp":82:66)
-#loc21 = loc("./hotspot.h":32:21)
-#loc22 = loc("hotspot.cpp":83:16)
-#loc23 = loc("hotspot.cpp":83:50)
-#loc24 = loc("hotspot.cpp":83:27)
-#loc25 = loc("hotspot.cpp":85:31)
-#loc26 = loc("hotspot.cpp":85:45)
-#loc27 = loc("hotspot.cpp":85:25)
-#loc28 = loc("hotspot.cpp":85:23)
-#loc29 = loc("./hotspot.h":24:17)
-#loc30 = loc("hotspot.cpp":88:30)
-#loc31 = loc("hotspot.cpp":88:28)
-#loc32 = loc("hotspot.cpp":88:40)
-#loc33 = loc("hotspot.cpp":90:20)
-#loc34 = loc("hotspot.cpp":92:20)
-#loc35 = loc("hotspot.cpp":93:24)
-#loc36 = loc("hotspot.cpp":100:20)
-#loc37 = loc("hotspot.cpp":100:65)
-#loc38 = loc("hotspot.cpp":101:20)
-#loc39 = loc("hotspot.cpp":101:33)
-#loc40 = loc("hotspot.cpp":105:20)
-#loc41 = loc("hotspot.cpp":105:56)
-#loc42 = loc("hotspot.cpp":109:20)
-#loc43 = loc("hotspot.cpp":109:67)
-#loc44 = loc("hotspot.cpp":110:20)
-#loc45 = loc("hotspot.cpp":110:33)
-#loc46 = loc("hotspot.cpp":114:54)
-#loc49 = loc("hotspot.cpp":100:53)
-#loc50 = loc("hotspot.cpp":100:37)
-#loc53 = loc("hotspot.cpp":103:13)
-#loc56 = loc("hotspot.cpp":109:55)
-#loc57 = loc("hotspot.cpp":109:39)
-#loc60 = loc("hotspot.cpp":112:13)
-#loc62 = loc("hotspot.cpp":119:1)
-#loc64 = loc("hotspot.cpp":43:156)
-#loc65 = loc("hotspot.cpp":29:55)
-#loc66 = loc("./hotspot.h":43:37)
-#loc67 = loc("hotspot.cpp":56:51)
-#loc68 = loc("hotspot.cpp":43:117)
-#loc69 = loc("hotspot.cpp":39:60)
-#loc70 = loc("hotspot.cpp":35:35)
-#loc71 = loc("./hotspot.h":18:21)
-#loc72 = loc("hotspot.cpp":29:17)
-#loc73 = loc("hotspot.cpp":27:8)
-#loc74 = loc("hotspot.cpp":26:5)
-#loc75 = loc("hotspot.cpp":25:5)
-#loc76 = loc("hotspot.cpp":24:5)
-#loc77 = loc("hotspot.cpp":23:5)
-#loc78 = loc("hotspot.cpp":22:5)
-#loc79 = loc("hotspot.cpp":21:5)
-#loc82 = loc("hotspot.cpp":31:30)
-#loc83 = loc("hotspot.cpp":31:28)
-#loc84 = loc("hotspot.cpp":39:78)
-#loc85 = loc("hotspot.cpp":45:97)
-#loc87 = loc("hotspot.cpp":45:79)
-#loc89 = loc("hotspot.cpp":37:31)
-#loc90 = loc("hotspot.cpp":37:29)
-#loc91 = loc("hotspot.cpp":39:31)
-#loc92 = loc("hotspot.cpp":39:88)
-#loc93 = loc("hotspot.cpp":39:105)
-#loc94 = loc("hotspot.cpp":39:29)
-#loc95 = loc("hotspot.cpp":41:69)
-#loc96 = loc("hotspot.cpp":41:74)
-#loc97 = loc("hotspot.cpp":41:31)
-#loc98 = loc("hotspot.cpp":41:82)
-#loc99 = loc("hotspot.cpp":41:114)
-#loc100 = loc("hotspot.cpp":41:129)
-#loc101 = loc("hotspot.cpp":41:142)
-#loc102 = loc("hotspot.cpp":41:99)
-#loc103 = loc("hotspot.cpp":41:173)
-#loc104 = loc("hotspot.cpp":41:170)
-#loc105 = loc("hotspot.cpp":41:168)
-#loc106 = loc("hotspot.cpp":41:179)
-#loc107 = loc("hotspot.cpp":41:29)
-#loc108 = loc("hotspot.cpp":43:97)
-#loc109 = loc("hotspot.cpp":43:102)
-#loc110 = loc("hotspot.cpp":43:31)
-#loc111 = loc("hotspot.cpp":43:124)
-#loc112 = loc("hotspot.cpp":43:171)
-#loc113 = loc("hotspot.cpp":43:184)
-#loc114 = loc("hotspot.cpp":43:141)
-#loc115 = loc("hotspot.cpp":43:215)
-#loc116 = loc("hotspot.cpp":43:212)
-#loc117 = loc("hotspot.cpp":43:210)
-#loc118 = loc("hotspot.cpp":43:237)
-#loc119 = loc("hotspot.cpp":43:29)
-#loc120 = loc("hotspot.cpp":45:31)
-#loc121 = loc("hotspot.cpp":45:110)
-#loc122 = loc("hotspot.cpp":45:127)
-#loc123 = loc("hotspot.cpp":45:29)
-#loc124 = loc("hotspot.cpp":47:31)
-#loc125 = loc("hotspot.cpp":47:29)
-#loc126 = loc("hotspot.cpp":49:64)
-#loc127 = loc("hotspot.cpp":49:77)
-#loc128 = loc("hotspot.cpp":49:91)
-#loc129 = loc("hotspot.cpp":49:106)
-#loc130 = loc("hotspot.cpp":49:122)
-#loc131 = loc("hotspot.cpp":49:138)
-#loc132 = loc("hotspot.cpp":49:43)
-#loc133 = loc("hotspot.cpp":49:41)
-#loc136 = loc("hotspot.cpp":54:33)
-#loc137 = loc("hotspot.cpp":54:31)
-#loc138 = loc("hotspot.cpp":56:55)
-#loc139 = loc("hotspot.cpp":56:53)
-#loc140 = loc("hotspot.cpp":60:1)
-#loc142 = loc("./hotspot.h":40:18)
-#loc143 = loc("hotspot.cpp":6:36)
-#loc144 = loc("hotspot.cpp":7:31)
-#loc145 = loc("hotspot.cpp":7:52)
-#loc146 = loc("hotspot.cpp":8:32)
-#loc147 = loc("hotspot.cpp":8:52)
-#loc148 = loc("hotspot.cpp":9:31)
-#loc149 = loc("hotspot.cpp":10:31)
-#loc150 = loc("hotspot.cpp":10:15)
-#loc151 = loc("hotspot.cpp":11:31)
-#loc152 = loc("hotspot.cpp":11:15)
-#loc153 = loc("hotspot.cpp":12:31)
-#loc154 = loc("hotspot.cpp":12:15)
-#loc155 = loc("hotspot.cpp":13:30)
-#loc156 = loc("hotspot.cpp":13:14)
-#loc157 = loc("hotspot.cpp":15:1)
-#loc158 = loc(fused[#loc6, #loc7])
-#loc159 = loc(fused[#loc49, #loc7])
-#loc160 = loc(fused[#loc56, #loc7])
-#loc161 = loc(fused[#loc64, #loc65])
-#loc162 = loc(fused[#loc99, #loc65])
+#loc8 = loc("./hotspot.h":14:19)
+#loc9 = loc("hotspot.cpp":100:94)
+#loc12 = loc("hotspot.cpp":98:18)
+#loc13 = loc("hotspot.cpp":90:16)
+#loc14 = loc("hotspot.cpp":88:42)
+#loc15 = loc("./hotspot.h":27:19)
+#loc16 = loc("./hotspot.h":29:14)
+#loc17 = loc("./hotspot.h":36:16)
+#loc18 = loc("hotspot.cpp":62:1)
+#loc19 = loc("hotspot.cpp":93:5)
+#loc20 = loc("hotspot.cpp":77:9)
+#loc21 = loc("hotspot.cpp":76:9)
+#loc22 = loc("hotspot.cpp":75:9)
+#loc23 = loc("hotspot.cpp":75:1)
+#loc24 = loc("hotspot.cpp":76:1)
+#loc25 = loc("hotspot.cpp":77:1)
+#loc26 = loc("./hotspot.h":37:21)
+#loc27 = loc("./hotspot.h":38:20)
+#loc28 = loc("hotspot.cpp":82:55)
+#loc29 = loc("hotspot.cpp":82:53)
+#loc30 = loc("hotspot.cpp":82:68)
+#loc31 = loc("hotspot.cpp":82:66)
+#loc32 = loc("./hotspot.h":32:21)
+#loc33 = loc("hotspot.cpp":83:16)
+#loc34 = loc("hotspot.cpp":83:52)
+#loc35 = loc("hotspot.cpp":83:50)
+#loc36 = loc("hotspot.cpp":83:27)
+#loc37 = loc("hotspot.cpp":84:16)
+#loc38 = loc("hotspot.cpp":84:53)
+#loc39 = loc("hotspot.cpp":84:51)
+#loc40 = loc("hotspot.cpp":84:28)
+#loc41 = loc("hotspot.cpp":85:31)
+#loc42 = loc("hotspot.cpp":85:45)
+#loc43 = loc("hotspot.cpp":85:25)
+#loc44 = loc("hotspot.cpp":85:23)
+#loc45 = loc("./hotspot.h":24:17)
+#loc46 = loc("hotspot.cpp":88:30)
+#loc47 = loc("hotspot.cpp":88:28)
+#loc48 = loc("hotspot.cpp":88:40)
+#loc49 = loc("hotspot.cpp":90:20)
+#loc50 = loc("hotspot.cpp":91:20)
+#loc51 = loc("hotspot.cpp":92:20)
+#loc52 = loc("hotspot.cpp":93:24)
+#loc53 = loc("hotspot.cpp":98:1)
+#loc54 = loc("hotspot.cpp":98:23)
+#loc55 = loc("hotspot.cpp":98:9)
+#loc56 = loc("hotspot.cpp":99:1)
+#loc57 = loc("hotspot.cpp":99:27)
+#loc58 = loc("hotspot.cpp":99:13)
+#loc59 = loc("hotspot.cpp":100:20)
+#loc60 = loc("hotspot.cpp":100:41)
+#loc61 = loc("hotspot.cpp":100:53)
+#loc62 = loc("hotspot.cpp":100:37)
+#loc63 = loc("hotspot.cpp":100:65)
+#loc64 = loc("hotspot.cpp":100:78)
+#loc65 = loc("hotspot.cpp":100:92)
+#loc66 = loc("hotspot.cpp":100:110)
+#loc67 = loc("hotspot.cpp":100:13)
+#loc68 = loc("hotspot.cpp":101:20)
+#loc69 = loc("hotspot.cpp":101:43)
+#loc70 = loc("hotspot.cpp":101:55)
+#loc71 = loc("hotspot.cpp":101:39)
+#loc72 = loc("hotspot.cpp":101:33)
+#loc73 = loc("hotspot.cpp":101:68)
+#loc74 = loc("hotspot.cpp":101:82)
+#loc75 = loc("hotspot.cpp":101:94)
+#loc76 = loc("hotspot.cpp":101:13)
+#loc77 = loc("hotspot.cpp":103:13)
+#loc78 = loc("hotspot.cpp":105:31)
+#loc79 = loc("hotspot.cpp":105:43)
+#loc80 = loc("hotspot.cpp":105:27)
+#loc81 = loc("hotspot.cpp":105:20)
+#loc82 = loc("hotspot.cpp":105:56)
+#loc83 = loc("hotspot.cpp":105:70)
+#loc84 = loc("hotspot.cpp":105:84)
+#loc85 = loc("hotspot.cpp":105:96)
+#loc86 = loc("hotspot.cpp":105:13)
+#loc87 = loc("hotspot.cpp":108:1)
+#loc89 = loc("hotspot.cpp":108:27)
+#loc90 = loc("hotspot.cpp":108:13)
+#loc91 = loc("hotspot.cpp":109:20)
+#loc92 = loc("hotspot.cpp":109:43)
+#loc93 = loc("hotspot.cpp":109:55)
+#loc94 = loc("hotspot.cpp":109:39)
+#loc95 = loc("hotspot.cpp":109:67)
+#loc96 = loc("hotspot.cpp":109:80)
+#loc97 = loc("hotspot.cpp":109:94)
+#loc98 = loc("hotspot.cpp":109:112)
+#loc99 = loc("hotspot.cpp":109:13)
+#loc100 = loc("hotspot.cpp":110:20)
+#loc101 = loc("hotspot.cpp":110:43)
+#loc102 = loc("hotspot.cpp":110:55)
+#loc103 = loc("hotspot.cpp":110:39)
+#loc104 = loc("hotspot.cpp":110:33)
+#loc105 = loc("hotspot.cpp":110:68)
+#loc106 = loc("hotspot.cpp":110:82)
+#loc107 = loc("hotspot.cpp":110:94)
+#loc108 = loc("hotspot.cpp":110:13)
+#loc109 = loc("hotspot.cpp":112:13)
+#loc110 = loc("hotspot.cpp":114:29)
+#loc111 = loc("hotspot.cpp":114:41)
+#loc112 = loc("hotspot.cpp":114:25)
+#loc113 = loc("hotspot.cpp":114:20)
+#loc114 = loc("hotspot.cpp":114:54)
+#loc115 = loc("hotspot.cpp":114:69)
+#loc116 = loc("hotspot.cpp":114:83)
+#loc117 = loc("hotspot.cpp":114:95)
+#loc118 = loc("hotspot.cpp":114:13)
+#loc119 = loc("hotspot.cpp":108:53)
+#loc120 = loc("hotspot.cpp":98:38)
+#loc121 = loc("hotspot.cpp":119:1)
+#loc123 = loc("hotspot.cpp":29:55)
+#loc124 = loc("hotspot.cpp":29:53)
+#loc125 = loc("hotspot.cpp":35:49)
+#loc126 = loc("hotspot.cpp":37:65)
+#loc127 = loc("hotspot.cpp":43:92)
+#loc128 = loc("hotspot.cpp":45:61)
+#loc129 = loc("./hotspot.h":43:37)
+#loc130 = loc("hotspot.cpp":56:51)
+#loc131 = loc("hotspot.cpp":43:117)
+#loc135 = loc("hotspot.cpp":29:17)
+#loc136 = loc("hotspot.cpp":18:1)
+#loc137 = loc("hotspot.cpp":20:5)
+#loc138 = loc("hotspot.cpp":27:8)
+#loc139 = loc("hotspot.cpp":26:5)
+#loc140 = loc("hotspot.cpp":25:5)
+#loc141 = loc("hotspot.cpp":24:5)
+#loc142 = loc("hotspot.cpp":23:5)
+#loc143 = loc("hotspot.cpp":22:5)
+#loc144 = loc("hotspot.cpp":21:5)
+#loc145 = loc("hotspot.cpp":21:1)
+#loc146 = loc("hotspot.cpp":22:1)
+#loc147 = loc("hotspot.cpp":23:1)
+#loc148 = loc("hotspot.cpp":24:1)
+#loc149 = loc("hotspot.cpp":25:1)
+#loc150 = loc("hotspot.cpp":26:1)
+#loc151 = loc("hotspot.cpp":27:1)
+#loc152 = loc("hotspot.cpp":29:1)
+#loc153 = loc("hotspot.cpp":29:23)
+#loc154 = loc("hotspot.cpp":29:8)
+#loc155 = loc("hotspot.cpp":30:1)
+#loc157 = loc("hotspot.cpp":30:12)
+#loc158 = loc("hotspot.cpp":31:23)
+#loc159 = loc("hotspot.cpp":31:13)
+#loc160 = loc("hotspot.cpp":31:26)
+#loc161 = loc("hotspot.cpp":31:36)
+#loc162 = loc("hotspot.cpp":31:49)
+#loc163 = loc("hotspot.cpp":31:53)
+#loc164 = loc("hotspot.cpp":31:30)
+#loc165 = loc("hotspot.cpp":31:28)
+#loc166 = loc("hotspot.cpp":30:45)
+#loc167 = loc("hotspot.cpp":29:59)
+#loc168 = loc("hotspot.cpp":35:1)
+#loc169 = loc("hotspot.cpp":35:23)
+#loc170 = loc("hotspot.cpp":35:9)
+#loc171 = loc("hotspot.cpp":36:1)
+#loc172 = loc("hotspot.cpp":36:27)
+#loc173 = loc("hotspot.cpp":36:13)
+#loc174 = loc("hotspot.cpp":37:26)
+#loc175 = loc("hotspot.cpp":37:13)
+#loc176 = loc("hotspot.cpp":37:31)
+#loc177 = loc("hotspot.cpp":37:29)
+#loc178 = loc("hotspot.cpp":39:23)
+#loc179 = loc("hotspot.cpp":39:13)
+#loc180 = loc("hotspot.cpp":39:34)
+#loc181 = loc("hotspot.cpp":39:60)
+#loc182 = loc("hotspot.cpp":39:78)
+#loc183 = loc("hotspot.cpp":39:31)
+#loc184 = loc("hotspot.cpp":39:88)
+#loc185 = loc("hotspot.cpp":39:105)
+#loc186 = loc("hotspot.cpp":39:29)
+#loc187 = loc("hotspot.cpp":41:24)
+#loc188 = loc("hotspot.cpp":41:13)
+#loc189 = loc("hotspot.cpp":41:35)
+#loc190 = loc("hotspot.cpp":41:64)
+#loc191 = loc("hotspot.cpp":41:69)
+#loc192 = loc("hotspot.cpp":41:74)
+#loc193 = loc("hotspot.cpp":41:31)
+#loc194 = loc("hotspot.cpp":41:82)
+#loc195 = loc("hotspot.cpp":41:110)
+#loc196 = loc("hotspot.cpp":41:114)
+#loc197 = loc("hotspot.cpp":41:129)
+#loc198 = loc("hotspot.cpp":41:142)
+#loc199 = loc("hotspot.cpp":41:99)
+#loc200 = loc("hotspot.cpp":41:173)
+#loc201 = loc("hotspot.cpp":41:170)
+#loc202 = loc("hotspot.cpp":41:168)
+#loc203 = loc("hotspot.cpp":41:179)
+#loc204 = loc("hotspot.cpp":41:29)
+#loc205 = loc("hotspot.cpp":43:25)
+#loc206 = loc("hotspot.cpp":43:13)
+#loc207 = loc("hotspot.cpp":43:35)
+#loc208 = loc("hotspot.cpp":43:64)
+#loc209 = loc("hotspot.cpp":43:97)
+#loc210 = loc("hotspot.cpp":43:102)
+#loc211 = loc("hotspot.cpp":43:31)
+#loc212 = loc("hotspot.cpp":43:124)
+#loc213 = loc("hotspot.cpp":43:152)
+#loc214 = loc("hotspot.cpp":43:156)
+#loc215 = loc("hotspot.cpp":43:171)
+#loc216 = loc("hotspot.cpp":43:184)
+#loc217 = loc("hotspot.cpp":43:141)
+#loc218 = loc("hotspot.cpp":43:215)
+#loc219 = loc("hotspot.cpp":43:212)
+#loc220 = loc("hotspot.cpp":43:210)
+#loc221 = loc("hotspot.cpp":43:237)
+#loc222 = loc("hotspot.cpp":43:29)
+#loc223 = loc("hotspot.cpp":45:26)
+#loc224 = loc("hotspot.cpp":45:13)
+#loc225 = loc("hotspot.cpp":45:34)
+#loc226 = loc("hotspot.cpp":45:79)
+#loc227 = loc("hotspot.cpp":45:97)
+#loc228 = loc("hotspot.cpp":45:31)
+#loc229 = loc("hotspot.cpp":45:110)
+#loc230 = loc("hotspot.cpp":45:127)
+#loc231 = loc("hotspot.cpp":45:29)
+#loc232 = loc("hotspot.cpp":47:27)
+#loc233 = loc("hotspot.cpp":47:13)
+#loc234 = loc("hotspot.cpp":47:39)
+#loc235 = loc("hotspot.cpp":47:53)
+#loc236 = loc("hotspot.cpp":47:56)
+#loc237 = loc("hotspot.cpp":47:31)
+#loc238 = loc("hotspot.cpp":47:29)
+#loc239 = loc("hotspot.cpp":49:22)
+#loc240 = loc("hotspot.cpp":49:36)
+#loc241 = loc("hotspot.cpp":49:39)
+#loc242 = loc("hotspot.cpp":49:13)
+#loc243 = loc("hotspot.cpp":49:74)
+#loc244 = loc("hotspot.cpp":49:64)
+#loc245 = loc("hotspot.cpp":49:77)
+#loc246 = loc("hotspot.cpp":49:91)
+#loc247 = loc("hotspot.cpp":49:106)
+#loc248 = loc("hotspot.cpp":49:122)
+#loc249 = loc("hotspot.cpp":49:138)
+#loc250 = loc("hotspot.cpp":49:43)
+#loc251 = loc("hotspot.cpp":49:41)
+#loc252 = loc("hotspot.cpp":36:43)
+#loc253 = loc("hotspot.cpp":52:1)
+#loc254 = loc("hotspot.cpp":52:27)
+#loc255 = loc("hotspot.cpp":52:13)
+#loc256 = loc("hotspot.cpp":53:1)
+#loc258 = loc("hotspot.cpp":53:31)
+#loc259 = loc("hotspot.cpp":53:17)
+#loc260 = loc("hotspot.cpp":54:26)
+#loc261 = loc("hotspot.cpp":54:17)
+#loc262 = loc("hotspot.cpp":54:29)
+#loc263 = loc("hotspot.cpp":54:46)
+#loc264 = loc("hotspot.cpp":54:49)
+#loc265 = loc("hotspot.cpp":54:33)
+#loc266 = loc("hotspot.cpp":54:31)
+#loc267 = loc("hotspot.cpp":53:63)
+#loc268 = loc("hotspot.cpp":56:22)
+#loc269 = loc("hotspot.cpp":56:13)
+#loc270 = loc("hotspot.cpp":56:79)
+#loc271 = loc("hotspot.cpp":56:84)
+#loc272 = loc("hotspot.cpp":56:74)
+#loc273 = loc("hotspot.cpp":56:98)
+#loc274 = loc("hotspot.cpp":56:101)
+#loc275 = loc("hotspot.cpp":56:55)
+#loc276 = loc("hotspot.cpp":56:53)
+#loc277 = loc("hotspot.cpp":52:43)
+#loc278 = loc("hotspot.cpp":35:65)
+#loc279 = loc("hotspot.cpp":60:1)
+#loc281 = loc("./hotspot.h":40:18)
+#loc282 = loc("hotspot.cpp":4:1)
+#loc283 = loc("hotspot.cpp":9:2)
+#loc284 = loc("hotspot.cpp":6:36)
+#loc285 = loc("hotspot.cpp":7:31)
+#loc286 = loc("hotspot.cpp":7:52)
+#loc287 = loc("hotspot.cpp":8:32)
+#loc288 = loc("hotspot.cpp":8:52)
+#loc289 = loc("hotspot.cpp":9:31)
+#loc290 = loc("hotspot.cpp":10:31)
+#loc291 = loc("hotspot.cpp":10:15)
+#loc292 = loc("hotspot.cpp":11:31)
+#loc293 = loc("hotspot.cpp":11:15)
+#loc294 = loc("hotspot.cpp":12:31)
+#loc295 = loc("hotspot.cpp":12:15)
+#loc296 = loc("hotspot.cpp":13:30)
+#loc297 = loc("hotspot.cpp":13:14)
+#loc298 = loc("hotspot.cpp":15:1)

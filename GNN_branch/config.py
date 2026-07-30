@@ -108,6 +108,12 @@ graph_type = 'original' # original DAC22 graph
 graph_type = 'extended-pseudo-block-connected-hierarchy'
 parser.add_argument('--graph_type', default=graph_type)
 
+parser.add_argument(
+    "--mlir_graph_dir",
+    default=None,
+    help="Explicit versioned MLIR GEXF dataset directory.",
+)
+
 ################## model architecture ##################
 pragma_as_MLP, type_parallel, type_merge = True, '2l', '2l'
 gnn_layer_after_MLP = 1

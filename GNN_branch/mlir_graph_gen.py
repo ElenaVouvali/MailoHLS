@@ -3693,9 +3693,36 @@ class MlirGraphBuilder:
         spec: ActionSpec,
     ) -> int | None:
         """Return column distance for an operation on an action's source line."""
+        source_points = record.source_points
+
+        # With canonicalization disabled, Polygeist represents C ``for``
+        # loops as scf.while. The while operation has an unknown location,
+        # while its direct condition block retains the exact loop-header
+        # locations. Do not inspect the body: that would make an outer loop
+        # appear to match its nested action loops.
+        if record.op_name == "scf.while":
+            regions = operation_regions(record.operation)
+            if regions and region_blocks(regions[0]):
+                condition_block = self.blocks.get(
+                    object_key(region_blocks(regions[0])[0])
+                )
+                if condition_block is not None:
+                    source_points = tuple(
+                        dict.fromkeys(
+                            (
+                                *source_points,
+                                *(
+                                    point
+                                    for operation in condition_block.operations
+                                    for point in operation.source_points
+                                ),
+                            )
+                        )
+                    )
+
         distances = [
             abs(point.column - spec.source_column)
-            for point in record.source_points
+            for point in source_points
             if self._same_source_file(point.filename, spec.source_file)
             and point.line == spec.source_line
         ]
@@ -4721,6 +4748,8 @@ def validate_cgeist_flags(flags: Sequence[str]) -> list[str]:
         "--output=",
         "-scal-rep=",
         "--scal-rep=",
+        "-canonicalizeiters=",
+        "--canonicalizeiters=",
     )
     cleaned = [str(flag) for flag in flags]
     for flag in cleaned:
@@ -4756,6 +4785,9 @@ def build_cgeist_command(
         # ARRAY_PARTITION action points must remain represented as MemRefs.
         # Polygeist enables affine scalar replacement by default even at -O0.
         "-scal-rep=0",
+        # Canonicalization forwards tiled scratchpad copies into their
+        # consumers and erases source loops that are MailoHLS action points.
+        "-canonicalizeiters=0",
         # Source locations are part of the MailoHLS action point mapping logic.
         # Without this cgeist retains locations internally but omits them from
         # the serialized MLIR.
@@ -4985,7 +5017,8 @@ def run(args: argparse.Namespace) -> Path:
                     "action_sha256": hashlib.sha256(kernel_info.read_bytes()).hexdigest(),
                     "mlir_level": "affine+scf+memref+arith+func",
                     "frontend_policy": (
-                        "cgeist:-O0,scal-rep=0,print-debug-info,"
+                        "cgeist:-O0,scal-rep=0,canonicalizeiters=0,"
+                        "print-debug-info,"
                         "noinline-helpers,memref-fullrank,"
                         "raise-scf-to-affine,"
                         "preserve-action-memref-shapes="

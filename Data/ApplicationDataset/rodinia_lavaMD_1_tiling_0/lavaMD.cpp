@@ -44,14 +44,14 @@ L8:        WIPE_LOCAL_POS_O: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){
         A_idx = z_n*DIMENSION_2D_PADDED + y_n*DIMENSION_1D_PADDED + x_n;
         A_idx = A_idx * NUMBER_PAR_PER_BOX;
         //load local_A_pos_i
-L9:        LOAD_LOCAL_A_POS_I: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){
+L9:     LOAD_LOCAL_A_POS_I: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){
             local_A_pos_i[ii][V] = pos_i[(A_idx+ii)*POS_DIM+V];
             local_A_pos_i[ii][X] = pos_i[(A_idx+ii)*POS_DIM+X];
             local_A_pos_i[ii][Y] = pos_i[(A_idx+ii)*POS_DIM+Y];
             local_A_pos_i[ii][Z] = pos_i[(A_idx+ii)*POS_DIM+Z];
         }
         //go through 27 neighbors
-L10:        for (l=0; l<FULL_NEIGHBOR_COUNT; ++l){
+L10:    for (l=0; l<FULL_NEIGHBOR_COUNT; ++l){
             //pos of the neighbor - input_B array
             x = x_n + neighborOffset[l][0];
             y = y_n + neighborOffset[l][1];
@@ -60,20 +60,20 @@ L10:        for (l=0; l<FULL_NEIGHBOR_COUNT; ++l){
             B_idx = z*DIMENSION_2D_PADDED + y*DIMENSION_1D_PADDED + x;
             B_idx = B_idx * NUMBER_PAR_PER_BOX;
             //load local_B_pos_i
-L11:            LOAD_LOCAL_B_POS_I: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){
+L11:        LOAD_LOCAL_B_POS_I: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){
                 local_B_pos_i[ii][V] = pos_i[(B_idx+ii)*POS_DIM+V];
                 local_B_pos_i[ii][X] = pos_i[(B_idx+ii)*POS_DIM+X];
                 local_B_pos_i[ii][Y] = pos_i[(B_idx+ii)*POS_DIM+Y];
                 local_B_pos_i[ii][Z] = pos_i[(B_idx+ii)*POS_DIM+Z];
             }
             //load local_B_q_i
-L12:            LOAD_LOCAL_B_Q_I: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){
+L12:        LOAD_LOCAL_B_Q_I: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){
                 local_B_q_i[ii] = q_i[B_idx+ii];
             }
 
             //calculate the accumulated effects from all neighboring particles
-L13:            PARTICLES_A: for(j=0; j<NUMBER_PAR_PER_BOX; ++j){
-L14:                PARTICLES_B: for(k=0; k<NUMBER_PAR_PER_BOX; ++k){
+L13:        PARTICLES_A: for(j=0; j<NUMBER_PAR_PER_BOX; ++j){
+L14:            PARTICLES_B: for(k=0; k<NUMBER_PAR_PER_BOX; ++k){
                     // coefficients
                     r2 = local_A_pos_i[j][V] + local_B_pos_i[k][V] -
                         (local_A_pos_i[j][X] * local_B_pos_i[k][X] +
@@ -101,7 +101,7 @@ L14:                PARTICLES_B: for(k=0; k<NUMBER_PAR_PER_BOX; ++k){
             }
         }
         //writeback local_pos_o
-L15:        WRITE_POS_O: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){
+L15:    WRITE_POS_O: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){
             pos_o[(C_idx+ii)*POS_DIM+V] = local_pos_o[ii][V];
             pos_o[(C_idx+ii)*POS_DIM+X] = local_pos_o[ii][X];
             pos_o[(C_idx+ii)*POS_DIM+Y] = local_pos_o[ii][Y];
