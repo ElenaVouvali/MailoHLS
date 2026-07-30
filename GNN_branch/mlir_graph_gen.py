@@ -93,7 +93,7 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-v3-native-semantic"
+SCHEMA_VERSION = "mailohls-mlir-graph-v4-alias-fallback"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 PERSISTED_GRAPH_METADATA_KEYS = (
     "kernel",
@@ -111,6 +111,9 @@ PERSISTED_GRAPH_METADATA_KEYS = (
     "exact_edge_count",
     "proven_independent_count",
     "fallback_count",
+    "native_fallback_reasons",
+    "native_alias_classifications",
+    "must_alias_component_sizes",
 )
 ACTION_ID_RE = re.compile(r"^L([1-9][0-9]*)$")
 ACTION_ID_SEARCH_RE = re.compile(r"\bL([1-9][0-9]*)\b")
@@ -1365,6 +1368,7 @@ class MlirGraphBuilder:
         self.operation_by_key: dict[Any, OperationRecord] = {}
         self.operation_by_uid: dict[tuple[str, int], OperationRecord] = {}
         self.value_nodes: dict[Any, int] = {}
+        self.value_ids_by_key: dict[Any, str] = {}
         self.value_objects: dict[Any, Any] = {}
         self.value_function: dict[Any, int] = {}
         self.value_def_op: dict[Any, int] = {}
@@ -1394,7 +1398,8 @@ class MlirGraphBuilder:
         self.native_aliases: list[dict[str, Any]] = []
         self.native_affine_loops: dict[tuple[str, int], dict[str, Any]] = {}
         self.native_no_alias_pairs: set[frozenset[str]] = set()
-        self.native_alias_constraint_pairs: set[tuple[Any, Any]] = set()
+        self.native_view_constraint_pairs: set[tuple[Any, Any]] = set()
+        self.native_must_alias_pairs: set[tuple[Any, Any]] = set()
         self.native_trip_count_agreements = 0
         self.native_trip_count_known = 0
 
@@ -1514,13 +1519,46 @@ class MlirGraphBuilder:
                 native_analysis_coverage={},
             )
             return
-        if self.native_analysis.get("schema") != "mailohls-native-analysis-v2":
+        if not isinstance(self.native_analysis, dict):
+            raise RuntimeError("Native analysis must be a dictionary")
+        required_sections = {
+            "schema", "operations", "effects", "views", "aliases",
+            "dependences", "affine_loops", "coverage", "verification",
+        }
+        missing_sections = required_sections - self.native_analysis.keys()
+        if missing_sections:
+            raise RuntimeError(
+                f"Native analysis is incomplete: missing {sorted(missing_sections)}"
+            )
+        if self.native_analysis.get("schema") != "mailohls-native-analysis-v3":
             raise RuntimeError(
                 f"Unsupported native analysis schema: {self.native_analysis.get('schema')!r}"
             )
+        if any(
+            not isinstance(self.native_analysis[name], list)
+            for name in (
+                "operations", "effects", "views", "aliases",
+                "dependences", "affine_loops",
+            )
+        ):
+            raise RuntimeError("Native analysis record sections must be lists")
+
+        def identity(item: Mapping[str, Any], label: str) -> tuple[str, int, str]:
+            try:
+                result = (
+                    str(item["function"]),
+                    int(item["ordinal"]),
+                    str(item["op_name"]),
+                )
+            except (KeyError, TypeError, ValueError) as exc:
+                raise RuntimeError(f"Invalid native {label} identity: {item!r}") from exc
+            if result[1] < 0 or not result[0] or not result[2]:
+                raise RuntimeError(f"Invalid native {label} identity: {item!r}")
+            return result
+
         native_ids = [
-            (str(item["function"]), int(item["ordinal"]), str(item["op_name"]))
-            for item in self.native_analysis.get("operations", [])
+            identity(item, "operation")
+            for item in self.native_analysis["operations"]
         ]
         python_ids = [
             (self.functions[item.function_id], item.function_ordinal, item.op_name)
@@ -1535,16 +1573,217 @@ class MlirGraphBuilder:
                 "Native/Python operation identity mismatch: "
                 f"missing={missing[:5]}, extra={extra[:5]}"
             )
+        record_by_id = {
+            (self.functions[item.function_id], item.function_ordinal, item.op_name): item
+            for item in self.operation_records
+        }
+        value_ids = {
+            str(self.graph.nodes[node].get("ssa_id"))
+            for node in self.value_nodes.values()
+        }
+        memory_value_ids = {
+            str(self.graph.nodes[node].get("ssa_id"))
+            for node in self.value_nodes.values()
+            if int(self.graph.nodes[node].get("is_memory", 0)) == 1
+        }
+
+        effect_ids: list[tuple[str, int, str]] = []
+        operation_feature_effects: dict[tuple[str, int, str], list[str]] = {}
+        allowed_effects = {"read", "write", "allocate", "free", "unknown_effect"}
+        allowed_statuses = {"known", "known_no_effect", "unknown"}
+        for item in self.native_analysis["effects"]:
+            item_id = identity(item, "effect")
+            effect_ids.append(item_id)
+            if item_id not in record_by_id:
+                raise RuntimeError(f"Native effect references unknown operation: {item_id}")
+            status = str(item.get("status", ""))
+            entries = item.get("effects")
+            if status not in allowed_statuses or not isinstance(entries, list):
+                raise RuntimeError(f"Invalid native effect record: {item!r}")
+            if status in {"known_no_effect", "unknown"} and entries:
+                raise RuntimeError(f"{status} effect record must be empty: {item_id}")
+            if status == "known" and not entries:
+                raise RuntimeError(f"Known effect record must not be empty: {item_id}")
+            record = record_by_id[item_id]
+            seen_effects: set[tuple[str, str | None, int | None]] = set()
+            unassociated_effects: list[str] = []
+            for effect in entries:
+                kind = str(effect.get("kind", ""))
+                if kind not in allowed_effects:
+                    raise RuntimeError(f"Invalid native effect kind: {effect!r}")
+                value = effect.get("value")
+                value_id = None if value is None else str(value)
+                if value_id is not None and value_id not in value_ids:
+                    raise RuntimeError(f"Native effect references unknown value: {value_id}")
+                operand_index = effect.get("operand_index")
+                if operand_index is not None:
+                    if isinstance(operand_index, bool):
+                        raise RuntimeError(f"Invalid effect operand index: {effect!r}")
+                    operand_index = int(operand_index)
+                    if operand_index < 0 or operand_index >= len(record.operand_keys):
+                        raise RuntimeError(f"Effect operand index is out of range: {effect!r}")
+                    expected_value = str(
+                        self.graph.nodes[self.value_nodes[record.operand_keys[operand_index]]].get(
+                            "ssa_id"
+                        )
+                    )
+                    if value_id != expected_value:
+                        raise RuntimeError(
+                            "Native effect operand/value mismatch: "
+                            f"{value_id!r} != {expected_value!r}"
+                        )
+                if operand_index is None:
+                    unassociated_effects.append(kind)
+                effect_key = (kind, value_id, operand_index)
+                if effect_key in seen_effects:
+                    raise RuntimeError(f"Duplicate native effect entry: {effect_key}")
+                seen_effects.add(effect_key)
+            operation_feature_effects[item_id] = unassociated_effects
+        if effect_ids != native_ids or len(effect_ids) != len(set(effect_ids)):
+            raise RuntimeError(
+                "Native effects must contain exactly one ordered record per operation"
+            )
         self.native_effects = {
-            (str(item["function"]), int(item["ordinal"])): item
-            for item in self.native_analysis.get("effects", [])
+            (function, ordinal): item
+            for (function, ordinal, _), item in zip(effect_ids, self.native_analysis["effects"])
         }
-        self.native_views = list(self.native_analysis.get("views", []))
-        self.native_aliases = list(self.native_analysis.get("aliases", []))
+
+        self.native_views = list(self.native_analysis["views"])
+        seen_views: set[tuple[str, str]] = set()
+        for item in self.native_views:
+            if set(item) != {"source", "target"}:
+                raise RuntimeError(f"Invalid native view record: {item!r}")
+            pair = (str(item["source"]), str(item["target"]))
+            if (
+                pair[0] == pair[1]
+                or pair[0] not in memory_value_ids
+                or pair[1] not in memory_value_ids
+                or pair in seen_views
+            ):
+                raise RuntimeError(f"Invalid or duplicate native view: {pair}")
+            seen_views.add(pair)
+
+        self.native_aliases = list(self.native_analysis["aliases"])
+        seen_aliases: set[tuple[str, str]] = set()
+        allowed_aliases = {"no_alias", "must_alias", "partial_alias", "may_alias"}
+        for item in self.native_aliases:
+            if set(item) != {"lhs", "rhs", "result"}:
+                raise RuntimeError(f"Invalid native alias record: {item!r}")
+            lhs, rhs = str(item["lhs"]), str(item["rhs"])
+            pair = tuple(sorted((lhs, rhs)))
+            if (
+                lhs == rhs
+                or lhs not in memory_value_ids
+                or rhs not in memory_value_ids
+                or pair in seen_aliases
+                or item["result"] not in allowed_aliases
+            ):
+                raise RuntimeError(f"Invalid or duplicate native alias: {item!r}")
+            seen_aliases.add(pair)
+
+        affine_ids = {
+            item_id for item_id in python_ids if item_id[2] == "affine.for"
+        }
+        loop_ids: list[tuple[str, int, str]] = []
+        for item in self.native_analysis["affine_loops"]:
+            item_id = identity(item, "affine loop")
+            loop_ids.append(item_id)
+            status = str(item.get("status", ""))
+            if item_id not in affine_ids or status not in {"known", "unknown"}:
+                raise RuntimeError(f"Invalid native affine-loop record: {item!r}")
+            if status == "known":
+                count = item.get("trip_count")
+                if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+                    raise RuntimeError(f"Invalid native affine trip count: {item!r}")
+            elif "trip_count" in item:
+                raise RuntimeError(f"Unknown affine loop has a trip count: {item!r}")
+        if set(loop_ids) != affine_ids or len(loop_ids) != len(set(loop_ids)):
+            raise RuntimeError("Native affine-loop records are incomplete or duplicate")
         self.native_affine_loops = {
-            (str(item["function"]), int(item["ordinal"])): item
-            for item in self.native_analysis.get("affine_loops", [])
+            (function, ordinal): item
+            for (function, ordinal, _), item in zip(
+                loop_ids, self.native_analysis["affine_loops"]
+            )
         }
+
+        dependence_keys: set[tuple[Any, ...]] = set()
+        dependence_counts: Counter[str] = Counter()
+        allowed_results = {
+            "dependence", "no_dependence", "unknown", "not_applicable"
+        }
+        reason_policy = {
+            "proven_affine_dependence": ("dependence", False),
+            "proven_affine_independence": ("no_dependence", False),
+            "proven_no_alias": ("not_applicable", False),
+            "aliased_storage_not_canonicalized": ("unknown", True),
+            "affine_analysis_failure": ("unknown", True),
+            "different_affine_scope": ("not_applicable", True),
+            "non_affine_access": ("not_applicable", True),
+        }
+        allowed_kinds = {"RAW", "WAR", "WAW"}
+        valid_ids = set(python_ids)
+        for item in self.native_analysis["dependences"]:
+            source = identity(item.get("source", {}), "dependence source")
+            target = identity(item.get("target", {}), "dependence target")
+            kind = str(item.get("kind", ""))
+            result = str(item.get("result", ""))
+            reason = str(item.get("reason", ""))
+            fallback = item.get("fallback_required")
+            key = (source, target, kind)
+            if (
+                source not in valid_ids
+                or target not in valid_ids
+                or source[0] != target[0]
+                or kind not in allowed_kinds
+                or result not in allowed_results
+                or reason not in reason_policy
+                or not isinstance(fallback, bool)
+                or key in dependence_keys
+            ):
+                raise RuntimeError(f"Invalid or duplicate native dependence: {item!r}")
+            if (result, fallback) != reason_policy[reason]:
+                raise RuntimeError(
+                    f"Native dependence violates reason policy: {item!r}"
+                )
+            if not isinstance(item.get("possible_loop_carried"), bool):
+                raise RuntimeError(
+                    f"Native dependence lacks possible-loop-carried flag: {item!r}"
+                )
+            if result == "dependence":
+                if not isinstance(item.get("components"), list):
+                    raise RuntimeError(f"Dependence lacks components: {item!r}")
+                if not isinstance(item.get("loop_carried"), bool):
+                    raise RuntimeError(f"Dependence lacks loop-carried flag: {item!r}")
+            dependence_keys.add(key)
+            dependence_counts[result] += 1
+
+        coverage = self.native_analysis["coverage"]
+        if not isinstance(coverage, dict):
+            raise RuntimeError("Native analysis coverage must be a dictionary")
+        expected_coverage = {
+            "operations": len(native_ids),
+            "effects_with_effects": sum(
+                item["status"] == "known"
+                for item in self.native_analysis["effects"]
+            ),
+            "effects_known_no_effect": sum(
+                item["status"] == "known_no_effect"
+                for item in self.native_analysis["effects"]
+            ),
+            "effects_unknown": sum(
+                item["status"] == "unknown"
+                for item in self.native_analysis["effects"]
+            ),
+            "view_edges": len(self.native_views),
+            "alias_queries": len(self.native_aliases),
+            **{name: dependence_counts[name] for name in allowed_results},
+        }
+        for name, expected in expected_coverage.items():
+            if coverage.get(name) != expected:
+                raise RuntimeError(
+                    f"Native coverage mismatch for {name}: "
+                    f"{coverage.get(name)!r} != {expected}"
+                )
         self.native_no_alias_pairs = {
             frozenset((str(item["lhs"]), str(item["rhs"])))
             for item in self.native_aliases
@@ -1553,6 +1792,21 @@ class MlirGraphBuilder:
         verification = self.native_analysis.get("verification", {})
         if verification != {"before": True, "after": True, "unchanged": True}:
             raise RuntimeError(f"Native analysis verification failed: {verification}")
+        for item_id, effect_kinds in operation_feature_effects.items():
+            if not effect_kinds:
+                continue
+            record = record_by_id[item_id]
+            bounded = sorted(set(effect_kinds))[:5]
+            node = self.graph.nodes[record.node]
+            node["native_operation_effects"] = ",".join(bounded)
+            # Bound multiplicity at eight so graph files and model features
+            # cannot grow with dialect-specific repeated effect instances.
+            node["native_operation_effect_count"] = min(len(effect_kinds), 8)
+            for kind in allowed_effects:
+                feature_kind = "unknown" if kind == "unknown_effect" else kind
+                node[f"native_operation_effect_{feature_kind}"] = int(
+                    kind in effect_kinds
+                )
         self.graph.graph.update(
             native_analysis_schema=self.native_analysis["schema"],
             binding_sha256=self.binding_sha256,
@@ -1618,10 +1872,10 @@ class MlirGraphBuilder:
         """Return the entry block that anchors function arguments and helper nodes."""
         regions = operation_regions(function_operation)
         if not regions or not region_blocks(regions[0]):
-            # Declaration-only functions get one synthetic deterministic block.
-            block_id = self.next_block_id
-            self.next_block_id += 1
-            return block_id
+            # A declaration has no MLIR block and therefore must not consume a
+            # native/Python block ordinal. Use a non-index sentinel only on
+            # the declaration's function node.
+            return -1
         return self.blocks[object_key(region_blocks(regions[0])[0])].block_id
 
     def _index_function(self, function_id: int, function_name: str, operation: Any) -> None:
@@ -1860,6 +2114,7 @@ class MlirGraphBuilder:
             }
         )
         self.value_nodes[key] = node
+        self.value_ids_by_key[key] = ssa_id
         self.value_objects[key] = value
         self.value_function[key] = function_id
         if is_block_argument:
@@ -2854,7 +3109,7 @@ class MlirGraphBuilder:
                     f"Native view references unknown value: {source_id}->{target_id}"
                 )
             self._add_alias_source(source, target)
-            self.native_alias_constraint_pairs.add((source, target))
+            self.native_view_constraint_pairs.add((source, target))
             self.graph.add_edge(
                 self.value_nodes[source],
                 self.value_nodes[target],
@@ -2883,9 +3138,8 @@ class MlirGraphBuilder:
                 raise RuntimeError(
                     f"Unknown native alias classification: {classification}"
                 )
-            self._add_alias_source(lhs, rhs)
-            self._add_alias_source(rhs, lhs)
-            self.native_alias_constraint_pairs.update(((lhs, rhs), (rhs, lhs)))
+            if classification == "must_alias":
+                self.native_must_alias_pairs.add((lhs, rhs))
             certainty = {
                 "must_alias": "proven",
                 "may_alias": "may",
@@ -3037,16 +3291,52 @@ class MlirGraphBuilder:
         ]
 
     def _solve_memory_roots(self) -> None:
-        """Solve the may-alias constraints and add root<->view graph edges."""
+        """Solve directional views plus exact MustAlias equivalence.
+
+        MayAlias and PartialAlias remain explicit pairwise facts and never
+        participate in this transitive solver.
+        """
         memory_keys = [
             key
             for key, node in self.value_nodes.items()
             if int(self.graph.nodes[node].get("is_memory", 0)) == 1
         ]
-        roots: dict[Any, set[int]] = {
-            key: (set() if self.memory_alias_sources.get(key) else {self.value_nodes[key]})
-            for key in memory_keys
-        }
+        parent = {key: key for key in memory_keys}
+
+        def find(key: Any) -> Any:
+            while parent[key] != key:
+                parent[key] = parent[parent[key]]
+                key = parent[key]
+            return key
+
+        def union(lhs: Any, rhs: Any) -> None:
+            lhs_root, rhs_root = find(lhs), find(rhs)
+            if lhs_root == rhs_root:
+                return
+            if self.value_nodes[lhs_root] > self.value_nodes[rhs_root]:
+                lhs_root, rhs_root = rhs_root, lhs_root
+            parent[rhs_root] = lhs_root
+
+        for lhs, rhs in sorted(
+            self.native_must_alias_pairs,
+            key=lambda pair: (self.value_nodes[pair[0]], self.value_nodes[pair[1]]),
+        ):
+            union(lhs, rhs)
+        classes: dict[Any, set[Any]] = defaultdict(set)
+        for key in memory_keys:
+            classes[find(key)].add(key)
+
+        roots: dict[Any, set[int]] = {key: set() for key in memory_keys}
+        for representative, members in classes.items():
+            has_external_source = any(
+                source not in members
+                for member in members
+                for source in self.memory_alias_sources.get(member, set())
+            )
+            if not has_external_source:
+                canonical_root = min(self.value_nodes[key] for key in members)
+                for member in members:
+                    roots[member].add(canonical_root)
 
         for _ in range(max(1, len(memory_keys))):
             changed = False
@@ -3057,6 +3347,12 @@ class MlirGraphBuilder:
                 before = len(roots[target])
                 roots[target].update(inherited)
                 changed |= len(roots[target]) != before
+            for members in classes.values():
+                shared = set().union(*(roots[member] for member in members))
+                for member in members:
+                    before = len(roots[member])
+                    roots[member].update(shared)
+                    changed |= len(roots[member]) != before
             if not changed:
                 break
 
@@ -3076,10 +3372,20 @@ class MlirGraphBuilder:
                     before = len(roots[target])
                     roots[target].update(inherited)
                     changed |= len(roots[target]) != before
+                for members in classes.values():
+                    shared = set().union(*(roots[member] for member in members))
+                    for member in members:
+                        before = len(roots[member])
+                        roots[member].update(shared)
+                        changed |= len(roots[member]) != before
                 if not changed:
                     break
 
         self.memory_roots_by_value = roots
+        component_sizes = sorted(
+            (len(members) for members in classes.values()), reverse=True
+        )
+        self.graph.graph["must_alias_component_sizes"] = component_sizes
         native_value_keys = {
             str(self.graph.nodes[node].get("ssa_id")): key
             for key, node in self.value_nodes.items()
@@ -3110,9 +3416,12 @@ class MlirGraphBuilder:
                 )
                 sources = self.memory_alias_sources.get(key, set())
                 if any(
-                    (source, key) in self.native_alias_constraint_pairs
+                    (source, key) in self.native_view_constraint_pairs
                     and root in roots.get(source, set())
                     for source in sources
+                ) or any(
+                    key in pair and root in roots.get(next(iter(set(pair) - {key})), set())
+                    for pair in self.native_must_alias_pairs
                 ):
                     native_root_edges += 1
                 elif sources:
@@ -3136,13 +3445,12 @@ class MlirGraphBuilder:
             "ssa-views+region-yields+loop-carried+context-insensitive-calls"
         )
         self.graph.graph["call_effect_model"] = "body-summary-fixed-point"
-        # The emitted memory-order edges are conservative may-dependences over
-        # alias roots.  Exact affine dependence distances require the MLIR C++
-        # APIs (MemRefAccess/checkMemrefAccessDependence), which are not exposed
-        # by the current Python bindings.  Recording that boundary prevents a
-        # downstream experiment from accidentally claiming exact dependence
-        # analysis for this pure-Python graph generator.
-        self.graph.graph["memory_dependence_model"] = "conservative-may-order"
+        # Seed conservative ordering for memory operations outside native
+        # affine query coverage. Native query outcomes below replace the
+        # corresponding source/target/kind edge explicitly.
+        self.graph.graph["memory_dependence_model"] = (
+            "native-query-directed-with-conservative-unqueried"
+        )
         self.graph.graph["exact_affine_dependence"] = 0
 
         for record in sorted(
@@ -3205,13 +3513,12 @@ class MlirGraphBuilder:
         distance_known: bool = False,
         first_nonzero_distance: int = 0,
         loop_carried: bool = False,
+        fallback_reason: str = "",
     ) -> None:
         """Add memory dependence for the deterministic MLIR-to-MailoHLS graph pipeline."""
         if source == target and not loop_carried:
             return
-        self.graph.add_edge(
-            source,
-            target,
+        attrs = dict(
             flow=FLOW_MEMORY_DEPENDENCE,
             position=MEMORY_DEPENDENCE_POSITION[kind],
             role=kind,
@@ -3223,6 +3530,9 @@ class MlirGraphBuilder:
             first_nonzero_distance=int(first_nonzero_distance),
             loop_carried=bool(loop_carried),
         )
+        if fallback_reason:
+            attrs["fallback_reason"] = fallback_reason
+        self.graph.add_edge(source, target, **attrs)
 
     def _remove_memory_dependence(self, source: int, target: int, kind: str) -> None:
         edge_data = self.graph.get_edge_data(source, target, default={})
@@ -3245,9 +3555,11 @@ class MlirGraphBuilder:
                 fallback_count=fallback,
                 memory_dependence_model="conservative-only-debug",
                 exact_affine_dependence=0,
+                native_fallback_reasons={},
             )
             return
         exact = independent = 0
+        fallback_reasons: Counter[str] = Counter()
         for query in self.native_analysis.get("dependences", []):
             source_id, target_id = query["source"], query["target"]
             source = self.operation_by_uid[
@@ -3257,9 +3569,20 @@ class MlirGraphBuilder:
                 (str(target_id["function"]), int(target_id["ordinal"]))
             ].node
             kind, outcome = str(query["kind"]), str(query["result"])
-            if outcome in {"unknown", "not_applicable"}:
-                continue
             self._remove_memory_dependence(source, target, kind)
+            if outcome in {"unknown", "not_applicable"}:
+                if bool(query["fallback_required"]):
+                    reason = str(query["reason"])
+                    self._add_memory_dependence(
+                        source,
+                        target,
+                        kind,
+                        "may",
+                        fallback_reason=reason,
+                        loop_carried=bool(query["possible_loop_carried"]),
+                    )
+                    fallback_reasons[reason] += 1
+                continue
             if outcome == "no_dependence":
                 independent += 1
                 continue
@@ -3305,6 +3628,7 @@ class MlirGraphBuilder:
             fallback_count=fallback,
             memory_dependence_model="native-affine-with-conservative-fallback",
             exact_affine_dependence=exact,
+            native_fallback_reasons=dict(sorted(fallback_reasons.items())),
         )
 
     def _add_conservative_memory_dependencies(self) -> None:

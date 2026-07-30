@@ -51,7 +51,11 @@ ALL_KERNEL = ['machsuite-gemm-blocked', 'machsuite-gemm-ncubed', 'machsuite-md-k
               'serrano-kalman-filter', 'spcl_example_00', 'spcl_example_01', 'spcl_example_03', 'spcl_example_05']
 
 
-parser.add_argument('--force_regen', type=bool, default=False) ## must be set to True for the first time to generate the dataset
+parser.add_argument(
+    '--force_regen',
+    action='store_true',
+    help='Regenerate cached graph tensors and feature encoders.',
+)
 parser.add_argument(
     '--allow_incomplete_dataset',
     action='store_true',

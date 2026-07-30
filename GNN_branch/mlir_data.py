@@ -98,7 +98,7 @@ Usage
    "mlir_data" (or rename this file to data.py for an isolated MLIR run).
 
 3. Run:
-       python main_GNN.py --dataset mlir --force_regen True
+       python main_GNN.py --dataset mlir --force_regen
 
 The first run fits new MLIR encoders.  Do not reuse the HARP encoders because
 the node and edge vocabularies are different.
@@ -168,7 +168,7 @@ INDEX_PATH = SAVE_DIR / "index.pt"
 ENCODER_PATH = SAVE_DIR / "encoders.pkl"
 PRAGMA_DIM_PATH = SAVE_DIR / "pragma_dim.pt"
 SCHEMA_PATH = SAVE_DIR / "feature_schema.json"
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v3-native-semantic"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v4-alias-fallback"
 
 
 # ---------------------------------------------------------------------------
@@ -183,7 +183,7 @@ NODE_TYPE_PRAGMA = 100
 NODE_TYPE_ARRAY_SCOPE = 104
 
 FLOW_PRAGMA = 200
-EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v3-native-semantic"
+EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v4-alias-fallback"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 
 PRAGMA_VECTOR_WIDTH = 5
@@ -771,6 +771,15 @@ def node_numeric_features(attrs: Mapping[str, Any]) -> list[float]:
         _as_bool01(bool(str(attrs.get("action_id", "")).strip())),
         _as_bool01(bool(str(attrs.get("source_location", "")).strip())),
         _as_bool01(attrs.get("is_memory_root")),
+        _as_bool01(attrs.get("native_operation_effect_read")),
+        _as_bool01(attrs.get("native_operation_effect_write")),
+        _as_bool01(attrs.get("native_operation_effect_allocate")),
+        _as_bool01(attrs.get("native_operation_effect_free")),
+        _as_bool01(attrs.get("native_operation_effect_unknown")),
+        # Stored and encoded with the shared graph-schema bound of eight.
+        min(8, max(0, _as_int(
+            attrs.get("native_operation_effect_count"), 0
+        ))) / 8.0,
     ]
 
 
@@ -795,6 +804,12 @@ NODE_NUMERIC_NAMES = [
     "is_action_anchor",
     "has_source_location",
     "is_memory_root",
+    "native_operation_effect_read",
+    "native_operation_effect_write",
+    "native_operation_effect_allocate",
+    "native_operation_effect_free",
+    "native_operation_effect_unknown",
+    "bounded_native_operation_effect_count",
 ]
 
 
@@ -825,7 +840,7 @@ EDGE_NUMERIC_NAMES = [
     "signed_log1p_position",
     "signed_log1p_operand_index",
     "distance_known",
-    "signed_log1p_dependence_depth",
+    "nonnegative_log1p_dependence_depth",
     "signed_log1p_first_nonzero_distance",
     "loop_carried",
 ]
@@ -1038,7 +1053,7 @@ def _require_native_graph(graph: nx.Graph, label: str) -> None:
         raise RuntimeError(
             f"{label}: old/incompatible graph schema; force_regen=True is required"
         )
-    if metadata.get("native_analysis_schema") != "mailohls-native-analysis-v2":
+    if metadata.get("native_analysis_schema") != "mailohls-native-analysis-v3":
         raise RuntimeError(f"{label}: conservative-only graph rejected in production")
 
 
