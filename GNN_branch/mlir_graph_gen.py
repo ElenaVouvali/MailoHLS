@@ -232,6 +232,7 @@ class ActionSpec:
     source_file: str = ""
     source_line: int = 0
     source_column: int = 0
+    declared_trip_count: int | None = None
     # Exact source lines where an array variable is read or written. These are
     # used only to disambiguate multiple same-shaped physical allocations.
     source_use_lines: tuple[int, ...] = ()
@@ -805,6 +806,19 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                     f"Lk,loop,trip_count; got {line!r}"
                 )
 
+            try:
+                declared_trip_count = int(fields[2])
+            except ValueError as exc:
+                raise ValueError(
+                    f"{kernel_info}:{line_number}: loop trip_count must be "
+                    f"a positive integer; got {fields[2]!r}"
+                ) from exc
+            if declared_trip_count <= 0:
+                raise ValueError(
+                    f"{kernel_info}:{line_number}: loop trip_count must be "
+                    f"positive; got {declared_trip_count}"
+                )
+
             actions.append(
                 ActionSpec(
                     action_id=action_id,
@@ -815,6 +829,7 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                     source_file=str(source_action["source_file"]),
                     source_line=int(source_action["source_line"]),
                     source_column=int(source_action["source_column"]),
+                    declared_trip_count=declared_trip_count,
                 )
             )
             continue
@@ -1475,8 +1490,18 @@ class MlirGraphBuilder:
         self._validate_native_analysis()
         self._add_ssa_edges()
         self._add_memory_shape_features()
-        for loop in self.loops:
-            self._annotate_loop_features(loop)
+        declared_loops: dict[int, ActionSpec] = {}
+        for spec in (item for item in self.actions if item.kind == "loop"):
+            loop_index, _ = self._resolve_loop_action(spec)
+            if loop_index in declared_loops:
+                other = declared_loops[loop_index]
+                raise RuntimeError(
+                    f"MLIR loop maps to both {other.action_id} and "
+                    f"{spec.action_id} while validating trip counts."
+                )
+            declared_loops[loop_index] = spec
+        for loop_index, loop in enumerate(self.loops):
+            self._annotate_loop_features(loop, declared_loops.get(loop_index))
         self._add_affine_access_features()
         self._add_control_and_region_edges()
         self._add_loop_carried_edges()
@@ -2593,7 +2618,11 @@ class MlirGraphBuilder:
                     role="affine_feature",
                 )
 
-    def _annotate_loop_features(self, loop: LoopInfo) -> None:
+    def _annotate_loop_features(
+        self,
+        loop: LoopInfo,
+        action: ActionSpec | None = None,
+    ) -> None:
         """
         Extract loop bounds, step, depth, and static trip-count features.
         """
@@ -2632,6 +2661,7 @@ class MlirGraphBuilder:
             else:
                 trip_count = max(0, math.ceil((lower - upper) / (-step)))
 
+        trip_count_source = "mlir" if trip_count is not None else "unknown"
         if record.op_name == "affine.for":
             native = self.native_affine_loops.get(
                 (self.functions[record.function_id], record.function_ordinal)
@@ -2649,6 +2679,25 @@ class MlirGraphBuilder:
                 if trip_count is not None:
                     self.native_trip_count_agreements += 1
                 trip_count = native_trip_count
+                trip_count_source = "native"
+
+        if action is not None:
+            declared = action.declared_trip_count
+            if declared is None:
+                raise RuntimeError(
+                    f"Loop action {action.action_id} has no declared trip count."
+                )
+            if trip_count is not None and trip_count != declared:
+                raise RuntimeError(
+                    f"Declared/MLIR trip-count mismatch for "
+                    f"{action.action_id} at {action.source_file}:"
+                    f"{action.source_line}:{action.source_column}: "
+                    f"declared={declared}, mlir={trip_count} "
+                    f"(source={trip_count_source})"
+                )
+            if trip_count is None:
+                trip_count = declared
+                trip_count_source = "kernel_info"
 
         data = self.graph.nodes[loop.op_node]
         data["loop_ordinal"] = loop.loop_ordinal
@@ -2657,6 +2706,7 @@ class MlirGraphBuilder:
         data["loop_step"] = step if step is not None else -1
         data["trip_count"] = trip_count if trip_count is not None else -1
         data["trip_count_static"] = 1 if trip_count is not None else 0
+        data["trip_count_source"] = trip_count_source
 
         if trip_count is not None:
             bucket = 0 if trip_count <= 1 else int(math.ceil(math.log2(trip_count)))
@@ -4768,6 +4818,7 @@ def build_cgeist_command(
     source: Path,
     kernel: str,
     mlir_output: Path,
+    action_manifest: Path,
     cflags: Sequence[str],
 ) -> list[str]:
     """Return the command used for every dataset example."""
@@ -4785,9 +4836,7 @@ def build_cgeist_command(
         # ARRAY_PARTITION action points must remain represented as MemRefs.
         # Polygeist enables affine scalar replacement by default even at -O0.
         "-scal-rep=0",
-        # Canonicalization forwards tiled scratchpad copies into their
-        # consumers and erases source loops that are MailoHLS action points.
-        "-canonicalizeiters=0",
+        f"-mailohls-action-manifest={action_manifest}",
         # Source locations are part of the MailoHLS action point mapping logic.
         # Without this cgeist retains locations internally but omits them from
         # the serialized MLIR.
@@ -4807,6 +4856,7 @@ def compile_source_to_mlir(
     source: Path,
     kernel: str,
     mlir_output: Path,
+    action_manifest: Path,
     cgeist: str,
     cflags: Sequence[str],
 ) -> tuple[list[str], str]:
@@ -4824,6 +4874,7 @@ def compile_source_to_mlir(
         source=source,
         kernel=kernel,
         mlir_output=mlir_output,
+        action_manifest=action_manifest,
         cflags=cflags,
     )
     completed = subprocess.run(
@@ -4987,10 +5038,20 @@ def run(args: argparse.Namespace) -> Path:
     # the sole persisted representation consumed by training.
     with tempfile.TemporaryDirectory(prefix="mailohls_mlir_") as directory:
         mlir_path = Path(directory) / f"{source.stem}.hls.mlir"
+        action_manifest = Path(directory) / "actions.tsv"
+        action_manifest.write_text(
+            "".join(
+                f"{item.action_id}\t{item.kind}\t{item.source_file}\t"
+                f"{item.source_line}\t{item.source_column}\n"
+                for item in actions
+            ),
+            encoding="utf-8",
+        )
         frontend_command, mlir_text = compile_source_to_mlir(
             source=source,
             kernel=kernel,
             mlir_output=mlir_path,
+            action_manifest=action_manifest,
             cgeist=args.cgeist,
             cflags=cflags,
         )
@@ -5017,8 +5078,7 @@ def run(args: argparse.Namespace) -> Path:
                     "action_sha256": hashlib.sha256(kernel_info.read_bytes()).hexdigest(),
                     "mlir_level": "affine+scf+memref+arith+func",
                     "frontend_policy": (
-                        "cgeist:-O0,scal-rep=0,canonicalizeiters=0,"
-                        "print-debug-info,"
+                        "cgeist:-O0,scal-rep=0,print-debug-info,"
                         "noinline-helpers,memref-fullrank,"
                         "raise-scf-to-affine,"
                         "preserve-action-memref-shapes="
