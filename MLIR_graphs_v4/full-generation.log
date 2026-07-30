@@ -1,0 +1,181 @@
+Repository: /home/elvouvali/MailoHLS
+Kernel set: 55 of 55 configured kernels
+Output:     /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4
+Python:     /home/elvouvali/.mlir-python311/bin/python
+cgeist:    /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist
+cgeist SHA-256:  e71672489b4bb9f001ebfd33f468fce2cc334ea9f8cf21d05c5cf752135262cb
+generator SHA-256: f2635ff73f0cfbbc413052e711851db4d968fa80fb135a05a07568f3d40d8521
+
+[01/55] RUN  machsuite-gemm-blocked
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/machsuite-gemm-blocked/gemm.c --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.machsuite-gemm-blocked.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.machsuite-gemm-blocked.mlir.tmp
+  OK   in 1.37s: 67 nodes, 251 edges, 5 actions
+[02/55] RUN  machsuite-gemm-ncubed
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/machsuite-gemm-ncubed/gemm.c --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.machsuite-gemm-ncubed.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.machsuite-gemm-ncubed.mlir.tmp
+  OK   in 1.32s: 56 nodes, 203 edges, 3 actions
+[03/55] RUN  machsuite-md-knn
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/machsuite-md-knn/md.c --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.machsuite-md-knn.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.machsuite-md-knn.mlir.tmp
+  OK   in 1.40s: 138 nodes, 597 edges, 2 actions
+[04/55] RUN  machsuite-sort-radix
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/machsuite-sort-radix/sort.c --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.machsuite-sort-radix.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.machsuite-sort-radix.mlir.tmp
+  OK   in 1.58s: 311 nodes, 1216 edges, 11 actions
+[05/55] RUN  machsuite-spmv-ellpack
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/machsuite-spmv-ellpack/spmv.c --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.machsuite-spmv-ellpack.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.machsuite-spmv-ellpack.mlir.tmp
+  OK   in 1.24s: 58 nodes, 216 edges, 2 actions
+[06/55] RUN  machsuite-stencil2d
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/machsuite-stencil2d/stencil.c --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.machsuite-stencil2d.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.machsuite-stencil2d.mlir.tmp
+  OK   in 1.43s: 65 nodes, 239 edges, 4 actions
+[07/55] RUN  machsuite-stencil3d
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/machsuite-stencil3d/stencil.c --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.machsuite-stencil3d.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.machsuite-stencil3d.mlir.tmp
+  OK   in 1.60s: 137 nodes, 785 edges, 9 actions
+[08/55] RUN  machsuite-viterbi
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/machsuite-viterbi/viterbi.c --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.machsuite-viterbi.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.machsuite-viterbi.mlir.tmp
+  OK   in 1.56s: 251 nodes, 1059 edges, 8 actions
+[09/55] RUN  rodinia-backprop-0-baseline-back
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-backprop-0-baseline-back/backprop_kernel.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-backprop-0-baseline-back.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-backprop-0-baseline-back.mlir.tmp
+  OK   in 1.49s: 76 nodes, 312 edges, 2 actions
+[10/55] RUN  rodinia-backprop-0-baseline-forward
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-backprop-0-baseline-forward/backprop_kernel.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-backprop-0-baseline-forward.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-backprop-0-baseline-forward.mlir.tmp
+  OK   in 1.86s: 209 nodes, 778 edges, 6 actions
+[11/55] RUN  rodinia-backprop-1-tiling-back
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-backprop-1-tiling-back/backprop_kernel.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-backprop-1-tiling-back.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-backprop-1-tiling-back.mlir.tmp
+  OK   in 1.92s: 409 nodes, 1608 edges, 10 actions
+[12/55] RUN  rodinia-hotspot-0-baseline
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-hotspot-0-baseline/hotspot.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-hotspot-0-baseline.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-hotspot-0-baseline.mlir.tmp
+  OK   in 3.40s: 635 nodes, 2648 edges, 3 actions
+[13/55] RUN  rodinia-hotspot-1-tiling
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-hotspot-1-tiling/hotspot.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-hotspot-1-tiling.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-hotspot-1-tiling.mlir.tmp
+  OK   in 2.35s: 537 nodes, 2207 edges, 8 actions
+[14/55] RUN  rodinia-hotspot-2-pipeline
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-hotspot-2-pipeline/hotspot.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-hotspot-2-pipeline.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-hotspot-2-pipeline.mlir.tmp
+  OK   in 2.64s: 704 nodes, 2931 edges, 19 actions
+[15/55] RUN  rodinia-hotspot-3-unroll
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-hotspot-3-unroll/hotspot.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-hotspot-3-unroll.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-hotspot-3-unroll.mlir.tmp
+  OK   in 2.61s: 704 nodes, 2931 edges, 19 actions
+[16/55] RUN  rodinia-kmeans-0-baseline
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-kmeans-0-baseline/kmeans.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-kmeans-0-baseline.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-kmeans-0-baseline.mlir.tmp
+  OK   in 1.50s: 73 nodes, 272 edges, 3 actions
+[17/55] RUN  rodinia-kmeans-1-tiling
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-kmeans-1-tiling/kmeans.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-kmeans-1-tiling.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-kmeans-1-tiling.mlir.tmp
+  OK   in 1.74s: 250 nodes, 951 edges, 12 actions
+[18/55] RUN  rodinia-kmeans-2-pipeline
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-kmeans-2-pipeline/kmeans.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-kmeans-2-pipeline.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-kmeans-2-pipeline.mlir.tmp
+  OK   in 1.66s: 250 nodes, 951 edges, 12 actions
+[19/55] RUN  rodinia-kmeans-3-unroll
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-kmeans-3-unroll/kmeans.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-kmeans-3-unroll.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-kmeans-3-unroll.mlir.tmp
+  OK   in 1.70s: 250 nodes, 951 edges, 12 actions
+[20/55] RUN  rodinia-knn-0-baseline
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-0-baseline/knn.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-knn-0-baseline.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-knn-0-baseline.mlir.tmp
+  OK   in 1.24s: 51 nodes, 185 edges, 2 actions
+[21/55] RUN  rodinia-knn-1-tiling
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-1-tiling/knn.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-knn-1-tiling.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-knn-1-tiling.mlir.tmp
+  OK   in 1.44s: 200 nodes, 768 edges, 9 actions
+[22/55] RUN  rodinia-knn-2-pipeline
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-2-pipeline/knn.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-knn-2-pipeline.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-knn-2-pipeline.mlir.tmp
+  OK   in 1.39s: 200 nodes, 768 edges, 9 actions
+[23/55] RUN  rodinia-knn-3-unroll
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-3-unroll/knn.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-knn-3-unroll.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-knn-3-unroll.mlir.tmp
+  OK   in 1.57s: 207 nodes, 794 edges, 10 actions
+[24/55] RUN  rodinia-knn-4-doublebuffer
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-4-doublebuffer/knn.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-knn-4-doublebuffer.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-knn-4-doublebuffer.mlir.tmp
+  OK   in 1.81s: 357 nodes, 1413 edges, 12 actions
+[25/55] RUN  rodinia-knn-5-coalescing
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-5-coalescing/knn.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia-knn-5-coalescing.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia-knn-5-coalescing.mlir.tmp
+  OK   in 1.76s: 394 nodes, 1580 edges, 13 actions
+[26/55] RUN  rodinia_cfd_flux_0_baseline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_flux_0_baseline_0/cfd_flux.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_cfd_flux_0_baseline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_cfd_flux_0_baseline_0.mlir.tmp
+  OK   in 4.20s: 970 nodes, 5240 edges, 2 actions
+[27/55] RUN  rodinia_cfd_step_factor_0_baseline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_0_baseline_0/cfd_step_factor.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_cfd_step_factor_0_baseline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_cfd_step_factor_0_baseline_0.mlir.tmp
+  OK   in 1.84s: 294 nodes, 1220 edges, 1 actions
+[28/55] RUN  rodinia_cfd_step_factor_1_tiling_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/cfd_step_factor.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_cfd_step_factor_1_tiling_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_cfd_step_factor_1_tiling_0.mlir.tmp
+  OK   in 1.93s: 397 nodes, 1637 edges, 4 actions
+[29/55] RUN  rodinia_cfd_step_factor_2_pipeline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/cfd_step_factor.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_cfd_step_factor_2_pipeline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_cfd_step_factor_2_pipeline_0.mlir.tmp
+  OK   in 1.86s: 404 nodes, 1695 edges, 7 actions
+[30/55] RUN  rodinia_cfd_step_factor_3_unroll_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/cfd_step_factor.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_cfd_step_factor_3_unroll_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_cfd_step_factor_3_unroll_0.mlir.tmp
+  OK   in 2.85s: 633 nodes, 3512 edges, 8 actions
+[31/55] RUN  rodinia_cfd_step_factor_4_doublebuffer_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_4_doublebuffer_0/cfd_step_factor.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_cfd_step_factor_4_doublebuffer_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_cfd_step_factor_4_doublebuffer_0.mlir.tmp
+  OK   in 3.99s: 1044 nodes, 6187 edges, 18 actions
+[32/55] RUN  rodinia_cfd_step_factor_5_coalescing_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_5_coalescing_0/cfd_step_factor.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_cfd_step_factor_5_coalescing_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_cfd_step_factor_5_coalescing_0.mlir.tmp
+  OK   in 3.78s: 955 nodes, 5975 edges, 18 actions
+[33/55] RUN  rodinia_dilate_0_baseline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_dilate_0_baseline_0/dilate.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_dilate_0_baseline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_dilate_0_baseline_0.mlir.tmp
+  OK   in 1.55s: 118 nodes, 585 edges, 5 actions
+[34/55] RUN  rodinia_dilate_1_tiling_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_dilate_1_tiling_0/dilate.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_dilate_1_tiling_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_dilate_1_tiling_0.mlir.tmp
+  OK   in 1.78s: 284 nodes, 1202 edges, 12 actions
+[35/55] RUN  rodinia_dilate_2_pipeline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/dilate.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_dilate_2_pipeline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_dilate_2_pipeline_0.mlir.tmp
+  OK   in 1.97s: 404 nodes, 1703 edges, 20 actions
+[36/55] RUN  rodinia_dilate_3_pipeline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/dilate.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_dilate_3_pipeline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_dilate_3_pipeline_0.mlir.tmp
+  OK   in 2.28s: 554 nodes, 2385 edges, 35 actions
+[37/55] RUN  rodinia_lavaMD_0_baseline
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_lavaMD_0_baseline/lavaMD.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_lavaMD_0_baseline.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_lavaMD_0_baseline.mlir.tmp
+  OK   in 2.67s: 390 nodes, 3402 edges, 5 actions
+[38/55] RUN  rodinia_lavaMD_1_tiling_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_lavaMD_1_tiling_0/lavaMD.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_lavaMD_1_tiling_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_lavaMD_1_tiling_0.mlir.tmp
+  FAIL in 2.79s: exit=2; log=/home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/logs/rodinia_lavaMD_1_tiling_0.log
+[39/55] RUN  rodinia_lavaMD_1_tiling_1
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_lavaMD_1_tiling_1/lavaMD_flattenedArray.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_lavaMD_1_tiling_1.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_lavaMD_1_tiling_1.mlir.tmp
+  FAIL in 2.79s: exit=2; log=/home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/logs/rodinia_lavaMD_1_tiling_1.log
+[40/55] RUN  rodinia_lavaMD_2_pipeline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_lavaMD_2_pipeline_0/lavaMD.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_lavaMD_2_pipeline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_lavaMD_2_pipeline_0.mlir.tmp
+  FAIL in 2.48s: exit=2; log=/home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/logs/rodinia_lavaMD_2_pipeline_0.log
+[41/55] RUN  rodinia_lc_gicov_0_baseline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_lc_gicov_0_baseline_0/lc_gicov.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_lc_gicov_0_baseline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_lc_gicov_0_baseline_0.mlir.tmp
+  OK   in 2.35s: 343 nodes, 2233 edges, 11 actions
+[42/55] RUN  rodinia_lc_mgvf_0_baseline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_lc_mgvf_0_baseline_0/lc_mgvf.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_lc_mgvf_0_baseline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_lc_mgvf_0_baseline_0.mlir.tmp
+  OK   in 2.14s: 320 nodes, 1271 edges, 3 actions
+[43/55] RUN  rodinia_lud_1_tiling_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_lud_1_tiling_0/lud.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_lud_1_tiling_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_lud_1_tiling_0.mlir.tmp
+  OK   in 4.19s: 1354 nodes, 5471 edges, 46 actions
+[44/55] RUN  rodinia_pathfinder_0_baseline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_pathfinder_0_baseline_0/pathfinder.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_pathfinder_0_baseline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_pathfinder_0_baseline_0.mlir.tmp
+  OK   in 1.53s: 199 nodes, 865 edges, 4 actions
+[45/55] RUN  rodinia_pathfinder_4_doublebuffer_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_pathfinder_4_doublebuffer_0/pathfinder.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_pathfinder_4_doublebuffer_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_pathfinder_4_doublebuffer_0.mlir.tmp
+  OK   in 1.80s: 424 nodes, 1858 edges, 8 actions
+[46/55] RUN  rodinia_streamcluster_0_baseline_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_0_baseline_0/streamcluster.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_streamcluster_0_baseline_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_streamcluster_0_baseline_0.mlir.tmp
+  OK   in 1.35s: 114 nodes, 501 edges, 2 actions
+[47/55] RUN  rodinia_streamcluster_1_tiling_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_1_tiling_0/streamcluster.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_streamcluster_1_tiling_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_streamcluster_1_tiling_0.mlir.tmp
+  OK   in 2.01s: 636 nodes, 2640 edges, 14 actions
+[48/55] RUN  rodinia_streamcluster_2_pipeline_1
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_2_pipeline_1/streamcluster.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_streamcluster_2_pipeline_1.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_streamcluster_2_pipeline_1.mlir.tmp
+  OK   in 2.00s: 636 nodes, 2640 edges, 14 actions
+[49/55] RUN  rodinia_streamcluster_3_doublebuffer_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_3_doublebuffer_0/streamcluster.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_streamcluster_3_doublebuffer_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_streamcluster_3_doublebuffer_0.mlir.tmp
+  OK   in 2.39s: 841 nodes, 3531 edges, 18 actions
+[50/55] RUN  rodinia_streamcluster_4_coalescing_0
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_4_coalescing_0/streamcluster.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.rodinia_streamcluster_4_coalescing_0.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.rodinia_streamcluster_4_coalescing_0.mlir.tmp
+  OK   in 2.93s: 945 nodes, 3922 edges, 18 actions
+[51/55] RUN  serrano-kalman-filter
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/serrano-kalman-filter/kernel.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.serrano-kalman-filter.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.serrano-kalman-filter.mlir.tmp
+  OK   in 1.95s: 520 nodes, 2129 edges, 11 actions
+[52/55] RUN  spcl_example_00
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/spcl_example_00/Example0.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.spcl_example_00.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.spcl_example_00.mlir.tmp
+  OK   in 1.25s: 36 nodes, 132 edges, 1 actions
+[53/55] RUN  spcl_example_01
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/spcl_example_01/Example1_Pipelined.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.spcl_example_01.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.spcl_example_01.mlir.tmp
+  OK   in 1.32s: 54 nodes, 203 edges, 1 actions
+[54/55] RUN  spcl_example_03
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/spcl_example_03/Example3.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.spcl_example_03.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.spcl_example_03.mlir.tmp
+  OK   in 1.32s: 83 nodes, 315 edges, 6 actions
+[55/55] RUN  spcl_example_05
+  /home/elvouvali/.mlir-python311/bin/python /home/elvouvali/MailoHLS/GNN_branch/mlir_graph_gen.py /home/elvouvali/MailoHLS/Data/ApplicationDataset/spcl_example_05/Example5_Reordered.cpp --output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/.spcl_example_05.gexf.tmp --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/audit_mlir/.spcl_example_05.mlir.tmp
+  OK   in 1.39s: 78 nodes, 297 edges, 5 actions
+
+Valid outputs: 52/55
+Manifest:      /home/elvouvali/mlir_graph_experiments/2026-07-30-full-v4/generation_manifest.csv
+Invalid or missing outputs:
+  - rodinia_lavaMD_1_tiling_0: missing or empty
+  - rodinia_lavaMD_1_tiling_1: missing or empty
+  - rodinia_lavaMD_2_pipeline_0: missing or empty
+Failures:      rodinia_lavaMD_1_tiling_0, rodinia_lavaMD_1_tiling_1, rodinia_lavaMD_2_pipeline_0
