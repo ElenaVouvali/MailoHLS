@@ -267,13 +267,29 @@ def graph_action_ids(graph: nx.MultiDiGraph) -> set[str]:
     }
 
 
-def graph_fallback_resolutions(graph: nx.MultiDiGraph) -> set[str]:
-    return {
-        str(data.get("action_resolution", "")).strip()
-        for _, data in graph.nodes(data=True)
-        if "fallback"
-        in str(data.get("action_resolution", "")).strip().lower()
-    }
+EXACT_ACTION_RESOLUTIONS = {
+    "source_location",
+    "source_location+ordinal",
+}
+
+
+def graph_non_exact_resolutions(
+    graph: nx.MultiDiGraph,
+) -> set[str]:
+    resolutions: set[str] = set()
+
+    for _, data in graph.nodes(data=True):
+        resolution = str(
+            data.get("action_resolution", "")
+        ).strip()
+
+        if (
+            resolution
+            and resolution not in EXACT_ACTION_RESOLUTIONS
+        ):
+            resolutions.add(resolution)
+
+    return resolutions
 
 
 def read_graph_metadata(graph: nx.MultiDiGraph) -> tuple[dict[str, object] | None, str]:
@@ -307,6 +323,162 @@ def _metadata_string(
     key: str,
 ) -> str:
     return str(metadata.get(key, "")).strip()
+
+
+FLOW_MEMORY_DEPENDENCE = 12
+FLOW_MEMORY_UNCERTAINTY = 13
+
+EXPECTED_MEMORY_DEPENDENCE_MODEL = (
+    "native-affine-proven-with-"
+    "root-summarized-uncertainty"
+)
+
+
+def metadata_int(
+    metadata: dict[str, object],
+    key: str,
+) -> int:
+    value = metadata.get(key)
+
+    if value is None or isinstance(value, bool):
+        raise ValueError(
+            f"{key} must be an integer"
+        )
+
+    return int(value)
+
+
+def validate_memory_contract(
+    graph: nx.MultiDiGraph,
+    metadata: dict[str, object],
+) -> tuple[bool, str]:
+    proven_edges: list[dict[str, object]] = []
+    uncertainty_edges: list[
+        tuple[str, str, dict[str, object]]
+    ] = []
+
+    for source, target, _, data in graph.edges(
+        keys=True,
+        data=True,
+    ):
+        flow = int(data.get("flow", -1))
+
+        if flow == FLOW_MEMORY_DEPENDENCE:
+            proven_edges.append(data)
+
+            if str(data.get("certainty", "")) != "proven":
+                return (
+                    False,
+                    "flow-12 edge is not compiler-proven",
+                )
+
+        elif flow == FLOW_MEMORY_UNCERTAINTY:
+            uncertainty_edges.append(
+                (source, target, data)
+            )
+
+    uncertainty_nodes = {
+        node
+        for node, data in graph.nodes(data=True)
+        if str(data.get("feature_kind", ""))
+        == "memory_uncertainty"
+    }
+
+    if len(uncertainty_edges) != len(uncertainty_nodes):
+        return (
+            False,
+            "uncertainty feature/edge cardinality mismatch",
+        )
+
+    for source, target, data in uncertainty_edges:
+        if source not in uncertainty_nodes:
+            return (
+                False,
+                "flow-13 source is not a memory-uncertainty node",
+            )
+
+        if int(
+            graph.nodes[target].get(
+                "is_memory_root", 0
+            )
+        ) != 1:
+            return (
+                False,
+                "flow-13 edge does not target a memory root",
+            )
+
+        if str(data.get("certainty", "")) != "may":
+            return (
+                False,
+                "flow-13 edge must have certainty=may",
+            )
+
+        if str(data.get("analysis", "")) != (
+            "native-unresolved-root-summary"
+        ):
+            return (
+                False,
+                "flow-13 edge has an invalid analysis tag",
+            )
+
+        if not str(
+            data.get("fallback_reason", "")
+        ).strip():
+            return (
+                False,
+                "flow-13 edge has no fallback reason",
+            )
+
+    if metadata.get("memory_dependence_model") != (
+        EXPECTED_MEMORY_DEPENDENCE_MODEL
+    ):
+        return (
+            False,
+            "unexpected memory-dependence model",
+        )
+
+    fallback_reasons = metadata.get(
+        "native_fallback_reasons"
+    )
+    if not isinstance(fallback_reasons, dict):
+        return (
+            False,
+            "invalid native_fallback_reasons metadata",
+        )
+
+    unresolved_queries = sum(
+        int(value)
+        for value in fallback_reasons.values()
+    )
+
+    if metadata_int(
+        metadata,
+        "proven_dependence_edge_count",
+    ) != len(proven_edges):
+        return (
+            False,
+            "proven-dependence edge-count mismatch",
+        )
+
+    if metadata_int(
+        metadata,
+        "root_uncertainty_feature_count",
+    ) != len(uncertainty_nodes):
+        return (
+            False,
+            "root-uncertainty feature-count mismatch",
+        )
+
+    if metadata_int(
+        metadata,
+        "unresolved_dependence_query_count",
+    ) != unresolved_queries:
+        return (
+            False,
+            "unresolved-query count mismatch",
+        )
+
+    return True, ""
 
 
 def validate_existing_graph(
@@ -366,12 +538,12 @@ def validate_existing_graph(
             f"missing={missing}, unexpected={unexpected}",
         )
 
-    fallback_resolutions = graph_fallback_resolutions(graph)
-    if fallback_resolutions:
+    non_exact_resolutions = graph_non_exact_resolutions(graph)
+    if non_exact_resolutions:
         return (
             False,
             "contains non-exact action mappings: "
-            f"{sorted(fallback_resolutions)}",
+            f"{sorted(non_exact_resolutions)}",
         )
 
     metadata_resolutions = metadata.get("action_resolutions", {})
@@ -385,16 +557,18 @@ def validate_existing_graph(
     except (TypeError, ValueError) as exc:
         return False, f"invalid action_resolutions counts: {exc}"
 
-    metadata_fallbacks = {
+    metadata_non_exact = {
         name
         for name, count in normalized_resolutions.items()
-        if "fallback" in name.lower() and count > 0
+        if count > 0
+        and name not in EXACT_ACTION_RESOLUTIONS
     }
-    if metadata_fallbacks:
+
+    if metadata_non_exact:
         return (
             False,
             "metadata contains non-exact action mappings: "
-            f"{sorted(metadata_fallbacks)}",
+            f"{sorted(metadata_non_exact)}",
         )
 
     mapped_action_count = sum(normalized_resolutions.values())
@@ -445,6 +619,13 @@ def validate_existing_graph(
     frontend_policy = _metadata_string(metadata, "frontend_policy")
     if not frontend_policy:
         return False, "metadata contains no frontend_policy"
+
+    memory_ok, memory_error = (
+        validate_memory_contract(graph, metadata)
+    )
+
+    if not memory_ok:
+        return False, memory_error
 
     return (
         True,

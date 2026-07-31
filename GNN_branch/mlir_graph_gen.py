@@ -127,6 +127,10 @@ PERSISTED_GRAPH_METADATA_KEYS = (
     "binding_sha256",
     "native_analysis_coverage",
     "proven_independent_count",
+    "proven_dependence_edge_count",
+    "unresolved_dependence_query_count",
+    "root_uncertainty_feature_count",
+    "memory_dependence_model",
     "native_fallback_reasons",
     "native_alias_classifications",
     "must_alias_component_sizes",
@@ -3778,8 +3782,8 @@ class MLIRGraphBuilder:
                 ),
                 loop_carried=bool(query.get("loop_carried", False)),
             )
-            if source != target or bool(query.get("loop_carried", False)):
-                exact += 1
+            exact += 1
+            
         fallback = sum(
             int(data.get("flow", -1)) == FLOW_MEMORY_DEPENDENCE
             and str(data.get("certainty")) != "proven"
