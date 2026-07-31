@@ -14,14 +14,14 @@
 #set2 = affine_set<(d0) : (d0 - 1 >= 0)>
 #set3 = affine_set<(d0) : (-d0 + 1022 >= 0)>
 #set4 = affine_set<(d0)[s0] : (-d0 - s0 * 16 + 1022 >= 0)>
-module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<"dlti.endianness", "little">, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
+module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>, #dlti.dl_entry<"dlti.endianness", "little">>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
   func.func @workload(%arg0: memref<1048576xi32> loc("pathfinder.cpp":40:6), %arg1: memref<1024xi32> loc("pathfinder.cpp":40:6)) attributes {llvm.linkage = #llvm.linkage<external>} {
     %c-1_i32 = arith.constant -1 : i32 loc(#loc2)
     %c63_i32 = arith.constant 63 : i32 loc(#loc3)
-    %alloca = memref.alloca() : memref<16384xi32> loc(#loc4)
-    %alloca_0 = memref.alloca() : memref<16384xi32> loc(#loc5)
-    %alloca_1 = memref.alloca() : memref<1024xi32> loc(#loc6)
-    %alloca_2 = memref.alloca() : memref<1024xi32> loc(#loc7)
+    %alloca = memref.alloca() {mailohls.action_id = "L7", mailohls.action_kind = "array"} : memref<16384xi32> loc(#loc4)
+    %alloca_0 = memref.alloca() {mailohls.action_id = "L6", mailohls.action_kind = "array"} : memref<16384xi32> loc(#loc5)
+    %alloca_1 = memref.alloca() {mailohls.action_id = "L5", mailohls.action_kind = "array"} : memref<1024xi32> loc(#loc6)
+    %alloca_2 = memref.alloca() {mailohls.action_id = "L4", mailohls.action_kind = "array"} : memref<1024xi32> loc(#loc7)
     %0 = "polygeist.memref2pointer"(%alloca_2) : (memref<1024xi32>) -> !llvm.ptr loc(#loc8)
     %1 = "polygeist.memref2pointer"(%arg0) : (memref<1048576xi32>) -> !llvm.ptr loc(#loc9)
     affine.for %arg2 loc("pathfinder.cpp":55:2) = 0 to 4096 {
@@ -166,10 +166,10 @@ module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f16, dense<16> : 
 #loc = loc(unknown)
 #loc2 = loc("pathfinder.cpp":58:27)
 #loc3 = loc("pathfinder.cpp":67:48)
-#loc4 = loc("pathfinder.cpp":53:5)
-#loc5 = loc("pathfinder.cpp":52:5)
-#loc6 = loc("pathfinder.cpp":49:5)
-#loc7 = loc("pathfinder.cpp":48:5)
+#loc4 = loc("pathfinder.cpp":53:13)
+#loc5 = loc("pathfinder.cpp":52:13)
+#loc6 = loc("pathfinder.cpp":49:13)
+#loc7 = loc("pathfinder.cpp":48:13)
 #loc8 = loc("pathfinder.cpp":55:9)
 #loc9 = loc("pathfinder.cpp":55:13)
 #loc11 = loc("pathfinder.cpp":56:9)
@@ -208,7 +208,7 @@ module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f16, dense<16> : 
 #loc48 = loc("pathfinder.cpp":37:16)
 #loc50 = loc("pathfinder.cpp":38:1)
 #loc52 = loc("pathfinder.cpp":15:25)
-#loc53 = loc("pathfinder.cpp":8:2)
+#loc53 = loc("pathfinder.cpp":8:16)
 #loc56 = loc("pathfinder.cpp":12:10)
 #loc57 = loc("pathfinder.cpp":12:8)
 #loc58 = loc("pathfinder.cpp":14:4)

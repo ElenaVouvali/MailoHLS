@@ -12,18 +12,18 @@
 #set = affine_set<(d0) : (d0 >= 0)>
 #set1 = affine_set<(d0) : (d0 - 1 >= 0)>
 #set2 = affine_set<(d0) : (d0 mod 2 == 0)>
-module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>, #dlti.dl_entry<"dlti.endianness", "little">>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
+module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>, #dlti.dl_entry<"dlti.endianness", "little">>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
   func.func @workload(%arg0: memref<2xf32> loc("knn.cpp":44:6), %arg1: memref<2097152xf32> loc("knn.cpp":44:6), %arg2: memref<1048576xf32> loc("knn.cpp":44:6)) attributes {llvm.linkage = #llvm.linkage<external>} {
     %c-2_i32 = arith.constant -2 : i32 loc(#loc2)
     %c2049_i32 = arith.constant 2049 : i32 loc(#loc3)
     %c2048_i32 = arith.constant 2048 : i32 loc(#loc4)
     %false = arith.constant false loc(#loc5)
     %c2_i32 = arith.constant 2 : i32 loc(#loc2)
-    %alloca = memref.alloca() : memref<512xf32> loc(#loc6)
-    %alloca_0 = memref.alloca() : memref<512xf32> loc(#loc7)
-    %alloca_1 = memref.alloca() : memref<1024xf32> loc(#loc8)
-    %alloca_2 = memref.alloca() : memref<1024xf32> loc(#loc9)
-    %alloca_3 = memref.alloca() : memref<2xf32> loc(#loc10)
+    %alloca = memref.alloca() {mailohls.action_id = "L10", mailohls.action_kind = "array"} : memref<512xf32> loc(#loc6)
+    %alloca_0 = memref.alloca() {mailohls.action_id = "L9", mailohls.action_kind = "array"} : memref<512xf32> loc(#loc7)
+    %alloca_1 = memref.alloca() {mailohls.action_id = "L8", mailohls.action_kind = "array"} : memref<1024xf32> loc(#loc8)
+    %alloca_2 = memref.alloca() {mailohls.action_id = "L7", mailohls.action_kind = "array"} : memref<1024xf32> loc(#loc9)
+    %alloca_3 = memref.alloca() {mailohls.action_id = "L6", mailohls.action_kind = "array"} : memref<2xf32> loc(#loc10)
     affine.for %arg3 loc("knn.cpp":65:39) = 0 to 2 {
       %0 = affine.load %arg0[%arg3] : memref<2xf32> loc(#loc12)
       affine.store %0, %alloca_3[%arg3] : memref<2xf32> loc(#loc13)
@@ -125,11 +125,11 @@ module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f16, dense<16> : 
 #loc3 = loc("knn.cpp":71:60)
 #loc4 = loc("./knn.h":18:45)
 #loc5 = loc("knn.cpp":70:33)
-#loc6 = loc("knn.cpp":63:9)
-#loc7 = loc("knn.cpp":62:8)
-#loc8 = loc("knn.cpp":60:8)
-#loc9 = loc("knn.cpp":59:8)
-#loc10 = loc("knn.cpp":57:5)
+#loc6 = loc("knn.cpp":63:15)
+#loc7 = loc("knn.cpp":62:14)
+#loc8 = loc("knn.cpp":60:14)
+#loc9 = loc("knn.cpp":59:14)
+#loc10 = loc("knn.cpp":57:11)
 #loc12 = loc("knn.cpp":66:25)
 #loc13 = loc("knn.cpp":66:23)
 #loc14 = loc("knn.cpp":75:46)

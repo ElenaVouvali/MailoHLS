@@ -139,9 +139,9 @@ ROOT = Path(get_root_path()).resolve()
 DATASET_NAME = "MLIR_dataset"
 
 GEXF_DIR_CANDIDATES = (
-    ROOT / "GNN_branch" / "MLIR_graphs",
-    ROOT / "MLIR_graphs",
-)
+     ROOT / "GNN_branch" / "MLIR_graphs",
+     ROOT / "MLIR_graphs",
+ )
 
 APPLICATION_DIR_CANDIDATES = (
     ROOT / "GNN_branch" / "Data" / "ApplicationDataset",
@@ -168,8 +168,8 @@ INDEX_PATH = SAVE_DIR / "index.pt"
 ENCODER_PATH = SAVE_DIR / "encoders.pkl"
 PRAGMA_DIM_PATH = SAVE_DIR / "pragma_dim.pt"
 SCHEMA_PATH = SAVE_DIR / "feature_schema.json"
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v5-native-tripcount"
-EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v5-native-tripcount"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-native-tripcount" #-v5
+EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-native-tripcount" #-v5
 
 
 # ---------------------------------------------------------------------------
@@ -184,7 +184,7 @@ NODE_TYPE_PRAGMA = 100
 NODE_TYPE_ARRAY_SCOPE = 104
 
 FLOW_PRAGMA = 200
-GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
+GRAPH_METADATA_PREFIX = "mailohls-meta:" # -v1:"
 
 PRAGMA_VECTOR_WIDTH = 5
 PIPELINE_COL = 0
@@ -1053,7 +1053,7 @@ def _require_native_graph(graph: nx.Graph, label: str) -> None:
         raise RuntimeError(
             f"{label}: old/incompatible graph schema; force_regen=True is required"
         )
-    if metadata.get("native_analysis_schema") != "mailohls-native-analysis-v3":
+    if metadata.get("native_analysis_schema") != "mailohls-native-analysis-v3": 
         raise RuntimeError(f"{label}: conservative-only graph rejected in production")
 
 

@@ -6,7 +6,7 @@
 #loc36 = loc("pathfinder.cpp":59:2)
 #set = affine_set<(d0) : (d0 - 1 >= 0)>
 #set1 = affine_set<(d0) : (-d0 + 1022 >= 0)>
-module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<"dlti.endianness", "little">, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
+module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>, #dlti.dl_entry<"dlti.endianness", "little">>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
   func.func @workload(%arg0: memref<1048576xi32> loc("pathfinder.cpp":28:6), %arg1: memref<1024xi32> loc("pathfinder.cpp":28:6)) attributes {llvm.linkage = #llvm.linkage<external>} {
     %c-1_i32 = arith.constant -1 : i32 loc(#loc2)
     %c1_i32 = arith.constant 1 : i32 loc(#loc2)
@@ -14,8 +14,8 @@ module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f80, dense<128> :
     %cast = memref.cast %alloca : memref<1xi32> to memref<?xi32> loc(#loc3)
     %0 = llvm.mlir.undef : i32 loc(#loc3)
     affine.store %0, %alloca[0] : memref<1xi32> loc(#loc3)
-    %alloca_0 = memref.alloca() : memref<1024xi32> loc(#loc4)
-    %alloca_1 = memref.alloca() : memref<1024xi32> loc(#loc5)
+    %alloca_0 = memref.alloca() {mailohls.action_id = "L4", mailohls.action_kind = "array"} : memref<1024xi32> loc(#loc4)
+    %alloca_1 = memref.alloca() {mailohls.action_id = "L3", mailohls.action_kind = "array"} : memref<1024xi32> loc(#loc5)
     %1 = "polygeist.memref2pointer"(%alloca_1) : (memref<1024xi32>) -> !llvm.ptr loc(#loc6)
     %2 = "polygeist.memref2pointer"(%arg0) : (memref<1048576xi32>) -> !llvm.ptr loc(#loc7)
     affine.for %arg2 loc("pathfinder.cpp":41:2) = 0 to 4096 {
@@ -89,9 +89,9 @@ module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f80, dense<128> :
 } loc(#loc)
 #loc = loc(unknown)
 #loc2 = loc("pathfinder.cpp":48:25)
-#loc3 = loc("pathfinder.cpp":39:2)
-#loc4 = loc("pathfinder.cpp":37:5)
-#loc5 = loc("pathfinder.cpp":36:5)
+#loc3 = loc("pathfinder.cpp":39:10)
+#loc4 = loc("pathfinder.cpp":37:13)
+#loc5 = loc("pathfinder.cpp":36:13)
 #loc6 = loc("pathfinder.cpp":41:9)
 #loc7 = loc("pathfinder.cpp":41:13)
 #loc9 = loc("pathfinder.cpp":57:10)

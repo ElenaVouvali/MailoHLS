@@ -4,13 +4,13 @@
 #loc9 = loc("dilate.cpp":24:25)
 #loc10 = loc("dilate.cpp":25:26)
 #set = affine_set<(d0, d1, d2, d3) : (d0 + d2 - 2 >= 0, d1 + d3 - 2 >= 0, -d0 - d2 + 545 >= 0, -d1 - d3 + 513 >= 0)>
-module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<"dlti.endianness", "little">, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
+module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<"dlti.endianness", "little">, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
   func.func @workload(%arg0: memref<278528xf32> loc("dilate.cpp":5:6), %arg1: memref<280576xf32> loc("dilate.cpp":5:6)) attributes {llvm.linkage = #llvm.linkage<external>} {
     %c0_i8 = arith.constant 0 : i8 loc(#loc2)
     %c1_i8 = arith.constant 1 : i8 loc(#loc3)
     %cst = arith.constant 0.000000e+00 : f32 loc(#loc4)
     %c0_i32 = arith.constant 0 : i32 loc(#loc5)
-    %alloca = memref.alloca() : memref<25xi8> loc(#loc6)
+    %alloca = memref.alloca() {mailohls.action_id = "L1", mailohls.action_kind = "array"} : memref<25xi8> loc(#loc6)
     affine.store %c0_i8, %alloca[0] : memref<25xi8> loc(#loc6)
     affine.store %c0_i8, %alloca[1] : memref<25xi8> loc(#loc6)
     affine.store %c1_i8, %alloca[2] : memref<25xi8> loc(#loc6)
@@ -71,7 +71,7 @@ module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i64, dense<64> : 
 #loc3 = loc("dilate.cpp":16:30)
 #loc4 = loc("dilate.cpp":23:16)
 #loc5 = loc("dilate.cpp":21:18)
-#loc6 = loc("dilate.cpp":16:5)
+#loc6 = loc("dilate.cpp":16:10)
 #loc11 = loc("dilate.cpp":28:17)
 #loc12 = loc("dilate.cpp":28:64)
 #loc13 = loc("dilate.cpp":28:90)

@@ -93,8 +93,8 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-v5-native-tripcount"
-GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
+SCHEMA_VERSION = "mailohls-mlir-graph-native-tripcount" #-v5
+GRAPH_METADATA_PREFIX = "mailohls-meta:"  # -v1:"
 PERSISTED_GRAPH_METADATA_KEYS = (
     "kernel",
     "source_sha256",

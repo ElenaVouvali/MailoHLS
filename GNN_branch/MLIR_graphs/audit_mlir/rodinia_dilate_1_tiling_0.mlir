@@ -13,10 +13,10 @@
 #loc53 = loc("dilate.cpp":52:26)
 #set = affine_set<(d0, d1) : (d0 + d1 - 2 >= 0)>
 #set1 = affine_set<(d0, d1) : (-d0 - d1 + 33 >= 0)>
-module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<"dlti.endianness", "little">, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
+module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<"dlti.endianness", "little">, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
   func.func @workload(%arg0: memref<278528xf32> loc("dilate.cpp":58:7), %arg1: memref<280576xf32> loc("dilate.cpp":58:7)) attributes {llvm.linkage = #llvm.linkage<external>} {
-    %alloca = memref.alloca() : memref<18432xf32> loc(#loc2)
-    %alloca_0 = memref.alloca() : memref<16384xf32> loc(#loc3)
+    %alloca = memref.alloca() {mailohls.action_id = "L11", mailohls.action_kind = "array"} : memref<18432xf32> loc(#loc2)
+    %alloca_0 = memref.alloca() {mailohls.action_id = "L10", mailohls.action_kind = "array"} : memref<16384xf32> loc(#loc3)
     affine.for %arg2 loc("dilate.cpp":74:21) = 0 to 17 {
       %0 = arith.index_cast %arg2 : index to i32 loc(#loc4)
       func.call @load_data_tile(%alloca, %arg1, %0) : (memref<18432xf32>, memref<280576xf32>, i32) -> () loc(#loc5)
@@ -44,7 +44,7 @@ module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i16, dense<16> : 
     %cst = arith.constant 0.000000e+00 : f32 loc(#loc21)
     %c512_i32 = arith.constant 512 : i32 loc(#loc22)
     %c0_i32 = arith.constant 0 : i32 loc(#loc23)
-    %alloca = memref.alloca() : memref<25xi8> loc(#loc24)
+    %alloca = memref.alloca() {mailohls.action_id = "L1", mailohls.action_kind = "array"} : memref<25xi8> loc(#loc24)
     affine.store %c0_i8, %alloca[0] : memref<25xi8> loc(#loc24)
     affine.store %c0_i8, %alloca[1] : memref<25xi8> loc(#loc24)
     affine.store %c1_i8, %alloca[2] : memref<25xi8> loc(#loc24)
@@ -136,8 +136,8 @@ module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i16, dense<16> : 
   } loc(#loc51)
 } loc(#loc)
 #loc = loc(unknown)
-#loc2 = loc("dilate.cpp":72:10)
-#loc3 = loc("dilate.cpp":71:10)
+#loc2 = loc("dilate.cpp":72:16)
+#loc3 = loc("dilate.cpp":71:16)
 #loc5 = loc("dilate.cpp":75:4)
 #loc6 = loc("dilate.cpp":76:4)
 #loc7 = loc("dilate.cpp":77:4)
@@ -153,7 +153,7 @@ module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<i16, dense<16> : 
 #loc21 = loc("dilate.cpp":15:26)
 #loc22 = loc("./dilate.h":13:19)
 #loc23 = loc("dilate.cpp":12:22)
-#loc24 = loc("dilate.cpp":7:9)
+#loc24 = loc("dilate.cpp":7:14)
 #loc25 = loc("dilate.cpp":21:52)
 #loc26 = loc("dilate.cpp":23:42)
 #loc29 = loc("dilate.cpp":20:32)
