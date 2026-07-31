@@ -1,21 +1,37 @@
 #!/usr/bin/env python3
-""" 
-C/C++ source -> Polygeist/cgeist at -O0 -> Affine + SCF + MemRef + Arith + Func MLIR -> deterministic, action-aligned GEXF graph
+"""Build one deterministic, action-aligned MailoHLS graph from C or C++.
 
-    - Affine operations retain static loop bounds and affine array subscripts when Polygeist can prove them; 
-    - SCF remains the fallback for dynamic or non-affine control; 
-    - MemRef retains array shape, views, and accesses; 
-    - Arith retains typed computation; 
-    - Func retains calls.
-    
-(We stop before CF/LLVM lowering because that would erase the loop, region, and array
-semantics that are most useful to HLS optimization)
+Pipeline
+--------
+1. Read "kernel_info.txt" and exact "Lk" labels from the source file.
+2. Invoke cgeist at the HLS-oriented MLIR level used by this project:
+   "affine + scf + memref + arith + func".
+3. Parse the emitted module with the official MLIR Python bindings.
+4. Query the project-specific native binding for memory effects, buffer views,
+   alias classes, affine dependences, and affine loop trip counts.
+5. Build and validate a deterministic networkx.MultiDiGraph and write GEXF.
 
-export POLYGEIST_BUILD="$HOME/tools/Polygeist/build-mailohls-assertions"
-export CGEIST="$POLYGEIST_BUILD/bin/cgeist"
-export MLIR_PYTHON="$HOME/.mlir-python311/bin/python"
-export MLIR_PYTHON_ROOT="$POLYGEIST_BUILD/tools/mlir/python_packages/mlir_core"
+Why this MLIR level
+-------------------
+Affine operations retain provable loop bounds and subscript functions; SCF
+retains dynamic structured control; MemRef retains array shapes, views, and
+accesses; Arith retains typed computation; and Func retains calls.  Lowering to
+CF/LLVM would erase much of the loop, region, and array structure needed for HLS.
 
+Graph contract
+--------------
+Nodes represent MLIR operations, SSA values, scalar/shape features, MLIR block
+scopes, MailoHLS pragma placeholders, and array-action scopes.  Parallel edges
+are intentional: one node pair may simultaneously have SSA, control, call,
+region, memory, loop-carried, dependence, and action-scope relationships.
+
+Correctness policy
+------------------
+Production generation requires exact source-location action matching and the
+native analysis binding.  Proven dependences are marked "certainty=proven";
+unsupported or unresolved cases remain explicit conservative edges and are
+never silently treated as independent.  Canonical ordering and metadata hashes
+make repeated runs auditable.
 """
 
 from __future__ import annotations
@@ -42,7 +58,7 @@ import networkx as nx
 
 
 # ---------------------------------------------------------------------------
-# MailoHLS-compatible node and edge schema.
+# Stable node and edge vocabulary consumed by "mlir_data.py".
 # ---------------------------------------------------------------------------
 
 PRAGMA_POSITION = {
@@ -66,8 +82,8 @@ FLOW_PSEUDO_CONNECTED = 5
 FLOW_LOOP_HIERARCHY = 6
 FLOW_ARRAY_SCOPE = 7
 
-# data.py treats flow as a learned categorical feature, 
-# so these relations keep the existing GNN architecture unchanged.
+# "mlir_data.py" encodes "flow" categorically.  Each semantic relation
+# therefore receives a stable integer without changing the GNN architecture.
 FLOW_REGION = 8
 FLOW_MEMORY_VIEW = 9
 FLOW_MEMORY_ACCESS = 10
@@ -93,8 +109,8 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-native-tripcount" #-v5
-GRAPH_METADATA_PREFIX = "mailohls-meta:"  # -v1:"
+SCHEMA_VERSION = "mailohls-mlir-graph-v5-native-tripcount"
+GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 PERSISTED_GRAPH_METADATA_KEYS = (
     "kernel",
     "source_sha256",
@@ -121,8 +137,8 @@ ACTION_ID_SEARCH_RE = re.compile(r"\bL([1-9][0-9]*)\b")
 # Minimal labeled-C/C++ parser used by kernel_info.txt integration.  These
 # patterns intentionally recognize only the dataset contract: function bodies,
 # Lk labels, for-loops, and labeled local array declarations.
-# MailoHLS datasets contain both real C labels (``L1: for (...)``) and labels
-# kept inside comments (``/*L1:*/ for (...)``).  The latter are common in
+# MailoHLS datasets contain both real C labels (L1: for (...)) and labels
+# kept inside comments (/*L1:*/ for (...)).  The latter are common in
 # MachSuite and vendor-style C++ kernels, where a real C label would interfere
 # with transformations.  Treat both spellings as the same dataset contract.
 SOURCE_LABEL_RE = re.compile(
@@ -214,13 +230,18 @@ MEMORY_ACCESS_POSITION = {
 
 
 # ---------------------------------------------------------------------------
-# Small immutable records.  These make the graph construction auditable and
-# keep the structure close to the one of the first prototype.
+# Typed records shared by indexing, analysis integration, and action mapping.
 # ---------------------------------------------------------------------------
 
 
 @dataclass
 class ActionSpec:
+    """One loop or array optimization action declared by "kernel_info.txt".
+
+    "source_*" is the authoritative identity used to match the action to
+    MLIR. "kernel_info_loop_value" is retained for auditing because our
+    dataset sometimes store an upper bound rather than an actual trip count.
+    """
     action_id: str
     kind: str
     function: str
@@ -251,6 +272,7 @@ class SourcePoint:
 
 @dataclass
 class BlockRecord:
+    """Indexed MLIR block and its place in the function/region hierarchy."""
     key: Any
     function_id: int
     block_id: int
@@ -265,6 +287,7 @@ class BlockRecord:
 
 @dataclass
 class OperationRecord:
+    """Indexed MLIR operation with stable function-local identity and context."""
     key: Any
     operation: Any
     node: int
@@ -289,6 +312,7 @@ class OperationRecord:
 
 @dataclass
 class LoopInfo:
+    """Loop operation, nesting relation, body blocks, and optional action ID."""
     function_id: int
     function_name: str
     loop_ordinal: int
@@ -304,6 +328,7 @@ class LoopInfo:
 
 @dataclass
 class MemoryAccess:
+    """Read/write operation associated with one solved memory-root node."""
     function_id: int
     op_node: int
     op_ordinal: int
@@ -314,7 +339,8 @@ class MemoryAccess:
 
 
 @dataclass
-class ParseResult:
+class GraphBuildResult:
+    """Semantic graph plus indices needed by the final augmentation passes."""
     graph: nx.MultiDiGraph
     functions: dict[int, str]
     function_name_to_id: dict[str, int]
@@ -328,7 +354,7 @@ class ParseResult:
 
 
 # ---------------------------------------------------------------------------
-# Generic deterministic helpers, retained from the original implementation.
+# Deterministic graph serialization helpers.
 # ---------------------------------------------------------------------------
 
 def require_pythonhashseed() -> None:
@@ -341,14 +367,14 @@ def require_pythonhashseed() -> None:
         )
 
 
-def det_sha_label(obj: Any) -> str:
-    """Compute a deterministic sha label for the deterministic MLIR-to-MailoHLS graph pipeline."""
+def stable_sha256(obj: Any) -> str:
+    """Hash a JSON-serializable object using canonical JSON encoding."""
     text = json.dumps(obj, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def det_get_full_text(data: dict[str, Any]) -> str:
-    """Compute a deterministic get full text for the deterministic MLIR-to-MailoHLS graph pipeline."""
+def node_full_text(data: dict[str, Any]) -> str:
+    """Return a node's full text from either the feature layout."""
     if data.get("full_text") is not None:
         return str(data["full_text"])
     features = data.get("features")
@@ -359,27 +385,27 @@ def det_get_full_text(data: dict[str, Any]) -> str:
     return ""
 
 
-def det_node_sort_key(node: Any, data: dict[str, Any]) -> tuple[Any, ...]:
-    """Compute a deterministic node sort key for the deterministic MLIR-to-MailoHLS graph pipeline."""
+def canonical_node_sort_key(node: Any, data: dict[str, Any]) -> tuple[Any, ...]:
+    """Return the total ordering used before canonical node relabeling."""
     return (
         int(data.get("function", -1)),
         int(data.get("block", -1)),
         int(data.get("type", -1)),
         str(data.get("text", "")),
-        det_get_full_text(data),
+        node_full_text(data),
         str(data.get("action_id", "")),
         str(data.get("op_uid", "")),
         str(node),
     )
 
 
-def det_edge_sort_key(
+def canonical_edge_sort_key(
     source: Any,
     target: Any,
     data: dict[str, Any],
     node_rank: dict[Any, int],
 ) -> tuple[Any, ...]:
-    """Compute a deterministic edge sort key for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return the total ordering used to serialize parallel semantic edges."""
     return (
         node_rank.get(source, 10**18),
         node_rank.get(target, 10**18),
@@ -395,7 +421,7 @@ def canonicalize_graph(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
     """Reinsert nodes, edges, and attributes in a canonical order for reproducible output."""
     canonical = nx.MultiDiGraph()
     canonical.graph.update(deepcopy(graph.graph))
-    nodes = sorted(graph.nodes(data=True), key=lambda item: det_node_sort_key(item[0], item[1]))
+    nodes = sorted(graph.nodes(data=True), key=lambda item: canonical_node_sort_key(item[0], item[1]))
     for node, data in nodes:
         canonical.add_node(node, **deepcopy(data))
 
@@ -405,7 +431,7 @@ def canonicalize_graph(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
         for source, target, _, data in graph.edges(keys=True, data=True)
     ]
     for edge_id, (source, target, data) in enumerate(
-        sorted(edges, key=lambda edge: det_edge_sort_key(edge[0], edge[1], edge[2], rank))
+        sorted(edges, key=lambda edge: canonical_edge_sort_key(edge[0], edge[1], edge[2], rank))
     ):
         data["id"] = edge_id
         canonical.add_edge(source, target, key=edge_id, **data)
@@ -415,7 +441,7 @@ def canonicalize_graph(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
 def relabel_nodes_canonically(graph: nx.MultiDiGraph, rounds: int = 3) -> nx.MultiDiGraph:
     """Replace temporary IDs with IDs derived from stable structural graph signatures."""
     labels = {
-        node: det_sha_label(det_node_sort_key(node, data))
+        node: stable_sha256(canonical_node_sort_key(node, data))
         for node, data in graph.nodes(data=True)
     }
 
@@ -440,7 +466,7 @@ def relabel_nodes_canonically(graph: nx.MultiDiGraph, rounds: int = 3) -> nx.Mul
                 )
                 for source, _, _, data in graph.in_edges(node, keys=True, data=True)
             )
-            new_labels[node] = det_sha_label(
+            new_labels[node] = stable_sha256(
                 {"self": labels.get(node, ""), "out": outgoing, "in": incoming}
             )
         labels = new_labels
@@ -451,7 +477,7 @@ def relabel_nodes_canonically(graph: nx.MultiDiGraph, rounds: int = 3) -> nx.Mul
             labels.get(node, ""),
             int(graph.in_degree(node)),
             int(graph.out_degree(node)),
-            det_node_sort_key(node, graph.nodes[node]),
+            canonical_node_sort_key(node, graph.nodes[node]),
             str(node),
         ),
     )
@@ -460,7 +486,7 @@ def relabel_nodes_canonically(graph: nx.MultiDiGraph, rounds: int = 3) -> nx.Mul
 
 
 def stringify_attr(value: Any) -> Any:
-    """Convert attr for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Convert a node/edge attribute to a GEXF-safe scalar value."""
     if isinstance(value, (str, int, float, bool)):
         return value
     if value is None:
@@ -490,8 +516,8 @@ def _metadata_json_value(value: Any) -> Any:
 def encode_graph_metadata(graph: nx.MultiDiGraph) -> str:
     """Encode provenance in a GEXF field that survives write/read round trips.
 
-    NetworkX does not preserve arbitrary ``graph.graph`` keys in GEXF. The
-    standard graph ``name`` field is preserved, so a deterministic JSON
+    NetworkX does not preserve arbitrary "graph.graph" keys in GEXF. The
+    standard graph "name" field is preserved, so a deterministic JSON
     envelope is stored there. This adds no node or edge and does not change the
     representation consumed by the GNN.
     """
@@ -556,13 +582,13 @@ def prepare_graph_for_write(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
 
 
 def write_gexf_deterministic(graph: nx.MultiDiGraph, path: Path) -> None:
-    """Write gexf deterministic for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Write canonical GEXF bytes after creating the parent directory."""
     path.parent.mkdir(parents=True, exist_ok=True)
     nx.write_gexf(prepare_graph_for_write(graph), path, prettyprint=False)
 
 
 def prune_redundant_nodes(graph: nx.MultiDiGraph) -> None:
-    """Remove redundant nodes for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Remove only non-semantic helper nodes made redundant during lowering."""
     while True:
         isolated = [
             node for node in sorted(graph.nodes(), key=str)
@@ -586,7 +612,7 @@ def finalize_graph(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
 # ---------------------------------------------------------------------------
 
 def _normalise_action_id(value: Any) -> str:
-    """Normalize action ID for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return canonical "L<number>" form or raise for an invalid action ID."""
     text = str(value).strip().strip('"').strip("'")
     if text.startswith("_L"):
         text = text[1:]
@@ -912,27 +938,8 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
     return top_function, actions
 
 
-# def action_memref_shape_keys(
-#     actions: Sequence[ActionSpec],
-# ) -> tuple[str, ...]:
-#     """Return deterministic static MemRef shapes for array actions."""
-#     shapes = {
-#         tuple(int(size) for size in action.array_dimensions)
-#         for action in actions
-#         if action.kind == "array"
-#         and action.array_dimensions
-#         and all(int(size) > 0 for size in action.array_dimensions)
-#     }
-
-#     return tuple(
-#         "x".join(str(size) for size in dimensions)
-#         for dimensions in sorted(shapes)
-#     )
-
-
-
 def import_mlir_ir() -> Any:
-    """Import mlir ir for the deterministic graph gen pipeline."""
+    """Import the official MLIR Python IR module with a useful setup error."""
     try:
         from mlir import ir  # type: ignore
     except Exception as exc:
@@ -944,13 +951,18 @@ def import_mlir_ir() -> Any:
     return ir
 
 
-def raw_operation(operation: Any) -> Any:
-    """Return the underlying operation for the deterministic MLIR-to-MailoHLS graph pipeline."""
+def unwrap_operation(operation: Any) -> Any:
+    """Return the native operation behind an MLIR operation-view wrapper."""
     return getattr(operation, "operation", operation)
 
 
-def object_key(obj: Any) -> tuple[str, int]:
-    """Return an identity key for key for the deterministic MLIR-to-MailoHLS graph pipeline."""
+def mlir_wrapper_key(obj: Any) -> tuple[str, int]:
+    """Key equivalent Python wrappers for the same native MLIR object.
+
+    MLIR may expose one native operation/value through multiple Python wrapper
+    instances.  Wrapper object identity alone would duplicate a true SSA value.
+    The bindings' native hash is preferred; "id" is a compatibility fallback.
+    """
     try:
         return (type(obj).__name__, hash(obj))
     except Exception:
@@ -958,20 +970,20 @@ def object_key(obj: Any) -> tuple[str, int]:
 
 
 def operation_name(operation: Any) -> str:
-    """Return operation name for the deterministic MLIR-to-MailoHLS graph pipeline."""
-    return str(raw_operation(operation).name)
+    """Return the MLIR operation name, for example "affine.load"."""
+    return str(unwrap_operation(operation).name)
 
 
 def operation_first_line(operation: Any) -> str:
-    """Return operation first line for the deterministic MLIR-to-MailoHLS graph pipeline."""
-    text = str(raw_operation(operation)).strip()
+    """Return a compact one-line textual label for an operation node."""
+    text = str(unwrap_operation(operation)).strip()
     return text.splitlines()[0].strip() if text else operation_name(operation)
 
 
 def operation_location(operation: Any) -> str:
-    """Return operation location for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return the printed MLIR location or "loc(unknown)"."""
     try:
-        return str(raw_operation(operation).location)
+        return str(unwrap_operation(operation).location)
     except Exception:
         return "loc(unknown)"
 
@@ -988,12 +1000,9 @@ def operation_source_points(
     In that case, parse only the canonical printed location syntax:
 
         "file.cpp":line:column
-
-    This remains an exact source-location mapping; it is not an ordinal or
-    shape-based semantic fallback.
     """
     try:
-        root = raw_operation(operation).location
+        root = unwrap_operation(operation).location
     except Exception:
         return ()
 
@@ -1129,8 +1138,8 @@ def operation_source_points(
     return tuple(sorted(points))
 
 def attribute_items(operation: Any) -> dict[str, str]:
-    """Handle items for the deterministic MLIR-to-MailoHLS graph pipeline."""
-    attrs = raw_operation(operation).attributes
+    """Return operation attributes as a stable name-to-text dictionary."""
+    attrs = unwrap_operation(operation).attributes
     out: dict[str, str] = {}
 
     # Newer bindings expose items(); older versions expose indexed
@@ -1159,8 +1168,8 @@ def attribute_items(operation: Any) -> dict[str, str]:
 
 
 def get_attribute(operation: Any, *names: str) -> str | None:
-    """Return attribute for the deterministic MLIR-to-MailoHLS graph pipeline."""
-    attrs = raw_operation(operation).attributes
+    """Return the first matching operation attribute as text."""
+    attrs = unwrap_operation(operation).attributes
     for name in names:
         try:
             return str(attrs[name])
@@ -1171,7 +1180,7 @@ def get_attribute(operation: Any, *names: str) -> str | None:
 
 def get_raw_attribute(operation: Any, *names: str) -> Any | None:
     """Return an MLIR Attribute object instead of its printed spelling."""
-    attrs = raw_operation(operation).attributes
+    attrs = unwrap_operation(operation).attributes
     for name in names:
         try:
             return attrs[name]
@@ -1181,7 +1190,7 @@ def get_raw_attribute(operation: Any, *names: str) -> Any | None:
 
 
 def strip_mlir_string(value: str | None) -> str:
-    """Strip mlir string for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Remove surrounding quotes from a printed MLIR string attribute."""
     if value is None:
         return ""
     text = value.strip().strip('"').strip("'")
@@ -1191,15 +1200,15 @@ def strip_mlir_string(value: str | None) -> str:
 
 
 def operation_regions(operation: Any) -> list[Any]:
-    """Return operation regions for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return an operation's regions across supported binding versions."""
     try:
-        return list(raw_operation(operation).regions)
+        return list(unwrap_operation(operation).regions)
     except Exception:
         return []
 
 
 def region_blocks(region: Any) -> list[Any]:
-    """Return region blocks for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return a region's blocks across supported binding versions."""
     try:
         return list(region.blocks)
     except Exception:
@@ -1210,7 +1219,7 @@ def region_blocks(region: Any) -> list[Any]:
 
 
 def block_operations(block: Any) -> list[Any]:
-    """Return block operations for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return the operations directly contained in a block."""
     try:
         return list(block.operations)
     except Exception:
@@ -1218,7 +1227,7 @@ def block_operations(block: Any) -> list[Any]:
 
 
 def block_arguments(block: Any) -> list[Any]:
-    """Return block arguments for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return the SSA arguments owned by a block."""
     try:
         return list(block.arguments)
     except Exception:
@@ -1226,31 +1235,31 @@ def block_arguments(block: Any) -> list[Any]:
 
 
 def operation_operands(operation: Any) -> list[Any]:
-    """Return operation operands for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return the SSA operands consumed by an operation."""
     try:
-        return list(raw_operation(operation).operands)
+        return list(unwrap_operation(operation).operands)
     except Exception:
         return []
 
 
 def operation_results(operation: Any) -> list[Any]:
-    """Return operation results for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return the SSA results produced by an operation."""
     try:
-        return list(raw_operation(operation).results)
+        return list(unwrap_operation(operation).results)
     except Exception:
         return []
 
 
 def operation_successors(operation: Any) -> list[Any]:
-    """Return operation successors for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return explicit control-flow successor blocks."""
     try:
-        return list(raw_operation(operation).successors)
+        return list(unwrap_operation(operation).successors)
     except Exception:
         return []
 
 
 def value_type(value: Any) -> str:
-    """Return value type for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return the canonical printed MLIR type of an SSA value."""
     try:
         return str(value.type)
     except Exception:
@@ -1258,7 +1267,7 @@ def value_type(value: Any) -> str:
 
 
 def value_text(value: Any) -> str:
-    """Return value text for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return a stable textual form of an SSA value for diagnostics."""
     try:
         return str(value)
     except Exception:
@@ -1266,7 +1275,7 @@ def value_text(value: Any) -> str:
 
 
 def canonical_type_token(type_text: str) -> str:
-    """Handle type token for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Reduce an MLIR type to the categorical token encoded by "mlir_data"."""
     compact = re.sub(r"\s+", "", type_text)
     if compact.startswith("memref<"):
         rank = compact.split("<", 1)[1].split("x")
@@ -1290,7 +1299,7 @@ def canonical_type_token(type_text: str) -> str:
 
 
 def is_memory_type(type_text: str) -> bool:
-    """Test whether memory type for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Return whether a type denotes MemRef, LLVM pointer, or tensor storage."""
     compact = type_text.replace(" ", "")
     return (
         compact.startswith("memref<")
@@ -1300,7 +1309,7 @@ def is_memory_type(type_text: str) -> bool:
 
 
 def parse_integer_attr(text: str | None) -> int | None:
-    """Parse integer attr for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Parse an integer-valued MLIR attribute when statically known."""
     if text is None:
         return None
     match = re.search(r"(?<![A-Za-z0-9_])-?[0-9]+", text)
@@ -1333,14 +1342,25 @@ def parse_mlir_module(path: Path, allow_unregistered_dialects: bool) -> tuple[An
 
 
 # ---------------------------------------------------------------------------
-# MLIR object-model graph builder.
-# Output : networkx.MultiDiGraph --> the same two nodes may simultaneously have 
-# a data, control, memory and loop-carried relationship.
-# Node types --> 0 = operation, 1 = SSA value, 2 = immediate/semantic feature, 
-#                100 = pragma placeholder, 104 = array-action scope
+# Semantic MLIR object-model graph builder.
 # ---------------------------------------------------------------------------
 
-class MlirGraphBuilder:
+class MLIRGraphBuilder:
+    """Translate a verified MLIR module into the semantic MailoHLS graph.
+
+    The builder deliberately separates indexing from edge construction:
+
+    * indexing assigns stable function, block, operation, and SSA identities;
+    * structural passes add SSA, control, region, loop, and call relations;
+    * memory passes combine native effects/views/alias/dependence results with
+      conservative fallbacks only where native analysis reports uncertainty;
+    * action passes attach each source "Lk" loop/array action exactly once.
+
+    "MultiDiGraph" is required because the same source/target pair may carry
+    several independent semantic relations.  These parallel edges are retained
+    by "mlir_data.py" and consumed as edge attributes by the GNN.
+    """
+
     def __init__(
         self,
         module: Any,
@@ -1352,10 +1372,9 @@ class MlirGraphBuilder:
         require_actions: bool = False,
     ) -> None:
         self.module = module
-        # The official bindings define Value as either OpResult or
-        # BlockArgument. This prevents one SSA value from being duplicated.
-        # The Python wrapper used in the first version exposed it 
-        # once as a generic Value and elsewhere as an OpResult.
+        # The official bindings classify an SSA value as OpResult or
+        # BlockArgument.  "_value_key" uses that structural identity so two
+        # Python wrappers for one native value never become two graph nodes.
         self.ir = import_mlir_ir()
         self.mlir_text = mlir_text
         self.actions = actions
@@ -1396,9 +1415,9 @@ class MlirGraphBuilder:
 
         self.loops: list[LoopInfo] = []
         self.loop_count_by_function: dict[int, int] = defaultdict(int)
-        # A value can have more than one root after a select, region merge, or
-        # a helper called with different actual buffers.  Sets preserve that
-        # may-alias fact instead of choosing an arbitrary root.
+        # A value may derive from more than one storage root after a select,
+        # region merge, or helper call with different actual buffers.  The set
+        # records this uncertainty without claiming transitive MayAlias.
         self.memory_roots_by_value: dict[Any, set[int]] = {}
         self.memory_alias_sources: dict[Any, set[Any]] = defaultdict(set)
         self.function_memory_effects: dict[int, dict[int, str]] = defaultdict(dict)
@@ -1431,7 +1450,7 @@ class MlirGraphBuilder:
             result = self.ir.OpResult(value)
             return (
                 "op_result",
-                raw_operation(result.owner),
+                unwrap_operation(result.owner),
                 int(result.result_number),
             )
         except (TypeError, ValueError):
@@ -1457,7 +1476,7 @@ class MlirGraphBuilder:
         key = self._value_key(value)
         function_name = self.functions[function_id]
         if key[0] == "op_result":
-            owner_record = self.operation_by_key.get(object_key(key[1]))
+            owner_record = self.operation_by_key.get(mlir_wrapper_key(key[1]))
             if owner_record is None:
                 raise RuntimeError(
                     "Result owner was not indexed before its SSA value: "
@@ -1466,7 +1485,7 @@ class MlirGraphBuilder:
             position = int(key[2])
             return key, f"{function_name}:op{owner_record.function_ordinal}:r{position}", "op_result", position
 
-        block_record = self.blocks.get(object_key(key[1]))
+        block_record = self.blocks.get(mlir_wrapper_key(key[1]))
         if block_record is None:
             raise RuntimeError(
                 "Block owner was not indexed before its argument: "
@@ -1475,8 +1494,10 @@ class MlirGraphBuilder:
         position = int(key[2])
         return key, f"{function_name}:b{block_record.block_id}:a{position}", "block_argument", position
 
-    def build(self) -> ParseResult:
-        """Run graph-building passes in dependency order and return the graph plus loop metadata."""
+    def build(self) -> GraphBuildResult:
+        """Run the graph phases in their required dependency order."""
+        # Phase 1: discover every function before indexing bodies.  This lets
+        # an earlier call resolve a callee whose definition appears later.
         functions = self._discover_functions()
         if not functions:
             raise RuntimeError("No func.func or llvm.func operation found in the MLIR module.")
@@ -1490,9 +1511,14 @@ class MlirGraphBuilder:
             self.function_operations[function_id] = operation
             self._index_function(function_id, name, operation)
 
+        # Phase 2: validate native identities before using any analysis record,
+        # then materialize SSA and static memory-shape structure.
         self._validate_native_analysis()
         self._add_ssa_edges()
         self._add_memory_shape_features()
+
+        # Phase 3: resolve declared loop actions early so native and source
+        # trip-count information can be checked while annotating each loop.
         declared_loops: dict[int, ActionSpec] = {}
         for spec in (item for item in self.actions if item.kind == "loop"):
             loop_index, _ = self._resolve_loop_action(spec)
@@ -1505,10 +1531,15 @@ class MlirGraphBuilder:
             declared_loops[loop_index] = spec
         for loop_index, loop in enumerate(self.loops):
             self._annotate_loop_features(loop, declared_loops.get(loop_index))
+
+        # Phase 4: add the program's structural relations.
         self._add_affine_access_features()
         self._add_control_and_region_edges()
         self._add_loop_carried_edges()
         self._add_call_edges()
+
+        # Phase 5: solve storage/view/alias relations, emit proven or explicitly
+        # conservative memory dependences, and attach all MailoHLS actions.
         self._build_memory_relations()
         self._attach_actions()
 
@@ -1526,7 +1557,7 @@ class MlirGraphBuilder:
         # correct without relying on pre-canonical integer ids.
         self._refresh_record_node_ids()
 
-        return ParseResult(
+        return GraphBuildResult(
             graph=self.graph,
             functions=self.functions,
             function_name_to_id=self.function_name_to_id,
@@ -1540,6 +1571,12 @@ class MlirGraphBuilder:
         )
 
     def _validate_native_analysis(self) -> None:
+        """Validate the complete native schema and align it with indexed MLIR.
+
+        Missing, duplicate, out-of-order, or mismatched records are fatal.  In
+        particular, unsupported analysis is never reinterpreted as no effect,
+        no alias, or no dependence.
+        """
         if self.native_analysis is None:
             self.graph.graph.update(
                 native_analysis_schema="conservative-only-debug",
@@ -1880,7 +1917,7 @@ class MlirGraphBuilder:
         """Assign stable block IDs before any edge records refer to those blocks."""
         for region_index, region in enumerate(operation_regions(operation)):
             for block in region_blocks(region):
-                key = object_key(block)
+                key = mlir_wrapper_key(block)
                 if key not in self.blocks:
                     self.blocks[key] = BlockRecord(
                         key=key,
@@ -1904,7 +1941,7 @@ class MlirGraphBuilder:
             # native/Python block ordinal. Use a non-index sentinel only on
             # the declaration's function node.
             return -1
-        return self.blocks[object_key(region_blocks(regions[0])[0])].block_id
+        return self.blocks[mlir_wrapper_key(region_blocks(regions[0])[0])].block_id
 
     def _index_function(self, function_id: int, function_name: str, operation: Any) -> None:
         """Create a function node, its argument values, and indexes for its nested body."""
@@ -1971,7 +2008,7 @@ class MlirGraphBuilder:
         """Walk nested MLIR operations in deterministic preorder and record loop nesting."""
         for region_index, region in enumerate(operation_regions(owner_operation)):
             for block in region_blocks(region):
-                block_key = object_key(block)
+                block_key = mlir_wrapper_key(block)
                 record = self.blocks[block_key]
                 record.parent_op_node = owner_node
                 record.parent_op_block = owner_block
@@ -2027,7 +2064,7 @@ class MlirGraphBuilder:
                         }
                     )
                     op_record = OperationRecord(
-                        key=object_key(raw_operation(operation)),
+                        key=mlir_wrapper_key(unwrap_operation(operation)),
                         operation=operation,
                         node=node,
                         function_id=function_id,
@@ -2077,7 +2114,7 @@ class MlirGraphBuilder:
                         loop_index = len(self.loops)
                         parent_index = loop_stack[-1] if loop_stack else None
                         body_blocks = [
-                            self.blocks[object_key(child_block)].block_id
+                            self.blocks[mlir_wrapper_key(child_block)].block_id
                             for child_region in operation_regions(operation)
                             for child_block in region_blocks(child_region)
                         ]
@@ -2151,7 +2188,7 @@ class MlirGraphBuilder:
 
     def _add_ssa_edges(self) -> None:
         """
-        Connect MLIR's native use-def chains (Value.uses) and retain exact positions.
+        Connect MLIR's native use-def chains ("Value.uses") and retain exact positions.
         """
         for record in sorted(
             self.operation_records,
@@ -2202,8 +2239,8 @@ class MlirGraphBuilder:
                 key=lambda item: self.value_nodes[item[0]],
             ):
                 for use in value.uses:
-                    owner = raw_operation(use.owner)
-                    user = self.operation_by_key.get(object_key(owner))
+                    owner = unwrap_operation(use.owner)
+                    user = self.operation_by_key.get(mlir_wrapper_key(owner))
                     if user is None:
                         raise RuntimeError(
                             "SSA use owner is outside the indexed function graph: "
@@ -2304,7 +2341,7 @@ class MlirGraphBuilder:
             for successor_index, successor in enumerate(
                 operation_successors(terminator.operation)
             ):
-                successor_record = self.blocks.get(object_key(successor))
+                successor_record = self.blocks.get(mlir_wrapper_key(successor))
                 if successor_record is None:
                     continue
                 successor_ops = sorted(
@@ -2329,6 +2366,7 @@ class MlirGraphBuilder:
                 )
 
     def _constant_from_value(self, value: Any) -> int | None:
+        """Return an indexed integer constant or "None" for a dynamic value."""
         return self.constant_values.get(self._value_key(value))
 
     def _add_memory_shape_features(self) -> None:
@@ -2757,8 +2795,8 @@ class MlirGraphBuilder:
                 after = region_blocks(regions[1])[0]
                 before_args = block_arguments(before)
                 after_args = block_arguments(after)
-                before_record = self.blocks.get(object_key(before))
-                after_record = self.blocks.get(object_key(after))
+                before_record = self.blocks.get(mlir_wrapper_key(before))
+                after_record = self.blocks.get(mlir_wrapper_key(after))
                 condition = (
                     before_record.operations[-1]
                     if before_record is not None and before_record.operations
@@ -2846,7 +2884,7 @@ class MlirGraphBuilder:
                     role="iter_init",
                 )
 
-            body_key = object_key(body)
+            body_key = mlir_wrapper_key(body)
             body_record = self.blocks.get(body_key)
             if body_record is None or not body_record.operations:
                 continue
@@ -2876,6 +2914,7 @@ class MlirGraphBuilder:
                     )
 
     def _callee_name(self, record: OperationRecord) -> str:
+        """Resolve the symbol referenced by a "func.call" or "llvm.call"."""
         if record.op_name not in CALL_OPS:
             return ""
         for name in ("callee", "callee_name"):
@@ -3048,7 +3087,7 @@ class MlirGraphBuilder:
             if record.op_name not in LOOP_OPS and record.result_keys:
                 for region in operation_regions(record.operation):
                     for block in region_blocks(region):
-                        block_record = self.blocks.get(object_key(block))
+                        block_record = self.blocks.get(mlir_wrapper_key(block))
                         if block_record is None or not block_record.operations:
                             continue
                         terminator = block_record.operations[-1]
@@ -3075,8 +3114,8 @@ class MlirGraphBuilder:
                 after = region_blocks(regions[1])[0]
                 before_args = block_arguments(before)
                 after_args = block_arguments(after)
-                before_record = self.blocks.get(object_key(before))
-                after_record = self.blocks.get(object_key(after))
+                before_record = self.blocks.get(mlir_wrapper_key(before))
+                after_record = self.blocks.get(mlir_wrapper_key(after))
                 condition = (
                     before_record.operations[-1]
                     if before_record is not None and before_record.operations
@@ -3124,7 +3163,7 @@ class MlirGraphBuilder:
                 if record.op_name == "scf.for"
                 else record.operands[-len(iter_args):] if iter_args else []
             )
-            block_record = self.blocks.get(object_key(body))
+            block_record = self.blocks.get(mlir_wrapper_key(body))
             terminator = (
                 block_record.operations[-1]
                 if block_record is not None and block_record.operations
@@ -3572,7 +3611,7 @@ class MlirGraphBuilder:
         loop_carried: bool = False,
         fallback_reason: str = "",
     ) -> None:
-        """Add memory dependence for the deterministic MLIR-to-MailoHLS graph pipeline."""
+        """Emit one RAW/WAR/WAW edge with explicit proof/fallback metadata."""
         if source == target and not loop_carried:
             return
         attrs = dict(
@@ -3592,6 +3631,7 @@ class MlirGraphBuilder:
         self.graph.add_edge(source, target, **attrs)
 
     def _remove_memory_dependence(self, source: int, target: int, kind: str) -> None:
+        """Remove an earlier fallback edge superseded by one native query."""
         edge_data = self.graph.get_edge_data(source, target, default={})
         for key, attrs in list(edge_data.items()):
             if (
@@ -3601,6 +3641,7 @@ class MlirGraphBuilder:
                 self.graph.remove_edge(source, target, key)
 
     def _apply_native_dependences(self) -> None:
+        """Replace conservative candidates according to native query outcomes."""
         if self.native_analysis is None:
             fallback = sum(
                 int(data.get("flow", -1)) == FLOW_MEMORY_DEPENDENCE
@@ -3752,8 +3793,8 @@ class MlirGraphBuilder:
         """Return column distance for an operation on an action's source line."""
         source_points = record.source_points
 
-        # With canonicalization disabled, Polygeist represents C ``for``
-        # loops as scf.while. The while operation has an unknown location,
+        # With canonicalization disabled, Polygeist represents C "for"
+        # loops as scf.while. The while operations has an unknown location,
         # while its direct condition block retains the exact loop-header
         # locations. Do not inspect the body: that would make an outer loop
         # appear to match its nested action loops.
@@ -3761,7 +3802,7 @@ class MlirGraphBuilder:
             regions = operation_regions(record.operation)
             if regions and region_blocks(regions[0]):
                 condition_block = self.blocks.get(
-                    object_key(region_blocks(regions[0])[0])
+                    mlir_wrapper_key(region_blocks(regions[0])[0])
                 )
                 if condition_block is not None:
                     source_points = tuple(
@@ -3858,7 +3899,7 @@ class MlirGraphBuilder:
         block_id: int,
         semantic_anchor: int,
     ) -> int:
-        """Add pragma node for the deterministic MLIR-to-MailoHLS graph pipeline."""
+        """Create one optimization placeholder and attach it to its scope."""
         upper = kind.upper()
         node = self._new_node(
             {
@@ -3868,7 +3909,8 @@ class MlirGraphBuilder:
                 "type": NODE_TYPE_PRAGMA,
                 "full_text": full_text,
                 "action_id": action_id,
-                # One body block gives gexf_to_pt_zero exactly one type-4 anchor.
+                # One body block gives ``mlir_data.py`` exactly one loop-scope
+                # node for pragma masking.
                 "dependency_blocks": [block_id],
             }
         )
@@ -4280,7 +4322,7 @@ class MlirGraphBuilder:
                     "full_text": f"array_scope<{variable}> action={spec.action_id}",
                     "action_id": spec.action_id,
                     "array_var": variable,
-                    "memory_root_text": det_get_full_text(self.graph.nodes[root]),
+                    "memory_root_text": node_full_text(self.graph.nodes[root]),
                     "action_resolution": resolution,
                     "action_source_file": spec.source_file,
                     "action_source_line": spec.source_line,
@@ -4352,7 +4394,7 @@ class MlirGraphBuilder:
             )
 
     def _refresh_record_node_ids(self) -> None:
-        """Refresh record node IDs for the deterministic MLIR-to-MailoHLS graph pipeline."""
+        """Restore record-to-node references after canonical graph relabeling."""
         op_uid_to_node = {
             str(data.get("op_uid")): int(node)
             for node, data in self.graph.nodes(data=True)
@@ -4383,13 +4425,15 @@ class MlirGraphBuilder:
 
 
 # ---------------------------------------------------------------------------
-# MailoHLS graph augmentation.  Unlike the first MLIR prototype, connected
-# pseudo-blocks follow real MLIR block/region adjacency; they are not an O(B^2)
-# all-pairs clique.
+# MailoHLS scope augmentation.
+#
+# The training pipeline expects one scope node per MLIR block for pragma masks.
+# Scope-to-scope edges follow real MLIR block/region adjacency; no all-pairs
+# block clique is constructed.
 # ---------------------------------------------------------------------------
 
-def parse_block_edges(graph: nx.MultiDiGraph) -> list[tuple[int, int, int, int]]:
-    """Parse block edges for the deterministic MLIR-to-MailoHLS graph pipeline."""
+def decode_block_adjacency(graph: nx.MultiDiGraph) -> list[tuple[int, int, int, int]]:
+    """Decode persisted (function, source block, target block, order) rows."""
     value = graph.graph.get("block_edges", [])
     if isinstance(value, str):
         try:
@@ -4404,15 +4448,19 @@ def parse_block_edges(graph: nx.MultiDiGraph) -> list[tuple[int, int, int, int]]
     return sorted(set(output))
 
 
-def add_auxiliary_nodes(
+def add_block_scope_nodes(
     source: nx.MultiDiGraph,
     connected: bool,
 ) -> nx.MultiDiGraph:
-    """Add function/block helpers required by the existing MailoHLS graph contract."""
+    """Add one pragma-mask scope node per real MLIR block.
+
+    Membership is bidirectional so message passing can move both from an
+    operation/value to its block context and back to block members.
+    """
     graph = deepcopy(source)
     original_nodes = sorted(
         list(graph.nodes(data=True)),
-        key=lambda item: det_node_sort_key(item[0], item[1]),
+        key=lambda item: canonical_node_sort_key(item[0], item[1]),
     )
     next_node = max((int(node) for node in graph.nodes()), default=-1) + 1
     pseudo_by_block: dict[tuple[int, int], int] = {}
@@ -4441,7 +4489,7 @@ def add_auxiliary_nodes(
         position_by_block[key] += 1
 
     if connected:
-        for function_id, source_block, target_block, position in parse_block_edges(source):
+        for function_id, source_block, target_block, position in decode_block_adjacency(source):
             left = pseudo_by_block.get((function_id, source_block))
             right = pseudo_by_block.get((function_id, target_block))
             if left is None or right is None or left == right:
@@ -4458,8 +4506,8 @@ def add_auxiliary_nodes(
     return finalize_graph(graph)
 
 
-def index_pseudo_blocks(graph: nx.MultiDiGraph) -> dict[tuple[int, int], int]:
-    """Index pseudo blocks for the deterministic MLIR-to-MailoHLS graph pipeline."""
+def index_block_scope_nodes(graph: nx.MultiDiGraph) -> dict[tuple[int, int], int]:
+    """Map (function ID, MLIR block ID) to its unique scope node."""
     output: dict[tuple[int, int], int] = {}
     for node, data in graph.nodes(data=True):
         if int(data.get("type", -1)) != NODE_TYPE_PSEUDO_BLOCK:
@@ -4478,7 +4526,7 @@ def add_loop_hierarchy(
 ) -> nx.MultiDiGraph:
     """Add direct loop parent-child relationships without redundant ancestor edges."""
     graph = deepcopy(source)
-    pseudo_by_block = index_pseudo_blocks(graph)
+    pseudo_by_block = index_block_scope_nodes(graph)
     pairs: dict[tuple[int, int], int] = {}
 
     for parent_index, parent in enumerate(loops):
@@ -4525,14 +4573,14 @@ def add_loop_hierarchy(
 # ---------------------------------------------------------------------------
 
 def _pragma_action_id(data: dict[str, Any]) -> str | None:
-    """Handle action ID for the deterministic MLIR-to-MailoHLS graph pipeline."""
+    """Read a pragma node's canonical action ID."""
     value = data.get("action_id")
     if value:
         try:
             return _normalise_action_id(value)
         except ValueError:
             return None
-    match = ACTION_ID_SEARCH_RE.search(det_get_full_text(data))
+    match = ACTION_ID_SEARCH_RE.search(node_full_text(data))
     return f"L{match.group(1)}" if match else None
 
 
@@ -4633,7 +4681,7 @@ def validate_graph(
                     errors.append(f"Pragma node {node} has no valid Lk action id.")
                 continue
             action_to_kinds[action_id].add(str(data.get("text", "")).upper())
-            if "auto{" not in det_get_full_text(data) and require_actions:
+            if "auto{" not in node_full_text(data) and require_actions:
                 errors.append(
                     f"Pragma node {node}/{action_id} contains a concrete value; "
                     "MailoHLS structural graphs require placeholders."
@@ -4940,7 +4988,7 @@ def create_initial_graph(
     conservative_memory_dependencies: bool,
     require_actions: bool,
     allow_conservative_only: bool = False,
-) -> tuple[Any, ParseResult]:
+) -> tuple[Any, GraphBuildResult]:
     """Build the semantic graph and keep its MLIR Context alive.
     """
     context, module, mlir_text = parse_mlir_module(
@@ -4963,10 +5011,10 @@ def create_initial_graph(
                 "The _mailohls_analysis native binding is required in production"
             ) from exc
 
-    builder: MlirGraphBuilder | None = None
+    builder: MLIRGraphBuilder | None = None
 
     try:
-        builder = MlirGraphBuilder(
+        builder = MLIRGraphBuilder(
             module=module,
             mlir_text=mlir_text,
             actions=actions,
@@ -4993,9 +5041,8 @@ def create_initial_graph(
 
 
 # ---------------------------------------------------------------------------
-# This "run" layer deliberately stays small: graph semantics
-# belong in the builder above, while this code handles paths, subprocesses,
-# validation, and the lifetime of MLIR's native Context.
+# Orchestration only: paths, cgeist, validation, and native Context lifetime.
+# Graph semantics belong in "MLIRGraphBuilder" above.
 # ---------------------------------------------------------------------------
 
 def run(args: argparse.Namespace) -> Path:
@@ -5006,10 +5053,9 @@ def run(args: argparse.Namespace) -> Path:
     if not kernel_info.is_file():
         raise FileNotFoundError(f"Expected kernel metadata beside the source: {kernel_info}")
 
-    # kernel_info supplies the optimization target; source labels supply the
-    # semantic function/loop locations that the compact text file omits.
+    # kernel_info supplies the optimization contract; source labels supply the
+    # exact function/loop/array locations that the compact file omits.
     metadata_kernel, actions = load_kernel_info_actions(source, kernel_info)
-    # preserved_memref_shapes = action_memref_shape_keys(actions)
     kernel = args.kernel or metadata_kernel
     if args.kernel and args.kernel != metadata_kernel:
         raise ValueError(
@@ -5024,10 +5070,6 @@ def run(args: argparse.Namespace) -> Path:
         dict.fromkeys(
             [
                 *args.cflag,
-                # *(
-                #     f"--mailohls-preserve-memref-shape={shape}"
-                #     for shape in preserved_memref_shapes
-                # ),
                 *(
                     f"--force-attribute={name}:noinline"
                     for name in helper_functions
@@ -5103,7 +5145,7 @@ def run(args: argparse.Namespace) -> Path:
                     ).hexdigest(),
                 }
             )
-            connected = add_auxiliary_nodes(initial, connected=True)
+            connected = add_block_scope_nodes(initial, connected=True)
             training_graph = add_loop_hierarchy(connected, result.loops, transitive=False)
             report = validate_graph(
                 training_graph,
