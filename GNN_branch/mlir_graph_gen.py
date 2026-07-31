@@ -909,22 +909,22 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
     return top_function, actions
 
 
-def action_memref_shape_keys(
-    actions: Sequence[ActionSpec],
-) -> tuple[str, ...]:
-    """Return deterministic static MemRef shapes for array actions."""
-    shapes = {
-        tuple(int(size) for size in action.array_dimensions)
-        for action in actions
-        if action.kind == "array"
-        and action.array_dimensions
-        and all(int(size) > 0 for size in action.array_dimensions)
-    }
+# def action_memref_shape_keys(
+#     actions: Sequence[ActionSpec],
+# ) -> tuple[str, ...]:
+#     """Return deterministic static MemRef shapes for array actions."""
+#     shapes = {
+#         tuple(int(size) for size in action.array_dimensions)
+#         for action in actions
+#         if action.kind == "array"
+#         and action.array_dimensions
+#         and all(int(size) > 0 for size in action.array_dimensions)
+#     }
 
-    return tuple(
-        "x".join(str(size) for size in dimensions)
-        for dimensions in sorted(shapes)
-    )
+#     return tuple(
+#         "x".join(str(size) for size in dimensions)
+#         for dimensions in sorted(shapes)
+#     )
 
 
 
@@ -5002,7 +5002,7 @@ def run(args: argparse.Namespace) -> Path:
     # kernel_info supplies the optimization target; source labels supply the
     # semantic function/loop locations that the compact text file omits.
     metadata_kernel, actions = load_kernel_info_actions(source, kernel_info)
-    preserved_memref_shapes = action_memref_shape_keys(actions)
+    # preserved_memref_shapes = action_memref_shape_keys(actions)
     kernel = args.kernel or metadata_kernel
     if args.kernel and args.kernel != metadata_kernel:
         raise ValueError(
@@ -5017,10 +5017,10 @@ def run(args: argparse.Namespace) -> Path:
         dict.fromkeys(
             [
                 *args.cflag,
-                *(
-                    f"--mailohls-preserve-memref-shape={shape}"
-                    for shape in preserved_memref_shapes
-                ),
+                # *(
+                #     f"--mailohls-preserve-memref-shape={shape}"
+                #     for shape in preserved_memref_shapes
+                # ),
                 *(
                     f"--force-attribute={name}:noinline"
                     for name in helper_functions
@@ -5081,12 +5081,12 @@ def run(args: argparse.Namespace) -> Path:
                         "cgeist:-O0,scal-rep=0,print-debug-info,"
                         "noinline-helpers,memref-fullrank,"
                         "raise-scf-to-affine,"
-                        "preserve-action-memref-shapes="
-                        + (
-                            ",".join(preserved_memref_shapes)
-                            if preserved_memref_shapes
-                            else "none"
-                        )
+                        # "preserve-action-memref-shapes="
+                        # + (
+                        #     ",".join(preserved_memref_shapes)
+                        #     if preserved_memref_shapes
+                        #     else "none"
+                        # )
                     ),
                     # The exact frontend binary is part of the experimental
                     # representation, so persist its content hash without
