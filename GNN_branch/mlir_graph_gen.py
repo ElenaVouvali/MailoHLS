@@ -93,7 +93,7 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-v4-alias-fallback"
+SCHEMA_VERSION = "mailohls-mlir-graph-v5-native-tripcount"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 PERSISTED_GRAPH_METADATA_KEYS = (
     "kernel",
@@ -218,6 +218,7 @@ MEMORY_ACCESS_POSITION = {
 # keep the structure close to the one of the first prototype.
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class ActionSpec:
     action_id: str
@@ -232,9 +233,9 @@ class ActionSpec:
     source_file: str = ""
     source_line: int = 0
     source_column: int = 0
-    declared_trip_count: int | None = None
-    # Exact source lines where an array variable is read or written. These are
-    # used only to disambiguate multiple same-shaped physical allocations.
+    # Historical kernel_info loop value. Depending on the source loop this can
+    # be an upper bound or iteration-space extent, not the actual trip count.
+    kernel_info_loop_value: int | None = None
     source_use_lines: tuple[int, ...] = ()
     matched: bool = False
 
@@ -795,28 +796,30 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
             )
         function = source_action["function"]
 
-        # ---------------------------------------------------------------
-        # Loop action:
-        #   Lk,loop,trip_count
-        # ---------------------------------------------------------------
+        # Historical loop-action syntax:
+        #   Lk,loop,bound_or_extent
+        #
+        # The third field is retained for provenance. It must not be treated
+        # as an exact trip count; lower bound and step are absent.
+
         if kind == "loop":
             if len(fields) != 3:
                 raise ValueError(
                     f"{kernel_info}:{line_number}: loop syntax must be "
-                    f"Lk,loop,trip_count; got {line!r}"
+                    f"Lk,loop,bound_or_extent; got {line!r}"
                 )
 
             try:
-                declared_trip_count = int(fields[2])
+                kernel_info_loop_value = int(fields[2])
             except ValueError as exc:
                 raise ValueError(
-                    f"{kernel_info}:{line_number}: loop trip_count must be "
+                    f"{kernel_info}:{line_number}: loop metadata value must be "
                     f"a positive integer; got {fields[2]!r}"
                 ) from exc
-            if declared_trip_count <= 0:
+            if kernel_info_loop_value <= 0:
                 raise ValueError(
-                    f"{kernel_info}:{line_number}: loop trip_count must be "
-                    f"positive; got {declared_trip_count}"
+                    f"{kernel_info}:{line_number}: loop metadata value must be "
+                    f"positive; got {kernel_info_loop_value}"
                 )
 
             actions.append(
@@ -829,7 +832,7 @@ def load_kernel_info_actions(source: Path, kernel_info: Path) -> tuple[str, list
                     source_file=str(source_action["source_file"]),
                     source_line=int(source_action["source_line"]),
                     source_column=int(source_action["source_column"]),
-                    declared_trip_count=declared_trip_count,
+                    kernel_info_loop_value=kernel_info_loop_value,
                 )
             )
             continue
@@ -2681,23 +2684,13 @@ class MlirGraphBuilder:
                 trip_count = native_trip_count
                 trip_count_source = "native"
 
-        if action is not None:
-            declared = action.declared_trip_count
-            if declared is None:
-                raise RuntimeError(
-                    f"Loop action {action.action_id} has no declared trip count."
-                )
-            if trip_count is not None and trip_count != declared:
-                raise RuntimeError(
-                    f"Declared/MLIR trip-count mismatch for "
-                    f"{action.action_id} at {action.source_file}:"
-                    f"{action.source_line}:{action.source_column}: "
-                    f"declared={declared}, mlir={trip_count} "
-                    f"(source={trip_count_source})"
-                )
-            if trip_count is None:
-                trip_count = declared
-                trip_count_source = "kernel_info"
+        kernel_info_loop_value = (
+            action.kernel_info_loop_value if action is not None else None
+        )
+        if action is not None and kernel_info_loop_value is None:
+            raise RuntimeError(
+                f"Loop action {action.action_id} has no kernel_info loop value."
+            )
 
         data = self.graph.nodes[loop.op_node]
         data["loop_ordinal"] = loop.loop_ordinal
@@ -2707,6 +2700,20 @@ class MlirGraphBuilder:
         data["trip_count"] = trip_count if trip_count is not None else -1
         data["trip_count_static"] = 1 if trip_count is not None else 0
         data["trip_count_source"] = trip_count_source
+        # Audit-only historical metadata. Native/MLIR analysis is the sole
+        # authority for the actual trip count. If MLIR cannot prove a count,
+        # keep it unknown instead of fabricating a static feature.
+        data["kernel_info_loop_value"] = (
+            kernel_info_loop_value
+            if kernel_info_loop_value is not None
+            else -1
+        )
+        if kernel_info_loop_value is None or trip_count is None:
+            data["kernel_info_loop_value_relation"] = "unknown"
+        elif kernel_info_loop_value == trip_count:
+            data["kernel_info_loop_value_relation"] = "equal"
+        else:
+            data["kernel_info_loop_value_relation"] = "different"
 
         if trip_count is not None:
             bucket = 0 if trip_count <= 1 else int(math.ceil(math.log2(trip_count)))
@@ -5079,14 +5086,8 @@ def run(args: argparse.Namespace) -> Path:
                     "mlir_level": "affine+scf+memref+arith+func",
                     "frontend_policy": (
                         "cgeist:-O0,scal-rep=0,print-debug-info,"
-                        "noinline-helpers,memref-fullrank,"
-                        "raise-scf-to-affine,"
-                        # "preserve-action-memref-shapes="
-                        # + (
-                        #     ",".join(preserved_memref_shapes)
-                        #     if preserved_memref_shapes
-                        #     else "none"
-                        # )
+                        "noinline-helpers,exact-action-manifest,"
+                        "memref-fullrank,raise-scf-to-affine"
                     ),
                     # The exact frontend binary is part of the experimental
                     # representation, so persist its content hash without

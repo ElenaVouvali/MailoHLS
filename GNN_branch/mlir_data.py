@@ -168,7 +168,8 @@ INDEX_PATH = SAVE_DIR / "index.pt"
 ENCODER_PATH = SAVE_DIR / "encoders.pkl"
 PRAGMA_DIM_PATH = SAVE_DIR / "pragma_dim.pt"
 SCHEMA_PATH = SAVE_DIR / "feature_schema.json"
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v4-alias-fallback"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v5-native-tripcount"
+EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v5-native-tripcount"
 
 
 # ---------------------------------------------------------------------------
@@ -183,7 +184,6 @@ NODE_TYPE_PRAGMA = 100
 NODE_TYPE_ARRAY_SCOPE = 104
 
 FLOW_PRAGMA = 200
-EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v4-alias-fallback"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 
 PRAGMA_VECTOR_WIDTH = 5
