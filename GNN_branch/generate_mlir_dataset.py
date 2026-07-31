@@ -68,7 +68,9 @@ from typing import Iterable
 import networkx as nx
 
 
-EXPECTED_SCHEMA_VERSION = "mailohls-mlir-graph-v5-native-tripcount"
+EXPECTED_SCHEMA_VERSION = (
+    "mailohls-mlir-graph-v6-root-uncertainty"
+)
 EXPECTED_NATIVE_ANALYSIS_SCHEMA = "mailohls-native-analysis-v3"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 ACTION_ID_RE = re.compile(r"^L[1-9][0-9]*$")

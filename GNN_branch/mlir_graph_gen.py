@@ -111,7 +111,7 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-v5-native-tripcount"
+SCHEMA_VERSION = "mailohls-mlir-graph-v6-root-uncertainty"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 PERSISTED_GRAPH_METADATA_KEYS = (
     "kernel",
@@ -126,9 +126,7 @@ PERSISTED_GRAPH_METADATA_KEYS = (
     "native_analysis_schema",
     "binding_sha256",
     "native_analysis_coverage",
-    "exact_edge_count",
     "proven_independent_count",
-    "fallback_count",
     "native_fallback_reasons",
     "native_alias_classifications",
     "must_alias_component_sizes",
@@ -3694,7 +3692,7 @@ class MLIRGraphBuilder:
                     "feature_kind": "memory_uncertainty",
                 }
             )
-
+            
             self.graph.add_edge(
                 feature,
                 root,
@@ -3702,9 +3700,11 @@ class MLIRGraphBuilder:
                 position=MEMORY_DEPENDENCE_POSITION[kind],
                 role=kind,
                 certainty="may",
+                analysis="native-unresolved-root-summary",
                 fallback_reason=reason,
                 loop_carried=bool(possible_loop_carried),
             )
+
 
     def _apply_native_dependences(self) -> None:
         """Replace conservative candidates according to native query outcomes."""
@@ -3714,9 +3714,7 @@ class MLIRGraphBuilder:
                 for _, _, data in self.graph.edges(data=True)
             )
             self.graph.graph.update(
-                exact_edge_count=0,
                 proven_independent_count=0,
-                fallback_count=fallback,
                 memory_dependence_model="conservative-only-debug",
                 exact_affine_dependence=0,
                 native_fallback_reasons={},
@@ -3787,13 +3785,27 @@ class MLIRGraphBuilder:
             and str(data.get("certainty")) != "proven"
             for _, _, data in self.graph.edges(data=True)
         )
+        unresolved_query_count = sum(fallback_reasons.values())
+        root_uncertainty_feature_count = len(
+            self.root_uncertainty_features
+        )
+
         self.graph.graph.update(
-            exact_edge_count=exact,
+            proven_dependence_edge_count=exact,
             proven_independent_count=independent,
-            fallback_count=fallback,
-            memory_dependence_model="native-affine-with-conservative-fallback",
-            exact_affine_dependence=exact,
-            native_fallback_reasons=dict(sorted(fallback_reasons.items())),
+            unresolved_dependence_query_count=(
+                unresolved_query_count
+            ),
+            root_uncertainty_feature_count=(
+                root_uncertainty_feature_count
+            ),
+            memory_dependence_model=(
+                "native-affine-proven-with-"
+                "root-summarized-uncertainty"
+            ),
+            native_fallback_reasons=dict(
+                sorted(fallback_reasons.items())
+            ),
         )
 
     # def _add_conservative_memory_dependencies(self) -> None:
@@ -5204,7 +5216,7 @@ def run(args: argparse.Namespace) -> Path:
                 ),
                 encoding="utf-8",
             )
-            
+
         try:
             initial = result.graph
             initial.graph.update(

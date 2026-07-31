@@ -168,8 +168,13 @@ INDEX_PATH = SAVE_DIR / "index.pt"
 ENCODER_PATH = SAVE_DIR / "encoders.pkl"
 PRAGMA_DIM_PATH = SAVE_DIR / "pragma_dim.pt"
 SCHEMA_PATH = SAVE_DIR / "feature_schema.json"
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v5-native-tripcount"
-EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v5-native-tripcount"
+EXPECTED_GRAPH_SCHEMA_VERSION = (
+    "mailohls-mlir-graph-v6-root-uncertainty"
+)
+
+MLIR_FEATURE_SCHEMA_VERSION = (
+    "mailohls-mlir-features-v6-root-uncertainty"
+)
 
 
 # ---------------------------------------------------------------------------
