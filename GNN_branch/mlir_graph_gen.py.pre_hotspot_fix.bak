@@ -4258,12 +4258,19 @@ class MLIRGraphBuilder:
             == spec.array_dimensions
         ]
 
-        # Shape is a compatibility filter, not a source identity.  Attempt
-        # exact rooted source-access matching before any shape-only fallback,
-        # even when there is only one allocation with the requested shape.
-        # This keeps production action mapping source-grounded without
-        # changing the graph representation.
-        if shape_candidates and spec.source_use_lines:
+        if len(shape_candidates) == 1:
+            record, node = shape_candidates[0]
+            return (
+                function_id,
+                node,
+                record.block_id,
+                f"{function_resolution}+unique_shape",
+            )
+
+        # Polygeist may place several equal-shaped allocas at function entry.
+        # Distinguish them only when their rooted MLIR accesses overlap the
+        # exact source lines where the named C/C++ array is used.
+        if len(shape_candidates) > 1 and spec.source_use_lines:
             expected_lines = set(spec.source_use_lines)
             scored: list[
                 tuple[
@@ -4308,11 +4315,10 @@ class MLIRGraphBuilder:
                     function_id,
                     node,
                     record.block_id,
-                    # The physical root was selected by exact MLIR source
-                    # access locations, so use the validator's existing exact
-                    # source-location category.  Function/shape are filters,
-                    # not the identity proof.
-                    "source_location",
+                    (
+                        f"{function_resolution}"
+                        "+shape+source_access"
+                    ),
                 )
 
         candidate_report = [
