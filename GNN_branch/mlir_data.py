@@ -1038,6 +1038,8 @@ EDGE_CATEGORICAL_FIELDS = (
     "flow",
     "role",
     "certainty",
+    "analysis",
+    "fallback_reason",
 )
 
 
@@ -1069,11 +1071,18 @@ def node_categorical_row(attrs: Mapping[str, Any]) -> list[str]:
     ]
 
 
-def edge_categorical_row(attrs: Mapping[str, Any]) -> list[str]:
+def edge_categorical_row(
+    attrs: Mapping[str, Any],
+) -> list[str]:
     return [
         str(_as_int(attrs.get("flow"), -1)),
         edge_role(attrs),
         edge_certainty(attrs),
+        str(attrs.get("analysis", "<none>") or "<none>"),
+        str(
+            attrs.get("fallback_reason", "<none>")
+            or "<none>"
+        ),
     ]
 
 

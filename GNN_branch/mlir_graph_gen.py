@@ -89,6 +89,7 @@ FLOW_MEMORY_VIEW = 9
 FLOW_MEMORY_ACCESS = 10
 FLOW_LOOP_CARRIED = 11
 FLOW_MEMORY_DEPENDENCE = 12
+FLOW_MEMORY_UNCERTAINTY = 13
 
 FLOW_PRAGMA = 200
 
@@ -106,6 +107,7 @@ ALL_FLOWS = {
     FLOW_LOOP_CARRIED,
     FLOW_MEMORY_DEPENDENCE,
     FLOW_PRAGMA,
+    FLOW_MEMORY_UNCERTAINTY
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
@@ -351,6 +353,7 @@ class GraphBuildResult:
     operation_records: list[OperationRecord]
     memory_accesses: list[MemoryAccess]
     actions: list[ActionSpec]
+    native_analysis: dict[str, Any] | None
 
 
 # ---------------------------------------------------------------------------
@@ -660,7 +663,12 @@ def _source_function_spans(text: str) -> list[tuple[str, int, int]]:
 
 
 def _source_actions(source: Path) -> dict[str, dict[str, Any]]:
-    """Map each MailoHLS Lk source label to its semantic action and location.
+    """Recover MailoHLS action identities and exact source locations.
+
+    This is deliberately not a general C/C++ parser. It recognizes only the
+    MailoHLS labeled-source contract. Program semantics are obtained from
+    verified MLIR; this function is used only to identify Lk actions and their
+    file/line/column positions.
 
     Recognized forms include:
         L1: for (...)
@@ -1440,6 +1448,11 @@ class MLIRGraphBuilder:
         self.native_trip_count_agreements = 0
         self.native_trip_count_known = 0
 
+        self.access_roots_by_op: dict[int, set[int]] = defaultdict(set)
+        self.root_uncertainty_features: set[
+            tuple[int, str, str, bool]
+        ] = set()
+
     def _value_key(self, value: Any) -> tuple[str, Any, int]:
         """
         Return the structural MLIR identity of an SSA value:
@@ -1568,6 +1581,7 @@ class MLIRGraphBuilder:
             operation_records=self.operation_records,
             memory_accesses=self.memory_accesses,
             actions=self.actions,
+            native_analysis=self.native_analysis,
         )
 
     def _validate_native_analysis(self) -> None:
@@ -3593,9 +3607,11 @@ class MLIRGraphBuilder:
                             loop_stack=record.loop_stack,
                         )
                     )
+                    self.access_roots_by_op[record.node].add(root)
 
-        if self.conservative_memory_dependencies:
-            self._add_conservative_memory_dependencies()
+        # Exact native results provide direct dependence edges. Unresolved cases are
+        # represented through memory-root uncertainty rather than speculative direct
+        # operation-to-operation edges.
         self._apply_native_dependences()
 
     def _add_memory_dependence(
@@ -3640,6 +3656,56 @@ class MLIRGraphBuilder:
             ):
                 self.graph.remove_edge(source, target, key)
 
+    def _add_memory_uncertainty(
+        self,
+        source: int,
+        target: int,
+        kind: str,
+        reason: str,
+        possible_loop_carried: bool,
+    ) -> None:
+        """Represent unresolved dependence conservatively without asserting a
+        direct causal operation-to-operation edge.
+        """
+        roots = sorted(
+            self.access_roots_by_op.get(source, set())
+            | self.access_roots_by_op.get(target, set())
+        )
+
+        for root in roots:
+            key = (
+                root,
+                kind,
+                reason,
+                bool(possible_loop_carried),
+            )
+            if key in self.root_uncertainty_features:
+                continue
+            self.root_uncertainty_features.add(key)
+
+            root_data = self.graph.nodes[root]
+            feature = self._new_node(
+                {
+                    "block": int(root_data.get("block", -1)),
+                    "function": int(root_data.get("function", -1)),
+                    "text": f"may_{kind.lower()}",
+                    "type": NODE_TYPE_IMMEDIATE,
+                    "full_text": reason,
+                    "feature_kind": "memory_uncertainty",
+                }
+            )
+
+            self.graph.add_edge(
+                feature,
+                root,
+                flow=FLOW_MEMORY_UNCERTAINTY,
+                position=MEMORY_DEPENDENCE_POSITION[kind],
+                role=kind,
+                certainty="may",
+                fallback_reason=reason,
+                loop_carried=bool(possible_loop_carried),
+            )
+
     def _apply_native_dependences(self) -> None:
         """Replace conservative candidates according to native query outcomes."""
         if self.native_analysis is None:
@@ -3671,13 +3737,14 @@ class MLIRGraphBuilder:
             if outcome in {"unknown", "not_applicable"}:
                 if bool(query["fallback_required"]):
                     reason = str(query["reason"])
-                    self._add_memory_dependence(
-                        source,
-                        target,
-                        kind,
-                        "may",
-                        fallback_reason=reason,
-                        loop_carried=bool(query["possible_loop_carried"]),
+                    self._add_memory_uncertainty(
+                        source=source,
+                        target=target,
+                        kind=kind,
+                        reason=reason,
+                        possible_loop_carried=bool(
+                            query["possible_loop_carried"]
+                        ),
                     )
                     fallback_reasons[reason] += 1
                 continue
@@ -3729,49 +3796,49 @@ class MLIRGraphBuilder:
             native_fallback_reasons=dict(sorted(fallback_reasons.items())),
         )
 
-    def _add_conservative_memory_dependencies(self) -> None:
-        """Add same-root may-depend edges (RAW, WAW, WAR) when exact alias analysis is unavailable."""
-        groups: dict[tuple[int, int], list[MemoryAccess]] = defaultdict(list)
-        for access in self.memory_accesses:
-            groups[(access.function_id, access.root_node)].append(access)
+    # def _add_conservative_memory_dependencies(self) -> None:
+    #     """Add same-root may-depend edges (RAW, WAW, WAR) when exact alias analysis is unavailable."""
+    #     groups: dict[tuple[int, int], list[MemoryAccess]] = defaultdict(list)
+    #     for access in self.memory_accesses:
+    #         groups[(access.function_id, access.root_node)].append(access)
 
-        for accesses in groups.values():
-            accesses.sort(key=lambda item: item.op_ordinal)
-            last_write: MemoryAccess | None = None
-            reads_since_write: list[MemoryAccess] = []
+    #     for accesses in groups.values():
+    #         accesses.sort(key=lambda item: item.op_ordinal)
+    #         last_write: MemoryAccess | None = None
+    #         reads_since_write: list[MemoryAccess] = []
 
-            for access in accesses:
-                reads = access.mode in {"read", "readwrite"}
-                writes = access.mode in {"write", "readwrite"}
+    #         for access in accesses:
+    #             reads = access.mode in {"read", "readwrite"}
+    #             writes = access.mode in {"write", "readwrite"}
 
-                if reads and last_write is not None:
-                    self._add_memory_dependence(
-                        last_write.op_node,
-                        access.op_node,
-                        "RAW",
-                        "may",
-                    )
+    #             if reads and last_write is not None:
+    #                 self._add_memory_dependence(
+    #                     last_write.op_node,
+    #                     access.op_node,
+    #                     "RAW",
+    #                     "may",
+    #                 )
 
-                if writes:
-                    if last_write is not None:
-                        self._add_memory_dependence(
-                            last_write.op_node,
-                            access.op_node,
-                            "WAW",
-                            "may",
-                        )
-                    for prior_read in reads_since_write:
-                        self._add_memory_dependence(
-                            prior_read.op_node,
-                            access.op_node,
-                            "WAR",
-                            "may",
-                        )
-                    reads_since_write = []
-                    last_write = access
+    #             if writes:
+    #                 if last_write is not None:
+    #                     self._add_memory_dependence(
+    #                         last_write.op_node,
+    #                         access.op_node,
+    #                         "WAW",
+    #                         "may",
+    #                     )
+    #                 for prior_read in reads_since_write:
+    #                     self._add_memory_dependence(
+    #                         prior_read.op_node,
+    #                         access.op_node,
+    #                         "WAR",
+    #                         "may",
+    #                     )
+    #                 reads_since_write = []
+    #                 last_write = access
 
-                if reads and not writes:
-                    reads_since_write.append(access)
+    #             if reads and not writes:
+    #                 reads_since_write.append(access)
 
     @staticmethod
     def _same_source_file(left: str, right: str) -> bool:
@@ -5118,6 +5185,26 @@ def run(args: argparse.Namespace) -> Path:
             require_actions=True,
             allow_conservative_only=args.allow_conservative_only,
         )
+
+        if args.analysis_output:
+            analysis_path = (
+                Path(args.analysis_output)
+                .expanduser()
+                .resolve()
+            )
+            analysis_path.parent.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+            analysis_path.write_text(
+                json.dumps(
+                    result.native_analysis,
+                    sort_keys=True,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+            
         try:
             initial = result.graph
             initial.graph.update(
@@ -5234,7 +5321,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Debug only: permit graph generation without the native analysis binding.",
     )
+    parser.add_argument(
+        "--analysis-output",
+        default="",
+        help=(
+            "Optional path for the complete canonical native-analysis "
+            "JSON report."
+        ),
+    )
     return parser
+
 
 
 def main() -> int:
