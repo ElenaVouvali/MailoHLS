@@ -18,6 +18,8 @@ A graph is reusable only when it matches the current:
   * source-file SHA-256;
   * kernel_info.txt SHA-256;
   * cgeist binary SHA-256;
+  * graph-generator SHA-256;
+  * compiled analysis-extension SHA-256;
   * strict action-mapping policy (no fallback resolutions).
 
 Generation is atomic: a new graph is first written to a temporary path,
@@ -68,10 +70,9 @@ from typing import Iterable
 import networkx as nx
 
 
-EXPECTED_SCHEMA_VERSION = (
-    "mailohls-mlir-graph-v6-root-uncertainty"
-)
-EXPECTED_NATIVE_ANALYSIS_SCHEMA = "mailohls-native-analysis-v3"
+EXPECTED_SCHEMA_VERSION = "mailohls-mlir-graph-v7-analysis-features"
+# Compatibility identifier emitted by the compiled _mailohls_analysis module.
+EXPECTED_COMPILER_ANALYSIS_INPUT_SCHEMA = "mailohls-native-analysis-v3"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 ACTION_ID_RE = re.compile(r"^L[1-9][0-9]*$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -329,7 +330,7 @@ FLOW_MEMORY_DEPENDENCE = 12
 FLOW_MEMORY_UNCERTAINTY = 13
 
 EXPECTED_MEMORY_DEPENDENCE_MODEL = (
-    "native-affine-proven-with-"
+    "mlir-affine-proven-with-"
     "root-summarized-uncertainty"
 )
 
@@ -371,6 +372,24 @@ def validate_memory_contract(
                     False,
                     "flow-12 edge is not compiler-proven",
                 )
+            if str(data.get("analysis", "")) != "mlir-affine-analysis":
+                return False, "flow-12 edge has an invalid analysis tag"
+
+            bounds_known = data.get("distance_bounds_known")
+            if not isinstance(bounds_known, bool):
+                return False, "flow-12 edge lacks distance_bounds_known"
+            try:
+                lower = int(data.get("distance_lower_bound"))
+                upper = int(data.get("distance_upper_bound"))
+                finite_count = int(
+                    data.get("finite_distance_component_count")
+                )
+            except (TypeError, ValueError):
+                return False, "flow-12 edge has invalid distance bounds"
+            if finite_count < 0:
+                return False, "flow-12 edge has a negative component count"
+            if bounds_known and (finite_count == 0 or lower > upper):
+                return False, "flow-12 edge has inconsistent distance bounds"
 
         elif flow == FLOW_MEMORY_UNCERTAINTY:
             uncertainty_edges.append(
@@ -414,7 +433,7 @@ def validate_memory_contract(
             )
 
         if str(data.get("analysis", "")) != (
-            "native-unresolved-root-summary"
+            "mlir-unresolved-root-summary"
         ):
             return (
                 False,
@@ -429,6 +448,15 @@ def validate_memory_contract(
                 "flow-13 edge has no fallback reason",
             )
 
+        try:
+            summarized_count = int(
+                graph.nodes[source].get("summarized_query_count", 0)
+            )
+        except (TypeError, ValueError):
+            summarized_count = 0
+        if summarized_count < 1:
+            return False, "uncertainty node has no summarized query count"
+
     if metadata.get("memory_dependence_model") != (
         EXPECTED_MEMORY_DEPENDENCE_MODEL
     ):
@@ -438,17 +466,21 @@ def validate_memory_contract(
         )
 
     fallback_reasons = metadata.get(
-        "native_fallback_reasons"
+        "compiler_fallback_reasons"
     )
     if not isinstance(fallback_reasons, dict):
         return (
             False,
-            "invalid native_fallback_reasons metadata",
+            "invalid compiler_fallback_reasons metadata",
         )
 
     unresolved_queries = sum(
         int(value)
         for value in fallback_reasons.values()
+    )
+    summarized_occurrences = sum(
+        int(graph.nodes[node].get("summarized_query_count", 0))
+        for node in uncertainty_nodes
     )
 
     if metadata_int(
@@ -478,6 +510,20 @@ def validate_memory_contract(
             "unresolved-query count mismatch",
         )
 
+    if metadata_int(
+        metadata,
+        "summarized_uncertainty_occurrence_count",
+    ) != summarized_occurrences:
+        return (
+            False,
+            "summarized uncertainty-occurrence count mismatch",
+        )
+
+    # One unresolved query can mention more than one memory root, so summary
+    # occurrences may exceed—but must never undershoot—the query count.
+    if summarized_occurrences < unresolved_queries:
+        return False, "unresolved dependence queries were dropped"
+
     return True, ""
 
 
@@ -486,7 +532,7 @@ def validate_existing_graph(
     contract: KernelContract,
     expected_cgeist_sha256: str,
     expected_generator_sha256: str,
-    expected_binding_sha256: str,
+    expected_analysis_extension_sha256: str,
 ) -> tuple[bool, str]:
     """Return whether a GEXF is safe to reuse as current training data."""
     if not path.is_file() or path.stat().st_size == 0:
@@ -511,13 +557,20 @@ def validate_existing_graph(
             f"schema_version={schema!r}, "
             f"expected {EXPECTED_SCHEMA_VERSION!r}",
         )
-    if _metadata_string(metadata, "native_analysis_schema") != EXPECTED_NATIVE_ANALYSIS_SCHEMA:
-        return False, "missing or incompatible native-analysis schema"
-    if _metadata_string(metadata, "binding_sha256") != expected_binding_sha256:
-        return False, "native analysis binding SHA-256 mismatch"
-    coverage = metadata.get("native_analysis_coverage")
+    if _metadata_string(metadata, "compiler_analysis_schema") != EXPECTED_COMPILER_ANALYSIS_INPUT_SCHEMA:
+        return False, "missing or incompatible compiler-analysis schema"
+    if _metadata_string(metadata, "analysis_extension_sha256") != expected_analysis_extension_sha256:
+        return False, "analysis-extension SHA-256 mismatch"
+    coverage = metadata.get("compiler_analysis_coverage")
     if not isinstance(coverage, dict) or int(coverage.get("operations", 0)) <= 0:
-        return False, "missing native-analysis coverage metadata"
+        return False, "missing compiler-analysis coverage metadata"
+
+    effect_unknown_nodes = sum(
+        int(data.get("compiler_effect_analysis_unknown", 0)) == 1
+        for _, data in graph.nodes(data=True)
+    )
+    if effect_unknown_nodes != int(coverage.get("effects_unknown", -1)):
+        return False, "effect-analysis uncertainty count mismatch"
 
     kernel = _metadata_string(metadata, "kernel")
     if kernel != contract.top_level_function:
@@ -806,8 +859,10 @@ def main() -> int:
     try:
         from mlir._mlir_libs import _mailohls_analysis
     except ImportError as exc:
-        raise RuntimeError("The _mailohls_analysis binding is required") from exc
-    binding_sha256 = sha256_file(Path(_mailohls_analysis.__file__))
+        raise RuntimeError(
+            "The compiled _mailohls_analysis extension is required"
+        ) from exc
+    analysis_extension_sha256 = sha256_file(Path(_mailohls_analysis.__file__))
 
     all_kernels = load_all_kernel_names(config_path)
     rows = load_application_rows(app_csv)
@@ -858,6 +913,7 @@ def main() -> int:
     print(f"cgeist:    {cgeist}")
     print(f"cgeist SHA-256:  {cgeist_sha256}")
     print(f"generator SHA-256: {generator_sha256}")
+    print(f"analysis extension SHA-256: {analysis_extension_sha256}")
     print()
 
     for index, app_name in enumerate(selected, start=1):
@@ -922,7 +978,7 @@ def main() -> int:
             contract,
             cgeist_sha256,
             generator_sha256,
-            binding_sha256,
+            analysis_extension_sha256,
         )
         if reusable and not args.force:
             print(
@@ -984,7 +1040,7 @@ def main() -> int:
                 contract,
                 cgeist_sha256,
                 generator_sha256,
-                binding_sha256,
+                analysis_extension_sha256,
             )
 
             if not valid:
@@ -1051,7 +1107,7 @@ def main() -> int:
                 contract,
                 cgeist_sha256,
                 generator_sha256,
-                binding_sha256,
+                analysis_extension_sha256,
             )
         except (
             FileNotFoundError,

@@ -7,7 +7,7 @@ Pipeline
 2. Invoke cgeist at the HLS-oriented MLIR level used by this project:
    "affine + scf + memref + arith + func".
 3. Parse the emitted module with the official MLIR Python bindings.
-4. Query the project-specific native binding for memory effects, buffer views,
+4. Query the compiled MLIR analysis extension for memory effects, buffer views,
    alias classes, affine dependences, and affine loop trip counts.
 5. Build and validate a deterministic networkx.MultiDiGraph and write GEXF.
 
@@ -28,7 +28,7 @@ region, memory, loop-carried, dependence, and action-scope relationships.
 Correctness policy
 ------------------
 Production generation requires exact source-location action matching and the
-native analysis binding.  Proven dependences are marked "certainty=proven";
+compiled analysis extension.  Proven dependences are marked "certainty=proven";
 unsupported or unresolved cases remain explicit conservative edges and are
 never silently treated as independent.  Canonical ordering and metadata hashes
 make repeated runs auditable.
@@ -52,7 +52,7 @@ from collections import Counter, defaultdict
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 
 import networkx as nx
 
@@ -111,7 +111,10 @@ ALL_FLOWS = {
 }
 
 ARRAY_SCOPE_TEXT = "array_scope"
-SCHEMA_VERSION = "mailohls-mlir-graph-v6-root-uncertainty"
+SCHEMA_VERSION = "mailohls-mlir-graph-v7-analysis-features"
+# This identifier is emitted by the already-built _mailohls_analysis extension.
+# Keep it unchanged until that extension's output schema itself changes.
+COMPILER_ANALYSIS_INPUT_SCHEMA = "mailohls-native-analysis-v3"
 GRAPH_METADATA_PREFIX = "mailohls-meta-v1:"
 PERSISTED_GRAPH_METADATA_KEYS = (
     "kernel",
@@ -123,16 +126,17 @@ PERSISTED_GRAPH_METADATA_KEYS = (
     "mlir_level",
     "frontend_policy",
     "action_resolutions",
-    "native_analysis_schema",
-    "binding_sha256",
-    "native_analysis_coverage",
+    "compiler_analysis_schema",
+    "analysis_extension_sha256",
+    "compiler_analysis_coverage",
     "proven_independent_count",
     "proven_dependence_edge_count",
     "unresolved_dependence_query_count",
     "root_uncertainty_feature_count",
+    "summarized_uncertainty_occurrence_count",
     "memory_dependence_model",
-    "native_fallback_reasons",
-    "native_alias_classifications",
+    "compiler_fallback_reasons",
+    "compiler_alias_classifications",
     "must_alias_component_sizes",
 )
 ACTION_ID_RE = re.compile(r"^L([1-9][0-9]*)$")
@@ -254,7 +258,7 @@ class ActionSpec:
     variable: str | None = None
     array_dimensions: tuple[int, ...] = ()
     # Source positions come from the labeled C/C++ contract.  They are matched
-    # against Polygeist's native MLIR locations, not against printed MLIR text.
+    # against Polygeist's structured MLIR locations, not printed MLIR text.
     source_file: str = ""
     source_line: int = 0
     source_column: int = 0
@@ -355,7 +359,7 @@ class GraphBuildResult:
     operation_records: list[OperationRecord]
     memory_accesses: list[MemoryAccess]
     actions: list[ActionSpec]
-    native_analysis: dict[str, Any] | None
+    compiler_analysis: dict[str, Any] | None
 
 
 # ---------------------------------------------------------------------------
@@ -962,16 +966,16 @@ def import_mlir_ir() -> Any:
 
 
 def unwrap_operation(operation: Any) -> Any:
-    """Return the native operation behind an MLIR operation-view wrapper."""
+    """Return the canonical operation behind an MLIR operation-view wrapper."""
     return getattr(operation, "operation", operation)
 
 
 def mlir_wrapper_key(obj: Any) -> tuple[str, int]:
-    """Key equivalent Python wrappers for the same native MLIR object.
+    """Key equivalent Python wrappers for the same underlying MLIR object.
 
-    MLIR may expose one native operation/value through multiple Python wrapper
+    MLIR may expose one operation/value through multiple Python wrapper
     instances.  Wrapper object identity alone would duplicate a true SSA value.
-    The bindings' native hash is preferred; "id" is a compatibility fallback.
+    The bindings' structural hash is preferred; "id" is a compatibility fallback.
     """
     try:
         return (type(obj).__name__, hash(obj))
@@ -1362,8 +1366,8 @@ class MLIRGraphBuilder:
 
     * indexing assigns stable function, block, operation, and SSA identities;
     * structural passes add SSA, control, region, loop, and call relations;
-    * memory passes combine native effects/views/alias/dependence results with
-      conservative fallbacks only where native analysis reports uncertainty;
+    * memory passes combine compiler effects/views/alias/dependence results with
+      conservative fallbacks only where compiler analysis reports uncertainty;
     * action passes attach each source "Lk" loop/array action exactly once.
 
     "MultiDiGraph" is required because the same source/target pair may carry
@@ -1376,20 +1380,20 @@ class MLIRGraphBuilder:
         module: Any,
         mlir_text: str,
         actions: list[ActionSpec],
-        native_analysis: dict[str, Any] | None = None,
-        binding_sha256: str = "",
+        compiler_analysis: dict[str, Any] | None = None,
+        analysis_extension_sha256: str = "",
         conservative_memory_dependencies: bool = True,
         require_actions: bool = False,
     ) -> None:
         self.module = module
         # The official bindings classify an SSA value as OpResult or
         # BlockArgument.  "_value_key" uses that structural identity so two
-        # Python wrappers for one native value never become two graph nodes.
+        # Python wrappers for one MLIR value never become two graph nodes.
         self.ir = import_mlir_ir()
         self.mlir_text = mlir_text
         self.actions = actions
-        self.native_analysis = native_analysis
-        self.binding_sha256 = binding_sha256
+        self.compiler_analysis = compiler_analysis
+        self.analysis_extension_sha256 = analysis_extension_sha256
         self.conservative_memory_dependencies = conservative_memory_dependencies
         self.require_actions = require_actions
 
@@ -1440,20 +1444,23 @@ class MLIRGraphBuilder:
         self.source_function_ids_from_exact_loops: dict[str, set[int]] = (
             defaultdict(set)
         )
-        self.native_effects: dict[tuple[str, int], dict[str, Any]] = {}
-        self.native_views: list[dict[str, Any]] = []
-        self.native_aliases: list[dict[str, Any]] = []
-        self.native_affine_loops: dict[tuple[str, int], dict[str, Any]] = {}
-        self.native_no_alias_pairs: set[frozenset[str]] = set()
-        self.native_view_constraint_pairs: set[tuple[Any, Any]] = set()
-        self.native_must_alias_pairs: set[tuple[Any, Any]] = set()
-        self.native_trip_count_agreements = 0
-        self.native_trip_count_known = 0
+        self.compiler_effects: dict[tuple[str, int], dict[str, Any]] = {}
+        self.compiler_views: list[dict[str, Any]] = []
+        self.compiler_aliases: list[dict[str, Any]] = []
+        self.compiler_affine_loops: dict[tuple[str, int], dict[str, Any]] = {}
+        self.compiler_no_alias_pairs: set[frozenset[str]] = set()
+        self.compiler_view_constraint_pairs: set[tuple[Any, Any]] = set()
+        self.compiler_must_alias_pairs: set[tuple[Any, Any]] = set()
+        self.compiler_trip_count_agreements = 0
+        self.compiler_trip_count_known = 0
 
         self.access_roots_by_op: dict[int, set[int]] = defaultdict(set)
-        self.root_uncertainty_features: set[
-            tuple[int, str, str, bool]
-        ] = set()
+        # One summary node represents a repeated unresolved relationship for a
+        # memory root.  The dictionary preserves both compact topology and the
+        # number of analysis queries summarized by that node.
+        self.root_uncertainty_features: dict[
+            tuple[int, str, str, bool], int
+        ] = {}
 
     def _value_key(self, value: Any) -> tuple[str, Any, int]:
         """
@@ -1526,13 +1533,13 @@ class MLIRGraphBuilder:
             self.function_operations[function_id] = operation
             self._index_function(function_id, name, operation)
 
-        # Phase 2: validate native identities before using any analysis record,
+        # Phase 2: validate compiler-analysis identities before using records,
         # then materialize SSA and static memory-shape structure.
-        self._validate_native_analysis()
+        self._validate_compiler_analysis()
         self._add_ssa_edges()
         self._add_memory_shape_features()
 
-        # Phase 3: resolve declared loop actions early so native and source
+        # Phase 3: resolve declared loop actions early so compiler and source
         # trip-count information can be checked while annotating each loop.
         declared_loops: dict[int, ActionSpec] = {}
         for spec in (item for item in self.actions if item.kind == "loop"):
@@ -1583,46 +1590,48 @@ class MLIRGraphBuilder:
             operation_records=self.operation_records,
             memory_accesses=self.memory_accesses,
             actions=self.actions,
-            native_analysis=self.native_analysis,
+            compiler_analysis=self.compiler_analysis,
         )
 
-    def _validate_native_analysis(self) -> None:
-        """Validate the complete native schema and align it with indexed MLIR.
+    def _validate_compiler_analysis(self) -> None:
+        """Validate the complete compiler-analysis result against indexed MLIR.
 
         Missing, duplicate, out-of-order, or mismatched records are fatal.  In
         particular, unsupported analysis is never reinterpreted as no effect,
         no alias, or no dependence.
         """
-        if self.native_analysis is None:
+        if self.compiler_analysis is None:
             self.graph.graph.update(
-                native_analysis_schema="conservative-only-debug",
-                binding_sha256="",
-                native_analysis_coverage={},
+                compiler_analysis_schema="conservative-only-debug",
+                analysis_extension_sha256="",
+                compiler_analysis_coverage={},
             )
             return
-        if not isinstance(self.native_analysis, dict):
-            raise RuntimeError("Native analysis must be a dictionary")
+        if not isinstance(self.compiler_analysis, dict):
+            raise RuntimeError("Compiler analysis must be a dictionary")
         required_sections = {
             "schema", "operations", "effects", "views", "aliases",
             "dependences", "affine_loops", "coverage", "verification",
         }
-        missing_sections = required_sections - self.native_analysis.keys()
+        missing_sections = required_sections - self.compiler_analysis.keys()
         if missing_sections:
             raise RuntimeError(
-                f"Native analysis is incomplete: missing {sorted(missing_sections)}"
+                "Compiler analysis is incomplete: "
+                f"missing {sorted(missing_sections)}"
             )
-        if self.native_analysis.get("schema") != "mailohls-native-analysis-v3":
+        if self.compiler_analysis.get("schema") != COMPILER_ANALYSIS_INPUT_SCHEMA:
             raise RuntimeError(
-                f"Unsupported native analysis schema: {self.native_analysis.get('schema')!r}"
+                "Unsupported compiler-analysis input schema: "
+                f"{self.compiler_analysis.get('schema')!r}"
             )
         if any(
-            not isinstance(self.native_analysis[name], list)
+            not isinstance(self.compiler_analysis[name], list)
             for name in (
                 "operations", "effects", "views", "aliases",
                 "dependences", "affine_loops",
             )
         ):
-            raise RuntimeError("Native analysis record sections must be lists")
+            raise RuntimeError("Compiler-analysis record sections must be lists")
 
         def identity(item: Mapping[str, Any], label: str) -> tuple[str, int, str]:
             try:
@@ -1632,26 +1641,32 @@ class MLIRGraphBuilder:
                     str(item["op_name"]),
                 )
             except (KeyError, TypeError, ValueError) as exc:
-                raise RuntimeError(f"Invalid native {label} identity: {item!r}") from exc
+                raise RuntimeError(
+                    f"Invalid compiler-analysis {label} identity: {item!r}"
+                ) from exc
             if result[1] < 0 or not result[0] or not result[2]:
-                raise RuntimeError(f"Invalid native {label} identity: {item!r}")
+                raise RuntimeError(
+                    f"Invalid compiler-analysis {label} identity: {item!r}"
+                )
             return result
 
-        native_ids = [
+        analysis_ids = [
             identity(item, "operation")
-            for item in self.native_analysis["operations"]
+            for item in self.compiler_analysis["operations"]
         ]
         python_ids = [
             (self.functions[item.function_id], item.function_ordinal, item.op_name)
             for item in self.operation_records
         ]
-        if len(native_ids) != len(set(native_ids)):
-            raise RuntimeError("Native analysis contains duplicate operation identities")
-        if native_ids != python_ids:
-            missing = sorted(set(python_ids) - set(native_ids))
-            extra = sorted(set(native_ids) - set(python_ids))
+        if len(analysis_ids) != len(set(analysis_ids)):
             raise RuntimeError(
-                "Native/Python operation identity mismatch: "
+                "Compiler analysis contains duplicate operation identities"
+            )
+        if analysis_ids != python_ids:
+            missing = sorted(set(python_ids) - set(analysis_ids))
+            extra = sorted(set(analysis_ids) - set(python_ids))
+            raise RuntimeError(
+                "Compiler/Python operation identity mismatch: "
                 f"missing={missing[:5]}, extra={extra[:5]}"
             )
         record_by_id = {
@@ -1669,18 +1684,22 @@ class MLIRGraphBuilder:
         }
 
         effect_ids: list[tuple[str, int, str]] = []
-        operation_feature_effects: dict[tuple[str, int, str], list[str]] = {}
+        operation_feature_effects: dict[
+            tuple[str, int, str], tuple[str, list[str]]
+        ] = {}
         allowed_effects = {"read", "write", "allocate", "free", "unknown_effect"}
         allowed_statuses = {"known", "known_no_effect", "unknown"}
-        for item in self.native_analysis["effects"]:
+        for item in self.compiler_analysis["effects"]:
             item_id = identity(item, "effect")
             effect_ids.append(item_id)
             if item_id not in record_by_id:
-                raise RuntimeError(f"Native effect references unknown operation: {item_id}")
+                raise RuntimeError(
+                    f"Compiler effect references unknown operation: {item_id}"
+                )
             status = str(item.get("status", ""))
             entries = item.get("effects")
             if status not in allowed_statuses or not isinstance(entries, list):
-                raise RuntimeError(f"Invalid native effect record: {item!r}")
+                raise RuntimeError(f"Invalid compiler effect record: {item!r}")
             if status in {"known_no_effect", "unknown"} and entries:
                 raise RuntimeError(f"{status} effect record must be empty: {item_id}")
             if status == "known" and not entries:
@@ -1691,11 +1710,13 @@ class MLIRGraphBuilder:
             for effect in entries:
                 kind = str(effect.get("kind", ""))
                 if kind not in allowed_effects:
-                    raise RuntimeError(f"Invalid native effect kind: {effect!r}")
+                    raise RuntimeError(f"Invalid compiler effect kind: {effect!r}")
                 value = effect.get("value")
                 value_id = None if value is None else str(value)
                 if value_id is not None and value_id not in value_ids:
-                    raise RuntimeError(f"Native effect references unknown value: {value_id}")
+                    raise RuntimeError(
+                        f"Compiler effect references unknown value: {value_id}"
+                    )
                 operand_index = effect.get("operand_index")
                 if operand_index is not None:
                     if isinstance(operand_index, bool):
@@ -1710,30 +1731,32 @@ class MLIRGraphBuilder:
                     )
                     if value_id != expected_value:
                         raise RuntimeError(
-                            "Native effect operand/value mismatch: "
+                            "Compiler effect operand/value mismatch: "
                             f"{value_id!r} != {expected_value!r}"
                         )
                 if operand_index is None:
                     unassociated_effects.append(kind)
                 effect_key = (kind, value_id, operand_index)
                 if effect_key in seen_effects:
-                    raise RuntimeError(f"Duplicate native effect entry: {effect_key}")
+                    raise RuntimeError(
+                        f"Duplicate compiler effect entry: {effect_key}"
+                    )
                 seen_effects.add(effect_key)
-            operation_feature_effects[item_id] = unassociated_effects
-        if effect_ids != native_ids or len(effect_ids) != len(set(effect_ids)):
+            operation_feature_effects[item_id] = (status, unassociated_effects)
+        if effect_ids != analysis_ids or len(effect_ids) != len(set(effect_ids)):
             raise RuntimeError(
-                "Native effects must contain exactly one ordered record per operation"
+                "Compiler effects must contain exactly one ordered record per operation"
             )
-        self.native_effects = {
+        self.compiler_effects = {
             (function, ordinal): item
-            for (function, ordinal, _), item in zip(effect_ids, self.native_analysis["effects"])
+            for (function, ordinal, _), item in zip(effect_ids, self.compiler_analysis["effects"])
         }
 
-        self.native_views = list(self.native_analysis["views"])
+        self.compiler_views = list(self.compiler_analysis["views"])
         seen_views: set[tuple[str, str]] = set()
-        for item in self.native_views:
+        for item in self.compiler_views:
             if set(item) != {"source", "target"}:
-                raise RuntimeError(f"Invalid native view record: {item!r}")
+                raise RuntimeError(f"Invalid compiler view record: {item!r}")
             pair = (str(item["source"]), str(item["target"]))
             if (
                 pair[0] == pair[1]
@@ -1741,15 +1764,15 @@ class MLIRGraphBuilder:
                 or pair[1] not in memory_value_ids
                 or pair in seen_views
             ):
-                raise RuntimeError(f"Invalid or duplicate native view: {pair}")
+                raise RuntimeError(f"Invalid or duplicate compiler view: {pair}")
             seen_views.add(pair)
 
-        self.native_aliases = list(self.native_analysis["aliases"])
+        self.compiler_aliases = list(self.compiler_analysis["aliases"])
         seen_aliases: set[tuple[str, str]] = set()
         allowed_aliases = {"no_alias", "must_alias", "partial_alias", "may_alias"}
-        for item in self.native_aliases:
+        for item in self.compiler_aliases:
             if set(item) != {"lhs", "rhs", "result"}:
-                raise RuntimeError(f"Invalid native alias record: {item!r}")
+                raise RuntimeError(f"Invalid compiler alias record: {item!r}")
             lhs, rhs = str(item["lhs"]), str(item["rhs"])
             pair = tuple(sorted((lhs, rhs)))
             if (
@@ -1759,31 +1782,39 @@ class MLIRGraphBuilder:
                 or pair in seen_aliases
                 or item["result"] not in allowed_aliases
             ):
-                raise RuntimeError(f"Invalid or duplicate native alias: {item!r}")
+                raise RuntimeError(
+                    f"Invalid or duplicate compiler alias: {item!r}"
+                )
             seen_aliases.add(pair)
 
         affine_ids = {
             item_id for item_id in python_ids if item_id[2] == "affine.for"
         }
         loop_ids: list[tuple[str, int, str]] = []
-        for item in self.native_analysis["affine_loops"]:
+        for item in self.compiler_analysis["affine_loops"]:
             item_id = identity(item, "affine loop")
             loop_ids.append(item_id)
             status = str(item.get("status", ""))
             if item_id not in affine_ids or status not in {"known", "unknown"}:
-                raise RuntimeError(f"Invalid native affine-loop record: {item!r}")
+                raise RuntimeError(
+                    f"Invalid compiler affine-loop record: {item!r}"
+                )
             if status == "known":
                 count = item.get("trip_count")
                 if isinstance(count, bool) or not isinstance(count, int) or count < 0:
-                    raise RuntimeError(f"Invalid native affine trip count: {item!r}")
+                    raise RuntimeError(
+                        f"Invalid compiler affine trip count: {item!r}"
+                    )
             elif "trip_count" in item:
                 raise RuntimeError(f"Unknown affine loop has a trip count: {item!r}")
         if set(loop_ids) != affine_ids or len(loop_ids) != len(set(loop_ids)):
-            raise RuntimeError("Native affine-loop records are incomplete or duplicate")
-        self.native_affine_loops = {
+            raise RuntimeError(
+                "Compiler affine-loop records are incomplete or duplicate"
+            )
+        self.compiler_affine_loops = {
             (function, ordinal): item
             for (function, ordinal, _), item in zip(
-                loop_ids, self.native_analysis["affine_loops"]
+                loop_ids, self.compiler_analysis["affine_loops"]
             )
         }
 
@@ -1803,7 +1834,7 @@ class MLIRGraphBuilder:
         }
         allowed_kinds = {"RAW", "WAR", "WAW"}
         valid_ids = set(python_ids)
-        for item in self.native_analysis["dependences"]:
+        for item in self.compiler_analysis["dependences"]:
             source = identity(item.get("source", {}), "dependence source")
             target = identity(item.get("target", {}), "dependence target")
             kind = str(item.get("kind", ""))
@@ -1821,77 +1852,112 @@ class MLIRGraphBuilder:
                 or not isinstance(fallback, bool)
                 or key in dependence_keys
             ):
-                raise RuntimeError(f"Invalid or duplicate native dependence: {item!r}")
+                raise RuntimeError(
+                    f"Invalid or duplicate compiler dependence: {item!r}"
+                )
             if (result, fallback) != reason_policy[reason]:
                 raise RuntimeError(
-                    f"Native dependence violates reason policy: {item!r}"
+                    f"Compiler dependence violates reason policy: {item!r}"
                 )
             if not isinstance(item.get("possible_loop_carried"), bool):
                 raise RuntimeError(
-                    f"Native dependence lacks possible-loop-carried flag: {item!r}"
+                    "Compiler dependence lacks possible-loop-carried flag: "
+                    f"{item!r}"
                 )
             if result == "dependence":
-                if not isinstance(item.get("components"), list):
+                components = item.get("components")
+                if not isinstance(components, list):
                     raise RuntimeError(f"Dependence lacks components: {item!r}")
                 if not isinstance(item.get("loop_carried"), bool):
                     raise RuntimeError(f"Dependence lacks loop-carried flag: {item!r}")
+                depth = item.get("dependence_depth")
+                if (
+                    isinstance(depth, bool)
+                    or not isinstance(depth, int)
+                    or depth < 0
+                ):
+                    raise RuntimeError(
+                        f"Dependence has invalid depth: {item!r}"
+                    )
+                for component in components:
+                    if not isinstance(component, dict):
+                        raise RuntimeError(
+                            f"Dependence has invalid component: {item!r}"
+                        )
+                    lower = component.get("lower")
+                    upper = component.get("upper")
+                    if any(
+                        value is not None
+                        and (isinstance(value, bool) or not isinstance(value, int))
+                        for value in (lower, upper)
+                    ):
+                        raise RuntimeError(
+                            f"Dependence has non-integer bounds: {item!r}"
+                        )
+                    if lower is not None and upper is not None and lower > upper:
+                        raise RuntimeError(
+                            f"Dependence has inverted bounds: {item!r}"
+                        )
             dependence_keys.add(key)
             dependence_counts[result] += 1
 
-        coverage = self.native_analysis["coverage"]
+        coverage = self.compiler_analysis["coverage"]
         if not isinstance(coverage, dict):
-            raise RuntimeError("Native analysis coverage must be a dictionary")
+            raise RuntimeError("Compiler-analysis coverage must be a dictionary")
         expected_coverage = {
-            "operations": len(native_ids),
+            "operations": len(analysis_ids),
             "effects_with_effects": sum(
                 item["status"] == "known"
-                for item in self.native_analysis["effects"]
+                for item in self.compiler_analysis["effects"]
             ),
             "effects_known_no_effect": sum(
                 item["status"] == "known_no_effect"
-                for item in self.native_analysis["effects"]
+                for item in self.compiler_analysis["effects"]
             ),
             "effects_unknown": sum(
                 item["status"] == "unknown"
-                for item in self.native_analysis["effects"]
+                for item in self.compiler_analysis["effects"]
             ),
-            "view_edges": len(self.native_views),
-            "alias_queries": len(self.native_aliases),
+            "view_edges": len(self.compiler_views),
+            "alias_queries": len(self.compiler_aliases),
             **{name: dependence_counts[name] for name in allowed_results},
         }
         for name, expected in expected_coverage.items():
             if coverage.get(name) != expected:
                 raise RuntimeError(
-                    f"Native coverage mismatch for {name}: "
+                    f"Compiler-analysis coverage mismatch for {name}: "
                     f"{coverage.get(name)!r} != {expected}"
                 )
-        self.native_no_alias_pairs = {
+        self.compiler_no_alias_pairs = {
             frozenset((str(item["lhs"]), str(item["rhs"])))
-            for item in self.native_aliases
+            for item in self.compiler_aliases
             if item.get("result") == "no_alias"
         }
-        verification = self.native_analysis.get("verification", {})
+        verification = self.compiler_analysis.get("verification", {})
         if verification != {"before": True, "after": True, "unchanged": True}:
-            raise RuntimeError(f"Native analysis verification failed: {verification}")
-        for item_id, effect_kinds in operation_feature_effects.items():
-            if not effect_kinds:
-                continue
+            raise RuntimeError(
+                f"Compiler analysis verification failed: {verification}"
+            )
+        for item_id, (status, effect_kinds) in operation_feature_effects.items():
             record = record_by_id[item_id]
             bounded = sorted(set(effect_kinds))[:5]
             node = self.graph.nodes[record.node]
-            node["native_operation_effects"] = ",".join(bounded)
+            node["compiler_operation_effects"] = ",".join(bounded)
             # Bound multiplicity at eight so graph files and model features
             # cannot grow with dialect-specific repeated effect instances.
-            node["native_operation_effect_count"] = min(len(effect_kinds), 8)
+            node["compiler_operation_effect_count"] = min(len(effect_kinds), 8)
+            # This is distinct from an explicit "unknown_effect".  It means
+            # MemoryEffectOpInterface could not characterize this operation.
+            node["compiler_effect_analysis_unknown"] = int(status == "unknown")
             for kind in allowed_effects:
                 feature_kind = "unknown" if kind == "unknown_effect" else kind
-                node[f"native_operation_effect_{feature_kind}"] = int(
+                node[f"compiler_operation_effect_{feature_kind}"] = int(
                     kind in effect_kinds
                 )
         self.graph.graph.update(
-            native_analysis_schema=self.native_analysis["schema"],
-            binding_sha256=self.binding_sha256,
-            native_analysis_coverage=self.native_analysis.get("coverage", {}),
+            compiler_analysis_schema=self.compiler_analysis["schema"],
+            analysis_extension_sha256=self.analysis_extension_sha256,
+            compiler_analysis_coverage=self.compiler_analysis.get("coverage", {}),
         )
 
     def _new_node(self, attrs: dict[str, Any]) -> int:
@@ -1954,7 +2020,7 @@ class MLIRGraphBuilder:
         regions = operation_regions(function_operation)
         if not regions or not region_blocks(regions[0]):
             # A declaration has no MLIR block and therefore must not consume a
-            # native/Python block ordinal. Use a non-index sentinel only on
+            # compiler/Python block ordinal. Use a non-index sentinel only on
             # the declaration's function node.
             return -1
         return self.blocks[mlir_wrapper_key(region_blocks(regions[0])[0])].block_id
@@ -2204,7 +2270,7 @@ class MLIRGraphBuilder:
 
     def _add_ssa_edges(self) -> None:
         """
-        Connect MLIR's native use-def chains ("Value.uses") and retain exact positions.
+        Connect MLIR's use-def chains ("Value.uses") and retain exact positions.
         """
         for record in sorted(
             self.operation_records,
@@ -2248,7 +2314,7 @@ class MLIRGraphBuilder:
                         self.constant_values[result_key] = integer
 
         resolved_uses: list[tuple[int, OperationRecord, int]] = []
-        native_uses_available = True
+        mlir_uses_available = True
         try:
             for key, value in sorted(
                 self.value_objects.items(),
@@ -2266,10 +2332,10 @@ class MLIRGraphBuilder:
                         (self.value_nodes[key], user, int(use.operand_number))
                     )
         except AttributeError:
-            native_uses_available = False
+            mlir_uses_available = False
             resolved_uses = []
 
-        if not native_uses_available:
+        if not mlir_uses_available:
             for record in self.operation_records:
                 for position, (operand, key) in enumerate(
                     zip(record.operands, record.operand_keys)
@@ -2300,7 +2366,7 @@ class MLIRGraphBuilder:
 
         for node in self.value_nodes.values():
             self.graph.nodes[node]["ssa_use_count"] = use_count_by_value.get(node, 0)
-        self.graph.graph["ssa_use_api"] = "Value.uses" if native_uses_available else "operand_fallback"
+        self.graph.graph["ssa_use_api"] = "Value.uses" if mlir_uses_available else "operand_fallback"
 
     def _add_control_and_region_edges(self) -> None:
         """Encode direct operation order, CFG successors, and region ownership."""
@@ -2720,23 +2786,27 @@ class MLIRGraphBuilder:
 
         trip_count_source = "mlir" if trip_count is not None else "unknown"
         if record.op_name == "affine.for":
-            native = self.native_affine_loops.get(
+            analysis_record = self.compiler_affine_loops.get(
                 (self.functions[record.function_id], record.function_ordinal)
             )
-            if native is not None and native.get("status") == "known":
-                native_trip_count = int(native["trip_count"])
-                self.native_trip_count_known += 1
-                if trip_count is not None and trip_count != native_trip_count:
+            if (
+                analysis_record is not None
+                and analysis_record.get("status") == "known"
+            ):
+                compiler_trip_count = int(analysis_record["trip_count"])
+                self.compiler_trip_count_known += 1
+                if trip_count is not None and trip_count != compiler_trip_count:
                     raise RuntimeError(
-                        "Native/Python affine trip-count mismatch for "
+                        "Compiler/Python affine trip-count mismatch for "
                         f"{self.functions[record.function_id]}:op"
-                        f"{record.function_ordinal}: native={native_trip_count}, "
+                        f"{record.function_ordinal}: "
+                        f"compiler={compiler_trip_count}, "
                         f"python={trip_count}"
                     )
                 if trip_count is not None:
-                    self.native_trip_count_agreements += 1
-                trip_count = native_trip_count
-                trip_count_source = "native"
+                    self.compiler_trip_count_agreements += 1
+                trip_count = compiler_trip_count
+                trip_count_source = "mlir_affine_analysis"
 
         kernel_info_loop_value = (
             action.kernel_info_loop_value if action is not None else None
@@ -2754,7 +2824,7 @@ class MLIRGraphBuilder:
         data["trip_count"] = trip_count if trip_count is not None else -1
         data["trip_count_static"] = 1 if trip_count is not None else 0
         data["trip_count_source"] = trip_count_source
-        # Audit-only historical metadata. Native/MLIR analysis is the sole
+        # Audit-only historical metadata. Compiler/MLIR analysis is the sole
         # authority for the actual trip count. If MLIR cannot prove a count,
         # keep it unknown instead of fabricating a static feature.
         data["kernel_info_loop_value"] = (
@@ -2788,9 +2858,9 @@ class MLIRGraphBuilder:
                 position=900,
                 role="loop_trip_count",
             )
-        self.graph.graph["native_trip_count_known"] = self.native_trip_count_known
-        self.graph.graph["native_trip_count_agreements"] = (
-            self.native_trip_count_agreements
+        self.graph.graph["compiler_trip_count_known"] = self.compiler_trip_count_known
+        self.graph.graph["compiler_trip_count_agreements"] = (
+            self.compiler_trip_count_agreements
         )
 
     def _add_loop_carried_edges(self) -> None:
@@ -3206,52 +3276,54 @@ class MLIRGraphBuilder:
         fallback_constraints = sum(
             len(sources) for sources in self.memory_alias_sources.values()
         )
-        native_value_keys = {
+        compiler_value_keys = {
             str(self.graph.nodes[node].get("ssa_id")): key
             for key, node in self.value_nodes.items()
         }
-        native_view_constraints = 0
-        for relation in self.native_views:
+        compiler_view_constraints = 0
+        for relation in self.compiler_views:
             source_id = str(relation["source"])
             target_id = str(relation["target"])
-            source = native_value_keys.get(source_id)
-            target = native_value_keys.get(target_id)
+            source = compiler_value_keys.get(source_id)
+            target = compiler_value_keys.get(target_id)
             if source is None or target is None:
                 raise RuntimeError(
-                    f"Native view references unknown value: {source_id}->{target_id}"
+                    "Compiler view analysis references unknown value: "
+                    f"{source_id}->{target_id}"
                 )
             self._add_alias_source(source, target)
-            self.native_view_constraint_pairs.add((source, target))
+            self.compiler_view_constraint_pairs.add((source, target))
             self.graph.add_edge(
                 self.value_nodes[source],
                 self.value_nodes[target],
                 flow=FLOW_MEMORY_VIEW,
                 position=2,
-                role="native_derived_view",
+                role="compiler_derived_view",
                 certainty="proven",
             )
-            native_view_constraints += 1
+            compiler_view_constraints += 1
 
         alias_counts: Counter[str] = Counter()
-        for relation in self.native_aliases:
+        for relation in self.compiler_aliases:
             lhs_id = str(relation["lhs"])
             rhs_id = str(relation["rhs"])
             classification = str(relation["result"])
             alias_counts[classification] += 1
-            lhs = native_value_keys.get(lhs_id)
-            rhs = native_value_keys.get(rhs_id)
+            lhs = compiler_value_keys.get(lhs_id)
+            rhs = compiler_value_keys.get(rhs_id)
             if lhs is None or rhs is None:
                 raise RuntimeError(
-                    f"Native alias references unknown value: {lhs_id}, {rhs_id}"
+                    "Compiler alias analysis references unknown value: "
+                    f"{lhs_id}, {rhs_id}"
                 )
             if classification == "no_alias":
                 continue
             if classification not in {"must_alias", "may_alias", "partial_alias"}:
                 raise RuntimeError(
-                    f"Unknown native alias classification: {classification}"
+                    f"Unknown compiler alias classification: {classification}"
                 )
             if classification == "must_alias":
-                self.native_must_alias_pairs.add((lhs, rhs))
+                self.compiler_must_alias_pairs.add((lhs, rhs))
             certainty = {
                 "must_alias": "proven",
                 "may_alias": "may",
@@ -3268,8 +3340,8 @@ class MLIRGraphBuilder:
                 )
 
         self.graph.graph["fallback_view_constraints"] = fallback_constraints
-        self.graph.graph["native_view_constraints"] = native_view_constraints
-        self.graph.graph["native_alias_classifications"] = dict(
+        self.graph.graph["compiler_view_constraints"] = compiler_view_constraints
+        self.graph.graph["compiler_alias_classifications"] = dict(
             sorted(alias_counts.items())
         )
 
@@ -3354,12 +3426,15 @@ class MLIRGraphBuilder:
 
     def _memory_operands(self, record: OperationRecord) -> list[tuple[int, str]]:
         """Return direct effects or the inferred summary at a call site."""
-        native = self.native_effects.get(
+        analysis_record = self.compiler_effects.get(
             (self.functions[record.function_id], record.function_ordinal)
         )
-        if native is not None and native.get("status") != "unknown":
+        if (
+            analysis_record is not None
+            and analysis_record.get("status") != "unknown"
+        ):
             by_operand: dict[int, str] = {}
-            for effect in native.get("effects", []):
+            for effect in analysis_record.get("effects", []):
                 kind = str(effect.get("kind"))
                 if kind not in {"read", "write"}:
                     continue
@@ -3371,7 +3446,7 @@ class MLIRGraphBuilder:
                 position = int(operand_index)
                 if position < 0 or position >= len(record.operands):
                     raise RuntimeError(
-                        f"Native effect operand {position} is out of range for "
+                        f"Compiler effect operand {position} is out of range for "
                         f"{record.op_name}"
                     )
                 if not is_memory_type(value_type(record.operands[position])):
@@ -3430,7 +3505,7 @@ class MLIRGraphBuilder:
             parent[rhs_root] = lhs_root
 
         for lhs, rhs in sorted(
-            self.native_must_alias_pairs,
+            self.compiler_must_alias_pairs,
             key=lambda pair: (self.value_nodes[pair[0]], self.value_nodes[pair[1]]),
         ):
             union(lhs, rhs)
@@ -3498,20 +3573,20 @@ class MLIRGraphBuilder:
             (len(members) for members in classes.values()), reverse=True
         )
         self.graph.graph["must_alias_component_sizes"] = component_sizes
-        native_value_keys = {
+        compiler_value_keys = {
             str(self.graph.nodes[node].get("ssa_id")): key
             for key, node in self.value_nodes.items()
         }
-        for pair in self.native_no_alias_pairs:
+        for pair in self.compiler_no_alias_pairs:
             lhs_id, rhs_id = sorted(pair)
-            lhs = native_value_keys.get(lhs_id)
-            rhs = native_value_keys.get(rhs_id)
+            lhs = compiler_value_keys.get(lhs_id)
+            rhs = compiler_value_keys.get(rhs_id)
             if lhs is not None and rhs is not None and roots[lhs] & roots[rhs]:
                 raise RuntimeError(
-                    "Native NoAlias values acquired a common memory root: "
+                    "Compiler NoAlias values acquired a common memory root: "
                     f"{lhs_id}, {rhs_id}"
                 )
-        native_root_edges = fallback_root_edges = 0
+        compiler_root_edges = fallback_root_edges = 0
         for key, value_roots in roots.items():
             value_node = self.value_nodes[key]
             self.graph.nodes[value_node]["memory_root_count"] = len(value_roots)
@@ -3528,14 +3603,14 @@ class MLIRGraphBuilder:
                 )
                 sources = self.memory_alias_sources.get(key, set())
                 if any(
-                    (source, key) in self.native_view_constraint_pairs
+                    (source, key) in self.compiler_view_constraint_pairs
                     and root in roots.get(source, set())
                     for source in sources
                 ) or any(
                     key in pair and root in roots.get(next(iter(set(pair) - {key})), set())
-                    for pair in self.native_must_alias_pairs
+                    for pair in self.compiler_must_alias_pairs
                 ):
-                    native_root_edges += 1
+                    compiler_root_edges += 1
                 elif sources:
                     fallback_root_edges += 1
                 self.graph.add_edge(
@@ -3545,7 +3620,7 @@ class MLIRGraphBuilder:
                     position=1,
                     role="may_alias_root_reverse",
                 )
-        self.graph.graph["native_root_edges"] = native_root_edges
+        self.graph.graph["compiler_root_edges"] = compiler_root_edges
         self.graph.graph["fallback_root_edges"] = fallback_root_edges
 
     def _build_memory_relations(self) -> None:
@@ -3557,11 +3632,11 @@ class MLIRGraphBuilder:
             "ssa-views+region-yields+loop-carried+context-insensitive-calls"
         )
         self.graph.graph["call_effect_model"] = "body-summary-fixed-point"
-        # Seed conservative ordering for memory operations outside native
-        # affine query coverage. Native query outcomes below replace the
+        # Seed conservative ordering for memory operations outside compiler
+        # affine-query coverage. Compiler query outcomes below replace the
         # corresponding source/target/kind edge explicitly.
         self.graph.graph["memory_dependence_model"] = (
-            "native-query-directed-with-conservative-unqueried"
+            "compiler-query-directed-with-conservative-unqueried"
         )
         self.graph.graph["exact_affine_dependence"] = 0
 
@@ -3611,10 +3686,10 @@ class MLIRGraphBuilder:
                     )
                     self.access_roots_by_op[record.node].add(root)
 
-        # Exact native results provide direct dependence edges. Unresolved cases are
+        # Exact compiler results provide direct dependence edges. Unresolved cases are
         # represented through memory-root uncertainty rather than speculative direct
         # operation-to-operation edges.
-        self._apply_native_dependences()
+        self._apply_compiler_dependences()
 
     def _add_memory_dependence(
         self,
@@ -3625,6 +3700,10 @@ class MLIRGraphBuilder:
         distance: Any = None,
         dependence_depth: int = 0,
         distance_known: bool = False,
+        distance_bounds_known: bool = False,
+        distance_lower_bound: int = 0,
+        distance_upper_bound: int = 0,
+        finite_distance_component_count: int = 0,
         first_nonzero_distance: int = 0,
         loop_carried: bool = False,
         fallback_reason: str = "",
@@ -3638,9 +3717,19 @@ class MLIRGraphBuilder:
             role=kind,
             certainty=certainty,
             distance=[] if distance is None else distance,
-            analysis="native-affine" if certainty == "proven" else "conservative",
+            analysis=(
+                "mlir-affine-analysis"
+                if certainty == "proven"
+                else "conservative"
+            ),
             dependence_depth=int(dependence_depth),
             distance_known=bool(distance_known),
+            distance_bounds_known=bool(distance_bounds_known),
+            distance_lower_bound=int(distance_lower_bound),
+            distance_upper_bound=int(distance_upper_bound),
+            finite_distance_component_count=int(
+                finite_distance_component_count
+            ),
             first_nonzero_distance=int(first_nonzero_distance),
             loop_carried=bool(loop_carried),
         )
@@ -3649,7 +3738,7 @@ class MLIRGraphBuilder:
         self.graph.add_edge(source, target, **attrs)
 
     def _remove_memory_dependence(self, source: int, target: int, kind: str) -> None:
-        """Remove an earlier fallback edge superseded by one native query."""
+        """Remove an earlier fallback edge superseded by compiler analysis."""
         edge_data = self.graph.get_edge_data(source, target, default={})
         for key, attrs in list(edge_data.items()):
             if (
@@ -3674,6 +3763,12 @@ class MLIRGraphBuilder:
             | self.access_roots_by_op.get(target, set())
         )
 
+        if not roots:
+            raise RuntimeError(
+                "Unresolved dependence has no associated memory root: "
+                f"{source}->{target} {kind}"
+            )
+
         for root in roots:
             key = (
                 root,
@@ -3682,8 +3777,9 @@ class MLIRGraphBuilder:
                 bool(possible_loop_carried),
             )
             if key in self.root_uncertainty_features:
+                feature = self.root_uncertainty_features[key]
+                self.graph.nodes[feature]["summarized_query_count"] += 1
                 continue
-            self.root_uncertainty_features.add(key)
 
             root_data = self.graph.nodes[root]
             feature = self._new_node(
@@ -3694,8 +3790,10 @@ class MLIRGraphBuilder:
                     "type": NODE_TYPE_IMMEDIATE,
                     "full_text": reason,
                     "feature_kind": "memory_uncertainty",
+                    "summarized_query_count": 1,
                 }
             )
+            self.root_uncertainty_features[key] = feature
             
             self.graph.add_edge(
                 feature,
@@ -3704,29 +3802,25 @@ class MLIRGraphBuilder:
                 position=MEMORY_DEPENDENCE_POSITION[kind],
                 role=kind,
                 certainty="may",
-                analysis="native-unresolved-root-summary",
+                analysis="mlir-unresolved-root-summary",
                 fallback_reason=reason,
                 loop_carried=bool(possible_loop_carried),
             )
 
 
-    def _apply_native_dependences(self) -> None:
-        """Replace conservative candidates according to native query outcomes."""
-        if self.native_analysis is None:
-            fallback = sum(
-                int(data.get("flow", -1)) == FLOW_MEMORY_DEPENDENCE
-                for _, _, data in self.graph.edges(data=True)
-            )
+    def _apply_compiler_dependences(self) -> None:
+        """Apply proven results and compact unresolved-query summaries."""
+        if self.compiler_analysis is None:
             self.graph.graph.update(
                 proven_independent_count=0,
                 memory_dependence_model="conservative-only-debug",
                 exact_affine_dependence=0,
-                native_fallback_reasons={},
+                compiler_fallback_reasons={},
             )
             return
         exact = independent = 0
         fallback_reasons: Counter[str] = Counter()
-        for query in self.native_analysis.get("dependences", []):
+        for query in self.compiler_analysis.get("dependences", []):
             source_id, target_id = query["source"], query["target"]
             source = self.operation_by_uid[
                 (str(source_id["function"]), int(source_id["ordinal"]))
@@ -3764,6 +3858,25 @@ class MLIRGraphBuilder:
                 if component.get("lower") is not None
                 and component.get("lower") == component.get("upper")
             ]
+            finite_components = [
+                component
+                for component in components
+                if component.get("lower") is not None
+                and component.get("upper") is not None
+            ]
+            all_bounds_known = bool(components) and (
+                len(finite_components) == len(components)
+            )
+            lower_bound = (
+                min(int(component["lower"]) for component in finite_components)
+                if all_bounds_known
+                else 0
+            )
+            upper_bound = (
+                max(int(component["upper"]) for component in finite_components)
+                if all_bounds_known
+                else 0
+            )
             self._add_memory_dependence(
                 source,
                 target,
@@ -3777,6 +3890,10 @@ class MLIRGraphBuilder:
                     and item.get("lower") == item.get("upper")
                     for item in components
                 ),
+                distance_bounds_known=all_bounds_known,
+                distance_lower_bound=lower_bound,
+                distance_upper_bound=upper_bound,
+                finite_distance_component_count=len(finite_components),
                 first_nonzero_distance=next(
                     (value for value in exact_values if value), 0
                 ),
@@ -3784,14 +3901,13 @@ class MLIRGraphBuilder:
             )
             exact += 1
             
-        fallback = sum(
-            int(data.get("flow", -1)) == FLOW_MEMORY_DEPENDENCE
-            and str(data.get("certainty")) != "proven"
-            for _, _, data in self.graph.edges(data=True)
-        )
         unresolved_query_count = sum(fallback_reasons.values())
         root_uncertainty_feature_count = len(
             self.root_uncertainty_features
+        )
+        summarized_uncertainty_occurrence_count = sum(
+            int(self.graph.nodes[node]["summarized_query_count"])
+            for node in self.root_uncertainty_features.values()
         )
 
         self.graph.graph.update(
@@ -3803,11 +3919,14 @@ class MLIRGraphBuilder:
             root_uncertainty_feature_count=(
                 root_uncertainty_feature_count
             ),
+            summarized_uncertainty_occurrence_count=(
+                summarized_uncertainty_occurrence_count
+            ),
             memory_dependence_model=(
-                "native-affine-proven-with-"
+                "mlir-affine-proven-with-"
                 "root-summarized-uncertainty"
             ),
-            native_fallback_reasons=dict(
+            compiler_fallback_reasons=dict(
                 sorted(fallback_reasons.items())
             ),
         )
@@ -5072,20 +5191,20 @@ def create_initial_graph(
         mlir_path,
         allow_unregistered_dialects=allow_unregistered_dialects,
     )
-    native_analysis = None
-    binding_sha256 = ""
+    compiler_analysis = None
+    analysis_extension_sha256 = ""
     try:
         from mlir._mlir_libs import _mailohls_analysis
 
-        native_analysis = _mailohls_analysis.analyze_module(module.operation)
-        binding_sha256 = hashlib.sha256(
+        compiler_analysis = _mailohls_analysis.analyze_module(module.operation)
+        analysis_extension_sha256 = hashlib.sha256(
             Path(_mailohls_analysis.__file__).read_bytes()
         ).hexdigest()
     except (ImportError, AttributeError) as exc:
         if not allow_conservative_only:
             context.__exit__(*sys.exc_info())
             raise RuntimeError(
-                "The _mailohls_analysis native binding is required in production"
+                "The compiled _mailohls_analysis extension is required in production"
             ) from exc
 
     builder: MLIRGraphBuilder | None = None
@@ -5095,8 +5214,8 @@ def create_initial_graph(
             module=module,
             mlir_text=mlir_text,
             actions=actions,
-            native_analysis=native_analysis,
-            binding_sha256=binding_sha256,
+            compiler_analysis=compiler_analysis,
+            analysis_extension_sha256=analysis_extension_sha256,
             conservative_memory_dependencies=(
                 conservative_memory_dependencies
             ),
@@ -5107,7 +5226,7 @@ def create_initial_graph(
         return context, result
 
     except BaseException:
-        # Release Python wrappers carrying native MLIR handles before
+        # Release Python wrappers carrying MLIR handles before
         # closing the explicitly entered Context.
         builder = None
         module = None
@@ -5118,7 +5237,7 @@ def create_initial_graph(
 
 
 # ---------------------------------------------------------------------------
-# Orchestration only: paths, cgeist, validation, and native Context lifetime.
+# Orchestration only: paths, cgeist, validation, and MLIR Context lifetime.
 # Graph semantics belong in "MLIRGraphBuilder" above.
 # ---------------------------------------------------------------------------
 
@@ -5208,7 +5327,7 @@ def run(args: argparse.Namespace) -> Path:
             )
             analysis_path.write_text(
                 json.dumps(
-                    result.native_analysis,
+                    result.compiler_analysis,
                     sort_keys=True,
                     indent=2,
                 ),
@@ -5265,7 +5384,7 @@ def run(args: argparse.Namespace) -> Path:
             write_gexf_deterministic(training_graph, output)
         finally:
             # Drop records containing MLIR operation/value wrappers before
-            # closing their native Context.
+            # closing their MLIR Context.
             result = None
             gc.collect()
             context.__exit__(None, None, None)
@@ -5329,13 +5448,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--allow-conservative-only",
         action="store_true",
-        help="Debug only: permit graph generation without the native analysis binding.",
+        help=(
+            "Debug only: permit graph generation without the compiled "
+            "MLIR analysis extension."
+        ),
     )
     parser.add_argument(
         "--analysis-output",
         default="",
         help=(
-            "Optional path for the complete canonical native-analysis "
+            "Optional path for the complete compiler-analysis "
             "JSON report."
         ),
     )

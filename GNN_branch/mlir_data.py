@@ -51,6 +51,7 @@ Numeric node features
   * operand/result/use counts;
   * memory rank and approximate static volume;
   * action, loop, memory, block-argument, and source-location indicators.
+  * compiler effect-analysis availability and summarized uncertainty count.
 
 Categorical edge features
   * semantic flow type;
@@ -60,7 +61,7 @@ Categorical edge features
 Numeric edge features
   * bounded/log-scaled position and operand index;
   * affine-access indicator;
-  * signed/log-scaled dependence distance.
+  * signed/log-scaled exact distances and MLIR distance intervals.
 
 The exact graph topology is retained.  Parallel edges are preserved and node
 and edge tensors are built from one deterministic traversal, preventing
@@ -108,9 +109,9 @@ from __future__ import annotations
 
 import gc
 import csv
+import hashlib
 import json
 import math
-import os
 import pickle
 import re
 from collections import defaultdict
@@ -168,13 +169,14 @@ INDEX_PATH = SAVE_DIR / "index.pt"
 ENCODER_PATH = SAVE_DIR / "encoders.pkl"
 PRAGMA_DIM_PATH = SAVE_DIR / "pragma_dim.pt"
 SCHEMA_PATH = SAVE_DIR / "feature_schema.json"
-EXPECTED_GRAPH_SCHEMA_VERSION = (
-    "mailohls-mlir-graph-v6-root-uncertainty"
+EXPECTED_GRAPH_SCHEMA_VERSION = "mailohls-mlir-graph-v7-analysis-features"
+# Compatibility identifier emitted by the compiled _mailohls_analysis module.
+EXPECTED_COMPILER_ANALYSIS_INPUT_SCHEMA = "mailohls-native-analysis-v3"
+EXPECTED_MEMORY_DEPENDENCE_MODEL = (
+    "mlir-affine-proven-with-root-summarized-uncertainty"
 )
-
-MLIR_FEATURE_SCHEMA_VERSION = (
-    "mailohls-mlir-features-v6-root-uncertainty"
-)
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v7-analysis-features"
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 # ---------------------------------------------------------------------------
@@ -776,15 +778,17 @@ def node_numeric_features(attrs: Mapping[str, Any]) -> list[float]:
         _as_bool01(bool(str(attrs.get("action_id", "")).strip())),
         _as_bool01(bool(str(attrs.get("source_location", "")).strip())),
         _as_bool01(attrs.get("is_memory_root")),
-        _as_bool01(attrs.get("native_operation_effect_read")),
-        _as_bool01(attrs.get("native_operation_effect_write")),
-        _as_bool01(attrs.get("native_operation_effect_allocate")),
-        _as_bool01(attrs.get("native_operation_effect_free")),
-        _as_bool01(attrs.get("native_operation_effect_unknown")),
+        _as_bool01(attrs.get("compiler_operation_effect_read")),
+        _as_bool01(attrs.get("compiler_operation_effect_write")),
+        _as_bool01(attrs.get("compiler_operation_effect_allocate")),
+        _as_bool01(attrs.get("compiler_operation_effect_free")),
+        _as_bool01(attrs.get("compiler_operation_effect_unknown")),
+        _as_bool01(attrs.get("compiler_effect_analysis_unknown")),
         # Stored and encoded with the shared graph-schema bound of eight.
         min(8, max(0, _as_int(
-            attrs.get("native_operation_effect_count"), 0
+            attrs.get("compiler_operation_effect_count"), 0
         ))) / 8.0,
+        _log1p_nonnegative(attrs.get("summarized_query_count")),
     ]
 
 
@@ -809,12 +813,14 @@ NODE_NUMERIC_NAMES = [
     "is_action_anchor",
     "has_source_location",
     "is_memory_root",
-    "native_operation_effect_read",
-    "native_operation_effect_write",
-    "native_operation_effect_allocate",
-    "native_operation_effect_free",
-    "native_operation_effect_unknown",
-    "bounded_native_operation_effect_count",
+    "compiler_operation_effect_read",
+    "compiler_operation_effect_write",
+    "compiler_operation_effect_allocate",
+    "compiler_operation_effect_free",
+    "compiler_operation_effect_unknown",
+    "compiler_effect_analysis_unknown",
+    "bounded_compiler_operation_effect_count",
+    "log1p_summarized_query_count",
 ]
 
 
@@ -835,6 +841,10 @@ def edge_numeric_features(attrs: Mapping[str, Any]) -> list[float]:
         _signed_log1p(max(-1, min(position, 1024))),
         _signed_log1p(max(-1, min(operand_index, 1024))),
         _as_bool01(attrs.get("distance_known", False)),
+        _as_bool01(attrs.get("distance_bounds_known", False)),
+        _signed_log1p(_as_int(attrs.get("distance_lower_bound"), 0)),
+        _signed_log1p(_as_int(attrs.get("distance_upper_bound"), 0)),
+        _log1p_nonnegative(attrs.get("finite_distance_component_count")),
         math.log1p(max(0, _as_int(attrs.get("dependence_depth"), 0))),
         _signed_log1p(_as_int(attrs.get("first_nonzero_distance"), 0)),
         _as_bool01(attrs.get("loop_carried", False)),
@@ -845,6 +855,10 @@ EDGE_NUMERIC_NAMES = [
     "signed_log1p_position",
     "signed_log1p_operand_index",
     "distance_known",
+    "distance_bounds_known",
+    "signed_log1p_distance_lower_bound",
+    "signed_log1p_distance_upper_bound",
+    "log1p_finite_distance_component_count",
     "nonnegative_log1p_dependence_depth",
     "signed_log1p_first_nonzero_distance",
     "loop_carried",
@@ -1048,10 +1062,14 @@ EDGE_CATEGORICAL_FIELDS = (
 )
 
 
-def _require_native_graph(graph: nx.Graph, label: str) -> None:
+def _require_compiler_analyzed_graph(
+    graph: nx.Graph,
+    label: str,
+) -> dict[str, Any]:
+    """Reject stale graphs and return their verified provenance metadata."""
     name = str(graph.graph.get("name", ""))
     if not name.startswith(GRAPH_METADATA_PREFIX):
-        raise RuntimeError(f"{label}: missing native MailoHLS graph metadata")
+        raise RuntimeError(f"{label}: missing MailoHLS graph metadata")
     try:
         metadata = json.loads(name[len(GRAPH_METADATA_PREFIX):])
     except json.JSONDecodeError as exc:
@@ -1060,8 +1078,41 @@ def _require_native_graph(graph: nx.Graph, label: str) -> None:
         raise RuntimeError(
             f"{label}: old/incompatible graph schema; force_regen=True is required"
         )
-    if metadata.get("native_analysis_schema") != "mailohls-native-analysis-v3": 
-        raise RuntimeError(f"{label}: conservative-only graph rejected in production")
+    if (
+        metadata.get("compiler_analysis_schema")
+        != EXPECTED_COMPILER_ANALYSIS_INPUT_SCHEMA
+    ):
+        raise RuntimeError(
+            f"{label}: missing or incompatible compiler-analysis schema"
+        )
+    if (
+        metadata.get("memory_dependence_model")
+        != EXPECTED_MEMORY_DEPENDENCE_MODEL
+    ):
+        raise RuntimeError(f"{label}: incompatible memory-dependence model")
+
+    analysis_hash = str(metadata.get("analysis_extension_sha256", ""))
+    if not SHA256_RE.fullmatch(analysis_hash):
+        raise RuntimeError(f"{label}: invalid analysis-extension SHA-256")
+
+    generator_path = Path(__file__).with_name("mlir_graph_gen.py")
+    current_generator_hash = hashlib.sha256(
+        generator_path.read_bytes()
+    ).hexdigest()
+    if metadata.get("generator_sha256") != current_generator_hash:
+        raise RuntimeError(
+            f"{label}: graph was produced by a different mlir_graph_gen.py; "
+            "regenerate graphs before building tensors"
+        )
+
+    for key in ("source_sha256", "action_sha256", "cgeist_sha256", "mlir_sha256"):
+        if not SHA256_RE.fullmatch(str(metadata.get(key, ""))):
+            raise RuntimeError(f"{label}: invalid or missing {key}")
+
+    coverage = metadata.get("compiler_analysis_coverage")
+    if not isinstance(coverage, dict) or int(coverage.get("operations", 0)) <= 0:
+        raise RuntimeError(f"{label}: missing compiler-analysis coverage")
+    return metadata
 
 
 def node_categorical_row(attrs: Mapping[str, Any]) -> list[str]:
@@ -1101,7 +1152,7 @@ def fit_encoders(graph_files: Sequence[Path]) -> dict[str, Any]:
 
     for graph_file in graph_files:
         graph = nx.read_gexf(graph_file)
-        _require_native_graph(graph, graph_file.name)
+        _require_compiler_analyzed_graph(graph, graph_file.name)
         ordered_nodes, _ = _node_id_order(graph)
 
         for node in ordered_nodes:
@@ -1153,7 +1204,7 @@ def encode_static_graph(
     kernel_name: str,
     encoders: Mapping[str, Any],
 ) -> dict[str, Any]:
-    _require_native_graph(graph, graph_name)
+    graph_metadata = _require_compiler_analyzed_graph(graph, graph_name)
     ordered_nodes, node_to_index = _node_id_order(graph)
 
     node_categories = [
@@ -1226,6 +1277,20 @@ def encode_static_graph(
     payload = {
         "graph_name": graph_name,
         "kernel_name": kernel_name,
+        "graph_provenance": {
+            key: graph_metadata[key]
+            for key in (
+                "schema_version",
+                "source_sha256",
+                "action_sha256",
+                "cgeist_sha256",
+                "generator_sha256",
+                "mlir_sha256",
+                "compiler_analysis_schema",
+                "analysis_extension_sha256",
+                "memory_dependence_model",
+            )
+        },
         "x": x,
         "edge_index": edge_index,
         "edge_attr": edge_attr,
@@ -1351,7 +1416,7 @@ def discover_graph_files() -> list[Path]:
                 continue
             try:
                 graph = nx.read_gexf(path)
-                _require_native_graph(graph, path.name)
+                _require_compiler_analyzed_graph(graph, path.name)
             except Exception as exc:
                 failures.append(f"{kernel}: stale/incompatible ({exc})")
                 continue
@@ -1639,6 +1704,10 @@ def _write_schema(
     schema = {
         "dataset": DATASET_NAME,
         "feature_schema_version": MLIR_FEATURE_SCHEMA_VERSION,
+        "graph_schema_version": EXPECTED_GRAPH_SCHEMA_VERSION,
+        "generator_sha256": hashlib.sha256(
+            Path(__file__).with_name("mlir_graph_gen.py").read_bytes()
+        ).hexdigest(),
         "node_categorical_fields": list(NODE_CATEGORICAL_FIELDS),
         "node_numeric_fields": NODE_NUMERIC_NAMES,
         "edge_categorical_fields": list(EDGE_CATEGORICAL_FIELDS),
@@ -1677,6 +1746,19 @@ def _validate_cached_schema() -> None:
         raise RuntimeError(
             f"Cached MLIR feature schema {actual!r} is incompatible with "
             f"{MLIR_FEATURE_SCHEMA_VERSION!r}; use force_regen=True"
+        )
+    if schema.get("graph_schema_version") != EXPECTED_GRAPH_SCHEMA_VERSION:
+        raise RuntimeError(
+            "Cached tensors use an incompatible graph schema; "
+            "use force_regen=True"
+        )
+    current_generator_hash = hashlib.sha256(
+        Path(__file__).with_name("mlir_graph_gen.py").read_bytes()
+    ).hexdigest()
+    if schema.get("generator_sha256") != current_generator_hash:
+        raise RuntimeError(
+            "Cached tensors were produced by a different graph generator; "
+            "use force_regen=True"
         )
 
 
