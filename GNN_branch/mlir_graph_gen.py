@@ -1894,10 +1894,7 @@ class MLIRGraphBuilder:
                         raise RuntimeError(
                             f"Dependence has non-integer bounds: {item!r}"
                         )
-                    if lower is not None and upper is not None and lower > upper:
-                        raise RuntimeError(
-                            f"Dependence has inverted bounds: {item!r}"
-                        )
+
             dependence_keys.add(key)
             dependence_counts[result] += 1
 
@@ -3864,16 +3861,31 @@ class MLIRGraphBuilder:
                 if component.get("lower") is not None
                 and component.get("upper") is not None
             ]
+
+            consistent_components = [
+                component
+                for component in finite_components
+                if int(component["lower"]) <= int(component["upper"])
+            ]
+
             all_bounds_known = bool(components) and (
-                len(finite_components) == len(components)
+                len(consistent_components) == len(components)
             )
+
             lower_bound = (
-                min(int(component["lower"]) for component in finite_components)
+                min(
+                    int(component["lower"])
+                    for component in consistent_components
+                )
                 if all_bounds_known
                 else 0
             )
+
             upper_bound = (
-                max(int(component["upper"]) for component in finite_components)
+                max(
+                    int(component["upper"])
+                    for component in consistent_components
+                )
                 if all_bounds_known
                 else 0
             )
