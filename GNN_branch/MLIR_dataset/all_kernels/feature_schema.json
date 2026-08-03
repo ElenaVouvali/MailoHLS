@@ -99,7 +99,7 @@
     "signed_log1p_first_nonzero_distance",
     "loop_carried"
   ],
-  "feature_schema_version": "mailohls-mlir-features-v8-single-target-qor",
+  "feature_schema_version": "mailohls-mlir-features-v9-scaled-pragmas",
   "generator_sha256": "5e4f93c89ce4c275c04ff6ed4dd81a17858647a55b0abec0846b8da240da3b05",
   "graph_schema_version": "mailohls-mlir-graph-v7-analysis-features",
   "node_categorical_fields": [
@@ -530,6 +530,19 @@
     "bounded_compiler_operation_effect_count",
     "log1p_summarized_query_count"
   ],
+  "pragma_encoding": {
+    "partition_dimension": "raw",
+    "partition_factor": "log2(1 + factor)",
+    "partition_type": {
+      "": 0,
+      "block": 2,
+      "complete": 3,
+      "cyclic": 1,
+      "none": 0
+    },
+    "pipeline_ii": "raw",
+    "unroll_factor": "log2(1 + factor)"
+  },
   "preprocessed_csv_sha256": "62aa61526a91638092a5ae46b86fb7ddb2f73aea9b786a821e00d871d597e4df",
   "qor_reference_clock_period_ns": 10.0,
   "qor_reference_device": "xczu7ev-ffvc1156-2-e"

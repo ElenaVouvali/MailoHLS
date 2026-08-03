@@ -177,7 +177,7 @@ EXPECTED_MEMORY_DEPENDENCE_MODEL = (
 )
 QOR_REFERENCE_DEVICE = "xczu7ev-ffvc1156-2-e"
 QOR_REFERENCE_CLOCK_PERIOD_NS = 10.0
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v8-single-target-qor"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v9-scaled-pragmas"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -205,9 +205,9 @@ PARTITION_DIM_COL = 4
 ARRAY_TYPE_ENCODING = {
     "": 0,
     "none": 0,
-    "cyclic": 100,
-    "block": 200,
-    "complete": 300,
+    "cyclic": 1,
+    "block": 2,
+    "complete": 3,
 }
 
 AUTO_KEY_RE = re.compile(r"auto\{([^}]+)\}")
@@ -969,11 +969,22 @@ def _point_value(point: Mapping[str, Any], key: str, default: Any = 0) -> Any:
     return value
 
 
+def encode_pragma_value(key: str, value: Any) -> float:
+    """Encode one directive value on a compact, model-facing scale."""
+    if key.startswith("_ARRAY_T_"):
+        if isinstance(value, str):
+            return float(ARRAY_TYPE_ENCODING.get(value.strip().lower(), 0))
+        return float(_as_int(value, 0))
+    if key.startswith(("_UNROLL_", "_ARRAY_F_")):
+        return math.log2(1.0 + max(0, _as_int(value, 0)))
+    return float(_as_int(value, 0))
+
+
 def pragma_vector_from_node(
     pragma_attrs: Mapping[str, Any],
     point: Mapping[str, Any],
-) -> list[int]:
-    vector = [0, 0, 0, 0, 0]
+) -> list[float]:
+    vector = [0.0] * PRAGMA_VECTOR_WIDTH
     kind = pragma_kind(pragma_attrs)
     full_text = str(pragma_attrs.get("full_text", ""))
     action_id = str(pragma_attrs.get("action_id", "")).strip()
@@ -994,20 +1005,15 @@ def pragma_vector_from_node(
     for key in keys:
         value = _point_value(point, key, 0)
         if key.startswith("_PIPE_"):
-            vector[PIPELINE_COL] = _as_int(value, 0)
+            vector[PIPELINE_COL] = encode_pragma_value(key, value)
         elif key.startswith("_UNROLL_"):
-            vector[UNROLL_COL] = _as_int(value, 0)
+            vector[UNROLL_COL] = encode_pragma_value(key, value)
         elif key.startswith("_ARRAY_T_"):
-            if isinstance(value, str):
-                vector[PARTITION_TYPE_COL] = ARRAY_TYPE_ENCODING.get(
-                    value.strip().lower(), 0
-                )
-            else:
-                vector[PARTITION_TYPE_COL] = _as_int(value, 0)
+            vector[PARTITION_TYPE_COL] = encode_pragma_value(key, value)
         elif key.startswith("_ARRAY_F_"):
-            vector[PARTITION_FACTOR_COL] = _as_int(value, 0)
+            vector[PARTITION_FACTOR_COL] = encode_pragma_value(key, value)
         elif key.startswith("_ARRAY_D_"):
-            vector[PARTITION_DIM_COL] = _as_int(value, 0)
+            vector[PARTITION_DIM_COL] = encode_pragma_value(key, value)
 
     return vector
 
@@ -1029,7 +1035,7 @@ def build_scope_masks_and_dynamic_pragmas(
     partition_scope: list[bool] = []
     all_scopes: list[bool] = []
     icmp_nodes: list[bool] = []
-    pragma_per_node: list[list[int]] = []
+    pragma_per_node: list[list[float]] = []
 
     for node in ordered_nodes:
         attrs = graph.nodes[node]
@@ -1044,7 +1050,7 @@ def build_scope_masks_and_dynamic_pragmas(
         has_partition = "ARRAY_PARTITION" in attached
         is_action_scope = has_pipeline or has_unroll or has_partition
 
-        vector = [0, 0, 0, 0, 0]
+        vector = [0.0] * PRAGMA_VECTOR_WIDTH
         for pragma_node in attached.values():
             candidate = pragma_vector_from_node(
                 graph.nodes[pragma_node], point
@@ -1084,7 +1090,7 @@ def build_scope_masks_and_dynamic_pragmas(
         "X_scopenids": torch.tensor(all_scopes, dtype=torch.bool),
         "X_icmpnids": torch.tensor(icmp_nodes, dtype=torch.bool),
         "X_pragma_per_node": torch.tensor(
-            pragma_per_node, dtype=torch.int16
+            pragma_per_node, dtype=torch.float32
         ),
     }
 
@@ -1355,18 +1361,15 @@ def encode_static_graph(
 # Flat and per-node pragma tensors.
 # ---------------------------------------------------------------------------
 
-def point_to_ordered_values(point: Mapping[str, Any]) -> list[int]:
-    values: list[int] = []
+def point_to_ordered_values(point: Mapping[str, Any]) -> list[float]:
+    values: list[float] = []
     for key, value in sorted(point.items()):
         if not key.startswith((
             "_PIPE_", "_UNROLL_", "_ARRAY_T_",
             "_ARRAY_F_", "_ARRAY_D_",
         )):
             continue
-        if key.startswith("_ARRAY_T_") and isinstance(value, str):
-            values.append(ARRAY_TYPE_ENCODING.get(value.strip().lower(), 0))
-        else:
-            values.append(_as_int(value, 0))
+        values.append(encode_pragma_value(key, value))
     return values
 
 
@@ -1793,6 +1796,13 @@ def _write_schema(
         ).hexdigest(),
         "qor_reference_device": QOR_REFERENCE_DEVICE,
         "qor_reference_clock_period_ns": QOR_REFERENCE_CLOCK_PERIOD_NS,
+        "pragma_encoding": {
+            "partition_type": dict(ARRAY_TYPE_ENCODING),
+            "unroll_factor": "log2(1 + factor)",
+            "partition_factor": "log2(1 + factor)",
+            "pipeline_ii": "raw",
+            "partition_dimension": "raw",
+        },
         "preprocessed_csv_sha256": _preprocessed_csv_sha256(),
         "node_categorical_fields": list(NODE_CATEGORICAL_FIELDS),
         "node_numeric_fields": NODE_NUMERIC_NAMES,
@@ -2007,7 +2017,7 @@ def get_data_list():
                     raise RuntimeError(
                         f"Pragma length changed for {graph_name}."
                     )
-                padded = flat + [0] * (
+                padded = flat + [0.0] * (
                     max_pragma_length - len(flat)
                 )
 
@@ -2036,7 +2046,7 @@ def get_data_list():
 
                 keys.append(f"csvrow_{result.row_idx}")
                 pragmas.append(
-                    torch.tensor(padded, dtype=torch.int16)
+                    torch.tensor(padded, dtype=torch.float32)
                 )
                 per_node_pragmas.append(
                     masks["X_pragma_per_node"]

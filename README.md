@@ -1,176 +1,216 @@
-# MailoHLS
+MailoHLS
 
-MailoHLS learns from HLS programs, pragma configurations, and synthesis QoR.
-The current MLIR path converts each C/C++ kernel into one deterministic semantic
-graph, reuses that graph across the kernel's design points, and trains a GNN to
-encode program structure and pragma effects.  A later LLM stage will combine the
-GNN representation with device- and frequency-aware optimization objectives.
+MailoHLS learns HLS quality of results (QoR) from a kernel's compiler structureand its pragma configuration. The current GNN path converts each C/C++ kernelinto one deterministic MLIR semantic graph, reuses that graph across thekernel's design points, and predicts latency and area. A later LLM stage cancombine these representations with device- and frequency-aware objectives.
 
-## Pipeline status
+Pipeline status
 
-| Stage | Purpose | Status |
-|---|---|---|
-| MLIR graph generation | Represent control, SSA data flow, loops, calls, memory, dependences, and HLS actions | Implemented |
-| QoR preprocessing | Build an unambiguous reference-target supervision table | Implemented |
-| MLIR tensor dataset | Convert GEXF graphs and design points to compact PyG tensors | Implemented |
-| GNN training | Learn structural and pragma-aware kernel representations | Experimental |
-| LLM integration | Add target-aware reasoning and optimization | Next stage |
+Stage
 
-## Repository layout
+Purpose
 
-```text
+Status
+
+QoR preprocessing
+
+Build one reference-target supervision table for the GNN
+
+Implemented
+
+MLIR graph generation
+
+Capture control, SSA, loops, calls, memory, dependences, and HLS actions
+
+Implemented
+
+MLIR tensor dataset
+
+Convert GEXF graphs and pragma/QoR points to compact PyG tensors
+
+Implemented
+
+GNN training
+
+Learn kernel- and pragma-aware QoR representations
+
+Experimental
+
+LLM integration
+
+Add target-aware reasoning and optimization
+
+Next stage
+
+Repository layout
+
 Data/
-â”œâ”€â”€ ApplicationDataset/          # kernel source, headers, kernel_info.txt
-â”œâ”€â”€ ApplicationAPLMapping/       # CSV directive column -> action mapping
-â”œâ”€â”€ ApplicationInformation.csv   # batch-generation metadata
-â”œâ”€â”€ CSVS/                        # raw multi-target synthesis measurements
-â””â”€â”€ preprocessed_CSVS/           # GNN reference-target measurements
+├── ApplicationDataset/          # source, headers, and kernel_info.txt
+├── ApplicationAPLMapping/       # CSV directive column -> action mapping
+├── ApplicationInformation.csv   # graph-generation metadata
+└── CSVS/                        # raw multi-target synthesis measurements
 
 Preprocessing/
-â””â”€â”€ data_preprocess.py
+└── data_preprocess.py           # GNN and LLM preprocessing modes
 
 GNN_branch/
-â”œâ”€â”€ mlir_graph_gen.py             # one C/C++ kernel -> one semantic GEXF
-â”œâ”€â”€ generate_mlir_dataset.py      # validated 55-kernel graph driver
-â”œâ”€â”€ mlir_data.py                  # GEXF + QoR -> compact PyG dataset
-â”œâ”€â”€ main_GNN.py                   # training/inference entry point
-â”œâ”€â”€ train_GNN.py
-â”œâ”€â”€ model.py
-â””â”€â”€ MLIR_graphs/                  # generated graphs and manifest
-```
+├── mlir_graph_gen.py            # one C/C++ kernel -> one semantic GEXF
+├── generate_mlir_dataset.py     # validated 55-kernel graph driver
+├── MLIR_graphs/                 # generated graphs and manifest
+├── mlir_data.py                 # GEXF + pragma/QoR -> compact PyG dataset
+├── model.py                     # edge-aware TransformerConv model
+├── train_GNN.py                 # training, selection, and physical metrics
+├── main_GNN.py                  # training/inference entry point
+└── summarize_seed_runs.py       # mean ± standard deviation across seeds
 
-## 1. MLIR graph generation
+1. Prepare single-target GNN labels
 
-### Toolchain
+Raw CSVs remain the multi-device source of truth. GNN preprocessing selects onereference target, canonicalizes equivalent directives, and aggregates repeatedmeasurements of the same effective pragma configuration:
 
-Use `cgeist`, MLIR Python bindings, and the MailoHLS compiled analysis
-extension from the same Polygeist build:
+device: xczu7ev-ffvc1156-2-e
 
-```bash
+clock period: 10.0 ns (100 MHz)
+
+python Preprocessing/data_preprocess.py \
+  --mode gnn \
+  --device xczu7ev-ffvc1156-2-e \
+  --clock-period-ns 10.0 \
+  --force
+
+The command writes 55 tables and a manifest underGNN_branch/Data/preprocessed_CSVS/. Do not replace Data/CSVS/.
+
+2. Generate MLIR semantic graphs
+
+Use cgeist, the MLIR Python bindings, and the MailoHLS compiler-analysisextension from the same Polygeist build:
+
 export POLYGEIST_BUILD="$HOME/tools/Polygeist/build-mailohls-assertions"
 export CGEIST="$POLYGEIST_BUILD/bin/cgeist"
 export MLIR_PYTHON="$HOME/.mlir-python311/bin/python"
 export MLIR_PYTHON_ROOT="$POLYGEIST_BUILD/tools/mlir/python_packages/mlir_core"
 export PYTHONHASHSEED=0
 export PYTHONPATH="$MLIR_PYTHON_ROOT"
-```
 
-Sanity check:
-
-```bash
 "$CGEIST" --help | grep mailohls-action-manifest
-
 "$MLIR_PYTHON" - <<'PY'
 from mlir import ir
 from mlir._mlir_libs import _mailohls_analysis
 print("MLIR bindings: OK")
 print("MailoHLS analysis:", _mailohls_analysis.__file__)
 PY
-```
 
-### Inputs
+Generate all configured graphs:
 
-Each application directory contains its source and a `kernel_info.txt` file.
-The first non-empty line names the top-level function.  Remaining lines declare
-loop or array actions, for example:
-
-```text
-workload
-L1,loop,100
-L2,array,buffer,1,1024
-```
-
-The corresponding source contains exact labels such as `L1: for (...)` and
-`L2: float buffer[1024]`.  Generation fails when an action cannot be mapped
-exactly once; it does not guess from loop order or nearby source locations.
-
-### Generate graphs
-
-One kernel:
-
-```bash
-PYTHONHASHSEED=0 PYTHONPATH="$MLIR_PYTHON_ROOT" \
-"$MLIR_PYTHON" GNN_branch/generate_mlir_dataset.py \
-  --force --keep-mlir --only rodinia-knn-1-tiling
-```
-
-All configured kernels:
-
-```bash
 PYTHONHASHSEED=0 PYTHONPATH="$MLIR_PYTHON_ROOT" \
 "$MLIR_PYTHON" GNN_branch/generate_mlir_dataset.py \
   --force --keep-mlir
-```
 
-The batch is valid only when `GNN_branch/MLIR_graphs/generation_manifest.csv`
-reports success for every configured application.  The driver also checks graph
-schema, compiler and binding hashes, source/action mappings, module verification,
-and deterministic output metadata.
+Generation is valid only whenGNN_branch/MLIR_graphs/generation_manifest.csv reports success for all 55kernels. Action labels from kernel_info.txt must map exactly once to sourceand MLIR; the generator does not use nearest-location or loop-order guesses.
 
-### Graph semantics
+Each GEXF is a directed multigraph. Parallel edges are intentional.
 
-Each GEXF is a directed multigraph.  Parallel edges are intentional because two
-nodes may have several simultaneous relations.
+Element
 
-| Graph element | Information represented |
-|---|---|
-| Operation/value nodes | MLIR operations, SSA definitions, block arguments, constants, and types |
-| Structural edges | Regions, blocks, control order, loop nesting, and calls |
-| SSA edges | Operand/result def-use and loop-carried values |
-| Memory edges | Allocations, views, exact aliases, uncertain alias pairs, effects, and accesses |
-| Dependence edges | Proven affine RAW/WAR/WAW relations or explicitly marked conservative uncertainty |
-| Action nodes | PIPELINE, UNROLL, and ARRAY_PARTITION scopes grounded in labeled source and MLIR |
-| Features | Loop/trip-count data, access/effect facts, dependence certainty/distance, and provenance |
+Semantics
 
-## 2. QoR preprocessing for the GNN
+Operation/value nodes
 
-The raw CSVs intentionally retain all devices and clock periods for the future
-target-aware LLM stage.  The GNN supervision view uses one reference target:
+MLIR operations, SSA values, block arguments, constants, and types
 
-- device: `xczu7ev-ffvc1156-2-e`
-- clock period: `10.0 ns` (100 MHz)
+Structural edges
 
-Repeated measurements of the same effective pragma configuration are aggregated
-with the median before Pareto weights are computed.
+Regions, blocks, control order, loop nesting, and calls
 
-```bash
-python Preprocessing/data_preprocess.py
-```
+SSA edges
 
-This updates `Data/preprocessed_CSVS/`.  Do not replace `Data/CSVS/`; it remains
-the multi-target source of truth.
+Def-use, operands/results, and loop-carried values
 
-## 3. Build tensors and train the GNN
+Memory edges
 
-For a kernel-disjoint experiment, keep Kalman for final testing and use the
-same validation families as the LLM pipeline:
+Allocations, views, exact aliases, uncertain alias pairs, effects, and accesses
 
-```bash
+Dependence edges
+
+Proven affine RAW/WAR/WAW or explicitly marked conservative uncertainty
+
+Action nodes
+
+PIPELINE, UNROLL, and ARRAY_PARTITION scopes grounded in source and MLIR
+
+3. Build tensors and train
+
+--force_regen validates graph/preprocessing manifests, fits categoricalencoders on training kernels only, and rebuildsGNN_branch/MLIR_dataset/all_kernels/.
+
+Pragma magnitudes use compact model-facing values:
+
+partition kind: none/cyclic/block/complete -> 0/1/2/3;
+
+unroll and partition factor: log2(1 + factor);
+
+pipeline II and partition dimension: raw values.
+
+Use kernel-disjoint splits. This example reserves Kalman for final testing andthree unrelated kernels for validation:
+
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
+
 PYTHONHASHSEED=0 python GNN_branch/main_GNN.py \
   --dataset mlir \
   --subtask train \
   --force_regen \
+  --epoch_num 200 \
   --random_seed 123 \
+  --experiment_name asplos_gnn_seed_123 \
   --val_kernels machsuite-sort-radix,rodinia_pathfinder_0_baseline_0,rodinia_pathfinder_4_doublebuffer_0 \
   --test_kernels serrano-kalman-filter
-```
 
-`--force_regen` validates the graph manifest, fits categorical encoders only on
-training kernels, and rebuilds `GNN_branch/MLIR_dataset/all_kernels/`.  Training
-uses validation loss for checkpoint selection and evaluates the held-out test
-kernel once after training.
+Training and checkpoint selection minimizeMSE(log2(latency)) + MSE(log2(area)). Evaluation is reported after inversetransformation in physical units (latency_ms and area_score), both over allpoints and as a per-kernel macro average. Kendall tau-b reports ranking quality.There is no combined latency/area RMSE because those targets have differentunits. The held-out test set is evaluated once from the best validationcheckpoint.
 
-## Reproducibility contract
+4. Multi-seed final experiment
 
-- Keep `PYTHONHASHSEED=0` and `--random_seed` fixed.
-- Keep graph generation and the compiled analysis extension pinned together.
-- Regenerate tensors after changing graphs, preprocessing, feature schemas, or
-  the reference QoR target.
-- Never use the Kalman test result to select hyperparameters or checkpoints.
-- Record the Git commits, tool hashes, manifest, split lists, and random seed for
-  every reported experiment.
+Freeze the graph version, preprocessing, split, and hyperparameters beforeopening the test set. Build the tensor cache once with seed 123, then run atleast five independent initializations without --force_regen:
 
-## Next stages
+VAL=machsuite-sort-radix,rodinia_pathfinder_0_baseline_0,rodinia_pathfinder_4_doublebuffer_0
+TEST=serrano-kalman-filter
 
-The next work will document trained-checkpoint evaluation, extraction of
-pragma-disabled structural GNN embeddings, and target-aware LLM integration.
+for SEED in 456 789 2025 4096; do
+  PYTHONHASHSEED=0 CUBLAS_WORKSPACE_CONFIG=:4096:8 \
+  python GNN_branch/main_GNN.py \
+    --dataset mlir \
+    --subtask train \
+    --epoch_num 200 \
+    --random_seed "$SEED" \
+    --experiment_name "asplos_gnn_seed_${SEED}" \
+    --val_kernels "$VAL" \
+    --test_kernels "$TEST"
+done
+
+Summarize mean ± sample standard deviation:
+
+python GNN_branch/summarize_seed_runs.py \
+  --runs-glob 'logs/asplos_gnn_seed_*/run1/test_physical_metrics.csv' \
+  --output logs/asplos_gnn_seed_summary.csv
+
+For a publication, repeat the protocol with several predefinedkernel-disjoint folds; multiple seeds measure initialization variance but donot replace evaluation on multiple unseen kernel families.
+
+What the learned representation contains
+
+The GNN first embeds MLIR nodes and relations, propagates information withedge-aware TransformerConv layers, injects pragma values only at their mappedaction scopes, performs one post-pragma message-passing step, and pools programand structural-scope channels. Its prediction embedding is thereforekernel- and pragma-conditioned, not a pure kernel-only vector.
+
+For the later LLM stage, distinguish two products:
+
+a structural kernel embedding captured before pragma injection; and
+
+a design-point embedding captured after pragma injection.
+
+Do not describe forward_embed() as pragma-free unless extraction explicitlyuses the pre-pragma state or a validated all-zero pragma configuration.
+
+Reproducibility checklist
+
+Pin the MailoHLS and Polygeist commits and record compiler/binding hashes.
+
+Keep PYTHONHASHSEED, split lists, preprocessing manifest, and graph manifest.
+
+Use strict deterministic algorithms; --allow_nondeterministic is debuggingonly and must not be used for reported results.
+
+Regenerate tensors after graph, preprocessing, or feature-schema changes.
+
+Never use the Kalman test result for hyperparameter or checkpoint selection.
+
+Report physical-unit point metrics, per-kernel macro metrics, Kendall tau-b,and mean ± standard deviation across seeds.

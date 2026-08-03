@@ -7,10 +7,6 @@ import argparse
 import torch
 from glob import iglob
 from os.path import join
-import argparse
-import torch
-from glob import iglob
-from os.path import join
 
 decoder_arch = []
 
@@ -285,6 +281,16 @@ parser.add_argument("--warmup", default=warmup)
 parser.add_argument('--lr', type=float, default=0.001)
 
 parser.add_argument('--random_seed', type=int, default=123)
+parser.add_argument(
+    '--experiment_name',
+    default='all_kernels_GNN_train',
+    help='Log-directory name; use a distinct value for every reported seed.',
+)
+parser.add_argument(
+    '--allow_nondeterministic',
+    action='store_true',
+    help='Debug only: warn instead of failing on a nondeterministic operation.',
+)
 batch_size = 64
 parser.add_argument('--batch_size', type=int, default=batch_size)
 

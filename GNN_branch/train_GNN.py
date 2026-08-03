@@ -29,7 +29,7 @@ from torch.utils.data import Subset
 import torch.nn as nn
 import shutil
 import numpy as np
-from scipy.stats import rankdata, kendalltau
+from scipy.stats import kendalltau
 
 from tqdm import tqdm
 from os.path import join, exists, basename
@@ -250,10 +250,13 @@ def update_total_loss(loss, data, target_list, loss_dict, loss_dict_, out_dict, 
         Accumulates training metrics per batch and updates the loss_dict for each target
     '''
     if FLAGS.task == 'regression':
-        total_loss += loss.item() # * data.num_graphs
+        # MSELoss is a batch mean. Weight by the number of graphs so the final
+        # epoch/validation loss is independent of the smaller last batch.
+        batch_weight = int(data.num_graphs)
+        total_loss += loss.item() * batch_weight
         for t in target_list:
             model_key = 'perf' if FLAGS.encode_log and t == 'actual_perf' else t
-            loss_dict[t] += loss_dict_[model_key].item()
+            loss_dict[t] += loss_dict_[model_key].item() * batch_weight
         return loss_dict, total_loss
     else:
         loss_, pred = torch.max(out_dict[FLAGS.target[0]], 1)
@@ -265,6 +268,24 @@ def update_total_loss(loss, data, target_list, loss_dict, loss_dict_, out_dict, 
 
 def inference_loss_function(pred, true):
     return (pred - true) ** 2
+
+
+def _inverse_log2_target(value):
+    """Convert a model output back to the positive physical QoR domain."""
+    if str(FLAGS.norm_method) != 'log2':
+        raise RuntimeError(
+            "Physical-unit evaluation currently requires --norm_method log2."
+        )
+    return max(0.0, float(np.exp2(value) - float(FLAGS.epsilon)))
+
+
+def _kernel_at(data, index):
+    kernels = getattr(data, 'kernel', None)
+    if isinstance(kernels, (list, tuple)):
+        return str(kernels[index])
+    if isinstance(kernels, str) and int(data.num_graphs) == 1:
+        return kernels
+    raise RuntimeError("Could not align a prediction with its kernel name.")
 
 
 def update_csv_dict(csv_dict, data, i, target_name, target_value, out_value):
@@ -470,13 +491,19 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     if FLAGS.gae_T or FLAGS.gae_P:
         plot_loss_trend(epochs, gae_train_losses, gae_val_losses, [], saver.get_log_dir(), file_name='gae_losses.png')
 
-    # Select the checkpoint with validation data, then expose the test set once.
+    # Restore the validation-selected checkpoint before reporting validation
+    # and exposing the held-out test set exactly once.
     selection_tag = 'val' if val_losses else 'train'
+    selection_epoch = (
+        val_losses.index(min(val_losses))
+        if val_losses
+        else train_losses.index(min(train_losses))
+    )
     selection_path = join(
         saver.model_logdir,
         f'{selection_tag}_model_state_dict.pth',
     )
-    if len(test_loader) > 0:
+    if len(val_loader) > 0 or len(test_loader) > 0:
         if not exists(selection_path):
             raise RuntimeError(
                 f'Missing {selection_tag}-selected checkpoint: {selection_path}'
@@ -489,19 +516,34 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             )
         )
         model.to(FLAGS.device)
+
+    if len(val_loader) > 0:
         saver.log_info(
-            f'Final test using the best {selection_tag} checkpoint only'
+            f'Final validation report for best epoch {selection_epoch}'
+        )
+        test(
+            val_loader,
+            'best_val',
+            model,
+            selection_epoch,
+            test_losses=[],
+        )
+
+    if len(test_loader) > 0:
+        saver.log_info(
+            f'Final test using the best {selection_tag} checkpoint from '
+            f'epoch {selection_epoch}'
         )
         test_loss, loss_dict_test, gae_loss_test, _ = test(
             test_loader,
             'test',
             model,
-            epoch,
+            selection_epoch,
             plot_test=True,
             test_losses=[],
         )
         test_losses.append(test_loss)
-        saver.writer.add_scalar('test/final', test_loss, epoch)
+        saver.writer.add_scalar('test/final', test_loss, selection_epoch)
         log_loss(loss_dict_test, gae_loss_test, 'Final test')
         saver.log_info(f'Final held-out test loss: {test_loss:.4f}')
 
@@ -550,7 +592,13 @@ def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler)
     if FLAGS.scheduler is not None and epoch < 2:
         create_dir_if_not_exists(join(saver.get_log_dir(), 'lrs'))
     if FLAGS.task == 'regression':
-        return total_loss / len(train_loader), {key: v / len(train_loader) for key, v in loss_dict.items()}, gae_loss, lrs
+        example_count = len(train_loader.dataset)
+        return (
+            total_loss / example_count,
+            {key: v / example_count for key, v in loss_dict.items()},
+            gae_loss,
+            lrs,
+        )
     else:
         return 1 - correct / total_loss, {key: v / len(train_loader) for key, v in loss_dict.items()}, gae_loss, lrs
 
@@ -657,7 +705,17 @@ def test(loader, tvt, model, epoch, plot_test = False, test_losses = [-1], csv_d
     points_dict = OrderedDict()
     target_list, loss_dict = set_target_list()
     for target_name in target_list:
-        points_dict[target_name] = {'true': [], 'pred': [], 'sigma_mu': [], 'sigma+mu': [], 'sigma':[], 'error': []}
+        points_dict[target_name] = {
+            'true': [],
+            'pred': [],
+            'physical_true': [],
+            'physical_pred': [],
+            'kernel': [],
+            'sigma_mu': [],
+            'sigma+mu': [],
+            'sigma': [],
+            'error': [],
+        }
     with torch.no_grad():
         for data in tqdm(loader):
             data = data.to(FLAGS.device)
@@ -690,8 +748,31 @@ def test(loader, tvt, model, epoch, plot_test = False, test_losses = [-1], csv_d
                     points_dict[target_name]['true'].append((target_value, target_value))
                     points_dict[target_name]['error'].append((target_value, abs(target_value - out_value)))
 
+                    physical_attr = (
+                        'actual_perf'
+                        if target_name in {'perf', 'actual_perf'}
+                        else 'actual_area'
+                    )
+                    physical_true = _get_y_with_target(
+                        data, physical_attr
+                    )[i].item()
+                    points_dict[target_name]['physical_true'].append(
+                        physical_true
+                    )
+                    points_dict[target_name]['physical_pred'].append(
+                        _inverse_log2_target(out_value)
+                    )
+                    points_dict[target_name]['kernel'].append(
+                        _kernel_at(data, i)
+                    )
 
-    if FLAGS.task != 'class' and FLAGS.plot_pred_points and tvt == 'test' and (plot_test or (test_losses and (total / len(loader)) < min(test_losses))):
+
+    if FLAGS.task != 'class' and FLAGS.plot_pred_points and tvt == 'test' and (
+        plot_test or (
+            test_losses
+            and (total / len(loader.dataset)) < min(test_losses)
+        )
+    ):
         from utils import plot_points_with_subplot, plot_points_with_subplot_sigma
         saver.log_info(f'@@@ plot_pred_points')
         assert(isinstance(FLAGS.target, list))
@@ -703,17 +784,30 @@ def test(loader, tvt, model, epoch, plot_test = False, test_losses = [-1], csv_d
 
     if FLAGS.task == 'regression':
         df = _report_rmse_etc(points_dict, f'[{tvt}] epoch {epoch}', print_result=True)
-
-        try:
-            row = df[df['target'] == 'tot/avg'].iloc[0]
-            saver.log_info(f"[{tvt}] RMSE: {row['rmse']:.4f} | MAE: {row['mae']:.4f} | MAPE: {row['mape']*100:.2f}%")
-        except Exception:
-            pass
+        for _, row in df[df['aggregation'] == 'point_micro'].iterrows():
+            saver.log_info(
+                f"[{tvt}] {row['target']} physical RMSE: "
+                f"{row['rmse']:.4f} | MAE: {row['mae']:.4f} | "
+                f"MAPE: {row['mape']*100:.2f}% | tau-b: "
+                f"{row['tau']:.4f}"
+            )
+        if tvt in {'best_val', 'test'}:
+            metrics_path = join(
+                saver.model_logdir, f'{tvt}_physical_metrics.csv'
+            )
+            df.to_csv(metrics_path, index=False)
+            saver.log_info(f'Wrote physical-unit metrics to {metrics_path}')
 
     if FLAGS.task == 'regression':
         if 'inf' in FLAGS.subtask:
             _report_rmse_etc(points_dict, f'epoch {epoch}:', True)
-        return (total / len(loader), {key: v / len(loader) for key, v in loss_dict.items()}, gae_loss, inference_loss / count_data * len(target_list))
+        example_count = len(loader.dataset)
+        return (
+            total / example_count,
+            {key: v / example_count for key, v in loss_dict.items()},
+            gae_loss,
+            inference_loss / max(1, count_data) * len(target_list),
+        )
     else:
         if 'inf' in FLAGS.subtask: report_class_loss(points_dict)
         return 1 - correct / total, {key: v / len(loader) for key, v in loss_dict.items()}, gae_loss, 0
@@ -730,77 +824,80 @@ def report_class_loss(points_dict):
     saver.info(f'Confusion matrix:\n{cm}')
 
 def _report_rmse_etc(points_dict, label, print_result=True):
+    """Report physical-unit point and per-kernel macro regression metrics."""
     if print_result:
         saver.log_info(label)
-    data = defaultdict(list)
-    tot_mape, tot_rmse, tot_mse, tot_mae, tot_max_err, tot_tau, tot_std = \
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 
-    num_data = None
-    try:
-        for target_name, d in points_dict.items():
-            # true_li = d['true']
-            # pred_li = d['pred']
-            true_li = [data for data,_ in d['pred']]
-            pred_li = [data for _,data in d['pred']]
-            num_data = len(true_li)
-            try:
-                rmse = mean_squared_error(true_li, pred_li, squared=False)
-            except TypeError:
-                # older sklearn: no 'squared' kwarg
-                rmse = np.sqrt(mean_squared_error(true_li, pred_li))
+    def metrics(true_values, predicted_values):
+        true_values = np.asarray(true_values, dtype=float)
+        predicted_values = np.asarray(predicted_values, dtype=float)
+        mse = float(mean_squared_error(true_values, predicted_values))
+        tau = float(kendalltau(true_values, predicted_values)[0])
+        return {
+            'mape': float(mean_absolute_percentage_error(
+                true_values, predicted_values
+            )),
+            'rmse': float(np.sqrt(mse)),
+            'mse': mse,
+            'mae': float(mean_absolute_error(
+                true_values, predicted_values
+            )),
+            'max_err': float(max_error(true_values, predicted_values)),
+            'tau': tau,
+        }
 
-            try:
-                mse = mean_squared_error(true_li, pred_li, squared=True)
-            except TypeError:
-                mse = mean_squared_error(true_li, pred_li)
-            # rmse = mean_squared_error(true_li, pred_li, squared=False)
-            # mse = mean_squared_error(true_li, pred_li, squared=True)
-            mape = mean_absolute_percentage_error(true_li, pred_li)
-            mae = mean_absolute_error(true_li, pred_li)
-            max_err = max_error(true_li, pred_li)
+    rows = []
+    for target_name, values in points_dict.items():
+        physical_target = (
+            'latency_ms'
+            if target_name in {'perf', 'actual_perf'}
+            else 'area_score'
+        )
+        true_values = values['physical_true']
+        predicted_values = values['physical_pred']
+        kernels = values['kernel']
+        if not true_values or not (
+            len(true_values) == len(predicted_values) == len(kernels)
+        ):
+            raise RuntimeError(
+                f'Incomplete physical metrics for {target_name}.'
+            )
 
-            true_rank = rankdata(true_li)
-            pred_rank = rankdata(pred_li)
-            tau = kendalltau(true_rank, pred_rank)[0]
-            data['target'].append(target_name)
-            data['mape'].append(mape)
-            data['rmse'].append(rmse) # .append(f'{rmse:.4f}')
-            data['mse'].append(mse)
-            data['mae'].append(mae)
-            data['max_err'].append(max_err)
-            data['tau'].append(tau)
+        micro = metrics(true_values, predicted_values)
+        rows.append({
+            'target': physical_target,
+            'aggregation': 'point_micro',
+            'samples': len(true_values),
+            'kernels': len(set(kernels)),
+            **micro,
+        })
 
-            tot_mape += mape
-            tot_rmse += rmse
-            tot_mse += mse
-            tot_mae += mae
-            tot_max_err += max_err
-            tot_tau += tau
+        per_kernel = []
+        for kernel in sorted(set(kernels)):
+            indices = [
+                index for index, value in enumerate(kernels)
+                if value == kernel
+            ]
+            per_kernel.append(metrics(
+                [true_values[index] for index in indices],
+                [predicted_values[index] for index in indices],
+            ))
+        macro = {
+            name: float(np.nanmean([item[name] for item in per_kernel]))
+            for name in ('mape', 'rmse', 'mse', 'mae', 'max_err', 'tau')
+        }
+        rows.append({
+            'target': physical_target,
+            'aggregation': 'kernel_macro',
+            'samples': len(true_values),
+            'kernels': len(per_kernel),
+            **macro,
+        })
 
-            pred_std = d.get('pred_std')
-            if pred_std is not None:
-                assert type(pred_std) is np.ndarray, f'{type(pred_std)}'
-                pred_std = np.mean(pred_std)
-                data['pred_std'].append(pred_std)
-                tot_std += pred_std
-        data['target'].append('tot/avg')
-        data['mape'].append(tot_mape)
-        data['rmse'].append(tot_rmse)
-        data['mse'].append(tot_mse)
-        data['mae'].append(tot_mae)
-        data['max_err'].append(tot_max_err)
-        data['tau'].append(tot_tau / len(points_dict))
-        if 'pred_std' in data:
-            data['pred_std'].append(tot_std / len(points_dict))
-
-    except ValueError as v:
-        saver.log_info(f'Error {v}')
-        data = defaultdict(list)
-
-    df = pd.DataFrame(data)
+    # Latency and area have different units, so there is deliberately no
+    # combined "tot/avg" error row. Report both targets independently.
+    df = pd.DataFrame(rows)
     pd.set_option('display.max_columns', None)
     if print_result:
-        saver.log_info(num_data)
         saver.log_info(df.round(4))
     return df

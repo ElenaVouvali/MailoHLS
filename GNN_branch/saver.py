@@ -24,7 +24,16 @@ class MyTimer():
 class Saver(object):
     def __init__(self):
         model_str = self._get_model_str()
-        directory_name = f'all_kernels_GNN_train' 
+        directory_name = str(FLAGS.experiment_name).strip()
+        if (
+            not directory_name
+            or directory_name in {'.', '..'}
+            or '/' in directory_name
+            or '\\' in directory_name
+        ):
+            raise ValueError(
+                f'Invalid --experiment_name: {directory_name!r}'
+            )
         self.logdir = join(get_logs_path(), directory_name)
         create_dir_if_not_exists(self.logdir)
         self.new_sub_saver()

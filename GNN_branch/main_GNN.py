@@ -2,6 +2,12 @@
 #                       MAIN
 #-----------------------------------------------------------
 
+import os
+
+# Must be set before the first CUDA BLAS operation. This selects a
+# deterministic cuBLAS workspace configuration for CUDA >= 10.2.
+os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
+
 from config import FLAGS
 from train_GNN import train_main, inference
 from saver import saver
@@ -35,7 +41,10 @@ def set_reproducible_seed(seed):
         torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
-    torch.use_deterministic_algorithms(True, warn_only=True)
+    torch.use_deterministic_algorithms(
+        True,
+        warn_only=bool(FLAGS.allow_nondeterministic),
+    )
 
 
 def maybe_load_pragma_dim():
