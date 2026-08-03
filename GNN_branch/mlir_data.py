@@ -175,7 +175,9 @@ EXPECTED_COMPILER_ANALYSIS_INPUT_SCHEMA = "mailohls-native-analysis-v3"
 EXPECTED_MEMORY_DEPENDENCE_MODEL = (
     "mlir-affine-proven-with-root-summarized-uncertainty"
 )
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v7-analysis-features"
+QOR_REFERENCE_DEVICE = "xczu7ev-ffvc1156-2-e"
+QOR_REFERENCE_CLOCK_PERIOD_NS = 10.0
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v8-single-target-qor"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -422,6 +424,18 @@ def _find_csv(kernel: str) -> Path:
     )
 
 
+def _preprocessed_csv_sha256() -> str:
+    """Hash the complete ordered QoR corpus used to create cached tensors."""
+    digest = hashlib.sha256()
+    for kernel in sorted(ALL_KERNEL):
+        path = _find_csv(kernel)
+        digest.update(kernel.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
 def _load_label_to_columns(kernel: str) -> dict[str, list[str]]:
     mapping_file = _find_apl_mapping(kernel)
     label_to_columns: dict[str, list[str]] = defaultdict(list)
@@ -572,10 +586,33 @@ def load_csv_results(kernel: str) -> list[CSVResult]:
     csv_path = _find_csv(kernel)
     kernel_info_map = parse_kernel_info(kernel)
     results: list[CSVResult] = []
+    seen_points: dict[tuple[tuple[str, str], ...], int] = {}
 
     with csv_path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
+        required = {"Device", "Clock_Period_nsec", "Latency_msec", "Area"}
+        missing = sorted(required - set(reader.fieldnames or []))
+        if missing:
+            raise RuntimeError(
+                f"{csv_path.name} is not a single-target GNN QoR table; "
+                f"missing columns {missing}. Rerun Preprocessing/data_preprocess.py."
+            )
         for row_idx, row in enumerate(reader):
+            device = str(row.get("Device", "")).strip()
+            clock_period = _as_float(row.get("Clock_Period_nsec"), math.nan)
+            if device != QOR_REFERENCE_DEVICE or not math.isclose(
+                clock_period,
+                QOR_REFERENCE_CLOCK_PERIOD_NS,
+                rel_tol=0.0,
+                abs_tol=1e-9,
+            ):
+                raise RuntimeError(
+                    f"{csv_path.name}:{row_idx + 2} has target "
+                    f"({device!r}, {clock_period} ns), expected "
+                    f"({QOR_REFERENCE_DEVICE!r}, "
+                    f"{QOR_REFERENCE_CLOCK_PERIOD_NS} ns)."
+                )
+
             point: dict[str, Any] = {}
             for column, metadata in kernel_info_map.items():
                 if column not in row:
@@ -585,6 +622,19 @@ def load_csv_results(kernel: str) -> list[CSVResult]:
                 point.update(
                     parse_pragma_token(row[column], action_id, auxiliary)
                 )
+
+            point_key = tuple(
+                sorted((str(key), str(value)) for key, value in point.items())
+            )
+            previous_row = seen_points.get(point_key)
+            if previous_row is not None:
+                raise RuntimeError(
+                    f"{csv_path.name} contains duplicate effective pragma "
+                    f"configurations at rows {previous_row + 2} and "
+                    f"{row_idx + 2}. Rerun Preprocessing/data_preprocess.py "
+                    "to aggregate repeated measurements."
+                )
+            seen_points[point_key] = row_idx
 
             perf = _as_float(
                 row.get("Latency_msec", row.get("Latency", 0.0)),
@@ -1657,29 +1707,62 @@ def get_kernel_samples(dataset):
     return MyOwnDataset(data_files=records)
 
 
-def split_train_test_kernel(dataset):
-    test_kernels = getattr(FLAGS, "test_kernels", None)
-    if test_kernels is None:
-        return {"train": dataset, "test": None}
-    if isinstance(test_kernels, str):
-        test_kernels = [
-            item.strip()
-            for item in test_kernels.split(",")
-            if item.strip()
-        ]
-    test_set = set(test_kernels)
+def _kernel_set(value: Any) -> set[str]:
+    if value is None:
+        return set()
+    if isinstance(value, str):
+        return {item.strip() for item in value.split(",") if item.strip()}
+    return {str(item).strip() for item in value if str(item).strip()}
+
+
+def split_train_val_test_kernel(dataset):
+    """Split complete kernels so one graph cannot cross split boundaries."""
+    test_set = _kernel_set(getattr(FLAGS, "test_kernels", None))
+    val_set = _kernel_set(getattr(FLAGS, "val_kernels", None))
+    overlap = test_set & val_set
+    if overlap:
+        raise RuntimeError(
+            f"Validation and test kernel sets overlap: {sorted(overlap)}"
+        )
+
+    available = {
+        record.get("kernel_name")
+        for record in dataset.records
+        if record.get("kernel_name")
+    }
+    unknown = (test_set | val_set) - available
+    if unknown:
+        raise RuntimeError(f"Unknown held-out kernels: {sorted(unknown)}")
+
     train_records = [
         record for record in dataset.records
-        if record.get("kernel_name") not in test_set
+        if record.get("kernel_name") not in (test_set | val_set)
+    ]
+    val_records = [
+        record for record in dataset.records
+        if record.get("kernel_name") in val_set
     ]
     test_records = [
         record for record in dataset.records
         if record.get("kernel_name") in test_set
     ]
+    if not train_records:
+        raise RuntimeError("The kernel-disjoint split has no training points.")
+    if val_set and not val_records:
+        raise RuntimeError("The configured validation split is empty.")
+    if test_set and not test_records:
+        raise RuntimeError("The configured test split is empty.")
+
     return {
         "train": MyOwnDataset(data_files=train_records),
-        "test": MyOwnDataset(data_files=test_records),
+        "val": MyOwnDataset(data_files=val_records) if val_set else None,
+        "test": MyOwnDataset(data_files=test_records) if test_set else None,
     }
+
+
+def split_train_test_kernel(dataset):
+    """Backward-compatible wrapper for callers that do not configure val kernels."""
+    return split_train_val_test_kernel(dataset)
 
 
 # ---------------------------------------------------------------------------
@@ -1708,6 +1791,9 @@ def _write_schema(
         "generator_sha256": hashlib.sha256(
             Path(__file__).with_name("mlir_graph_gen.py").read_bytes()
         ).hexdigest(),
+        "qor_reference_device": QOR_REFERENCE_DEVICE,
+        "qor_reference_clock_period_ns": QOR_REFERENCE_CLOCK_PERIOD_NS,
+        "preprocessed_csv_sha256": _preprocessed_csv_sha256(),
         "node_categorical_fields": list(NODE_CATEGORICAL_FIELDS),
         "node_numeric_fields": NODE_NUMERIC_NAMES,
         "edge_categorical_fields": list(EDGE_CATEGORICAL_FIELDS),
@@ -1760,6 +1846,20 @@ def _validate_cached_schema() -> None:
             "Cached tensors were produced by a different graph generator; "
             "use force_regen=True"
         )
+    if schema.get("qor_reference_device") != QOR_REFERENCE_DEVICE or not math.isclose(
+        _as_float(schema.get("qor_reference_clock_period_ns"), math.nan),
+        QOR_REFERENCE_CLOCK_PERIOD_NS,
+        rel_tol=0.0,
+        abs_tol=1e-9,
+    ):
+        raise RuntimeError(
+            "Cached tensors use a different QoR target; use force_regen=True"
+        )
+    if schema.get("preprocessed_csv_sha256") != _preprocessed_csv_sha256():
+        raise RuntimeError(
+            "Preprocessed QoR CSVs changed after tensorization; "
+            "use force_regen=True"
+        )
 
 
 def get_data_list():
@@ -1797,27 +1897,19 @@ def get_data_list():
     # leakage in family-level zero-shot evaluation.  Unknown exact operation
     # tokens are safely ignored by OneHotEncoder, while coarse operation
     # families and numeric semantic features remain available.
-    configured_test_kernels = getattr(FLAGS, "test_kernels", None)
-    if isinstance(configured_test_kernels, str):
-        configured_test_kernels = {
-            item.strip()
-            for item in configured_test_kernels.split(",")
-            if item.strip()
-        }
-    elif configured_test_kernels is None:
-        configured_test_kernels = set()
-    else:
-        configured_test_kernels = set(configured_test_kernels)
+    configured_holdout_kernels = _kernel_set(
+        getattr(FLAGS, "test_kernels", None)
+    ) | _kernel_set(getattr(FLAGS, "val_kernels", None))
 
     encoder_fit_files = [
         path
         for path, kernel in graph_records
-        if kernel not in configured_test_kernels
+        if kernel not in configured_holdout_kernels
     ]
     if not encoder_fit_files:
         raise RuntimeError(
             "No training graphs remain for fitting MLIR encoders after "
-            "applying FLAGS.test_kernels."
+            "applying FLAGS.val_kernels/FLAGS.test_kernels."
         )
     encoders = fit_encoders(encoder_fit_files)
 

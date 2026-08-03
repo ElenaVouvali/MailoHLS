@@ -8,6 +8,10 @@ from saver import saver
 from utils import load
 
 from os.path import join, exists
+import random
+
+import numpy as np
+import torch
 
 import config
 TARGETS = config.TARGETS
@@ -19,6 +23,19 @@ from mlir_data import get_data_list, MyOwnDataset
 import mlir_data as data
 
 SAVE_DIR = data.SAVE_DIR
+
+
+def set_reproducible_seed(seed):
+    """Seed model initialization and CPU/CUDA training randomness."""
+    seed = int(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    torch.use_deterministic_algorithms(True, warn_only=True)
 
 
 def maybe_load_pragma_dim():
@@ -39,6 +56,8 @@ def maybe_load_pragma_dim():
 
 
 if __name__ == '__main__':
+
+    set_reproducible_seed(FLAGS.random_seed)
 
     # --------------------------------------------------
     # Dataset loading

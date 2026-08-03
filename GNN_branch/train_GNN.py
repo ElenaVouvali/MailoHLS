@@ -12,7 +12,7 @@ from mlir_data import (
     get_kernel_samples,
     split_dataset,
     split_dataset_resample,
-    split_train_test_kernel,
+    split_train_val_test_kernel,
 )
 import mlir_data as data
 SAVE_DIR = data.SAVE_DIR
@@ -62,6 +62,10 @@ def gen_dataset(li):
             num_workers=workers,
             pin_memory=False,
         )
+        if shuffle:
+            kwargs["generator"] = torch.Generator().manual_seed(
+                _as_int_seed(FLAGS.random_seed)
+            )
         if workers > 0:
             kwargs["prefetch_factor"] = FLAGS.prefetch_factor
             kwargs["persistent_workers"] = FLAGS.persistent_workers
@@ -160,17 +164,19 @@ def process_split_data(dataset):
         )
 
         dataset_dict['train'] = tiny_ds
+        dataset_dict['val'] = tiny_ds
         dataset_dict['test'] = tiny_ds
         return dataset_dict
 
     # Full training: use the whole compact dataset directly
     dataset_dict['train'] = dataset
+    dataset_dict['val'] = None
     dataset_dict['test'] = None
 
     if not FLAGS.all_kernels:
         dataset_dict['train'] = get_kernel_samples(dataset)
-    elif FLAGS.test_kernels is not None:
-        dataset_dict = split_train_test_kernel(dataset)
+    elif FLAGS.test_kernels is not None or FLAGS.val_kernels is not None:
+        dataset_dict = split_train_val_test_kernel(dataset)
 
     return dataset_dict
 
@@ -205,7 +211,7 @@ def model_update(model, losses_list, loss, epoch, plot_test, tag):
         Tracks the current loss, saves the best model so far and optionally triggers plotting
     '''
     saver.writer.add_scalar(f'{tag}/{tag}', loss, epoch)
-    if losses_list and loss < min(losses_list):
+    if not losses_list or loss < min(losses_list):
         if FLAGS.save_model:
             saver.log_info((f'Saved {tag} model at epoch {epoch}'))
             torch.save(model.state_dict(), join(saver.model_logdir, f"{tag}_model_state_dict.pth"))
@@ -331,7 +337,13 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             f"(n={len(tiny_ds)})"
         )
     else:
-        if resample == -1:
+        if dataset_dict.get('val') is not None:
+            li = [
+                dataset_dict['train'],
+                dataset_dict['val'],
+                dataset_dict['test'] or MyOwnDataset(data_files=[]),
+            ]
+        elif resample == -1:
             li = split_dataset(dataset_dict['train'], r1, r2, dataset_test=dataset_dict['test'])
         else:
             li = split_dataset_resample(
@@ -345,7 +357,10 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     train_loader, val_loader, test_loader, num_features, edge_dim = gen_dataset(li)
     model = Net(num_features, edge_dim=edge_dim, init_pragma_dict=pragma_dim).to(FLAGS.device)
     saver.log_info(f"Model first param device: {next(model.parameters()).device}")
-    print(torch.cuda.get_device_name(0))
+    if torch.cuda.is_available():
+        print(torch.cuda.get_device_name(0))
+    else:
+        print("CPU training")
 
     if FLAGS.load_pretrained and FLAGS.model_path is not None:
         model_path = FLAGS.model_path[0] if isinstance(FLAGS.model_path, list) else FLAGS.model_path
@@ -420,27 +435,13 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             val, loss_dict_val, gae_loss_val, _ = test(val_loader, 'val', model, epoch)
             plot_test = model_update(model, val_losses, val, epoch, plot_test, 'val')
 
-        if len(test_loader) > 0:
-            saver.log_info(f'Epoch {epoch} test')
-            test_loss, loss_dict_test, gae_loss_test, _ = test(test_loader, 'test', model, epoch, plot_test, test_losses)
-            plot_test = model_update(model, test_losses, test_loss, epoch, plot_test, 'test')
-
         # log_loss(loss_dict_train, gae_loss_train, "Train")
-        if len(val_loader) > 0 and len(test_loader) > 0:
+        if len(val_loader) > 0:
         #     log_loss(loss_dict_val, gae_loss_val, "Val")
-        #     log_loss(loss_dict_test, gae_loss_test, "Test")
-            saver.log_info(('Epoch: {:03d}, Train Loss: {:.4f}, Val loss: {:.4f}, '
-                        'Test: {:.4f}) Time: {}'.format(
-                        epoch, loss, val, test_loss, timer.time_and_clear())))
+            saver.log_info(('Epoch: {:03d}, Train Loss: {:.4f}, '
+                            'Val loss: {:.4f}, Time: {}'.format(
+                            epoch, loss, val, timer.time_and_clear())))
         #     gae_val_losses.append(gae_loss_val)
-        #     gae_test_losses.append(gae_loss_test)
-
-        elif len(test_loader) > 0:
-            log_loss(loss_dict_test, gae_loss_test, "Test")
-            saver.log_info(('Epoch: {:03d}, Train loss: {:.4f}, '
-                            'Test: {:.4f}) Time: {}'.format(
-                            epoch, loss, test_loss, timer.time_and_clear())))
-            gae_test_losses.append(gae_loss_test)
         else:
             saver.log_info(('Epoch: {:03d}, Train loss: {:.4f}, '
                             'Time: {}'.format(
@@ -460,15 +461,52 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             saver.log_info(f"Checkpoint saved at epoch {epoch} -> {ckpt_path}")
 
         if len(train_losses) > 50:
-            if len(set(train_losses[-50:])) == 1 and len(set(test_losses[-50:])) == 1:
+            selection_losses = val_losses if val_losses else train_losses
+            if len(selection_losses) >= 50 and len(set(selection_losses[-50:])) == 1:
                 break
 
     epochs = range(epoch+1)
-    plot_loss_trend(epochs, train_losses, val_losses, test_losses, saver.get_log_dir(), file_name='losses.png')
+    plot_loss_trend(epochs, train_losses, val_losses, [], saver.get_log_dir(), file_name='losses.png')
     if FLAGS.gae_T or FLAGS.gae_P:
-        plot_loss_trend(epochs, gae_train_losses, gae_val_losses, gae_test_losses, saver.get_log_dir(), file_name='gae_losses.png')
+        plot_loss_trend(epochs, gae_train_losses, gae_val_losses, [], saver.get_log_dir(), file_name='gae_losses.png')
+
+    # Select the checkpoint with validation data, then expose the test set once.
+    selection_tag = 'val' if val_losses else 'train'
+    selection_path = join(
+        saver.model_logdir,
+        f'{selection_tag}_model_state_dict.pth',
+    )
     if len(test_loader) > 0:
-        saver.log_info(f'min test loss at epoch: {test_losses.index(min(test_losses))}')
+        if not exists(selection_path):
+            raise RuntimeError(
+                f'Missing {selection_tag}-selected checkpoint: {selection_path}'
+            )
+        model.load_state_dict(
+            torch.load(
+                selection_path,
+                map_location=torch.device('cpu'),
+                weights_only=False,
+            )
+        )
+        model.to(FLAGS.device)
+        saver.log_info(
+            f'Final test using the best {selection_tag} checkpoint only'
+        )
+        test_loss, loss_dict_test, gae_loss_test, _ = test(
+            test_loader,
+            'test',
+            model,
+            epoch,
+            plot_test=True,
+            test_losses=[],
+        )
+        test_losses.append(test_loss)
+        saver.writer.add_scalar('test/final', test_loss, epoch)
+        log_loss(loss_dict_test, gae_loss_test, 'Final test')
+        saver.log_info(f'Final held-out test loss: {test_loss:.4f}')
+
+    if len(test_loader) > 0:
+        saver.log_info('The test set was evaluated exactly once.')
     if len(val_loader) > 0:
         saver.log_info(f'min val loss at epoch: {val_losses.index(min(val_losses))}')
     if FLAGS.scheduler is not None:
@@ -533,7 +571,13 @@ def inference(dataset, init_pragma_dict=None, model_path=FLAGS.model_path,
             f"(n={len(tiny_ds)})"
         )
     else:
-        if resample == -1:
+        if dataset_dict.get('val') is not None:
+            li = [
+                dataset_dict['train'],
+                dataset_dict['val'],
+                dataset_dict['test'] or MyOwnDataset(data_files=[]),
+            ]
+        elif resample == -1:
             li = split_dataset(
                 dataset_dict['train'],
                 r1,
@@ -760,5 +804,3 @@ def _report_rmse_etc(points_dict, label, print_result=True):
         saver.log_info(num_data)
         saver.log_info(df.round(4))
     return df
-
-

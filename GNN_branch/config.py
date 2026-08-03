@@ -83,7 +83,16 @@ v_db = 'v21' # 'v20': v20 database, 'v18': v18 database
 parser.add_argument('--v_db', default=v_db) # if set to true uses the db of the new version of the tool: 2020.2
 
 test_kernels = None
-parser.add_argument('--test_kernels', default=test_kernels)
+parser.add_argument(
+    '--test_kernels',
+    default=test_kernels,
+    help='Comma-separated kernels reserved for final evaluation.',
+)
+parser.add_argument(
+    '--val_kernels',
+    default=None,
+    help='Comma-separated kernels used for model selection.',
+)
 target_kernel = None
 # target_kernel = 'gemm-blocked'
 parser.add_argument('--target_kernel', default=target_kernel)
