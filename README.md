@@ -2,8 +2,8 @@
 
 MailoHLS is a structure-aware framework for high-level synthesis (HLS) design-space optimization. It combines:
 
-- a compiler/GNN path that represents each C/C++ kernel as a deterministic MLIR semantic graph and learns latency/area behavior; and
-- an LLM path that predicts pragma assignments for an optimization objective, target device, clock period, and resource budget.
+- a GNN path that represents each C/C++ kernel as a deterministic MLIR semantic graph and captures its structure; and
+- an LLM path that predicts pragma assignments for an optimization objective, target device and resource budget.
 
 The repository currently contains a validated 55-kernel MLIR graph dataset and an experimental GNN training pipeline. The unified target-aware SFT trainer is implemented, but the current GNN-to-LLM memory exporter and SFT JSONL builder still need to be aligned with the new MLIR schemas before the complete LLM pipeline is reproducible.
 

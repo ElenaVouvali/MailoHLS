@@ -307,6 +307,15 @@ parser.add_argument(
     help='Give every training kernel equal total weight in the regression loss.',
 )
 parser.add_argument(
+    '--kernel_uniform_sampling',
+    action='store_true',
+    help=(
+        'Sample training kernels uniformly before sampling their design points. '
+        'Use with --kernel_balanced_loss to avoid high-variance inverse-count '
+        'training weights.'
+    ),
+)
+parser.add_argument(
     '--warmup_epochs',
     type=int,
     default=3,
@@ -323,6 +332,37 @@ parser.add_argument(
     type=float,
     default=1e-4,
     help='Minimum validation-loss decrease counted as an improvement.',
+)
+parser.add_argument(
+    '--plateau_patience',
+    type=int,
+    default=4,
+    help='Validation epochs without improvement before halving the learning rate.',
+)
+parser.add_argument(
+    '--plateau_factor',
+    type=float,
+    default=0.5,
+    help='Learning-rate multiplier used by the plateau scheduler.',
+)
+parser.add_argument(
+    '--evaluate_test',
+    action='store_true',
+    help='Explicitly unlock the configured held-out test kernels once.',
+)
+parser.add_argument(
+    '--final_refit',
+    action='store_true',
+    help=(
+        'After model selection, merge train and validation kernels and fit for '
+        'a fixed number of epochs. Test kernels remain excluded.'
+    ),
+)
+parser.add_argument(
+    '--final_refit_epochs',
+    type=int,
+    default=None,
+    help='Fixed epoch count selected from grouped validation for --final_refit.',
 )
 
 parser.add_argument('--random_seed', type=int, default=123)
@@ -400,6 +440,19 @@ parser.add_argument('--hostname', default=get_host())
 # FLAGS = parser.parse_args([])
 
 FLAGS = parser.parse_args()
+
+if FLAGS.kernel_uniform_sampling and not FLAGS.kernel_balanced_loss:
+    parser.error('--kernel_uniform_sampling requires --kernel_balanced_loss.')
+if FLAGS.final_refit:
+    if FLAGS.tiny_overfit:
+        parser.error('--final_refit and --tiny_overfit are mutually exclusive.')
+    if FLAGS.final_refit_epochs is None or FLAGS.final_refit_epochs <= 0:
+        parser.error('--final_refit requires a positive --final_refit_epochs.')
+    if FLAGS.scheduler == 'plateau':
+        parser.error(
+            '--final_refit has no validation signal; use cosine or no scheduler.'
+        )
+    FLAGS.epoch_num = FLAGS.final_refit_epochs
 
 if FLAGS.tiny_overfit:
     FLAGS.force_regen = False

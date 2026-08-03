@@ -25,7 +25,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, max_error, 
 import torch
 import pytorch_warmup as warmup
 from torch_geometric.loader import DataLoader
-from torch.utils.data import Dataset, Subset
+from torch.utils.data import Dataset, Subset, WeightedRandomSampler
 import torch.nn as nn
 import shutil
 import numpy as np
@@ -60,11 +60,13 @@ def _sample_kernel(sample):
 
 
 def fit_target_statistics(dataset):
-    """Fit log-target mean/std using training kernels only."""
+    """Fit target moments using the same kernel weighting as the loss."""
     model_targets = FLAGS.target if isinstance(FLAGS.target, list) else [FLAGS.target]
     values = {target: [] for target in model_targets}
+    kernels = []
     for index in range(len(dataset)):
         sample = dataset[index]
+        kernels.append(_sample_kernel(sample))
         for model_target in model_targets:
             data_target = (
                 'actual_perf'
@@ -79,15 +81,30 @@ def fit_target_statistics(dataset):
                 )
             values[model_target].append(float(value.item()))
 
+    counts = Counter(kernels)
+    if bool(getattr(FLAGS, 'kernel_balanced_loss', False)):
+        weights = np.asarray(
+            [1.0 / counts[kernel] for kernel in kernels],
+            dtype=np.float64,
+        )
+        weighting = 'kernel_balanced'
+    else:
+        weights = np.ones(len(kernels), dtype=np.float64)
+        weighting = 'point_micro'
+    weights /= weights.sum()
+
     stats = {}
     for target, target_values in values.items():
-        tensor = torch.tensor(target_values, dtype=torch.float64)
-        if tensor.numel() == 0:
+        array = np.asarray(target_values, dtype=np.float64)
+        if array.size == 0:
             raise RuntimeError(f'Cannot fit target statistics for empty {target}.')
+        mean = float(np.sum(weights * array))
+        variance = float(np.sum(weights * np.square(array - mean)))
         stats[target] = {
-            'mean': float(tensor.mean().item()),
-            'std': max(float(tensor.std(unbiased=False).item()), 1e-8),
-            'count': int(tensor.numel()),
+            'mean': mean,
+            'std': max(float(np.sqrt(variance)), 1e-8),
+            'count': int(array.size),
+            'weighting': weighting,
         }
     saver.log_info(f'Training-only log2 target statistics: {stats}')
     return stats
@@ -170,7 +187,7 @@ def compute_validation_selection_score(loss_breakdown, baseline_breakdown):
 class KernelBalancedDataset(Dataset):
     """Attach weights whose total is equal for every kernel in one split."""
 
-    def __init__(self, dataset):
+    def __init__(self, dataset, *, unit_loss_weights=False):
         self.dataset = dataset
         self.kernels = [
             _sample_kernel(dataset[index]) for index in range(len(dataset))
@@ -178,9 +195,17 @@ class KernelBalancedDataset(Dataset):
         counts = Counter(self.kernels)
         if not counts:
             self.weights = []
+            self.sampling_weights = []
             return
         scale = len(self.kernels) / len(counts)
-        self.weights = [scale / counts[kernel] for kernel in self.kernels]
+        self.sampling_weights = [
+            1.0 / counts[kernel] for kernel in self.kernels
+        ]
+        self.weights = (
+            [1.0] * len(self.kernels)
+            if unit_loss_weights
+            else [scale / counts[kernel] for kernel in self.kernels]
+        )
         saver.log_info(
             'Kernel-balanced split: '
             f'{len(counts)} kernels, {len(self.kernels)} points, '
@@ -206,14 +231,31 @@ def gen_dataset(li):
         train_workers = FLAGS.num_workers
         eval_workers = FLAGS.eval_num_workers
 
-    def make_loader(ds, shuffle, workers):
+    def make_loader(ds, shuffle, workers, *, training=False):
+        sampler = None
+        if training and bool(
+            getattr(FLAGS, 'kernel_uniform_sampling', False)
+        ):
+            if not isinstance(ds, KernelBalancedDataset):
+                raise RuntimeError(
+                    'Uniform kernel sampling requires KernelBalancedDataset.'
+                )
+            sampler = WeightedRandomSampler(
+                torch.as_tensor(ds.sampling_weights, dtype=torch.double),
+                num_samples=len(ds),
+                replacement=True,
+                generator=torch.Generator().manual_seed(
+                    _as_int_seed(FLAGS.random_seed)
+                ),
+            )
         kwargs = dict(
             batch_size=FLAGS.batch_size,
-            shuffle=shuffle,
+            shuffle=shuffle and sampler is None,
+            sampler=sampler,
             num_workers=workers,
             pin_memory=False,
         )
-        if shuffle:
+        if shuffle and sampler is None:
             kwargs["generator"] = torch.Generator().manual_seed(
                 _as_int_seed(FLAGS.random_seed)
             )
@@ -222,15 +264,15 @@ def gen_dataset(li):
             kwargs["persistent_workers"] = FLAGS.persistent_workers
         return DataLoader(ds, **kwargs)
 
-    train_loader = make_loader(li[0], shuffle=True,  workers=train_workers)
+    train_loader = make_loader(
+        li[0], shuffle=True, workers=train_workers, training=True
+    )
     val_loader   = make_loader(li[1], shuffle=False, workers=eval_workers)
     test_loader  = make_loader(li[2], shuffle=False, workers=eval_workers)
 
-    loader = test_loader if len(test_loader.dataset) > 0 else train_loader
-
-    num_features = loader.dataset[0].num_features
+    num_features = train_loader.dataset[0].num_features
     saver.info(f'num features for training: {num_features}')
-    edge_dim = loader.dataset[0].edge_attr.shape[1]
+    edge_dim = train_loader.dataset[0].edge_attr.shape[1]
     saver.info(f'size of the edge attribute is {edge_dim}')
 
     return train_loader, val_loader, test_loader, num_features, edge_dim
@@ -498,6 +540,17 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     saver.info(f'Reading dataset from {SAVE_DIR}')
 
     dataset_dict = process_split_data(dataset)
+    if bool(getattr(FLAGS, 'final_refit', False)):
+        development_records = list(dataset_dict['train'].records)
+        if dataset_dict.get('val') is not None:
+            development_records.extend(dataset_dict['val'].records)
+        dataset_dict['train'] = MyOwnDataset(data_files=development_records)
+        dataset_dict['val'] = None
+        saver.log_info(
+            'Final refit: merged train and validation kernels; '
+            f'{len(development_records)} development points. '
+            'Configured test kernels remain excluded.'
+        )
     num_graphs = len(dataset_dict['train'])
     r1, r2 = get_train_val_count(num_graphs, val_ratio, test_ratio)
 
@@ -508,6 +561,12 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             f"[tiny_overfit] using identical subset for train/val/test "
             f"(n={len(tiny_ds)})"
         )
+    elif bool(getattr(FLAGS, 'final_refit', False)):
+        li = [
+            dataset_dict['train'],
+            MyOwnDataset(data_files=[]),
+            dataset_dict['test'] or MyOwnDataset(data_files=[]),
+        ]
     else:
         if dataset_dict.get('val') is not None:
             li = [
@@ -539,7 +598,16 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             f'breakdown={baseline_breakdown}'
         )
     if bool(getattr(FLAGS, 'kernel_balanced_loss', False)):
-        li = [KernelBalancedDataset(split) for split in li]
+        uniform_sampling = bool(
+            getattr(FLAGS, 'kernel_uniform_sampling', False)
+        )
+        li = [
+            KernelBalancedDataset(
+                li[0], unit_loss_weights=uniform_sampling
+            ),
+            KernelBalancedDataset(li[1]),
+            KernelBalancedDataset(li[2]),
+        ]
 
     train_loader, val_loader, test_loader, num_features, edge_dim = gen_dataset(li)
     model = Net(
@@ -584,10 +652,27 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[FLAGS.epoch_num // 3], gamma=0.1)
     elif FLAGS.scheduler == "cosine":
         lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_steps, eta_min=1e-5)
+    elif FLAGS.scheduler == "plateau":
+        if len(val_loader) == 0:
+            raise RuntimeError(
+                'The plateau scheduler requires a validation split.'
+            )
+        lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            mode='min',
+            factor=float(FLAGS.plateau_factor),
+            patience=int(FLAGS.plateau_patience),
+            threshold=float(FLAGS.early_stopping_min_delta),
+            min_lr=1e-5,
+        )
     else:
         raise ValueError(f'Unknown scheduler: {FLAGS.scheduler!r}')
 
-    if FLAGS.warmup is None:
+    if FLAGS.scheduler == 'plateau':
+        # Plateau scheduling is epoch/validation driven. Its short linear
+        # warmup is applied explicitly at the start of each warmup epoch.
+        warmup_scheduler = None
+    elif FLAGS.warmup is None:
         warmup_scheduler = None
     elif FLAGS.warmup == 'linear':
         warmup_scheduler = warmup.LinearWarmup(
@@ -612,6 +697,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     plot_test = False
     best_stopping_loss = float('inf')
     epochs_without_improvement = 0
+    initial_selection = None
+    initial_ratios = None
 
     if FLAGS.resume_training and exists(ckpt_path):
         st = torch.load(ckpt_path, map_location='cpu')
@@ -630,6 +717,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         test_losses  = st.get("test_losses", test_losses)
         val_selection_scores = st.get("val_selection_scores", [])
         val_selection_ratios = st.get("val_selection_ratios", [])
+        initial_selection = st.get("initial_selection")
+        initial_ratios = st.get("initial_ratios")
         stored_baseline = st.get("baseline_breakdown")
         if val_losses and (
             len(val_selection_scores) != len(val_losses)
@@ -656,6 +745,13 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 - 1
                 - val_selection_scores.index(best_stopping_loss),
             )
+        if len(val_loader) > 0 and (
+            initial_selection is None or initial_ratios is None
+        ):
+            raise RuntimeError(
+                'Checkpoint lacks the initialized-model validation baseline. '
+                'Restart without --resume_training.'
+            )
         saver.log_info(f"Resuming from checkpoint at epoch {start_epoch}")
 
     if start_epoch == 0 and len(val_loader) > 0:
@@ -676,6 +772,13 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     for epoch in range(start_epoch, FLAGS.epoch_num):
         plot_test = False
         timer = OurTimer()
+        if (
+            FLAGS.scheduler == 'plateau'
+            and epoch < int(FLAGS.warmup_epochs)
+        ):
+            warmup_scale = (epoch + 1) / max(1, int(FLAGS.warmup_epochs))
+            for group in optimizer.param_groups:
+                group['lr'] = float(FLAGS.lr) * warmup_scale
         if FLAGS.feature_extract:
             check_feature_extract(model, 'MLPs', FLAGS.fix_gnn_layer)
         saver.log_info(f'Test batch ID (resample): {resample} - Epoch {epoch} train')
@@ -708,6 +811,11 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 plot_test,
                 'val',
             )
+            if (
+                FLAGS.scheduler == 'plateau'
+                and epoch + 1 >= int(FLAGS.warmup_epochs)
+            ):
+                lr_scheduler.step(current_selection_score)
 
         log_loss(loss_dict_train, gae_loss_train, "Train")
         if len(val_loader) > 0:
@@ -732,6 +840,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "val_losses": val_losses,
                 "val_selection_scores": val_selection_scores,
                 "val_selection_ratios": val_selection_ratios,
+                "initial_selection": initial_selection,
+                "initial_ratios": initial_ratios,
                 "test_losses": test_losses,
                 "target_stats": target_stats,
                 "baseline_breakdown": baseline_breakdown,
@@ -748,7 +858,11 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             epochs_without_improvement = 0
         else:
             epochs_without_improvement += 1
-        if epochs_without_improvement >= int(FLAGS.early_stopping_patience):
+        if (
+            not bool(getattr(FLAGS, 'final_refit', False))
+            and epochs_without_improvement
+            >= int(FLAGS.early_stopping_patience)
+        ):
             saver.log_info(
                 'Early stopping after '
                 f'{epochs_without_improvement} epochs without a '
@@ -761,14 +875,27 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     if FLAGS.gae_T or FLAGS.gae_P:
         plot_loss_trend(epochs, gae_train_losses, gae_val_losses, [], saver.get_log_dir(), file_name='gae_losses.png')
 
-    # Restore the validation-selected checkpoint before reporting validation
-    # and exposing the held-out test set exactly once.
-    selection_tag = 'val' if val_losses else 'train'
-    selection_epoch = (
-        val_selection_scores.index(min(val_selection_scores))
-        if val_selection_scores
-        else train_losses.index(min(train_losses))
-    )
+    # Model-selection runs restore the validation-selected checkpoint. A final
+    # refit has no validation signal and must keep the model after exactly the
+    # epoch count selected by grouped validation.
+    if bool(getattr(FLAGS, 'final_refit', False)):
+        selection_tag = 'final_refit'
+        selection_epoch = len(train_losses) - 1
+        if FLAGS.save_model:
+            torch.save(
+                model.state_dict(),
+                join(
+                    saver.model_logdir,
+                    f'{selection_tag}_model_state_dict.pth',
+                ),
+            )
+    else:
+        selection_tag = 'val' if val_losses else 'train'
+        selection_epoch = (
+            val_selection_scores.index(min(val_selection_scores))
+            if val_selection_scores
+            else train_losses.index(min(train_losses))
+        )
     selection_path = join(
         saver.model_logdir,
         f'{selection_tag}_model_state_dict.pth',
@@ -810,7 +937,29 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 'data only.'
             )
 
-    if len(test_loader) > 0:
+        if initial_ratios is None:
+            raise RuntimeError(
+                'Missing initialized-model validation ratios.'
+            )
+        min_delta = float(FLAGS.early_stopping_min_delta)
+        failed_targets = {
+            target: {
+                'trained': float(best_target_ratios[target]),
+                'initialized': float(initial_ratios[target]),
+            }
+            for target in sorted(best_target_ratios)
+            if float(best_target_ratios[target])
+            >= min(1.0, float(initial_ratios[target])) - min_delta
+        }
+        if failed_targets:
+            raise RuntimeError(
+                'The selected checkpoint did not improve every target over '
+                'both the constant predictor and this seed\'s initialized '
+                f'model: {failed_targets}. The test set remains locked.'
+            )
+
+    evaluate_test = bool(getattr(FLAGS, 'evaluate_test', False))
+    if len(test_loader) > 0 and evaluate_test:
         saver.log_info(
             f'Final test using the best {selection_tag} checkpoint from '
             f'epoch {selection_epoch}'
@@ -828,8 +977,13 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         log_loss(loss_dict_test, gae_loss_test, 'Final test')
         saver.log_info(f'Final held-out test loss: {test_loss:.4f}')
 
-    if len(test_loader) > 0:
+    if len(test_loader) > 0 and evaluate_test:
         saver.log_info('The test set was evaluated exactly once.')
+    elif len(test_loader) > 0:
+        saver.log_info(
+            'The held-out test set remains locked. Pass --evaluate_test only '
+            'after the model, hyperparameters and epoch count are frozen.'
+        )
     if len(val_loader) > 0:
         saver.log_info(
             'minimum summed validation objective at epoch: '
@@ -864,7 +1018,7 @@ def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler)
         #if FLAGS.scheduler is not None:
             # lr_scheduler.step()
             # lr_scheduler.step(lr_scheduler.last_epoch+1)
-        if lr_scheduler is not None:
+        if lr_scheduler is not None and FLAGS.scheduler != 'plateau':
             if warmup_scheduler is not None:
                 with warmup_scheduler.dampening():
                     lr_scheduler.step()
