@@ -1770,12 +1770,12 @@ def split_train_test_kernel(dataset):
 # ---------------------------------------------------------------------------
 
 def _keep_result(result: CSVResult) -> bool:
-    if str(getattr(FLAGS, "task", "regression")) != "regression":
-        return True
-    if bool(getattr(FLAGS, "invalid", False)):
-        return True
-    return result.perf >= float(
-        getattr(FLAGS, "min_allowed_latency", 0.1)
+    """Keep every finite, positive QoR point validated by preprocessing."""
+    return (
+        math.isfinite(result.perf)
+        and result.perf > 0.0
+        and math.isfinite(result.area)
+        and result.area > 0.0
     )
 
 

@@ -41,25 +41,25 @@ class MyGlobalAttention(torch.nn.Module):
         reset(self.nn)
 
     def forward(self, x, batch, set_zeros_ids=None, size=None):
-        """"""
-        x = x.unsqueeze(-1) if x.dim() == 1 else x  # [N, F] where N: total_graphs and F: feature_size
-        size = batch[-1].item() + 1 if size is None else size # size = B (batch_size)
+        x = x.unsqueeze(-1) if x.dim() == 1 else x
+        size = int(batch.max()) + 1 if size is None else size
 
-        gate = self.gate_nn(x).view(-1, 1)  # [N, 1] --> one score per node
+        logits = self.gate_nn(x).view(-1)
         x = self.nn(x) if self.nn is not None else x
-        assert gate.dim() == x.dim() and gate.size(0) == x.size(0)
-
-        gate = softmax(gate, batch, num_nodes=size) # batch-wise softmax the scores per graph and return a weighted sum of node features (they sum to 1) => per-graph pooling , size : [N, 1]
 
         if set_zeros_ids is not None:
-            # x[set_zeros_ids] = 0
-            # x.masked_fill(set_zeros_ids, 0)
-            x = x.permute((1, 0))
-            x = x * set_zeros_ids
-            x = x.permute((1, 0)) # [N, F']
+            mask = set_zeros_ids.reshape(-1).bool()
+            selected = scatter_add(
+                mask.long(), batch, dim=0, dim_size=size
+            )
+            if torch.any(selected == 0):
+                raise RuntimeError(
+                    "Masked attention received a graph with no selected nodes."
+                )
+            logits = logits.masked_fill(~mask, -torch.inf)
 
-        out = scatter_add(gate * x, batch, dim=0, dim_size=size)  # out = (batch)|Σ ​(gate*x​) --> size : [B, F']
-
+        gate = softmax(logits, batch, num_nodes=size).view(-1, 1)
+        out = scatter_add(gate * x, batch, dim=0, dim_size=size)
         return out, gate
 
     def __repr__(self):
