@@ -126,6 +126,47 @@ def constant_mean_baseline(dataset, target_stats):
     return float(sum(breakdown.values())), breakdown
 
 
+def compute_validation_selection_score(loss_breakdown, baseline_breakdown):
+    """Return a conservative, target-balanced validation score.
+
+    Each target loss is divided by the loss of the deterministic training-mean
+    predictor on the same validation kernels.  The maximum ratio is minimized,
+    so a large improvement in one target cannot hide regression in another.
+
+    A score below one means that every target beats its constant baseline.
+    """
+    if not isinstance(loss_breakdown, dict) or not isinstance(
+        baseline_breakdown, dict
+    ):
+        raise TypeError(
+            "Validation and baseline breakdowns must be dictionaries."
+        )
+
+    expected_targets = sorted(baseline_breakdown)
+    if sorted(loss_breakdown) != expected_targets or not expected_targets:
+        raise RuntimeError(
+            "Validation/baseline target mismatch: "
+            f"validation={sorted(loss_breakdown)}, "
+            f"baseline={expected_targets}"
+        )
+
+    ratios = {}
+    for target in expected_targets:
+        loss = float(loss_breakdown[target])
+        baseline = float(baseline_breakdown[target])
+        if not np.isfinite(loss) or loss < 0.0:
+            raise RuntimeError(
+                f"Invalid validation loss for {target}: {loss!r}"
+            )
+        if not np.isfinite(baseline) or baseline <= 1e-12:
+            raise RuntimeError(
+                f"Invalid constant-baseline loss for {target}: {baseline!r}"
+            )
+        ratios[target] = loss / baseline
+
+    return max(ratios.values()), ratios
+
+
 class KernelBalancedDataset(Dataset):
     """Attach weights whose total is equal for every kernel in one split."""
 
@@ -486,6 +527,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             )
 
     target_stats = fit_target_statistics(li[0])
+    baseline_total = None
+    baseline_breakdown = None
     if len(li[1]) > 0:
         baseline_total, baseline_breakdown = constant_mean_baseline(
             li[1], target_stats
@@ -561,6 +604,10 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     start_epoch = 0
 
     train_losses, val_losses, test_losses, total_lrs = [], [], [], []
+    # Keep the summed validation objective for diagnostics, but select
+    # checkpoints using a separate target-balanced score.
+    val_selection_scores = []
+    val_selection_ratios = []
     gae_train_losses, gae_val_losses, gae_test_losses = [], [], []
     plot_test = False
     best_stopping_loss = float('inf')
@@ -581,10 +628,33 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         train_losses = st.get("train_losses", train_losses)
         val_losses   = st.get("val_losses", val_losses)
         test_losses  = st.get("test_losses", test_losses)
-        if val_losses:
-            best_stopping_loss = min(val_losses)
+        val_selection_scores = st.get("val_selection_scores", [])
+        val_selection_ratios = st.get("val_selection_ratios", [])
+        stored_baseline = st.get("baseline_breakdown")
+        if val_losses and (
+            len(val_selection_scores) != len(val_losses)
+            or len(val_selection_ratios) != len(val_losses)
+        ):
+            raise RuntimeError(
+                "Checkpoint predates target-balanced validation selection or "
+                "contains incomplete selection history. Restart this run "
+                "without --resume_training."
+            )
+        if (
+            baseline_breakdown is not None
+            and stored_baseline != baseline_breakdown
+        ):
+            raise RuntimeError(
+                "Validation baseline changed since the checkpoint was written. "
+                "Restart without --resume_training."
+            )
+        if val_selection_scores:
+            best_stopping_loss = min(val_selection_scores)
             epochs_without_improvement = max(
-                0, len(val_losses) - 1 - val_losses.index(best_stopping_loss)
+                0,
+                len(val_selection_scores)
+                - 1
+                - val_selection_scores.index(best_stopping_loss),
             )
         saver.log_info(f"Resuming from checkpoint at epoch {start_epoch}")
 
@@ -592,9 +662,14 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         initial_val, initial_breakdown, initial_gae, _ = test(
             val_loader, 'initial_val', model, -1, test_losses=[]
         )
+        initial_selection, initial_ratios = compute_validation_selection_score(
+            initial_breakdown, baseline_breakdown
+        )
         saver.log_info(
             f'Untrained validation loss: {initial_val:.4f}; '
-            f'breakdown={initial_breakdown}'
+            f'breakdown={initial_breakdown}; '
+            f'target-balanced selection={initial_selection:.4f}; '
+            f'relative target losses={initial_ratios}'
         )
         log_loss(initial_breakdown, initial_gae, 'Initial validation')
 
@@ -609,8 +684,30 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         total_lrs.extend(lrs)
         if len(val_loader) > 0:
             saver.log_info(f'Epoch {epoch} val')
-            val, loss_dict_val, gae_loss_val, _ = test(val_loader, 'val', model, epoch)
-            plot_test = model_update(model, val_losses, val, epoch, plot_test, 'val')
+            val, loss_dict_val, gae_loss_val, _ = test(
+                val_loader, 'val', model, epoch
+            )
+            val_losses.append(val)
+            current_selection_score, target_ratios = (
+                compute_validation_selection_score(
+                    loss_dict_val, baseline_breakdown
+                )
+            )
+            val_selection_ratios.append(target_ratios)
+            saver.log_info(
+                f'Validation target-balanced selection score: '
+                f'{current_selection_score:.6f}; '
+                f'relative target losses={target_ratios}'
+            )
+            saver.writer.add_scalar('val/total_objective', val, epoch)
+            plot_test = model_update(
+                model,
+                val_selection_scores,
+                current_selection_score,
+                epoch,
+                plot_test,
+                'val',
+            )
 
         log_loss(loss_dict_train, gae_loss_train, "Train")
         if len(val_loader) > 0:
@@ -633,12 +730,17 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "scheduler": (lr_scheduler.state_dict() if FLAGS.scheduler is not None else None),
                 "train_losses": train_losses,
                 "val_losses": val_losses,
+                "val_selection_scores": val_selection_scores,
+                "val_selection_ratios": val_selection_ratios,
                 "test_losses": test_losses,
                 "target_stats": target_stats,
+                "baseline_breakdown": baseline_breakdown,
             }, ckpt_path)
             saver.log_info(f"Checkpoint saved at epoch {epoch} -> {ckpt_path}")
 
-        selection_loss = val if len(val_loader) > 0 else loss
+        selection_loss = (
+            current_selection_score if len(val_loader) > 0 else loss
+        )
         if selection_loss < (
             best_stopping_loss - float(FLAGS.early_stopping_min_delta)
         ):
@@ -663,8 +765,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     # and exposing the held-out test set exactly once.
     selection_tag = 'val' if val_losses else 'train'
     selection_epoch = (
-        val_losses.index(min(val_losses))
-        if val_losses
+        val_selection_scores.index(min(val_selection_scores))
+        if val_selection_scores
         else train_losses.index(min(train_losses))
     )
     selection_path = join(
@@ -686,8 +788,12 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         model.to(FLAGS.device)
 
     if len(val_loader) > 0:
+        best_selection_score = val_selection_scores[selection_epoch]
+        best_target_ratios = val_selection_ratios[selection_epoch]
         saver.log_info(
-            f'Final validation report for best epoch {selection_epoch}'
+            f'Final validation report for selected epoch {selection_epoch}; '
+            f'target-balanced score={best_selection_score:.6f}; '
+            f'relative target losses={best_target_ratios}'
         )
         test(
             val_loader,
@@ -696,6 +802,13 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             selection_epoch,
             test_losses=[],
         )
+        if best_selection_score >= 1.0:
+            raise RuntimeError(
+                'No validation checkpoint beat the deterministic constant '
+                'baseline on every target. The held-out test set will not be '
+                'opened; revise the training configuration using validation '
+                'data only.'
+            )
 
     if len(test_loader) > 0:
         saver.log_info(
@@ -718,7 +831,14 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     if len(test_loader) > 0:
         saver.log_info('The test set was evaluated exactly once.')
     if len(val_loader) > 0:
-        saver.log_info(f'min val loss at epoch: {val_losses.index(min(val_losses))}')
+        saver.log_info(
+            'minimum summed validation objective at epoch: '
+            f'{val_losses.index(min(val_losses))}'
+        )
+        saver.log_info(
+            'target-balanced selected checkpoint at epoch: '
+            f'{selection_epoch}'
+        )
     if FLAGS.scheduler is not None:
         plot_lr_trend(total_lrs, FLAGS.epoch_num + 1, saver.get_log_dir())
     saver.log_info(f'min train loss at epoch: {train_losses.index(min(train_losses))}')

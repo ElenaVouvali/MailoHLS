@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+"""Unified MailoHLS target-aware SFT and device-adaptation trainer."""
+
+from __future__ import annotations
+
 import argparse
 import json
 import math
@@ -7,10 +12,11 @@ import re
 import gc
 import shutil
 import numpy as np
+from pathlib import Path
 
 from dataclasses import dataclass
 from collections import defaultdict, Counter
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any, Optional, Iterable, Mapping, Sequence
 
 import torch
 import torch.nn as nn
@@ -22,7 +28,6 @@ from einops_exts import rearrange_many
 from torch import einsum
 
 import hashlib
-import random
 
 from transformers import (
     AutoTokenizer,
@@ -135,14 +140,6 @@ def _norm_clock(clock_period: Any) -> float:
     return round(float(clock_period), 2)
 
 
-def period_token_from_clock(clock_period: Any) -> str:
-    cp = _norm_clock(clock_period)
-    for known_cp, token in PERIOD_TOKEN_MAP.items():
-        if abs(cp - known_cp) < 0.02:
-            return token
-    return f"<CLK={int(cp)}NS>"
-
-
 def prepend_selected_clock(
     target_text: str,
     selected_clock_period: float,
@@ -243,77 +240,6 @@ def _avail_resource_tuple(row: dict) -> Tuple[int, int, int, int]:
         get_int("avail_dsp", "DSP"),
         get_int("avail_ff", "FF"),
         get_int("avail_lut", "LUT"),
-    )
-
-
-def target_bucket_key(row: dict):
-    return (
-        row["kernel_name"],
-        _norm_device(row.get("device", "")),
-        str(row.get("frequency_mode", "specified")),
-        (
-            _norm_clock(
-                row.get("clock_period", row.get("Clock_Period_nsec"))
-            )
-            if row.get("frequency_mode", "specified") == "specified"
-            else None
-        ),
-        *_avail_resource_tuple(row),
-    )
-
-
-def target_prompt_fields(
-    row: Optional[dict],
-    device_token_dropout: float = 0.0,
-) -> dict:
-    row = row or {}
-
-    device = _norm_device(
-        row.get("device", row.get("Device", ""))
-    )
-    device_token = DEVICE_TOKEN_MAP.get(
-        device, UNKNOWN_DEVICE_TOKEN
-    )
-
-    if (
-        device_token_dropout > 0.0
-        and random.random() < device_token_dropout
-    ):
-        device_token = UNKNOWN_DEVICE_TOKEN
-
-    frequency_mode = row.get(
-        "frequency_mode", "specified"
-    )
-
-    if frequency_mode == "auto":
-        period_token = AUTO_PERIOD_TOKEN
-    else:
-        clock_period = row.get(
-            "clock_period",
-            row.get("Clock_Period_nsec", 10.0),
-        )
-        period_token = period_token_from_clock(clock_period)
-
-    avail_bram, avail_dsp, avail_ff, avail_lut = (
-        _avail_resource_tuple(row)
-    )
-
-    return {
-        "device_token": device_token,
-        "period_token": period_token,
-        "avail_bram": avail_bram,
-        "avail_dsp": avail_dsp,
-        "avail_ff": avail_ff,
-        "avail_lut": avail_lut,
-    }
-
-
-def build_prompt(code: str, obj_mode: str, row: Optional[dict] = None, device_token_dropout: float = 0.0) -> str:
-    fields = target_prompt_fields(row, device_token_dropout=device_token_dropout)
-    return PROMPT_TEMPLATE.format(
-        code=replace_source_labels_with_tokens(code),
-        obj_token=GOALS[obj_mode]["token"],
-        **fields,
     )
 
 
@@ -850,59 +776,6 @@ def attach_budget(row: dict, budget: ResourceBudget) -> dict:
     return out
 
 
-def augment_rows_with_random_resource_budgets(
-    rows: List[dict],
-    num_budgets_per_case: int,
-    seed: int,
-    min_feasible_candidates: int = 2,
-) -> List[dict]:
-    """
-    For every (kernel, device, clock) candidate pool:
-      1. generate shared resource budgets;
-      2. filter every design under each budget;
-      3. create a valid optimization bucket only when enough alternatives fit.
-    """
-    by_case = defaultdict(list)
-
-    for row in rows:
-        by_case[base_target_key(row)].append(row)
-
-    augmented = []
-    stats = Counter()
-
-    for case_key, candidates in sorted(by_case.items()):
-        budgets = sample_resource_budgets(
-            case_key=case_key,
-            num_budgets=num_budgets_per_case,
-            seed=seed,
-        )
-
-        for budget_id, budget in enumerate(budgets):
-            feasible = [
-                row
-                for row in candidates
-                if design_fits_budget(row, budget)
-            ]
-
-            if len(feasible) < min_feasible_candidates:
-                stats["empty_or_singleton"] += 1
-                continue
-
-            for row in feasible:
-                conditioned = attach_budget(row, budget)
-                conditioned["resource_budget_id"] = budget_id
-                augmented.append(conditioned)
-
-            stats["kept_budgets"] += 1
-            stats["kept_rows"] += len(feasible)
-
-    print("[RANDOM-BUDGET]", dict(stats))
-    print(
-        f"[RANDOM-BUDGET] rows before={len(rows)} "
-        f"after={len(augmented)}"
-    )
-    return augmented
-
 
 @dataclass(frozen=True)
 class ResourceBudget:
@@ -1404,113 +1277,6 @@ def build_contrastive_sites_from_sample(
     return sites[:candidate_sites_per_sample]
 
 
-def select_goal_rows(
-    rows: List[dict],
-    goal_mode: str,
-    top_k: int,
-    domination_penalty: float,
-    max_dominated_gap: float,
-    score_weight_min: float = 0.6,
-    score_weight_power: float = 1.0,
-):
-    by_case = defaultdict(list)
-    for r in rows:
-        by_case[target_bucket_key(r)].append(r)
-
-    selected = []
-    per_case = {}
-
-    for case_key, items in by_case.items():
-        kname, device, clock_period, avail_bram, avail_dsp, avail_ff, avail_lut = case_key
-        ranked = rank_goal_candidates(
-            items,
-            goal_mode=goal_mode,
-            domination_penalty=domination_penalty,
-            max_dominated_gap=max_dominated_gap,
-        )
-
-        unique_ranked = []
-        seen = set()
-        for rec in ranked:
-            key = canonical_completion_key(rec["row"]["input"], rec["row"]["target"])
-            if key in seen:
-                continue
-            seen.add(key)
-            unique_ranked.append(rec)
-
-        ranked = unique_ranked
-
-        for objective_rank, rec in enumerate(ranked):
-            rec["objective_rank"] = objective_rank
-            rec["score"] = float(goal_sort_key(rec, goal_mode, domination_penalty=0.0)[0])
-
-        if not ranked:
-            continue
-
-        local_hard_negatives = build_local_hard_negative_bank(
-            [{"row": rec["row"], "score": rec["score"]} for rec in ranked],
-            hard_neg_top_k=max(6, top_k),
-        )
-        local_hard_negatives = {
-            lhs: sorted(vals, key=_rhs_sort_key)
-            for lhs, vals in local_hard_negatives.items()
-        }
-
-        chosen = ranked[: min(top_k, len(ranked))]
-
-        chosen_scores = [float(rec["score"]) for rec in chosen]
-        best_score = min(chosen_scores)
-        worst_score = max(chosen_scores)
-
-        chosen_weights = []
-        for rec in chosen:
-            w = score_gap_weight(
-                score=float(rec["score"]),
-                best_score=best_score,
-                worst_score=worst_score,
-                w_min=score_weight_min,
-                power=score_weight_power,
-            )
-            chosen_weights.append(float(w))
-
-            r2 = dict(rec["row"])
-            r2["obj_mode"] = goal_mode
-            r2["_score"] = float(rec["score"])
-            r2["_rank_within_kernel"] = int(rec["objective_rank"])
-            r2["_sample_weight"] = float(w)
-            r2["_local_hard_negatives"] = local_hard_negatives
-            selected.append(r2)
-
-        case_name = (
-            f"{kname}::{device}::{clock_period:g}ns::"
-            f"BRAM{avail_bram}_DSP{avail_dsp}_FF{avail_ff}_LUT{avail_lut}"
-        )
-        per_case[case_name] = {
-            "kernel_name": kname,
-            "device": device,
-            "clock_period": float(clock_period),
-            "avail_bram": int(avail_bram),
-            "avail_dsp": int(avail_dsp),
-            "avail_ff": int(avail_ff),
-            "avail_lut": int(avail_lut),
-            "resource_budget_frac": float(items[0].get("resource_budget_frac", 1.0)),
-            "family": items[0]["_family"],
-            "n_total": len(items),
-            "selected": len(chosen),
-            "goal_mode": goal_mode,
-            "indices": [rec["row"]["_jsonl_idx"] for rec in chosen],
-            "ranks": [rec["objective_rank"] for rec in chosen],
-            "scores": [float(rec["score"]) for rec in chosen],
-            "sample_weights": chosen_weights,
-            "best_score": float(best_score),
-            "worst_score": float(worst_score),
-            "score_weight_min": float(score_weight_min),
-            "score_weight_power": float(score_weight_power),
-        }
-
-    return selected, per_case
-
-
 
 # =======================================================
 # Candidate bank + validation decoding for best_stage1
@@ -1804,62 +1570,6 @@ class SelectionCase:
     source_text: str
     reference_target: str
     row: dict
-
-
-def build_selection_cases(
-    val_rows: List[dict],
-    goal_mode: str,
-    max_kernels: int = 4,
-    min_coverage: float = 0.85,
-    min_supervised_sites: int = 4,
-) -> List[SelectionCase]:
-    by_case = defaultdict(list)
-    for r in val_rows:
-        if r["obj_mode"] == goal_mode:
-            by_case[target_bucket_key(r)].append(r)
-
-    cases = []
-    cases_kept = 0
-
-    for case_key in sorted(by_case.keys()):
-        kernel_name, device, clock_period, avail_bram, avail_dsp, avail_ff, avail_lut = case_key
-        items = by_case[case_key]
-        best = sorted(
-            items,
-            key=lambda r: (
-                int(r.get("_rank_within_kernel", 10**9)),
-                float(r.get("_score", 10**9)),
-            ),
-        )[0]
-
-        try:
-            ref_target, ref_meta = build_partial_deterministic_target_text(
-                best["input"],
-                best["target"],
-                min_supervised_sites=min_supervised_sites,
-            )
-        except ValueError:
-            continue
-
-        if ref_meta["coverage"] < min_coverage:
-            continue
-
-        cases.append(
-            SelectionCase(
-                kernel_name=kernel_name,
-                obj_mode=goal_mode,
-                source_text=best["input"],
-                reference_target=ref_target,
-                row=best,
-            )
-        )
-        cases_kept += 1
-
-        if cases_kept >= max_kernels:
-            break
-
-    return cases
-
 
 
 
@@ -2760,130 +2470,6 @@ class SaveHarpXattnCallback(TrainerCallback):
 # Dataset + Pad Collator (SFT)
 # ====================================
 
-class SFTDataset(Dataset):
-    """
-    Constructs prompt / target samples and optional per-site contrastive metadata.
-    """
-    def __init__(
-        self,
-        rows: List[dict],
-        tok,
-        max_length: int,
-        value_loss_weight: float = 1.0,
-        candidate_sites_per_sample: int = 0,
-        candidate_negatives_per_site: int = 0,
-        device_token_dropout: float = 0.0,
-    ):
-        self.samples = []
-        self.lengths = []
-        self.tok = tok
-        self.max_length = max_length
-
-        n_total = 0
-        n_missing_obj = 0
-
-        kind_loss_weights = {
-            "UNROLL": 1.6,
-            "ARRAY_F": 1.2,
-            "PIPE": 1.2,
-            "ARRAY_T": 1.0,
-            "ARRAY_D": 0.8,
-        }
-
-        for ex in rows:
-            obj_token = GOALS[ex["obj_mode"]]["token"]
-            prompt = build_prompt(
-                ex["input"],
-                ex["obj_mode"],
-                row=ex,
-                device_token_dropout=device_token_dropout,
-            )
-            target_core = reorder_target_by_source_order(ex["input"], ex["target"].strip())
-
-            p_ids = tok(prompt, add_special_tokens=False)["input_ids"]
-
-            det_pack = build_deterministic_rhs_pack(
-                ex["input"],
-                target_core,
-                tok,
-                value_w=value_loss_weight,
-                kind_loss_weights=kind_loss_weights,
-            )
-
-            t_ids = det_pack.input_ids
-            target_labels = det_pack.labels
-            plan_loss_weights = det_pack.token_weights
-            plan_xattn_target_mask = det_pack.xattn_target_mask
-
-            if len(t_ids) >= max_length:
-                t_ids = t_ids[:max_length]
-                target_labels = target_labels[:max_length]
-                plan_loss_weights = plan_loss_weights[:max_length]
-                plan_xattn_target_mask = plan_xattn_target_mask[:max_length]
-                p_ids = []
-            else:
-                max_p = max_length - len(t_ids)
-                if len(p_ids) > max_p:
-                    p_ids = p_ids[-max_p:]
-
-            obj_id = tok.encode(obj_token, add_special_tokens=False)[0]
-            seen_obj = (obj_id in p_ids)    # verify if the objective token has survived
-            n_total += 1
-            if not seen_obj:
-                n_missing_obj += 1
-
-            input_ids = p_ids + t_ids
-            attn = [1] * len(input_ids)
-
-            labels = [-100] * len(p_ids) + target_labels
-            token_weights = [0.0] * len(p_ids) + plan_loss_weights
-
-            full_xattn_target_mask = [0] * len(p_ids) + plan_xattn_target_mask
-            xattn_apply_mask = full_xattn_target_mask[1:] + [0]
-
-            contrastive_sites = build_contrastive_sites_from_sample(
-                source_text=ex["input"],
-                target_text=target_core,
-                prompt_ids=p_ids,
-                tok=tok,
-                max_length=max_length,
-                local_hard_negatives=ex.get("_local_hard_negatives", {}),
-                candidate_sites_per_sample=candidate_sites_per_sample,
-                candidate_negatives_per_site=candidate_negatives_per_site,
-                kind_priority=kind_loss_weights,
-            )
-
-            self.samples.append({
-                "input_ids": torch.tensor(input_ids, dtype=torch.long),
-                "attention_mask": torch.tensor(attn, dtype=torch.long),
-                "labels": torch.tensor(labels, dtype=torch.long),
-                "token_weights": torch.tensor(token_weights, dtype=torch.float32),
-                "xattn_apply_mask": torch.tensor(xattn_apply_mask, dtype=torch.float32),
-                "sample_weight": torch.tensor(float(ex.get("_sample_weight", 1.0)), dtype=torch.float32),
-                "kernel_name": ex["kernel_name"],
-                "routing_start_idx": torch.tensor(len(p_ids), dtype=torch.long),
-                "contrastive_sites": contrastive_sites,
-            })
-
-            self.lengths.append(len(input_ids))
-
-        if n_total > 0:
-            missing_pct = (n_missing_obj / n_total) * 100
-            print("\n--- Truncation Summary ---")
-            print(f"Total samples: {n_total}")
-            print(f"Missing objective token: {n_missing_obj} ({missing_pct:.2f}%)")
-            if missing_pct > 20:
-                print("WARNING: High truncation rate detected. Consider increasing max_length.")
-            print("--------------------------\n")
-
-    def __len__(self):
-        return len(self.samples)
-
-    def __getitem__(self, idx):
-        return self.samples[idx]
-
-
-
 class PadCollator:
     def __init__(self, tok):
         self.tok = tok
@@ -3695,6 +3281,766 @@ def install_trainable_special_token_embeddings(model, special_ids: List[int]):
     return wrapped_emb
 
 
+# =============================================================================
+# Unified target conditioning
+# =============================================================================
+
+DEVICE_MODES = ("known", "resource_dropout_ablation", "device_adapt")
+ADAPTED_DEVICE_TOKEN = "<DEV=UNKNOWN>"
+AUTO_PERIOD_TOKEN = "<CLK=AUTO>"
+CLOCK_ANCHOR_TOKEN = "<CLOCK>"
+
+
+@dataclass
+class TargetAwareConfig:
+    """Runtime policy shared by prompt construction and target selection."""
+
+    device_mode: str = "known"
+    adapt_device: str = ""
+    budget_mode: str = "random"
+    random_budgets_per_case: int = 16
+    min_budget_frac: float = 0.10
+    min_feasible_candidates: int = 3
+    candidate_pool_per_objective: int = 24
+    auto_frequency_fraction: float = 0.0
+    min_auto_clock_count: int = 2
+    strict_source_markers: bool = True
+    seed: int = 123
+
+
+TARGET_CFG = TargetAwareConfig()
+
+TARGET_PROMPT_HEADER = """
+### Role: Expert FPGA/HLS engineer.
+
+### Task:
+The kernel marks each directive site with a source marker <SRC_Lk>.
+Select the directive RHS values for the optimization goal and target platform.
+If the clock is <CLK=AUTO>, also select the best supported clock period.
+Anchors and directive names are fixed by the source code.
+
+### Target Platform
+Device class: {device_token}
+Device name: {device_name}
+Target clock period: {period_token}
+
+Available resources:
+BRAM_18K={avail_bram} ({avail_bram_pct:.1f}% of device)
+DSP={avail_dsp} ({avail_dsp_pct:.1f}% of device)
+FF={avail_ff} ({avail_ff_pct:.1f}% of device)
+LUT={avail_lut} ({avail_lut_pct:.1f}% of device)
+
+### Objective
+{obj_token}
+
+### Kernel
+""".lstrip()
+
+TARGET_PROMPT_SUFFIX = "\n\n### Selected Clock and Directives\n"
+
+
+def load_device_specs(path: str) -> None:
+    """Extend the device-capacity registry from a small JSON file.
+
+    Accepted shape:
+      {"devices": {"part-name": {"BRAM_18K": ..., "DSP": ...,
+                                  "FF": ..., "LUT": ...}}}
+    The outer ``devices`` key may be omitted.
+    """
+    if not path:
+        return
+    with open(path, "r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    specs = payload.get("devices", payload)
+    if not isinstance(specs, dict) or not specs:
+        raise ValueError("--device_specs_json must contain at least one device")
+
+    for raw_name, raw_caps in specs.items():
+        name = _norm_device(raw_name)
+        if not name or not isinstance(raw_caps, dict):
+            raise ValueError(f"Invalid device entry: {raw_name!r}")
+        caps = {}
+        for resource in RESOURCE_KEYS:
+            value = raw_caps.get(resource)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise ValueError(f"{name}: missing numeric {resource}")
+            value = int(round(float(value)))
+            if value <= 0:
+                raise ValueError(f"{name}: {resource} must be positive")
+            caps[resource] = value
+        DEVICE_RESOURCES[name] = caps
+
+
+def filter_rows_for_device_mode(rows: List[dict]) -> List[dict]:
+    """Validate target metadata and select calibration rows in adapt mode."""
+    checked = []
+    for row in rows:
+        device = _norm_device(row.get("device", row.get("Device", "")))
+        if device not in DEVICE_RESOURCES:
+            raise ValueError(
+                f"No capacity specification for device {device!r}; "
+                "provide --device_specs_json"
+            )
+        if TARGET_CFG.device_mode == "known" and device not in DEVICE_TOKEN_MAP:
+            raise ValueError(
+                f"Known-device training has no identity token for {device!r}"
+            )
+        for field in ("input", "target", "kernel_name"):
+            if not str(row.get(field, "")).strip():
+                raise ValueError(f"Row is missing non-empty {field!r}")
+        clock = _clock_of(row)
+        if not math.isfinite(clock) or clock <= 0.0:
+            raise ValueError(f"Invalid clock period in {row['kernel_name']}")
+        for field in ("latency", "area"):
+            value = float(row.get(field, 0.0))
+            if not math.isfinite(value) or value <= 0.0:
+                raise ValueError(
+                    f"Invalid {field} for {row['kernel_name']}: {value}"
+                )
+        for resource in RESOURCE_KEYS:
+            field = UTIL_FIELD_BY_RESOURCE[resource]
+            if field not in row:
+                raise ValueError(
+                    f"Missing {field} for {row['kernel_name']}"
+                )
+            value = float(row[field])
+            if not math.isfinite(value) or value < 0.0:
+                raise ValueError(
+                    f"Invalid {field} for {row['kernel_name']}: {value}"
+                )
+        if (
+            TARGET_CFG.device_mode == "device_adapt"
+            and device != TARGET_CFG.adapt_device
+        ):
+            continue
+        checked.append(row)
+
+    if TARGET_CFG.device_mode == "device_adapt" and not checked:
+        raise ValueError(
+            f"No rows found for --adapt_device={TARGET_CFG.adapt_device!r}"
+        )
+    return checked
+
+
+def period_token_from_clock(clock_period: Any) -> str:
+    cp = _norm_clock(clock_period)
+    for known_cp, token in PERIOD_TOKEN_MAP.items():
+        if abs(cp - float(known_cp)) < 0.02:
+            return token
+    text = f"{cp:.2f}".rstrip("0").rstrip(".").replace(".", "P")
+    return f"<CLK={text}NS>"
+
+
+def _clock_of(row: Mapping[str, Any]) -> float:
+    value = row.get("clock_period", row.get("Clock_Period_nsec"))
+    if value in (None, ""):
+        raise ValueError(
+            f"Row for {row.get('kernel_name', '<unknown>')} has no clock"
+        )
+    return _norm_clock(value)
+
+
+def _available_resources(row: Mapping[str, Any]) -> Dict[str, int]:
+    device = _norm_device(row.get("device", row.get("Device", "")))
+    caps = DEVICE_RESOURCES.get(device)
+    if caps is None:
+        raise ValueError(f"Unsupported device: {device!r}")
+    result = {}
+    for resource in RESOURCE_KEYS:
+        raw = row.get(AVAIL_FIELD_BY_RESOURCE[resource])
+        result[resource] = (
+            int(round(float(raw)))
+            if raw not in (None, "")
+            else int(caps[resource])
+        )
+    return result
+
+
+def target_prompt_fields(
+    row: Optional[dict],
+    device_token_dropout: float = 0.0,
+) -> dict:
+    row = row or {}
+    device = _norm_device(row.get("device", row.get("Device", "")))
+    caps = DEVICE_RESOURCES.get(device)
+    if caps is None:
+        raise ValueError(f"Unsupported device: {device!r}")
+
+    if TARGET_CFG.device_mode == "device_adapt":
+        device_token = ADAPTED_DEVICE_TOKEN
+    else:
+        device_token = DEVICE_TOKEN_MAP.get(device, UNKNOWN_DEVICE_TOKEN)
+        if (
+            TARGET_CFG.device_mode == "resource_dropout_ablation"
+            and device_token_dropout > 0.0
+            and random.random() < float(device_token_dropout)
+        ):
+            device_token = UNKNOWN_DEVICE_TOKEN
+
+    frequency_mode = str(row.get("frequency_mode", "specified")).lower()
+    period_token = (
+        AUTO_PERIOD_TOKEN
+        if frequency_mode == "auto"
+        else period_token_from_clock(_clock_of(row))
+    )
+    available = _available_resources(row)
+
+    def pct(resource: str) -> float:
+        return 100.0 * available[resource] / float(caps[resource])
+
+    return {
+        "device_name": device,
+        "device_token": device_token,
+        "period_token": period_token,
+        "avail_bram": available["BRAM_18K"],
+        "avail_dsp": available["DSP"],
+        "avail_ff": available["FF"],
+        "avail_lut": available["LUT"],
+        "avail_bram_pct": pct("BRAM_18K"),
+        "avail_dsp_pct": pct("DSP"),
+        "avail_ff_pct": pct("FF"),
+        "avail_lut_pct": pct("LUT"),
+    }
+
+
+def build_prompt_sections(
+    code: str,
+    obj_mode: str,
+    row: Optional[dict] = None,
+    device_token_dropout: float = 0.0,
+) -> Tuple[str, str, str, dict]:
+    fields = target_prompt_fields(row, device_token_dropout)
+    header = TARGET_PROMPT_HEADER.format(
+        obj_token=GOALS[obj_mode]["token"], **fields
+    )
+    return header, replace_source_labels_with_tokens(code), TARGET_PROMPT_SUFFIX, fields
+
+
+def build_prompt(
+    code: str,
+    obj_mode: str,
+    row: Optional[dict] = None,
+    device_token_dropout: float = 0.0,
+) -> str:
+    header, kernel, suffix, _ = build_prompt_sections(
+        code, obj_mode, row, device_token_dropout
+    )
+    return header + kernel + suffix
+
+
+def clock_target_text(row: Mapping[str, Any]) -> str:
+    selected = row.get("selected_clock_period", _clock_of(row))
+    return (
+        f"{CLOCK_ANCHOR_TOKEN}\n"
+        f"selected_clock_period_ns = {_norm_clock(selected):g}\n"
+    )
+
+
+TARGET_PLATFORM_TOKENS = (
+    sorted(set(DEVICE_TOKEN_MAP.values()))
+    + [UNKNOWN_DEVICE_TOKEN]
+    + list(PERIOD_TOKEN_MAP.values())
+    + [AUTO_PERIOD_TOKEN, CLOCK_ANCHOR_TOKEN]
+)
+
+
+@dataclass(frozen=True, order=True)
+class SharedResourceBudget:
+    bram_frac: float
+    dsp_frac: float
+    ff_frac: float
+    lut_frac: float
+
+    def as_dict(self) -> Dict[str, float]:
+        return dict(zip(RESOURCE_KEYS, (
+            self.bram_frac, self.dsp_frac, self.ff_frac, self.lut_frac
+        )))
+
+
+def _stable_seed(parts: Sequence[Any], seed: int) -> int:
+    payload = repr((tuple(parts), int(seed))).encode("utf-8")
+    return int.from_bytes(hashlib.sha256(payload).digest()[:8], "big")
+
+
+def _row_used_fraction(row: Mapping[str, Any], resource: str) -> float:
+    value = float(row.get(UTIL_FIELD_BY_RESOURCE[resource], 0.0) or 0.0)
+    return max(0.0, value / 100.0)
+
+
+def _quantized_budget(values: Iterable[float]) -> SharedResourceBudget:
+    clipped = [
+        round(min(1.0, max(TARGET_CFG.min_budget_frac, float(value))), 2)
+        for value in values
+    ]
+    return SharedResourceBudget(*clipped)
+
+
+def sample_shared_budgets(
+    case_key: Tuple[str, str],
+    candidates: Sequence[dict],
+    count: int,
+    seed: int,
+) -> List[SharedResourceBudget]:
+    """Generate deterministic budgets shared across all clocks in a case."""
+    rng = random.Random(_stable_seed(case_key, seed))
+    budgets = {SharedResourceBudget(1.0, 1.0, 1.0, 1.0)}
+    while len(budgets) < max(1, count):
+        draw = rng.random()
+        if draw < 0.15:
+            values = [1.0] * 4
+        elif draw < 0.35:
+            scalar = rng.uniform(TARGET_CFG.min_budget_frac, 1.0)
+            values = [scalar] * 4
+        elif draw < 0.85:
+            values = [
+                TARGET_CFG.min_budget_frac
+                + (1.0 - TARGET_CFG.min_budget_frac)
+                * rng.betavariate(2.0, 1.5)
+                for _ in RESOURCE_KEYS
+            ]
+        else:
+            anchor = candidates[rng.randrange(len(candidates))]
+            values = [
+                _row_used_fraction(anchor, resource) + rng.uniform(0.01, 0.15)
+                for resource in RESOURCE_KEYS
+            ]
+        budgets.add(_quantized_budget(values))
+    return sorted(budgets)
+
+
+def design_fits_shared_budget(
+    row: Mapping[str, Any], budget: SharedResourceBudget
+) -> bool:
+    fractions = budget.as_dict()
+    return all(
+        _row_used_fraction(row, resource) <= fractions[resource] + 1e-9
+        for resource in RESOURCE_KEYS
+    )
+
+
+def attach_shared_budget(
+    row: Mapping[str, Any], budget: SharedResourceBudget
+) -> dict:
+    device = _norm_device(row.get("device", row.get("Device", "")))
+    caps = DEVICE_RESOURCES[device]
+    fractions = budget.as_dict()
+    result = dict(row)
+    for resource in RESOURCE_KEYS:
+        result[AVAIL_FIELD_BY_RESOURCE[resource]] = int(
+            round(caps[resource] * fractions[resource])
+        )
+        result[f"budget_frac_{resource.lower()}"] = fractions[resource]
+    result["resource_budget_id"] = (
+        f"B{budget.bram_frac:.2f}_D{budget.dsp_frac:.2f}_"
+        f"F{budget.ff_frac:.2f}_L{budget.lut_frac:.2f}"
+    )
+    return result
+
+
+def _compact_candidate_union(feasible: Sequence[dict]) -> List[dict]:
+    """Retain an exact objective-extreme candidate superset before ranking."""
+    valid = [
+        row for row in feasible
+        if float(row.get("latency", 0.0)) > 0.0
+        and float(row.get("area", 0.0)) > 0.0
+    ]
+    if not valid:
+        return []
+    k = max(1, TARGET_CFG.candidate_pool_per_objective)
+
+    def identity(row):
+        return (
+            int(row.get("_jsonl_idx", -1)),
+            canonical_completion_key(row["input"], row["target"]),
+        )
+
+    latency = sorted(valid, key=lambda r: (float(r["latency"]), float(r["area"]), identity(r)))
+    area = sorted(valid, key=lambda r: (float(r["area"]), float(r["latency"]), identity(r)))
+    adp = sorted(
+        valid,
+        key=lambda r: (
+            math.log2(max(float(r["latency"]), 1e-12))
+            + math.log2(max(float(r["area"]), 1e-12)),
+            identity(r),
+        ),
+    )
+    keep = {identity(row): row for row in latency[:k] + area[:k] + adp[:k]}
+    best_area = float("inf")
+    for row in latency:
+        value = float(row["area"])
+        if value < best_area - 1e-12:
+            keep[identity(row)] = row
+            best_area = value
+    return list(keep.values())
+
+
+def augment_rows_with_random_resource_budgets(
+    rows: List[dict],
+    num_budgets_per_case: int,
+    seed: int,
+    min_feasible_candidates: int = 3,
+) -> List[dict]:
+    """Apply each budget to the full kernel/device multi-clock candidate pool."""
+    by_case = defaultdict(list)
+    for row in rows:
+        by_case[(row["kernel_name"], _norm_device(row.get("device", "")))].append(row)
+
+    augmented, stats = [], Counter()
+    for case_key, candidates in sorted(by_case.items()):
+        for budget in sample_shared_budgets(
+            case_key, candidates, num_budgets_per_case, seed
+        ):
+            feasible = [
+                row for row in candidates
+                if design_fits_shared_budget(row, budget)
+            ]
+            if len(feasible) < min_feasible_candidates:
+                stats["rejected_small_candidate_sets"] += 1
+                continue
+            compact = _compact_candidate_union(feasible)
+            if len(compact) < min_feasible_candidates:
+                stats["rejected_after_compaction"] += 1
+                continue
+            augmented.extend(attach_shared_budget(row, budget) for row in compact)
+            stats["kept_budgets"] += 1
+            stats["candidate_rows"] += len(compact)
+    print(
+        f"[RANDOM-BUDGET] input={len(rows)} output={len(augmented)} "
+        f"stats={dict(stats)}"
+    )
+    return augmented
+
+
+def target_bucket_key(row: Mapping[str, Any]) -> tuple:
+    mode = str(row.get("frequency_mode", "specified")).lower()
+    period = "AUTO" if mode == "auto" else _clock_of(row)
+    available = _available_resources(row)
+    return (
+        row["kernel_name"],
+        _norm_device(row.get("device", row.get("Device", ""))),
+        period,
+        available["BRAM_18K"], available["DSP"],
+        available["FF"], available["LUT"],
+    )
+
+
+def _rank_and_select_case(
+    items: Sequence[dict],
+    goal_mode: str,
+    top_k: int,
+    domination_penalty: float,
+    max_dominated_gap: float,
+    score_weight_min: float,
+    score_weight_power: float,
+    frequency_mode: str,
+) -> Tuple[List[dict], dict]:
+    ranked = rank_goal_candidates(
+        list(items), goal_mode, domination_penalty, max_dominated_gap
+    )
+    unique, seen = [], set()
+    for record in ranked:
+        row = record["row"]
+        completion = canonical_completion_key(row["input"], row["target"])
+        key = (_clock_of(row) if frequency_mode == "auto" else None, completion)
+        if key in seen:
+            continue
+        seen.add(key)
+        record["score"] = float(goal_sort_key(record, goal_mode, 0.0)[0])
+        unique.append(record)
+
+    chosen = unique[: min(top_k, len(unique))]
+    if not chosen:
+        return [], {}
+    scores = [record["score"] for record in chosen]
+    selected = []
+    hard_negatives = build_local_hard_negative_bank(
+        [{"row": r["row"], "score": r["score"]} for r in unique],
+        hard_neg_top_k=max(6, top_k),
+    )
+    hard_negatives = {
+        lhs: sorted(values, key=_rhs_sort_key)
+        for lhs, values in hard_negatives.items()
+    }
+    for rank, record in enumerate(chosen):
+        out = dict(record["row"])
+        out.update({
+            "obj_mode": goal_mode,
+            "frequency_mode": frequency_mode,
+            "selected_clock_period": _clock_of(out),
+            "_score": record["score"],
+            "_rank_within_kernel": rank,
+            "_sample_weight": score_gap_weight(
+                record["score"], min(scores), max(scores),
+                score_weight_min, score_weight_power,
+            ),
+            "_local_hard_negatives": hard_negatives,
+        })
+        selected.append(out)
+    return selected, {
+        "selected": len(selected),
+        "candidate_count": len(items),
+        "frequency_mode": frequency_mode,
+        "selected_clocks": [row["selected_clock_period"] for row in selected],
+    }
+
+
+def select_goal_rows(
+    rows: List[dict],
+    goal_mode: str,
+    top_k: int,
+    domination_penalty: float,
+    max_dominated_gap: float,
+    score_weight_min: float = 0.6,
+    score_weight_power: float = 1.0,
+):
+    """Select one deterministic optimum per prompt by default.
+
+    ``top_k > 1`` remains an explicit ablation because it creates multiple
+    completions for an otherwise identical prompt.
+    """
+    specified, automatic = defaultdict(list), defaultdict(list)
+    for row in rows:
+        avail = _available_resources(row)
+        base_key = (
+            row["kernel_name"], _norm_device(row.get("device", "")),
+            avail["BRAM_18K"], avail["DSP"], avail["FF"], avail["LUT"],
+        )
+        specified[(base_key[0], base_key[1], _clock_of(row), *base_key[2:])].append(row)
+        automatic[base_key].append(row)
+
+    selected, metadata = [], {}
+    for key, items in sorted(specified.items()):
+        chosen, info = _rank_and_select_case(
+            items, goal_mode, top_k, domination_penalty, max_dominated_gap,
+            score_weight_min, score_weight_power, "specified"
+        )
+        selected.extend(chosen)
+        metadata[f"specified::{key!r}"] = info
+
+    auto_rows = []
+    for key, items in sorted(automatic.items()):
+        clocks = sorted({_clock_of(row) for row in items})
+        if len(clocks) < TARGET_CFG.min_auto_clock_count:
+            continue
+        chosen, info = _rank_and_select_case(
+            items, goal_mode, top_k, domination_penalty, max_dominated_gap,
+            score_weight_min, score_weight_power, "auto"
+        )
+        auto_rows.extend(chosen)
+        info["available_clocks"] = clocks
+        metadata[f"auto::{key!r}"] = info
+
+    if TARGET_CFG.auto_frequency_fraction > 0.0 and auto_rows:
+        count = round(
+            len(selected) * TARGET_CFG.auto_frequency_fraction
+            / (1.0 - TARGET_CFG.auto_frequency_fraction)
+        )
+        rng = random.Random(_stable_seed(("auto", goal_mode), TARGET_CFG.seed))
+        rng.shuffle(auto_rows)
+        selected.extend(auto_rows[:count])
+    rng = random.Random(_stable_seed(("selected", goal_mode), TARGET_CFG.seed))
+    rng.shuffle(selected)
+    print("[CLOCK-MODE]", Counter(r.get("frequency_mode") for r in selected))
+    return selected, metadata
+
+
+class SFTDataset(Dataset):
+    """Build supervised clock/directive samples while preserving target context."""
+
+    def __init__(
+        self,
+        rows: List[dict],
+        tok,
+        max_length: int,
+        value_loss_weight: float = 1.0,
+        candidate_sites_per_sample: int = 0,
+        candidate_negatives_per_site: int = 0,
+        device_token_dropout: float = 0.0,
+    ):
+        self.samples, self.lengths = [], []
+        truncated = 0
+        kind_weights = {
+            "UNROLL": 1.6, "ARRAY_F": 1.2, "PIPE": 1.2,
+            "ARRAY_T": 1.0, "ARRAY_D": 0.8,
+        }
+        source_token_ids = set(tok.convert_tokens_to_ids(SOURCE_PLACEHOLDER_TOKENS))
+
+        for example in rows:
+            header, kernel, suffix, fields = build_prompt_sections(
+                example["input"], example["obj_mode"], example,
+                device_token_dropout,
+            )
+            header_ids = tok(header, add_special_tokens=False)["input_ids"]
+            code_ids = tok(kernel, add_special_tokens=False)["input_ids"]
+            suffix_ids = tok(suffix, add_special_tokens=False)["input_ids"]
+
+            target_core = reorder_target_by_source_order(
+                example["input"], example["target"].strip()
+            )
+            directives = build_deterministic_rhs_pack(
+                example["input"], target_core, tok,
+                value_w=value_loss_weight,
+                kind_loss_weights=kind_weights,
+            )
+            clock_ids = tok(clock_target_text(example), add_special_tokens=False)["input_ids"]
+            target_ids = clock_ids + directives.input_ids
+            target_labels = clock_ids + directives.labels
+            target_weights = [float(value_loss_weight)] * len(clock_ids) + directives.token_weights
+            target_xmask = [0] * len(clock_ids) + directives.xattn_target_mask
+
+            prompt_budget = max_length - len(target_ids)
+            fixed_prompt = len(header_ids) + len(suffix_ids)
+            if prompt_budget <= fixed_prompt:
+                raise ValueError(
+                    f"max_length={max_length} cannot preserve target conditioning "
+                    f"for {example['kernel_name']}"
+                )
+            code_budget = prompt_budget - fixed_prompt
+            kept_code = code_ids
+            if len(code_ids) > code_budget:
+                truncated += 1
+                head = code_budget // 2
+                kept_code = code_ids[:head] + code_ids[-(code_budget - head):]
+                before = sum(token in source_token_ids for token in code_ids)
+                after = sum(token in source_token_ids for token in kept_code)
+                if TARGET_CFG.strict_source_markers and after != before:
+                    raise ValueError(
+                        f"Context truncation drops {before - after} source markers "
+                        f"for {example['kernel_name']}; increase --max_length or use "
+                        "--allow_source_marker_truncation only for debugging"
+                    )
+
+            prompt_ids = header_ids + kept_code + suffix_ids
+            required = [
+                GOALS[example["obj_mode"]]["token"],
+                fields["device_token"], fields["period_token"],
+            ]
+            for token in required:
+                token_id = tok.convert_tokens_to_ids(token)
+                if token_id not in prompt_ids:
+                    raise ValueError(f"Required conditioning token {token} was lost")
+
+            input_ids = prompt_ids + target_ids
+            labels = [-100] * len(prompt_ids) + target_labels
+            token_weights = [0.0] * len(prompt_ids) + target_weights
+            full_xmask = [0] * len(prompt_ids) + target_xmask
+            contrastive_sites = build_contrastive_sites_from_sample(
+                example["input"], target_core, prompt_ids + clock_ids, tok,
+                max_length,
+                example.get("_local_hard_negatives", {}),
+                candidate_sites_per_sample,
+                candidate_negatives_per_site,
+                kind_weights,
+            )
+            self.samples.append({
+                "input_ids": torch.tensor(input_ids, dtype=torch.long),
+                "attention_mask": torch.ones(len(input_ids), dtype=torch.long),
+                "labels": torch.tensor(labels, dtype=torch.long),
+                "token_weights": torch.tensor(token_weights, dtype=torch.float32),
+                "xattn_apply_mask": torch.tensor(full_xmask[1:] + [0], dtype=torch.float32),
+                "sample_weight": torch.tensor(float(example.get("_sample_weight", 1.0))),
+                "kernel_name": example["kernel_name"],
+                "routing_start_idx": torch.tensor(len(prompt_ids), dtype=torch.long),
+                "contrastive_sites": contrastive_sites,
+            })
+            self.lengths.append(len(input_ids))
+        print(f"[DATASET] samples={len(self.samples)} code_truncated={truncated}")
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, index):
+        return self.samples[index]
+
+
+def build_selection_cases(
+    val_rows: List[dict],
+    goal_mode: str,
+    max_kernels: int = 4,
+    min_coverage: float = 0.85,
+    min_supervised_sites: int = 4,
+) -> List[SelectionCase]:
+    """Use specified-clock validation until clock decoding is evaluated jointly."""
+    by_case = defaultdict(list)
+    for row in val_rows:
+        if (
+            row["obj_mode"] == goal_mode
+            and row.get("frequency_mode", "specified") == "specified"
+        ):
+            by_case[target_bucket_key(row)].append(row)
+    cases = []
+    for case_key in sorted(by_case):
+        best = min(
+            by_case[case_key],
+            key=lambda row: (
+                int(row.get("_rank_within_kernel", 10**9)),
+                float(row.get("_score", 10**9)),
+            ),
+        )
+        try:
+            target, meta = build_partial_deterministic_target_text(
+                best["input"], best["target"], min_supervised_sites
+            )
+        except ValueError:
+            continue
+        if meta["coverage"] < min_coverage:
+            continue
+        cases.append(SelectionCase(
+            kernel_name=best["kernel_name"],
+            obj_mode=goal_mode,
+            source_text=best["input"],
+            reference_target=target,
+            row=best,
+        ))
+        if len(cases) >= max_kernels:
+            break
+    return cases
+
+
+def configure_target_policy(args) -> None:
+    load_device_specs(args.device_specs_json)
+    TARGET_CFG.device_mode = args.device_mode
+    TARGET_CFG.adapt_device = _norm_device(args.adapt_device)
+    TARGET_CFG.budget_mode = args.resource_budget_mode
+    TARGET_CFG.random_budgets_per_case = args.random_budgets_per_case
+    TARGET_CFG.min_budget_frac = args.random_budget_min_frac
+    TARGET_CFG.min_feasible_candidates = args.min_feasible_candidates_per_budget
+    TARGET_CFG.candidate_pool_per_objective = args.candidate_pool_per_objective
+    TARGET_CFG.auto_frequency_fraction = args.auto_frequency_fraction
+    TARGET_CFG.min_auto_clock_count = args.min_auto_clock_count
+    TARGET_CFG.strict_source_markers = not args.allow_source_marker_truncation
+    TARGET_CFG.seed = args.seed
+
+    if args.top_k < 1:
+        raise ValueError("--top_k must be >= 1")
+    if args.top_k > 1:
+        print("[WARN] top_k > 1 creates conflicting completions for identical prompts")
+    if not 0.0 < args.random_budget_min_frac <= 1.0:
+        raise ValueError("--random_budget_min_frac must be in (0, 1]")
+    if not 0.0 <= args.auto_frequency_fraction < 1.0:
+        raise ValueError("--auto_frequency_fraction must be in [0, 1)")
+    if args.device_mode == "known" and args.device_token_dropout != 0.0:
+        raise ValueError("known mode requires --device_token_dropout 0")
+    if (
+        args.device_mode == "resource_dropout_ablation"
+        and not 0.0 < args.device_token_dropout < 1.0
+    ):
+        raise ValueError(
+            "resource_dropout_ablation requires device-token dropout in (0, 1)"
+        )
+    if args.device_mode == "device_adapt":
+        if not TARGET_CFG.adapt_device:
+            raise ValueError("device_adapt requires --adapt_device")
+        if TARGET_CFG.adapt_device not in DEVICE_RESOURCES:
+            raise ValueError("adapted device is absent from --device_specs_json")
+        if args.run_mode != "single":
+            raise ValueError("device_adapt currently requires --run_mode single")
+        if not args.init_adapter_dir:
+            raise ValueError("device_adapt requires --init_adapter_dir")
+        if args.lr_embed != 0.0:
+            raise ValueError("device_adapt keeps embeddings frozen; use --lr_embed 0")
+
+
 def run_single_training(args):
 
     random.seed(args.seed)
@@ -3712,7 +4058,7 @@ def run_single_training(args):
     dump_root = os.path.join(args.output_dir, "selected_debug")
     os.makedirs(dump_root, exist_ok=True)
 
-    rows = load_rows(args.dataset)
+    rows = filter_rows_for_device_mode(load_rows(args.dataset))
     print(f"[INFO] Loaded {len(rows)} raw rows from {args.dataset}")
     fam_counts = Counter(r["_family"] for r in rows)
     print("[INFO] Raw rows per family (top 15):", fam_counts.most_common(15))
@@ -3781,37 +4127,31 @@ def run_single_training(args):
             min_feasible_candidates=3,
         )
 
-    goal_key = GOALS[args.objective]["tag"]
+    objectives = GOAL_ORDER if args.objective == "ALL" else (args.objective,)
+    goal_key = "all_objectives" if args.objective == "ALL" else GOALS[args.objective]["tag"]
 
-    train_rows, train_goal_info = select_goal_rows(
-        raw_train_rows,
-        goal_mode=args.objective,
-        top_k=args.top_k,
-        domination_penalty=args.goal_domination_penalty,
-        max_dominated_gap=args.goal_max_dominated_gap,
-        score_weight_min=args.score_weight_min,
-        score_weight_power=args.score_weight_power,
-    )
+    def select_objectives(source_rows):
+        combined, information = [], {}
+        for objective in objectives:
+            chosen, details = select_goal_rows(
+                source_rows,
+                goal_mode=objective,
+                top_k=args.top_k,
+                domination_penalty=args.goal_domination_penalty,
+                max_dominated_gap=args.goal_max_dominated_gap,
+                score_weight_min=args.score_weight_min,
+                score_weight_power=args.score_weight_power,
+            )
+            combined.extend(chosen)
+            information[objective] = details
+        random.Random(
+            _stable_seed(("objective_mix", goal_key), args.seed)
+        ).shuffle(combined)
+        return combined, information
 
-    val_rows, val_goal_info = select_goal_rows(
-        raw_val_rows,
-        goal_mode=args.objective,
-        top_k=args.top_k,
-        domination_penalty=args.goal_domination_penalty,
-        max_dominated_gap=args.goal_max_dominated_gap,
-        score_weight_min=args.score_weight_min,
-        score_weight_power=args.score_weight_power,
-    )
-
-    test_rows, test_goal_info = select_goal_rows(
-        raw_test_rows,
-        goal_mode=args.objective,
-        top_k=args.top_k,
-        domination_penalty=args.goal_domination_penalty,
-        max_dominated_gap=args.goal_max_dominated_gap,
-        score_weight_min=args.score_weight_min,
-        score_weight_power=args.score_weight_power,
-    )
+    train_rows, train_goal_info = select_objectives(raw_train_rows)
+    val_rows, val_goal_info = select_objectives(raw_val_rows)
+    test_rows, test_goal_info = select_objectives(raw_test_rows)
 
     print(f"[INFO] Selected split sizes: train={len(train_rows)} val={len(val_rows)} test={len(test_rows)}")
 
@@ -3827,13 +4167,15 @@ def run_single_training(args):
     rhs_candidate_bank = build_rhs_candidate_bank(train_rows)
     print("[INFO] RHS candidate bank sizes:", {k: len(v) for k, v in sorted(rhs_candidate_bank.items())})
 
-    selection_cases = build_selection_cases(
-        val_rows,
-        goal_mode=args.objective,
-        max_kernels=args.selection_num_val_kernels,
-        min_coverage=args.min_site_coverage,
-        min_supervised_sites=args.min_supervised_sites,
-    )
+    selection_cases = []
+    for objective in objectives:
+        selection_cases.extend(build_selection_cases(
+            val_rows,
+            goal_mode=objective,
+            max_kernels=args.selection_num_val_kernels,
+            min_coverage=args.min_site_coverage,
+            min_supervised_sites=args.min_supervised_sites,
+        ))
     print(f"[INFO] Built {len(selection_cases)} validation selection cases from {args.selection_num_val_kernels} kernels")
 
     if args.disable_harp:
@@ -3852,6 +4194,26 @@ def run_single_training(args):
             args.mem_dim = inferred_mem_dim
 
         print(f"[INFO] Memory bank keys: {len(mem_bank)}")
+        required_kernels = {
+            row["kernel_name"] for row in train_rows + val_rows + test_rows
+        }
+        missing_memory = sorted(
+            kernel
+            for kernel in required_kernels
+            if (
+                kernel not in mem_bank
+                and normalize_kname(kernel) not in mem_bank
+            )
+        )
+        if missing_memory and not args.allow_missing_harp_memory:
+            raise ValueError(
+                "Missing HARP/GNN memory for kernels: "
+                + ", ".join(missing_memory[:20])
+            )
+        if missing_memory:
+            print(
+                f"[WARN] {len(missing_memory)} kernels will receive zero HARP memory"
+            )
 
     tok = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
 
@@ -3916,6 +4278,37 @@ def run_single_training(args):
         )
         print(f"[INIT] Loaded PEFT adapter from resume checkpoint: {resume_ckpt}")
 
+    elif args.device_mode == "device_adapt":
+        if not os.path.isdir(init_adapter_dir):
+            raise FileNotFoundError(
+                f"Base MailoHLS adapter not found: {init_adapter_dir}"
+            )
+        # Keep the validated MailoHLS adapter immutable and train a second,
+        # device-specific residual adapter.  At step zero the new adapter is
+        # neutral, so adaptation starts from the known-device model.
+        model = PeftModel.from_pretrained(
+            base,
+            init_adapter_dir,
+            adapter_name="mailohls_base",
+            is_trainable=False,
+        )
+        model.add_adapter("device_adapt", lora_cfg)
+        try:
+            model.base_model.set_adapter(["mailohls_base", "device_adapt"])
+        except Exception as exc:
+            raise RuntimeError(
+                "This PEFT version cannot compose the frozen MailoHLS adapter "
+                "with a trainable device adapter"
+            ) from exc
+
+        for name, parameter in model.named_parameters():
+            if "lora_" in name:
+                parameter.requires_grad_("device_adapt" in name)
+        print(
+            "[INIT] Frozen mailohls_base + trainable device_adapt "
+            f"for {TARGET_CFG.adapt_device}"
+        )
+
     elif init_adapter_dir and os.path.isdir(init_adapter_dir):
         model = PeftModel.from_pretrained(
             base,
@@ -3963,8 +4356,13 @@ def run_single_training(args):
     elif args.init_harp_xattn_from:
         load_partial_harp_xattn(model, args.init_harp_xattn_from, tag="HARP-INIT")
 
-    input_emb = unfreeze_input_embeddings(model)
-    print(f"[TOKENS] input embeddings unfrozen: {input_emb.weight.requires_grad}")
+    if args.device_mode == "device_adapt":
+        input_emb = get_input_embeddings_module(model)
+        input_emb.weight.requires_grad_(False)
+        print("[TOKENS] embeddings frozen for device adaptation")
+    else:
+        input_emb = unfreeze_input_embeddings(model)
+        print(f"[TOKENS] input embeddings unfrozen: {input_emb.weight.requires_grad}")
 
     model.print_trainable_parameters()
 
@@ -3992,12 +4390,13 @@ def run_single_training(args):
         [g["token"] for g in GOALS.values()] + TARGET_PLATFORM_TOKENS + SOURCE_PLACEHOLDER_TOKENS + TARGET_PLACEHOLDER_TOKENS
     )
 
-    inp_emb = model.get_input_embeddings()
-    enable_only_selected_rows(inp_emb.weight, special_ids)
+    if args.device_mode != "device_adapt":
+        inp_emb = model.get_input_embeddings()
+        enable_only_selected_rows(inp_emb.weight, special_ids)
 
-    out_emb = model.get_output_embeddings()
-    if out_emb is not None and out_emb.weight is not inp_emb.weight:
-        enable_only_selected_rows(out_emb.weight, special_ids)
+        out_emb = model.get_output_embeddings()
+        if out_emb is not None and out_emb.weight is not inp_emb.weight:
+            enable_only_selected_rows(out_emb.weight, special_ids)
 
 
     train_ds = SFTDataset(
@@ -4126,6 +4525,23 @@ def run_single_training(args):
     else:
         print(f"[DONE] Saved LoRA adapter to: {args.output_dir}")
 
+    if args.device_mode == "device_adapt":
+        dump_json(
+            os.path.join(args.output_dir, "device_adaptation.json"),
+            {
+                "schema": "mailohls-device-adaptation-v1",
+                "device": TARGET_CFG.adapt_device,
+                "base_adapter": os.path.abspath(args.init_adapter_dir),
+                "base_harp_xattn": (
+                    os.path.abspath(args.init_harp_xattn_from)
+                    if args.init_harp_xattn_from else ""
+                ),
+                "active_adapters": ["mailohls_base", "device_adapt"],
+                "device_capacities": DEVICE_RESOURCES[TARGET_CFG.adapt_device],
+                "objective": args.objective,
+            },
+        )
+
 
 
 def main():
@@ -4135,7 +4551,13 @@ def main():
     ap.add_argument("--dataset", type=str, default="/home/elvouvali/LLM_data/all_kernels_llm_data_multi_target.jsonl")
     ap.add_argument("--memory_dir", type=str, default="/home/elvouvali/save/harp/memory_tokens/")
     ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-7b-base")
-    ap.add_argument("--objective", type=str, required=True, choices=GOAL_ORDER)
+    ap.add_argument(
+        "--objective",
+        type=str,
+        required=True,
+        choices=GOAL_ORDER + ("ALL",),
+        help="Use ALL for one objective-conditioned adapter.",
+    )
 
     # Split Mode
     ap.add_argument("--split_mode", type=str, default="family", choices=["family", "random_design"])
@@ -4147,7 +4569,12 @@ def main():
     ap.add_argument("--save_split_json", type=str, default="")
 
     # Goal-specific point selection
-    ap.add_argument("--top_k", type=int, default=6)
+    ap.add_argument(
+        "--top_k",
+        type=int,
+        default=1,
+        help="One target per prompt is the production setting.",
+    )
     ap.add_argument("--goal_domination_penalty", type=float, default=0.25)
     ap.add_argument("--goal_max_dominated_gap", type=float, default=0.12)
     ap.add_argument("--candidate_loss_weight", type=float, default=0.0) # controls the influence of the contrastive loss in the final loss
@@ -4161,7 +4588,24 @@ def main():
     ap.add_argument("--min_site_coverage", type=float, default=0.85)
     ap.add_argument("--score_weight_min", type=float, default=0.6)
     ap.add_argument("--score_weight_power", type=float, default=1.0)
-    ap.add_argument("--device_token_dropout", type=float, default=0.30)
+    ap.add_argument(
+        "--device_mode",
+        choices=DEVICE_MODES,
+        default="known",
+        help=(
+            "known: train the two measured devices; resource_dropout_ablation: "
+            "device-token-dropout ablation; device_adapt: train a residual "
+            "LoRA for one newly measured device"
+        ),
+    )
+    ap.add_argument("--device_token_dropout", type=float, default=0.0)
+    ap.add_argument("--device_specs_json", type=str, default="")
+    ap.add_argument("--adapt_device", type=str, default="")
+    ap.add_argument(
+        "--allow_source_marker_truncation",
+        action="store_true",
+        help="Debug only: permit context truncation to remove action markers.",
+    )
     ap.add_argument(
         "--resource_budget_mode",
         choices=["none", "fixed", "random"],
@@ -4177,7 +4621,7 @@ def main():
     ap.add_argument(
         "--random_budgets_per_case",
         type=int,
-        default=24,
+        default=16,
     )
 
     ap.add_argument(
@@ -4195,7 +4639,17 @@ def main():
     ap.add_argument(
         "--auto_frequency_fraction",
         type=float,
-        default=0.30,
+        default=0.0,
+    )
+    ap.add_argument(
+        "--candidate_pool_per_objective",
+        type=int,
+        default=24,
+    )
+    ap.add_argument(
+        "--min_auto_clock_count",
+        type=int,
+        default=2,
     )
 
     # Training Params
@@ -4221,6 +4675,11 @@ def main():
     # HARP Memory
     ap.add_argument("--mem_dim", type=int, default=-1)   # -1 => infer from memory bank
     ap.add_argument("--require_pragma_free_memory", action="store_true")
+    ap.add_argument(
+        "--allow_missing_harp_memory",
+        action="store_true",
+        help="Debug only: use zero memory when a kernel embedding is absent.",
+    )
     ap.add_argument("--max_slots", type=int, default=64)
     ap.add_argument("--every_n_layers", type=int, default=8)
     ap.add_argument("--xattn_heads", type=int, default=4)
@@ -4256,8 +4715,14 @@ def main():
 
     ap.add_argument("--seed", type=int, default=123)
     args = ap.parse_args()
+    configure_target_policy(args)
+    print("[TARGET-CONDITIONING]", TARGET_CFG)
 
-    goal_tag = GOALS[args.objective]["tag"]
+    goal_tag = (
+        "all_objectives"
+        if args.objective == "ALL"
+        else GOALS[args.objective]["tag"]
+    )
     if not args.stage1_output_dir:
         args.stage1_output_dir = f"./sft_harp_xattn_{goal_tag}_stage1"
     if not args.stage2_output_dir:
@@ -4304,4 +4769,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
