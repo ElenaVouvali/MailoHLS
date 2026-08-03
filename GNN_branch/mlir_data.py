@@ -1773,13 +1773,17 @@ def split_train_test_kernel(dataset):
 # ---------------------------------------------------------------------------
 
 def _keep_result(result: CSVResult) -> bool:
-    """Keep every finite, positive QoR point validated by preprocessing."""
-    return (
+    if not (
         math.isfinite(result.perf)
         and result.perf > 0.0
         and math.isfinite(result.area)
         and result.area > 0.0
-    )
+    ):
+        return False
+
+    include_invalid = bool(getattr(FLAGS, "invalid", False))
+    min_latency = float(getattr(FLAGS, "min_allowed_latency", 0.0))
+    return include_invalid or result.perf >= min_latency
 
 
 def _write_schema(

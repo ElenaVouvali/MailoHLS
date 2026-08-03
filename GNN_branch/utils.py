@@ -58,7 +58,7 @@ def get_save_path():
 
 
 def get_logs_path():
-    return join(get_root_path(), 'logs')
+    return join(get_root_path(), 'Checkpoints')
 
 
 def create_dir_if_not_exists(dir):
