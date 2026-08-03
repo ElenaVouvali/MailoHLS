@@ -1,498 +1,455 @@
-import csv
-import pandas as pd
-import numpy as np
+#!/usr/bin/env python3
+"""Prepare MailoHLS QoR tables for either GNN or target-aware LLM training.
+
+GNN mode keeps one FPGA target so a static kernel graph and pragma assignment
+have one QoR label.  LLM mode keeps every measured target and computes Pareto
+weights independently for each (device, clock-period) design space.
+
+Both modes canonicalize equivalent directive spellings and aggregate repeated
+measurements after canonicalization.  Action columns are accepted only when
+CSV -> APL -> kernel_info -> labeled source is a complete chain.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
 import re
-import os
-import glob
-import subprocess
-import tempfile
-import matplotlib.pyplot as plt
-from torch_geometric.data import Data
-import torch
+from dataclasses import dataclass
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
 
 
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_INPUT_DIR = REPOSITORY_ROOT / "Data" / "CSVS"
+DEFAULT_LLM_OUTPUT_DIR = REPOSITORY_ROOT / "LLM_branch" / "Data" / "preprocessed_CSVS"
+DEFAULT_GNN_OUTPUT_DIR = REPOSITORY_ROOT / "GNN_branch" / "Data" / "preprocessed_CSVS"
+APPLICATION_DIR = REPOSITORY_ROOT / "Data" / "ApplicationDataset"
+APL_DIR = REPOSITORY_ROOT / "Data" / "ApplicationAPLMapping"
 
-# def preprocess_csv(csv_file):
-#     df = pd.read_csv(csv_file)
+DEFAULT_GNN_DEVICE = "xczu7ev-ffvc1156-2-e"
+DEFAULT_GNN_CLOCK_NS = 10.0
 
-#     # Keep only the desired device (MPSoC UltraScale+ ZCU104) and (100 MHz)
-#     df_device = df[(df['Device'] == 'xczu7ev-ffvc1156-2-e') & (df['Clock_Period_nsec'] == 10.00)]
-#     df_device.drop(columns=['Device', 'Clock_Period_nsec'], inplace=True)
-
-#     # Delete all the columns that are empty
-#     nonempty_cols = [col for col in df_device.columns if all(df_device[col] != 'NDIR')]
-#     df_filter = df_device[nonempty_cols]
-
-#     utilization_cols = ['BRAM_Utilization_percentage', 'DSP_Utilization_percentage',
-#                         'FF_Utilization_percentage', 'LUT_Utilization_percentage']
-
-#     # Set Latency to 0 where utilization percentage is greater than 100 
-#     # and where latency is unrealistic (e.g. 10^6 msec)
-#     overutil_mask = (df_filter[utilization_cols] >= 100).any(axis=1)
-#     too_slow_mask = df_filter['Latency_msec'] > 100000
-#     df_filter.loc[overutil_mask | too_slow_mask, 'Latency_msec'] = 0
-
-#     # Convert 0% to 1% in utilization percentages
-#     df_filter[utilization_cols] = df_filter[utilization_cols].replace(0, 1)
-
-#     # Average Resource Usage (ARU) = (FF_% + BRAM_% + DSP_% + LUT_%) / 4
-#     df_filter['Area'] = df_filter[utilization_cols].sum(axis=1) / 4.0
-
-#     # Valid designs: Latency_msec > 0
-#     valid_mask = df_filter['Latency_msec'] > 0
-#     df_valid = df_filter[valid_mask].copy()
-
-#     if df_valid.empty:
-#         print(f"No valid designs in {csv_file} after filtering.")
-#         return
- 
-#     # Initialize columns
-#     df_filter['is_pareto'] = False
-
-#     perf = df_valid['Latency_msec'].to_numpy()
-#     area = df_valid['Area'].to_numpy()
-
-#     # Normalize
-#     eps = 1e-8
-#     perf_min, perf_max = perf.min(), perf.max()
-#     area_min, area_max = area.min(), area.max()
-#     perf_n = (perf - perf_min) / (perf_max - perf_min + eps)
-#     area_n = (area - area_min) / (area_max - area_min + eps)
-
-#     # Pareto frontier on normalized space
-#     pareto_mask = pareto_front_2d(perf_n, area_n)
-
-#     # Distance to pareto front (performance, area)
-#     perf_p = perf_n[pareto_mask]
-#     area_p = area_n[pareto_mask]
-#     d = np.empty_like(perf_n)
-#     for i in range(len(perf_n)):
-#         d[i] = np.min(np.sqrt((perf_n[i] - perf_p)**2 + (area_n[i] - area_p)**2))
-
-#         # ADRS --> pareto front
-
-#     # Normalize distance and map to weights
-#     d_max = d.max()
-#     d_norm = d / (d_max + eps)          
-
-#     gamma = 2.0
-#     w_min_valid = 0.1
-#     w_valid = w_min_valid + (1.0 - w_min_valid) * (1.0 - d_norm)**gamma 
-#     # close to pareto ~ 1, valid but far from pareto ~ 0.1, invalid = 0.01
-
-#     # Attach weights and Pareto flags
-#     df_valid['Weight'] = w_valid
-#     is_pareto = np.zeros(len(df_valid), dtype=bool)
-#     is_pareto[pareto_mask] = True
-#     df_valid['is_pareto'] = is_pareto
-
-#     filename = os.path.basename(csv_file)
-#     out_path = os.path.join(
-#         os.path.expanduser('~/Desktop/Thesis/Data4LLMPrompting/preprocessed_CSVS'),
-#         f'preprocessed-{filename}'
-#     )
-#     df_valid.to_csv(out_path, index=False)
+UTILIZATION_COLUMNS = (
+    "BRAM_Utilization_percentage",
+    "DSP_Utilization_percentage",
+    "FF_Utilization_percentage",
+    "LUT_Utilization_percentage",
+)
+REQUIRED_COLUMNS = (
+    "Version",
+    "Device",
+    "Clock_Period_nsec",
+    "Latency_msec",
+    *UTILIZATION_COLUMNS,
+)
+MEASUREMENT_COLUMNS = {
+    *REQUIRED_COLUMNS,
+    "Synthesis_Time",
+    "Synthesis_Time_sec",
+}
+ACTION_ID_RE = re.compile(r"^L[1-9][0-9]*$")
+PIPELINE_RE = re.compile(r"^pipeline(?:_([1-9][0-9]*))?$")
+UNROLL_RE = re.compile(r"^unroll(?:_([1-9][0-9]*))?$")
+PARTIAL_PARTITION_RE = re.compile(r"^(block|cyclic)_([1-9][0-9]*)_([1-9][0-9]*)$")
+COMPLETE_PARTITION_RE = re.compile(r"^complete_([1-9][0-9]*)$")
 
 
+@dataclass(frozen=True)
+class ActionDefinition:
+    action_id: str
+    kind: str
+    trip_count: int | None = None
+    array_dimensions: frozenset[int] = frozenset()
 
 
-# 2D pareto plot ---> X = Latency_msec , Y = Total Resource Utilization (BRAM, FF, LUT, DSP)
-#                     min is better in both
+def _split_record(line: str) -> list[str]:
+    return [field.strip() for field in line.split(",")]
 
-def pareto_front_2d(x, y):
-    """
-    Return a boolean mask indicating which points are on the Pareto frontier assuming we want to MINIMIZE both x and y.
 
-    A point i is dominated if there exists some point j such that:
-        x_j <= x_i and y_j <= y_i, and at least one is strictly <
-    """
-    x = np.asarray(x)
-    y = np.asarray(y)
-    n = len(x)
-    is_pareto = np.ones(n, dtype=bool)
+def load_action_definitions(kernel: str) -> dict[str, ActionDefinition]:
+    """Return active CSV column -> fully validated action definition."""
+    kernel_dir = APPLICATION_DIR / kernel
+    kernel_info = kernel_dir / "kernel_info.txt"
+    apl_file = APL_DIR / f"{kernel}.txt"
+    if not kernel_info.is_file() or not apl_file.is_file():
+        raise FileNotFoundError(f"Missing action metadata for {kernel}")
 
-    for i in range(n):
-        if not is_pareto[i]:
+    label_to_definition: dict[str, ActionDefinition] = {}
+    lines = [line.strip() for line in kernel_info.read_text().splitlines() if line.strip()]
+    if not lines:
+        raise ValueError(f"Empty action manifest: {kernel_info}")
+
+    for line in lines[1:]:
+        fields = _split_record(line)
+        if len(fields) < 3 or not ACTION_ID_RE.fullmatch(fields[0]):
+            raise ValueError(f"Malformed action record in {kernel_info}: {line!r}")
+        action_id, kind = fields[0], fields[1].lower()
+        if action_id in label_to_definition:
+            raise ValueError(f"Duplicate action {action_id} in {kernel_info}")
+        if kind == "loop":
+            trip_count = int(fields[2])
+            if trip_count <= 0:
+                raise ValueError(f"Non-positive trip count for {kernel}:{action_id}")
+            definition = ActionDefinition(action_id, kind, trip_count=trip_count)
+        elif kind == "array":
+            if len(fields) < 5 or (len(fields) - 3) % 2:
+                raise ValueError(f"Malformed array record in {kernel_info}: {line!r}")
+            dimensions: set[int] = set()
+            for index in range(3, len(fields), 2):
+                dimension, extent = int(fields[index]), int(fields[index + 1])
+                if dimension <= 0 or extent <= 0 or dimension in dimensions:
+                    raise ValueError(f"Invalid array dimension in {kernel_info}: {line!r}")
+                dimensions.add(dimension)
+            definition = ActionDefinition(
+                action_id, kind, array_dimensions=frozenset(dimensions)
+            )
+        else:
+            raise ValueError(f"Unsupported action kind in {kernel_info}: {kind!r}")
+        label_to_definition[action_id] = definition
+
+    source_text = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in sorted(kernel_dir.iterdir())
+        if path.suffix.lower() in {".c", ".cc", ".cpp", ".cxx", ".h", ".hpp"}
+    )
+    column_to_definition: dict[str, ActionDefinition] = {}
+    for raw_line in apl_file.read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
             continue
-        for j in range(n):
-            if i == j or not is_pareto[j]:
-                continue
-            # j dominates i?
-            if (x[j] <= x[i] and y[j] <= y[i]) and (x[j] < x[i] or y[j] < y[i]):
-                is_pareto[i] = False
-                break
-
-    return is_pareto
-
-
-
-
-
-# Weight distribution helper 
-def print_weight_stats(kernel_csv_name, w):
-    w = np.asarray(w)
-    print(f"\n[Weight stats] {kernel_csv_name}")
-    print(f"  n = {len(w)}")
-    print(f"  min / max : {w.min():.3f} / {w.max():.3f}")
-    for q in [0.1, 0.25, 0.5, 0.75, 0.9]:
-        print(f"  p{int(q*100):2d}: {np.quantile(w, q):.3f}")
-
-
-def preprocess_csv(csv_file,
-                   out_dir=os.path.expanduser('/home/elvouvali/Data4LLMPrompting/preprocessed_CSVS'),
-                   w_min_valid=0.1,
-                   gamma=2.0):
-    df = pd.read_csv(csv_file)
-
-    # Filter device and clock
-    df_device = df[(df['Device'] == 'xczu7ev-ffvc1156-2-e') &
-                   (df['Clock_Period_nsec'] == 10.00)].copy()
-    df_device.drop(columns=['Device', 'Clock_Period_nsec'], inplace=True)
-
-    # Drop empty columns
-    nonempty_cols = [col for col in df_device.columns
-                     if all(df_device[col] != 'NDIR')]
-    df_filter = df_device[nonempty_cols]
-
-    utilization_cols = [
-        'BRAM_Utilization_percentage',
-        'DSP_Utilization_percentage',
-        'FF_Utilization_percentage',
-        'LUT_Utilization_percentage'
-    ]
-
-    # Invalidate over-utilized or insane-latency designs
-    overutil_mask = (df_filter[utilization_cols] >= 100).any(axis=1)
-    too_slow_mask = df_filter['Latency_msec'] > 100000
-    df_filter.loc[overutil_mask | too_slow_mask, 'Latency_msec'] = 0
-
-    # Convert 0% -> 1% in utilization
-    df_filter[utilization_cols] = df_filter[utilization_cols].replace(0, 1)
-
-    # Define Area = mean of utilization %
-    df_filter['Area'] = df_filter[utilization_cols].sum(axis=1) / 4.0
-
-    # Keep only valid designs
-    valid_mask = df_filter['Latency_msec'] > 0
-    df_valid = df_filter[valid_mask].copy()
-
-    if df_valid.empty:
-        print(f"[preprocess_csv] No valid designs in {csv_file}")
-        return
-
-    perf = df_valid['Latency_msec'].to_numpy()
-    area = df_valid['Area'].to_numpy()
-
-    # Normalize (0..1) for distance computations
-    eps = 1e-8
-    perf_min, perf_max = perf.min(), perf.max()
-    area_min, area_max = area.min(), area.max()
-    perf_n = (perf - perf_min) / (perf_max - perf_min + eps)
-    area_n = (area - area_min) / (area_max - area_min + eps)
-
-    # Pareto front on normalized space
-    pareto_mask = pareto_front_2d(perf_n, area_n)
-
-    x_front = perf_n[pareto_mask]
-    y_front = area_n[pareto_mask]
-
-    # Sort frontier by performance (x) to get a polyline
-    order = np.argsort(x_front)
-    x_front = x_front[order]
-    y_front = y_front[order]
-
-    # best frontier point = most left + bottom (min area + latency)
-    # We have normalized to [0,1] so we can just pick the min lexicographically
-    best_idx = np.argmin(x_front + y_front)   
-    x_best = x_front[best_idx]
-    y_best = y_front[best_idx]
-
-    # For each design, compute:
-    #     - d_perp: perpendicular distance to closest frontier segment
-    #     - d_best: distance to the best frontier point
-    n = len(perf_n)
-    d_perp = np.zeros(n)
-    d_best = np.zeros(n)
-
-    for i in range(n):
-        px, py = perf_n[i], area_n[i]
-
-        # Euclidean distance to best frontier point
-        d_best[i] = np.sqrt((px - x_best)**2 + (py - y_best)**2)
-    
-        # if pareto front has only one point compute the distance from it
-        if len(x_front) == 1 :
-            min_seg_dist = np.min(np.sqrt((px - x_front)**2 + (py - y_front)**2))
-
-        else :
-            # perpendicular distance to frontier 
-            min_seg_dist = np.inf   
-            # approximate the continuous frontier with line segments between consecutive pareto points
-            for k in range(len(x_front) - 1):
-                x1, y1 = x_front[k], y_front[k]
-                x2, y2 = x_front[k + 1], y_front[k + 1]
-
-                vx, vy = x2 - x1, y2 - y1   # vector along the segment
-                wx, wy = px - x1, py - y1   # vector from segment start to the design point
-                seg_len2 = vx*vx + vy*vy + eps  
-
-                # dot product v . w = vx*wx + vy*wy
-                t = (vx*wx + vy*wy) / seg_len2  # projection scalar from design point to segment
-                t = np.clip(t, 0.0, 1.0)    # constrain the projection to stay within the segment
-
-                proj_x = x1 + t * vx
-                proj_y = y1 + t * vy
-
-                dist = np.sqrt((px - proj_x)**2 + (py - proj_y)**2)
-                if dist < min_seg_dist:
-                    min_seg_dist = dist
-
-        d_perp[i] = min_seg_dist
-
-    # Combine distances:
-    #     - d_perp: how far from the front 
-    #     - d_best: how far from the best region of the front
-    alpha = 1.0
-    beta = 1.0
-    d_total = alpha * d_perp + beta * d_best
-
-    # Convert d_total to weights in [w_min_valid, 1] (smaller distance --> larger weight)
-    d_min = d_total.min()
-    d_max = d_total.max() + eps
-
-    d_norm = (d_total - d_min) / d_max  # in [0,1]
-    w_valid = w_min_valid + (1.0 - w_min_valid) * (1.0 - d_norm)**gamma # gamma > 1 --> emphasizes points close to good pareto
-
-    # Pareto points get weight exactly 1.0
-    w_valid[pareto_mask] = 1.0
-
-    # Attach weights and Pareto flags
-    df_valid['Weight'] = w_valid
-    is_pareto = np.zeros(len(df_valid), dtype=bool)
-    is_pareto[pareto_mask] = True
-    df_valid['is_pareto'] = is_pareto
-
-    filename = os.path.basename(csv_file)
-    out_path = os.path.join(out_dir, f'preprocessed-{filename}')
-    os.makedirs(out_dir, exist_ok=True)
-    df_valid.to_csv(out_path, index=False)
-    print(f"[preprocess_csv] Saved preprocessed CSV to: {out_path}")
-
-    # Weight distribution for sanity check
-    w = w_valid
-    print(f"[Weight stats] {os.path.basename(csv_file)}")
-    print(f"  n = {len(w)}")
-    print(f"  min / max : {w.min():.3f} / {w.max():.3f}")
-    for p in [10, 25, 50, 75, 90]:
-        q = np.percentile(w, p)
-        print(f"  p{p:02d}: {q:.3f}")
-
-
-
-
-def plot_pareto_for_kernel(
-    csv_file,
-    output_dir=os.path.expanduser('/home/elvouvali/Data4LLMPrompting/pareto_per_kernel')
-):
-    df = pd.read_csv(csv_file)
-
-    # Keep only valid design points (Latency_msec > 0) 
-    # Utilization percentages >= 100% have given Latency_msec = 0 in preprocess_csv
-    df_valid = df[df['Latency_msec'] > 0].copy()
-
-    if df_valid.empty:
-        print(f"No valid points in {csv_file} after filtering.")
-        return
-
-    perf = df_valid['Latency_msec'].to_numpy()
-    # We have defined 'Area' column as (FF_% + BRAM_% + DSP_% + LUT_%) / 4.0 in preprocess_csv
-    area = df_valid['Area'].to_numpy()
-    weights = df_valid['Weight'].to_numpy()
-
-    # Pareto frontier on normalized space (minimize latency and resource util)
-    pareto_mask = pareto_front_2d(perf, area)
-    perf_p = perf[pareto_mask]
-    area_p = area[pareto_mask]
-
-    # Sort frontier points by latency so the line looks nice
-    order = np.argsort(perf_p)
-    perf_p = perf_p[order]
-    area_p = area_p[order]
-
-    # Create plot
-    plt.figure(figsize=(8, 6))
-
-    # All valid designs, colored by weight
-    # higher weight --> closer to Pareto 
-    sc = plt.scatter(
-        perf,
-        area,
-        c=weights,
-        cmap='viridis',      
-        s=20,
-        alpha=0.7,
-        label='Design points (colored by Weight)',
-    )
-
-    plt.scatter(
-        perf_p,
-        area_p,
-        color='red',
-        edgecolors='black',
-        s=40,
-        label='Pareto frontier points',
-        zorder=3,
-    )
-
-    plt.plot(perf_p, area_p, color='red', linewidth=2, alpha=0.8, zorder=2)
-    # Colorbar for weights
-    cbar = plt.colorbar(sc)
-    cbar.set_label("Weight (higher = closer to Pareto)", rotation=90)
-
-    plt.xlabel('Performance')
-    plt.ylabel('Area\n(BRAM + DSP + FF + LUT) / 4')
-    title = os.path.basename(csv_file)
-    plt.title(title)
-    plt.grid(True, linestyle='--', alpha=0.3)
-    plt.legend()
-
-    # Build output filename: pareto-<kernel>.png
-    base = os.path.splitext(os.path.basename(csv_file))[0]
-    if base.startswith('preprocessed-'):
-        base = base[len('preprocessed-'):]
-    out_path = os.path.join(output_dir, f'pareto-{base}.png')
-
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=300)
-    plt.close()
-
-    print(f"Saved Pareto plot to: {out_path}")
-
-
-def plot_pareto_for_kernel_LLM_pred(
-    csv_file,
-    output_dir=os.path.expanduser('/home/elvouvali/Data4LLMPrompting/pareto_per_kernel'),
-    llm_latency_msec=None,
-    llm_bram_pct=None,
-    llm_dsp_pct=None,
-    llm_ff_pct=None,
-    llm_lut_pct=None,
-):
-    """
-    1. Plots all design points colored by their Weight (proximity to Pareto).
-    2. Draws the Pareto Frontier line.
-    3. Overlays the LLM prediction point if provided.
-    """
-
-    df = pd.read_csv(csv_file)
-
-    # Keep only valid design points (Latency_msec > 0)
-    df_valid = df[df['Latency_msec'] > 0].copy()
-
-    if df_valid.empty:
-        print(f"No valid points in {csv_file} after filtering.")
-        return
-
-    perf = df_valid['Latency_msec'].to_numpy()
-    area = df_valid['Area'].to_numpy()
-    weights = df_valid['Weight'].to_numpy()
-
-    # Calculate Pareto frontier
-    pareto_mask = pareto_front_2d(perf, area)
-    perf_p = perf[pareto_mask]
-    area_p = area[pareto_mask]
-
-    # Sort for a clean line plot
-    order = np.argsort(perf_p)
-    perf_p = perf_p[order]
-    area_p = area_p[order]
-
-    plt.figure(figsize=(10, 7))
-
-    # 1. Plot all points colored by Weight
-    sc = plt.scatter(
-        perf,
-        area,
-        c=weights,
-        cmap='viridis',
-        s=25,
-        alpha=0.6,
-        label='Design Space (Weighted)'
-    )
-    cbar = plt.colorbar(sc)
-    cbar.set_label("Weight (Reward Magnitude)", rotation=90)
-
-    # 2. Plot the Pareto Frontier
-    plt.plot(perf_p, area_p, color='red', linewidth=2.5, label='Pareto Frontier', zorder=5)
-    plt.scatter(perf_p, area_p, color='red', s=50, edgecolors='black', zorder=6)
-
-    # 3. Overlay LLM Prediction
-    llm_metrics = [llm_latency_msec, llm_bram_pct, llm_dsp_pct, llm_ff_pct, llm_lut_pct]
-    if all(m is not None for m in llm_metrics):
-        llm_area = (llm_bram_pct + llm_dsp_pct + llm_ff_pct + llm_lut_pct) / 4.0
-        plt.scatter(
-            [llm_latency_msec],
-            [llm_area],
-            marker='X',
-            s=150,
-            color='white',
-            edgecolors='black',
-            linewidth=1.5,
-            label='LLM Prediction',
-            zorder=10
+        fields = _split_record(line)
+        if len(fields) != 2 or not ACTION_ID_RE.fullmatch(fields[1]):
+            raise ValueError(f"Malformed APL record in {apl_file}: {line!r}")
+        column, action_id = fields
+        if column in column_to_definition:
+            raise ValueError(f"Duplicate CSV column {column!r} in {apl_file}")
+        definition = label_to_definition.get(action_id)
+        if definition is None:
+            # Keep the incomplete entry visible so an active CSV column fails below.
+            continue
+        expected_kind = "array" if column.lower().startswith("array") else "loop"
+        if definition.kind != expected_kind:
+            raise ValueError(
+                f"{kernel}:{column} maps to {action_id}, which is a "
+                f"{definition.kind}, not a {expected_kind}"
+            )
+        if not re.search(rf"\b{re.escape(action_id)}\s*:", source_text):
+            raise ValueError(f"{kernel}:{action_id} is absent from labeled source")
+        column_to_definition[column] = definition
+    return column_to_definition
+
+
+def active_directive_columns(frame: pd.DataFrame) -> list[str]:
+    """Return ordered directive columns that contain at least one directive."""
+    candidates = [column for column in frame.columns if column not in MEASUREMENT_COLUMNS]
+    active: list[str] = []
+    for column in candidates:
+        values = frame[column].fillna("").astype(str).str.strip().str.upper()
+        if (values != "NDIR").any() and (values != "").any():
+            active.append(column)
+    return active
+
+
+def canonicalize_directive(token: object, action: ActionDefinition) -> str:
+    """Map equivalent CSV spellings to the representation consumed by mlir_data.py."""
+    value = "" if pd.isna(token) else str(token).strip().lower()
+    if value in {"", "ndir", "auto", "none"}:
+        return ""
+
+    if action.kind == "loop":
+        pipeline = PIPELINE_RE.fullmatch(value)
+        if pipeline:
+            # Dataset convention: bare pipeline requests the ideal II=1 case.
+            return f"pipeline_{int(pipeline.group(1) or 1)}"
+        unroll = UNROLL_RE.fullmatch(value)
+        if unroll:
+            factor = int(unroll.group(1) or action.trip_count or 0)
+            if factor <= 0 or factor > int(action.trip_count or 0):
+                raise ValueError(
+                    f"Invalid unroll factor {factor} for {action.action_id} "
+                    f"with trip count {action.trip_count}"
+                )
+            return f"unroll_{factor}"
+        raise ValueError(f"Invalid loop directive {value!r} for {action.action_id}")
+
+    partial = PARTIAL_PARTITION_RE.fullmatch(value)
+    if partial:
+        kind, factor, dimension = partial.group(1), int(partial.group(2)), int(partial.group(3))
+        if dimension not in action.array_dimensions:
+            raise ValueError(f"Invalid partition dimension in {value!r} for {action.action_id}")
+        return f"{kind}_{factor}_{dimension}"
+    complete = COMPLETE_PARTITION_RE.fullmatch(value)
+    if complete:
+        dimension = int(complete.group(1))
+        if dimension not in action.array_dimensions:
+            raise ValueError(f"Invalid partition dimension in {value!r} for {action.action_id}")
+        return f"complete_{dimension}"
+    raise ValueError(f"Invalid array directive {value!r} for {action.action_id}")
+
+
+def pareto_mask(latency: np.ndarray, area: np.ndarray) -> np.ndarray:
+    """Exact non-dominated mask for minimization of latency and area."""
+    result = np.ones(len(latency), dtype=bool)
+    for index in range(len(latency)):
+        dominates = (
+            (latency <= latency[index])
+            & (area <= area[index])
+            & ((latency < latency[index]) | (area < area[index]))
         )
-        
-    plt.xlabel('Performance (Latency msec)')
-    plt.ylabel('Normalized Area\n(BRAM + DSP + FF + LUT) / 4')
-
-    title = f"Pareto Analysis: {os.path.basename(csv_file)}"
-    plt.title(title, fontsize=12)
-    plt.grid(True, linestyle='--', alpha=0.4)
-    plt.legend(loc='upper right')
-
-    # Filename handling
-    base = os.path.splitext(os.path.basename(csv_file))[0]
-    if base.startswith('preprocessed-'):
-        base = base[len('preprocessed-'):]
-    out_path = os.path.join(output_dir, f'pareto-{base}.png')
-
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=300)
-    plt.close()
-
-    print(f"Pareto plot with LLM prediction saved to: {out_path}")
+        if np.any(dominates):
+            result[index] = False
+    return result
 
 
-def main():
-    in_dir = "/home/ubuntu/Data4LLMPrompting/CSVS"
-    out_dir = "/home/ubuntu/Data4LLMPrompting/preprocessed_CSVS"
+def pareto_weights(
+    latency: np.ndarray,
+    area: np.ndarray,
+    minimum_weight: float,
+    gamma: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return Pareto flags and bounded proximity weights for one target."""
+    epsilon = 1.0e-12
+    latency_n = (latency - latency.min()) / (np.ptp(latency) + epsilon)
+    area_n = (area - area.min()) / (np.ptp(area) + epsilon)
+    frontier = pareto_mask(latency_n, area_n)
+    frontier_points = np.column_stack((latency_n[frontier], area_n[frontier]))
+    points = np.column_stack((latency_n, area_n))
 
-    os.makedirs(out_dir, exist_ok=True)
+    distance_to_front = np.min(
+        np.linalg.norm(points[:, None, :] - frontier_points[None, :, :], axis=2),
+        axis=1,
+    )
+    best_frontier_point = frontier_points[np.argmin(frontier_points.sum(axis=1))]
+    distance_to_best = np.linalg.norm(points - best_frontier_point, axis=1)
+    total_distance = distance_to_front + distance_to_best
+    normalized = (total_distance - total_distance.min()) / (
+        np.ptp(total_distance) + epsilon
+    )
+    weights = minimum_weight + (1.0 - minimum_weight) * (1.0 - normalized) ** gamma
+    weights[frontier] = 1.0
+    return frontier, weights
 
-    csv_files = sorted(glob.glob(os.path.join(in_dir, "*.csv")))
-    print(f"Found {len(csv_files)} CSV files in {in_dir}")
 
-    ok = 0
-    failed = 0
+def aggregate_repeated_measurements(
+    frame: pd.DataFrame,
+    directive_columns: list[str],
+) -> pd.DataFrame:
+    """Collapse rows with the same target and effective pragma assignment."""
+    keys = ["Device", "Clock_Period_nsec", *directive_columns]
+    numeric_measurements = [
+        column
+        for column in (
+            "Latency_msec",
+            "Synthesis_Time_sec",
+            "Synthesis_Time",
+            *UTILIZATION_COLUMNS,
+        )
+        if column in frame.columns
+    ]
+    records: list[dict[str, object]] = []
+    ordered = frame.sort_values([*keys, "Version"], kind="stable")
+    for key, group in ordered.groupby(keys, sort=True, dropna=False):
+        key_values = key if isinstance(key, tuple) else (key,)
+        record = dict(zip(keys, key_values))
+        record["Version"] = sorted(group["Version"].astype(str))[0]
+        record["Replicate_Count"] = int(len(group))
+        for column in numeric_measurements:
+            record[column] = float(group[column].median())
+        records.append(record)
+    return pd.DataFrame.from_records(records)
 
-    for i, csv_file in enumerate(csv_files, start=1):
-        name = os.path.basename(csv_file)
-        print(f"\n[{i}/{len(csv_files)}] Processing {name}")
-        try:
-            preprocess_csv(csv_file, out_dir=out_dir)
-            ok += 1
-        except Exception as e:
-            failed += 1
-            print(f"[FAIL] {name}: {e}")
 
-    print("\nDone.")
-    print(f"Processed successfully: {ok}")
-    print(f"Failed: {failed}")
-    print(f"Output directory: {out_dir}")
+def assign_target_local_weights(
+    frame: pd.DataFrame,
+    minimum_weight: float,
+    gamma: float,
+) -> pd.DataFrame:
+    """Compute Area and Pareto labels independently for every hardware target."""
+    result = frame.copy()
+    result["Area"] = result[list(UTILIZATION_COLUMNS)].sum(axis=1) / 4.0
+    result["Weight"] = 0.0
+    result["is_pareto"] = False
+    for _, indices in result.groupby(
+        ["Device", "Clock_Period_nsec"], sort=True
+    ).groups.items():
+        positions = list(indices)
+        frontier, weights = pareto_weights(
+            result.loc[positions, "Latency_msec"].to_numpy(dtype=float),
+            result.loc[positions, "Area"].to_numpy(dtype=float),
+            minimum_weight,
+            gamma,
+        )
+        result.loc[positions, "Weight"] = weights
+        result.loc[positions, "is_pareto"] = frontier
+    return result
+
+
+def preprocess_kernel(
+    csv_path: Path,
+    mode: str,
+    device: str,
+    clock_period_ns: float,
+    minimum_weight: float,
+    gamma: float,
+) -> tuple[pd.DataFrame, dict[str, object]]:
+    kernel = csv_path.stem
+    frame = pd.read_csv(csv_path, dtype={"Device": str})
+    missing = sorted(set(REQUIRED_COLUMNS) - set(frame.columns))
+    if missing:
+        raise ValueError(f"{csv_path.name} is missing required columns: {missing}")
+
+    for column in ("Clock_Period_nsec", "Latency_msec", *UTILIZATION_COLUMNS):
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
+    for column in ("Synthesis_Time", "Synthesis_Time_sec"):
+        if column in frame:
+            frame[column] = pd.to_numeric(frame[column], errors="coerce")
+
+    if mode == "gnn":
+        frame = frame[
+            (frame["Device"] == device)
+            & np.isclose(frame["Clock_Period_nsec"], clock_period_ns, rtol=0.0, atol=1e-9)
+        ].copy()
+        if frame.empty:
+            raise ValueError(f"{kernel} has no measurements for ({device}, {clock_period_ns} ns)")
+
+    directive_columns = active_directive_columns(frame)
+    action_definitions = load_action_definitions(kernel)
+    missing_actions = [column for column in directive_columns if column not in action_definitions]
+    if missing_actions:
+        raise ValueError(
+            f"{kernel} has active CSV actions absent from its complete APL/kernel_info/source "
+            f"chain: {missing_actions}"
+        )
+    action_ids = [action_definitions[column].action_id for column in directive_columns]
+    if len(action_ids) != len(set(action_ids)):
+        raise ValueError(f"{kernel} maps multiple active CSV columns to one action ID")
+
+    for column in directive_columns:
+        action = action_definitions[column]
+        frame[column] = [canonicalize_directive(value, action) for value in frame[column]]
+
+    finite_qor = np.isfinite(frame["Latency_msec"])
+    finite_qor &= frame["Latency_msec"].gt(0) & frame["Latency_msec"].le(100000)
+    for column in UTILIZATION_COLUMNS:
+        finite_qor &= np.isfinite(frame[column]) & frame[column].ge(0) & frame[column].lt(100)
+    valid = frame.loc[finite_qor].copy()
+    if valid.empty:
+        raise ValueError(f"{kernel} contains no valid QoR rows")
+
+    # Preserve the established MailoHLS floor used by prior labels.
+    valid.loc[:, list(UTILIZATION_COLUMNS)] = valid.loc[:, list(UTILIZATION_COLUMNS)].replace(0, 1)
+    aggregated = aggregate_repeated_measurements(valid, directive_columns)
+    aggregated = assign_target_local_weights(aggregated, minimum_weight, gamma)
+
+    ordered_columns = [
+        "Version",
+        "Device",
+        "Clock_Period_nsec",
+        "Latency_msec",
+        *(["Synthesis_Time_sec"] if "Synthesis_Time_sec" in aggregated else []),
+        *(["Synthesis_Time"] if "Synthesis_Time" in aggregated else []),
+        *UTILIZATION_COLUMNS,
+        *directive_columns,
+        "Replicate_Count",
+        "Area",
+        "Weight",
+        "is_pareto",
+    ]
+    aggregated = aggregated[ordered_columns].sort_values(
+        ["Device", "Clock_Period_nsec", *directive_columns], kind="stable"
+    ).reset_index(drop=True)
+
+    effective_keys = ["Device", "Clock_Period_nsec", *directive_columns]
+    if aggregated.duplicated(effective_keys).any():
+        raise AssertionError(f"Duplicate effective pragma points remain for {kernel}")
+    targets = aggregated[["Device", "Clock_Period_nsec"]].drop_duplicates()
+    if mode == "gnn" and len(targets) != 1:
+        raise AssertionError(f"GNN output for {kernel} is not single-target")
+
+    stats = {
+        "kernel": kernel,
+        "raw_rows": int(len(frame)),
+        "valid_rows": int(len(valid)),
+        "output_rows": int(len(aggregated)),
+        "targets": int(len(targets)),
+        "active_actions": len(directive_columns),
+    }
+    return aggregated, stats
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--mode", choices=("gnn", "llm"), required=True)
+    parser.add_argument("--input-dir", type=Path, default=DEFAULT_INPUT_DIR)
+    parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--device", default=DEFAULT_GNN_DEVICE)
+    parser.add_argument("--clock-period-ns", type=float, default=DEFAULT_GNN_CLOCK_NS)
+    parser.add_argument("--minimum-weight", type=float, default=0.1)
+    parser.add_argument("--gamma", type=float, default=2.0)
+    parser.add_argument("--force", action="store_true", help="overwrite existing outputs")
+    return parser.parse_args()
+
+
+def main() -> int:
+    arguments = parse_arguments()
+    if not 0.0 < arguments.minimum_weight <= 1.0 or arguments.gamma <= 0.0:
+        raise SystemExit("minimum-weight must be in (0, 1] and gamma must be positive")
+    output_dir = arguments.output_dir or (
+        DEFAULT_GNN_OUTPUT_DIR if arguments.mode == "gnn" else DEFAULT_LLM_OUTPUT_DIR
+    )
+    csv_files = sorted(arguments.input_dir.glob("*.csv"))
+    if not csv_files:
+        raise SystemExit(f"No CSV files found in {arguments.input_dir}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    manifest: dict[str, object] = {
+        "schema": "mailohls-qor-preprocessing-v1",
+        "mode": arguments.mode,
+        "device": arguments.device if arguments.mode == "gnn" else None,
+        "clock_period_ns": arguments.clock_period_ns if arguments.mode == "gnn" else None,
+        "input_dir": str(arguments.input_dir.resolve()),
+        "kernels": [],
+    }
+    for index, csv_path in enumerate(csv_files, start=1):
+        output_path = output_dir / f"preprocessed-{csv_path.name}"
+        if output_path.exists() and not arguments.force:
+            raise SystemExit(f"Refusing to overwrite {output_path}; pass --force")
+        processed, stats = preprocess_kernel(
+            csv_path,
+            arguments.mode,
+            arguments.device,
+            arguments.clock_period_ns,
+            arguments.minimum_weight,
+            arguments.gamma,
+        )
+        processed.to_csv(output_path, index=False, float_format="%.12g")
+        stats["input_sha256"] = file_sha256(csv_path)
+        stats["output_sha256"] = file_sha256(output_path)
+        manifest["kernels"].append(stats)
+        print(
+            f"[{index:02d}/{len(csv_files):02d}] {csv_path.stem}: "
+            f"{stats['valid_rows']} valid -> {stats['output_rows']} unique, "
+            f"{stats['targets']} target(s), {stats['active_actions']} action(s)"
+        )
+
+    manifest_path = output_dir / "preprocessing_manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    print(f"Wrote {len(csv_files)} preprocessed tables to {output_dir}")
+    print(f"Manifest: {manifest_path}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
