@@ -25,7 +25,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, max_error, 
 import torch
 import pytorch_warmup as warmup
 from torch_geometric.loader import DataLoader
-from torch.utils.data import Subset
+from torch.utils.data import Dataset, Subset
 import torch.nn as nn
 import shutil
 import numpy as np
@@ -34,7 +34,7 @@ from scipy.stats import kendalltau
 from tqdm import tqdm
 from os.path import join, exists, basename
 
-from collections import OrderedDict, defaultdict
+from collections import Counter, OrderedDict, defaultdict
 
 import pandas as pd
 
@@ -45,6 +45,116 @@ def _as_int_seed(seed):
     if isinstance(seed, str):
         return int(seed.strip())
     raise TypeError(f"random seed must be int-like, got {type(seed)}: {seed}")
+
+
+def _sample_kernel(sample):
+    """Read the kernel name from one unbatched PyG sample."""
+    kernel = getattr(sample, 'kernel', None)
+    if isinstance(kernel, (list, tuple)):
+        if len(kernel) != 1:
+            raise RuntimeError(f'Expected one kernel per sample, got {kernel!r}')
+        kernel = kernel[0]
+    if not isinstance(kernel, str) or not kernel:
+        raise RuntimeError(f'Missing kernel identity on dataset sample: {kernel!r}')
+    return kernel
+
+
+def fit_target_statistics(dataset):
+    """Fit log-target mean/std using training kernels only."""
+    model_targets = FLAGS.target if isinstance(FLAGS.target, list) else [FLAGS.target]
+    values = {target: [] for target in model_targets}
+    for index in range(len(dataset)):
+        sample = dataset[index]
+        for model_target in model_targets:
+            data_target = (
+                'actual_perf'
+                if FLAGS.encode_log and model_target == 'perf'
+                else model_target
+            )
+            value = _get_y_with_target(sample, data_target).reshape(-1)
+            if value.numel() != 1 or not torch.isfinite(value).all():
+                raise RuntimeError(
+                    f'Invalid {data_target} target at training index '
+                    f'{index}: {value}'
+                )
+            values[model_target].append(float(value.item()))
+
+    stats = {}
+    for target, target_values in values.items():
+        tensor = torch.tensor(target_values, dtype=torch.float64)
+        if tensor.numel() == 0:
+            raise RuntimeError(f'Cannot fit target statistics for empty {target}.')
+        stats[target] = {
+            'mean': float(tensor.mean().item()),
+            'std': max(float(tensor.std(unbiased=False).item()), 1e-8),
+            'count': int(tensor.numel()),
+        }
+    saver.log_info(f'Training-only log2 target statistics: {stats}')
+    return stats
+
+
+def constant_mean_baseline(dataset, target_stats):
+    """Evaluate the training-target mean under the configured loss policy."""
+    kernels = [_sample_kernel(dataset[index]) for index in range(len(dataset))]
+    counts = Counter(kernels)
+    scale = len(kernels) / len(counts) if counts else 1.0
+    breakdown = {}
+    for model_target, stats in target_stats.items():
+        squared_errors = []
+        weights = []
+        for index, kernel in enumerate(kernels):
+            sample = dataset[index]
+            data_target = (
+                'actual_perf'
+                if FLAGS.encode_log and model_target == 'perf'
+                else model_target
+            )
+            actual = float(
+                _get_y_with_target(sample, data_target).reshape(-1)[0].item()
+            )
+            error = actual - stats['mean']
+            if bool(getattr(FLAGS, 'standardize_targets', False)):
+                error /= stats['std']
+            squared_errors.append(error * error)
+            weights.append(
+                scale / counts[kernel]
+                if bool(getattr(FLAGS, 'kernel_balanced_loss', False))
+                else 1.0
+            )
+        mse = float(np.mean(np.asarray(squared_errors) * np.asarray(weights)))
+        breakdown[model_target] = np.sqrt(mse) if FLAGS.loss == 'RMSE' else mse
+    return float(sum(breakdown.values())), breakdown
+
+
+class KernelBalancedDataset(Dataset):
+    """Attach weights whose total is equal for every kernel in one split."""
+
+    def __init__(self, dataset):
+        self.dataset = dataset
+        self.kernels = [
+            _sample_kernel(dataset[index]) for index in range(len(dataset))
+        ]
+        counts = Counter(self.kernels)
+        if not counts:
+            self.weights = []
+            return
+        scale = len(self.kernels) / len(counts)
+        self.weights = [scale / counts[kernel] for kernel in self.kernels]
+        saver.log_info(
+            'Kernel-balanced split: '
+            f'{len(counts)} kernels, {len(self.kernels)} points, '
+            f'points/kernel={min(counts.values())}..{max(counts.values())}'
+        )
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, index):
+        sample = self.dataset[index]
+        sample.kernel_loss_weight = torch.tensor(
+            [self.weights[index]], dtype=torch.float32
+        )
+        return sample
 
 
 def gen_dataset(li):
@@ -375,8 +485,26 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 test_id=resample
             )
 
+    target_stats = fit_target_statistics(li[0])
+    if len(li[1]) > 0:
+        baseline_total, baseline_breakdown = constant_mean_baseline(
+            li[1], target_stats
+        )
+        saver.log_info(
+            'Training-mean validation baseline under the configured '
+            f'objective: total={baseline_total:.4f}, '
+            f'breakdown={baseline_breakdown}'
+        )
+    if bool(getattr(FLAGS, 'kernel_balanced_loss', False)):
+        li = [KernelBalancedDataset(split) for split in li]
+
     train_loader, val_loader, test_loader, num_features, edge_dim = gen_dataset(li)
-    model = Net(num_features, edge_dim=edge_dim, init_pragma_dict=pragma_dim).to(FLAGS.device)
+    model = Net(
+        num_features,
+        edge_dim=edge_dim,
+        init_pragma_dict=pragma_dim,
+        target_stats=target_stats,
+    ).to(FLAGS.device)
     saver.log_info(f"Model first param device: {next(model.parameters()).device}")
     if torch.cuda.is_available():
         print(torch.cuda.get_device_name(0))
@@ -397,25 +525,37 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     optimizer = torch.optim.AdamW(model.parameters(), lr=FLAGS.lr, weight_decay=FLAGS.weight_decay)
 
     num_steps = len(train_loader) * FLAGS.epoch_num
-    # warmup_steps = len(train_loader) * 10
-    warmup_steps = int(0.1 * num_steps)
+    warmup_steps = min(
+        max(0, int(FLAGS.warmup_epochs)) * len(train_loader),
+        max(0, num_steps - 1),
+    )
+    saver.log_info(
+        f'Optimization schedule: steps={num_steps}, '
+        f'warmup_steps={warmup_steps} '
+        f'({FLAGS.warmup_epochs} fixed epochs)'
+    )
 
-    if FLAGS.scheduler == "multistep":
+    if FLAGS.scheduler is None:
+        lr_scheduler = None
+    elif FLAGS.scheduler == "multistep":
         lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[FLAGS.epoch_num // 3], gamma=0.1)
     elif FLAGS.scheduler == "cosine":
         lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_steps, eta_min=1e-5)
     else:
-        lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+        raise ValueError(f'Unknown scheduler: {FLAGS.scheduler!r}')
 
-    if FLAGS.warmup == 'linear':
-        # warmup_scheduler = warmup.UntunedLinearWarmup(optimizer)
-        warmup_scheduler = warmup.LinearWarmup(optimizer, warmup_steps)
+    if FLAGS.warmup is None:
+        warmup_scheduler = None
+    elif FLAGS.warmup == 'linear':
+        warmup_scheduler = warmup.LinearWarmup(
+            optimizer, max(1, warmup_steps)
+        )
     elif FLAGS.warmup == 'exponential':
         warmup_scheduler = warmup.UntunedExponentialWarmup(optimizer)
     elif FLAGS.warmup == 'radam':
         warmup_scheduler = warmup.RAdamWarmup(optimizer)
     else:
-        warmup_scheduler = warmup.LinearWarmup(optimizer, 1)
+        raise ValueError(f'Unknown warmup: {FLAGS.warmup!r}')
 
     ckpt_path = join(saver.model_logdir, "last_ckpt.pt")
     start_epoch = 0
@@ -423,6 +563,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     train_losses, val_losses, test_losses, total_lrs = [], [], [], []
     gae_train_losses, gae_val_losses, gae_test_losses = [], [], []
     plot_test = False
+    best_stopping_loss = float('inf')
+    epochs_without_improvement = 0
 
     if FLAGS.resume_training and exists(ckpt_path):
         st = torch.load(ckpt_path, map_location='cpu')
@@ -439,8 +581,22 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         train_losses = st.get("train_losses", train_losses)
         val_losses   = st.get("val_losses", val_losses)
         test_losses  = st.get("test_losses", test_losses)
+        if val_losses:
+            best_stopping_loss = min(val_losses)
+            epochs_without_improvement = max(
+                0, len(val_losses) - 1 - val_losses.index(best_stopping_loss)
+            )
         saver.log_info(f"Resuming from checkpoint at epoch {start_epoch}")
 
+    if start_epoch == 0 and len(val_loader) > 0:
+        initial_val, initial_breakdown, initial_gae, _ = test(
+            val_loader, 'initial_val', model, -1, test_losses=[]
+        )
+        saver.log_info(
+            f'Untrained validation loss: {initial_val:.4f}; '
+            f'breakdown={initial_breakdown}'
+        )
+        log_loss(initial_breakdown, initial_gae, 'Initial validation')
 
     for epoch in range(start_epoch, FLAGS.epoch_num):
         plot_test = False
@@ -456,9 +612,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             val, loss_dict_val, gae_loss_val, _ = test(val_loader, 'val', model, epoch)
             plot_test = model_update(model, val_losses, val, epoch, plot_test, 'val')
 
-        # log_loss(loss_dict_train, gae_loss_train, "Train")
+        log_loss(loss_dict_train, gae_loss_train, "Train")
         if len(val_loader) > 0:
-        #     log_loss(loss_dict_val, gae_loss_val, "Val")
+            log_loss(loss_dict_val, gae_loss_val, "Val")
             saver.log_info(('Epoch: {:03d}, Train Loss: {:.4f}, '
                             'Val loss: {:.4f}, Time: {}'.format(
                             epoch, loss, val, timer.time_and_clear())))
@@ -478,15 +634,27 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "train_losses": train_losses,
                 "val_losses": val_losses,
                 "test_losses": test_losses,
+                "target_stats": target_stats,
             }, ckpt_path)
             saver.log_info(f"Checkpoint saved at epoch {epoch} -> {ckpt_path}")
 
-        if len(train_losses) > 50:
-            selection_losses = val_losses if val_losses else train_losses
-            if len(selection_losses) >= 50 and len(set(selection_losses[-50:])) == 1:
-                break
+        selection_loss = val if len(val_loader) > 0 else loss
+        if selection_loss < (
+            best_stopping_loss - float(FLAGS.early_stopping_min_delta)
+        ):
+            best_stopping_loss = selection_loss
+            epochs_without_improvement = 0
+        else:
+            epochs_without_improvement += 1
+        if epochs_without_improvement >= int(FLAGS.early_stopping_patience):
+            saver.log_info(
+                'Early stopping after '
+                f'{epochs_without_improvement} epochs without a '
+                f'{FLAGS.early_stopping_min_delta:g} improvement.'
+            )
+            break
 
-    epochs = range(epoch+1)
+    epochs = range(len(train_losses))
     plot_loss_trend(epochs, train_losses, val_losses, [], saver.get_log_dir(), file_name='losses.png')
     if FLAGS.gae_T or FLAGS.gae_P:
         plot_loss_trend(epochs, gae_train_losses, gae_val_losses, [], saver.get_log_dir(), file_name='gae_losses.png')
@@ -576,10 +744,12 @@ def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler)
         #if FLAGS.scheduler is not None:
             # lr_scheduler.step()
             # lr_scheduler.step(lr_scheduler.last_epoch+1)
-        if FLAGS.warmup is not None and FLAGS.scheduler is not None:
-            with warmup_scheduler.dampening():
+        if lr_scheduler is not None:
+            if warmup_scheduler is not None:
+                with warmup_scheduler.dampening():
+                    lr_scheduler.step()
+            else:
                 lr_scheduler.step()
-            # warmup_scheduler.dampen()
         # lr = optimizer.param_groups[0]['lr']
 
         total_loss_dict = update_total_loss(loss, data, target_list, loss_dict, loss_dict_, out_dict, total_loss, correct)

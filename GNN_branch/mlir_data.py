@@ -177,7 +177,7 @@ EXPECTED_MEMORY_DEPENDENCE_MODEL = (
 )
 QOR_REFERENCE_DEVICE = "xczu7ev-ffvc1156-2-e"
 QOR_REFERENCE_CLOCK_PERIOD_NS = 10.0
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v9-scaled-pragmas"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v10-validity-policy"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
@@ -1800,6 +1800,17 @@ def _write_schema(
         ).hexdigest(),
         "qor_reference_device": QOR_REFERENCE_DEVICE,
         "qor_reference_clock_period_ns": QOR_REFERENCE_CLOCK_PERIOD_NS,
+        "qor_filter": {
+            "include_invalid": bool(getattr(FLAGS, "invalid", False)),
+            "minimum_latency_ms": float(
+                getattr(FLAGS, "min_allowed_latency", 0.0)
+            ),
+            "requires_finite_positive_latency_and_area": True,
+        },
+        "encoder_holdout_kernels": sorted(
+            _kernel_set(getattr(FLAGS, "test_kernels", None))
+            | _kernel_set(getattr(FLAGS, "val_kernels", None))
+        ),
         "pragma_encoding": {
             "partition_type": dict(ARRAY_TYPE_ENCODING),
             "unroll_factor": "log2(1 + factor)",
@@ -1869,9 +1880,48 @@ def _validate_cached_schema() -> None:
         raise RuntimeError(
             "Cached tensors use a different QoR target; use force_regen=True"
         )
+    expected_filter = {
+        "include_invalid": bool(getattr(FLAGS, "invalid", False)),
+        "minimum_latency_ms": float(
+            getattr(FLAGS, "min_allowed_latency", 0.0)
+        ),
+        "requires_finite_positive_latency_and_area": True,
+    }
+    actual_filter = schema.get("qor_filter")
+    if not isinstance(actual_filter, dict):
+        raise RuntimeError(
+            "Cached tensors do not record the QoR validity policy; "
+            "use force_regen=True"
+        )
+    if (
+        bool(actual_filter.get("include_invalid"))
+        != expected_filter["include_invalid"]
+        or not math.isclose(
+            _as_float(actual_filter.get("minimum_latency_ms"), math.nan),
+            expected_filter["minimum_latency_ms"],
+            rel_tol=0.0,
+            abs_tol=1e-12,
+        )
+        or actual_filter.get(
+            "requires_finite_positive_latency_and_area"
+        ) is not True
+    ):
+        raise RuntimeError(
+            "Cached tensors use a different QoR validity policy; "
+            "use force_regen=True"
+        )
     if schema.get("preprocessed_csv_sha256") != _preprocessed_csv_sha256():
         raise RuntimeError(
             "Preprocessed QoR CSVs changed after tensorization; "
+            "use force_regen=True"
+        )
+    expected_holdouts = sorted(
+        _kernel_set(getattr(FLAGS, "test_kernels", None))
+        | _kernel_set(getattr(FLAGS, "val_kernels", None))
+    )
+    if schema.get("encoder_holdout_kernels") != expected_holdouts:
+        raise RuntimeError(
+            "Cached MLIR encoders were fitted for a different kernel split; "
             "use force_regen=True"
         )
 
@@ -1934,10 +1984,18 @@ def get_data_list():
 
     for graph_file, kernel in graph_records:
         graph_name = graph_file.stem
+        loaded_results = load_csv_results(kernel)
         results = [
-            result for result in load_csv_results(kernel)
+            result for result in loaded_results
             if _keep_result(result)
         ]
+        dropped = len(loaded_results) - len(results)
+        if dropped:
+            print(
+                f"[FILTER] {kernel}: retained {len(results)}/"
+                f"{len(loaded_results)} points; excluded {dropped} by the "
+                "recorded QoR validity policy."
+            )
         if not results:
             print(f"[WARN] No valid design points for {kernel}; skipping.")
             continue

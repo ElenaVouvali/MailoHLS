@@ -58,7 +58,16 @@ parser.add_argument(
     help='Debug/research only: allow missing, failed, stale, or incompatible MLIR graphs.',
 )
 
-parser.add_argument('--min_allowed_latency', type=float, default=0.1) ## if latency is less than this, prune the point (used when synthesis is not valid)
+parser.add_argument(
+    '--min_allowed_latency',
+    type=float,
+    default=0.0,
+    help=(
+        'Optional latency floor in milliseconds. GNN preprocessing already '
+        'removes failed synthesis rows, so production defaults to no extra '
+        'floor; use a positive value only for a documented sensitivity test.'
+    ),
+)
 EPSILON = 1e-6
 parser.add_argument('--epsilon', default=EPSILON)
 NORMALIZER = 1e7
@@ -72,7 +81,15 @@ parser.add_argument('--norm_method', default=norm)
 parser.add_argument('--new_speedup', default=True) # new_speedup: same reference point across all,
                                                     # old_speedup: base is the longest latency and different per kernel
 
-parser.add_argument('--invalid', type = bool, default=False ) # False: do not include invalid designs
+parser.add_argument(
+    '--include_invalid',
+    dest='invalid',
+    action='store_true',
+    help=(
+        'Bypass a positive --min_allowed_latency sensitivity filter. This '
+        'does not restore invalid rows removed during CSV preprocessing.'
+    ),
+)
 
 parser.add_argument('--encode_log', type = bool, default=False)
 v_db = 'v21' # 'v20': v20 database, 'v18': v18 database
@@ -279,6 +296,34 @@ parser.add_argument('--weight_decay', type=float, default=weight_decay) ## defau
 parser.add_argument("--scheduler", default=scheduler)
 parser.add_argument("--warmup", default=warmup)
 parser.add_argument('--lr', type=float, default=0.001)
+parser.add_argument(
+    '--standardize_targets',
+    action='store_true',
+    help='Standardize each log2 QoR target using training-kernel statistics.',
+)
+parser.add_argument(
+    '--kernel_balanced_loss',
+    action='store_true',
+    help='Give every training kernel equal total weight in the regression loss.',
+)
+parser.add_argument(
+    '--warmup_epochs',
+    type=int,
+    default=3,
+    help='Fixed number of warmup epochs; independent of total training length.',
+)
+parser.add_argument(
+    '--early_stopping_patience',
+    type=int,
+    default=25,
+    help='Stop after this many validation epochs without meaningful improvement.',
+)
+parser.add_argument(
+    '--early_stopping_min_delta',
+    type=float,
+    default=1e-4,
+    help='Minimum validation-loss decrease counted as an improvement.',
+)
 
 parser.add_argument('--random_seed', type=int, default=123)
 parser.add_argument(

@@ -20,7 +20,9 @@ from typing import Dict, Any, List, Tuple
 
 
 class Net(nn.Module):
-    def __init__(self, in_channels, edge_dim = 0, init_pragma_dict = None, task = FLAGS.task, num_layers = FLAGS.num_layers, D = FLAGS.D, target = FLAGS.target): # in_channels: node feature dimension (num_features=153) , edge_dim: edge feature dimension (335) , D : hidden width (64)
+    def __init__(self, in_channels, edge_dim = 0, init_pragma_dict = None,
+                 task = FLAGS.task, num_layers = FLAGS.num_layers, D = FLAGS.D,
+                 target = FLAGS.target, target_stats = None): # in_channels: node feature dimension (num_features=153) , edge_dim: edge feature dimension (335) , D : hidden width (64)
           super(Net, self).__init__()
 
           self.MLP_version = 'multi_obj'  if len(FLAGS.target) > 1 else  'single_obj' # single-head MLP
@@ -129,6 +131,29 @@ class Net(nn.Module):
           else:
               self.target_list = ['perf']
 
+          # Target statistics are fitted on training kernels only.  They are
+          # buffers so checkpoints carry the exact transform used by the
+          # regressor and inference cannot silently use different statistics.
+          target_stats = target_stats or {}
+          self.register_buffer(
+              'targets_standardized',
+              torch.tensor(
+                  bool(getattr(FLAGS, 'standardize_targets', False)),
+                  dtype=torch.bool,
+              ),
+          )
+          for target_name in self.target_list:
+              stats = target_stats.get(target_name, {})
+              safe_name = target_name.replace('-', '_')
+              self.register_buffer(
+                  f'target_mean__{safe_name}',
+                  torch.tensor(float(stats.get('mean', 0.0))),
+              )
+              self.register_buffer(
+                  f'target_std__{safe_name}',
+                  torch.tensor(max(float(stats.get('std', 1.0)), 1e-8)),
+              )
+
           if FLAGS.node_attention:
               dim = FLAGS.separate_T + FLAGS.separate_P + FLAGS.separate_pseudo + FLAGS.separate_icmp # concatenate the multiple attention headouts
               in_D = dim * D  # compute the regressor's input width, here : 64*2=128
@@ -200,6 +225,32 @@ class Net(nn.Module):
           target.requires_grad = False
           gae_loss = self.gae_loss_function(encoded_g, decoded_out, target)
           return gae_loss
+
+    def _target_transform(self, target_name, tensor):
+        """Return training-set mean/std on ``tensor``'s device and dtype."""
+        safe_name = target_name.replace('-', '_')
+        mean = getattr(self, f'target_mean__{safe_name}').to(tensor)
+        std = getattr(self, f'target_std__{safe_name}').to(tensor)
+        return mean, std
+
+    @staticmethod
+    def _point_weights(data, reference):
+        """Return one loss weight per design point in the current batch."""
+        if not bool(getattr(FLAGS, 'kernel_balanced_loss', False)):
+            return torch.ones(reference.shape[0], device=reference.device,
+                              dtype=reference.dtype)
+        if not hasattr(data, 'kernel_loss_weight'):
+            raise RuntimeError(
+                'kernel_balanced_loss requires kernel_loss_weight on every '
+                'training and validation example.'
+            )
+        weights = data.kernel_loss_weight.reshape(-1).to(reference)
+        if weights.numel() != reference.shape[0]:
+            raise RuntimeError(
+                'Expected one kernel loss weight per graph, got '
+                f'{weights.numel()} for batch size {reference.shape[0]}.'
+            )
+        return weights
 
     def _normalize_scope_mask(self, mask, ref_tensor):
         """
@@ -770,22 +821,37 @@ class Net(nn.Module):
             y = _get_y_with_target(data, target_name)
             if self.task == 'regression':
                 target = y.view((len(y), self.out_dim))
-                # print('target', target.shape)
+                mean, std = self._target_transform(target_name, target)
+                loss_target = (
+                    (target - mean) / std
+                    if bool(self.targets_standardized.item())
+                    else target
+                )
+                point_mse = (out - loss_target).pow(2).reshape(
+                    target.shape[0], -1
+                ).mean(dim=1)
+                weights = self._point_weights(data, target)
+                weighted_mse = (point_mse * weights).mean()
                 if FLAGS.loss == 'RMSE':
-                    loss = torch.sqrt(self.loss_function(out, target))
-                    # loss = mean_squared_error(target, out, squared=False)
+                    loss = torch.sqrt(weighted_mse)
                 elif FLAGS.loss == 'MSE':
-                    loss = self.loss_function(out, target)
+                    loss = weighted_mse
                 else:
                     raise NotImplementedError()
-                # print('loss', loss.shape)
+                # Public predictions remain in the original log2 target space;
+                # physical-unit evaluation therefore needs no special case.
+                prediction = (
+                    out * std + mean
+                    if bool(self.targets_standardized.item())
+                    else out
+                )
             else:
                 target = y.view((len(y)))
                 loss = self.loss_function(out, target)
-            out_dict[target_name] = out
+                prediction = out
+            out_dict[target_name] = prediction
             total_loss += loss
             loss_dict[target_name] = loss
 
 
         return out_dict, total_loss, loss_dict, gae_loss
-

@@ -99,7 +99,12 @@
     "signed_log1p_first_nonzero_distance",
     "loop_carried"
   ],
-  "feature_schema_version": "mailohls-mlir-features-v9-scaled-pragmas",
+  "encoder_holdout_kernels": [
+    "machsuite-sort-radix",
+    "rodinia_pathfinder_0_baseline_0",
+    "rodinia_pathfinder_4_doublebuffer_0"
+  ],
+  "feature_schema_version": "mailohls-mlir-features-v10-validity-policy",
   "generator_sha256": "5e4f93c89ce4c275c04ff6ed4dd81a17858647a55b0abec0846b8da240da3b05",
   "graph_schema_version": "mailohls-mlir-graph-v7-analysis-features",
   "node_categorical_fields": [
@@ -189,6 +194,7 @@
       "memref_dim_0_log2_7",
       "memref_dim_0_log2_8",
       "memref_dim_0_log2_9",
+      "memref_dim_1_log2_0",
       "memref_dim_1_log2_2",
       "memref_dim_1_log2_4",
       "memref_dim_1_log2_6",
@@ -220,14 +226,17 @@
       "memref_rank-1_f32",
       "memref_rank-1_f64",
       "memref_rank-1_i32",
+      "memref_rank-1_i64",
       "memref_rank-1_i8",
       "memref_rank1_f32",
       "memref_rank1_f64",
       "memref_rank1_i32",
+      "memref_rank1_i64",
       "memref_rank1_i8",
       "memref_rank2_f32",
       "memref_rank2_f64",
       "memref_rank2_i32",
+      "memref_rank2_i64",
       "memref_rank_1",
       "memref_rank_2",
       "memref_static_shape",
@@ -325,6 +334,7 @@
       "arith.subf",
       "arith.subi",
       "arith.truncf",
+      "arith.trunci",
       "arith.xori",
       "array_scope",
       "f32",
@@ -378,6 +388,7 @@
       "memref_dim_0_log2_7",
       "memref_dim_0_log2_8",
       "memref_dim_0_log2_9",
+      "memref_dim_1_log2_0",
       "memref_dim_1_log2_2",
       "memref_dim_1_log2_4",
       "memref_dim_1_log2_6",
@@ -406,16 +417,20 @@
       "memref_elements_log2_8",
       "memref_elements_log2_9",
       "memref_layout_unknown",
+      "memref_rank1_!llvm.struct<(i32)",
       "memref_rank1_f32",
       "memref_rank1_f64",
       "memref_rank1_i32",
+      "memref_rank1_i64",
       "memref_rank1_i8",
       "memref_rank2_f32",
       "memref_rank2_f64",
       "memref_rank2_i32",
       "memref_rank2_i32>)",
+      "memref_rank2_i64",
       "memref_rank2_i8>)",
       "memref_rank2_struct<(ptr",
+      "memref_rank3_i64",
       "memref_rank5_struct<(ptr",
       "memref_rank6_i8>)",
       "memref_rank_1",
@@ -499,7 +514,7 @@
       "op_result"
     ]
   },
-  "node_feature_dim": 400,
+  "node_feature_dim": 410,
   "node_numeric_fields": [
     "is_loop",
     "log1p_loop_depth",
@@ -544,6 +559,11 @@
     "unroll_factor": "log2(1 + factor)"
   },
   "preprocessed_csv_sha256": "62aa61526a91638092a5ae46b86fb7ddb2f73aea9b786a821e00d871d597e4df",
+  "qor_filter": {
+    "include_invalid": false,
+    "minimum_latency_ms": 0.0,
+    "requires_finite_positive_latency_and_area": true
+  },
   "qor_reference_clock_period_ns": 10.0,
   "qor_reference_device": "xczu7ev-ffvc1156-2-e"
 }
