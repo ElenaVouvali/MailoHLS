@@ -60,7 +60,7 @@ def get_save_path():
 def get_logs_path():
     # Runtime logs are mutable experiment output.  Curate only selected
     # reports/checkpoints into the repository after a run has been audited.
-    return join(get_root_path(), 'logs')
+    return join(get_root_path(), 'Checkpoints')
 
 
 def create_dir_if_not_exists(dir):

@@ -1,0 +1,520 @@
+Regenerating dataset...
+[5m] INFO: Starting training with resample -1
+[5m] INFO: Reading dataset from /home/elvouvali/MailoHLS/GNN_branch/MLIR_dataset/all_kernels
+Training-only log2 target statistics: {'perf': {'mean': 3.9703632820097385, 'std': 5.46318293517934, 'count': 23335}, 'area': {'mean': 3.529555097209467, 'std': 1.3651927026988417, 'count': 23335}}
+Training-mean validation baseline under the configured objective: total=1.9998, breakdown={'perf': 0.11401814722888698, 'area': 1.8857434880790438}
+Kernel-balanced split: 52 kernels, 23335 points, points/kernel=7..859
+Kernel-balanced split: 3 kernels, 1822 points, points/kernel=388..751
+[6m] INFO: num features for training: 410
+[6m] INFO: size of the edge attribute is 77
+Model first param device: cuda:0
+Optimization schedule: steps=7300, warmup_steps=1095 (3 fixed epochs)
+[initial_val] epoch -1
+       target   aggregation  samples  kernels    mape     rmse       mse  \
+0  latency_ms   point_micro     1822        3  0.6992  20.9465  438.7564   
+1  latency_ms  kernel_macro     1822        3  0.7011  19.0965  536.2796   
+2  area_score   point_micro     1822        3  1.5203   7.4754   55.8814   
+3  area_score  kernel_macro     1822        3  1.4896   7.6390   62.3607   
+
+       mae   max_err     tau  
+0  14.6421  152.2324  0.4054  
+1  15.8259   67.4448 -0.0377  
+2   5.5954   32.1885 -0.4137  
+3   5.9355   22.2905  0.0374  
+[initial_val] latency_ms physical RMSE: 20.9465 | MAE: 14.6421 | MAPE: 69.92% | tau-b: 0.4054
+[initial_val] area_score physical RMSE: 7.4754 | MAE: 5.5954 | MAPE: 152.03% | tau-b: -0.4137
+Untrained validation loss: 1.3368; breakdown={'perf': 0.10108062888277873, 'area': 1.2357574087597274}
+Initial validation GAE loss: 0
+Initial validation loss breakdown {'perf': 0.10108062888277873, 'area': 1.2357574087597274}
+Test batch ID (resample): -1 - Epoch 0 train
+epoch = 0, learning rate = 2.7397260273972597e-07
+Saved train model at epoch 0
+Epoch 0 val
+[val] epoch 0
+       target   aggregation  samples  kernels    mape     rmse       mse  \
+0  latency_ms   point_micro     1822        3  2.3487  21.5386  463.9132   
+1  latency_ms  kernel_macro     1822        3  2.1533  21.1651  488.9757   
+2  area_score   point_micro     1822        3  1.8462   7.7260   59.6908   
+3  area_score  kernel_macro     1822        3  1.9786   7.5208   65.0259   
+
+       mae   max_err     tau  
+0  18.7308  145.9578 -0.2534  
+1  18.5217   72.7161  0.0181  
+2   6.6591   20.3910  0.6627  
+3   6.9821   15.8099  0.4558  
+[val] latency_ms physical RMSE: 21.5386 | MAE: 18.7308 | MAPE: 234.87% | tau-b: -0.2534
+[val] area_score physical RMSE: 7.7260 | MAE: 6.6591 | MAPE: 184.62% | tau-b: 0.6627
+Saved val model at epoch 0
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.8837425980305861, 'area': 1.2358287429206756}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1464040377366425, 'area': 1.3287777256887123}
+Epoch: 000, Train Loss: 2.1196, Val loss: 1.4752, Time: 1.000 min, 36.335 secs
+Test batch ID (resample): -1 - Epoch 1 train
+epoch = 1, learning rate = 9.967727875377511e-05
+Saved train model at epoch 1
+Epoch 1 val
+[val] epoch 1
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.0357  36.5591  1336.5693   
+1  latency_ms  kernel_macro     1822        3  1.2457  32.7159  1843.5049   
+2  area_score   point_micro     1822        3  2.5555  13.6676   186.8035   
+3  area_score  kernel_macro     1822        3  2.6872  12.0343   184.7361   
+
+       mae   max_err     tau  
+0  23.3022  231.0444  0.3233  
+1  27.4825   95.6804  0.0381  
+2  11.2356   32.3066  0.6849  
+3  11.3417   22.6767  0.4822  
+[val] latency_ms physical RMSE: 36.5591 | MAE: 23.3022 | MAPE: 103.57% | tau-b: 0.3233
+[val] area_score physical RMSE: 13.6676 | MAE: 11.2356 | MAPE: 255.55% | tau-b: 0.6849
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.36991846263536377, 'area': 0.8760727640262936}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1387720970205889, 'area': 1.8239745515369035}
+Epoch: 001, Train Loss: 1.2460, Val loss: 1.9627, Time: 1.000 min, 38.157 secs
+Checkpoint saved at epoch 1 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 2 train
+epoch = 2, learning rate = 0.00019553628807735565
+Saved train model at epoch 2
+Epoch 2 val
+[val] epoch 2
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8403  35.9534  1292.6453   
+1  latency_ms  kernel_macro     1822        3  0.9090  32.3039  1749.0767   
+2  area_score   point_micro     1822        3  2.5797  14.8516   220.5705   
+3  area_score  kernel_macro     1822        3  2.6915  12.6067   211.1409   
+
+       mae   max_err     tau  
+0  21.3645  372.3539  0.4707  
+1  23.9516  142.9705  0.0751  
+2  11.9856   34.1469  0.6806  
+3  11.8987   23.0365  0.5059  
+[val] latency_ms physical RMSE: 35.9534 | MAE: 21.3645 | MAPE: 84.03% | tau-b: 0.4707
+[val] area_score physical RMSE: 14.8516 | MAE: 11.9856 | MAPE: 257.97% | tau-b: 0.6806
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.27776355167860034, 'area': 0.7211056003931735}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.17270297129381892, 'area': 1.829999294553185}
+Epoch: 002, Train Loss: 0.9989, Val loss: 2.0027, Time: 1.000 min, 35.911 secs
+Test batch ID (resample): -1 - Epoch 3 train
+epoch = 3, learning rate = 0.00028419594600731285
+Saved train model at epoch 3
+Epoch 3 val
+[val] epoch 3
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8028  39.9230  1593.8450   
+1  latency_ms  kernel_macro     1822        3  0.8463  35.6788  2203.3335   
+2  area_score   point_micro     1822        3  2.4566  14.0006   196.0155   
+3  area_score  kernel_macro     1822        3  2.5588  12.0226   189.6361   
+
+       mae   max_err     tau  
+0  21.8412  350.3371  0.4397  
+1  24.4164  135.9476  0.1071  
+2  11.3627   31.1644  0.6964  
+3  11.3461   21.5815  0.5085  
+[val] latency_ms physical RMSE: 39.9230 | MAE: 21.8412 | MAPE: 80.28% | tau-b: 0.4397
+[val] area_score physical RMSE: 14.0006 | MAE: 11.3627 | MAPE: 245.66% | tau-b: 0.6964
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.19266246390950637, 'area': 0.6630778462148106}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.19666619561244575, 'area': 1.7418115050025882}
+Epoch: 003, Train Loss: 0.8557, Val loss: 1.9385, Time: 1.000 min, 36.360 secs
+Checkpoint saved at epoch 3 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 4 train
+epoch = 4, learning rate = 0.00027230746418436744
+Saved train model at epoch 4
+Epoch 4 val
+[val] epoch 4
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.6244  35.5983  1267.2380   
+1  latency_ms  kernel_macro     1822        3  0.6499  31.7920  1688.0777   
+2  area_score   point_micro     1822        3  2.2120  11.8831   141.2083   
+3  area_score  kernel_macro     1822        3  2.3156  10.5520   140.9313   
+
+       mae   max_err     tau  
+0  20.2233  298.4410  0.1248  
+1  22.0122  118.5312  0.2163  
+2   9.6688   26.8874  0.6888  
+3   9.7651   19.0718  0.4879  
+[val] latency_ms physical RMSE: 35.5983 | MAE: 20.2233 | MAPE: 62.44% | tau-b: 0.1248
+[val] area_score physical RMSE: 11.8831 | MAE: 9.6688 | MAPE: 221.20% | tau-b: 0.6888
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.1578994792694705, 'area': 0.6195397612405891}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.21068964894905964, 'area': 1.5716707667849066}
+Epoch: 004, Train Loss: 0.7774, Val loss: 1.7824, Time: 1.000 min, 36.251 secs
+Test batch ID (resample): -1 - Epoch 5 train
+epoch = 5, learning rate = 0.0002575304832720495
+Saved train model at epoch 5
+Epoch 5 val
+[val] epoch 5
+       target   aggregation  samples  kernels    mape     rmse       mse  \
+0  latency_ms   point_micro     1822        3  0.6237  21.7476  472.9575   
+1  latency_ms  kernel_macro     1822        3  0.6090  17.1294  446.5481   
+2  area_score   point_micro     1822        3  2.1975  12.3452  152.4043   
+3  area_score  kernel_macro     1822        3  2.2309  10.4023  142.0151   
+
+       mae  max_err     tau  
+0  16.1117  87.8671  0.4053  
+1  15.5118  48.4453  0.1886  
+2   9.8668  29.1137  0.6749  
+3   9.5700  19.6482  0.5052  
+[val] latency_ms physical RMSE: 21.7476 | MAE: 16.1117 | MAPE: 62.37% | tau-b: 0.4053
+[val] area_score physical RMSE: 12.3452 | MAE: 9.8668 | MAPE: 219.75% | tau-b: 0.6749
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.16409309655523718, 'area': 0.6043198588211428}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.20345758253342497, 'area': 1.5260889580561223}
+Epoch: 005, Train Loss: 0.7684, Val loss: 1.7295, Time: 1.000 min, 39.662 secs
+Checkpoint saved at epoch 5 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 6 train
+epoch = 6, learning rate = 0.000240228861582411
+Saved train model at epoch 6
+Epoch 6 val
+[val] epoch 6
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.7973  61.5808  3792.1927   
+1  latency_ms  kernel_macro     1822        3  0.8940  52.5604  5651.9863   
+2  area_score   point_micro     1822        3  1.6580   8.6335    74.5374   
+3  area_score  kernel_macro     1822        3  1.6355   7.4505    68.7315   
+
+       mae   max_err     tau  
+0  27.4431  656.4957  0.2194  
+1  33.4280  238.2961  0.2188  
+2   6.9370   23.4575  0.6877  
+3   6.6424   16.1868  0.5076  
+[val] latency_ms physical RMSE: 61.5808 | MAE: 27.4431 | MAPE: 79.73% | tau-b: 0.2194
+[val] area_score physical RMSE: 8.6335 | MAE: 6.9370 | MAPE: 165.80% | tau-b: 0.6877
+Saved val model at epoch 6
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.136698538312724, 'area': 0.6053869300361667}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.17185645395098612, 'area': 1.0900787398071896}
+Epoch: 006, Train Loss: 0.7421, Val loss: 1.2619, Time: 1.000 min, 39.856 secs
+Test batch ID (resample): -1 - Epoch 7 train
+epoch = 7, learning rate = 0.00022082862246223636
+Saved train model at epoch 7
+Epoch 7 val
+[val] epoch 7
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.7255  45.1047  2034.4313   
+1  latency_ms  kernel_macro     1822        3  0.8330  39.2550  2956.3522   
+2  area_score   point_micro     1822        3  1.6560   7.9308    62.8979   
+3  area_score  kernel_macro     1822        3  1.6817   7.3543    62.8813   
+
+       mae   max_err     tau  
+0  22.3519  406.3328  0.4717  
+1  26.5164  153.2021  0.1644  
+2   6.4518   21.1311  0.6581  
+3   6.3650   16.3916  0.4269  
+[val] latency_ms physical RMSE: 45.1047 | MAE: 22.3519 | MAPE: 72.55% | tau-b: 0.4717
+[val] area_score physical RMSE: 7.9308 | MAE: 6.4518 | MAPE: 165.60% | tau-b: 0.6581
+Saved val model at epoch 7
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.13694104029211723, 'area': 0.5810872886327495}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.10258044358894933, 'area': 1.1179890751053552}
+Epoch: 007, Train Loss: 0.7180, Val loss: 1.2206, Time: 1.000 min, 35.919 secs
+Checkpoint saved at epoch 7 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 8 train
+epoch = 8, learning rate = 0.00019980746418436904
+Saved train model at epoch 8
+Epoch 8 val
+[val] epoch 8
+       target   aggregation  samples  kernels    mape     rmse       mse  \
+0  latency_ms   point_micro     1822        3  0.5357  26.7411  715.0882   
+1  latency_ms  kernel_macro     1822        3  0.5229  23.6259  850.1015   
+2  area_score   point_micro     1822        3  1.9238   9.6650   93.4132   
+3  area_score  kernel_macro     1822        3  1.9697   8.9080   92.4507   
+
+       mae   max_err     tau  
+0  16.6649  254.9743  0.3975  
+1  16.8814  103.5256  0.2329  
+2   7.8677   24.7022  0.6838  
+3   7.7748   21.0626  0.4899  
+[val] latency_ms physical RMSE: 26.7411 | MAE: 16.6649 | MAPE: 53.57% | tau-b: 0.3975
+[val] area_score physical RMSE: 9.6650 | MAE: 7.8677 | MAPE: 192.38% | tau-b: 0.6838
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.11960029101247882, 'area': 0.5384422356499475}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.13466665513290074, 'area': 1.330801361511358}
+Epoch: 008, Train Loss: 0.6580, Val loss: 1.4655, Time: 1.000 min, 40.196 secs
+Test batch ID (resample): -1 - Epoch 9 train
+epoch = 9, learning rate = 0.00017768299743083486
+Saved train model at epoch 9
+Epoch 9 val
+[val] epoch 9
+       target   aggregation  samples  kernels    mape     rmse       mse  \
+0  latency_ms   point_micro     1822        3  1.0692  20.8164  433.3234   
+1  latency_ms  kernel_macro     1822        3  0.9890  17.0903  398.1620   
+2  area_score   point_micro     1822        3  1.7169   8.2322   67.7692   
+3  area_score  kernel_macro     1822        3  1.7459   7.7795   66.9196   
+
+       mae  max_err     tau  
+0  16.2968  85.0421 -0.1041  
+1  15.3372  51.5142  0.2515  
+2   6.6811  23.1638  0.6767  
+3   6.5936  21.3406  0.4895  
+[val] latency_ms physical RMSE: 20.8164 | MAE: 16.2968 | MAPE: 106.92% | tau-b: -0.1041
+[val] area_score physical RMSE: 8.2322 | MAE: 6.6811 | MAPE: 171.69% | tau-b: 0.6767
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.1109397552656826, 'area': 0.5166636214608525}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1703048695520826, 'area': 1.1719600609968837}
+Epoch: 009, Train Loss: 0.6276, Val loss: 1.3423, Time: 1.000 min, 34.055 secs
+Checkpoint saved at epoch 9 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 10 train
+epoch = 10, learning rate = 0.0001550000000000012
+Saved train model at epoch 10
+Epoch 10 val
+[val] epoch 10
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.6305  35.1100  1232.7115   
+1  latency_ms  kernel_macro     1822        3  0.6386  31.4631  1643.9798   
+2  area_score   point_micro     1822        3  1.5914   8.3183    69.1939   
+3  area_score  kernel_macro     1822        3  1.6220   7.6514    68.6371   
+
+       mae   max_err     tau  
+0  19.6595  341.1051  0.1784  
+1  21.2330  132.8562  0.2721  
+2   6.5746   23.8775  0.6828  
+3   6.5446   18.3620  0.4740  
+[val] latency_ms physical RMSE: 35.1100 | MAE: 19.6595 | MAPE: 63.05% | tau-b: 0.1784
+[val] area_score physical RMSE: 8.3183 | MAE: 6.5746 | MAPE: 159.14% | tau-b: 0.6828
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.10743055809117599, 'area': 0.49793609699243546}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1653620106475806, 'area': 1.066925263676371}
+Epoch: 010, Train Loss: 0.6054, Val loss: 1.2323, Time: 1.000 min, 37.807 secs
+Test batch ID (resample): -1 - Epoch 11 train
+epoch = 11, learning rate = 0.00013231700256916763
+Epoch 11 val
+[val] epoch 11
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.0722  38.7023  1497.8678   
+1  latency_ms  kernel_macro     1822        3  1.0614  35.3983  2059.9849   
+2  area_score   point_micro     1822        3  1.5069   7.4968    56.2023   
+3  area_score  kernel_macro     1822        3  1.5080   6.9605    55.6009   
+
+       mae   max_err     tau  
+0  22.3018  254.1278 -0.0674  
+1  24.8065  106.9533  0.2544  
+2   5.8628   21.5476  0.6579  
+3   5.7139   16.9031  0.4227  
+[val] latency_ms physical RMSE: 38.7023 | MAE: 22.3018 | MAPE: 107.22% | tau-b: -0.0674
+[val] area_score physical RMSE: 7.4968 | MAE: 5.8628 | MAPE: 150.69% | tau-b: 0.6579
+Saved val model at epoch 11
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.10406293115690941, 'area': 0.5122317912767856}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.17836969953467896, 'area': 0.986207721049516}
+Epoch: 011, Train Loss: 0.6163, Val loss: 1.1646, Time: 1.000 min, 37.088 secs
+Checkpoint saved at epoch 11 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 12 train
+epoch = 12, learning rate = 0.00011019253581563461
+Saved train model at epoch 12
+Epoch 12 val
+[val] epoch 12
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.9842  40.8188  1666.1772   
+1  latency_ms  kernel_macro     1822        3  0.9928  36.9042  2338.0770   
+2  area_score   point_micro     1822        3  1.6054   7.8780    62.0629   
+3  area_score  kernel_macro     1822        3  1.6268   7.4882    61.8858   
+
+       mae   max_err     tau  
+0  22.3586  290.0852  0.0848  
+1  25.2689  117.7432  0.2934  
+2   6.3439   23.0922  0.6800  
+3   6.3239   21.3104  0.4769  
+[val] latency_ms physical RMSE: 40.8188 | MAE: 22.3586 | MAPE: 98.42% | tau-b: 0.0848
+[val] area_score physical RMSE: 7.8780 | MAE: 6.3439 | MAPE: 160.54% | tau-b: 0.6800
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.10512467646831257, 'area': 0.48829616060700387}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.14992729097637467, 'area': 1.0725751544229285}
+Epoch: 012, Train Loss: 0.5934, Val loss: 1.2225, Time: 1.000 min, 33.961 secs
+Test batch ID (resample): -1 - Epoch 13 train
+epoch = 13, learning rate = 8.917137753776734e-05
+Saved train model at epoch 13
+Epoch 13 val
+[val] epoch 13
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.7792  35.6158  1268.4849   
+1  latency_ms  kernel_macro     1822        3  0.7832  32.1988  1723.9654   
+2  area_score   point_micro     1822        3  1.4819   7.5951    57.6855   
+3  area_score  kernel_macro     1822        3  1.5234   7.2103    59.5712   
+
+       mae   max_err     tau  
+0  20.0061  299.0143  0.2352  
+1  21.9609  119.1998  0.2855  
+2   5.9406   22.6453  0.6845  
+3   6.0071   18.8347  0.4734  
+[val] latency_ms physical RMSE: 35.6158 | MAE: 20.0061 | MAPE: 77.92% | tau-b: 0.2352
+[val] area_score physical RMSE: 7.5951 | MAE: 5.9406 | MAPE: 148.19% | tau-b: 0.6845
+Saved val model at epoch 13
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.09968686976625905, 'area': 0.4749159576334993}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1354075897930744, 'area': 0.9877274391189234}
+Epoch: 013, Train Loss: 0.5746, Val loss: 1.1231, Time: 1.000 min, 40.671 secs
+Checkpoint saved at epoch 13 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 14 train
+epoch = 14, learning rate = 6.977113841759277e-05
+Saved train model at epoch 14
+Epoch 14 val
+[val] epoch 14
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8507  45.8217  2099.6310   
+1  latency_ms  kernel_macro     1822        3  0.8895  40.5097  3028.5274   
+2  area_score   point_micro     1822        3  1.4517   6.9327    48.0630   
+3  area_score  kernel_macro     1822        3  1.4815   6.7187    49.5058   
+
+       mae   max_err     tau  
+0  23.0596  331.6136  0.2445  
+1  26.7886  130.1114  0.2826  
+2   5.5231   20.6279  0.6819  
+3   5.5571   19.8789  0.4791  
+[val] latency_ms physical RMSE: 45.8217 | MAE: 23.0596 | MAPE: 85.07% | tau-b: 0.2445
+[val] area_score physical RMSE: 6.9327 | MAE: 5.5231 | MAPE: 145.17% | tau-b: 0.6819
+Saved val model at epoch 14
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.0982295346218244, 'area': 0.4705694232376275}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.13404563977153058, 'area': 0.9644210573314442}
+Epoch: 014, Train Loss: 0.5688, Val loss: 1.0985, Time: 1.000 min, 35.846 secs
+Test batch ID (resample): -1 - Epoch 15 train
+epoch = 15, learning rate = 5.246951672795204e-05
+Saved train model at epoch 15
+Epoch 15 val
+[val] epoch 15
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.3008  44.4199  1973.1268   
+1  latency_ms  kernel_macro     1822        3  1.2879  40.4173  2826.1789   
+2  area_score   point_micro     1822        3  1.6651   7.7635    60.2723   
+3  area_score  kernel_macro     1822        3  1.6916   7.6350    61.7459   
+
+       mae   max_err     tau  
+0  24.0208  358.5496  0.0205  
+1  27.5927  142.5530  0.3053  
+2   6.3352   23.7068  0.6711  
+3   6.3691   22.3139  0.4881  
+[val] latency_ms physical RMSE: 44.4199 | MAE: 24.0208 | MAPE: 130.08% | tau-b: 0.0205
+[val] area_score physical RMSE: 7.7635 | MAE: 6.3352 | MAPE: 166.51% | tau-b: 0.6711
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.09621493427642847, 'area': 0.4653564075841775}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1489116959396492, 'area': 1.1206150227660798}
+Epoch: 015, Train Loss: 0.5616, Val loss: 1.2695, Time: 1.000 min, 40.859 secs
+Checkpoint saved at epoch 15 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 16 train
+epoch = 16, learning rate = 3.769253581563366e-05
+Saved train model at epoch 16
+Epoch 16 val
+[val] epoch 16
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8573  31.7145  1005.8095   
+1  latency_ms  kernel_macro     1822        3  0.8463  29.0272  1303.1256   
+2  area_score   point_micro     1822        3  1.5884   7.4245    55.1225   
+3  area_score  kernel_macro     1822        3  1.6130   7.3479    56.5427   
+
+       mae   max_err     tau  
+0  19.3250  221.9485  0.1147  
+1  20.6077   94.9098  0.3013  
+2   5.9870   24.3822  0.6644  
+3   6.0271   22.2139  0.4913  
+[val] latency_ms physical RMSE: 31.7145 | MAE: 19.3250 | MAPE: 85.73% | tau-b: 0.1147
+[val] area_score physical RMSE: 7.4245 | MAE: 5.9870 | MAPE: 158.84% | tau-b: 0.6644
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.09505197935864786, 'area': 0.46042734363655324}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.15132349480912663, 'area': 1.0631086193965635}
+Epoch: 016, Train Loss: 0.5555, Val loss: 1.2144, Time: 1.000 min, 34.625 secs
+Test batch ID (resample): -1 - Epoch 17 train
+epoch = 17, learning rate = 2.5804053992687714e-05
+Saved train model at epoch 17
+Epoch 17 val
+[val] epoch 17
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.1914  36.7871  1353.2920   
+1  latency_ms  kernel_macro     1822        3  1.1627  34.1037  1854.4285   
+2  area_score   point_micro     1822        3  1.4562   6.7066    44.9787   
+3  area_score  kernel_macro     1822        3  1.4774   6.6559    46.6170   
+
+       mae   max_err     tau  
+0  21.3997  284.3633  0.0359  
+1  23.5571  118.3717  0.3010  
+2   5.3873   22.3253  0.6669  
+3   5.4356   20.6277  0.4849  
+[val] latency_ms physical RMSE: 36.7871 | MAE: 21.3997 | MAPE: 119.14% | tau-b: 0.0359
+[val] area_score physical RMSE: 6.7066 | MAE: 5.3873 | MAPE: 145.62% | tau-b: 0.6669
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.09497672946812741, 'area': 0.4583695156494555}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1506730994919129, 'area': 0.9629864377980698}
+Epoch: 017, Train Loss: 0.5533, Val loss: 1.1137, Time: 1.000 min, 34.679 secs
+Checkpoint saved at epoch 17 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 18 train
+epoch = 18, learning rate = 1.709680513720324e-05
+Saved train model at epoch 18
+Epoch 18 val
+[val] epoch 18
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.0371  34.8547  1214.8523   
+1  latency_ms  kernel_macro     1822        3  1.0188  32.1395  1640.9003   
+2  area_score   point_micro     1822        3  1.4566   7.0976    50.3758   
+3  area_score  kernel_macro     1822        3  1.4858   6.9095    51.9440   
+
+       mae   max_err     tau  
+0  20.4498  262.9197  0.1032  
+1  22.3159  109.7636  0.3026  
+2   5.6250   21.5040  0.6771  
+3   5.6842   21.1538  0.4834  
+[val] latency_ms physical RMSE: 34.8547 | MAE: 20.4498 | MAPE: 103.71% | tau-b: 0.1032
+[val] area_score physical RMSE: 7.0976 | MAE: 5.6250 | MAPE: 145.66% | tau-b: 0.6771
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.09391233794469381, 'area': 0.45464780244194825}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.14389205535078414, 'area': 0.9655123369688522}
+Epoch: 018, Train Loss: 0.5486, Val loss: 1.1094, Time: 1.000 min, 34.281 secs
+Test batch ID (resample): -1 - Epoch 19 train
+epoch = 19, learning rate = 1.1785190613705167e-05
+Epoch 19 val
+[val] epoch 19
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.9996  32.4951  1055.9287   
+1  latency_ms  kernel_macro     1822        3  0.9764  30.0238  1383.1704   
+2  area_score   point_micro     1822        3  1.4542   6.9494    48.2945   
+3  area_score  kernel_macro     1822        3  1.4831   6.8075    50.0071   
+
+       mae   max_err     tau  
+0  19.8736  235.6689  0.0548  
+1  21.2984  100.5149  0.3059  
+2   5.5438   21.4612  0.6797  
+3   5.6044   20.8314  0.4895  
+[val] latency_ms physical RMSE: 32.4951 | MAE: 19.8736 | MAPE: 99.96% | tau-b: 0.0548
+[val] area_score physical RMSE: 6.9494 | MAE: 5.5438 | MAPE: 145.42% | tau-b: 0.6797
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.09369936177121103, 'area': 0.4562113743000018}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.15360293482582604, 'area': 0.9641475470084391}
+Epoch: 019, Train Loss: 0.5499, Val loss: 1.1178, Time: 1.000 min, 38.918 secs
+Checkpoint saved at epoch 19 -> /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/last_ckpt.pt
+Final validation report for best epoch 14
+[best_val] epoch 14
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8507  45.8217  2099.6310   
+1  latency_ms  kernel_macro     1822        3  0.8895  40.5097  3028.5274   
+2  area_score   point_micro     1822        3  1.4517   6.9327    48.0630   
+3  area_score  kernel_macro     1822        3  1.4815   6.7187    49.5058   
+
+       mae   max_err     tau  
+0  23.0596  331.6136  0.2445  
+1  26.7886  130.1114  0.2826  
+2   5.5231   20.6279  0.6819  
+3   5.5571   19.8789  0.4791  
+[best_val] latency_ms physical RMSE: 45.8217 | MAE: 23.0596 | MAPE: 85.07% | tau-b: 0.2445
+[best_val] area_score physical RMSE: 6.9327 | MAE: 5.5231 | MAPE: 145.17% | tau-b: 0.6819
+Wrote physical-unit metrics to /home/elvouvali/MailoHLS/logs/gnn_v10_smoke_seed123/run1/best_val_physical_metrics.csv
+min val loss at epoch: 14
+min train loss at epoch: 18
