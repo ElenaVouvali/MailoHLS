@@ -10,8 +10,7 @@ record contains:
 * provenance fields used by the SFT selector and audit manifest.
 
 This script selects no optimization objective and no winning design point.
-Those choices are made after the train/validation/test split by the SFT trainer,
-which avoids leaking held-out design points into training.
+Those choices are made after the train/validation/test split by the SFT trainer.
 """
 
 from __future__ import annotations

@@ -7,7 +7,7 @@ from the selected Stage-1 adapter and adds cross-attention over action-aligned
 GNN structural memory.  The specified-clock task is the default; automatic
 selection among measured clocks is an explicit, disabled-by-default ablation.
 
-Some internal classes and checkpoint field names retain the historical ``HARP``
+Some internal classes and checkpoint field names retain the historical "HARP"
 term for compatibility.  In the current pipeline they mean MLIR-derived GNN
 structural memory, not the legacy LLVM graph representation.
 """

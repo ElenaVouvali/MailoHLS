@@ -5,9 +5,9 @@ GNN mode keeps one FPGA target so a static kernel graph and pragma assignment
 have one QoR label.  LLM mode keeps every measured target and computes Pareto
 weights independently for each (device, clock-period) design space.
 
-Both modes canonicalize equivalent directive spellings and aggregate repeated
-measurements after canonicalization.  Action columns are accepted only when
-CSV -> APL -> kernel_info -> labeled source is a complete chain.
+Both modes canonicalize equivalent directive spellings (e.g. pipeline == pipeline_1) 
+and aggregate repeated measurements after canonicalization.  Action columns are accepted
+when CSV -> APL -> kernel_info -> labeled source is a complete chain.
 """
 
 from __future__ import annotations

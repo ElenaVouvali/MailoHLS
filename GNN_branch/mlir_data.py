@@ -29,13 +29,7 @@ train_GNN.py interfaces.  It produces PyG Data objects with the same fields:
     X_pragma_per_node, pragmas,
     perf, actual_perf, kernel_speedup, area, actual_area.
 
-Why MLIR-specific encoding?
----------------------------
-The previous HARP encoder one-hot encoded graph-local LLVM block/function IDs.
-Those IDs are useful for reconstructing a single lowered graph but do not carry
-stable semantics across kernels.  The MLIR graph already contains explicit
-region, loop, SSA, MemRef, access, and dependence relations.  This encoder
-therefore uses:
+This MLIR-specific encoder uses:
 
 Categorical node features
   * node kind;
@@ -89,19 +83,8 @@ APL mappings:
   Data/ApplicationAPLMapping/
   Data4LLMPrompting/ApplicationAPLMapping/
 
-Usage
------
-1. In config.py set:
-       dataset = "mlir"
-       force_regen = True
-
-2. Change the imports in main_GNN.py and train_GNN.py from "data" to
-   "mlir_data" (or rename this file to data.py for an isolated MLIR run).
-
-3. Run:
-       python main_GNN.py --dataset mlir --force_regen
-
-The first run fits new MLIR encoders.  Do not reuse the HARP encoders because
+The first run (python main_GNN.py --dataset mlir --force_regen) 
+fits new MLIR encoders.  Do not reuse the HARP encoders because
 the node and edge vocabularies are different.
 """
 
