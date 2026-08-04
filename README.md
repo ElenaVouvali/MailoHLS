@@ -20,8 +20,6 @@ flowchart TD
     E --> F["Action-aligned structural memory"]
     D --> G["Target-aware SFT examples"]
     F --> H["LLM pragma generator"]
-    <!-- G --> H
-    H --> I["HLS optimized code"] -->
 ```
 
 ## Repository map
