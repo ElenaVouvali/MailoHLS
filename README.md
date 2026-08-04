@@ -85,8 +85,8 @@ from mlir import ir
 from mlir._mlir_libs import _mailohls_analysis
 print("MLIR bindings:", ir.__file__)
 print("MailoHLS analysis:", _mailohls_analysis.__file__)
-PY -->
-```
+PY 
+``` -->
 
 The compiler-side action preservation, Mem2Reg correction, and analysis binding
 are currently maintained in the associated Polygeist working tree. A release
