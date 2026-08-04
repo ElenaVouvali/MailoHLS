@@ -20,6 +20,7 @@ flowchart TD
     E --> F["Action-aligned structural memory"]
     D --> G["Target-aware SFT examples"]
     F --> H["LLM pragma generator"]
+    G --> H
 ```
 
 ## Repository map
@@ -62,8 +63,9 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-`requirements.txt` records the development environment. PyTorch/CUDA wheels may
-need to be selected for the local GPU before installing the remaining packages.
+`requirements.txt` records the development environment. 
+
+<!-- PyTorch/CUDA wheels may need to be selected for the local GPU before installing the remaining packages.
 
 MLIR graph generation additionally requires the project’s patched Polygeist
 build, Python 3.11 MLIR bindings, and `_mailohls_analysis` extension. The PyPI
@@ -83,7 +85,7 @@ from mlir import ir
 from mlir._mlir_libs import _mailohls_analysis
 print("MLIR bindings:", ir.__file__)
 print("MailoHLS analysis:", _mailohls_analysis.__file__)
-PY
+PY -->
 ```
 
 The compiler-side action preservation, Mem2Reg correction, and analysis binding
