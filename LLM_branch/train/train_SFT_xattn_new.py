@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
-"""Unified MailoHLS target-aware SFT and device-adaptation trainer."""
+"""Train the target-aware MailoHLS directive generator.
+
+Stage 1 learns deterministic directive values from source/action markers,
+optimization objective, FPGA resources, and clock constraints.  Stage 2 starts
+from the selected Stage-1 adapter and adds cross-attention over action-aligned
+GNN structural memory.  The specified-clock task is the default; automatic
+selection among measured clocks is an explicit, disabled-by-default ablation.
+
+Some internal classes and checkpoint field names retain the historical ``HARP``
+term for compatibility.  In the current pipeline they mean MLIR-derived GNN
+structural memory, not the legacy LLVM graph representation.
+"""
 
 from __future__ import annotations
 
@@ -40,6 +51,13 @@ from transformers import (
 from transformers.trainer_pt_utils import LengthGroupedSampler
 
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_SFT_DATASET = REPOSITORY_ROOT / "artifacts" / "llm" / "mailohls_sft.jsonl"
+DEFAULT_STRUCTURAL_MEMORY = (
+    REPOSITORY_ROOT / "artifacts" / "llm" / "mlir_structural_memory"
+)
 
 
 # ==============================
@@ -611,16 +629,67 @@ def family_id_from_kernel_name(name: str) -> str:
     return s
 
 
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def load_rows(jsonl_path: str) -> List[dict]:
+    """Load SFT rows and resolve compact source-template references.
+
+    Rows from the current builder store ``source_key`` instead of repeating the
+    full kernel text.  Historical JSONL files containing ``input`` remain
+    readable for comparison experiments.
+    """
+    dataset_path = Path(jsonl_path)
+    sources_path = dataset_path.with_suffix(".sources.json")
+    manifest_path = dataset_path.with_suffix(".manifest.json")
+    source_templates: Dict[str, str] = {}
+    if sources_path.is_file():
+        if not manifest_path.is_file():
+            raise FileNotFoundError(f"Missing SFT manifest: {manifest_path}")
+        with manifest_path.open("r", encoding="utf-8") as handle:
+            manifest = json.load(handle)
+        if manifest.get("schema") != "mailohls-sft-jsonl-manifest-v2-compact-source":
+            raise ValueError(f"Unsupported SFT manifest schema: {manifest_path}")
+        if manifest.get("output_sha256") != _file_sha256(dataset_path):
+            raise ValueError(f"SFT JSONL hash mismatch: {dataset_path}")
+        if manifest.get("sources_sha256") != _file_sha256(sources_path):
+            raise ValueError(f"Source-template hash mismatch: {sources_path}")
+        with sources_path.open("r", encoding="utf-8") as handle:
+            source_payload = json.load(handle)
+        if source_payload.get("schema") != "mailohls-sft-sources-v1":
+            raise ValueError(f"Unsupported source-template schema: {sources_path}")
+        raw_templates = source_payload.get("templates")
+        if not isinstance(raw_templates, dict) or not raw_templates:
+            raise ValueError(f"No source templates in {sources_path}")
+        source_templates = {
+            str(key): str(value) for key, value in raw_templates.items()
+            if str(key) and str(value)
+        }
+
     rows = []
-    with open(jsonl_path, "r", encoding="utf-8") as f:
+    with dataset_path.open("r", encoding="utf-8") as f:
         for idx, line in enumerate(f):
             if not line.strip():
                 continue
             ex = json.loads(line)
+            if not str(ex.get("input", "")).strip():
+                source_key = str(ex.get("source_key", ""))
+                source_text = source_templates.get(source_key)
+                if source_text is None:
+                    raise ValueError(
+                        f"JSONL row {idx} has unresolved source_key={source_key!r}"
+                    )
+                ex["input"] = source_text
             ex["_jsonl_idx"] = idx
             ex["_family"] = family_id_from_kernel_name(ex["kernel_name"])
             rows.append(ex)
+    if source_templates and int(manifest.get("examples", -1)) != len(rows):
+        raise ValueError(f"SFT row count disagrees with {manifest_path}")
     return rows
 
 
@@ -3323,6 +3392,7 @@ Anchors and directive names are fixed by the source code.
 Device class: {device_token}
 Device name: {device_name}
 Target clock period: {period_token}
+Supported measured clock periods: {supported_clock_periods}
 
 Available resources:
 BRAM_18K={avail_bram} ({avail_bram_pct:.1f}% of device)
@@ -3478,10 +3548,20 @@ def target_prompt_fields(
             device_token = UNKNOWN_DEVICE_TOKEN
 
     frequency_mode = str(row.get("frequency_mode", "specified")).lower()
+    selected_clock = _clock_of(row)
+    if frequency_mode == "auto":
+        raw_supported = row.get("available_clock_periods")
+        if not isinstance(raw_supported, (list, tuple)) or not raw_supported:
+            raise ValueError("Automatic-clock rows require available_clock_periods")
+        supported = sorted({_norm_clock(clock) for clock in raw_supported})
+        if selected_clock not in supported:
+            raise ValueError("Selected clock is absent from available_clock_periods")
+    else:
+        supported = [selected_clock]
     period_token = (
         AUTO_PERIOD_TOKEN
         if frequency_mode == "auto"
-        else period_token_from_clock(_clock_of(row))
+        else period_token_from_clock(selected_clock)
     )
     available = _available_resources(row)
 
@@ -3492,6 +3572,7 @@ def target_prompt_fields(
         "device_name": device,
         "device_token": device_token,
         "period_token": period_token,
+        "supported_clock_periods": ", ".join(f"{clock:g} ns" for clock in supported),
         "avail_bram": available["BRAM_18K"],
         "avail_dsp": available["DSP"],
         "avail_ff": available["FF"],
@@ -3826,6 +3907,10 @@ def select_goal_rows(
             items, goal_mode, top_k, domination_penalty, max_dominated_gap,
             score_weight_min, score_weight_power, "auto"
         )
+        for row in chosen:
+            # The model may select only among clocks represented by measured
+            # candidates for this exact kernel/device/resource-budget case.
+            row["available_clock_periods"] = clocks
         auto_rows.extend(chosen)
         info["available_clocks"] = clocks
         metadata[f"auto::{key!r}"] = info
@@ -4019,6 +4104,8 @@ def configure_target_policy(args) -> None:
         raise ValueError("--random_budget_min_frac must be in (0, 1]")
     if not 0.0 <= args.auto_frequency_fraction < 1.0:
         raise ValueError("--auto_frequency_fraction must be in [0, 1)")
+    if args.auto_frequency_fraction > 0.0 and args.min_auto_clock_count < 2:
+        raise ValueError("automatic-clock training requires at least two clocks")
     if args.device_mode == "known" and args.device_token_dropout != 0.0:
         raise ValueError("known mode requires --device_token_dropout 0")
     if (
@@ -4180,7 +4267,7 @@ def run_single_training(args):
 
     if args.disable_harp:
         mem_bank = {}
-        print("[INFO] HARP disabled -> skipping memory bank loading")
+        print("[INFO] Structural memory disabled -> skipping memory bank loading")
     else:
         mem_bank, inferred_mem_dim = load_memory_bank(
             args.memory_dir,
@@ -4548,8 +4635,8 @@ def main():
     ap = argparse.ArgumentParser()
 
     # Data / Memory / Model
-    ap.add_argument("--dataset", type=str, default="/home/elvouvali/LLM_data/all_kernels_llm_data_multi_target.jsonl")
-    ap.add_argument("--memory_dir", type=str, default="/home/elvouvali/save/harp/memory_tokens/")
+    ap.add_argument("--dataset", type=str, default=str(DEFAULT_SFT_DATASET))
+    ap.add_argument("--memory_dir", type=str, default=str(DEFAULT_STRUCTURAL_MEMORY))
     ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-7b-base")
     ap.add_argument(
         "--objective",
@@ -4640,6 +4727,11 @@ def main():
         "--auto_frequency_fraction",
         type=float,
         default=0.0,
+        help=(
+            "Opt-in fraction of training prompts that ask the model to choose "
+            "among measured clock periods. Keep 0 for the specified-clock "
+            "baseline; evaluate this task separately before publication."
+        ),
     )
     ap.add_argument(
         "--candidate_pool_per_objective",
@@ -4650,6 +4742,7 @@ def main():
         "--min_auto_clock_count",
         type=int,
         default=2,
+        help="Minimum measured clocks required to construct an automatic-clock prompt.",
     )
 
     # Training Params
@@ -4672,7 +4765,7 @@ def main():
     ap.add_argument("--lora_alpha", type=int, default=16)
     ap.add_argument("--lora_dropout", type=float, default=0.05)
 
-    # HARP Memory
+    # MLIR structural memory (older checkpoint fields retain the HARP name).
     ap.add_argument("--mem_dim", type=int, default=-1)   # -1 => infer from memory bank
     ap.add_argument("--require_pragma_free_memory", action="store_true")
     ap.add_argument(
@@ -4695,7 +4788,13 @@ def main():
     ap.add_argument("--best_dir_name", type=str, default="best_custom_stage1")
 
     # Trainer / pipeline
-    ap.add_argument("--disable_harp", action="store_true")
+    ap.add_argument(
+        "--disable_structural_memory",
+        "--disable_harp",
+        dest="disable_harp",
+        action="store_true",
+        help="Run directive-only Stage 1 without GNN structural memory.",
+    )
     ap.add_argument("--eval_steps", type=int, default=100)
     ap.add_argument("--save_steps", type=int, default=100)
     ap.add_argument("--max_steps", type=int, default=-1)
