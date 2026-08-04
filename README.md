@@ -86,12 +86,12 @@ from mlir._mlir_libs import _mailohls_analysis
 print("MLIR bindings:", ir.__file__)
 print("MailoHLS analysis:", _mailohls_analysis.__file__)
 PY 
-``` -->
+``` 
 
 The compiler-side action preservation, Mem2Reg correction, and analysis binding
 are currently maintained in the associated Polygeist working tree. A release
 artifact must pin or publish that patch set; the Python repository alone cannot
-reproduce graph generation.
+reproduce graph generation. -->
 
 ## 2. Preprocess HLS measurements
 
