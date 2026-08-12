@@ -25,7 +25,12 @@ class Net(nn.Module):
                  target = FLAGS.target, target_stats = None): # in_channels: node feature dimension (num_features=153) , edge_dim: edge feature dimension (335) , D : hidden width (64)
           super(Net, self).__init__()
 
-          self.MLP_version = 'multi_obj'  if len(FLAGS.target) > 1 else  'single_obj' # single-head MLP
+          requested_targets = (
+              list(target) if isinstance(target, (list, tuple)) else [target]
+          )
+          self.MLP_version = (
+              'multi_obj' if len(requested_targets) > 1 else 'single_obj'
+          )
           # gnn_type determines the graph message passing operator
           if FLAGS.gnn_type == 'gat':
               conv_class = GATConv
@@ -124,12 +129,12 @@ class Net(nn.Module):
 
 
           if 'regression' in self.task:
-              _target_list = target
-              if not isinstance(FLAGS.target, list):
-                  _target_list = [target]
-              self.target_list = [t for t in _target_list]
+              self.target_list = requested_targets
           else:
               self.target_list = ['perf']
+          self.decompose_targets = bool(
+              getattr(FLAGS, 'decompose_targets', False)
+          )
 
           # Target statistics are fitted on training kernels only.  They are
           # buffers so checkpoints carry the exact transform used by the
@@ -164,17 +169,33 @@ class Net(nn.Module):
           else:
               hidden_channels = [D // 2, D // 4, D // 8]  # --> hidden sizes : [32,16,8]
 
-          if self.MLP_version == 'single_obj':
-              self.MLPs = nn.ModuleDict()
-              for target in self.target_list:
-                  self.MLPs[target] = MLP(in_D, self.MLP_out_dim, activation_type=FLAGS.activation,
-                                          hidden_channels=hidden_channels,
-                                          num_hidden_lyr=len(hidden_channels))  # regressor MLP --> MLPs['perf'] : MLP mapping in_D (128) --> MLP_out_dim (1) with hidden [32,16,8] and ELU activations
-          else:
-              self.MLPs = MLP_multi_objective(in_D, self.MLP_out_dim, activation_type=FLAGS.activation,
-                                      hidden_channels=hidden_channels,
-                                      objectives=self.target_list,
-                                      num_common_lyr=FLAGS.MLP_common_lyr)
+          def make_regression_heads():
+              if self.MLP_version == 'single_obj':
+                  heads = nn.ModuleDict()
+                  for target_name in self.target_list:
+                      heads[target_name] = MLP(
+                          in_D,
+                          self.MLP_out_dim,
+                          activation_type=FLAGS.activation,
+                          hidden_channels=hidden_channels,
+                          num_hidden_lyr=len(hidden_channels),
+                      )
+                  return heads
+              return MLP_multi_objective(
+                  in_D,
+                  self.MLP_out_dim,
+                  activation_type=FLAGS.activation,
+                  hidden_channels=hidden_channels,
+                  objectives=self.target_list,
+                  num_common_lyr=FLAGS.MLP_common_lyr,
+              )
+
+          # MLPs remains the public/dynamic head name for compatibility with
+          # non-decomposed checkpoints. In Stage B it predicts the pragma
+          # response; center_MLPs predicts a static kernel offset.
+          self.MLPs = make_regression_heads()
+          if self.decompose_targets:
+              self.center_MLPs = make_regression_heads()
 
           # --- pragma as MLP (only pipeline, unroll and array_partition) ---
           if FLAGS.pragma_as_MLP:
@@ -389,6 +410,88 @@ class Net(nn.Module):
                 data.pragmas = data.pragmas.float()
 
         return data
+
+
+    def _pool_graph_nodes(self, node_embeddings, data, out_dict=None):
+        """Pool one node representation without consulting QoR labels."""
+        batch = data.batch
+        if not FLAGS.node_attention:
+            pooled = global_add_pool(node_embeddings, batch)
+            if out_dict is not None:
+                out_dict['emb_T'] = pooled
+            return pooled
+
+        pooled = None
+        if FLAGS.separate_P:
+            if FLAGS.P_use_all_nodes:
+                pooled_P, _ = self.glob_P(node_embeddings, batch)
+            else:
+                pooled_P, _ = self.glob_P(
+                    node_embeddings,
+                    batch,
+                    set_zeros_ids=data.X_contextnids,
+                )
+            pooled = pooled_P
+            if out_dict is not None:
+                out_dict['emb_P'] = pooled_P
+
+        if FLAGS.separate_T:
+            pooled_T, _ = self.glob_T(
+                node_embeddings,
+                batch,
+                set_zeros_ids=data.X_pragmanids,
+            )
+            pooled = (
+                torch.cat((pooled, pooled_T), dim=1)
+                if pooled is not None else pooled_T
+            )
+            if out_dict is not None:
+                out_dict['emb_T'] = pooled_T
+
+        if FLAGS.separate_pseudo:
+            pooled_pseudo, _ = self.glob_pseudo_B(
+                node_embeddings,
+                batch,
+                set_zeros_ids=data.X_pseudonids,
+            )
+            pooled = (
+                torch.cat((pooled, pooled_pseudo), dim=1)
+                if pooled is not None else pooled_pseudo
+            )
+            if out_dict is not None:
+                out_dict['emb_pseudo_b'] = pooled_pseudo
+
+        if FLAGS.separate_icmp:
+            pooled_icmp, _ = self.glob_icmp(
+                node_embeddings,
+                batch,
+                set_zeros_ids=data.X_icmpnids,
+            )
+            pooled = (
+                torch.cat((pooled, pooled_icmp), dim=1)
+                if pooled is not None else pooled_icmp
+            )
+            if out_dict is not None:
+                out_dict['emb_icmp'] = pooled_icmp
+
+        if not (
+            FLAGS.separate_P
+            or FLAGS.separate_T
+            or FLAGS.separate_pseudo
+            or FLAGS.separate_icmp
+        ):
+            pooled, node_scores = self.glob_T(node_embeddings, batch)
+            if out_dict is not None:
+                out_dict['emb_T'] = pooled
+                if FLAGS.subtask == 'visualize':
+                    saver.save_dict(
+                        {'data': data, 'node_att_scores': node_scores},
+                        'node_att.pickle',
+                    )
+
+        if pooled is None:
+            raise RuntimeError('No graph-pooling branch was enabled.')
+        return pooled
 
 
     '''
@@ -690,6 +793,9 @@ class Net(nn.Module):
 
         if FLAGS.jkn_enable:
             out = self.jkn(outs)
+        # The center branch must not see the per-design pragma values injected
+        # below. It predicts only the kernel-level QoR offset from static MLIR.
+        static_node_embeddings = out
 
         ## pragma as MLP
         if FLAGS.pragma_as_MLP:
@@ -734,54 +840,11 @@ class Net(nn.Module):
                 if layer != len(self.conv_layers) - 1:
                     out = activation(out)
 
-        if FLAGS.node_attention:
-            out_gnn = out
-            out_g = None
-            out_P, out_T = None, None
-            if FLAGS.separate_P:
-                if FLAGS.P_use_all_nodes:
-                    out_P, node_att_scores_P = self.glob_P(out_gnn, batch)
-                else:
-                    out_P, node_att_scores_P = self.glob_P(out_gnn, batch, set_zeros_ids=data.X_contextnids)
-
-                out_dict['emb_P'] = out_P
-                out_g = out_P
-
-            if FLAGS.separate_T:
-                out_T, node_att_scores = self.glob_T(out_gnn, batch, set_zeros_ids=data.X_pragmanids)
-                out_dict['emb_T'] = out_T
-                if out_P is not None:
-                    out_g = torch.cat((out_P, out_T), dim=1)
-                else:
-                    out_g = out_T
-
-            if FLAGS.separate_pseudo:
-                out_pseudo_B, node_att_scores_pseudo = self.glob_pseudo_B(out_gnn, batch, set_zeros_ids=data.X_pseudonids)
-                out_dict['emb_pseudo_b'] = out_pseudo_B
-                if out_g is not None:
-                    out_g = torch.cat((out_g, out_pseudo_B), dim=1)
-                else:
-                    out_g = out_pseudo_B
-
-            if FLAGS.separate_icmp:
-                out_icmp, node_att_scores_icmp = self.glob_icmp(out_gnn, batch, set_zeros_ids=data.X_icmpnids)
-                out_dict['emb_icmp'] = out_icmp
-                if out_g is not None:
-                    out_g = torch.cat((out_g, out_icmp), dim=1)
-                else:
-                    out_g = out_icmp
-
-            if not FLAGS.separate_P and not FLAGS.separate_T and not FLAGS.separate_pseudo:
-                out_g, node_att_scores = self.glob_T(out_gnn, batch)
-                out_dict['emb_T'] = out
-                if FLAGS.subtask == 'visualize':
-                    saver.save_dict({'data': data, 'node_att_scores': node_att_scores},
-                                    f'node_att.pickle')
-
-            out = out_g
-        else:
-            out = global_add_pool(out, batch)
-            out_dict['emb_T'] = out
+        static_embed = (
+            self._pool_graph_nodes(static_node_embeddings, data)
+            if self.decompose_targets else None
+        )
+        out = self._pool_graph_nodes(out, data, out_dict=out_dict)
 
         total_loss = 0
         gae_loss = 0
@@ -813,11 +876,25 @@ class Net(nn.Module):
 
         if self.MLP_version == 'multi_obj':
             out_MLPs = self.MLPs(out_embed)
+            center_MLPs = (
+                self.center_MLPs(static_embed)
+                if self.decompose_targets else None
+            )
         for target_name in self.target_list:
             if self.MLP_version == 'multi_obj':
-                out = out_MLPs[target_name]
+                response_out = out_MLPs[target_name]
             else:
-                out = self.MLPs[target_name](out_embed)
+                response_out = self.MLPs[target_name](out_embed)
+            if self.decompose_targets:
+                center_out = (
+                    center_MLPs[target_name]
+                    if self.MLP_version == 'multi_obj'
+                    else self.center_MLPs[target_name](static_embed)
+                )
+                out = center_out + response_out
+            else:
+                center_out = None
+                out = response_out
             y = _get_y_with_target(data, target_name)
             if self.task == 'regression':
                 target = y.view((len(y), self.out_dim))
@@ -833,11 +910,50 @@ class Net(nn.Module):
                 weights = self._point_weights(data, target)
                 weighted_mse = (point_mse * weights).mean()
                 if FLAGS.loss == 'RMSE':
-                    loss = torch.sqrt(weighted_mse)
+                    absolute_loss = torch.sqrt(weighted_mse)
                 elif FLAGS.loss == 'MSE':
-                    loss = weighted_mse
+                    absolute_loss = weighted_mse
                 else:
                     raise NotImplementedError()
+                training_loss = absolute_loss
+                if self.decompose_targets and self.training:
+                    center_name = f'{target_name}_center'
+                    if not hasattr(data, center_name):
+                        raise RuntimeError(
+                            f'Missing training-only target {center_name}.'
+                        )
+                    center = _get_y_with_target(
+                        data, center_name
+                    ).view_as(target)
+                    center_target = (
+                        (center - mean) / std
+                        if bool(self.targets_standardized.item())
+                        else center
+                    )
+                    response_target = loss_target - center_target
+                    center_mse = (
+                        (center_out - center_target).pow(2)
+                        .reshape(target.shape[0], -1).mean(dim=1)
+                        * weights
+                    ).mean()
+                    response_mse = (
+                        (response_out - response_target).pow(2)
+                        .reshape(target.shape[0], -1).mean(dim=1)
+                        * weights
+                    ).mean()
+                    if FLAGS.loss == 'RMSE':
+                        center_aux = torch.sqrt(center_mse)
+                        response_aux = torch.sqrt(response_mse)
+                    else:
+                        center_aux = center_mse
+                        response_aux = response_mse
+                    center_weight = float(FLAGS.center_aux_weight)
+                    response_weight = float(FLAGS.response_aux_weight)
+                    training_loss = (
+                        absolute_loss
+                        + center_weight * center_aux
+                        + response_weight * response_aux
+                    ) / (1.0 + center_weight + response_weight)
                 # Public predictions remain in the original log2 target space;
                 # physical-unit evaluation therefore needs no special case.
                 prediction = (
@@ -845,13 +961,30 @@ class Net(nn.Module):
                     if bool(self.targets_standardized.item())
                     else out
                 )
+                if self.decompose_targets:
+                    out_dict[f'{target_name}_center'] = (
+                        center_out * std + mean
+                        if bool(self.targets_standardized.item())
+                        else center_out
+                    )
+                    out_dict[f'{target_name}_response'] = (
+                        response_out * std
+                        if bool(self.targets_standardized.item())
+                        else response_out
+                    )
             else:
                 target = y.view((len(y)))
                 loss = self.loss_function(out, target)
                 prediction = out
             out_dict[target_name] = prediction
-            total_loss += loss
-            loss_dict[target_name] = loss
+            total_loss += (
+                training_loss if self.task == 'regression' else loss
+            )
+            # Validation selection and the release gate always use absolute
+            # QoR error; auxiliary decomposition losses only shape training.
+            loss_dict[target_name] = (
+                absolute_loss if self.task == 'regression' else loss
+            )
 
 
         return out_dict, total_loss, loss_dict, gae_loss

@@ -10,16 +10,19 @@
   "edge_categories": {
     "analysis": [
       "<none>",
+      "<unknown>",
       "mlir-affine-analysis",
       "mlir-unresolved-root-summary"
     ],
     "certainty": [
       "<none>",
+      "<unknown>",
       "may",
       "proven"
     ],
     "fallback_reason": [
       "<none>",
+      "<unknown>",
       "aliased_storage_not_canonicalized",
       "non_affine_access"
     ],
@@ -37,10 +40,12 @@
       "6",
       "7",
       "8",
-      "9"
+      "9",
+      "<unknown>"
     ],
     "role": [
       "<none>",
+      "<unknown>",
       "RAW",
       "WAR",
       "WAW",
@@ -86,7 +91,7 @@
       "write_reverse"
     ]
   },
-  "edge_feature_dim": 77,
+  "edge_feature_dim": 82,
   "edge_numeric_fields": [
     "signed_log1p_position",
     "signed_log1p_operand_index",
@@ -105,7 +110,7 @@
     "rodinia_pathfinder_4_doublebuffer_0",
     "serrano-kalman-filter"
   ],
-  "feature_schema_version": "mailohls-mlir-features-v10-validity-policy",
+  "feature_schema_version": "mailohls-mlir-features-v11-explicit-oov",
   "generator_sha256": "5e4f93c89ce4c275c04ff6ed4dd81a17858647a55b0abec0846b8da240da3b05",
   "graph_schema_version": "mailohls-mlir-graph-v7-analysis-features",
   "node_categorical_fields": [
@@ -161,6 +166,7 @@
       "7",
       "8",
       "800",
+      "<unknown>",
       "ARRAY_PARTITION",
       "PIPELINE",
       "UNROLL",
@@ -301,6 +307,7 @@
       "7",
       "8",
       "800",
+      "<unknown>",
       "ARRAY_PARTITION",
       "PIPELINE",
       "UNROLL",
@@ -459,12 +466,14 @@
     ],
     "feature_kind": [
       "<none>",
+      "<unknown>",
       "constant",
       "loop_trip_count",
       "memory_shape",
       "memory_uncertainty"
     ],
     "node_kind": [
+      "<unknown>",
       "array_scope",
       "immediate",
       "operation",
@@ -473,6 +482,7 @@
       "ssa_value"
     ],
     "op_family": [
+      "<unknown>",
       "arithmetic",
       "array_scope",
       "call",
@@ -494,6 +504,7 @@
       "ssa_value"
     ],
     "pragma_kind": [
+      "<unknown>",
       "ARRAY_PARTITION",
       "NONE",
       "PIPELINE",
@@ -501,11 +512,12 @@
     ],
     "ssa_kind": [
       "<none>",
+      "<unknown>",
       "block_argument",
       "op_result"
     ]
   },
-  "node_feature_dim": 400,
+  "node_feature_dim": 407,
   "node_numeric_fields": [
     "is_loop",
     "log1p_loop_depth",
@@ -556,5 +568,6 @@
     "requires_finite_positive_latency_and_area": true
   },
   "qor_reference_clock_period_ns": 10.0,
-  "qor_reference_device": "xczu7ev-ffvc1156-2-e"
+  "qor_reference_device": "xczu7ev-ffvc1156-2-e",
+  "unknown_category": "<unknown>"
 }

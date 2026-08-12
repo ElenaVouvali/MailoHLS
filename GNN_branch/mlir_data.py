@@ -160,8 +160,9 @@ EXPECTED_MEMORY_DEPENDENCE_MODEL = (
 )
 QOR_REFERENCE_DEVICE = "xczu7ev-ffvc1156-2-e"
 QOR_REFERENCE_CLOCK_PERIOD_NS = 10.0
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v10-validity-policy"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v11-explicit-oov"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+UNKNOWN_CATEGORY = "<unknown>"
 
 
 # ---------------------------------------------------------------------------
@@ -273,7 +274,8 @@ def _json_list(value: Any) -> list[Any]:
 def _make_onehot_encoder() -> OneHotEncoder:
     """
     Support both current scikit-learn (sparse_output) and older releases
-    (sparse).  Unknown tokens map to all zeros for inference compatibility.
+    (sparse). Unknown tokens are explicitly mapped to UNKNOWN_CATEGORY before
+    transform; handle_unknown remains a defensive fallback.
     """
     try:
         return OneHotEncoder(
@@ -290,7 +292,7 @@ def _make_onehot_encoder() -> OneHotEncoder:
 
 
 def _fit_onehot(tokens: Iterable[str]) -> OneHotEncoder:
-    values = sorted(set(str(t) for t in tokens))
+    values = sorted(set(str(t) for t in tokens) | {UNKNOWN_CATEGORY})
     if not values:
         values = ["<none>"]
     encoder = _make_onehot_encoder()
@@ -1230,11 +1232,34 @@ def _encode_categorical_columns(
 ):
     matrices = []
     for column, field in enumerate(fields):
-        values = np.asarray(
-            [row[column] for row in rows], dtype=object
-        ).reshape(-1, 1)
+        known = set(str(value) for value in encoders[field].categories_[0])
+        values = np.asarray([
+            str(value) if str(value) in known else UNKNOWN_CATEGORY
+            for value in (row[column] for row in rows)
+        ], dtype=object).reshape(-1, 1)
         matrices.append(encoders[field].transform(values))
     return matrices
+
+
+def _categorical_oov_summary(
+    rows: Sequence[Sequence[str]],
+    fields: Sequence[str],
+    encoders: Mapping[str, OneHotEncoder],
+) -> dict[str, Any]:
+    counts = {}
+    for column, field in enumerate(fields):
+        known = set(str(value) for value in encoders[field].categories_[0])
+        counts[field] = sum(
+            str(row[column]) not in known for row in rows
+        )
+    denominator = len(rows) * len(fields)
+    total = sum(counts.values())
+    return {
+        "rows": len(rows),
+        "unknown_by_field": counts,
+        "unknown_total": total,
+        "unknown_rate": float(total / denominator) if denominator else 0.0,
+    }
 
 
 def encode_static_graph(
@@ -1263,6 +1288,9 @@ def encode_static_graph(
     x = torch.from_numpy(
         np.concatenate([node_matrix, node_numeric], axis=1)
     ).contiguous()
+    node_oov = _categorical_oov_summary(
+        node_categories, NODE_CATEGORICAL_FIELDS, encoders["node"]
+    )
 
     edge_pairs: list[list[int]] = []
     edge_categories: list[list[str]] = []
@@ -1293,6 +1321,9 @@ def encode_static_graph(
                 axis=1,
             )
         ).to(torch.float16).contiguous()
+        edge_oov = _categorical_oov_summary(
+            edge_categories, EDGE_CATEGORICAL_FIELDS, encoders["edge"]
+        )
     else:
         edge_index = torch.empty((2, 0), dtype=torch.long)
         categorical_width = sum(
@@ -1302,6 +1333,9 @@ def encode_static_graph(
         edge_attr = torch.empty(
             (0, categorical_width + len(EDGE_NUMERIC_NAMES)),
             dtype=torch.float16,
+        )
+        edge_oov = _categorical_oov_summary(
+            [], EDGE_CATEGORICAL_FIELDS, encoders["edge"]
         )
 
     masks = build_scope_masks_and_dynamic_pragmas(
@@ -1329,6 +1363,10 @@ def encode_static_graph(
                 "analysis_extension_sha256",
                 "memory_dependence_model",
             )
+        },
+        "categorical_oov": {
+            "node": node_oov,
+            "edge": edge_oov,
         },
         "x": x,
         "edge_index": edge_index,
@@ -1801,6 +1839,7 @@ def _write_schema(
             "pipeline_ii": "raw",
             "partition_dimension": "raw",
         },
+        "unknown_category": UNKNOWN_CATEGORY,
         "preprocessed_csv_sha256": _preprocessed_csv_sha256(),
         "node_categorical_fields": list(NODE_CATEGORICAL_FIELDS),
         "node_numeric_fields": NODE_NUMERIC_NAMES,
@@ -1942,7 +1981,7 @@ def get_data_list():
     # Fit MLIR-specific encoders on training graph structure only when an
     # explicit held-out kernel set is configured.  This avoids vocabulary
     # leakage in family-level zero-shot evaluation.  Unknown exact operation
-    # tokens are safely ignored by OneHotEncoder, while coarse operation
+    # tokens are mapped to an explicit OOV feature, while coarse operation
     # families and numeric semantic features remain available.
     configured_holdout_kernels = _kernel_set(
         getattr(FLAGS, "test_kernels", None)
@@ -2145,7 +2184,11 @@ def get_data_list():
                 f"[OK] {kernel}: nodes={graph.number_of_nodes()}, "
                 f"edges={graph.number_of_edges()}, "
                 f"points={len(results)}, pragma_dim="
-                f"{local_pragma_dims[graph_name]}"
+                f"{local_pragma_dims[graph_name]}, "
+                f"node_oov="
+                f"{static_payload['categorical_oov']['node']['unknown_rate']:.4%}, "
+                f"edge_oov="
+                f"{static_payload['categorical_oov']['edge']['unknown_rate']:.4%}"
             )
 
             del graph, static_payload, point_payload

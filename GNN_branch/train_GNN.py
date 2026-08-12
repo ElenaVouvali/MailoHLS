@@ -184,7 +184,24 @@ def compute_validation_selection_score(loss_breakdown, baseline_breakdown):
     return max(ratios.values()), ratios
 
 
+def should_update_qualified_rank(
+    target_ratios, ranking_score, best_score, min_delta
+):
+    """Gate rank selection behind per-target absolute qualification."""
+    ratios = [float(value) for value in target_ratios.values()]
+    ranking_score = float(ranking_score)
+    if not ratios or not all(np.isfinite(value) for value in ratios):
+        raise RuntimeError(f'Invalid target ratios: {target_ratios}')
+    if not np.isfinite(ranking_score):
+        raise RuntimeError(f'Invalid ranking score: {ranking_score}')
+    qualified = all(value < 1.0 for value in ratios)
+    improved = ranking_score > float(best_score) + float(min_delta)
+    return qualified and improved
+
+
 class KernelCenteredDataset(Dataset):
+    """Attach training-kernel centers used only by auxiliary losses."""
+
     def __init__(self, dataset, targets):
         self.dataset = dataset
         values = {
@@ -196,9 +213,18 @@ class KernelCenteredDataset(Dataset):
             sample = dataset[index]
             kernel = _sample_kernel(sample)
             for target in targets:
-                value = float(
-                    _get_y_with_target(sample, target).reshape(-1)[0]
+                data_target = (
+                    'actual_perf'
+                    if FLAGS.encode_log and target == 'perf'
+                    else target
                 )
+                value = float(
+                    _get_y_with_target(sample, data_target).reshape(-1)[0]
+                )
+                if not np.isfinite(value):
+                    raise RuntimeError(
+                        f'Non-finite {data_target} target for {kernel}.'
+                    )
                 values[target][kernel].append(value)
 
         self.centers = {
@@ -213,7 +239,10 @@ class KernelCenteredDataset(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, index):
-        sample = self.dataset[index].clone()
+        # MyOwnDataset constructs a fresh Data wrapper for every access while
+        # reusing the large static tensors, so adding scalar metadata is safe
+        # and avoids cloning an entire graph for every design point.
+        sample = self.dataset[index]
         kernel = _sample_kernel(sample)
         for target, centers in self.centers.items():
             setattr(
@@ -221,6 +250,45 @@ class KernelCenteredDataset(Dataset):
                 f"{target}_center",
                 torch.tensor([centers[kernel]], dtype=torch.float32),
             )
+        return sample
+
+
+class KernelBalancedDataset(Dataset):
+    """Attach weights whose total is equal for every kernel in one split."""
+
+    def __init__(self, dataset, *, unit_loss_weights=False):
+        self.dataset = dataset
+        self.kernels = [
+            _sample_kernel(dataset[index]) for index in range(len(dataset))
+        ]
+        counts = Counter(self.kernels)
+        if not counts:
+            self.weights = []
+            self.sampling_weights = []
+            return
+        scale = len(self.kernels) / len(counts)
+        self.sampling_weights = [
+            1.0 / counts[kernel] for kernel in self.kernels
+        ]
+        self.weights = (
+            [1.0] * len(self.kernels)
+            if unit_loss_weights
+            else [scale / counts[kernel] for kernel in self.kernels]
+        )
+        saver.log_info(
+            'Kernel-balanced split: '
+            f'{len(counts)} kernels, {len(self.kernels)} points, '
+            f'points/kernel={min(counts.values())}..{max(counts.values())}'
+        )
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, index):
+        sample = self.dataset[index]
+        sample.kernel_loss_weight = torch.tensor(
+            [self.weights[index]], dtype=torch.float32
+        )
         return sample
 
 
@@ -482,6 +550,17 @@ def _kernel_at(data, index):
     raise RuntimeError("Could not align a prediction with its kernel name.")
 
 
+def _string_attribute_at(data, name, index):
+    values = getattr(data, name, None)
+    if isinstance(values, (list, tuple)):
+        return str(values[index])
+    if isinstance(values, str) and int(data.num_graphs) == 1:
+        return values
+    raise RuntimeError(
+        f"Could not align string attribute {name!r} with prediction {index}."
+    )
+
+
 def update_csv_dict(csv_dict, data, i, target_name, target_value, out_value):
     '''
         Collects per graph "actual VS predicted" rows into a dict we can later write into a CSV
@@ -700,12 +779,16 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     # checkpoints using a separate target-balanced score.
     val_selection_scores = []
     val_selection_ratios = []
+    val_ranking_scores = []
     gae_train_losses, gae_val_losses, gae_test_losses = [], [], []
     plot_test = False
     best_stopping_loss = float('inf')
     epochs_without_improvement = 0
     initial_selection = None
     initial_ratios = None
+    best_qualified_rank_score = float('-inf')
+    best_qualified_rank_epoch = None
+    best_qualified_rank_ratios = None
 
     if FLAGS.resume_training and exists(ckpt_path):
         st = torch.load(ckpt_path, map_location='cpu')
@@ -724,15 +807,24 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         test_losses  = st.get("test_losses", test_losses)
         val_selection_scores = st.get("val_selection_scores", [])
         val_selection_ratios = st.get("val_selection_ratios", [])
+        val_ranking_scores = st.get("val_ranking_scores", [])
         initial_selection = st.get("initial_selection")
         initial_ratios = st.get("initial_ratios")
+        best_qualified_rank_score = st.get(
+            "best_qualified_rank_score", float('-inf')
+        )
+        best_qualified_rank_epoch = st.get("best_qualified_rank_epoch")
+        best_qualified_rank_ratios = st.get(
+            "best_qualified_rank_ratios"
+        )
         stored_baseline = st.get("baseline_breakdown")
         if val_losses and (
             len(val_selection_scores) != len(val_losses)
             or len(val_selection_ratios) != len(val_losses)
+            or len(val_ranking_scores) != len(val_losses)
         ):
             raise RuntimeError(
-                "Checkpoint predates target-balanced validation selection or "
+                "Checkpoint predates qualified-rank validation selection or "
                 "contains incomplete selection history. Restart this run "
                 "without --resume_training."
             )
@@ -794,8 +886,12 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         total_lrs.extend(lrs)
         if len(val_loader) > 0:
             saver.log_info(f'Epoch {epoch} val')
-            val, loss_dict_val, gae_loss_val, _ = test(
-                val_loader, 'val', model, epoch
+            val, loss_dict_val, gae_loss_val, _, val_metrics = test(
+                val_loader,
+                'val',
+                model,
+                epoch,
+                return_metrics=True,
             )
             val_losses.append(val)
             current_selection_score, target_ratios = (
@@ -809,6 +905,39 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 f'{current_selection_score:.6f}; '
                 f'relative target losses={target_ratios}'
             )
+            ranking_score = compute_macro_ranking_score(val_metrics)
+            val_ranking_scores.append(ranking_score)
+            qualified = all(
+                float(ratio) < 1.0 for ratio in target_ratios.values()
+            )
+            saver.log_info(
+                f'Validation worst-target kernel-macro tau-b: '
+                f'{ranking_score:.6f}; qualified={qualified}'
+            )
+            saver.writer.add_scalar(
+                'val/worst_target_kernel_macro_tau', ranking_score, epoch
+            )
+            if should_update_qualified_rank(
+                target_ratios,
+                ranking_score,
+                best_qualified_rank_score,
+                FLAGS.early_stopping_min_delta,
+            ):
+                best_qualified_rank_score = ranking_score
+                best_qualified_rank_epoch = epoch
+                best_qualified_rank_ratios = dict(target_ratios)
+                if FLAGS.save_model:
+                    torch.save(
+                        model.state_dict(),
+                        join(
+                            saver.model_logdir,
+                            'val_rank_model_state_dict.pth',
+                        ),
+                    )
+                saver.log_info(
+                    f'Saved qualified rank model at epoch {epoch}; '
+                    f'worst-target kernel-macro tau-b={ranking_score:.6f}'
+                )
             saver.writer.add_scalar('val/total_objective', val, epoch)
             plot_test = model_update(
                 model,
@@ -847,6 +976,10 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "val_losses": val_losses,
                 "val_selection_scores": val_selection_scores,
                 "val_selection_ratios": val_selection_ratios,
+                "val_ranking_scores": val_ranking_scores,
+                "best_qualified_rank_score": best_qualified_rank_score,
+                "best_qualified_rank_epoch": best_qualified_rank_epoch,
+                "best_qualified_rank_ratios": best_qualified_rank_ratios,
                 "initial_selection": initial_selection,
                 "initial_ratios": initial_ratios,
                 "test_losses": test_losses,
@@ -882,61 +1015,52 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     if FLAGS.gae_T or FLAGS.gae_P:
         plot_loss_trend(epochs, gae_train_losses, gae_val_losses, [], saver.get_log_dir(), file_name='gae_losses.png')
 
-    # Model-selection runs restore the validation-selected checkpoint. A final
-    # refit has no validation signal and must keep the model after exactly the
-    # epoch count selected by grouped validation.
+    def restore_checkpoint(path, tag):
+        if not exists(path):
+            raise RuntimeError(f'Missing {tag} checkpoint: {path}')
+        model.load_state_dict(torch.load(
+            path,
+            map_location=torch.device('cpu'),
+            weights_only=False,
+        ))
+        model.to(FLAGS.device)
+
+    # A final refit has no validation signal and keeps the model after the
+    # exact epoch count selected by grouped validation.
     if bool(getattr(FLAGS, 'final_refit', False)):
         selection_tag = 'final_refit'
         selection_epoch = len(train_losses) - 1
+        selection_path = join(
+            saver.model_logdir,
+            f'{selection_tag}_model_state_dict.pth',
+        )
         if FLAGS.save_model:
-            torch.save(
-                model.state_dict(),
-                join(
-                    saver.model_logdir,
-                    f'{selection_tag}_model_state_dict.pth',
-                ),
-            )
-    else:
-        selection_tag = 'val' if val_losses else 'train'
-        selection_epoch = (
-            val_selection_scores.index(min(val_selection_scores))
-            if val_selection_scores
-            else train_losses.index(min(train_losses))
+            torch.save(model.state_dict(), selection_path)
+    elif len(val_loader) > 0:
+        absolute_epoch = val_selection_scores.index(
+            min(val_selection_scores)
         )
-    selection_path = join(
-        saver.model_logdir,
-        f'{selection_tag}_model_state_dict.pth',
-    )
-    if len(val_loader) > 0 or len(test_loader) > 0:
-        if not exists(selection_path):
-            raise RuntimeError(
-                f'Missing {selection_tag}-selected checkpoint: {selection_path}'
-            )
-        model.load_state_dict(
-            torch.load(
-                selection_path,
-                map_location=torch.device('cpu'),
-                weights_only=False,
-            )
+        absolute_score = val_selection_scores[absolute_epoch]
+        absolute_ratios = val_selection_ratios[absolute_epoch]
+        absolute_path = join(
+            saver.model_logdir, 'val_model_state_dict.pth'
         )
-        model.to(FLAGS.device)
-
-    if len(val_loader) > 0:
-        best_selection_score = val_selection_scores[selection_epoch]
-        best_target_ratios = val_selection_ratios[selection_epoch]
+        restore_checkpoint(absolute_path, 'absolute-validation-selected')
         saver.log_info(
-            f'Final validation report for selected epoch {selection_epoch}; '
-            f'target-balanced score={best_selection_score:.6f}; '
-            f'relative target losses={best_target_ratios}'
+            f'Final absolute validation report for epoch {absolute_epoch}; '
+            f'target-balanced score={absolute_score:.6f}; '
+            f'relative target losses={absolute_ratios}'
         )
         test(
             val_loader,
             'best_val',
             model,
-            selection_epoch,
+            absolute_epoch,
             test_losses=[],
         )
-        if best_selection_score >= 1.0:
+        if absolute_score >= 1.0 or not all(
+            float(ratio) < 1.0 for ratio in absolute_ratios.values()
+        ):
             raise RuntimeError(
                 'No validation checkpoint beat the deterministic constant '
                 'baseline on every target. The held-out test set will not be '
@@ -944,16 +1068,67 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 'data only.'
             )
 
+        rank_path = join(
+            saver.model_logdir, 'val_rank_model_state_dict.pth'
+        )
+        if best_qualified_rank_epoch is not None:
+            if best_qualified_rank_ratios is None or not all(
+                float(ratio) < 1.0
+                for ratio in best_qualified_rank_ratios.values()
+            ):
+                raise RuntimeError(
+                    'Stored rank checkpoint is not baseline-qualified.'
+                )
+            restore_checkpoint(rank_path, 'qualified-rank-selected')
+            saver.log_info(
+                'Final qualified-rank validation report for epoch '
+                f'{best_qualified_rank_epoch}; worst-target kernel-macro '
+                f'tau-b={best_qualified_rank_score:.6f}; relative target '
+                f'losses={best_qualified_rank_ratios}'
+            )
+            test(
+                val_loader,
+                'best_rank_val',
+                model,
+                best_qualified_rank_epoch,
+                test_losses=[],
+            )
+
+        if FLAGS.checkpoint_objective == 'qualified_rank':
+            if best_qualified_rank_epoch is None:
+                raise RuntimeError(
+                    'No baseline-qualified rank checkpoint was produced. '
+                    'The held-out test set remains locked.'
+                )
+            selection_tag = 'val_rank'
+            selection_epoch = best_qualified_rank_epoch
+            selection_path = rank_path
+        else:
+            selection_tag = 'val'
+            selection_epoch = absolute_epoch
+            selection_path = absolute_path
+
+        # The optional held-out evaluation below must use exactly the declared
+        # checkpoint objective, independent of report ordering above.
+        restore_checkpoint(selection_path, f'{selection_tag}-selected')
+
         if initial_ratios is None:
             raise RuntimeError(
                 'Missing initialized-model validation ratios.'
             )
-        min_delta = float(FLAGS.early_stopping_min_delta)
         saver.log_info(
             "Initialized-model ratios are diagnostic only; "
             "release qualification uses the deterministic constant baseline. "
             f"initialized={initial_ratios}"
         )
+    else:
+        selection_tag = 'train'
+        selection_epoch = train_losses.index(min(train_losses))
+        selection_path = join(
+            saver.model_logdir, 'train_model_state_dict.pth'
+        )
+        if len(test_loader) > 0:
+            restore_checkpoint(selection_path, 'train-selected')
 
     evaluate_test = bool(getattr(FLAGS, 'evaluate_test', False))
     if len(test_loader) > 0 and evaluate_test:
@@ -987,8 +1162,17 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             f'{val_losses.index(min(val_losses))}'
         )
         saver.log_info(
-            'target-balanced selected checkpoint at epoch: '
-            f'{selection_epoch}'
+            'target-balanced absolute checkpoint at epoch: '
+            f'{absolute_epoch}'
+        )
+        if best_qualified_rank_epoch is not None:
+            saver.log_info(
+                'qualified-rank checkpoint at epoch: '
+                f'{best_qualified_rank_epoch}'
+            )
+        saver.log_info(
+            f'active checkpoint objective={FLAGS.checkpoint_objective}; '
+            f'tag={selection_tag}; epoch={selection_epoch}'
         )
     if FLAGS.scheduler is not None:
         plot_lr_trend(total_lrs, FLAGS.epoch_num + 1, saver.get_log_dir())
@@ -1139,7 +1323,13 @@ def inference(dataset, init_pragma_dict=None, model_path=FLAGS.model_path,
         saver.log_info(('Test loss: {:.3f}'.format(test_loss)))
 
 
-def test(loader, tvt, model, epoch, plot_test = False, test_losses = [-1], csv_dict = None, data_list = [], is_train_set=False, is_val_set=False):
+def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
+         csv_dict=None, data_list=None, is_train_set=False,
+         is_val_set=False, return_metrics=False):
+    if test_losses is None:
+        test_losses = [-1]
+    if data_list is None:
+        data_list = []
     model.eval()
     my_softplus = nn.Softplus()
     inference_loss, correct, total, count_data = 0, 0, 0, 1
@@ -1152,6 +1342,7 @@ def test(loader, tvt, model, epoch, plot_test = False, test_losses = [-1], csv_d
             'physical_true': [],
             'physical_pred': [],
             'kernel': [],
+            'point_key': [],
             'sigma_mu': [],
             'sigma+mu': [],
             'sigma': [],
@@ -1206,6 +1397,9 @@ def test(loader, tvt, model, epoch, plot_test = False, test_losses = [-1], csv_d
                     points_dict[target_name]['kernel'].append(
                         _kernel_at(data, i)
                     )
+                    points_dict[target_name]['point_key'].append(
+                        _string_attribute_at(data, 'key', i)
+                    )
 
 
     if FLAGS.task != 'class' and FLAGS.plot_pred_points and tvt == 'test' and (
@@ -1232,26 +1426,55 @@ def test(loader, tvt, model, epoch, plot_test = False, test_losses = [-1], csv_d
                 f"MAPE: {row['mape']*100:.2f}% | tau-b: "
                 f"{row['tau']:.4f}"
             )
-        if tvt in {'best_val', 'test'}:
+        if tvt in {'best_val', 'best_rank_val', 'test'}:
             metrics_path = join(
                 saver.model_logdir, f'{tvt}_physical_metrics.csv'
             )
             df.to_csv(metrics_path, index=False)
             saver.log_info(f'Wrote physical-unit metrics to {metrics_path}')
+            prediction_rows = []
+            for target_name, values in points_dict.items():
+                for index, kernel in enumerate(values['kernel']):
+                    actual_log2, predicted_log2 = values['pred'][index]
+                    prediction_rows.append({
+                        'target': target_name,
+                        'kernel': kernel,
+                        'point_key': values['point_key'][index],
+                        'actual_log2': actual_log2,
+                        'predicted_log2': predicted_log2,
+                        'actual_physical': values['physical_true'][index],
+                        'predicted_physical': values['physical_pred'][index],
+                    })
+            predictions_path = join(
+                saver.model_logdir, f'{tvt}_predictions.csv'
+            )
+            pd.DataFrame(prediction_rows).to_csv(
+                predictions_path, index=False
+            )
+            saver.log_info(
+                f'Wrote point predictions to {predictions_path}'
+            )
 
     if FLAGS.task == 'regression':
         if 'inf' in FLAGS.subtask:
             _report_rmse_etc(points_dict, f'epoch {epoch}:', True)
         example_count = len(loader.dataset)
-        return (
+        result = (
             total / example_count,
             {key: v / example_count for key, v in loss_dict.items()},
             gae_loss,
             inference_loss / max(1, count_data) * len(target_list),
         )
+        return (*result, df) if return_metrics else result
     else:
         if 'inf' in FLAGS.subtask: report_class_loss(points_dict)
-        return 1 - correct / total, {key: v / len(loader) for key, v in loss_dict.items()}, gae_loss, 0
+        result = (
+            1 - correct / total,
+            {key: v / len(loader) for key, v in loss_dict.items()},
+            gae_loss,
+            0,
+        )
+        return (*result, None) if return_metrics else result
 
 
 def report_class_loss(points_dict):
@@ -1364,15 +1587,19 @@ def _report_rmse_etc(points_dict, label, print_result=True):
 
 
 def compute_macro_ranking_score(metrics_df):
-    rows = metrics_df[
-        metrics_df["aggregation"] == "kernel_macro"
-    ]
-    taus = np.nan_to_num(
-        rows["tau"].to_numpy(dtype=float),
+    """Return the worst target's equal-kernel mean Kendall tau-b."""
+    rows = metrics_df[metrics_df['aggregation'] == 'kernel'].copy()
+    if rows.empty:
+        raise RuntimeError('Missing per-kernel rows in metrics table.')
+    rows['tau'] = np.nan_to_num(
+        rows['tau'].to_numpy(dtype=float),
         nan=0.0,
     )
-
-    if rows.empty:
-        raise RuntimeError('Missing kernel_macro rows in metrics table.')
-    
-    return float(np.min(taus))
+    per_target = rows.groupby('target', sort=True)['tau'].mean()
+    expected_targets = len(set_target_list()[0])
+    if len(per_target) != expected_targets:
+        raise RuntimeError(
+            'Expected one kernel-macro ranking score per model target, got '
+            f'{len(per_target)} for {expected_targets} targets.'
+        )
+    return float(per_target.min())
