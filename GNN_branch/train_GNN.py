@@ -1313,29 +1313,40 @@ def _report_rmse_etc(points_dict, label, print_result=True):
                 index for index, value in enumerate(kernels)
                 if value == kernel
             ]
-            per_kernel.append(metrics(
+            kernel_metrics = metrics(
                 [true_values[index] for index in indices],
                 [predicted_values[index] for index in indices],
-            ))
-        macro = {
-            name: float(np.nanmean([item[name] for item in per_kernel]))
-            for name in ('mape', 'rmse', 'mse', 'mae', 'max_err', 'tau')
-        }
+            )
+            per_kernel.append(kernel_metrics)
+            rows.append({
+                'target': physical_target,
+                'aggregation': 'kernel',
+                'kernel': kernel,
+                'samples': len(indices),
+                'kernels': 1,
+                **kernel_metrics,
+            })
 
-        kernel_metrics = metrics(
-            [true_values[index] for index in indices],
-            [predicted_values[index] for index in indices],
-        )
+        macro = {}
+        for name in ('mape', 'rmse', 'mse', 'mae', 'max_err', 'tau'):
+            finite_values = [
+                item[name] for item in per_kernel
+                if np.isfinite(item[name])
+            ]
+            macro[name] = (
+                float(np.mean(finite_values))
+                if finite_values else float('nan')
+            )
 
         rows.append({
-            "target": physical_target,
-            "aggregation": "kernel",
-            "kernel": kernel,
-            "samples": len(indices),
-            "kernels": 1,
-            **kernel_metrics,
+            'target': physical_target,
+            'aggregation': 'kernel_macro',
+            'kernel': '',
+            'samples': len(true_values),
+            'kernels': len(per_kernel),
+            **macro,
         })
-
+    
     # Latency and area have different units, so there is deliberately no
     # combined "tot/avg" error row. Report both targets independently.
     df = pd.DataFrame(rows)
@@ -1353,4 +1364,8 @@ def compute_macro_ranking_score(metrics_df):
         rows["tau"].to_numpy(dtype=float),
         nan=0.0,
     )
+
+    if rows.empty:
+        raise RuntimeError('Missing kernel_macro rows in metrics table.')
+    
     return float(np.min(taus))
