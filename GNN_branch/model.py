@@ -25,7 +25,12 @@ class Net(nn.Module):
                  target = FLAGS.target, target_stats = None): # in_channels: node feature dimension (num_features=153) , edge_dim: edge feature dimension (335) , D : hidden width (64)
           super(Net, self).__init__()
 
-          self.MLP_version = 'multi_obj'  if len(FLAGS.target) > 1 else  'single_obj' # single-head MLP
+          requested_targets = (
+              list(target) if isinstance(target, (list, tuple)) else [target]
+          )
+          self.MLP_version = (
+              "multi_obj" if len(requested_targets) > 1 else "single_obj"
+          )
           # gnn_type determines the graph message passing operator
           if FLAGS.gnn_type == 'gat':
               conv_class = GATConv
@@ -123,13 +128,10 @@ class Net(nn.Module):
                   self.glob_icmp = MyGlobalAttention(self.gate_nn_icmp, None)
 
 
-          if 'regression' in self.task:
-              _target_list = target
-              if not isinstance(FLAGS.target, list):
-                  _target_list = [target]
-              self.target_list = [t for t in _target_list]
+          if "regression" in self.task:
+              self.target_list = requested_targets
           else:
-              self.target_list = ['perf']
+              self.target_list = ["perf"]
 
           # Target statistics are fitted on training kernels only.  They are
           # buffers so checkpoints carry the exact transform used by the

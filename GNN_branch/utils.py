@@ -579,6 +579,25 @@ class MLP_multi_objective(nn.Module):
         torch.nn.init.xavier_normal_(m.weight, gain=nn.init.calculate_gain('relu'))
         return m
 
+    def test_multiobjective_final_layer_is_linear():
+        model = MLP_multi_objective(
+            input_dim=1,
+            output_dim=1,
+            objectives=["perf"],
+            hidden_channels=[2],
+            num_common_lyr=0,
+            activation_type="elu",
+        )
+
+        with torch.no_grad():
+            for layer in model.MLP_heads["perf"]:
+                layer.weight.zero_()
+                layer.bias.zero_()
+            model.MLP_heads["perf"][-1].bias.fill_(-2.0)
+
+        output = model(torch.zeros(1, 1))["perf"]
+        assert torch.allclose(output, torch.tensor([[-2.0]]))
+
     def forward(self, x):
         layer_inputs = [x]
         for layer in self.layers_common:
@@ -589,8 +608,11 @@ class MLP_multi_objective(nn.Module):
         out_MLP = {}
         for obj in self.objectives:
             out_MLP[obj] = out_common_layers
-            for layer_ind, layer in enumerate(self.MLP_heads[obj]):
-                if layer_ind + self.num_common_lyr == len(self.layer_channels) - 1:
+            head_layers = self.MLP_heads[obj]
+
+            for layer_ind, layer in enumerate(head_layers):
+                if layer_ind == len(head_layers) - 1:
+                    # Regression output must remain unbounded.
                     out_MLP[obj] = layer(out_MLP[obj])
                     if self.bn:
                         out_MLP[obj] = self.bn(out_MLP[obj])

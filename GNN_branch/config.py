@@ -189,7 +189,14 @@ parser.add_argument('--edge_dim', default=edge_dim)
 multi_target = ['perf', 'area'] #, 'util-LUT', 'util-FF', 'util-DSP', 'util-BRAM']
 if SUBTASK == 'class':
     multi_target = ['perf']
-parser.add_argument('--target', default=multi_target)
+    
+parser.add_argument(
+    "--target",
+    nargs="+",
+    choices=TARGETS,
+    default=multi_target,
+    help="Targets to predict, for example: --target perf area",
+)
 parser.add_argument('--MLP_common_lyr', default=0)
 gnn_type = 'transformer'
 parser.add_argument('--gnn_type', type=str, default=gnn_type)
