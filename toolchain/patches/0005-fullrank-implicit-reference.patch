@@ -1,0 +1,135 @@
+From d693c9c2a20378311e6e1360f8afb064e2a72633 Mon Sep 17 00:00:00 2001
+From: Your Name <your.email@example.com>
+Date: Sun, 19 Jul 2026 12:48:53 +0300
+Subject: [PATCH] cgeist: flatten full-rank arrays of implicit-reference
+ elements
+
+---
+ tools/cgeist/Lib/clang-mlir.cc                | 53 +++++++++++--------
+ .../fullrank-implicit-reference-array.cpp     | 30 +++++++++++
+ 2 files changed, 60 insertions(+), 23 deletions(-)
+ create mode 100644 tools/cgeist/Test/Verification/fullrank-implicit-reference-array.cpp
+
+diff --git a/tools/cgeist/Lib/clang-mlir.cc b/tools/cgeist/Lib/clang-mlir.cc
+index b944cbda2e04..c2e4a1eb2ac4 100644
+--- a/tools/cgeist/Lib/clang-mlir.cc
++++ b/tools/cgeist/Lib/clang-mlir.cc
+@@ -67,6 +67,17 @@ static cl::opt<bool>
+     CombinedStructABI("struct-abi", cl::init(true),
+                       cl::desc("Use literal LLVM ABI for structs"));
+ 
++static MemRefType prependMemRefShape(ArrayRef<int64_t> outerShape,
++                                     MemRefType elementType) {
++  SmallVector<int64_t, 4> shape(outerShape.begin(), outerShape.end());
++  shape.append(elementType.getShape().begin(), elementType.getShape().end());
++  // An expanded-rank memref needs a fresh identity layout; a layout for the
++  // lower-rank element memref cannot be reused for the combined shape.
++  return MemRefType::get(shape, elementType.getElementType(),
++                         MemRefLayoutAttrInterface(),
++                         elementType.getMemorySpace());
++}
++
+ ValueCategory MLIRScanner::createComplexFloat(mlir::Location loc,
+                                               mlir::Value real,
+                                               mlir::Value imag,
+@@ -5494,26 +5505,27 @@ mlir::Type MLIRASTConsumer::getMLIRType(clang::QualType qt, bool *implicitRef,
+   }
+ 
+   if (auto DT = dyn_cast<clang::DecayedType>(qt)) {
++    // Recover all dimensions of constant array parameters before Clang's array
++    // decay erases the outermost bound.
++    if (memRefABI && memRefFullRank) {
++      clang::QualType origTy = DT->getOriginalType();
++      if (origTy->isConstantArrayType()) {
++        SmallVector<int64_t, 4> shape;
++        clang::QualType elemTy;
++        getConstantArrayShapeAndElemType(origTy, shape, elemTy);
++
++        bool elementIsImplicitRef = false;
++        mlir::Type elementType =
++            getMLIRType(elemTy, &elementIsImplicitRef, allowMerge);
++        if (elementIsImplicitRef)
++          return prependMemRefShape(shape, cast<MemRefType>(elementType));
++        return MemRefType::get(shape, elementType);
++      }
++    }
++
+     bool assumeRef = false;
+     auto mlirty = getMLIRType(DT->getOriginalType(), &assumeRef, allowMerge);
+     if (memRefABI && assumeRef) {
+-      // Constant array types like `int A[30][20]` will be converted to LLVM
+-      // type `[20 x i32]* %0`, which has the outermost dimension size erased,
+-      // and we can only recover to `memref<?x20xi32>` from there. This prevents
+-      // us from doing more comprehensive analysis. Here we specifically handle
+-      // this case by unwrapping the clang-adjusted type, to get the
+-      // corresponding ConstantArrayType with the full dimensions.
+-      if (memRefFullRank) {
+-        clang::QualType origTy = DT->getOriginalType();
+-        if (origTy->isConstantArrayType()) {
+-          SmallVector<int64_t, 4> shape;
+-          clang::QualType elemTy;
+-          getConstantArrayShapeAndElemType(origTy, shape, elemTy);
+-
+-          return mlir::MemRefType::get(shape, getMLIRType(elemTy));
+-        }
+-      }
+-
+       // If -memref-fullrank is unset or it cannot be fulfilled.
+       auto mt = dyn_cast<MemRefType>(mlirty);
+       auto shape2 = std::vector<int64_t>(mt.getShape());
+@@ -5662,14 +5674,9 @@ mlir::Type MLIRASTConsumer::getMLIRType(clang::QualType qt, bool *implicitRef,
+     if (auto CAT = dyn_cast<clang::ConstantArrayType>(AT))
+       size = CAT->getSize().getZExtValue();
+     if (memRefABI && subRef) {
+-      auto mt = ET.cast<MemRefType>();
+-      auto shape2 = std::vector<int64_t>(mt.getShape());
+-      shape2.insert(shape2.begin(), size);
+       if (implicitRef)
+         *implicitRef = true;
+-      return mlir::MemRefType::get(shape2, mt.getElementType(),
+-                                   MemRefLayoutAttrInterface(),
+-                                   mt.getMemorySpace());
++      return prependMemRefShape({size}, ET.cast<MemRefType>());
+     }
+     if (!memRefABI || !allowMerge ||
+         (!CStyleMemRef &&
+diff --git a/tools/cgeist/Test/Verification/fullrank-implicit-reference-array.cpp b/tools/cgeist/Test/Verification/fullrank-implicit-reference-array.cpp
+new file mode 100644
+index 000000000000..c02bcd0b415f
+--- /dev/null
++++ b/tools/cgeist/Test/Verification/fullrank-implicit-reference-array.cpp
+@@ -0,0 +1,30 @@
++// RUN: cgeist %s --function=copy_records -S -O0 -memref-fullrank --print-debug-info | FileCheck %s --implicit-check-not="memref<8xmemref" --implicit-check-not="memref<?xmemref"
++
++struct Record {
++  long word;
++
++  Record &operator=(const Record &other) {
++    word = other.word;
++    return *this;
++  }
++};
++
++extern "C" void copy_records(Record input[8], Record output[8]) {
++  Record temporary;
++  temporary = input[3];
++  output[4] = temporary;
++}
++
++// CHECK-LABEL: func.func @copy_records(
++// CHECK-SAME: %[[INPUT:.*]]: memref<8x1xi64> loc("{{.*}}fullrank-implicit-reference-array.cpp":{{[0-9]+}}:{{[0-9]+}}),
++// CHECK-SAME: %[[OUTPUT:.*]]: memref<8x1xi64> loc("{{.*}}fullrank-implicit-reference-array.cpp":{{[0-9]+}}:{{[0-9]+}}))
++// CHECK: %[[TEMP:.*]] = memref.cast {{.*}} : memref<1x1xi64> to memref<?x1xi64> loc(#[[TEMP_LOC:loc[0-9]+]])
++// CHECK: %[[INPUT_REF:.*]] = "polygeist.subindex"(%[[INPUT]], {{.*}}) : (memref<8x1xi64>, index) -> memref<?x1xi64> loc(#[[INPUT_LOC:loc[0-9]+]])
++// CHECK: call @_ZN6RecordaSERKS_(%[[TEMP]], %[[INPUT_REF]]) : (memref<?x1xi64>, memref<?x1xi64>) -> memref<?x1xi64> loc(#[[INPUT_CALL_LOC:loc[0-9]+]])
++// CHECK: %[[OUTPUT_REF:.*]] = "polygeist.subindex"(%[[OUTPUT]], {{.*}}) : (memref<8x1xi64>, index) -> memref<?x1xi64> loc(#[[OUTPUT_LOC:loc[0-9]+]])
++// CHECK: call @_ZN6RecordaSERKS_(%[[OUTPUT_REF]], %[[TEMP]]) : (memref<?x1xi64>, memref<?x1xi64>) -> memref<?x1xi64> loc(#[[OUTPUT_CALL_LOC:loc[0-9]+]])
++// CHECK-DAG: #[[TEMP_LOC]] = loc("{{.*}}fullrank-implicit-reference-array.cpp":{{[0-9]+}}:{{[0-9]+}})
++// CHECK-DAG: #[[INPUT_LOC]] = loc("{{.*}}fullrank-implicit-reference-array.cpp":{{[0-9]+}}:{{[0-9]+}})
++// CHECK-DAG: #[[INPUT_CALL_LOC]] = loc("{{.*}}fullrank-implicit-reference-array.cpp":{{[0-9]+}}:{{[0-9]+}})
++// CHECK-DAG: #[[OUTPUT_LOC]] = loc("{{.*}}fullrank-implicit-reference-array.cpp":{{[0-9]+}}:{{[0-9]+}})
++// CHECK-DAG: #[[OUTPUT_CALL_LOC]] = loc("{{.*}}fullrank-implicit-reference-array.cpp":{{[0-9]+}}:{{[0-9]+}})
+-- 
+2.25.1
+
+

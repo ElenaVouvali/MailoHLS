@@ -65,16 +65,39 @@ python -m pip install -r requirements.txt
 
 `requirements.txt` records the development environment. 
 
-<!-- PyTorch/CUDA wheels may need to be selected for the local GPU before installing the remaining packages.
+<!-- PyTorch/CUDA wheels may need to be selected for the local GPU before installing the remaining packages. -->
 
-MLIR graph generation additionally requires the project’s patched Polygeist
-build, Python 3.11 MLIR bindings, and `_mailohls_analysis` extension. The PyPI
-package named `mlir` is unrelated. Point all commands at one build:
+### Reproducible compiler toolchain
+
+MLIR graph generation requires the pinned, patched Polygeist compiler, its
+Python 3.11 MLIR bindings, and the CMake-built `_mailohls_analysis` extension.
+The PyPI package named `mlir` is unrelated. The complete source lock and patch
+chain live in [`toolchain/`](toolchain/): `lock.env` pins Polygeist and its
+`llvm-project` submodule, `SHA256SUMS` authenticates the ordered patches, and
+the scripts never install or copy a prebuilt shared object.
+
+Install Python 3.11 and `pybind11==2.10.3`, then build into paths of your choice:
 
 ```bash
-export POLYGEIST_BUILD="$HOME/tools/Polygeist/build-mailohls-assertions"
+python3.11 -m venv .toolchain-python
+.toolchain-python/bin/pip install pybind11==2.10.3
+
+PYTHON="$PWD/.toolchain-python/bin/python" \
+  toolchain/bootstrap.sh ../Polygeist-mailohls ../Polygeist-mailohls-build
+```
+
+The build is Release-with-assertions, targets the host, enables Clang, MLIR,
+and MLIR Python bindings, and disables optional CUDA, ROCm, and Polymer support.
+Override `CC`, `CXX`, `PYTHON`, or `BUILD_JOBS` when necessary; missing or
+incompatible tools produce an actionable error. Versions used for the locked
+validation are recorded in `toolchain/lock.env`.
+
+Point commands at the resulting build:
+
+```bash
+export POLYGEIST_BUILD="$PWD/../Polygeist-mailohls-build"
 export CGEIST="$POLYGEIST_BUILD/bin/cgeist"
-export MLIR_PYTHON="$HOME/.mlir-python311/bin/python"
+export MLIR_PYTHON="$PWD/.toolchain-python/bin/python"
 export MLIR_PYTHON_ROOT="$POLYGEIST_BUILD/tools/mlir/python_packages/mlir_core"
 export PYTHONHASHSEED=0
 export PYTHONPATH="$MLIR_PYTHON_ROOT"
@@ -86,12 +109,20 @@ from mlir._mlir_libs import _mailohls_analysis
 print("MLIR bindings:", ir.__file__)
 print("MailoHLS analysis:", _mailohls_analysis.__file__)
 PY 
-``` 
+```
 
-The compiler-side action preservation, Mem2Reg correction, and analysis binding
-are currently maintained in the associated Polygeist working tree. A release
-artifact must pin or publish that patch set; the Python repository alone cannot
-reproduce graph generation. -->
+Run the full compiler regressions and an end-to-end graph smoke test with:
+
+```bash
+PYTHON="$MLIR_PYTHON" toolchain/verify.sh \
+  ../Polygeist-mailohls "$POLYGEIST_BUILD" ./toolchain-smoke
+```
+
+This rechecks every patch against the pinned base, imports the native analysis
+module, runs its targeted tests plus `check-cgeist` and
+`check-polygeist-opt`, and generates a representative `bbgemm.gexf`. See
+[`toolchain/README.md`](toolchain/README.md) for the patch inventory and exact
+lock details.
 
 ## 2. Preprocess HLS measurements
 

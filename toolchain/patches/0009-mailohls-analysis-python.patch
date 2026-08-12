@@ -1,0 +1,741 @@
+diff --git a/python/CMakeLists.txt b/python/CMakeLists.txt
+index 40339f6251fa..5c592f94851a 100644
+--- a/python/CMakeLists.txt
++++ b/python/CMakeLists.txt
+@@ -18,6 +18,13 @@ declare_mlir_python_extension(PolygeistPythonExtension
+     PolygeistPythonExtension.cpp
+ )
+ 
++declare_mlir_python_extension(MailoHLSAnalysisPythonExtension
++  MODULE_NAME _mailohls_analysis
++  ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
++  SOURCES
++    MailoHLSAnalysis.cpp
++)
++
+ # Extend the matching Python CAPI DSO with Polygeist's registration entry point
+ # and its shared implementation. This avoids linking a second MLIR runtime into
+ # the native module and keeps every context/type object in one MLIR instance.
+@@ -37,6 +44,7 @@ add_mlir_python_modules(PolygeistPythonModules
+   INSTALL_PREFIX "python_packages/mlir_core/mlir"
+   DECLARED_SOURCES
+     PolygeistPythonExtension
++    MailoHLSAnalysisPythonExtension
+   COMMON_CAPI_LINK_LIBS
+     MLIRPythonCAPI
+ )
+@@ -50,3 +58,12 @@ add_custom_target(check-polygeist-python
+   DEPENDS PolygeistPythonModules
+   VERBATIM
+ )
++
++add_custom_target(check-mailohls-analysis
++  COMMAND "${CMAKE_COMMAND}" -E env
++    "PYTHONPATH=${LLVM_BINARY_DIR}/tools/mlir/python_packages/mlir_core"
++    "${Python3_EXECUTABLE}" -S
++    "${CMAKE_CURRENT_SOURCE_DIR}/test_mailohls_analysis.py"
++  DEPENDS PolygeistPythonModules
++  VERBATIM
++)
+diff --git a/python/MailoHLSAnalysis.cpp b/python/MailoHLSAnalysis.cpp
+new file mode 100644
+index 000000000000..235961a68d0d
+--- /dev/null
++++ b/python/MailoHLSAnalysis.cpp
+@@ -0,0 +1,534 @@
++//===- MailoHLSAnalysis.cpp - Read-only MailoHLS MLIR analysis -----------===//
++
++#include "mlir-c/Bindings/Python/Interop.h"
++#include "mlir-c/IR.h"
++#include "mlir/Analysis/AliasAnalysis.h"
++#include "mlir/Bindings/Python/PybindAdaptors.h"
++#include "mlir/CAPI/IR.h"
++#include "mlir/Dialect/Affine/Analysis/AffineAnalysis.h"
++#include "mlir/Dialect/Affine/Analysis/LoopAnalysis.h"
++#include "mlir/Dialect/Affine/IR/AffineOps.h"
++#include "mlir/Dialect/Bufferization/Transforms/BufferViewFlowAnalysis.h"
++#include "mlir/Dialect/Func/IR/FuncOps.h"
++#include "mlir/Dialect/MemRef/IR/MemRef.h"
++#include "mlir/IR/BuiltinOps.h"
++#include "mlir/IR/SymbolTable.h"
++#include "mlir/IR/Verifier.h"
++#include "mlir/Interfaces/SideEffectInterfaces.h"
++#include "llvm/ADT/SmallVector.h"
++#include "llvm/ADT/STLExtras.h"
++#include "llvm/Support/raw_ostream.h"
++
++#include <algorithm>
++#include <map>
++#include <optional>
++#include <set>
++#include <string>
++#include <tuple>
++#include <vector>
++
++namespace py = pybind11;
++using namespace mlir;
++
++namespace {
++
++constexpr const char *kSchema = "mailohls-native-analysis-v3";
++
++struct Identity {
++  std::string function;
++  int64_t ordinal;
++  std::string opName;
++};
++
++struct Access {
++  Operation *op;
++  Value storage;
++  std::string kind;
++  Identity id;
++  bool affineCompatible;
++};
++
++static py::dict identityDict(const Identity &id) {
++  py::dict result;
++  result["function"] = id.function;
++  result["ordinal"] = id.ordinal;
++  result["op_name"] = id.opName;
++  return result;
++}
++
++static std::string printOperation(Operation *op) {
++  std::string text;
++  llvm::raw_string_ostream os(text);
++  op->print(os);
++  return text;
++}
++
++static std::string valueKey(
++    Value value, const std::map<Operation *, Identity> &identities,
++    const std::map<Block *, std::pair<std::string, unsigned>> &blocks) {
++  if (auto result = dyn_cast<OpResult>(value)) {
++    auto it = identities.find(result.getOwner());
++    if (it == identities.end())
++      return "unidentified-result";
++    const Identity &id = it->second;
++    return id.function + ":op" + std::to_string(id.ordinal) + ":r" +
++           std::to_string(result.getResultNumber());
++  }
++  auto arg = cast<BlockArgument>(value);
++  auto it = blocks.find(arg.getOwner());
++  if (it == blocks.end())
++    return "unidentified-argument";
++  return it->second.first + ":b" + std::to_string(it->second.second) + ":a" +
++         std::to_string(arg.getArgNumber());
++}
++
++static std::vector<Operation *> collectFunctions(Operation *module) {
++  std::vector<Operation *> functions;
++  for (Region &region : module->getRegions())
++    for (Block &block : region)
++      for (Operation &op : block)
++        if (isa<func::FuncOp>(op))
++          functions.push_back(&op);
++  std::sort(functions.begin(), functions.end(), [](Operation *a, Operation *b) {
++    return cast<func::FuncOp>(a).getSymName() <
++           cast<func::FuncOp>(b).getSymName();
++  });
++  return functions;
++}
++
++static void collectPreorder(
++    Operation *op, const std::string &function, int64_t &ordinal,
++    unsigned &blockOrdinal, std::map<Operation *, Identity> &identities,
++    std::map<Block *, std::pair<std::string, unsigned>> &blocks,
++    std::vector<Operation *> &ordered) {
++  for (Region &region : op->getRegions()) {
++    for (Block &block : region) {
++      blocks[&block] = {function, blockOrdinal++};
++      for (Operation &nested : block) {
++        identities[&nested] = {function, ordinal++,
++                               nested.getName().getStringRef().str()};
++        ordered.push_back(&nested);
++        collectPreorder(&nested, function, ordinal, blockOrdinal, identities,
++                        blocks, ordered);
++      }
++    }
++  }
++}
++
++static bool sharesLoopAncestor(Operation *lhs, Operation *rhs) {
++  std::set<Operation *> lhsLoops;
++  for (Operation *parent = lhs->getParentOp(); parent;
++       parent = parent->getParentOp()) {
++    StringRef name = parent->getName().getStringRef();
++    if (name == "affine.for" || name == "scf.for" || name == "scf.while")
++      lhsLoops.insert(parent);
++  }
++  for (Operation *parent = rhs->getParentOp(); parent;
++       parent = parent->getParentOp())
++    if (lhsLoops.count(parent))
++      return true;
++  return false;
++}
++
++static std::string effectName(MemoryEffects::Effect *effect) {
++  if (isa<MemoryEffects::Read>(effect))
++    return "read";
++  if (isa<MemoryEffects::Write>(effect))
++    return "write";
++  if (isa<MemoryEffects::Allocate>(effect))
++    return "allocate";
++  if (isa<MemoryEffects::Free>(effect))
++    return "free";
++  return "unknown";
++}
++
++static std::string aliasName(AliasResult result) {
++  if (result.isNo())
++    return "no_alias";
++  if (result.isMust())
++    return "must_alias";
++  if (result.isPartial())
++    return "partial_alias";
++  return "may_alias";
++}
++
++static std::vector<affine::AffineForOp> affineParents(Operation *op) {
++  std::vector<affine::AffineForOp> result;
++  for (Operation *p = op->getParentOp(); p; p = p->getParentOp())
++    if (auto loop = dyn_cast<affine::AffineForOp>(p))
++      result.push_back(loop);
++  std::reverse(result.begin(), result.end());
++  return result;
++}
++
++static py::object optionalInt(std::optional<int64_t> value) {
++  if (!value)
++    return py::none();
++  return py::int_(*value);
++}
++
++static py::dict analyze(py::object operationObject) {
++  // Keep operationObject alive for this complete synchronous call. Obtain the
++  // public capsule explicitly so malformed objects/capsules fail before any
++  // native dereference.
++  if (!py::hasattr(operationObject, MLIR_PYTHON_CAPI_PTR_ATTR))
++    throw py::type_error("expected mlir.ir.Operation with _CAPIPtr");
++  py::object capsule = operationObject.attr(MLIR_PYTHON_CAPI_PTR_ATTR);
++  if (!PyCapsule_CheckExact(capsule.ptr()) ||
++      !PyCapsule_IsValid(capsule.ptr(), MLIR_PYTHON_CAPSULE_OPERATION))
++    throw py::type_error("invalid MlirOperation capsule");
++  MlirOperation cOperation = mlirPythonCapsuleToOperation(capsule.ptr());
++  if (mlirOperationIsNull(cOperation))
++    throw py::value_error("null MlirOperation capsule");
++  Operation *module = unwrap(cOperation);
++  if (!isa<ModuleOp>(module) || module->getParentOp())
++    throw py::value_error("analyze_module requires a top-level builtin.module");
++
++  std::string before = printOperation(module);
++  bool verifiedBefore = succeeded(mlir::verify(module));
++
++  std::map<Operation *, Identity> identities;
++  std::map<Block *, std::pair<std::string, unsigned>> blocks;
++  std::vector<Operation *> ordered;
++  unsigned blockOrdinal = 0;
++  for (Operation *functionOp : collectFunctions(module)) {
++    std::string name = cast<func::FuncOp>(functionOp).getSymName().str();
++    int64_t ordinal = 0;
++    collectPreorder(functionOp, name, ordinal, blockOrdinal, identities, blocks,
++                    ordered);
++  }
++
++  py::list operations;
++  py::list effects;
++  py::list loops;
++  std::vector<Access> accesses;
++  std::vector<Value> storageValues;
++  int64_t effectsWithEffects = 0;
++  int64_t effectsKnownNoEffect = 0;
++  int64_t effectsUnknown = 0;
++
++  for (Operation *op : ordered) {
++    const Identity &id = identities.at(op);
++    operations.append(identityDict(id));
++
++    py::dict effectRecord = identityDict(id);
++    py::list effectList;
++    if (auto iface = dyn_cast<MemoryEffectOpInterface>(op)) {
++      SmallVector<MemoryEffects::EffectInstance> nativeEffects;
++      iface.getEffects(nativeEffects);
++      struct NormalizedEffect {
++        std::string kind;
++        std::string value;
++        std::optional<unsigned> operandIndex;
++      };
++      std::vector<NormalizedEffect> normalized;
++      for (const auto &effect : nativeEffects) {
++        Value effectValue = effect.getValue();
++        std::optional<unsigned> operandIndex;
++        if (effectValue)
++          for (auto [index, operand] : llvm::enumerate(op->getOperands()))
++            if (operand == effectValue) {
++              operandIndex = index;
++              break;
++            }
++        normalized.push_back(
++            {effectName(effect.getEffect()),
++             effectValue ? valueKey(effectValue, identities, blocks) : "",
++             operandIndex});
++      }
++      std::sort(normalized.begin(), normalized.end(),
++                [](const NormalizedEffect &lhs,
++                   const NormalizedEffect &rhs) {
++                  return std::tie(lhs.kind, lhs.value, lhs.operandIndex) <
++                         std::tie(rhs.kind, rhs.value, rhs.operandIndex);
++                });
++      for (const auto &effect : normalized) {
++        py::dict item;
++        item["kind"] = effect.kind;
++        if (!effect.value.empty())
++          item["value"] = effect.value;
++        if (effect.operandIndex)
++          item["operand_index"] = *effect.operandIndex;
++        effectList.append(item);
++      }
++      if (nativeEffects.empty()) {
++        effectRecord["status"] = "known_no_effect";
++        ++effectsKnownNoEffect;
++      } else {
++        effectRecord["status"] = "known";
++        ++effectsWithEffects;
++      }
++    } else {
++      effectRecord["status"] = "unknown";
++      ++effectsUnknown;
++    }
++    effectRecord["effects"] = effectList;
++    effects.append(effectRecord);
++
++    if (auto loop = dyn_cast<affine::AffineForOp>(op)) {
++      py::dict record = identityDict(id);
++      if (auto tripCount = affine::getConstantTripCount(loop)) {
++        record["status"] = "known";
++        record["trip_count"] = *tripCount;
++      } else {
++        record["status"] = "unknown";
++      }
++      loops.append(record);
++    }
++
++    if (isa<affine::AffineReadOpInterface,
++            affine::AffineWriteOpInterface>(op)) {
++      affine::MemRefAccess access(op);
++      std::string kind =
++          isa<affine::AffineWriteOpInterface>(op) ? "write" : "read";
++      accesses.push_back({op, access.memref, kind, id, true});
++      if (std::find(storageValues.begin(), storageValues.end(), access.memref) ==
++          storageValues.end())
++        storageValues.push_back(access.memref);
++    } else if (auto load = dyn_cast<memref::LoadOp>(op)) {
++      accesses.push_back({op, load.getMemRef(), "read", id, false});
++      if (std::find(storageValues.begin(), storageValues.end(),
++                    load.getMemRef()) == storageValues.end())
++        storageValues.push_back(load.getMemRef());
++    } else if (auto store = dyn_cast<memref::StoreOp>(op)) {
++      accesses.push_back({op, store.getMemRef(), "write", id, false});
++      if (std::find(storageValues.begin(), storageValues.end(),
++                    store.getMemRef()) == storageValues.end())
++        storageValues.push_back(store.getMemRef());
++    }
++  }
++
++  auto rememberStorage = [&](Value value) {
++    if (!isa<BaseMemRefType>(value.getType()))
++      return;
++    if (std::find(storageValues.begin(), storageValues.end(), value) ==
++        storageValues.end())
++      storageValues.push_back(value);
++  };
++  for (const auto &[block, ignored] : blocks)
++    for (BlockArgument argument : block->getArguments())
++      rememberStorage(argument);
++  for (Operation *op : ordered)
++    for (Value result : op->getResults())
++      rememberStorage(result);
++
++  BufferViewFlowAnalysis viewAnalysis(module);
++  py::list views;
++  std::vector<std::pair<Value, Value>> viewPairs;
++  int64_t viewRoots = 0;
++  for (Value root : storageValues) {
++    auto resolved = viewAnalysis.resolve(root);
++    ++viewRoots;
++    std::vector<std::string> derived;
++    for (Value value : resolved)
++      if (value != root)
++        derived.push_back(valueKey(value, identities, blocks));
++    std::sort(derived.begin(), derived.end());
++    for (const std::string &value : derived) {
++      py::dict item;
++      item["source"] = valueKey(root, identities, blocks);
++      item["target"] = value;
++      views.append(item);
++      for (Value candidate : resolved)
++        if (valueKey(candidate, identities, blocks) == value) {
++          viewPairs.push_back({root, candidate});
++          break;
++        }
++    }
++  }
++
++  AliasAnalysis aliasAnalysis(module);
++  py::list aliases;
++  std::map<std::pair<std::string, std::string>, std::pair<Value, Value>>
++      aliasCandidates;
++  for (const auto &[source, target] : viewPairs) {
++    std::string lhs = valueKey(source, identities, blocks);
++    std::string rhs = valueKey(target, identities, blocks);
++    Value lhsValue = source, rhsValue = target;
++    if (lhs > rhs) {
++      std::swap(lhs, rhs);
++      std::swap(lhsValue, rhsValue);
++    }
++    aliasCandidates[{lhs, rhs}] = {lhsValue, rhsValue};
++  }
++  for (size_t i = 0; i < accesses.size(); ++i) {
++    for (size_t j = i + 1; j < accesses.size(); ++j) {
++      if (!accesses[i].affineCompatible || !accesses[j].affineCompatible ||
++          accesses[i].id.function != accesses[j].id.function)
++        continue;
++      std::string lhs = valueKey(accesses[i].storage, identities, blocks);
++      std::string rhs = valueKey(accesses[j].storage, identities, blocks);
++      if (lhs == rhs)
++        continue;
++      Value lhsValue = accesses[i].storage, rhsValue = accesses[j].storage;
++      if (lhs > rhs) {
++        std::swap(lhs, rhs);
++        std::swap(lhsValue, rhsValue);
++      }
++      aliasCandidates[{lhs, rhs}] = {lhsValue, rhsValue};
++    }
++  }
++  for (const auto &[keys, values] : aliasCandidates) {
++    const auto &[lhs, rhs] = keys;
++    py::dict item;
++    item["lhs"] = lhs;
++    item["rhs"] = rhs;
++    item["result"] =
++        aliasName(aliasAnalysis.alias(values.first, values.second));
++    aliases.append(item);
++  }
++
++  py::list dependences;
++  int64_t depCount = 0, noDepCount = 0, unknownCount = 0,
++          notApplicableCount = 0;
++  for (size_t i = 0; i < accesses.size(); ++i) {
++    for (size_t j = 0; j < accesses.size(); ++j) {
++      if (accesses[i].kind == "read" && accesses[j].kind == "read")
++        continue;
++      py::dict query;
++      query["source"] = identityDict(accesses[i].id);
++      query["target"] = identityDict(accesses[j].id);
++      std::string kind = accesses[i].kind == "write"
++                             ? (accesses[j].kind == "read" ? "RAW" : "WAW")
++                             : "WAR";
++      query["kind"] = kind;
++      query["possible_loop_carried"] =
++          sharesLoopAncestor(accesses[i].op, accesses[j].op);
++
++      if (accesses[i].id.function != accesses[j].id.function)
++        continue;
++      if (!accesses[i].affineCompatible || !accesses[j].affineCompatible) {
++        query["result"] = "not_applicable";
++        query["reason"] = "non_affine_access";
++        query["fallback_required"] = true;
++        ++notApplicableCount;
++        dependences.append(query);
++        continue;
++      }
++      if (affine::getAffineScope(accesses[i].op) !=
++          affine::getAffineScope(accesses[j].op)) {
++        query["result"] = "not_applicable";
++        query["reason"] = "different_affine_scope";
++        query["fallback_required"] = true;
++        ++notApplicableCount;
++        dependences.append(query);
++        continue;
++      }
++      if (accesses[i].storage != accesses[j].storage) {
++        AliasResult alias =
++            aliasAnalysis.alias(accesses[i].storage, accesses[j].storage);
++        if (alias.isNo()) {
++          query["result"] = "not_applicable";
++          query["reason"] = "proven_no_alias";
++          query["fallback_required"] = false;
++          ++notApplicableCount;
++          dependences.append(query);
++          continue;
++        }
++        query["result"] = "unknown";
++        query["reason"] = "aliased_storage_not_canonicalized";
++        query["fallback_required"] = true;
++        ++unknownCount;
++        dependences.append(query);
++        continue;
++      }
++      auto srcLoops = affineParents(accesses[i].op);
++      auto dstLoops = affineParents(accesses[j].op);
++      unsigned common = 0;
++      while (common < srcLoops.size() && common < dstLoops.size() &&
++             srcLoops[common] == dstLoops[common])
++        ++common;
++      bool found = false, failed = false;
++      SmallVector<affine::DependenceComponent, 2> foundComponents;
++      unsigned foundDepth = 0;
++      for (unsigned depth = 1; depth <= common + 1; ++depth) {
++        affine::MemRefAccess src(accesses[i].op), dst(accesses[j].op);
++        SmallVector<affine::DependenceComponent, 2> components;
++        auto result = affine::checkMemrefAccessDependence(
++            src, dst, depth, nullptr, &components);
++        if (result.value == affine::DependenceResult::Failure) {
++          failed = true;
++          continue;
++        }
++        if (affine::hasDependence(result)) {
++          found = true;
++          foundDepth = depth;
++          foundComponents = std::move(components);
++          break;
++        }
++      }
++      if (found) {
++        query["result"] = "dependence";
++        query["reason"] = "proven_affine_dependence";
++        query["fallback_required"] = false;
++        query["dependence_depth"] = foundDepth;
++        query["common_loop_depth"] = common;
++        py::list components;
++        bool carried = false;
++        for (const auto &component : foundComponents) {
++          py::dict item;
++          item["lower"] = optionalInt(component.lb);
++          item["upper"] = optionalInt(component.ub);
++          if (component.lb && component.ub &&
++              (*component.lb != 0 || *component.ub != 0))
++            carried = true;
++          components.append(item);
++        }
++        query["components"] = components;
++        query["loop_carried"] = carried;
++        ++depCount;
++      } else if (failed) {
++        query["result"] = "unknown";
++        query["reason"] = "affine_analysis_failure";
++        query["fallback_required"] = true;
++        ++unknownCount;
++      } else {
++        query["result"] = "no_dependence";
++        query["reason"] = "proven_affine_independence";
++        query["fallback_required"] = false;
++        ++noDepCount;
++      }
++      dependences.append(query);
++    }
++  }
++
++  bool verifiedAfter = succeeded(mlir::verify(module));
++  std::string after = printOperation(module);
++  py::dict coverage;
++  coverage["operations"] = ordered.size();
++  coverage["effects_with_effects"] = effectsWithEffects;
++  coverage["effects_known_no_effect"] = effectsKnownNoEffect;
++  coverage["effects_unknown"] = effectsUnknown;
++  coverage["view_roots"] = viewRoots;
++  coverage["view_edges"] = py::len(views);
++  coverage["alias_queries"] = py::len(aliases);
++  coverage["dependence"] = depCount;
++  coverage["no_dependence"] = noDepCount;
++  coverage["unknown"] = unknownCount;
++  coverage["not_applicable"] = notApplicableCount;
++
++  py::dict verification;
++  verification["before"] = verifiedBefore;
++  verification["after"] = verifiedAfter;
++  verification["unchanged"] = before == after;
++
++  py::dict result;
++  result["schema"] = kSchema;
++  result["operations"] = operations;
++  result["effects"] = effects;
++  result["views"] = views;
++  result["aliases"] = aliases;
++  result["dependences"] = dependences;
++  result["affine_loops"] = loops;
++  result["coverage"] = coverage;
++  result["verification"] = verification;
++  return result;
++}
++
++} // namespace
++
++PYBIND11_MODULE(_mailohls_analysis, module) {
++  module.doc() = "Read-only native MLIR analyses for MailoHLS";
++  module.def("analyze_module", &analyze, py::arg("operation"));
++  module.attr("SCHEMA_VERSION") = kSchema;
++}
+diff --git a/python/test_mailohls_analysis.py b/python/test_mailohls_analysis.py
+new file mode 100644
+index 000000000000..63966122d646
+--- /dev/null
++++ b/python/test_mailohls_analysis.py
+@@ -0,0 +1,155 @@
++#!/usr/bin/env python3
++"""Dataset-independent regressions for the MailoHLS native analysis binding."""
++
++import copy
++import json
++
++from mlir import ir
++from mlir._mlir_libs import _mailohls_analysis
++
++
++MLIR = r"""
++module {
++  func.func private @a_decl(%arg0: memref<16xi32>)
++  func.func @affine_cases(%a: memref<16xi32>, %b: memref<16xi32>) {
++    affine.for %i = 1 to 16 {
++      %im1 = affine.apply affine_map<(d0) -> (d0 - 1)>(%i)
++      %v = affine.load %a[%im1] : memref<16xi32>
++      affine.store %v, %a[%i] : memref<16xi32>
++    }
++    affine.for %i = 0 to 8 {
++      %v = affine.load %a[%i] : memref<16xi32>
++      affine.store %v, %a[%i] : memref<16xi32>
++    }
++    affine.for %i = 0 to 8 {
++      %v = affine.load %a[%i] : memref<16xi32>
++      affine.store %v, %b[%i] : memref<16xi32>
++    }
++    affine.for %i = 0 to 8 {
++      %zero = arith.constant 0 : index
++      %one = arith.constant 1 : i32
++      affine.store %one, %a[%zero] : memref<16xi32>
++    }
++    return
++  }
++  func.func @effects_and_views(%a: memref<16xi32>, %n: index) {
++    %copy = memref.alloc() : memref<16xi32>
++    memref.copy %a, %copy : memref<16xi32> to memref<16xi32>
++    %sv = memref.subview %a[0] [8] [1] : memref<16xi32> to memref<8xi32, strided<[1]>>
++    %v = memref.load %sv[%n] : memref<8xi32, strided<[1]>>
++    memref.store %v, %sv[%n] : memref<8xi32, strided<[1]>>
++    "test.unknown_effect"() : () -> ()
++    scf.for %i = %n to %n step %n {
++      %x = memref.load %a[%i] : memref<16xi32>
++    }
++    return
++  }
++}
++"""
++
++
++def main():
++    with ir.Context() as context:
++        context.allow_unregistered_dialects = True
++        module = ir.Module.parse(MLIR)
++        assert module.operation.verify()
++        before = str(module)
++
++        # A second Python wrapper must resolve to the identical native operation.
++        wrapper = ir.Operation._CAPICreate(module.operation._CAPIPtr)
++        first = _mailohls_analysis.analyze_module(module.operation)
++        second = _mailohls_analysis.analyze_module(wrapper)
++        assert first == second
++        assert json.dumps(first, sort_keys=True) == json.dumps(
++            _mailohls_analysis.analyze_module(module.operation), sort_keys=True
++        )
++        assert first["verification"] == {
++            "before": True,
++            "after": True,
++            "unchanged": True,
++        }
++        assert module.operation.verify() and str(module) == before
++
++        effects = {
++            (x["function"], x["ordinal"], x["op_name"]): x for x in first["effects"]
++        }
++        assert any(
++            any(e["kind"] == "read" for e in x["effects"]) for x in effects.values()
++        )
++        assert any(
++            any(e["kind"] == "write" for e in x["effects"]) for x in effects.values()
++        )
++        assert any(x["status"] == "unknown" for x in effects.values())
++        copy_effect = next(
++            x for x in effects.values() if x["op_name"] == "memref.copy"
++        )
++        assert {
++            (e["kind"], e.get("operand_index")) for e in copy_effect["effects"]
++        } == {("read", 0), ("write", 1)}
++        assert first["views"]
++
++        queries = first["dependences"]
++        reason_policy = {
++            "proven_affine_dependence": ("dependence", False),
++            "proven_affine_independence": ("no_dependence", False),
++            "proven_no_alias": ("not_applicable", False),
++            "aliased_storage_not_canonicalized": ("unknown", True),
++            "affine_analysis_failure": ("unknown", True),
++            "different_affine_scope": ("not_applicable", True),
++            "non_affine_access": ("not_applicable", True),
++        }
++        assert all(
++            (query["result"], query["fallback_required"])
++            == reason_policy[query["reason"]]
++            and isinstance(query["possible_loop_carried"], bool)
++            for query in queries
++        )
++        coverage = first["coverage"]
++        assert coverage["effects_with_effects"] == sum(
++            item["status"] == "known" for item in first["effects"]
++        )
++        assert coverage["effects_known_no_effect"] == sum(
++            item["status"] == "known_no_effect" for item in first["effects"]
++        )
++        assert coverage["effects_unknown"] == sum(
++            item["status"] == "unknown" for item in first["effects"]
++        )
++        assert {q["kind"] for q in queries} >= {"RAW", "WAR", "WAW"}
++        assert {q["result"] for q in queries} >= {
++            "dependence",
++            "no_dependence",
++            "unknown",
++            "not_applicable",
++        }
++        assert any(
++            q["result"] == "dependence"
++            and q["kind"] == "RAW"
++            and q["loop_carried"]
++            and any(c["lower"] == 1 and c["upper"] == 1 for c in q["components"])
++            for q in queries
++        )
++        assert any(
++            q["result"] == "dependence"
++            and q["source"] == q["target"]
++            and q["loop_carried"]
++            for q in queries
++        )
++
++        class Bad:
++            _CAPIPtr = object()
++
++        try:
++            _mailohls_analysis.analyze_module(Bad())
++        except (TypeError, ValueError):
++            pass
++        else:
++            raise AssertionError("invalid capsule was accepted")
++
++        # The context and operation are necessarily alive through both calls.
++        assert context._CAPIPtr is not None
++
++    print("mailohls native analysis regressions: PASS")
++
++
++if __name__ == "__main__":
++    main()
+

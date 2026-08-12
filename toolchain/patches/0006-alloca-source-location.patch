@@ -1,0 +1,50 @@
+diff --git a/tools/cgeist/Lib/clang-mlir.cc b/tools/cgeist/Lib/clang-mlir.cc
+index c2e4a1eb2ac4..7b952d252499 100644
+--- a/tools/cgeist/Lib/clang-mlir.cc
++++ b/tools/cgeist/Lib/clang-mlir.cc
+@@ -492,7 +492,7 @@ mlir::Value MLIRScanner::createAllocOp(mlir::Type t, VarDecl *name,
+   OpBuilder abuilder(builder.getContext());
+   abuilder.setInsertionPointToStart(allocationScope);
+   auto varLoc =
+-      name ? getMLIRLocation(name->getBeginLoc()) : builder.getUnknownLoc();
++      name ? getMLIRLocation(name->getLocation()) : builder.getUnknownLoc();
+   if (!isArray) {
+     if (LLVMABI) {
+       if (name)
+diff --git a/tools/cgeist/Test/Verification/alloca-location.c b/tools/cgeist/Test/Verification/alloca-location.c
+new file mode 100644
+index 000000000000..b8aab207abee
+--- /dev/null
++++ b/tools/cgeist/Test/Verification/alloca-location.c
+@@ -0,0 +1,18 @@
++// RUN: cgeist %s --function=alloca_locations -S -O0 -memref-fullrank --print-debug-info | FileCheck %s
++// RUN: cgeist %s --function=alloca_locations -S -O0 -memref-fullrank --print-debug-info | mlir-opt --verify-each
++
++#include "Inputs/alloca-location-type.h"
++
++extern void consume(header_element_t *);
++
++void alloca_locations(void) {
++  header_element_t first[8];
++  header_element_t second[8];
++  consume(first);
++  consume(second);
++}
++
++// CHECK: memref.alloca() : memref<8xf32> loc(#[[SECOND:loc[0-9]+]])
++// CHECK: memref.alloca() : memref<8xf32> loc(#[[FIRST:loc[0-9]+]])
++// CHECK-DAG: #[[FIRST]] = loc("{{.*}}alloca-location.c":9:20)
++// CHECK-DAG: #[[SECOND]] = loc("{{.*}}alloca-location.c":10:20)
+diff --git a/tools/cgeist/Test/Verification/Inputs/alloca-location-type.h b/tools/cgeist/Test/Verification/Inputs/alloca-location-type.h
+new file mode 100644
+index 000000000000..3df4b3676563
+--- /dev/null
++++ b/tools/cgeist/Test/Verification/Inputs/alloca-location-type.h
+@@ -0,0 +1,6 @@
++#ifndef ALLOCA_LOCATION_TYPE_H
++#define ALLOCA_LOCATION_TYPE_H
++
++typedef float header_element_t;
++
++#endif
+

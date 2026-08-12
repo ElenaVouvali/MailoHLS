@@ -1,0 +1,60 @@
+From b95c945550b095e638bc5977e98ecda33af15441 Mon Sep 17 00:00:00 2001
+From: Your Name <your.email@example.com>
+Date: Sat, 18 Jul 2026 19:42:09 +0300
+Subject: [PATCH] cgeist: honor --print-debug-info when printing MLIR
+
+---
+ .../Test/Verification/print-debug-info.c      | 26 +++++++++++++++++++
+ tools/cgeist/driver.cc                        |  2 +-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
+ create mode 100644 tools/cgeist/Test/Verification/print-debug-info.c
+
+diff --git a/tools/cgeist/Test/Verification/print-debug-info.c b/tools/cgeist/Test/Verification/print-debug-info.c
+new file mode 100644
+index 000000000000..8d87b35334bc
+--- /dev/null
++++ b/tools/cgeist/Test/Verification/print-debug-info.c
+@@ -0,0 +1,26 @@
++// RUN: cgeist %s --function=source_locations -S -O0 -memref-fullrank --raise-scf-to-affine --print-debug-info | FileCheck %s
++
++extern void consume(int *);
++
++void source_locations(int input[8], int output[8]) {
++  int local[8];
++  // CHECK: func.func @source_locations({{.*}}loc("{{.*}}print-debug-info.c":{{[0-9]+}}:{{[0-9]+}})
++  // CHECK: memref.alloca() : memref<8xi32> loc(#[[ALLOCA_LOC:loc[0-9]+]])
++  // CHECK: affine.for {{.*}} loc("{{.*}}print-debug-info.c":{{[0-9]+}}:{{[0-9]+}})
++  for (int i = 0; i < 8; ++i) {
++    int index = (i * i) & 7;
++    // CHECK: memref.load {{.*}} loc(#[[INPUT_LOAD_LOC:loc[0-9]+]])
++    // CHECK: memref.store {{.*}} loc(#[[LOCAL_STORE_LOC:loc[0-9]+]])
++    local[index] = input[index];
++    consume(local);
++    // CHECK: memref.load {{.*}} loc(#[[LOCAL_LOAD_LOC:loc[0-9]+]])
++    // CHECK: memref.store {{.*}} loc(#[[OUTPUT_STORE_LOC:loc[0-9]+]])
++    output[index] = local[index] + 1;
++  }
++}
++
++// CHECK-DAG: #[[ALLOCA_LOC]] = loc("{{.*}}print-debug-info.c":{{[0-9]+}}:{{[0-9]+}})
++// CHECK-DAG: #[[INPUT_LOAD_LOC]] = loc("{{.*}}print-debug-info.c":{{[0-9]+}}:{{[0-9]+}})
++// CHECK-DAG: #[[LOCAL_STORE_LOC]] = loc("{{.*}}print-debug-info.c":{{[0-9]+}}:{{[0-9]+}})
++// CHECK-DAG: #[[OUTPUT_STORE_LOC]] = loc("{{.*}}print-debug-info.c":{{[0-9]+}}:{{[0-9]+}})
++// CHECK-DAG: #[[LOCAL_LOAD_LOC]] = loc("{{.*}}print-debug-info.c":{{[0-9]+}}:{{[0-9]+}})
+diff --git a/tools/cgeist/driver.cc b/tools/cgeist/driver.cc
+index b49eecdcfec5..84a58da28c00 100644
+--- a/tools/cgeist/driver.cc
++++ b/tools/cgeist/driver.cc
+@@ -612,7 +612,7 @@ int main(int argc, char **argv) {
+ 
+   OpPrintingFlags flags;
+   if (PrintDebugInfo)
+-    flags.enableDebugInfo(/*pretty*/ false);
++    flags.enableDebugInfo(/*enable=*/true, /*prettyForm=*/false);
+ 
+   if (ImmediateMLIR) {
+     module->print(llvm::outs(), flags);
+-- 
+2.25.1
+
+

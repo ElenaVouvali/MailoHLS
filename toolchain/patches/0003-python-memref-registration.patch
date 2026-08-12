@@ -1,0 +1,578 @@
+From ea67874ed00da6f4e050f38eb735a32216fd8144 Mon Sep 17 00:00:00 2001
+From: Your Name <your.email@example.com>
+Date: Sat, 18 Jul 2026 21:58:14 +0300
+Subject: [PATCH] polygeist: expose LLVM memref registrations to Python
+
+---
+ CMakeLists.txt                                |  4 ++
+ include/polygeist-c/Registration.h            | 25 +++++++
+ .../polygeist/Support/LLVMAsMemRefElement.h   | 21 ++++++
+ lib/polygeist/CAPI/CMakeLists.txt             |  6 ++
+ lib/polygeist/CAPI/Registration.cpp           | 17 +++++
+ lib/polygeist/CMakeLists.txt                  |  2 +
+ lib/polygeist/Support/CMakeLists.txt          |  7 ++
+ lib/polygeist/Support/LLVMAsMemRefElement.cpp | 41 ++++++++++++
+ python/CMakeLists.txt                         | 52 +++++++++++++++
+ python/PolygeistPythonExtension.cpp           | 13 ++++
+ python/test_registration.py                   | 66 +++++++++++++++++++
+ tools/cgeist/CMakeLists.txt                   |  1 +
+ tools/cgeist/driver.cc                        | 23 +------
+ tools/polygeist-opt/CMakeLists.txt            |  1 +
+ tools/polygeist-opt/polygeist-opt.cpp         | 39 ++---------
+ unittests/CMakeLists.txt                      | 17 +++++
+ unittests/LLVMAsMemRefElementTest.cpp         | 50 ++++++++++++++
+ 17 files changed, 330 insertions(+), 55 deletions(-)
+ create mode 100644 include/polygeist-c/Registration.h
+ create mode 100644 include/polygeist/Support/LLVMAsMemRefElement.h
+ create mode 100644 lib/polygeist/CAPI/CMakeLists.txt
+ create mode 100644 lib/polygeist/CAPI/Registration.cpp
+ create mode 100644 lib/polygeist/Support/CMakeLists.txt
+ create mode 100644 lib/polygeist/Support/LLVMAsMemRefElement.cpp
+ create mode 100644 python/CMakeLists.txt
+ create mode 100644 python/PolygeistPythonExtension.cpp
+ create mode 100644 python/test_registration.py
+ create mode 100644 unittests/CMakeLists.txt
+ create mode 100644 unittests/LLVMAsMemRefElementTest.cpp
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b48ad6cad751..c47020a34b67 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -129,4 +129,8 @@ include(sanitizers)
+ add_subdirectory(include)
+ add_subdirectory(lib)
+ add_subdirectory(tools)
++add_subdirectory(python)
+ add_subdirectory(test)
++if(LLVM_INCLUDE_TESTS)
++  add_subdirectory(unittests)
++endif()
+diff --git a/include/polygeist-c/Registration.h b/include/polygeist-c/Registration.h
+new file mode 100644
+index 000000000000..595c062bfdfd
+--- /dev/null
++++ b/include/polygeist-c/Registration.h
+@@ -0,0 +1,25 @@
++//===- Registration.h - Polygeist C API registration -----------*- C -*-===//
++
++#ifndef POLYGEIST_C_REGISTRATION_H
++#define POLYGEIST_C_REGISTRATION_H
++
++#include "mlir-c/IR.h"
++#include "mlir-c/Support.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/// Register Polygeist's supported LLVM memref element types in `context`.
++MLIR_CAPI_EXPORTED void
++mlirPolygeistRegisterLLVMAsMemRefElementTypes(MlirContext context);
++
++/// Initialize a Python-facing context with the Polygeist dialect and extended
++/// LLVM memref element registration.
++MLIR_CAPI_EXPORTED void mlirPolygeistInitializeContext(MlirContext context);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif // POLYGEIST_C_REGISTRATION_H
+diff --git a/include/polygeist/Support/LLVMAsMemRefElement.h b/include/polygeist/Support/LLVMAsMemRefElement.h
+new file mode 100644
+index 000000000000..5fcd558388b1
+--- /dev/null
++++ b/include/polygeist/Support/LLVMAsMemRefElement.h
+@@ -0,0 +1,21 @@
++//===- LLVMAsMemRefElement.h - LLVM types in memrefs ------------*- C++ -*-===//
++
++#ifndef POLYGEIST_SUPPORT_LLVMASMEMREFELEMENT_H
++#define POLYGEIST_SUPPORT_LLVMASMEMREFELEMENT_H
++
++namespace mlir {
++class MLIRContext;
++}
++
++namespace mlir::polygeist {
++
++/// Attach Polygeist's MemRefElementTypeInterface model to the LLVM dialect
++/// types accepted as memref elements by the cgeist lowering.
++void registerLLVMAsMemRefElementTypes(MLIRContext &context);
++
++/// Register the common LLVM pointer-element models used by Polygeist tools.
++void registerPolygeistLLVMPointerElementTypes(MLIRContext &context);
++
++} // namespace mlir::polygeist
++
++#endif // POLYGEIST_SUPPORT_LLVMASMEMREFELEMENT_H
+diff --git a/lib/polygeist/CAPI/CMakeLists.txt b/lib/polygeist/CAPI/CMakeLists.txt
+new file mode 100644
+index 000000000000..f028c006055d
+--- /dev/null
++++ b/lib/polygeist/CAPI/CMakeLists.txt
+@@ -0,0 +1,6 @@
++add_mlir_public_c_api_library(MLIRCAPIPolygeistRegistration
++  Registration.cpp
++
++  LINK_LIBS PUBLIC
++  MLIRPolygeistSupport
++)
+diff --git a/lib/polygeist/CAPI/Registration.cpp b/lib/polygeist/CAPI/Registration.cpp
+new file mode 100644
+index 000000000000..0810a137c8af
+--- /dev/null
++++ b/lib/polygeist/CAPI/Registration.cpp
+@@ -0,0 +1,17 @@
++#include "polygeist-c/Registration.h"
++
++#include "polygeist/Dialect.h"
++#include "polygeist/Support/LLVMAsMemRefElement.h"
++
++#include "mlir/CAPI/IR.h"
++
++void mlirPolygeistRegisterLLVMAsMemRefElementTypes(MlirContext context) {
++  mlir::polygeist::registerLLVMAsMemRefElementTypes(*unwrap(context));
++}
++
++void mlirPolygeistInitializeContext(MlirContext context) {
++  mlir::MLIRContext *cppContext = unwrap(context);
++  cppContext->getOrLoadDialect<mlir::polygeist::PolygeistDialect>();
++  mlir::polygeist::registerLLVMAsMemRefElementTypes(*cppContext);
++  mlir::polygeist::registerPolygeistLLVMPointerElementTypes(*cppContext);
++}
+diff --git a/lib/polygeist/CMakeLists.txt b/lib/polygeist/CMakeLists.txt
+index 88aea0de4dd5..ed6945a7d708 100644
+--- a/lib/polygeist/CMakeLists.txt
++++ b/lib/polygeist/CMakeLists.txt
+@@ -19,3 +19,5 @@ MLIRSCFTransforms
+ )
+ add_subdirectory(Passes)
+ add_subdirectory(ExecutionEngine)
++add_subdirectory(Support)
++add_subdirectory(CAPI)
+diff --git a/lib/polygeist/Support/CMakeLists.txt b/lib/polygeist/Support/CMakeLists.txt
+new file mode 100644
+index 000000000000..0bd66ba0189e
+--- /dev/null
++++ b/lib/polygeist/Support/CMakeLists.txt
+@@ -0,0 +1,7 @@
++add_mlir_library(MLIRPolygeistSupport
++  LLVMAsMemRefElement.cpp
++
++  LINK_LIBS PUBLIC
++  MLIRIR
++  MLIRLLVMDialect
++)
+diff --git a/lib/polygeist/Support/LLVMAsMemRefElement.cpp b/lib/polygeist/Support/LLVMAsMemRefElement.cpp
+new file mode 100644
+index 000000000000..ca07fd11486d
+--- /dev/null
++++ b/lib/polygeist/Support/LLVMAsMemRefElement.cpp
+@@ -0,0 +1,41 @@
++//===- LLVMAsMemRefElement.cpp - LLVM types in memrefs --------------------===//
++
++#include "polygeist/Support/LLVMAsMemRefElement.h"
++
++#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
++#include "mlir/IR/BuiltinTypeInterfaces.h"
++
++namespace mlir::polygeist {
++namespace {
++
++class LLVMAsMemRefElement
++    : public MemRefElementTypeInterface::FallbackModel<LLVMAsMemRefElement> {};
++
++template <typename T>
++struct PolygeistLLVMPointerElement
++    : public LLVM::PointerElementTypeInterface::ExternalModel<
++          PolygeistLLVMPointerElement<T>, T> {};
++
++} // namespace
++
++void registerLLVMAsMemRefElementTypes(MLIRContext &context) {
++  context.getOrLoadDialect<LLVM::LLVMDialect>();
++  LLVM::LLVMFunctionType::attachInterface<LLVMAsMemRefElement>(context);
++  LLVM::LLVMArrayType::attachInterface<LLVMAsMemRefElement>(context);
++  LLVM::LLVMPointerType::attachInterface<LLVMAsMemRefElement>(context);
++  LLVM::LLVMStructType::attachInterface<LLVMAsMemRefElement>(context);
++}
++
++void registerPolygeistLLVMPointerElementTypes(MLIRContext &context) {
++  context.getOrLoadDialect<LLVM::LLVMDialect>();
++  IndexType::attachInterface<PolygeistLLVMPointerElement<IndexType>>(context);
++  MemRefType::attachInterface<PolygeistLLVMPointerElement<MemRefType>>(context);
++  LLVM::LLVMStructType::attachInterface<
++      PolygeistLLVMPointerElement<LLVM::LLVMStructType>>(context);
++  LLVM::LLVMPointerType::attachInterface<
++      PolygeistLLVMPointerElement<LLVM::LLVMPointerType>>(context);
++  LLVM::LLVMArrayType::attachInterface<
++      PolygeistLLVMPointerElement<LLVM::LLVMArrayType>>(context);
++}
++
++} // namespace mlir::polygeist
+diff --git a/python/CMakeLists.txt b/python/CMakeLists.txt
+new file mode 100644
+index 000000000000..40339f6251fa
+--- /dev/null
++++ b/python/CMakeLists.txt
+@@ -0,0 +1,52 @@
++include(AddMLIRPython)
++find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
++execute_process(
++  COMMAND "${Python3_EXECUTABLE}" -m pybind11 --cmakedir
++  OUTPUT_VARIABLE POLYGEIST_PYBIND11_CMAKE_DIR
++  OUTPUT_STRIP_TRAILING_WHITESPACE
++  COMMAND_ERROR_IS_FATAL ANY
++)
++find_package(pybind11 CONFIG REQUIRED
++  PATHS "${POLYGEIST_PYBIND11_CMAKE_DIR}"
++  NO_DEFAULT_PATH
++)
++
++declare_mlir_python_extension(PolygeistPythonExtension
++  MODULE_NAME _site_initialize_0
++  ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
++  SOURCES
++    PolygeistPythonExtension.cpp
++)
++
++# Extend the matching Python CAPI DSO with Polygeist's registration entry point
++# and its shared implementation. This avoids linking a second MLIR runtime into
++# the native module and keeps every context/type object in one MLIR instance.
++target_sources(MLIRPythonCAPI PRIVATE
++  $<TARGET_OBJECTS:obj.MLIRPolygeistSupport>
++  $<TARGET_OBJECTS:obj.MLIRCAPIPolygeistRegistration>
++  $<TARGET_OBJECTS:obj.MLIRPolygeist>
++)
++add_dependencies(MLIRPythonCAPI
++  obj.MLIRPolygeistSupport
++  obj.MLIRCAPIPolygeistRegistration
++  obj.MLIRPolygeist
++)
++
++add_mlir_python_modules(PolygeistPythonModules
++  ROOT_PREFIX "${LLVM_BINARY_DIR}/tools/mlir/python_packages/mlir_core/mlir"
++  INSTALL_PREFIX "python_packages/mlir_core/mlir"
++  DECLARED_SOURCES
++    PolygeistPythonExtension
++  COMMON_CAPI_LINK_LIBS
++    MLIRPythonCAPI
++)
++add_dependencies(PolygeistPythonModules MLIRPythonModules)
++
++add_custom_target(check-polygeist-python
++  COMMAND "${CMAKE_COMMAND}" -E env
++    "PYTHONPATH=${LLVM_BINARY_DIR}/tools/mlir/python_packages/mlir_core"
++    "${Python3_EXECUTABLE}" -S
++    "${CMAKE_CURRENT_SOURCE_DIR}/test_registration.py"
++  DEPENDS PolygeistPythonModules
++  VERBATIM
++)
+diff --git a/python/PolygeistPythonExtension.cpp b/python/PolygeistPythonExtension.cpp
+new file mode 100644
+index 000000000000..504dde5a9ecb
+--- /dev/null
++++ b/python/PolygeistPythonExtension.cpp
+@@ -0,0 +1,13 @@
++//===- PolygeistPythonExtension.cpp - Python context registration --------===//
++
++#include "polygeist-c/Registration.h"
++
++#include "mlir/Bindings/Python/PybindAdaptors.h"
++
++namespace py = pybind11;
++
++PYBIND11_MODULE(_site_initialize_0, module) {
++  module.def("context_init_hook", [](MlirContext context) {
++    mlirPolygeistInitializeContext(context);
++  });
++}
+diff --git a/python/test_registration.py b/python/test_registration.py
+new file mode 100644
+index 000000000000..36821297deff
+--- /dev/null
++++ b/python/test_registration.py
+@@ -0,0 +1,66 @@
++#!/usr/bin/env python3
++"""Regression tests for Polygeist's automatic Python context extension."""
++
++import os
++import subprocess
++import sys
++
++from mlir import ir
++
++
++SUPPORTED = """module {
++  memref.global @struct : memref<1x!llvm.struct<(i32)>>
++  memref.global @array : memref<1x!llvm.array<4 x i32>>
++  memref.global @pointer : memref<1x!llvm.ptr>
++  memref.global @function : memref<1x!llvm.func<void ()>>
++  llvm.func @load_index(%arg0: !llvm.ptr) {
++    %0 = llvm.load %arg0 : !llvm.ptr -> index
++    llvm.return
++  }
++}
++"""
++
++UNSUPPORTED = """module {
++  memref.global @unsupported : memref<1x!gpu.async.token>
++}
++"""
++
++UNSUPPORTED_BUILTIN = """module {
++  memref.global @unsupported : memref<1xtuple<i32>>
++}
++"""
++
++
++def parse_in_two_contexts():
++    printed = []
++    for _ in range(2):
++        with ir.Context() as context:
++            module = ir.Module.parse(SUPPORTED, context)
++            assert module.operation.verify()
++            printed.append(str(module))
++            for invalid_module in (UNSUPPORTED, UNSUPPORTED_BUILTIN):
++                try:
++                    ir.Module.parse(invalid_module, context)
++                except ir.MLIRError as error:
++                    assert "invalid memref element type" in str(error)
++                else:
++                    raise AssertionError("unsupported memref element was accepted")
++    assert printed[0] == printed[1]
++    return printed[0]
++
++
++if "--worker" in sys.argv:
++    print(parse_in_two_contexts(), end="")
++else:
++    outputs = []
++    for _ in range(2):
++        result = subprocess.run(
++            [sys.executable, "-S", __file__, "--worker"],
++            check=True,
++            capture_output=True,
++            text=True,
++            env=os.environ.copy(),
++        )
++        outputs.append(result.stdout)
++    assert outputs[0] == outputs[1]
++    print("Polygeist Python memref-element registration: PASS")
+diff --git a/tools/cgeist/CMakeLists.txt b/tools/cgeist/CMakeLists.txt
+index 84b4a739e9df..2e59991686da 100644
+--- a/tools/cgeist/CMakeLists.txt
++++ b/tools/cgeist/CMakeLists.txt
+@@ -73,6 +73,7 @@ target_compile_definitions(cgeist PUBLIC -DLLVM_OBJ_ROOT="${LLVM_BINARY_DIR}")
+ set(CGEIST_LIBS
+   MLIRPolygeist
+   MLIRPolygeistTransforms
++  MLIRPolygeistSupport
+ )
+ if(POLYGEIST_ENABLE_POLYMER)
+         list(APPEND CGEIST_LIBS
+diff --git a/tools/cgeist/driver.cc b/tools/cgeist/driver.cc
+index 84a58da28c00..439b2afca172 100644
+--- a/tools/cgeist/driver.cc
++++ b/tools/cgeist/driver.cc
+@@ -80,6 +80,7 @@
+ 
+ #include "polygeist/Dialect.h"
+ #include "polygeist/Passes/Passes.h"
++#include "polygeist/Support/LLVMAsMemRefElement.h"
+ 
+ #include <fstream>
+ 
+@@ -298,14 +299,6 @@ public:
+   const char *MakeArgStringRef(StringRef Str) const override { return ""; }
+ };
+ 
+-class MemRefInsider
+-    : public mlir::MemRefElementTypeInterface::FallbackModel<MemRefInsider> {};
+-
+-template <typename T>
+-struct PtrElementModel
+-    : public mlir::LLVM::PointerElementTypeInterface::ExternalModel<
+-          PtrElementModel<T>, T> {};
+-
+ extern int cc1_main(ArrayRef<const char *> Argv, const char *Argv0,
+                     void *MainAddr);
+ extern int cc1as_main(ArrayRef<const char *> Argv, const char *Argv0,
+@@ -561,18 +554,8 @@ int main(int argc, char **argv) {
+   context.getOrLoadDialect<mlir::polygeist::PolygeistDialect>();
+   context.getOrLoadDialect<mlir::cf::ControlFlowDialect>();
+ 
+-  LLVM::LLVMFunctionType::attachInterface<MemRefInsider>(context);
+-  LLVM::LLVMPointerType::attachInterface<MemRefInsider>(context);
+-  LLVM::LLVMArrayType::attachInterface<MemRefInsider>(context);
+-  LLVM::LLVMStructType::attachInterface<MemRefInsider>(context);
+-  MemRefType::attachInterface<PtrElementModel<MemRefType>>(context);
+-  IndexType::attachInterface<PtrElementModel<IndexType>>(context);
+-  LLVM::LLVMStructType::attachInterface<PtrElementModel<LLVM::LLVMStructType>>(
+-      context);
+-  LLVM::LLVMPointerType::attachInterface<
+-      PtrElementModel<LLVM::LLVMPointerType>>(context);
+-  LLVM::LLVMArrayType::attachInterface<PtrElementModel<LLVM::LLVMArrayType>>(
+-      context);
++  mlir::polygeist::registerLLVMAsMemRefElementTypes(context);
++  mlir::polygeist::registerPolygeistLLVMPointerElementTypes(context);
+ 
+   mlir::OwningOpRef<mlir::ModuleOp> module(
+       mlir::ModuleOp::create(mlir::OpBuilder(&context).getUnknownLoc()));
+diff --git a/tools/polygeist-opt/CMakeLists.txt b/tools/polygeist-opt/CMakeLists.txt
+index 10dad7c10eef..1a5889d0f5fa 100644
+--- a/tools/polygeist-opt/CMakeLists.txt
++++ b/tools/polygeist-opt/CMakeLists.txt
+@@ -6,6 +6,7 @@ set(LIBS
+         MLIROptLib
+         MLIRPolygeist
+         MLIRPolygeistTransforms
++        MLIRPolygeistSupport
+         MLIRFuncAllExtensions
+ )
+ if(POLYGEIST_ENABLE_POLYMER)
+diff --git a/tools/polygeist-opt/polygeist-opt.cpp b/tools/polygeist-opt/polygeist-opt.cpp
+index 95fe1b1fc4a4..e35b6099412e 100644
+--- a/tools/polygeist-opt/polygeist-opt.cpp
++++ b/tools/polygeist-opt/polygeist-opt.cpp
+@@ -32,17 +32,10 @@
+ 
+ #include "polygeist/Dialect.h"
+ #include "polygeist/Passes/Passes.h"
++#include "polygeist/Support/LLVMAsMemRefElement.h"
+ 
+ using namespace mlir;
+ 
+-class MemRefInsider
+-    : public mlir::MemRefElementTypeInterface::FallbackModel<MemRefInsider> {};
+-
+-template <typename T>
+-struct PtrElementModel
+-    : public mlir::LLVM::PointerElementTypeInterface::ExternalModel<
+-          PtrElementModel<T>, T> {};
+-
+ int main(int argc, char **argv) {
+   mlir::DialectRegistry registry;
+ 
+@@ -76,35 +69,11 @@ int main(int argc, char **argv) {
+   mlir::registerConvertSCFToOpenMPPass();
+   mlir::affine::registerAffinePasses();
+ 
+-  registry.addExtension(+[](MLIRContext *ctx, LLVM::LLVMDialect *dialect) {
+-    LLVM::LLVMFunctionType::attachInterface<MemRefInsider>(*ctx);
+-  });
+-  registry.addExtension(+[](MLIRContext *ctx, LLVM::LLVMDialect *dialect) {
+-    LLVM::LLVMArrayType::attachInterface<MemRefInsider>(*ctx);
+-  });
+-  registry.addExtension(+[](MLIRContext *ctx, LLVM::LLVMDialect *dialect) {
+-    LLVM::LLVMPointerType::attachInterface<MemRefInsider>(*ctx);
+-  });
+-  registry.addExtension(+[](MLIRContext *ctx, LLVM::LLVMDialect *dialect) {
+-    LLVM::LLVMStructType::attachInterface<MemRefInsider>(*ctx);
++  registry.addExtension(+[](MLIRContext *ctx, LLVM::LLVMDialect *) {
++    mlir::polygeist::registerLLVMAsMemRefElementTypes(*ctx);
+   });
+   registry.addExtension(+[](MLIRContext *ctx, memref::MemRefDialect *dialect) {
+-    MemRefType::attachInterface<PtrElementModel<MemRefType>>(*ctx);
+-  });
+-
+-  registry.addExtension(+[](MLIRContext *ctx, LLVM::LLVMDialect *dialect) {
+-    LLVM::LLVMStructType::attachInterface<
+-        PtrElementModel<LLVM::LLVMStructType>>(*ctx);
+-  });
+-
+-  registry.addExtension(+[](MLIRContext *ctx, LLVM::LLVMDialect *dialect) {
+-    LLVM::LLVMPointerType::attachInterface<
+-        PtrElementModel<LLVM::LLVMPointerType>>(*ctx);
+-  });
+-
+-  registry.addExtension(+[](MLIRContext *ctx, LLVM::LLVMDialect *dialect) {
+-    LLVM::LLVMArrayType::attachInterface<PtrElementModel<LLVM::LLVMArrayType>>(
+-        *ctx);
++    mlir::polygeist::registerPolygeistLLVMPointerElementTypes(*ctx);
+   });
+ 
+   return mlir::failed(mlir::MlirOptMain(
+diff --git a/unittests/CMakeLists.txt b/unittests/CMakeLists.txt
+new file mode 100644
+index 000000000000..9e313ab091ba
+--- /dev/null
++++ b/unittests/CMakeLists.txt
+@@ -0,0 +1,17 @@
++add_custom_target(PolygeistUnitTests)
++
++add_unittest(PolygeistUnitTests PolygeistSupportTests
++  LLVMAsMemRefElementTest.cpp
++)
++
++target_link_libraries(PolygeistSupportTests PRIVATE
++  MLIRPolygeistSupport
++  MLIRIR
++  MLIRLLVMDialect
++)
++
++add_custom_target(check-polygeist-support
++  COMMAND $<TARGET_FILE:PolygeistSupportTests>
++  DEPENDS PolygeistSupportTests
++  VERBATIM
++)
+diff --git a/unittests/LLVMAsMemRefElementTest.cpp b/unittests/LLVMAsMemRefElementTest.cpp
+new file mode 100644
+index 000000000000..b506502503d8
+--- /dev/null
++++ b/unittests/LLVMAsMemRefElementTest.cpp
+@@ -0,0 +1,50 @@
++#include "polygeist/Support/LLVMAsMemRefElement.h"
++
++#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
++#include "mlir/IR/BuiltinTypes.h"
++#include "mlir/IR/Verifier.h"
++#include "gtest/gtest.h"
++
++using namespace mlir;
++
++TEST(LLVMAsMemRefElementTest, RegistersOnlySupportedLLVMTypes) {
++  MLIRContext context;
++  context.getOrLoadDialect<LLVM::LLVMDialect>();
++
++  Type i32 = IntegerType::get(&context, 32);
++  Type structType = LLVM::LLVMStructType::getLiteral(&context, {i32});
++  Type arrayType = LLVM::LLVMArrayType::get(i32, 4);
++  Type pointerType = LLVM::LLVMPointerType::get(&context);
++  Type functionType = LLVM::LLVMFunctionType::get(i32, {}, false);
++  Type unsupportedType = TupleType::get(&context, {i32});
++
++  EXPECT_FALSE(BaseMemRefType::isValidElementType(structType));
++  polygeist::registerLLVMAsMemRefElementTypes(context);
++  EXPECT_TRUE(BaseMemRefType::isValidElementType(structType));
++  EXPECT_TRUE(BaseMemRefType::isValidElementType(arrayType));
++  EXPECT_TRUE(BaseMemRefType::isValidElementType(pointerType));
++  EXPECT_TRUE(BaseMemRefType::isValidElementType(functionType));
++  EXPECT_FALSE(BaseMemRefType::isValidElementType(unsupportedType));
++}
++
++TEST(LLVMAsMemRefElementTest, RegistersSharedLLVMPointerElementTypes) {
++  MLIRContext context;
++  context.getOrLoadDialect<LLVM::LLVMDialect>();
++  polygeist::registerPolygeistLLVMPointerElementTypes(context);
++
++  OpBuilder builder(&context);
++  auto module = ModuleOp::create(builder.getUnknownLoc());
++  auto pointer = LLVM::LLVMPointerType::get(&context);
++  auto functionType = LLVM::LLVMFunctionType::get(
++      LLVM::LLVMVoidType::get(&context), {pointer}, false);
++  auto function = builder.create<LLVM::LLVMFuncOp>(builder.getUnknownLoc(),
++                                                   "load_index", functionType);
++  Block *entry = function.addEntryBlock();
++  builder.setInsertionPointToStart(entry);
++  builder.create<LLVM::LoadOp>(builder.getUnknownLoc(), builder.getIndexType(),
++                               entry->getArgument(0));
++  builder.create<LLVM::ReturnOp>(builder.getUnknownLoc(), ValueRange{});
++  module.push_back(function);
++
++  EXPECT_TRUE(succeeded(verify(module)));
++}
+-- 
+2.25.1
+
+

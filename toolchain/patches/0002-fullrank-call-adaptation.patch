@@ -1,0 +1,130 @@
+From 828df4a4d14f8e5898b51f1e29b22298bdb72993 Mon Sep 17 00:00:00 2001
+From: Your Name <your.email@example.com>
+Date: Sat, 18 Jul 2026 20:33:56 +0300
+Subject: [PATCH] cgeist: adapt compatible memref call operands
+
+---
+ tools/cgeist/Lib/CGCall.cc                    | 37 +++++++------------
+ .../Verification/fullrank-call-adaptation.c   | 33 +++++++++++++++++
+ 2 files changed, 47 insertions(+), 23 deletions(-)
+ create mode 100644 tools/cgeist/Test/Verification/fullrank-call-adaptation.c
+
+diff --git a/tools/cgeist/Lib/CGCall.cc b/tools/cgeist/Lib/CGCall.cc
+index 9d8fa006d2cb..feb3ea05aa34 100644
+--- a/tools/cgeist/Lib/CGCall.cc
++++ b/tools/cgeist/Lib/CGCall.cc
+@@ -24,34 +24,24 @@ using namespace mlirclang;
+ 
+ extern llvm::cl::opt<bool> CStyleMemRef;
+ 
+-/// Try to typecast the caller arg of type MemRef to fit the corresponding
+-/// callee arg type. We only deal with the cast where src and dst have the same
+-/// shape size and elem type, and just the first shape differs: src has -1 and
+-/// dst has a constant integer.
++/// Try to typecast a memref caller argument to the corresponding callee type.
++/// Rely on the MemRef dialect's compatibility rules so that call adaptation
++/// accepts only types representable by a verifier-correct memref.cast.
+ static mlir::Value castCallerMemRefArg(mlir::Value callerArg,
+                                        mlir::Type calleeArgType,
++                                       mlir::Location loc,
+                                        mlir::OpBuilder &b) {
+-  mlir::OpBuilder::InsertionGuard guard(b);
+   mlir::Type callerArgType = callerArg.getType();
+ 
+-  if (MemRefType dstTy = dyn_cast_or_null<MemRefType>(calleeArgType)) {
+-    MemRefType srcTy = dyn_cast<MemRefType>(callerArgType);
+-    if (srcTy && dstTy.getElementType() == srcTy.getElementType() &&
+-        dstTy.getMemorySpace() == srcTy.getMemorySpace()) {
+-      auto srcShape = srcTy.getShape();
+-      auto dstShape = dstTy.getShape();
++  if (callerArgType == calleeArgType)
++    return callerArg;
+ 
+-      if (srcShape.size() == dstShape.size() && !srcShape.empty() &&
+-          srcShape[0] == ShapedType::kDynamic &&
+-          std::equal(std::next(srcShape.begin()), srcShape.end(),
+-                     std::next(dstShape.begin()))) {
+-        b.setInsertionPointAfterValue(callerArg);
++  if (!llvm::isa<mlir::BaseMemRefType>(callerArgType) ||
++      !llvm::isa<mlir::BaseMemRefType>(calleeArgType))
++    return callerArg;
+ 
+-        return b.create<mlir::memref::CastOp>(callerArg.getLoc(), calleeArgType,
+-                                              callerArg);
+-      }
+-    }
+-  }
++  if (mlir::memref::CastOp::areCastCompatible(callerArgType, calleeArgType))
++    return b.create<mlir::memref::CastOp>(loc, calleeArgType, callerArg);
+ 
+   // Return the original value when casting fails.
+   return callerArg;
+@@ -64,6 +54,7 @@ static mlir::Value castCallerMemRefArg(mlir::Value callerArg,
+ /// the rest of the pipeline to detect it.
+ static void castCallerArgs(mlir::func::FuncOp callee,
+                            llvm::SmallVectorImpl<mlir::Value> &args,
++                           mlir::Location loc,
+                            mlir::OpBuilder &b) {
+   mlir::FunctionType funcTy = callee.getFunctionType();
+   assert(args.size() == funcTy.getNumInputs() &&
+@@ -78,7 +69,7 @@ static void castCallerArgs(mlir::func::FuncOp callee,
+       continue;
+ 
+     if (calleeArgType.isa<MemRefType>())
+-      args[i] = castCallerMemRefArg(args[i], calleeArgType, b);
++      args[i] = castCallerMemRefArg(args[i], calleeArgType, loc, b);
+   }
+ }
+ 
+@@ -351,7 +342,7 @@ ValueCategory MLIRScanner::CallHelper(
+   }
+ 
+   // Try to rescue some mismatched types.
+-  castCallerArgs(tocall, args, builder);
++  castCallerArgs(tocall, args, loc, builder);
+ 
+   auto op = builder.create<CallOp>(loc, tocall, args);
+ 
+diff --git a/tools/cgeist/Test/Verification/fullrank-call-adaptation.c b/tools/cgeist/Test/Verification/fullrank-call-adaptation.c
+new file mode 100644
+index 000000000000..f95cd826ce10
+--- /dev/null
++++ b/tools/cgeist/Test/Verification/fullrank-call-adaptation.c
+@@ -0,0 +1,33 @@
++// RUN: cgeist %s --function=call_dynamic_helper -S -O0 -memref-fullrank --print-debug-info | FileCheck %s --check-prefix=STATIC
++// RUN: cgeist %s --function=call_matching_helper -S -O0 -memref-fullrank --print-debug-info | FileCheck %s --check-prefix=DYNAMIC --implicit-check-not=memref.cast
++// RUN: cgeist %s --function=call_partial_helper -S -O0 -memref-fullrank --print-debug-info | FileCheck %s --check-prefix=MULTI
++
++void dynamic_helper(float *values) { values[0] += 1.0f; }
++
++void call_dynamic_helper(float values[64]) {
++  dynamic_helper(values);
++}
++
++void call_matching_helper(float *values) {
++  dynamic_helper(values);
++}
++
++void partial_helper(float values[][8]) { values[0][0] += 1.0f; }
++
++void call_partial_helper(float values[16][8]) {
++  partial_helper(values);
++}
++
++// STATIC: func.func @call_dynamic_helper(%[[ARG:.*]]: memref<64xf32>
++// STATIC: %[[CAST:.*]] = memref.cast %[[ARG]] : memref<64xf32> to memref<?xf32> loc(#[[STATIC_LOC:loc[0-9]+]])
++// STATIC: call @dynamic_helper(%[[CAST]]) : (memref<?xf32>) -> () loc(#[[STATIC_LOC]])
++// STATIC-DAG: #[[STATIC_LOC]] = loc("{{.*}}fullrank-call-adaptation.c":{{[0-9]+}}:{{[0-9]+}})
++
++// DYNAMIC: func.func @call_matching_helper(%[[ARG:.*]]: memref<?xf32>
++// DYNAMIC: call @dynamic_helper(%[[ARG]]) : (memref<?xf32>) -> () loc(#[[DYNAMIC_LOC:loc[0-9]+]])
++// DYNAMIC-DAG: #[[DYNAMIC_LOC]] = loc("{{.*}}fullrank-call-adaptation.c":{{[0-9]+}}:{{[0-9]+}})
++
++// MULTI: func.func @call_partial_helper(%[[ARG:.*]]: memref<16x8xf32>
++// MULTI: %[[CAST:.*]] = memref.cast %[[ARG]] : memref<16x8xf32> to memref<?x8xf32> loc(#[[MULTI_LOC:loc[0-9]+]])
++// MULTI: call @partial_helper(%[[CAST]]) : (memref<?x8xf32>) -> () loc(#[[MULTI_LOC]])
++// MULTI-DAG: #[[MULTI_LOC]] = loc("{{.*}}fullrank-call-adaptation.c":{{[0-9]+}}:{{[0-9]+}})
+-- 
+2.25.1
+
+

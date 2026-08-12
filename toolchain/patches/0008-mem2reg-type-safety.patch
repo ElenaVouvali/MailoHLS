@@ -1,0 +1,135 @@
+diff --git a/lib/polygeist/Passes/PolygeistMem2Reg.cpp b/lib/polygeist/Passes/PolygeistMem2Reg.cpp
+index 3e37dabcc543..6efa9a23d90f 100644
+--- a/lib/polygeist/Passes/PolygeistMem2Reg.cpp
++++ b/lib/polygeist/Passes/PolygeistMem2Reg.cpp
+@@ -1146,34 +1146,30 @@ bool PolygeistMem2Reg::forwardStoreToLoad(
+       }
+       if (auto loadOp = dyn_cast<mlir::memref::LoadOp>(user)) {
+         if (!modified &&
+-            matchesIndices(loadOp.getIndices(), idx) == Match::Exact) {
+-          subType = loadOp.getType();
+-          if (subType == elType) {
+-            loadOps.insert(loadOp);
+-            LLVM_DEBUG(llvm::dbgs() << "Matching Load: " << loadOp << "\n");
+-          }
++            matchesIndices(loadOp.getIndices(), idx) == Match::Exact &&
++            loadOp.getType() == elType) {
++          subType = elType;
++          loadOps.insert(loadOp);
++          LLVM_DEBUG(llvm::dbgs() << "Matching Load: " << loadOp << "\n");
+         }
+         continue;
+       }
+       if (auto loadOp = dyn_cast<mlir::LLVM::LoadOp>(user)) {
+-        if (!modified) {
+-          subType = loadOp.getType();
+-          if (subType == elType) {
+-            loadOps.insert(loadOp);
+-            LLVM_DEBUG(llvm::dbgs() << "Matching Load: " << loadOp << "\n");
+-          }
++        if (!modified && loadOp.getType() == elType) {
++          subType = elType;
++          loadOps.insert(loadOp);
++          LLVM_DEBUG(llvm::dbgs() << "Matching Load: " << loadOp << "\n");
+         }
+         continue;
+       }
+       if (auto loadOp = dyn_cast<affine::AffineLoadOp>(user)) {
+         if (!modified &&
+             matchesIndices(loadOp.getAffineMapAttr().getValue(),
+-                           loadOp.getMapOperands(), idx) == Match::Exact) {
+-          subType = loadOp.getType();
+-          if (subType == elType) {
+-            loadOps.insert(loadOp);
+-            LLVM_DEBUG(llvm::dbgs() << "Matching Load: " << loadOp << "\n");
+-          }
++                           loadOp.getMapOperands(), idx) == Match::Exact &&
++            loadOp.getType() == elType) {
++          subType = elType;
++          loadOps.insert(loadOp);
++          LLVM_DEBUG(llvm::dbgs() << "Matching Load: " << loadOp << "\n");
+         }
+         continue;
+       }
+@@ -1183,8 +1179,13 @@ bool PolygeistMem2Reg::forwardStoreToLoad(
+         else if (!modified) {
+           switch (matchesIndices(storeOp.getIndices(), idx)) {
+           case Match::Exact:
+-            LLVM_DEBUG(llvm::dbgs() << "Matching Store: " << storeOp << "\n");
+-            allStoreOps.insert(storeOp);
++            if (storeOp.getValueToStore().getType() == elType) {
++              LLVM_DEBUG(llvm::dbgs()
++                         << "Matching Store: " << storeOp << "\n");
++              allStoreOps.insert(storeOp);
++            } else {
++              AliasingStoreOperations.insert(storeOp);
++            }
+             break;
+           case Match::Maybe:
+             LLVM_DEBUG(llvm::dbgs()
+@@ -1202,7 +1203,7 @@ bool PolygeistMem2Reg::forwardStoreToLoad(
+ 
+         if (storeOp.getValue() == val) {
+           captured = true;
+-        } else if (!modified) {
++        } else if (!modified && storeOp.getValue().getType() == elType) {
+           LLVM_DEBUG(llvm::dbgs() << "Matching Store: " << storeOp << "\n");
+           allStoreOps.insert(storeOp);
+         } else
+@@ -1217,8 +1218,13 @@ bool PolygeistMem2Reg::forwardStoreToLoad(
+           switch (matchesIndices(storeOp.getAffineMapAttr().getValue(),
+                                  storeOp.getMapOperands(), idx)) {
+           case Match::Exact:
+-            LLVM_DEBUG(llvm::dbgs() << "Matching Store: " << storeOp << "\n");
+-            allStoreOps.insert(storeOp);
++            if (storeOp.getValueToStore().getType() == elType) {
++              LLVM_DEBUG(llvm::dbgs()
++                         << "Matching Store: " << storeOp << "\n");
++              allStoreOps.insert(storeOp);
++            } else {
++              AliasingStoreOperations.insert(storeOp);
++            }
+             break;
+           case Match::Maybe:
+             LLVM_DEBUG(llvm::dbgs()
+@@ -1332,6 +1338,7 @@ bool PolygeistMem2Reg::forwardStoreToLoad(
+   if (loadOps.size() == 0) {
+     return changed;
+   }
++  assert(subType == elType);
+ 
+   assert(AI.getDefiningOp());
+   Region *parentAI = AI.getDefiningOp()->getParentRegion();
+@@ -1675,7 +1682,7 @@ bool PolygeistMem2Reg::forwardStoreToLoad(
+ 
+     assert(startFound != valueAtStartOfBlock.end());
+     assert(startFound->second->valueAtStart == block);
+-    auto arg = block->addArgument(subType, loc);
++    auto arg = block->addArgument(elType, loc);
+     auto *argVal = metaMap.get(arg);
+     valueAtStartOfBlock[block] = argVal;
+     blocksWithAddedArgs[block] = arg;
+diff --git a/tools/cgeist/Test/Verification/mem2reg-type-punned-load.cpp b/tools/cgeist/Test/Verification/mem2reg-type-punned-load.cpp
+new file mode 100644
+index 000000000000..8c9ef56ed979
+--- /dev/null
++++ b/tools/cgeist/Test/Verification/mem2reg-type-punned-load.cpp
+@@ -0,0 +1,17 @@
++// RUN: cgeist %s --function='*' -S -O3 | polygeist-opt --verify-each
++
++#include <stdint.h>
++
++float type_punned_load(bool select_float) {
++  uint32_t storage = 0x3f800000u;
++  if (select_float)
++    return *reinterpret_cast<float *>(&storage);
++  return 0.0f;
++}
++
++uint32_t same_type_forward(bool overwrite) {
++  uint32_t storage = 1;
++  if (overwrite)
++    storage = 2;
++  return storage;
++}
+

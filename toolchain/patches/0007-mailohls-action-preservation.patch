@@ -1,0 +1,202 @@
+diff --git a/lib/polygeist/Ops.cpp b/lib/polygeist/Ops.cpp
+index 926891b40611..79a1564834f8 100644
+--- a/lib/polygeist/Ops.cpp
++++ b/lib/polygeist/Ops.cpp
+@@ -5176,6 +5176,15 @@ struct AffineBufferElimination : public OpRewritePattern<T> {
+ 
+   LogicalResult matchAndRewrite(T op,
+                                 PatternRewriter &rewriter) const override {
++    if constexpr (std::is_same_v<T, memref::AllocaOp>) {
++      auto actionID = op->template getAttrOfType<StringAttr>(
++          "mailohls.action_id");
++      auto actionKind = op->template getAttrOfType<StringAttr>(
++          "mailohls.action_kind");
++      if (actionID && actionKind && actionKind.getValue() == "array")
++        return failure();
++    }
++
+     SmallVector<Operation *> stores;
+     LLVM_DEBUG(llvm::dbgs()
+                << " Attempting affine buffer elim of: " << op << "\n");
+diff --git a/tools/cgeist/driver.cc b/tools/cgeist/driver.cc
+index 439b2afca172..733aff4b6547 100644
+--- a/tools/cgeist/driver.cc
++++ b/tools/cgeist/driver.cc
+@@ -40,6 +40,7 @@
+ #include "mlir/Dialect/LLVMIR/ROCDLDialect.h"
+ #include "mlir/Dialect/LLVMIR/Transforms/RequestCWrappers.h"
+ #include "mlir/Dialect/Linalg/IR/Linalg.h"
++#include "mlir/Dialect/MemRef/IR/MemRef.h"
+ #include "mlir/Dialect/OpenMP/OpenMPDialect.h"
+ #include "mlir/Dialect/SCF/IR/SCF.h"
+ #include "mlir/Dialect/SCF/Transforms/Passes.h"
+@@ -67,6 +68,7 @@
+ #include "llvm/Support/FileSystem.h"
+ #include "llvm/Support/InitLLVM.h"
+ #include "llvm/Support/LLVMDriver.h"
++#include "llvm/Support/MemoryBuffer.h"
+ #include "llvm/Support/Program.h"
+ #include "llvm/TargetParser/Host.h"
+ #include "llvm/Transforms/IPO/Internalize.h"
+@@ -257,6 +259,11 @@ static cl::opt<int>
+     CanonicalizeIterations("canonicalizeiters", cl::init(400),
+                            cl::desc("Number of canonicalization iterations"));
+ 
++static cl::opt<std::string> MailoHLSActionManifest(
++    "mailohls-action-manifest", cl::init(""),
++    cl::desc("TSV manifest of exact MailoHLS action source locations"),
++    cl::cat(toolOptions));
++
+ static cl::opt<std::string>
+     McpuOpt("mcpu", cl::init(""), cl::desc("Target CPU"), cl::cat(toolOptions));
+ 
+@@ -264,6 +271,89 @@ static cl::opt<bool> PMEnablePrinting(
+     "pm-enable-printing", cl::init(false),
+     cl::desc("Enable printing of IR before and after all passes"));
+ 
++namespace {
++struct MailoHLSArrayAction {
++  std::string id;
++  std::string filename;
++  unsigned line;
++  unsigned column;
++};
++
++class MarkMailoHLSArrayActionsPass
++    : public mlir::PassWrapper<MarkMailoHLSArrayActionsPass,
++                               mlir::OperationPass<mlir::func::FuncOp>> {
++public:
++  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(MarkMailoHLSArrayActionsPass)
++
++  explicit MarkMailoHLSArrayActionsPass(
++      std::shared_ptr<const std::vector<MailoHLSArrayAction>> actions)
++      : actions(std::move(actions)) {}
++
++  void runOnOperation() override {
++    getOperation()->walk([&](mlir::Operation *op) {
++      if (!llvm::isa<mlir::memref::AllocaOp>(op))
++        return;
++      auto loc = llvm::dyn_cast<mlir::FileLineColLoc>(op->getLoc());
++      if (!loc)
++        return;
++      for (const MailoHLSArrayAction &action : *actions) {
++        if (loc.getFilename() != action.filename ||
++            loc.getLine() != action.line || loc.getColumn() != action.column)
++          continue;
++        op->setAttr("mailohls.action_id",
++                    mlir::StringAttr::get(op->getContext(), action.id));
++        op->setAttr("mailohls.action_kind",
++                    mlir::StringAttr::get(op->getContext(), "array"));
++        break;
++      }
++    });
++  }
++
++private:
++  std::shared_ptr<const std::vector<MailoHLSArrayAction>> actions;
++};
++
++static std::shared_ptr<const std::vector<MailoHLSArrayAction>>
++loadMailoHLSArrayActions(llvm::StringRef path) {
++  auto buffer = llvm::MemoryBuffer::getFile(path);
++  if (!buffer) {
++    llvm::errs() << "error: cannot read MailoHLS action manifest '" << path
++                 << "': " << buffer.getError().message() << "\n";
++    return nullptr;
++  }
++
++  auto actions = std::make_shared<std::vector<MailoHLSArrayAction>>();
++  llvm::SmallVector<llvm::StringRef> lines;
++  buffer.get()->getBuffer().split(lines, '\n', -1, false);
++  for (auto indexedLine : llvm::enumerate(lines)) {
++    llvm::StringRef line = indexedLine.value();
++    if (line.empty())
++      continue;
++    llvm::SmallVector<llvm::StringRef> fields;
++    line.split(fields, '\t', -1, true);
++    if (fields.size() != 5 || fields[0].empty() || fields[2].empty()) {
++      llvm::errs() << "error: malformed MailoHLS action manifest line "
++                   << indexedLine.index() + 1 << "\n";
++      return nullptr;
++    }
++    if (fields[1] != "array")
++      continue;
++    unsigned sourceLine;
++    unsigned sourceColumn;
++    if (fields[3].getAsInteger(10, sourceLine) || sourceLine == 0 ||
++        fields[4].getAsInteger(10, sourceColumn) || sourceColumn == 0) {
++      llvm::errs() << "error: invalid MailoHLS source location on manifest "
++                      "line "
++                   << indexedLine.index() + 1 << "\n";
++      return nullptr;
++    }
++    actions->push_back({fields[0].str(), fields[2].str(), sourceLine,
++                        sourceColumn});
++  }
++  return actions;
++}
++} // namespace
++
+ #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
+ 
+ class PolygeistCudaDetectorArgList : public llvm::opt::ArgList {
+@@ -634,6 +724,13 @@ int main(int argc, char **argv) {
+   bool LinkOMP = FOpenMP;
+   pm.enableVerifier(EarlyVerifier);
+ 
++  std::shared_ptr<const std::vector<MailoHLSArrayAction>> mailoHLSActions;
++  if (!MailoHLSActionManifest.empty()) {
++    mailoHLSActions = loadMailoHLSArrayActions(MailoHLSActionManifest);
++    if (!mailoHLSActions)
++      return 1;
++  }
++
+   pm.addPass(polygeist::createConvertToOpaquePtrPass());
+ 
+   mlir::OpPassManager &optPM = pm.nest<mlir::func::FuncOp>();
+@@ -666,6 +763,9 @@ int main(int argc, char **argv) {
+     optPM.addPass(mlir::polygeist::createPolygeistCanonicalizePass(
+         canonicalizerConfig, {}, {}));
+     optPM.addPass(polygeist::createCanonicalizeForPass());
++    if (mailoHLSActions)
++      optPM.addPass(
++          std::make_unique<MarkMailoHLSArrayActionsPass>(mailoHLSActions));
+     optPM.addPass(mlir::polygeist::createPolygeistCanonicalizePass(
+         canonicalizerConfig, {}, {}));
+     if (RaiseToAffine) {
+diff --git a/tools/cgeist/Test/Verification/mailohls-array-actions.c b/tools/cgeist/Test/Verification/mailohls-array-actions.c
+new file mode 100644
+index 000000000000..00a289e7482c
+--- /dev/null
++++ b/tools/cgeist/Test/Verification/mailohls-array-actions.c
+@@ -0,0 +1,29 @@
++// RUN: split-file %s %t
++// RUN: cd %t && cgeist source.c --function=preserve_array -S -O0 -scal-rep=0 -memref-fullrank --raise-scf-to-affine --print-debug-info -mailohls-action-manifest=actions.tsv | FileCheck %s
++
++// CHECK: memref.alloca() {mailohls.action_id = "L1", mailohls.action_kind = "array"} : memref<100x4xf32> loc(#[[PROTECTED:loc[0-9]+]])
++// CHECK-NOT: memref.alloca
++// CHECK-NOT: scf.if
++// CHECK: affine.for
++// CHECK: affine.store {{.*}} loc(
++// CHECK-DAG: #[[PROTECTED]] = loc("{{.*}}source.c":2:9)
++
++//--- source.c
++void preserve_array(float input[800]) {
++  float protected_copy[100][4];
++  float ordinary_copy[100][4];
++  for (int box = 0; box < 2; ++box) {
++    for (int i = 0; i < 100; ++i)
++      for (int j = 0; j < 4; ++j)
++        protected_copy[i][j] = input[(box * 100 + i) * 4 + j];
++    for (int i = 0; i < 100; ++i)
++      for (int j = 0; j < 4; ++j)
++        ordinary_copy[i][j] = input[(box * 100 + i) * 4 + j];
++    for (int i = 0; i < 100; ++i)
++      for (int j = 0; j < 4; ++j)
++        protected_copy[i][j] += ordinary_copy[i][j];
++  }
++}
++
++//--- actions.tsv
++L1	array	source.c	2	9
+
