@@ -184,42 +184,43 @@ def compute_validation_selection_score(loss_breakdown, baseline_breakdown):
     return max(ratios.values()), ratios
 
 
-class KernelBalancedDataset(Dataset):
-    """Attach weights whose total is equal for every kernel in one split."""
-
-    def __init__(self, dataset, *, unit_loss_weights=False):
+class KernelCenteredDataset(Dataset):
+    def __init__(self, dataset, targets):
         self.dataset = dataset
-        self.kernels = [
-            _sample_kernel(dataset[index]) for index in range(len(dataset))
-        ]
-        counts = Counter(self.kernels)
-        if not counts:
-            self.weights = []
-            self.sampling_weights = []
-            return
-        scale = len(self.kernels) / len(counts)
-        self.sampling_weights = [
-            1.0 / counts[kernel] for kernel in self.kernels
-        ]
-        self.weights = (
-            [1.0] * len(self.kernels)
-            if unit_loss_weights
-            else [scale / counts[kernel] for kernel in self.kernels]
-        )
-        saver.log_info(
-            'Kernel-balanced split: '
-            f'{len(counts)} kernels, {len(self.kernels)} points, '
-            f'points/kernel={min(counts.values())}..{max(counts.values())}'
-        )
+        values = {
+            target: defaultdict(list)
+            for target in targets
+        }
+
+        for index in range(len(dataset)):
+            sample = dataset[index]
+            kernel = _sample_kernel(sample)
+            for target in targets:
+                value = float(
+                    _get_y_with_target(sample, target).reshape(-1)[0]
+                )
+                values[target][kernel].append(value)
+
+        self.centers = {
+            target: {
+                kernel: float(np.mean(kernel_values))
+                for kernel, kernel_values in target_values.items()
+            }
+            for target, target_values in values.items()
+        }
 
     def __len__(self):
         return len(self.dataset)
 
     def __getitem__(self, index):
-        sample = self.dataset[index]
-        sample.kernel_loss_weight = torch.tensor(
-            [self.weights[index]], dtype=torch.float32
-        )
+        sample = self.dataset[index].clone()
+        kernel = _sample_kernel(sample)
+        for target, centers in self.centers.items():
+            setattr(
+                sample,
+                f"{target}_center",
+                torch.tensor([centers[kernel]], dtype=torch.float32),
+            )
         return sample
 
 
@@ -586,6 +587,12 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             )
 
     target_stats = fit_target_statistics(li[0])
+    if FLAGS.decompose_targets:
+        model_targets = (
+            FLAGS.target if isinstance(FLAGS.target, list)
+            else [FLAGS.target]
+        )
+        li[0] = KernelCenteredDataset(li[0], model_targets)
     baseline_total = None
     baseline_breakdown = None
     if len(li[1]) > 0:

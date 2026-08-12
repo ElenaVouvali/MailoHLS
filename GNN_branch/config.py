@@ -189,7 +189,7 @@ parser.add_argument('--edge_dim', default=edge_dim)
 multi_target = ['perf', 'area'] #, 'util-LUT', 'util-FF', 'util-DSP', 'util-BRAM']
 if SUBTASK == 'class':
     multi_target = ['perf']
-    
+
 parser.add_argument(
     "--target",
     nargs="+",
@@ -197,6 +197,20 @@ parser.add_argument(
     default=multi_target,
     help="Targets to predict, for example: --target perf area",
 )
+
+parser.add_argument(
+    "--decompose_targets",
+    action="store_true",
+    help="Predict log2 QoR as a static kernel center plus pragma response.",
+)
+parser.add_argument("--center_aux_weight", type=float, default=0.25)
+parser.add_argument("--response_aux_weight", type=float, default=1.0)
+parser.add_argument(
+    "--checkpoint_objective",
+    choices=("absolute", "qualified_rank"),
+    default="absolute",
+)
+
 parser.add_argument('--MLP_common_lyr', default=0)
 gnn_type = 'transformer'
 parser.add_argument('--gnn_type', type=str, default=gnn_type)
@@ -444,9 +458,11 @@ parser.add_argument('--user', default=get_user())
 
 parser.add_argument('--hostname', default=get_host())
 
-# FLAGS = parser.parse_args([])
 
 FLAGS = parser.parse_args()
+
+if FLAGS.center_aux_weight < 0 or FLAGS.response_aux_weight < 0:
+    parser.error("Target-decomposition weights must be non-negative.")
 
 if FLAGS.kernel_uniform_sampling and not FLAGS.kernel_balanced_loss:
     parser.error('--kernel_uniform_sampling requires --kernel_balanced_loss.')
@@ -462,13 +478,13 @@ if FLAGS.final_refit:
     FLAGS.epoch_num = FLAGS.final_refit_epochs
 
 if FLAGS.tiny_overfit:
+    FLAGS.epoch_num = FLAGS.tiny_overfit_epochs
+    FLAGS.batch_size = FLAGS.tiny_overfit_batch_size
+
     FLAGS.force_regen = False
     FLAGS.target_kernel = FLAGS.tiny_overfit_kernel
     FLAGS.all_kernels = False
-
-    FLAGS.batch_size = FLAGS.tiny_overfit_batch_size
-    FLAGS.epoch_num = FLAGS.tiny_overfit_epochs
-
+    
     FLAGS.val_ratio = 0.0
     FLAGS.dropout = 0.0
     FLAGS.weight_decay = 0.0
