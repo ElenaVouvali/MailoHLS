@@ -48,6 +48,14 @@ def _as_int_seed(seed):
     raise TypeError(f"random seed must be int-like, got {type(seed)}: {seed}")
 
 
+def _name_set(value):
+    if value is None:
+        return set()
+    if isinstance(value, str):
+        return {item.strip() for item in value.split(',') if item.strip()}
+    return {str(item).strip() for item in value if str(item).strip()}
+
+
 def _sample_kernel(sample):
     """Read the kernel name from one unbatched PyG sample."""
     kernel = getattr(sample, 'kernel', None)
@@ -455,6 +463,52 @@ def _filter_dataset_by_kernel(dataset, kernel_name):
     return Subset(dataset, selected_indices)
 
 
+def _exclude_development_kernels(dataset, value):
+    """Remove kernels that lack authenticated Stage-C reference measurements."""
+    excluded = _name_set(value)
+    if not excluded:
+        return dataset
+
+    overlap = excluded & (
+        _name_set(FLAGS.val_kernels) | _name_set(FLAGS.test_kernels)
+    )
+    if overlap:
+        raise RuntimeError(
+            'Development exclusions overlap validation/test kernels: '
+            + ', '.join(sorted(overlap))
+        )
+
+    records = getattr(dataset, 'records', None)
+    if not isinstance(records, list) or (
+        records and not isinstance(records[0], dict)
+    ):
+        raise RuntimeError(
+            '--development_exclude_kernels requires the compact MLIR dataset.'
+        )
+    available = {
+        record.get('kernel_name')
+        for record in records
+        if record.get('kernel_name')
+    }
+    unknown = excluded - available
+    if unknown:
+        raise RuntimeError(
+            'Unknown development-excluded kernels: '
+            + ', '.join(sorted(unknown))
+        )
+    retained = [
+        record for record in records
+        if record.get('kernel_name') not in excluded
+    ]
+    if not retained:
+        raise RuntimeError('Development exclusions removed the entire dataset.')
+    saver.log_info(
+        'Development kernels excluded before splitting: '
+        + ', '.join(sorted(excluded))
+    )
+    return MyOwnDataset(data_files=retained)
+
+
 def process_split_data(dataset):
     dataset_dict = defaultdict(list)
 
@@ -471,6 +525,11 @@ def process_split_data(dataset):
         dataset_dict['val'] = tiny_ds
         dataset_dict['test'] = tiny_ds
         return dataset_dict
+
+    dataset = _exclude_development_kernels(
+        dataset,
+        getattr(FLAGS, 'development_exclude_kernels', None),
+    )
 
     # Full training: use the whole compact dataset directly
     dataset_dict['train'] = dataset

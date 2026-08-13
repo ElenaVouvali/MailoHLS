@@ -1,0 +1,1062 @@
+Read compact dataset from /home/elvouvali/MailoHLS/GNN_branch/MLIR_dataset/all_kernels with 25157 samples
+[0m] INFO: Starting training with resample -1
+[0m] INFO: Reading dataset from /home/elvouvali/MailoHLS/GNN_branch/MLIR_dataset/all_kernels
+Development kernels excluded before splitting: rodinia_lud_1_tiling_0, spcl_example_01
+Reference-delta mode: loaded 52 neutral development baselines; held-out test rows are forbidden.
+Training-only log2 target statistics: {'perf': {'mean': -1.2462603961271075, 'std': 3.161187294438759, 'count': 22317, 'weighting': 'kernel_balanced'}, 'area': {'mean': 1.90068350862794, 'std': 1.2512689101029233, 'count': 22317, 'weighting': 'kernel_balanced'}}
+Deterministic validation baseline under the configured objective: total=1.2756, breakdown={'perf': 0.14998615890211467, 'area': 1.1256215108554284}
+Kernel-balanced split: 49 kernels, 22317 points, points/kernel=7..859
+Kernel-balanced split: 3 kernels, 1822 points, points/kernel=388..751
+[1m] INFO: num features for training: 407
+[1m] INFO: size of the edge attribute is 82
+Model first param device: cuda:0
+Optimization schedule: steps=5880, warmup_steps=0 (0 fixed epochs)
+[initial_val] epoch -1
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8356  23.9822   575.1464   
+1  latency_ms        kernel      683        1  0.8763   2.0564     4.2290   
+2  latency_ms        kernel      388        1  0.7622  34.8796  1216.5862   
+3  latency_ms        kernel      751        1  0.8364  27.6220   762.9731   
+4  latency_ms  kernel_macro     1822        3  0.8250  21.5193   661.2628   
+5  area_score   point_micro     1822        3  3.1994  16.2957   265.5482   
+6  area_score        kernel      683        1  3.8975   6.7198    45.1552   
+7  area_score        kernel      388        1  1.6275   9.1342    83.4330   
+8  area_score        kernel      751        1  3.3766  23.6659   560.0744   
+9  area_score  kernel_macro     1822        3  2.9672  13.1733   229.5542   
+
+       mae   max_err     tau                               kernel  
+0  17.5659  156.1363  0.5160                                  NaN  
+1   2.0422    3.3074 -0.0195                 machsuite-sort-radix  
+2  25.7341  156.1363 -0.0458      rodinia_pathfinder_0_baseline_0  
+3  27.4639   52.9087  0.3562  rodinia_pathfinder_4_doublebuffer_0  
+4  18.4134   70.7841  0.0970                                       
+5  13.6976   36.4553  0.5636                                  NaN  
+6   6.6341    7.8021  0.4669                 machsuite-sort-radix  
+7   8.4418   20.5111  0.1786      rodinia_pathfinder_0_baseline_0  
+8  22.8369   36.4553  0.3349  rodinia_pathfinder_4_doublebuffer_0  
+9  12.6376   21.5895  0.3268                                       
+[initial_val] latency_ms physical RMSE: 23.9822 | MAE: 17.5659 | MAPE: 83.56% | tau-b: 0.5160
+[initial_val] area_score physical RMSE: 16.2957 | MAE: 13.6976 | MAPE: 319.94% | tau-b: 0.5636
+Untrained validation loss: 1.8390; breakdown={'perf': 0.6127116559431137, 'area': 1.2262489894480657}; target-balanced selection=4.0851; relative target losses={'area': 1.0893972597557808, 'perf': 4.085121323381494}
+Initial validation GAE loss: 0
+Initial validation loss breakdown {'perf': 0.6127116559431137, 'area': 1.2262489894480657}
+Test batch ID (resample): -1 - Epoch 0 train
+epoch = 0, learning rate = 3e-05
+Saved train model at epoch 0
+Epoch 0 val
+[val] epoch 0
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.2609  40.9865  1679.8893   
+1  latency_ms        kernel      683        1  0.0857   0.2568     0.0660   
+2  latency_ms        kernel      388        1  2.3611  36.8703  1359.4159   
+3  latency_ms        kernel      751        1  1.7613  58.0791  3373.1823   
+4  latency_ms  kernel_macro     1822        3  1.4027  31.7354  1577.5547   
+5  area_score   point_micro     1822        3  0.9283   6.9953    48.9343   
+6  area_score        kernel      683        1  1.0615   2.0671     4.2728   
+7  area_score        kernel      388        1  0.6484  11.0909   123.0087   
+8  area_score        kernel      751        1  0.9518   7.1611    51.2819   
+9  area_score  kernel_macro     1822        3  0.8872   6.7730    59.5211   
+
+       mae  max_err     tau                               kernel  
+0  30.6682  96.0815  0.5508                                  NaN  
+1   0.2019   0.9286  0.1102                 machsuite-sort-radix  
+2  32.5574  96.0815  0.2188      rodinia_pathfinder_0_baseline_0  
+3  57.3999  83.3938  0.1696  rodinia_pathfinder_4_doublebuffer_0  
+4  30.0531  60.1346  0.1662                                       
+5   4.9107  26.7721  0.6227                                  NaN  
+6   1.7952  12.8366  0.6951                 machsuite-sort-radix  
+7   7.6375  26.7721  0.2307      rodinia_pathfinder_0_baseline_0  
+8   6.3353  23.0519  0.3987  rodinia_pathfinder_4_doublebuffer_0  
+9   5.2560  20.8869  0.4415                                       
+[val] latency_ms physical RMSE: 40.9865 | MAE: 30.6682 | MAPE: 126.09% | tau-b: 0.5508
+[val] area_score physical RMSE: 6.9953 | MAE: 4.9107 | MAPE: 92.83% | tau-b: 0.6227
+Validation target-balanced selection score: 1.087059; relative target losses={'area': 0.5439232660127514, 'perf': 1.08705926277513}
+Validation worst-target kernel-macro tau-b: 0.166220; qualified=False
+Saved val model at epoch 0
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.47557476223731526, 'area': 0.6017327594513796}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1630438433226063, 'area': 0.6122517284786924}
+Epoch: 000, Train Loss: 1.0773, Val loss: 0.7753, Time: 25.001 secs
+Test batch ID (resample): -1 - Epoch 1 train
+epoch = 1, learning rate = 3e-05
+Saved train model at epoch 1
+Epoch 1 val
+[val] epoch 1
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.4728  50.2449  2524.5550   
+1  latency_ms        kernel      683        1  0.1721   0.4973     0.2473   
+2  latency_ms        kernel      388        1  2.2485  34.9197  1219.3882   
+3  latency_ms        kernel      751        1  2.2551  74.1256  5494.6041   
+4  latency_ms  kernel_macro     1822        3  1.5585  36.5142  2238.0798   
+5  area_score   point_micro     1822        3  0.7070   6.7271    45.2535   
+6  area_score        kernel      683        1  0.7597   1.6736     2.8009   
+7  area_score        kernel      388        1  0.5710  11.4711   131.5861   
+8  area_score        kernel      751        1  0.7294   6.2657    39.2589   
+9  area_score  kernel_macro     1822        3  0.6867   6.4701    57.8820   
+
+       mae   max_err     tau                               kernel  
+0  37.1102  100.6263  0.5341                                  NaN  
+1   0.4105    1.4576  0.0944                 machsuite-sort-radix  
+2  31.2305   96.9465  0.4542      rodinia_pathfinder_0_baseline_0  
+3  73.5247  100.6263  0.0225  rodinia_pathfinder_4_doublebuffer_0  
+4  35.0552   66.3434  0.1904                                       
+5   4.3207   27.5137  0.6292                                  NaN  
+6   1.3393   12.7999  0.6966                 machsuite-sort-radix  
+7   7.7507   27.5137  0.2757      rodinia_pathfinder_0_baseline_0  
+8   5.2599   24.8125  0.4269  rodinia_pathfinder_4_doublebuffer_0  
+9   4.7833   21.7087  0.4664                                       
+[val] latency_ms physical RMSE: 50.2449 | MAE: 37.1102 | MAPE: 147.28% | tau-b: 0.5341
+[val] area_score physical RMSE: 6.7271 | MAE: 4.3207 | MAPE: 70.70% | tau-b: 0.6292
+Validation target-balanced selection score: 1.243717; relative target losses={'area': 0.478331206506037, 'perf': 1.2437168242377226}
+Validation worst-target kernel-macro tau-b: 0.190355; qualified=False
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.4048375171058032, 'area': 0.5209754824030156}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.18654030922935247, 'area': 0.5384198953566253}
+Epoch: 001, Train Loss: 0.9258, Val loss: 0.7250, Time: 25.838 secs
+Checkpoint saved at epoch 1 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 2 train
+epoch = 2, learning rate = 3e-05
+Saved train model at epoch 2
+Epoch 2 val
+[val] epoch 2
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.1731  40.8934  1672.2708   
+1  latency_ms        kernel      683        1  0.2513   0.6722     0.4519   
+2  latency_ms        kernel      388        1  1.4863  24.9651   623.2542   
+3  latency_ms        kernel      751        1  1.8496  61.1120  3734.6819   
+4  latency_ms  kernel_macro     1822        3  1.1957  28.9164  1452.7960   
+5  area_score   point_micro     1822        3  0.8240   6.8689    47.1813   
+6  area_score        kernel      683        1  0.8618   1.7445     3.0431   
+7  area_score        kernel      388        1  0.5922  11.1480   124.2787   
+8  area_score        kernel      751        1  0.9094   6.8914    47.4909   
+9  area_score  kernel_macro     1822        3  0.7878   6.5946    58.2709   
+
+       mae   max_err     tau                               kernel  
+0  29.4577  109.3782  0.5442                                  NaN  
+1   0.5935    1.6626  0.1025                 machsuite-sort-radix  
+2  20.5388  109.3782  0.4941      rodinia_pathfinder_0_baseline_0  
+3  60.3163   88.9615  0.0647  rodinia_pathfinder_4_doublebuffer_0  
+4  27.1496   66.6674  0.2204                                       
+5   4.6957   27.0242  0.6250                                  NaN  
+6   1.4952   11.6087  0.6907                 machsuite-sort-radix  
+7   7.5720   27.0242  0.2857      rodinia_pathfinder_0_baseline_0  
+8   6.1205   21.7472  0.4315  rodinia_pathfinder_4_doublebuffer_0  
+9   5.0626   20.1267  0.4693                                       
+[val] latency_ms physical RMSE: 40.8934 | MAE: 29.4577 | MAPE: 117.31% | tau-b: 0.5442
+[val] area_score physical RMSE: 6.8689 | MAE: 4.6957 | MAPE: 82.40% | tau-b: 0.6250
+Validation target-balanced selection score: 0.972493; relative target losses={'area': 0.502039986840717, 'perf': 0.9724931126850301}
+Validation worst-target kernel-macro tau-b: 0.220421; qualified=True
+Saved qualified rank model at epoch 2; worst-target kernel-macro tau-b=0.220421
+Saved val model at epoch 2
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.3837631953005888, 'area': 0.49076955932743693}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.14586050653038904, 'area': 0.5651070084974873}
+Epoch: 002, Train Loss: 0.8745, Val loss: 0.7110, Time: 25.643 secs
+Test batch ID (resample): -1 - Epoch 3 train
+epoch = 3, learning rate = 3e-05
+Saved train model at epoch 3
+Epoch 3 val
+[val] epoch 3
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.9664  33.9988  1155.9163   
+1  latency_ms        kernel      683        1  0.3068   0.7979     0.6367   
+2  latency_ms        kernel      388        1  1.0376  20.9031   436.9386   
+3  latency_ms        kernel      751        1  1.5296  50.7745  2578.0459   
+4  latency_ms  kernel_macro     1822        3  0.9580  24.1585  1005.2071   
+5  area_score   point_micro     1822        3  0.5012   6.7045    44.9501   
+6  area_score        kernel      683        1  0.3834   1.3104     1.7172   
+7  area_score        kernel      388        1  0.5306  11.8210   139.7350   
+8  area_score        kernel      751        1  0.5930   5.9412    35.2984   
+9  area_score  kernel_macro     1822        3  0.5024   6.3575    58.9168   
+
+       mae   max_err     tau                               kernel  
+0  24.3644  118.3316  0.5521                                  NaN  
+1   0.7207    1.8019  0.1162                 machsuite-sort-radix  
+2  16.5887  118.3316  0.5452      rodinia_pathfinder_0_baseline_0  
+3  49.8845   77.9243  0.0869  rodinia_pathfinder_4_doublebuffer_0  
+4  22.3980   66.0192  0.2494                                       
+5   3.9211   28.0152  0.6307                                  NaN  
+6   0.7990   12.3522  0.6901                 machsuite-sort-radix  
+7   7.9527   28.0152  0.3040      rodinia_pathfinder_0_baseline_0  
+8   4.6777   25.7570  0.4335  rodinia_pathfinder_4_doublebuffer_0  
+9   4.4765   22.0415  0.4759                                       
+[val] latency_ms physical RMSE: 33.9988 | MAE: 24.3644 | MAPE: 96.64% | tau-b: 0.5521
+[val] area_score physical RMSE: 6.7045 | MAE: 3.9211 | MAPE: 50.12% | tau-b: 0.6307
+Validation target-balanced selection score: 0.769260; relative target losses={'area': 0.4108651639162655, 'perf': 0.7692595115824608}
+Validation worst-target kernel-macro tau-b: 0.249403; qualified=True
+Saved qualified rank model at epoch 3; worst-target kernel-macro tau-b=0.249403
+Saved val model at epoch 3
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.3532322999470088, 'area': 0.4606295541232946}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.11537827934117008, 'area': 0.46247866656529}
+Epoch: 003, Train Loss: 0.8139, Val loss: 0.5779, Time: 25.035 secs
+Checkpoint saved at epoch 3 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 4 train
+epoch = 4, learning rate = 3e-05
+Saved train model at epoch 4
+Epoch 4 val
+[val] epoch 4
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.9533  34.9252  1219.7692   
+1  latency_ms        kernel      683        1  0.2980   0.7811     0.6101   
+2  latency_ms        kernel      388        1  0.9309  20.3097   412.4852   
+3  latency_ms        kernel      751        1  1.5607  52.3986  2745.6173   
+4  latency_ms  kernel_macro     1822        3  0.9299  24.4965  1052.9042   
+5  area_score   point_micro     1822        3  0.4882   6.6579    44.3271   
+6  area_score        kernel      683        1  0.3720   1.2109     1.4663   
+7  area_score        kernel      388        1  0.5210  11.8644   140.7641   
+8  area_score        kernel      751        1  0.5768   5.7865    33.4835   
+9  area_score  kernel_macro     1822        3  0.4899   6.2873    58.5713   
+
+       mae   max_err     tau                               kernel  
+0  24.6435  116.5913  0.5551                                  NaN  
+1   0.6993    1.7831  0.1292                 machsuite-sort-radix  
+2  15.9059  116.5913  0.4759      rodinia_pathfinder_0_baseline_0  
+3  50.9339   90.5549  0.1116  rodinia_pathfinder_4_doublebuffer_0  
+4  22.5130   69.6431  0.2389                                       
+5   3.8575   28.1221  0.6244                                  NaN  
+6   0.7616   11.1761  0.6850                 machsuite-sort-radix  
+7   7.9757   28.1221  0.3075      rodinia_pathfinder_0_baseline_0  
+8   4.5454   25.1380  0.4516  rodinia_pathfinder_4_doublebuffer_0  
+9   4.4276   21.4787  0.4814                                       
+[val] latency_ms physical RMSE: 34.9252 | MAE: 24.6435 | MAPE: 95.33% | tau-b: 0.5551
+[val] area_score physical RMSE: 6.6579 | MAE: 3.8575 | MAPE: 48.82% | tau-b: 0.6244
+Validation target-balanced selection score: 0.740273; relative target losses={'area': 0.40589419048446795, 'perf': 0.7402726553839976}
+Validation worst-target kernel-macro tau-b: 0.238914; qualified=True
+Saved val model at epoch 4
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.34269331319599733, 'area': 0.43165236224933545}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.11103065212131463, 'area': 0.45688323194056785}
+Epoch: 004, Train Loss: 0.7743, Val loss: 0.5679, Time: 26.131 secs
+Test batch ID (resample): -1 - Epoch 5 train
+epoch = 5, learning rate = 3e-05
+Saved train model at epoch 5
+Epoch 5 val
+[val] epoch 5
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8537  31.1049   967.5177   
+1  latency_ms        kernel      683        1  0.3518   0.9024     0.8143   
+2  latency_ms        kernel      388        1  0.7856  20.5160   420.9074   
+3  latency_ms        kernel      751        1  1.3454  46.1421  2129.0933   
+4  latency_ms  kernel_macro     1822        3  0.8276  22.5202   850.2717   
+5  area_score   point_micro     1822        3  0.4688   6.6400    44.0895   
+6  area_score        kernel      683        1  0.2770   1.1965     1.4316   
+7  area_score        kernel      388        1  0.5134  11.7871   138.9346   
+8  area_score        kernel      751        1  0.6202   5.8210    33.8838   
+9  area_score  kernel_macro     1822        3  0.4702   6.2682    58.0833   
+
+       mae   max_err     tau                               kernel  
+0  21.7563  118.2187  0.5575                                  NaN  
+1   0.8232    1.9366  0.1418                 machsuite-sort-radix  
+2  15.7005  118.2187  0.4325      rodinia_pathfinder_0_baseline_0  
+3  43.9227   97.7982  0.1271  rodinia_pathfinder_4_doublebuffer_0  
+4  20.1488   72.6512  0.2338                                       
+5   3.8662   27.9886  0.6308                                  NaN  
+6   0.6389   11.2468  0.6724                 machsuite-sort-radix  
+7   7.9087   27.9886  0.3230      rodinia_pathfinder_0_baseline_0  
+8   4.7127   24.0441  0.4437  rodinia_pathfinder_4_doublebuffer_0  
+9   4.4201   21.0932  0.4797                                       
+[val] latency_ms physical RMSE: 31.1049 | MAE: 21.7563 | MAPE: 85.37% | tau-b: 0.5575
+[val] area_score physical RMSE: 6.6400 | MAE: 3.8662 | MAPE: 46.88% | tau-b: 0.6308
+Validation target-balanced selection score: 0.671700; relative target losses={'area': 0.3914746354295934, 'perf': 0.6716998904440298}
+Validation worst-target kernel-macro tau-b: 0.233802; qualified=True
+Saved val model at epoch 5
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.34375264206711126, 'area': 0.4139167192030926}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.10074568650267127, 'area': 0.4406522705938369}
+Epoch: 005, Train Loss: 0.7577, Val loss: 0.5414, Time: 26.341 secs
+Checkpoint saved at epoch 5 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 6 train
+epoch = 6, learning rate = 3e-05
+Saved train model at epoch 6
+Epoch 6 val
+[val] epoch 6
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.9775  38.8677  1510.6942   
+1  latency_ms        kernel      683        1  0.2343   0.7106     0.5050   
+2  latency_ms        kernel      388        1  0.8276  19.5270   381.3047   
+3  latency_ms        kernel      751        1  1.7309  58.8866  3467.6349   
+4  latency_ms  kernel_macro     1822        3  0.9309  26.3748  1283.1482   
+5  area_score   point_micro     1822        3  0.6254   6.6761    44.5708   
+6  area_score        kernel      683        1  0.5580   1.2707     1.6147   
+7  area_score        kernel      388        1  0.4953  11.5090   132.4574   
+8  area_score        kernel      751        1  0.7540   6.1831    38.2312   
+9  area_score  kernel_macro     1822        3  0.6024   6.3210    57.4345   
+
+       mae   max_err     tau                               kernel  
+0  26.7026  120.2708  0.5513                                  NaN  
+1   0.5500    2.8259  0.1246                 machsuite-sort-radix  
+2  15.0003  112.8994  0.4799      rodinia_pathfinder_0_baseline_0  
+3  56.5331  120.2708  0.0918  rodinia_pathfinder_4_doublebuffer_0  
+4  24.0278   78.6654  0.2321                                       
+5   4.2314   27.8720  0.5964                                  NaN  
+6   1.0250    8.2529  0.6780                 machsuite-sort-radix  
+7   7.6758   27.8720  0.3602      rodinia_pathfinder_0_baseline_0  
+8   5.3679   20.4224  0.4651  rodinia_pathfinder_4_doublebuffer_0  
+9   4.6896   18.8491  0.5011                                       
+[val] latency_ms physical RMSE: 38.8677 | MAE: 26.7026 | MAPE: 97.75% | tau-b: 0.5513
+[val] area_score physical RMSE: 6.6761 | MAE: 4.2314 | MAPE: 62.54% | tau-b: 0.5964
+Validation target-balanced selection score: 0.722592; relative target losses={'area': 0.4346638582618689, 'perf': 0.7225924477087369}
+Validation worst-target kernel-macro tau-b: 0.232117; qualified=True
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.3267994989850083, 'area': 0.3994992563919145}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.10837886568351059, 'area': 0.48926698885097464}
+Epoch: 006, Train Loss: 0.7263, Val loss: 0.5976, Time: 26.307 secs
+Test batch ID (resample): -1 - Epoch 7 train
+epoch = 7, learning rate = 3e-05
+Saved train model at epoch 7
+Epoch 7 val
+[val] epoch 7
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.1215  45.8558  2102.7525   
+1  latency_ms        kernel      683        1  0.2772   0.8643     0.7471   
+2  latency_ms        kernel      388        1  0.8692  19.2378   370.0944   
+3  latency_ms        kernel      751        1  2.0196  70.0685  4909.5982   
+4  latency_ms  kernel_macro     1822        3  1.0553  30.0569  1760.1466   
+5  area_score   point_micro     1822        3  0.5411   6.6263    43.9080   
+6  area_score        kernel      683        1  0.3848   1.0974     1.2042   
+7  area_score        kernel      388        1  0.4969  11.6053   134.6833   
+8  area_score        kernel      751        1  0.7061   5.9872    35.8467   
+9  area_score  kernel_macro     1822        3  0.5293   6.2300    57.2447   
+
+       mae   max_err     tau                               kernel  
+0  30.5979  162.8990  0.5470                                  NaN  
+1   0.6520    3.8097  0.1329                 machsuite-sort-radix  
+2  14.7557  101.0305  0.4943      rodinia_pathfinder_0_baseline_0  
+3  66.0171  162.8990  0.0562  rodinia_pathfinder_4_doublebuffer_0  
+4  27.1416   89.2464  0.2278                                       
+5   4.0545   28.0937  0.6150                                  NaN  
+6   0.7641    8.6412  0.6736                 machsuite-sort-radix  
+7   7.7729   28.0937  0.3853      rodinia_pathfinder_0_baseline_0  
+8   5.1259   20.6422  0.4642  rodinia_pathfinder_4_doublebuffer_0  
+9   4.5543   19.1257  0.5077                                       
+[val] latency_ms physical RMSE: 45.8558 | MAE: 30.5979 | MAPE: 112.15% | tau-b: 0.5470
+[val] area_score physical RMSE: 6.6263 | MAE: 4.0545 | MAPE: 54.11% | tau-b: 0.6150
+Validation target-balanced selection score: 0.824495; relative target losses={'area': 0.4033267091799503, 'perf': 0.8244947027169246}
+Validation worst-target kernel-macro tau-b: 0.227782; qualified=True
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.31693053382391834, 'area': 0.37277111623968395}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.12366279349565244, 'area': 0.4539932197554836}
+Epoch: 007, Train Loss: 0.6897, Val loss: 0.5777, Time: 26.279 secs
+Checkpoint saved at epoch 7 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 8 train
+epoch = 8, learning rate = 3e-05
+Saved train model at epoch 8
+Epoch 8 val
+[val] epoch 8
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.7704  30.8690   952.8966   
+1  latency_ms        kernel      683        1  0.2829   0.7706     0.5939   
+2  latency_ms        kernel      388        1  0.6471  19.7858   391.4767   
+3  latency_ms        kernel      751        1  1.2773  45.9241  2109.0266   
+4  latency_ms  kernel_macro     1822        3  0.7358  22.1602   833.6990   
+5  area_score   point_micro     1822        3  0.5017   6.5834    43.3407   
+6  area_score        kernel      683        1  0.3315   1.1168     1.2472   
+7  area_score        kernel      388        1  0.4987  11.6774   136.3617   
+8  area_score        kernel      751        1  0.6580   5.7934    33.5641   
+9  area_score  kernel_macro     1822        3  0.4961   6.1959    57.0577   
+
+       mae   max_err     tau                               kernel  
+0  20.5566  131.7413  0.5525                                  NaN  
+1   0.6615    1.8211  0.1379                 machsuite-sort-radix  
+2  14.5489  111.2198  0.4671      rodinia_pathfinder_0_baseline_0  
+3  41.7542  131.7413  0.0905  rodinia_pathfinder_4_doublebuffer_0  
+4  18.9882   81.5941  0.2318                                       
+5   3.9366   28.0686  0.6216                                  NaN  
+6   0.6950    9.4972  0.6572                 machsuite-sort-radix  
+7   7.8313   28.0686  0.3666      rodinia_pathfinder_0_baseline_0  
+8   4.8726   21.3373  0.4604  rodinia_pathfinder_4_doublebuffer_0  
+9   4.4663   19.6344  0.4947                                       
+[val] latency_ms physical RMSE: 30.8690 | MAE: 20.5566 | MAPE: 77.04% | tau-b: 0.5525
+[val] area_score physical RMSE: 6.5834 | MAE: 3.9366 | MAPE: 50.17% | tau-b: 0.6216
+Validation target-balanced selection score: 0.572779; relative target losses={'area': 0.3941028268630791, 'perf': 0.5727790497187126}
+Validation worst-target kernel-macro tau-b: 0.231819; qualified=True
+Saved val model at epoch 8
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.30982406163702203, 'area': 0.36789629349903186}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.08590892956691307, 'area': 0.44361061940601443}
+Epoch: 008, Train Loss: 0.6777, Val loss: 0.5295, Time: 26.233 secs
+Test batch ID (resample): -1 - Epoch 9 train
+epoch = 9, learning rate = 3e-05
+Saved train model at epoch 9
+Epoch 9 val
+[val] epoch 9
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8864  36.6656  1344.3642   
+1  latency_ms        kernel      683        1  0.2947   0.7943     0.6309   
+2  latency_ms        kernel      388        1  0.6666  19.4816   379.5325   
+3  latency_ms        kernel      751        1  1.5382  55.3616  3064.9028   
+4  latency_ms  kernel_macro     1822        3  0.8331  25.2125  1148.3554   
+5  area_score   point_micro     1822        3  0.5015   6.5899    43.4274   
+6  area_score        kernel      683        1  0.3226   1.0868     1.1812   
+7  area_score        kernel      388        1  0.4961  11.6426   135.5494   
+8  area_score        kernel      751        1  0.6671   5.8527    34.2540   
+9  area_score  kernel_macro     1822        3  0.4953   6.1940    56.9949   
+
+       mae   max_err     tau                               kernel  
+0  24.0394  169.9729  0.5576                                  NaN  
+1   0.6887    1.8654  0.1470                 machsuite-sort-radix  
+2  14.2510  105.2027  0.4593      rodinia_pathfinder_0_baseline_0  
+3  50.3329  169.9729  0.1140  rodinia_pathfinder_4_doublebuffer_0  
+4  21.7575   92.3470  0.2401                                       
+5   3.9584   28.1877  0.6152                                  NaN  
+6   0.6811    9.0773  0.6520                 machsuite-sort-radix  
+7   7.8193   28.1877  0.3993      rodinia_pathfinder_0_baseline_0  
+8   4.9442   20.5139  0.4678  rodinia_pathfinder_4_doublebuffer_0  
+9   4.4815   19.2597  0.5064                                       
+[val] latency_ms physical RMSE: 36.6656 | MAE: 24.0394 | MAPE: 88.64% | tau-b: 0.5576
+[val] area_score physical RMSE: 6.5899 | MAE: 3.9584 | MAPE: 50.15% | tau-b: 0.6152
+Validation target-balanced selection score: 0.667946; relative target losses={'area': 0.39222513635323847, 'perf': 0.6679456568016081}
+Validation worst-target kernel-macro tau-b: 0.240067; qualified=True
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.2932545564004353, 'area': 0.3629335096600104}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.10018260341902334, 'area': 0.4414970505774087}
+Epoch: 009, Train Loss: 0.6562, Val loss: 0.5417, Time: 25.924 secs
+Checkpoint saved at epoch 9 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 10 train
+epoch = 10, learning rate = 3e-05
+Saved train model at epoch 10
+Epoch 10 val
+[val] epoch 10
+       target   aggregation  samples  kernels    mape      rmse         mse  \
+0  latency_ms   point_micro     1822        3  1.5161   65.1272   4241.5574   
+1  latency_ms        kernel      683        1  0.3719    1.1735      1.3772   
+2  latency_ms        kernel      388        1  0.9594   20.2921    411.7682   
+3  latency_ms        kernel      751        1  2.8444  100.3815  10076.4460   
+4  latency_ms  kernel_macro     1822        3  1.3919   40.6157   3496.5304   
+5  area_score   point_micro     1822        3  0.7184    7.4046     54.8284   
+6  area_score        kernel      683        1  0.4836    1.2061      1.4546   
+7  area_score        kernel      388        1  0.4807   11.0111    121.2443   
+8  area_score        kernel      751        1  1.0548    8.3100     69.0560   
+9  area_score  kernel_macro     1822        3  0.6730    6.8424     63.9183   
+
+       mae   max_err     tau                               kernel  
+0  41.9963  271.2268  0.5486                                  NaN  
+1   0.8726    4.7099  0.1426                 machsuite-sort-radix  
+2  15.4335   75.7779  0.5411      rodinia_pathfinder_0_baseline_0  
+3  93.1200  271.2268  0.0391  rodinia_pathfinder_4_doublebuffer_0  
+4  36.4754  117.2382  0.2409                                       
+5   4.9292   27.3618  0.6204                                  NaN  
+6   0.9177    8.2580  0.6427                 machsuite-sort-radix  
+7   7.3105   27.3618  0.4003      rodinia_pathfinder_0_baseline_0  
+8   7.3471   17.2877  0.4734  rodinia_pathfinder_4_doublebuffer_0  
+9   5.1918   17.6358  0.5055                                       
+[val] latency_ms physical RMSE: 65.1272 | MAE: 41.9963 | MAPE: 151.61% | tau-b: 0.5486
+[val] area_score physical RMSE: 7.4046 | MAE: 4.9292 | MAPE: 71.84% | tau-b: 0.6204
+Validation target-balanced selection score: 1.076922; relative target losses={'area': 0.4347938051756358, 'perf': 1.0769223655288294}
+Validation worst-target kernel-macro tau-b: 0.240943; qualified=False
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.29192178255441237, 'area': 0.35114858710035984}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.16152344904144822, 'area': 0.48941325989237994}
+Epoch: 010, Train Loss: 0.6431, Val loss: 0.6509, Time: 25.894 secs
+Test batch ID (resample): -1 - Epoch 11 train
+epoch = 11, learning rate = 3e-05
+Saved train model at epoch 11
+Epoch 11 val
+[val] epoch 11
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.0922  47.8539  2289.9922   
+1  latency_ms        kernel      683        1  0.2988   0.9194     0.8454   
+2  latency_ms        kernel      388        1  0.6702  17.6457   311.3711   
+3  latency_ms        kernel      751        1  2.0319  73.4446  5394.1097   
+4  latency_ms  kernel_macro     1822        3  1.0003  30.6699  1902.1087   
+5  area_score   point_micro     1822        3  0.7041   7.2082    51.9580   
+6  area_score        kernel      683        1  0.5208   1.2299     1.5126   
+7  area_score        kernel      388        1  0.4756  10.9690   120.3191   
+8  area_score        kernel      751        1  0.9889   7.9068    62.5173   
+9  area_score  kernel_macro     1822        3  0.6618   6.7019    61.4497   
+
+       mae   max_err     tau                               kernel  
+0  30.4034  231.0673  0.5566                                  NaN  
+1   0.7013    3.6217  0.1493                 machsuite-sort-radix  
+2  12.7072   88.1281  0.5318      rodinia_pathfinder_0_baseline_0  
+3  66.5587  231.0673  0.0752  rodinia_pathfinder_4_doublebuffer_0  
+4  26.6557  107.6057  0.2521                                       
+5   4.7840   27.4495  0.6182                                  NaN  
+6   0.9779    7.6983  0.6563                 machsuite-sort-radix  
+7   7.2827   27.4495  0.4256      rodinia_pathfinder_0_baseline_0  
+8   6.9545   16.9571  0.4733  rodinia_pathfinder_4_doublebuffer_0  
+9   5.0717   17.3683  0.5184                                       
+[val] latency_ms physical RMSE: 47.8539 | MAE: 30.4034 | MAPE: 109.22% | tau-b: 0.5566
+[val] area_score physical RMSE: 7.2082 | MAE: 4.7840 | MAPE: 70.41% | tau-b: 0.6182
+Validation target-balanced selection score: 0.767399; relative target losses={'area': 0.43015171347579745, 'perf': 0.7673988433879902}
+Validation worst-target kernel-macro tau-b: 0.252117; qualified=True
+Saved qualified rank model at epoch 11; worst-target kernel-macro tau-b=0.252117
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.28287400594171214, 'area': 0.3551902714736608}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.11509920486569011, 'area': 0.48418802161967844}
+Epoch: 011, Train Loss: 0.6381, Val loss: 0.5993, Time: 27.504 secs
+Checkpoint saved at epoch 11 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 12 train
+epoch = 12, learning rate = 1.5e-05
+Saved train model at epoch 12
+Epoch 12 val
+[val] epoch 12
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8304  36.6588  1343.8663   
+1  latency_ms        kernel      683        1  0.2386   0.7024     0.4933   
+2  latency_ms        kernel      388        1  0.5761  17.8306   317.9303   
+3  latency_ms        kernel      751        1  1.4999  55.6385  3095.6465   
+4  latency_ms  kernel_macro     1822        3  0.7715  24.7238  1138.0234   
+5  area_score   point_micro     1822        3  0.7068   7.3777    54.4306   
+6  area_score        kernel      683        1  0.4877   1.2137     1.4730   
+7  area_score        kernel      388        1  0.4721  10.8756   118.2788   
+8  area_score        kernel      751        1  1.0273   8.3430    69.6062   
+9  area_score  kernel_macro     1822        3  0.6624   6.8108    63.1193   
+
+       mae   max_err     tau                               kernel  
+0  23.1835  194.8114  0.5618                                  NaN  
+1   0.5583    2.3618  0.1601                 machsuite-sort-radix  
+2  12.7692   98.7532  0.5278      rodinia_pathfinder_0_baseline_0  
+3  49.1406  194.8114  0.0916  rodinia_pathfinder_4_doublebuffer_0  
+4  20.8227   98.6421  0.2598                                       
+5   4.8939   27.4924  0.6156                                  NaN  
+6   0.9375    7.7154  0.6486                 machsuite-sort-radix  
+7   7.2255   27.4924  0.4300      rodinia_pathfinder_0_baseline_0  
+8   7.2875   17.9517  0.4783  rodinia_pathfinder_4_doublebuffer_0  
+9   5.1502   17.7198  0.5190                                       
+[val] latency_ms physical RMSE: 36.6588 | MAE: 23.1835 | MAPE: 83.04% | tau-b: 0.5618
+[val] area_score physical RMSE: 7.3777 | MAE: 4.8939 | MAPE: 70.68% | tau-b: 0.6156
+Validation target-balanced selection score: 0.584293; relative target losses={'area': 0.4256508314747964, 'perf': 0.5842930895275238}
+Validation worst-target kernel-macro tau-b: 0.259837; qualified=True
+Saved qualified rank model at epoch 12; worst-target kernel-macro tau-b=0.259837
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.28254182940843153, 'area': 0.3471557701728782}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.0876358761712827, 'area': 0.47912173202152963}
+Epoch: 012, Train Loss: 0.6297, Val loss: 0.5668, Time: 28.882 secs
+Test batch ID (resample): -1 - Epoch 13 train
+epoch = 13, learning rate = 1.5e-05
+Saved train model at epoch 13
+Epoch 13 val
+[val] epoch 13
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.9627  42.4327  1800.5379   
+1  latency_ms        kernel      683        1  0.2484   0.7477     0.5591   
+2  latency_ms        kernel      388        1  0.6491  17.9074   320.6766   
+3  latency_ms        kernel      751        1  1.7743  64.8236  4202.0980   
+4  latency_ms  kernel_macro     1822        3  0.8906  27.8263  1507.7779   
+5  area_score   point_micro     1822        3  0.6121   7.0955    50.3456   
+6  area_score        kernel      683        1  0.3365   1.0811     1.1687   
+7  area_score        kernel      388        1  0.4738  10.9974   120.9428   
+8  area_score        kernel      751        1  0.9343   7.6548    58.5961   
+9  area_score  kernel_macro     1822        3  0.5815   6.5778    60.2358   
+
+       mae   max_err     tau                               kernel  
+0  26.9217  223.7460  0.5676                                  NaN  
+1   0.5825    2.7769  0.1674                 machsuite-sort-radix  
+2  12.8592   92.3332  0.5181      rodinia_pathfinder_0_baseline_0  
+3  58.1412  223.7460  0.1209  rodinia_pathfinder_4_doublebuffer_0  
+4  23.8610  106.2854  0.2688                                       
+5   4.5665   27.4777  0.6320                                  NaN  
+6   0.6998    8.7187  0.6481                 machsuite-sort-radix  
+7   7.3205   27.4777  0.4247      rodinia_pathfinder_0_baseline_0  
+8   6.6602   16.8081  0.4770  rodinia_pathfinder_4_doublebuffer_0  
+9   4.8935   17.6681  0.5166                                       
+[val] latency_ms physical RMSE: 42.4327 | MAE: 26.9217 | MAPE: 96.27% | tau-b: 0.5676
+[val] area_score physical RMSE: 7.0955 | MAE: 4.5665 | MAPE: 61.21% | tau-b: 0.6320
+Validation target-balanced selection score: 0.676705; relative target losses={'area': 0.39317276917641425, 'perf': 0.6767051927185646}
+Validation worst-target kernel-macro tau-b: 0.268808; qualified=True
+Saved qualified rank model at epoch 13; worst-target kernel-macro tau-b=0.268808
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.27309893497398924, 'area': 0.33979411712106394}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.10149641256497276, 'area': 0.44256372646756803}
+Epoch: 013, Train Loss: 0.6129, Val loss: 0.5441, Time: 27.047 secs
+Checkpoint saved at epoch 13 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 14 train
+epoch = 14, learning rate = 1.5e-05
+Saved train model at epoch 14
+Epoch 14 val
+[val] epoch 14
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8787  39.1812  1535.1631   
+1  latency_ms        kernel      683        1  0.2563   0.7764     0.6028   
+2  latency_ms        kernel      388        1  0.5567  16.8296   283.2349   
+3  latency_ms        kernel      751        1  1.6111  59.8128  3577.5770   
+4  latency_ms  kernel_macro     1822        3  0.8080  25.8063  1287.1382   
+5  area_score   point_micro     1822        3  0.5161   6.7544    45.6218   
+6  area_score        kernel      683        1  0.2383   1.1028     1.2162   
+7  area_score        kernel      388        1  0.4774  11.1612   124.5714   
+8  area_score        kernel      751        1  0.7888   6.7244    45.2176   
+9  area_score  kernel_macro     1822        3  0.5015   6.3295    57.0018   
+
+       mae   max_err     tau                               kernel  
+0  24.5300  209.2521  0.5658                                  NaN  
+1   0.6019    2.9826  0.1750                 machsuite-sort-radix  
+2  11.9281   93.7818  0.5630      rodinia_pathfinder_0_baseline_0  
+3  52.8022  209.2521  0.0833  rodinia_pathfinder_4_doublebuffer_0  
+4  21.7774  102.0055  0.2738                                       
+5   4.1751   27.6575  0.6387                                  NaN  
+6   0.5792    9.6833  0.6420                 machsuite-sort-radix  
+7   7.4565   27.6575  0.4222      rodinia_pathfinder_0_baseline_0  
+8   5.7502   17.1276  0.4812  rodinia_pathfinder_4_doublebuffer_0  
+9   4.5953   18.1561  0.5151                                       
+[val] latency_ms physical RMSE: 39.1812 | MAE: 24.5300 | MAPE: 87.87% | tau-b: 0.5658
+[val] area_score physical RMSE: 6.7544 | MAE: 4.1751 | MAPE: 51.61% | tau-b: 0.6387
+Validation target-balanced selection score: 0.603085; relative target losses={'area': 0.37027603936245557, 'perf': 0.6030846558383997}
+Validation worst-target kernel-macro tau-b: 0.273755; qualified=True
+Saved qualified rank model at epoch 14; worst-target kernel-macro tau-b=0.273755
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.2705056921255832, 'area': 0.33210498353048246}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.09045435102200534, 'area': 0.4167906748607313}
+Epoch: 014, Train Loss: 0.6026, Val loss: 0.5072, Time: 25.784 secs
+Test batch ID (resample): -1 - Epoch 15 train
+epoch = 15, learning rate = 1e-05
+Epoch 15 val
+[val] epoch 15
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.1160  48.9836  2399.3898   
+1  latency_ms        kernel      683        1  0.3220   0.9868     0.9738   
+2  latency_ms        kernel      388        1  0.6400  16.7356   280.0805   
+3  latency_ms        kernel      751        1  2.0840  75.3364  5675.5685   
+4  latency_ms  kernel_macro     1822        3  1.0153  31.0196  1985.5409   
+5  area_score   point_micro     1822        3  0.7401   7.6688    58.8112   
+6  area_score        kernel      683        1  0.4728   1.2018     1.4444   
+7  area_score        kernel      388        1  0.4714  10.5269   110.8157   
+8  area_score        kernel      751        1  1.1220   9.1715    84.1159   
+9  area_score  kernel_macro     1822        3  0.6887   6.9667    65.4587   
+
+       mae   max_err     tau                               kernel  
+0  31.0007  245.2023  0.5708                                  NaN  
+1   0.7535    3.6657  0.1824                 machsuite-sort-radix  
+2  12.0083   85.0861  0.5680      rodinia_pathfinder_0_baseline_0  
+3  68.3214  245.2023  0.1132  rodinia_pathfinder_4_doublebuffer_0  
+4  27.0277  111.3180  0.2879                                       
+5   5.1308   26.9961  0.6302                                  NaN  
+6   0.9063    8.3868  0.6436                 machsuite-sort-radix  
+7   6.9857   26.9961  0.4367      rodinia_pathfinder_0_baseline_0  
+8   8.0144   19.8758  0.4789  rodinia_pathfinder_4_doublebuffer_0  
+9   5.3021   18.4196  0.5197                                       
+[val] latency_ms physical RMSE: 48.9836 | MAE: 31.0007 | MAPE: 111.60% | tau-b: 0.5708
+[val] area_score physical RMSE: 7.6688 | MAE: 5.1308 | MAPE: 74.01% | tau-b: 0.6302
+Validation target-balanced selection score: 0.772838; relative target losses={'area': 0.4225732969100261, 'perf': 0.7728382466756528}
+Validation worst-target kernel-macro tau-b: 0.287863; qualified=True
+Saved qualified rank model at epoch 15; worst-target kernel-macro tau-b=0.287863
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.26797829811670343, 'area': 0.3394881115884197}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.11591504007152616, 'area': 0.4756575929150231}
+Epoch: 015, Train Loss: 0.6075, Val loss: 0.5916, Time: 26.486 secs
+Checkpoint saved at epoch 15 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 16 train
+epoch = 16, learning rate = 1e-05
+Saved train model at epoch 16
+Epoch 16 val
+[val] epoch 16
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8327  36.6846  1345.7565   
+1  latency_ms        kernel      683        1  0.2635   0.8054     0.6487   
+2  latency_ms        kernel      388        1  0.4954  15.7471   247.9725   
+3  latency_ms        kernel      751        1  1.5246  56.0021  3136.2343   
+4  latency_ms  kernel_macro     1822        3  0.7612  24.1849  1128.2852   
+5  area_score   point_micro     1822        3  0.8274   8.3212    69.2420   
+6  area_score        kernel      683        1  0.5282   1.2649     1.5999   
+7  area_score        kernel      388        1  0.4764  10.2695   105.4626   
+8  area_score        kernel      751        1  1.2807  10.5852   112.0463   
+9  area_score  kernel_macro     1822        3  0.7618   7.3732    73.0363   
+
+       mae   max_err     tau                               kernel  
+0  23.1687  178.1627  0.5715                                  NaN  
+1   0.6179    3.1380  0.1912                 machsuite-sort-radix  
+2  10.9827   99.1867  0.6000      rodinia_pathfinder_0_baseline_0  
+3  49.9734  178.1627  0.0943  rodinia_pathfinder_4_doublebuffer_0  
+4  20.5247   93.4958  0.2951                                       
+5   5.6469   26.8443  0.6312                                  NaN  
+6   1.0041    7.7220  0.6487                 machsuite-sort-radix  
+7   6.8166   26.8443  0.4356      rodinia_pathfinder_0_baseline_0  
+8   9.2648   22.9677  0.4818  rodinia_pathfinder_4_doublebuffer_0  
+9   5.6952   19.1780  0.5220                                       
+[val] latency_ms physical RMSE: 36.6846 | MAE: 23.1687 | MAPE: 83.27% | tau-b: 0.5715
+[val] area_score physical RMSE: 8.3212 | MAE: 5.6469 | MAPE: 82.74% | tau-b: 0.6312
+Validation target-balanced selection score: 0.557659; relative target losses={'area': 0.4442829511317037, 'perf': 0.557658688275345}
+Validation worst-target kernel-macro tau-b: 0.295131; qualified=True
+Saved qualified rank model at epoch 16; worst-target kernel-macro tau-b=0.295131
+Saved val model at epoch 16
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.258073407624449, 'area': 0.33981645761095747}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.08364108463281072, 'area': 0.5000944467001768}
+Epoch: 016, Train Loss: 0.5979, Val loss: 0.5837, Time: 26.623 secs
+Test batch ID (resample): -1 - Epoch 17 train
+epoch = 17, learning rate = 1e-05
+Epoch 17 val
+[val] epoch 17
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8401  37.6670  1418.8065   
+1  latency_ms        kernel      683        1  0.2383   0.7217     0.5209   
+2  latency_ms        kernel      388        1  0.4931  15.3849   236.6966   
+3  latency_ms        kernel      751        1  1.5667  57.6143  3319.4026   
+4  latency_ms  kernel_macro     1822        3  0.7660  24.5736  1185.5400   
+5  area_score   point_micro     1822        3  0.7874   8.1667    66.6950   
+6  area_score        kernel      683        1  0.4472   1.1838     1.4013   
+7  area_score        kernel      388        1  0.4772  10.2779   105.6343   
+8  area_score        kernel      751        1  1.2570  10.2936   105.9588   
+9  area_score  kernel_macro     1822        3  0.7272   7.2518    70.9981   
+
+       mae   max_err     tau                               kernel  
+0  23.6759  186.8455  0.5755                                  NaN  
+1   0.5587    2.7529  0.2021                 machsuite-sort-radix  
+2  10.7634   95.7366  0.6101      rodinia_pathfinder_0_baseline_0  
+3  51.3710  186.8455  0.1038  rodinia_pathfinder_4_doublebuffer_0  
+4  20.8977   95.1117  0.3053                                       
+5   5.5053   26.7577  0.6376                                  NaN  
+6   0.8684    8.5742  0.6374                 machsuite-sort-radix  
+7   6.8283   26.7577  0.4378      rodinia_pathfinder_0_baseline_0  
+8   9.0390   21.9662  0.4807  rodinia_pathfinder_4_doublebuffer_0  
+9   5.5785   19.0993  0.5186                                       
+[val] latency_ms physical RMSE: 37.6670 | MAE: 23.6759 | MAPE: 84.01% | tau-b: 0.5755
+[val] area_score physical RMSE: 8.1667 | MAE: 5.5053 | MAPE: 78.74% | tau-b: 0.6376
+Validation target-balanced selection score: 0.564294; relative target losses={'area': 0.4275796924258682, 'perf': 0.5642944768840024}
+Validation worst-target kernel-macro tau-b: 0.305312; qualified=True
+Saved qualified rank model at epoch 17; worst-target kernel-macro tau-b=0.305312
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.2619126516641403, 'area': 0.33704282206540204}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.08463636107750964, 'area': 0.4812928993995051}
+Epoch: 017, Train Loss: 0.5990, Val loss: 0.5659, Time: 26.992 secs
+Checkpoint saved at epoch 17 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 18 train
+epoch = 18, learning rate = 1e-05
+Epoch 18 val
+[val] epoch 18
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.0409  45.3491  2056.5417   
+1  latency_ms        kernel      683        1  0.3436   1.0543     1.1115   
+2  latency_ms        kernel      388        1  0.5537  15.0968   227.9130   
+3  latency_ms        kernel      751        1  1.9267  69.7898  4870.6119   
+4  latency_ms  kernel_macro     1822        3  0.9414  28.6469  1699.8788   
+5  area_score   point_micro     1822        3  0.7700   8.0074    64.1192   
+6  area_score        kernel      683        1  0.4412   1.1790     1.3901   
+7  area_score        kernel      388        1  0.4742  10.3845   107.8372   
+8  area_score        kernel      751        1  1.2219   9.9288    98.5818   
+9  area_score  kernel_macro     1822        3  0.7124   7.1641    69.2697   
+
+       mae   max_err     tau                               kernel  
+0  28.6389  221.3915  0.5765                                  NaN  
+1   0.8042    3.8469  0.2014                 machsuite-sort-radix  
+2  10.7610   85.6255  0.6106      rodinia_pathfinder_0_baseline_0  
+3  63.1897  221.3915  0.1078  rodinia_pathfinder_4_doublebuffer_0  
+4  24.9183  103.6213  0.3066                                       
+5   5.3853   26.8670  0.6355                                  NaN  
+6   0.8591    8.6343  0.6397                 machsuite-sort-radix  
+7   6.9032   26.8670  0.4418      rodinia_pathfinder_0_baseline_0  
+8   8.7174   21.0860  0.4778  rodinia_pathfinder_4_doublebuffer_0  
+9   5.4932   18.8625  0.5198                                       
+[val] latency_ms physical RMSE: 45.3491 | MAE: 28.6389 | MAPE: 104.09% | tau-b: 0.5765
+[val] area_score physical RMSE: 8.0074 | MAE: 5.3853 | MAPE: 77.00% | tau-b: 0.6355
+Validation target-balanced selection score: 0.704965; relative target losses={'area': 0.42502650178385104, 'perf': 0.704964586487309}
+Validation worst-target kernel-macro tau-b: 0.306615; qualified=True
+Saved qualified rank model at epoch 18; worst-target kernel-macro tau-b=0.306615
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.26089061827075727, 'area': 0.34316184462941424}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.10573493048924908, 'area': 0.47841897309153586}
+Epoch: 018, Train Loss: 0.6041, Val loss: 0.5842, Time: 25.731 secs
+Test batch ID (resample): -1 - Epoch 19 train
+epoch = 19, learning rate = 1e-05
+Saved train model at epoch 19
+Epoch 19 val
+[val] epoch 19
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8970  39.2946  1544.0647   
+1  latency_ms        kernel      683        1  0.3121   0.9595     0.9206   
+2  latency_ms        kernel      388        1  0.4818  14.5074   210.4637   
+3  latency_ms        kernel      751        1  1.6435  60.3032  3636.4810   
+4  latency_ms  kernel_macro     1822        3  0.8124  25.2567  1282.6218   
+5  area_score   point_micro     1822        3  0.7220   7.6764    58.9274   
+6  area_score        kernel      683        1  0.4216   1.1660     1.3596   
+7  area_score        kernel      388        1  0.4692  10.4945   110.1349   
+8  area_score        kernel      751        1  1.1258   9.2101    84.8266   
+9  area_score  kernel_macro     1822        3  0.6722   6.9569    65.4404   
+
+       mae   max_err     tau                               kernel  
+0  24.6548  193.5681  0.5784                                  NaN  
+1   0.7310    3.5408  0.2097                 machsuite-sort-radix  
+2  10.1414   91.0631  0.6301      rodinia_pathfinder_0_baseline_0  
+3  53.9107  193.5681  0.0961  rodinia_pathfinder_4_doublebuffer_0  
+4  21.5944   96.0573  0.3120                                       
+5   5.1074   26.9478  0.6359                                  NaN  
+6   0.8275    8.9012  0.6379                 machsuite-sort-radix  
+7   6.9705   26.9478  0.4436      rodinia_pathfinder_0_baseline_0  
+8   8.0373   20.0658  0.4801  rodinia_pathfinder_4_doublebuffer_0  
+9   5.2784   18.6383  0.5205                                       
+[val] latency_ms physical RMSE: 39.2946 | MAE: 24.6548 | MAPE: 89.70% | tau-b: 0.5784
+[val] area_score physical RMSE: 7.6764 | MAE: 5.1074 | MAPE: 72.20% | tau-b: 0.6359
+Validation target-balanced selection score: 0.592634; relative target losses={'area': 0.4128983870327612, 'perf': 0.5926335625245792}
+Validation worst-target kernel-macro tau-b: 0.312000; qualified=True
+Saved qualified rank model at epoch 19; worst-target kernel-macro tau-b=0.312000
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.2579838604647286, 'area': 0.33270925116174077}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.08888683167953784, 'area': 0.4647673062415861}
+Epoch: 019, Train Loss: 0.5907, Val loss: 0.5537, Time: 25.625 secs
+Checkpoint saved at epoch 19 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 20 train
+epoch = 20, learning rate = 1e-05
+Saved train model at epoch 20
+Epoch 20 val
+[val] epoch 20
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.0177  43.5788  1899.1111   
+1  latency_ms        kernel      683        1  0.4012   1.2248     1.5001   
+2  latency_ms        kernel      388        1  0.4781  13.7508   189.0847   
+3  latency_ms        kernel      751        1  1.8573  67.1444  4508.3768   
+4  latency_ms  kernel_macro     1822        3  0.9122  27.3734  1566.3206   
+5  area_score   point_micro     1822        3  0.7779   8.2324    67.7720   
+6  area_score        kernel      683        1  0.4169   1.1490     1.3202   
+7  area_score        kernel      388        1  0.4759  10.2869   105.8209   
+8  area_score        kernel      751        1  1.2623  10.4187   108.5493   
+9  area_score  kernel_macro     1822        3  0.7183   7.2849    71.8968   
+
+       mae   max_err     tau                               kernel  
+0  27.4888  192.8254  0.5784                                  NaN  
+1   0.9385    4.3743  0.2112                 machsuite-sort-radix  
+2   9.5290   86.6564  0.6625      rodinia_pathfinder_0_baseline_0  
+3  60.9138  192.8254  0.0794  rodinia_pathfinder_4_doublebuffer_0  
+4  23.7938   94.6187  0.3177                                       
+5   5.5213   26.8022  0.6399                                  NaN  
+6   0.8194    8.6380  0.6411                 machsuite-sort-radix  
+7   6.8373   26.8022  0.4346      rodinia_pathfinder_0_baseline_0  
+8   9.1176   22.5719  0.4834  rodinia_pathfinder_4_doublebuffer_0  
+9   5.5914   19.3374  0.5197                                       
+[val] latency_ms physical RMSE: 43.5788 | MAE: 27.4888 | MAPE: 101.77% | tau-b: 0.5784
+[val] area_score physical RMSE: 8.2324 | MAE: 5.5213 | MAPE: 77.79% | tau-b: 0.6399
+Validation target-balanced selection score: 0.674496; relative target losses={'area': 0.4230804451999659, 'perf': 0.6744960674547105}
+Validation worst-target kernel-macro tau-b: 0.317732; qualified=True
+Saved qualified rank model at epoch 20; worst-target kernel-macro tau-b=0.317732
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.2550108394756609, 'area': 0.3308328341464607}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.10116507435211367, 'area': 0.4762284499393729}
+Epoch: 020, Train Loss: 0.5858, Val loss: 0.5774, Time: 26.360 secs
+Test batch ID (resample): -1 - Epoch 21 train
+epoch = 21, learning rate = 1e-05
+Saved train model at epoch 21
+Epoch 21 val
+[val] epoch 21
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.2404  52.6399  2770.9542   
+1  latency_ms        kernel      683        1  0.4809   1.4332     2.0542   
+2  latency_ms        kernel      388        1  0.5918  15.3306   235.0270   
+3  latency_ms        kernel      751        1  2.2663  81.2362  6599.3144   
+4  latency_ms  kernel_macro     1822        3  1.1130  32.6667  2278.7985   
+5  area_score   point_micro     1822        3  0.7847   8.3418    69.5856   
+6  area_score        kernel      683        1  0.3862   1.1262     1.2684   
+7  area_score        kernel      388        1  0.4806  10.1910   103.8568   
+8  area_score        kernel      751        1  1.3041  10.6776   114.0108   
+9  area_score  kernel_macro     1822        3  0.7236   7.3316    73.0454   
+
+       mae   max_err     tau                               kernel  
+0  33.4749  239.3557  0.5807                                  NaN  
+1   1.1237    4.8052  0.2111                 machsuite-sort-radix  
+2  11.3078   73.8967  0.6495      rodinia_pathfinder_0_baseline_0  
+3  74.3495  239.3557  0.0982  rodinia_pathfinder_4_doublebuffer_0  
+4  28.9270  106.0192  0.3196                                       
+5   5.6038   26.6544  0.6443                                  NaN  
+6   0.7730    8.8110  0.6413                 machsuite-sort-radix  
+7   6.7862   26.6544  0.4363      rodinia_pathfinder_0_baseline_0  
+8   9.3863   22.6976  0.4831  rodinia_pathfinder_4_doublebuffer_0  
+9   5.6485   19.3877  0.5202                                       
+[val] latency_ms physical RMSE: 52.6399 | MAE: 33.4749 | MAPE: 124.04% | tau-b: 0.5807
+[val] area_score physical RMSE: 8.3418 | MAE: 5.6038 | MAPE: 78.47% | tau-b: 0.6443
+Validation target-balanced selection score: 0.844161; relative target losses={'area': 0.42056775782973055, 'perf': 0.8441608411385669}
+Validation worst-target kernel-macro tau-b: 0.319612; qualified=True
+Saved qualified rank model at epoch 21; worst-target kernel-macro tau-b=0.319612
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.24921386947437207, 'area': 0.32719627296438025}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.12661244205795188, 'area': 0.4734001149853812}
+Epoch: 021, Train Loss: 0.5764, Val loss: 0.6000, Time: 26.473 secs
+Checkpoint saved at epoch 21 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 22 train
+epoch = 22, learning rate = 1e-05
+Saved train model at epoch 22
+Epoch 22 val
+[val] epoch 22
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.2074  52.7055  2777.8688   
+1  latency_ms        kernel      683        1  0.4029   1.2244     1.4991   
+2  latency_ms        kernel      388        1  0.5876  15.3096   234.3846   
+3  latency_ms        kernel      751        1  2.2591  81.3445  6616.9265   
+4  latency_ms  kernel_macro     1822        3  1.0832  32.6262  2284.2701   
+5  area_score   point_micro     1822        3  0.6894   7.8626    61.8205   
+6  area_score        kernel      683        1  0.3052   1.0888     1.1855   
+7  area_score        kernel      388        1  0.4698  10.3792   107.7268   
+8  area_score        kernel      751        1  1.1523   9.6565    93.2479   
+9  area_score  kernel_macro     1822        3  0.6425   7.0415    67.3867   
+
+       mae   max_err     tau                               kernel  
+0  33.3405  245.7179  0.5837                                  NaN  
+1   0.9423    4.2826  0.2178                 machsuite-sort-radix  
+2  11.3992   70.6687  0.6545      rodinia_pathfinder_0_baseline_0  
+3  74.1409  245.7179  0.1006  rodinia_pathfinder_4_doublebuffer_0  
+4  28.8275  106.8897  0.3243                                       
+5   5.1671   26.9650  0.6424                                  NaN  
+6   0.6628    9.1048  0.6379                 machsuite-sort-radix  
+7   6.9013   26.9650  0.4307      rodinia_pathfinder_0_baseline_0  
+8   8.3677   21.5026  0.4860  rodinia_pathfinder_4_doublebuffer_0  
+9   5.3106   19.1908  0.5182                                       
+[val] latency_ms physical RMSE: 52.7055 | MAE: 33.3405 | MAPE: 120.74% | tau-b: 0.5837
+[val] area_score physical RMSE: 7.8626 | MAE: 5.1671 | MAPE: 68.94% | tau-b: 0.6424
+Validation target-balanced selection score: 0.819187; relative target losses={'area': 0.39478978492334765, 'perf': 0.8191871731890488}
+Validation worst-target kernel-macro tau-b: 0.324340; qualified=True
+Saved qualified rank model at epoch 22; worst-target kernel-macro tau-b=0.324340
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.247531459647782, 'area': 0.3204113993109489}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1228667375285068, 'area': 0.4443838741757082}
+Epoch: 022, Train Loss: 0.5679, Val loss: 0.5673, Time: 26.383 secs
+Test batch ID (resample): -1 - Epoch 23 train
+epoch = 23, learning rate = 1e-05
+Epoch 23 val
+[val] epoch 23
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  1.0037  44.2659  1959.4663   
+1  latency_ms        kernel      683        1  0.3514   1.0930     1.1946   
+2  latency_ms        kernel      388        1  0.4695  13.4263   180.2653   
+3  latency_ms        kernel      751        1  1.8728  68.2615  4659.6389   
+4  latency_ms  kernel_macro     1822        3  0.8979  27.5936  1613.6996   
+5  area_score   point_micro     1822        3  0.7247   7.9749    63.5992   
+6  area_score        kernel      683        1  0.3512   1.0963     1.2020   
+7  area_score        kernel      388        1  0.4657  10.1938   103.9141   
+8  area_score        kernel      751        1  1.1983   9.9759    99.5181   
+9  area_score  kernel_macro     1822        3  0.6717   7.0887    68.2114   
+
+       mae   max_err     tau                               kernel  
+0  27.6852  201.3241  0.5827                                  NaN  
+1   0.8237    4.0853  0.2180                 machsuite-sort-radix  
+2   9.6063   81.0740  0.6768      rodinia_pathfinder_0_baseline_0  
+3  61.4550  201.3241  0.0779  rodinia_pathfinder_4_doublebuffer_0  
+4  23.9616   95.4945  0.3242                                       
+5   5.2853   26.7992  0.6456                                  NaN  
+6   0.7244    8.7839  0.6399                 machsuite-sort-radix  
+7   6.7599   26.7992  0.4526      rodinia_pathfinder_0_baseline_0  
+8   8.6715   21.6607  0.4875  rodinia_pathfinder_4_doublebuffer_0  
+9   5.3853   19.0813  0.5266                                       
+[val] latency_ms physical RMSE: 44.2659 | MAE: 27.6852 | MAPE: 100.37% | tau-b: 0.5827
+[val] area_score physical RMSE: 7.9749 | MAE: 5.2853 | MAPE: 72.47% | tau-b: 0.6456
+Validation target-balanced selection score: 0.662168; relative target losses={'area': 0.39998048936855285, 'perf': 0.6621678993063348}
+Validation worst-target kernel-macro tau-b: 0.324232; qualified=True
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.24557833175878135, 'area': 0.322385772606548}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.09931601976523939, 'area': 0.45022664275572405}
+Epoch: 023, Train Loss: 0.5680, Val loss: 0.5495, Time: 25.553 secs
+Checkpoint saved at epoch 23 -> /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 24 train
+epoch = 24, learning rate = 1e-05
+Epoch 24 val
+[val] epoch 24
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8899  39.8968  1591.7523   
+1  latency_ms        kernel      683        1  0.2793   0.8714     0.7593   
+2  latency_ms        kernel      388        1  0.4690  13.5165   182.6955   
+3  latency_ms        kernel      751        1  1.6626  61.3732  3766.6688   
+4  latency_ms  kernel_macro     1822        3  0.8036  25.2537  1316.7079   
+5  area_score   point_micro     1822        3  0.8567   9.0996    82.8034   
+6  area_score        kernel      683        1  0.4057   1.1238     1.2629   
+7  area_score        kernel      388        1  0.4873   9.8338    96.7027   
+8  area_score        kernel      751        1  1.4577  12.2385   149.7798   
+9  area_score  kernel_macro     1822        3  0.7836   7.7320    82.5818   
+
+       mae   max_err     tau                               kernel  
+0  24.8257  196.4684  0.5872                                  NaN  
+1   0.6559    3.4329  0.2295                 machsuite-sort-radix  
+2   9.7965   81.1256  0.6600      rodinia_pathfinder_0_baseline_0  
+3  54.5717  196.4684  0.0895  rodinia_pathfinder_4_doublebuffer_0  
+4  21.6747   93.6756  0.3263                                       
+5   6.1091   26.4857  0.6455                                  NaN  
+6   0.8044    8.1930  0.6429                 machsuite-sort-radix  
+7   6.5624   26.4857  0.4416      rodinia_pathfinder_0_baseline_0  
+8  10.6991   26.0762  0.4884  rodinia_pathfinder_4_doublebuffer_0  
+9   6.0220   20.2516  0.5243                                       
+[val] latency_ms physical RMSE: 39.8968 | MAE: 24.8257 | MAPE: 88.99% | tau-b: 0.5872
+[val] area_score physical RMSE: 9.0996 | MAE: 6.1091 | MAPE: 85.67% | tau-b: 0.6455
+Validation target-balanced selection score: 0.588070; relative target losses={'area': 0.4331261763708122, 'perf': 0.5880704567265852}
+Validation worst-target kernel-macro tau-b: 0.326340; qualified=True
+Saved qualified rank model at epoch 24; worst-target kernel-macro tau-b=0.326340
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.24534602843377054, 'area': 0.3258270794639782}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.08820242896823276, 'area': 0.4875361410375484}
+Epoch: 024, Train Loss: 0.5712, Val loss: 0.5757, Time: 26.149 secs
+Early stopping after 8 epochs without a 0.0001 improvement.
+Final absolute validation report for epoch 16; target-balanced score=0.557659; relative target losses={'area': 0.4442829511317037, 'perf': 0.557658688275345}
+[best_val] epoch 16
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8327  36.6846  1345.7565   
+1  latency_ms        kernel      683        1  0.2635   0.8054     0.6487   
+2  latency_ms        kernel      388        1  0.4954  15.7471   247.9725   
+3  latency_ms        kernel      751        1  1.5246  56.0021  3136.2343   
+4  latency_ms  kernel_macro     1822        3  0.7612  24.1849  1128.2852   
+5  area_score   point_micro     1822        3  0.8274   8.3212    69.2420   
+6  area_score        kernel      683        1  0.5282   1.2649     1.5999   
+7  area_score        kernel      388        1  0.4764  10.2695   105.4626   
+8  area_score        kernel      751        1  1.2807  10.5852   112.0463   
+9  area_score  kernel_macro     1822        3  0.7618   7.3732    73.0363   
+
+       mae   max_err     tau                               kernel  
+0  23.1687  178.1627  0.5715                                  NaN  
+1   0.6179    3.1380  0.1912                 machsuite-sort-radix  
+2  10.9827   99.1867  0.6000      rodinia_pathfinder_0_baseline_0  
+3  49.9734  178.1627  0.0943  rodinia_pathfinder_4_doublebuffer_0  
+4  20.5247   93.4958  0.2951                                       
+5   5.6469   26.8443  0.6312                                  NaN  
+6   1.0041    7.7220  0.6487                 machsuite-sort-radix  
+7   6.8166   26.8443  0.4356      rodinia_pathfinder_0_baseline_0  
+8   9.2648   22.9677  0.4818  rodinia_pathfinder_4_doublebuffer_0  
+9   5.6952   19.1780  0.5220                                       
+[best_val] latency_ms physical RMSE: 36.6846 | MAE: 23.1687 | MAPE: 83.27% | tau-b: 0.5715
+[best_val] area_score physical RMSE: 8.3212 | MAE: 5.6469 | MAPE: 82.74% | tau-b: 0.6312
+Wrote physical-unit metrics to /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/best_val_physical_metrics.csv
+Wrote point predictions to /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/best_val_predictions.csv
+Final qualified-rank validation report for epoch 24; worst-target kernel-macro tau-b=0.326340; relative target losses={'area': 0.4331261763708122, 'perf': 0.5880704567265852}
+[best_rank_val] epoch 24
+       target   aggregation  samples  kernels    mape     rmse        mse  \
+0  latency_ms   point_micro     1822        3  0.8899  39.8968  1591.7523   
+1  latency_ms        kernel      683        1  0.2793   0.8714     0.7593   
+2  latency_ms        kernel      388        1  0.4690  13.5165   182.6955   
+3  latency_ms        kernel      751        1  1.6626  61.3732  3766.6688   
+4  latency_ms  kernel_macro     1822        3  0.8036  25.2537  1316.7079   
+5  area_score   point_micro     1822        3  0.8567   9.0996    82.8034   
+6  area_score        kernel      683        1  0.4057   1.1238     1.2629   
+7  area_score        kernel      388        1  0.4873   9.8338    96.7027   
+8  area_score        kernel      751        1  1.4577  12.2385   149.7798   
+9  area_score  kernel_macro     1822        3  0.7836   7.7320    82.5818   
+
+       mae   max_err     tau                               kernel  
+0  24.8257  196.4684  0.5872                                  NaN  
+1   0.6559    3.4329  0.2295                 machsuite-sort-radix  
+2   9.7965   81.1256  0.6600      rodinia_pathfinder_0_baseline_0  
+3  54.5717  196.4684  0.0895  rodinia_pathfinder_4_doublebuffer_0  
+4  21.6747   93.6756  0.3263                                       
+5   6.1091   26.4857  0.6455                                  NaN  
+6   0.8044    8.1930  0.6429                 machsuite-sort-radix  
+7   6.5624   26.4857  0.4416      rodinia_pathfinder_0_baseline_0  
+8  10.6991   26.0762  0.4884  rodinia_pathfinder_4_doublebuffer_0  
+9   6.0220   20.2516  0.5243                                       
+[best_rank_val] latency_ms physical RMSE: 39.8968 | MAE: 24.8257 | MAPE: 88.99% | tau-b: 0.5872
+[best_rank_val] area_score physical RMSE: 9.0996 | MAE: 6.1091 | MAPE: 85.67% | tau-b: 0.6455
+Wrote physical-unit metrics to /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/best_rank_val_physical_metrics.csv
+Wrote point predictions to /home/elvouvali/MailoHLS/Checkpoints/gnn_v15_stage_c_reference_delta_s123/run1/best_rank_val_predictions.csv
+Initialized-model ratios are diagnostic only; release qualification uses the deterministic no-learning baseline. initialized={'area': 1.0893972597557808, 'perf': 4.085121323381494}
+The held-out test set remains locked. Pass --evaluate_test only after the model, hyperparameters and epoch count are frozen.
+minimum summed validation objective at epoch: 14
+target-balanced absolute checkpoint at epoch: 16
+qualified-rank checkpoint at epoch: 24
+active checkpoint objective=absolute; tag=val; epoch=16
+min train loss at epoch: 22
