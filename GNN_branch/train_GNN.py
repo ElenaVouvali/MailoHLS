@@ -18,6 +18,7 @@ import mlir_data as data
 SAVE_DIR = data.SAVE_DIR
 
 from model import Net
+from reference_delta import ReferenceDeltaDataset, load_reference_baselines
 
 from sklearn.metrics import mean_squared_error, mean_absolute_error, max_error, \
     mean_absolute_percentage_error, classification_report, confusion_matrix
@@ -59,6 +60,22 @@ def _sample_kernel(sample):
     return kernel
 
 
+def _model_target_name(target):
+    """Tensor optimized by the regressor for one public QoR target."""
+    if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta':
+        return f'{target}_delta'
+    return 'actual_perf' if FLAGS.encode_log and target == 'perf' else target
+
+
+def _model_target(sample, target):
+    return _get_y_with_target(sample, _model_target_name(target))
+
+
+def _dataset_kernel_names(dataset):
+    """Read identities only; callers must not pass the locked test split."""
+    return {_sample_kernel(dataset[index]) for index in range(len(dataset))}
+
+
 def fit_target_statistics(dataset):
     """Fit target moments using the same kernel weighting as the loss."""
     model_targets = FLAGS.target if isinstance(FLAGS.target, list) else [FLAGS.target]
@@ -68,12 +85,8 @@ def fit_target_statistics(dataset):
         sample = dataset[index]
         kernels.append(_sample_kernel(sample))
         for model_target in model_targets:
-            data_target = (
-                'actual_perf'
-                if FLAGS.encode_log and model_target == 'perf'
-                else model_target
-            )
-            value = _get_y_with_target(sample, data_target).reshape(-1)
+            data_target = _model_target_name(model_target)
+            value = _model_target(sample, model_target).reshape(-1)
             if value.numel() != 1 or not torch.isfinite(value).all():
                 raise RuntimeError(
                     f'Invalid {data_target} target at training index '
@@ -110,8 +123,31 @@ def fit_target_statistics(dataset):
     return stats
 
 
-def constant_mean_baseline(dataset, target_stats):
-    """Evaluate the training-target mean under the configured loss policy."""
+def _point_loss_from_error(error):
+    error = np.asarray(error, dtype=np.float64)
+    mode = str(FLAGS.loss).lower()
+    if mode == 'mse':
+        return np.square(error)
+    if mode == 'rmse':
+        # The square root is applied after the weighted mean below.
+        return np.square(error)
+    if mode == 'smooth_l1':
+        beta = float(FLAGS.smooth_l1_beta)
+        absolute = np.abs(error)
+        return np.where(
+            absolute < beta,
+            0.5 * np.square(error) / beta,
+            absolute - 0.5 * beta,
+        )
+    raise RuntimeError(f'Unknown loss {FLAGS.loss!r}')
+
+
+def deterministic_validation_baseline(dataset, target_stats):
+    """Evaluate the no-learning predictor under the configured loss policy.
+
+    Absolute/Stage-B training uses the training mean. Reference-delta training
+    uses zero delta, i.e. the measured neutral synthesis point for that kernel.
+    """
     kernels = [_sample_kernel(dataset[index]) for index in range(len(dataset))]
     counts = Counter(kernels)
     scale = len(kernels) / len(counts) if counts else 1.0
@@ -121,36 +157,37 @@ def constant_mean_baseline(dataset, target_stats):
         weights = []
         for index, kernel in enumerate(kernels):
             sample = dataset[index]
-            data_target = (
-                'actual_perf'
-                if FLAGS.encode_log and model_target == 'perf'
-                else model_target
+            actual = float(_model_target(sample, model_target).reshape(-1)[0])
+            prediction = (
+                0.0
+                if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
+                else stats['mean']
             )
-            actual = float(
-                _get_y_with_target(sample, data_target).reshape(-1)[0].item()
-            )
-            error = actual - stats['mean']
+            error = actual - prediction
             if bool(getattr(FLAGS, 'standardize_targets', False)):
                 error /= stats['std']
-            squared_errors.append(error * error)
+            squared_errors.append(float(_point_loss_from_error(error)))
             weights.append(
                 scale / counts[kernel]
                 if bool(getattr(FLAGS, 'kernel_balanced_loss', False))
                 else 1.0
             )
-        mse = float(np.mean(np.asarray(squared_errors) * np.asarray(weights)))
-        breakdown[model_target] = np.sqrt(mse) if FLAGS.loss == 'RMSE' else mse
+        value = float(np.mean(np.asarray(squared_errors) * np.asarray(weights)))
+        breakdown[model_target] = (
+            np.sqrt(value) if str(FLAGS.loss).lower() == 'rmse' else value
+        )
     return float(sum(breakdown.values())), breakdown
 
 
 def compute_validation_selection_score(loss_breakdown, baseline_breakdown):
     """Return a conservative, target-balanced validation score.
 
-    Each target loss is divided by the loss of the deterministic training-mean
-    predictor on the same validation kernels.  The maximum ratio is minimized,
-    so a large improvement in one target cannot hide regression in another.
+    Each target loss is divided by its deterministic no-learning baseline on
+    the same validation kernels (training mean for legacy modes; measured
+    neutral reference for reference-delta mode). The maximum ratio is
+    minimized, so one target cannot hide regression in another.
 
-    A score below one means that every target beats its constant baseline.
+    A score below one means every target beats its declared no-learning baseline.
     """
     if not isinstance(loss_breakdown, dict) or not isinstance(
         baseline_breakdown, dict
@@ -177,7 +214,7 @@ def compute_validation_selection_score(loss_breakdown, baseline_breakdown):
             )
         if not np.isfinite(baseline) or baseline <= 1e-12:
             raise RuntimeError(
-                f"Invalid constant-baseline loss for {target}: {baseline!r}"
+                f"Invalid no-learning baseline loss for {target}: {baseline!r}"
             )
         ratios[target] = loss / baseline
 
@@ -262,6 +299,7 @@ class KernelBalancedDataset(Dataset):
             _sample_kernel(dataset[index]) for index in range(len(dataset))
         ]
         counts = Counter(self.kernels)
+        self.kernel_count = len(counts)
         if not counts:
             self.weights = []
             self.sampling_weights = []
@@ -311,7 +349,11 @@ def gen_dataset(li):
                 )
             sampler = WeightedRandomSampler(
                 torch.as_tensor(ds.sampling_weights, dtype=torch.double),
-                num_samples=len(ds),
+                num_samples=(
+                    len(ds)
+                    if FLAGS.samples_per_kernel_per_epoch is None
+                    else ds.kernel_count * FLAGS.samples_per_kernel_per_epoch
+                ),
                 replacement=True,
                 generator=torch.Generator().manual_seed(
                     _as_int_seed(FLAGS.random_seed)
@@ -665,21 +707,50 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 test_id=resample
             )
 
+    model_targets = (
+        FLAGS.target if isinstance(FLAGS.target, list) else [FLAGS.target]
+    )
+    if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta':
+        # Only development identities are inspected here. A successful row for
+        # a configured test kernel is rejected until --evaluate_test is given.
+        required_kernels = _dataset_kernel_names(li[0])
+        required_kernels.update(_dataset_kernel_names(li[1]))
+        evaluate_test = bool(getattr(FLAGS, 'evaluate_test', False))
+        forbidden_kernels = (
+            () if evaluate_test else (FLAGS.test_kernels or '')
+        )
+        if evaluate_test:
+            required_kernels.update(_dataset_kernel_names(li[2]))
+        references = load_reference_baselines(
+            FLAGS.baseline_manifest,
+            required_kernels=required_kernels,
+            forbidden_kernels=forbidden_kernels,
+            expected_device=FLAGS.target_device,
+            expected_clock_period_ns=FLAGS.clock_period_ns,
+            expected_toolchain_version=FLAGS.vitis_hls_version,
+            epsilon=FLAGS.epsilon,
+        )
+        li[0] = ReferenceDeltaDataset(li[0], references, model_targets)
+        li[1] = ReferenceDeltaDataset(li[1], references, model_targets)
+        if evaluate_test:
+            li[2] = ReferenceDeltaDataset(li[2], references, model_targets)
+        saver.log_info(
+            f'Reference-delta mode: loaded {len(references)} neutral '
+            'development baselines; held-out test rows are '
+            + ('unlocked.' if evaluate_test else 'forbidden.')
+        )
+
     target_stats = fit_target_statistics(li[0])
     if FLAGS.decompose_targets:
-        model_targets = (
-            FLAGS.target if isinstance(FLAGS.target, list)
-            else [FLAGS.target]
-        )
         li[0] = KernelCenteredDataset(li[0], model_targets)
     baseline_total = None
     baseline_breakdown = None
     if len(li[1]) > 0:
-        baseline_total, baseline_breakdown = constant_mean_baseline(
+        baseline_total, baseline_breakdown = deterministic_validation_baseline(
             li[1], target_stats
         )
         saver.log_info(
-            'Training-mean validation baseline under the configured '
+            'Deterministic validation baseline under the configured '
             f'objective: total={baseline_total:.4f}, '
             f'breakdown={baseline_breakdown}'
         )
@@ -687,13 +758,14 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         uniform_sampling = bool(
             getattr(FLAGS, 'kernel_uniform_sampling', False)
         )
-        li = [
-            KernelBalancedDataset(
-                li[0], unit_loss_weights=uniform_sampling
-            ),
-            KernelBalancedDataset(li[1]),
-            KernelBalancedDataset(li[2]),
-        ]
+        li[0] = KernelBalancedDataset(
+            li[0], unit_loss_weights=uniform_sampling
+        )
+        li[1] = KernelBalancedDataset(li[1])
+        # Constructing the wrapper enumerates its samples. Do not even do that
+        # for the declared test split before the one-shot evaluation is armed.
+        if bool(getattr(FLAGS, 'evaluate_test', False)):
+            li[2] = KernelBalancedDataset(li[2])
 
     train_loader, val_loader, test_loader, num_features, edge_dim = gen_dataset(li)
     model = Net(
@@ -1062,7 +1134,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             float(ratio) < 1.0 for ratio in absolute_ratios.values()
         ):
             raise RuntimeError(
-                'No validation checkpoint beat the deterministic constant '
+                'No validation checkpoint beat the deterministic no-learning '
                 'baseline on every target. The held-out test set will not be '
                 'opened; revise the training configuration using validation '
                 'data only.'
@@ -1118,7 +1190,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             )
         saver.log_info(
             "Initialized-model ratios are diagnostic only; "
-            "release qualification uses the deterministic constant baseline. "
+            "release qualification uses the deterministic no-learning baseline. "
             f"initialized={initial_ratios}"
         )
     else:
@@ -1217,7 +1289,7 @@ def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler)
     if FLAGS.scheduler is not None and epoch < 2:
         create_dir_if_not_exists(join(saver.get_log_dir(), 'lrs'))
     if FLAGS.task == 'regression':
-        example_count = len(train_loader.dataset)
+        example_count = len(train_loader.sampler)
         return (
             total_loss / example_count,
             {key: v / example_count for key, v in loss_dict.items()},
@@ -1341,6 +1413,9 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
             'pred': [],
             'physical_true': [],
             'physical_pred': [],
+            'baseline_log2': [],
+            'actual_delta_log2': [],
+            'predicted_delta_log2': [],
             'kernel': [],
             'point_key': [],
             'sigma_mu': [],
@@ -1394,6 +1469,26 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
                     points_dict[target_name]['physical_pred'].append(
                         _inverse_log2_target(out_value)
                     )
+                    if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta':
+                        public_target = (
+                            'perf'
+                            if target_name == 'actual_perf' else target_name
+                        )
+                        baseline_value = out_dict[
+                            f'{public_target}_baseline'
+                        ][i].item()
+                        predicted_delta = out_dict[
+                            f'{public_target}_delta'
+                        ][i].item()
+                        points_dict[target_name]['baseline_log2'].append(
+                            baseline_value
+                        )
+                        points_dict[target_name]['actual_delta_log2'].append(
+                            target_value - baseline_value
+                        )
+                        points_dict[target_name]['predicted_delta_log2'].append(
+                            predicted_delta
+                        )
                     points_dict[target_name]['kernel'].append(
                         _kernel_at(data, i)
                     )
@@ -1444,6 +1539,18 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
                         'predicted_log2': predicted_log2,
                         'actual_physical': values['physical_true'][index],
                         'predicted_physical': values['physical_pred'][index],
+                        'baseline_log2': (
+                            values['baseline_log2'][index]
+                            if values['baseline_log2'] else np.nan
+                        ),
+                        'actual_delta_log2': (
+                            values['actual_delta_log2'][index]
+                            if values['actual_delta_log2'] else np.nan
+                        ),
+                        'predicted_delta_log2': (
+                            values['predicted_delta_log2'][index]
+                            if values['predicted_delta_log2'] else np.nan
+                        ),
                     })
             predictions_path = join(
                 saver.model_logdir, f'{tvt}_predictions.csv'

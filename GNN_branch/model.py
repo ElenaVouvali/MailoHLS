@@ -135,6 +135,9 @@ class Net(nn.Module):
           self.decompose_targets = bool(
               getattr(FLAGS, 'decompose_targets', False)
           )
+          self.reference_delta = (
+              getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
+          )
 
           # Target statistics are fitted on training kernels only.  They are
           # buffers so checkpoints carry the exact transform used by the
@@ -169,12 +172,12 @@ class Net(nn.Module):
           else:
               hidden_channels = [D // 2, D // 4, D // 8]  # --> hidden sizes : [32,16,8]
 
-          def make_regression_heads():
+          def make_regression_heads(head_in_D):
               if self.MLP_version == 'single_obj':
                   heads = nn.ModuleDict()
                   for target_name in self.target_list:
                       heads[target_name] = MLP(
-                          in_D,
+                          head_in_D,
                           self.MLP_out_dim,
                           activation_type=FLAGS.activation,
                           hidden_channels=hidden_channels,
@@ -182,7 +185,7 @@ class Net(nn.Module):
                       )
                   return heads
               return MLP_multi_objective(
-                  in_D,
+                  head_in_D,
                   self.MLP_out_dim,
                   activation_type=FLAGS.activation,
                   hidden_channels=hidden_channels,
@@ -193,9 +196,10 @@ class Net(nn.Module):
           # MLPs remains the public/dynamic head name for compatibility with
           # non-decomposed checkpoints. In Stage B it predicts the pragma
           # response; center_MLPs predicts a static kernel offset.
-          self.MLPs = make_regression_heads()
+          response_in_D = in_D * 2 if self.reference_delta else in_D
+          self.MLPs = make_regression_heads(response_in_D)
           if self.decompose_targets:
-              self.center_MLPs = make_regression_heads()
+              self.center_MLPs = make_regression_heads(in_D)
 
           # --- pragma as MLP (only pipeline, unroll and array_partition) ---
           if FLAGS.pragma_as_MLP:
@@ -842,7 +846,7 @@ class Net(nn.Module):
 
         static_embed = (
             self._pool_graph_nodes(static_node_embeddings, data)
-            if self.decompose_targets else None
+            if (self.decompose_targets or self.reference_delta) else None
         )
         out = self._pool_graph_nodes(out, data, out_dict=out_dict)
 
@@ -871,7 +875,14 @@ class Net(nn.Module):
         if FLAGS.gae_P or FLAGS.gae_T:
             total_loss += torch.abs(gae_loss)
 
-        out_embed = out
+        # The response head sees both the kernel representation and the change
+        # caused by the pragma injection. This makes zero-delta the natural
+        # neutral predictor instead of asking a small head to rediscover the
+        # complete absolute scale of every unseen kernel.
+        out_embed = (
+            torch.cat((static_embed, out - static_embed), dim=1)
+            if self.reference_delta else out
+        )
         loss_dict = {}
 
         if self.MLP_version == 'multi_obj':
@@ -895,7 +906,11 @@ class Net(nn.Module):
             else:
                 center_out = None
                 out = response_out
-            y = _get_y_with_target(data, target_name)
+            target_tensor_name = (
+                f'{target_name}_delta'
+                if self.reference_delta else target_name
+            )
+            y = _get_y_with_target(data, target_tensor_name)
             if self.task == 'regression':
                 target = y.view((len(y), self.out_dim))
                 mean, std = self._target_transform(target_name, target)
@@ -904,17 +919,28 @@ class Net(nn.Module):
                     if bool(self.targets_standardized.item())
                     else target
                 )
-                point_mse = (out - loss_target).pow(2).reshape(
+                error = out - loss_target
+                loss_mode = str(FLAGS.loss).lower()
+                if loss_mode in ('mse', 'rmse'):
+                    point_loss = error.pow(2)
+                elif loss_mode == 'smooth_l1':
+                    point_loss = F.smooth_l1_loss(
+                        out,
+                        loss_target,
+                        beta=float(FLAGS.smooth_l1_beta),
+                        reduction='none',
+                    )
+                else:
+                    raise NotImplementedError(loss_mode)
+                point_loss = point_loss.reshape(
                     target.shape[0], -1
                 ).mean(dim=1)
                 weights = self._point_weights(data, target)
-                weighted_mse = (point_mse * weights).mean()
-                if FLAGS.loss == 'RMSE':
-                    absolute_loss = torch.sqrt(weighted_mse)
-                elif FLAGS.loss == 'MSE':
-                    absolute_loss = weighted_mse
-                else:
-                    raise NotImplementedError()
+                weighted_loss = (point_loss * weights).mean()
+                absolute_loss = (
+                    torch.sqrt(weighted_loss)
+                    if loss_mode == 'rmse' else weighted_loss
+                )
                 training_loss = absolute_loss
                 if self.decompose_targets and self.training:
                     center_name = f'{target_name}_center'
@@ -941,7 +967,7 @@ class Net(nn.Module):
                         .reshape(target.shape[0], -1).mean(dim=1)
                         * weights
                     ).mean()
-                    if FLAGS.loss == 'RMSE':
+                    if loss_mode == 'rmse':
                         center_aux = torch.sqrt(center_mse)
                         response_aux = torch.sqrt(response_mse)
                     else:
@@ -956,11 +982,20 @@ class Net(nn.Module):
                     ) / (1.0 + center_weight + response_weight)
                 # Public predictions remain in the original log2 target space;
                 # physical-unit evaluation therefore needs no special case.
-                prediction = (
+                model_prediction = (
                     out * std + mean
                     if bool(self.targets_standardized.item())
                     else out
                 )
+                if self.reference_delta:
+                    baseline = _get_y_with_target(
+                        data, f'{target_name}_baseline'
+                    ).view_as(model_prediction)
+                    prediction = baseline + model_prediction
+                    out_dict[f'{target_name}_baseline'] = baseline
+                    out_dict[f'{target_name}_delta'] = model_prediction
+                else:
+                    prediction = model_prediction
                 if self.decompose_targets:
                     out_dict[f'{target_name}_center'] = (
                         center_out * std + mean

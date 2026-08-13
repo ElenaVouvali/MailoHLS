@@ -201,7 +201,41 @@ parser.add_argument(
 parser.add_argument(
     "--decompose_targets",
     action="store_true",
-    help="Predict log2 QoR as a static kernel center plus pragma response.",
+    help=(
+        "Deprecated alias for --target_mode kernel_center. Kept only so old "
+        "Stage B commands/checkpoints remain reproducible."
+    ),
+)
+parser.add_argument(
+    "--target_mode",
+    choices=("absolute", "kernel_center", "reference_delta"),
+    default="absolute",
+    help=(
+        "absolute predicts log2 QoR directly; kernel_center reproduces Stage B; "
+        "reference_delta predicts log2(QoR)-log2(neutral-reference QoR) and "
+        "adds the measured neutral reference back at inference."
+    ),
+)
+parser.add_argument(
+    "--baseline_manifest",
+    default=None,
+    help="CSV produced by generate_neutral_baselines.py for reference_delta mode.",
+)
+parser.add_argument(
+    "--target_device",
+    default="xczu7ev-ffvc1156-2-e",
+    help="FPGA part that every neutral baseline in the manifest must use.",
+)
+parser.add_argument(
+    "--clock_period_ns",
+    type=float,
+    default=10.0,
+    help="Clock period that every neutral baseline in the manifest must use.",
+)
+parser.add_argument(
+    "--vitis_hls_version",
+    default="2021.1",
+    help="Vitis HLS version substring required by the neutral-baseline manifest.",
 )
 parser.add_argument(
     "--center_aux_weight",
@@ -352,6 +386,15 @@ parser.add_argument(
     ),
 )
 parser.add_argument(
+    '--samples_per_kernel_per_epoch',
+    type=int,
+    default=None,
+    help=(
+        'When kernel-uniform sampling is enabled, cap each epoch at this many '
+        'draws per training kernel. This changes exposure, not the validation set.'
+    ),
+)
+parser.add_argument(
     '--warmup_epochs',
     type=int,
     default=3,
@@ -420,8 +463,19 @@ parser.add_argument('--eval_num_workers', type=int, default=0)
 parser.add_argument('--prefetch_factor', type=int, default=1)
 parser.add_argument('--persistent_workers', action='store_true')
 
-loss = 'MSE' # RMSE, MSE,
-parser.add_argument('--loss', type=str, default=loss)
+loss = 'mse'
+parser.add_argument(
+    '--loss',
+    type=str.lower,
+    choices=('mse', 'rmse', 'smooth_l1'),
+    default=loss,
+)
+parser.add_argument(
+    '--smooth_l1_beta',
+    type=float,
+    default=0.5,
+    help='Quadratic-region width for --loss smooth_l1 in standardized units.',
+)
 
 if model_path == None:
     if TASK == 'regression':
@@ -476,13 +530,36 @@ parser.add_argument('--hostname', default=get_host())
 
 FLAGS = parser.parse_args()
 
+# Preserve old Stage B commands while making the experimental target explicit.
+if FLAGS.decompose_targets:
+    if FLAGS.target_mode not in ('absolute', 'kernel_center'):
+        parser.error('--decompose_targets conflicts with --target_mode reference_delta.')
+    FLAGS.target_mode = 'kernel_center'
+FLAGS.decompose_targets = FLAGS.target_mode == 'kernel_center'
+
 if FLAGS.center_aux_weight < 0 or FLAGS.response_aux_weight < 0:
     parser.error("Target-decomposition weights must be non-negative.")
 if FLAGS.decompose_targets and FLAGS.task != 'regression':
     parser.error('--decompose_targets is available only for regression.')
+if FLAGS.target_mode == 'reference_delta':
+    if FLAGS.task != 'regression':
+        parser.error('--target_mode reference_delta is available only for regression.')
+    if FLAGS.norm_method != 'log2':
+        parser.error('--target_mode reference_delta requires --norm_method log2.')
+    if not FLAGS.baseline_manifest:
+        parser.error('--target_mode reference_delta requires --baseline_manifest.')
+if FLAGS.smooth_l1_beta <= 0:
+    parser.error('--smooth_l1_beta must be positive.')
 
 if FLAGS.kernel_uniform_sampling and not FLAGS.kernel_balanced_loss:
     parser.error('--kernel_uniform_sampling requires --kernel_balanced_loss.')
+if FLAGS.samples_per_kernel_per_epoch is not None:
+    if FLAGS.samples_per_kernel_per_epoch <= 0:
+        parser.error('--samples_per_kernel_per_epoch must be positive.')
+    if not FLAGS.kernel_uniform_sampling:
+        parser.error(
+            '--samples_per_kernel_per_epoch requires --kernel_uniform_sampling.'
+        )
 if FLAGS.final_refit:
     if FLAGS.tiny_overfit:
         parser.error('--final_refit and --tiny_overfit are mutually exclusive.')
