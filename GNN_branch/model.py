@@ -19,6 +19,46 @@ from collections import OrderedDict, defaultdict
 from typing import Dict, Any, List, Tuple
 
 
+def within_kernel_rank_loss(
+    prediction,
+    target,
+    kernels,
+    *,
+    temperature,
+    tie_epsilon,
+):
+    if temperature <= 0:
+        raise ValueError('temperature must be positive.')
+    if tie_epsilon < 0:
+        raise ValueError('tie_epsilon must be non-negative.')
+    if len(kernels) != int(prediction.shape[0]):
+        raise ValueError('Expected one kernel identity per prediction.')
+    per_kernel = []
+    for kernel in sorted(set(kernels)):
+        indices = [
+            index for index, value in enumerate(kernels) if value == kernel
+        ]
+        if len(indices) < 2:
+            continue
+        pred = prediction[indices].reshape(-1)
+        true = target[indices].reshape(-1)
+        pred_diff = pred[:, None] - pred[None, :]
+        true_diff = true[:, None] - true[None, :]
+        upper = torch.triu(
+            torch.ones_like(true_diff, dtype=torch.bool), diagonal=1
+        )
+        valid = upper & (true_diff.abs() > tie_epsilon)
+        if valid.any():
+            direction = true_diff.sign()
+            loss = F.softplus(
+                -direction[valid] * pred_diff[valid] / temperature
+            ).mean()
+            per_kernel.append(loss)
+    if not per_kernel:
+        return prediction.new_zeros(())
+    return torch.stack(per_kernel).mean()
+
+
 class Net(nn.Module):
     def __init__(self, in_channels, edge_dim = 0, init_pragma_dict = None,
                  task = FLAGS.task, num_layers = FLAGS.num_layers, D = FLAGS.D,
@@ -893,6 +933,7 @@ class Net(nn.Module):
             if self.reference_delta else out
         )
         loss_dict = {}
+        rank_losses = []
 
         if self.MLP_version == 'multi_obj':
             out_MLPs = self.MLPs(out_embed)
@@ -950,6 +991,17 @@ class Net(nn.Module):
                     torch.sqrt(weighted_loss)
                     if loss_mode == 'rmse' else weighted_loss
                 )
+                if self.training:
+                    kernels = list(data.kernel)
+                    rank_loss = within_kernel_rank_loss(
+                        out,
+                        loss_target,
+                        kernels,
+                        temperature=float(FLAGS.rank_temperature),
+                        tie_epsilon=float(FLAGS.rank_tie_epsilon),
+                    )
+                    rank_losses.append(rank_loss)
+                    loss_dict[f'rank_aux/{target_name}'] = rank_loss.detach()
                 training_loss = absolute_loss
                 if self.decompose_targets and self.training:
                     center_name = f'{target_name}_center'
@@ -1030,5 +1082,10 @@ class Net(nn.Module):
                 absolute_loss if self.task == 'regression' else loss
             )
 
+
+        if self.task == 'regression' and self.training and rank_losses:
+            total_loss += float(FLAGS.rank_aux_weight) * torch.stack(
+                rank_losses
+            ).mean()
 
         return out_dict, total_loss, loss_dict, gae_loss

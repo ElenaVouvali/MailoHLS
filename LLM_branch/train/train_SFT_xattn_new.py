@@ -22,6 +22,7 @@ import random
 import re
 import gc
 import shutil
+import subprocess
 import numpy as np
 from pathlib import Path
 
@@ -30,13 +31,11 @@ from collections import defaultdict, Counter
 from typing import Dict, List, Tuple, Any, Optional, Iterable, Mapping, Sequence
 
 import torch
+import peft
+import transformers
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-
-from einops import rearrange
-from einops_exts import rearrange_many
-from torch import einsum
 
 import hashlib
 
@@ -60,6 +59,18 @@ DEFAULT_SFT_DATASET = REPOSITORY_ROOT / "artifacts" / "llm" / "mailohls_sft.json
 DEFAULT_STRUCTURAL_MEMORY = (
     REPOSITORY_ROOT / "artifacts" / "llm" / "mlir_structural_memory"
 )
+
+
+def current_git_commit() -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=REPOSITORY_ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
 
 
 # ==============================
@@ -946,6 +957,29 @@ def split_by_family(rows: List[dict], val_fams: set, test_fams: set):
     return train, val, test
 
 
+def assert_disjoint_nonempty_kernel_splits(train, val, test) -> None:
+    kernel_sets = {
+        "train": {row["kernel_name"] for row in train},
+        "validation": {row["kernel_name"] for row in val},
+        "test": {row["kernel_name"] for row in test},
+    }
+    empty = [name for name, kernels in kernel_sets.items() if not kernels]
+    if empty:
+        raise AssertionError(
+            "Family split produced empty kernel set(s): " + ", ".join(empty)
+        )
+    for left, right in (
+        ("train", "validation"),
+        ("train", "test"),
+        ("validation", "test"),
+    ):
+        overlap = sorted(kernel_sets[left] & kernel_sets[right])
+        if overlap:
+            raise AssertionError(
+                f"Family split kernel overlap between {left} and {right}: {overlap}"
+            )
+
+
 def split_rows_random_design(
     rows: List[dict],
     val_ratio: float,
@@ -1037,6 +1071,75 @@ def dump_json(path: str, obj: Any):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, indent=2)
+
+
+def save_mailohls_adapter(model, tokenizer, output_dir, contract):
+    os.makedirs(output_dir, exist_ok=True)
+    model.save_pretrained(output_dir, save_embedding_layers=False)
+    tokenizer.save_pretrained(output_dir)
+    dump_json(os.path.join(output_dir, "training_contract.json"), contract)
+
+
+STAGE1_COMPATIBILITY_FIELDS = (
+    "model",
+    "model_revision",
+    "tokenizer",
+    "dataset_sha256",
+    "split_sha256",
+    "prompt_schema_version",
+    "objective",
+    "tokenizer_size",
+    "special_tokens",
+    "special_token_ids",
+    "max_length",
+    "top_k",
+    "device_mode",
+    "device_token_dropout",
+    "resource_budget_mode",
+    "resource_budget_fracs",
+    "random_budgets_per_case",
+    "random_budget_min_frac",
+    "min_feasible_candidates_per_budget",
+    "candidate_pool_per_objective",
+    "auto_frequency_fraction",
+    "min_auto_clock_count",
+    "goal_domination_penalty",
+    "goal_max_dominated_gap",
+    "min_supervised_sites",
+    "min_site_coverage",
+    "score_weight_min",
+    "score_weight_power",
+)
+
+
+def require_compatible_stage1_contract(adapter_dir, expected_contract):
+    contract_path = Path(adapter_dir) / "training_contract.json"
+    if not contract_path.is_file():
+        raise FileNotFoundError(
+            f"Stage-1 adapter is missing training contract: {contract_path}"
+        )
+    contract = json.loads(contract_path.read_text(encoding="utf-8"))
+    if contract.get("schema") != "mailohls-training-contract-v1":
+        raise ValueError(f"Unsupported Stage-1 training contract: {contract_path}")
+    if contract.get("stage") != "stage1":
+        raise ValueError(
+            f"--init_adapter_dir must contain a Stage-1 adapter, got "
+            f"stage={contract.get('stage')!r}"
+        )
+    missing = [key for key in STAGE1_COMPATIBILITY_FIELDS if key not in contract]
+    if missing:
+        raise ValueError(f"Stage-1 training contract is missing fields: {missing}")
+    mismatches = {
+        key: {"stage1": contract[key], "stage2": expected_contract[key]}
+        for key in STAGE1_COMPATIBILITY_FIELDS
+        if contract[key] != expected_contract[key]
+    }
+    if mismatches:
+        raise ValueError(
+            "Stage-1 adapter contract is incompatible with Stage 2: "
+            + json.dumps(mismatches, sort_keys=True)
+        )
+    return contract
 
 
 def dump_json_atomic(path: str, obj: Any):
@@ -1678,6 +1781,21 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
     pred_assign = parse_assignment_dict(pred_text)
 
     expected_keys = list(ref_assign.keys())
+    predicted_lines = [line.strip() for line in pred_text.splitlines() if line.strip()]
+    parsed_lhs = []
+    all_lines_parse = True
+    for line in predicted_lines:
+        match = ASSIGN_RE.fullmatch(line)
+        if match is None:
+            all_lines_parse = False
+        else:
+            parsed_lhs.append(match.group(1).upper())
+    expected_key_match = set(pred_assign) == set(ref_assign)
+    schema_compliant = (
+        all_lines_parse
+        and len(parsed_lhs) == len(set(parsed_lhs))
+        and expected_key_match
+    )
     exact_value_match_count = sum(
         (k in pred_assign) and (pred_assign[k] == ref_assign[k])
         for k in expected_keys
@@ -1686,6 +1804,9 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
     return {
         "canonical_prediction": pred_text,
         "value_accuracy_over_expected": exact_value_match_count / max(len(expected_keys), 1),
+        "schema_compliant": schema_compliant,
+        "expected_key_match": expected_key_match,
+        "exact_design_match": expected_key_match and pred_assign == ref_assign,
     }
 
 
@@ -1712,7 +1833,7 @@ class StageValSelectionCallback(TrainerCallback):
         mem_bank: Optional[Dict[str, dict]] = None,
         mem_dim: int = 32,
         max_slots: int = 64,
-        stage_config: Optional[dict] = None,
+        training_contract: Optional[dict] = None,
     ):
         self.tok = tokenizer
         self.selection_cases = selection_cases
@@ -1724,7 +1845,7 @@ class StageValSelectionCallback(TrainerCallback):
         self.mem_bank = mem_bank or {}
         self.mem_dim = mem_dim
         self.max_slots = max_slots
-        self.stage_config = stage_config
+        self.training_contract = training_contract or {}
         self.best_score = -1e18
         self.best_step = -1
 
@@ -1812,11 +1933,9 @@ class StageValSelectionCallback(TrainerCallback):
                 if os.path.isdir(best_dir):
                     shutil.rmtree(best_dir)
 
-                model.save_pretrained(best_dir)
-                self.tok.save_pretrained(best_dir)
-                if self.stage_config is not None:
-                    dump_json(os.path.join(best_dir, "stage_config.json"), self.stage_config)
-
+                save_mailohls_adapter(
+                    model, self.tok, best_dir, self.training_contract
+                )
                 if hasattr(model, "initialized_harp_flamingo") and getattr(model, "initialized_harp_flamingo", False):
                     harp_sd = get_harp_xattn_state_dict(model)
                     if harp_sd:
@@ -1923,40 +2042,8 @@ def load_memory_bank(
 
 
 # ================================
-# HARP / Flamingo-style utilities
+# Structural cross-attention utilities
 # ================================
-
-def extend_instance(obj, mixin):
-    """Apply mixins to a class instance after creation."""
-    base_cls = obj.__class__
-    base_cls_name = obj.__class__.__name__
-    obj.__class__ = type(base_cls_name, (mixin, base_cls), {})
-
-
-def getattr_recursive(obj, att):
-    """
-    Return nested attribute of obj
-    Example: getattr_recursive(obj, 'a.b.c') is equivalent to obj.a.b.c
-    """
-    if att == "":
-        return obj
-    i = att.find(".")
-    if i < 0:
-        return getattr(obj, att)
-    return getattr_recursive(getattr(obj, att[:i]), att[i + 1 :])
-
-
-def setattr_recursive(obj, att, val):
-    """
-    Set nested attribute of obj
-    Example: setattr_recursive(obj, 'a.b.c', val) is equivalent to obj.a.b.c = val
-    """
-    if "." in att:
-        obj = getattr_recursive(obj, ".".join(att.split(".")[:-1]))
-    setattr(obj, att.split(".")[-1], val)
-
-
-
 
 
 def print_xattn_gate_stats(model, print_grads=True):
@@ -2068,521 +2155,6 @@ def load_partial_harp_xattn(model, harp_xattn_path: str, tag: str):
     move_harp_modules_to_model_device(model)
 
 
-def infer_decoder_layers_attr_name(model) -> str:
-    candidates = [
-        "base_model.model.model.layers",
-        "base_model.model.decoder.layers",
-        "base_model.model.transformer.h",
-        "base_model.model.gpt_neox.layers",
-        "model.layers",
-        "decoder.layers",
-        "transformer.h",
-    ]
-    for att in candidates:
-        try:
-            val = getattr_recursive(model, att)
-            if isinstance(val, (nn.ModuleList, list)) and len(val) > 0:
-                return att
-        except Exception:
-            continue
-    raise ValueError(
-        "Could not infer decoder layer path. Please add the correct recursive path for this backbone."
-    )
-
-
-def get_real_memory_pack_for_kernel(
-    mem_bank: Dict[str, dict],
-    kernel_name: str,
-    max_slots: int,
-    mem_dim: int,
-):
-    pack = mem_bank.get(kernel_name) or mem_bank.get(normalize_kname(kernel_name))
-    if pack is None:
-        return (
-            torch.zeros((1, max_slots, mem_dim), dtype=torch.float32),
-            torch.zeros((1, max_slots), dtype=torch.bool),
-        )
-    return (
-        pack["kv"].unsqueeze(0).float(),
-        pack["mask"].unsqueeze(0).bool(),
-    )
-
-
-
-# ==============================
-# Cross-Attention Modules
-# ==============================
-
-def exists(val):
-    return val is not None
-
-
-def FeedForward(dim: int, mult: int = 4) -> nn.Module:
-    inner = int(dim * mult)
-    return nn.Sequential(
-        nn.LayerNorm(dim),
-        nn.Linear(dim, inner, bias=False),
-        nn.GELU(),
-        nn.Linear(inner, dim, bias=False),
-    )
-
-
-class MaskedCrossAttention(nn.Module):
-    """
-    Attention from LM hidden states to HARP memory slots.
-
-    Routing uses ONLY target placeholder anchors <Lk>.
-    Source structural markers <SRC_Lk> are visible to the LM, but they do not
-    participate in cross-attention slot routing.
-    """
-    def __init__(
-        self,
-        *,
-        dim,
-        dim_memory,
-        dim_head=64,
-        heads=8,
-        only_attend_immediate_memory=True,
-        mask_mode="segment",   # "segment" or "token"
-    ):
-        super().__init__()
-        assert mask_mode in {"segment", "token"}
-
-        self.scale = dim_head ** -0.5
-        self.heads = heads
-        self.mask_mode = mask_mode
-        self.only_attend_immediate_memory = only_attend_immediate_memory    # for "segment" mode --> a token can see only 
-                                                                            # the most resent placeholder's slot or all the previous ones too
-
-        self.last_debug = {}
-
-        inner_dim = dim_head * heads
-
-        self.norm = nn.LayerNorm(dim)
-        self.to_q = nn.Linear(dim, inner_dim, bias=False)
-        self.to_kv = nn.Linear(dim_memory, inner_dim * 2, bias=False)
-        self.to_out = nn.Linear(inner_dim, dim, bias=False)
-
-
-    def forward(
-        self,
-        x,
-        memory,
-        placeholder_slot_ids=None,
-        memory_mask=None,
-        use_cached_memory=False,
-    ):
-
-        """
-        x (text):              [B, T_txt, D_lm]
-        memory (graph):        [B, S, D_mem]
-        placeholder_locations: [B, T_txt] bool
-        memory_mask:           [B, S] bool
-        """
-
-        B, T_txt, _ = x.shape
-        _, S, _ = memory.shape
-        h = self.heads
-
-        if not use_cached_memory:
-            assert exists(placeholder_slot_ids), "placeholder_slot_ids is required unless use_cached_memory=True"
-
-        x = self.norm(x)
-        memory = memory.to(dtype=x.dtype)
-
-        q = self.to_q(x)
-        k, v = self.to_kv(memory).chunk(2, dim=-1)
-
-        q, k, v = rearrange_many(
-            (q, k, v),
-            "b n (h d) -> b h n d",
-            h=h,
-        )
-
-        q = q * self.scale
-        sim = einsum("b h i d, b h j d -> b h i j", q, k)
-
-        memory_slots = torch.arange(1, S + 1, device=x.device, dtype=torch.long)  # [S]
-
-        if exists(placeholder_slot_ids):
-            if use_cached_memory:
-                active_slot_ids = last_seen_slot_id(placeholder_slot_ids).expand(B, T_txt)
-            else:
-                if self.mask_mode == "segment":
-                    active_slot_ids = forward_fill_slot_ids(placeholder_slot_ids)
-                elif self.mask_mode == "token":
-                    active_slot_ids = placeholder_slot_ids
-                else:
-                    raise NotImplementedError()
-
-            text_to_memory_mask = torch.eq(
-                rearrange(active_slot_ids, "b t -> b 1 t 1"),
-                rearrange(memory_slots, "s -> 1 1 1 s"),
-            )
-
-            if self.mask_mode == "token" and not use_cached_memory:
-                text_to_memory_mask = text_to_memory_mask & rearrange(
-                    placeholder_slot_ids.ne(0), "b t -> b 1 t 1"
-                )
-
-            if self.mask_mode == "segment" and not self.only_attend_immediate_memory:
-                text_to_memory_mask = torch.ge(
-                    rearrange(active_slot_ids, "b t -> b 1 t 1"),
-                    rearrange(memory_slots, "s -> 1 1 1 s"),
-                )
-
-            if exists(memory_mask):
-                text_to_memory_mask = text_to_memory_mask & rearrange(
-                    memory_mask, "b s -> b 1 1 s"
-                )
-
-            sim = sim.masked_fill(~text_to_memory_mask, -torch.finfo(sim.dtype).max)
-
-        sim = sim - sim.amax(dim=-1, keepdim=True).detach()
-        attn = sim.softmax(dim=-1)
-
-        if exists(placeholder_slot_ids):
-            text_without_memory_mask = ~text_to_memory_mask.any(dim=-1, keepdim=True)
-            attn = attn.masked_fill(text_without_memory_mask, 0.0)
-
-        out = einsum("b h i j, b h j d -> b h i d", attn, v)
-        out = rearrange(out, "b h n d -> b n (h d)")
-
-        with torch.no_grad():
-            dbg = {
-                "B": int(B),
-                "T_txt": int(T_txt),
-                "S": int(S),
-                "memory_mask_true": int(memory_mask.sum().item()) if exists(memory_mask) else None,
-                "out_abs_mean": float(out.abs().mean().item()),
-                "out_l2_mean": float(out.float().norm(dim=-1).mean().item()),
-            }
-
-            if exists(placeholder_slot_ids):
-                dbg["placeholder_tokens"] = int(placeholder_slot_ids.ne(0).sum().item())
-                dbg["active_tokens_after_fill"] = int(active_slot_ids.ne(0).sum().item())
-
-                if 'text_to_memory_mask' in locals():
-                    dbg["valid_edges"] = int(text_to_memory_mask.sum().item())
-                    dbg["tokens_with_route"] = int(text_to_memory_mask.any(dim=-1).sum().item())
-
-            dbg["attn_mean"] = float(attn.mean().item())
-            dbg["attn_max"] = float(attn.max().item())
-            self.last_debug = dbg
-
-        return self.to_out(out)
-
-
-
-class GatedCrossAttentionBlock(nn.Module):
-    """
-    Flamingo-style gated xattn + FF block
-    """    
-    def __init__(self, *, dim, dim_memory, dim_head=64, heads=8,
-                 ff_mult=4, only_attend_immediate_memory=True,
-                 mask_mode="segment", enable_ff=True,
-                 attn_gate_init=0.05, ff_gate_init=0.05):
-        super().__init__()
-        self.attn = MaskedCrossAttention(
-            dim=dim,
-            dim_memory=dim_memory,
-            dim_head=dim_head,
-            heads=heads,
-            only_attend_immediate_memory=only_attend_immediate_memory,
-            mask_mode=mask_mode,
-        )
-        self.attn_gate = nn.Parameter(torch.tensor([attn_gate_init]))
-        self.enable_ff = enable_ff
-
-        if enable_ff:
-            self.ff = FeedForward(dim, mult=ff_mult)
-            self.ff_gate = nn.Parameter(torch.tensor([ff_gate_init]))
-        else:
-            self.ff = None
-            self.register_parameter("ff_gate", None)
-
-    def forward(self, x, memory, placeholder_slot_ids=None, memory_mask=None, use_cached_memory=False, xattn_apply_mask=None):
-        attn_out = self.attn(
-            x,
-            memory,
-            placeholder_slot_ids=placeholder_slot_ids,
-            memory_mask=memory_mask,
-            use_cached_memory=use_cached_memory,
-        )
-
-        if xattn_apply_mask is not None:
-            mask = xattn_apply_mask.to(device=attn_out.device, dtype=attn_out.dtype)
-            if mask.ndim == 2:
-                mask = mask.unsqueeze(-1)   # [B, T, 1]
-            attn_out = attn_out * mask
-
-        x = x + attn_out * self.attn_gate.tanh()
-
-        if self.ff is not None:
-            ff_out = self.ff(x)
-            if xattn_apply_mask is not None:
-                ff_out = ff_out * mask
-            x = x + ff_out * self.ff_gate.tanh()
-
-        return x
-
-
-
-def build_placeholder_slot_ids(input_ids, placeholder_token_ids, routing_start_idx=None):
-    """
-    Returns:
-        slot_ids [B, T] long
-            0 = not a placeholder token
-            1 = <L1>
-            2 = <L2>
-            ...
-    """
-    slot_ids = torch.zeros_like(input_ids, dtype=torch.long)
-    for slot_idx, tok_id in enumerate(placeholder_token_ids, start=1):
-        slot_ids[input_ids == tok_id] = slot_idx
-
-    if routing_start_idx is not None:
-        if routing_start_idx.ndim == 0:
-            routing_start_idx = routing_start_idx.unsqueeze(0)
-        B, T = input_ids.shape
-        pos = torch.arange(T, device=input_ids.device).unsqueeze(0).expand(B, T)
-        valid = pos >= routing_start_idx.unsqueeze(1)   # only target anchors are allowed to activate HARP memory routing
-        slot_ids = torch.where(valid, slot_ids, torch.zeros_like(slot_ids))
-
-    return slot_ids
-
-
-
-def forward_fill_slot_ids(slot_ids):
-    """
-    slot_ids: [B, T], values in {0,1,...,S}
-    Segment Mode : Returns active slot id at each position, by carrying forward the most recent nonzero slot.
-    """
-    B, T = slot_ids.shape
-    pos = torch.arange(T, device=slot_ids.device).unsqueeze(0).expand(B, T)
-    seen_pos = torch.where(slot_ids.ne(0), pos, torch.full_like(pos, -1))
-    last_pos = torch.cummax(seen_pos, dim=1).values
-    gather_pos = last_pos.clamp(min=0)
-    active = slot_ids.gather(1, gather_pos)
-    active = torch.where(last_pos.ge(0), active, torch.zeros_like(active))
-    return active
-
-
-def last_seen_slot_id(slot_ids):
-    """
-    slot_ids: [B, T_prev]
-    Returns:
-        [B, 1] = last nonzero slot id seen in the cached prefix --> Cached Generation
-    """
-    B, T = slot_ids.shape
-    pos = torch.arange(T, device=slot_ids.device).unsqueeze(0).expand(B, T)
-    seen_pos = torch.where(slot_ids.ne(0), pos, torch.full_like(pos, -1))
-    last_pos = seen_pos.max(dim=1).values
-    gather_pos = last_pos.clamp(min=0).unsqueeze(1)
-    last_slot = slot_ids.gather(1, gather_pos)
-    last_slot = torch.where(last_pos.ge(0).unsqueeze(1), last_slot, torch.zeros_like(last_slot))
-    return last_slot
-
-
-class HARPLayer(nn.Module):
-    """
-    Thin wrapper around a decoder layer that optionally inserts a gated HARP cross-attention block before the decoder layer.
-    """
-    def __init__(self, gated_cross_attn_layer, decoder_layer, gradient_checkpointing=False):
-        super().__init__()
-        self.gated_cross_attn_layer = gated_cross_attn_layer
-        self.decoder_layer = decoder_layer
-        self.harp_x = None
-        self.harp_mask = None
-        self.placeholder_slot_ids = None
-        self.use_cached_memory = False
-        self.xattn_apply_mask = None
-
-        if self.gated_cross_attn_layer is not None:
-            self.gated_cross_attn_layer._use_gradient_checkpointing = gradient_checkpointing
-        self.decoder_layer._use_gradient_checkpointing = gradient_checkpointing
-
-    def condition_xattn_apply_mask(self, xattn_apply_mask):
-        self.xattn_apply_mask = xattn_apply_mask
-
-    def is_conditioned(self) -> bool:
-        return self.harp_x is not None and self.harp_mask is not None and self.placeholder_slot_ids is not None
-
-    def condition_harp_x(self, harp_x, harp_mask):
-        self.harp_x = harp_x
-        self.harp_mask = harp_mask
-
-    def condition_placeholder_slot_ids(self, placeholder_slot_ids):
-        self.placeholder_slot_ids = placeholder_slot_ids
-
-    def condition_use_cached_memory(self, use_cached_memory):
-        self.use_cached_memory = use_cached_memory
-
-    def forward(self, *args, **kwargs):
-        if args:
-            hidden_states = args[0]
-            rest_args = args[1:]
-        else:
-            if "hidden_states" not in kwargs:
-                raise ValueError("HARPLayer.forward requires hidden_states")
-            hidden_states = kwargs["hidden_states"]
-            rest_args = ()
-
-        if self.gated_cross_attn_layer is not None:
-            if self.harp_x is None or self.harp_mask is None:
-                raise ValueError("HARP memory must be conditioned before forward pass")
-            if self.placeholder_slot_ids is None:
-                raise ValueError("placeholder_slot_ids must be conditioned before forward pass")
-
-            hidden_states = self.gated_cross_attn_layer(
-                hidden_states,
-                self.harp_x,
-                placeholder_slot_ids=self.placeholder_slot_ids,
-                memory_mask=self.harp_mask,
-                use_cached_memory=bool(self.use_cached_memory),
-                xattn_apply_mask=self.xattn_apply_mask,
-            )
-
-        if args:
-            return self.decoder_layer(hidden_states, *rest_args, **kwargs)
-        else:
-            kwargs["hidden_states"] = hidden_states
-            return self.decoder_layer(**kwargs)
-
-
-
-class HARPLMMixin(nn.Module):
-    """
-    - Wraps decoder layers with HARPLayer
-    - Builds placeholder_slot_ids from the input ids (in which slot we are)
-    - Conditioning (gives harp_x, harp_mask)
-    - Keeps cached memory during generation
-    """
-    def set_decoder_layers_attr_name(self, decoder_layers_attr_name):
-        self.decoder_layers_attr_name = decoder_layers_attr_name
-
-    def _get_decoder_layers(self):
-        return getattr_recursive(self, self.decoder_layers_attr_name)
-
-    def _set_decoder_layers(self, value):
-        setattr_recursive(self, self.decoder_layers_attr_name, value)
-
-    def init_harp_flamingo(
-        self,
-        placeholder_token_ids,
-        lang_hidden_size,
-        mem_hidden_size,
-        cross_attn_every_n_layers,
-        gradient_checkpointing,
-        xattn_heads=8,
-        xattn_dim_head=64,
-        xattn_ff_mult=4,
-        only_attend_immediate_memory=True,
-        mask_mode="segment",
-        enable_ff=True,
-    ):
-        decoder_blocks = self._get_decoder_layers()
-        wrapped_layers = []
-        for layer_idx, decoder_layer in enumerate(decoder_blocks):
-            gated_cross_attn_layer = None
-            if (layer_idx + 1) % cross_attn_every_n_layers == 0:
-                gated_cross_attn_layer = GatedCrossAttentionBlock(
-                    dim=lang_hidden_size,
-                    dim_memory=mem_hidden_size,
-                    dim_head=xattn_dim_head,
-                    heads=xattn_heads,
-                    ff_mult=xattn_ff_mult,
-                    only_attend_immediate_memory=only_attend_immediate_memory,
-                    mask_mode=mask_mode,
-                    enable_ff=enable_ff,
-                    attn_gate_init=0.05,
-                    ff_gate_init=0.05,
-                )
-
-            wrapped_layers.append(
-                HARPLayer(
-                    gated_cross_attn_layer=gated_cross_attn_layer,
-                    decoder_layer=decoder_layer,
-                    gradient_checkpointing=gradient_checkpointing,
-                )
-            )
-
-        self._set_decoder_layers(nn.ModuleList(wrapped_layers))
-        self.placeholder_token_ids = tuple(int(x) for x in placeholder_token_ids)
-        self.initialized_harp_flamingo = True
-        self._use_cached_harp_x = False
-
-    def condition_harp(self, harp_x, harp_mask):
-        for layer in self._get_decoder_layers():
-            if isinstance(layer, HARPLayer):
-                layer.condition_harp_x(harp_x, harp_mask)
-        # Keep cache enabled so HF generate() can reuse the same memory across
-        # repeated forward() calls after the prompt step.
-        self._use_cached_harp_x = True
-
-    def clear_harp(self):
-        for layer in self._get_decoder_layers():
-            if isinstance(layer, HARPLayer):
-                layer.condition_harp_x(None, None)
-                layer.condition_placeholder_slot_ids(None)
-                layer.condition_use_cached_memory(False)
-                layer.condition_xattn_apply_mask(None)
-        self._use_cached_harp_x = False
-
-    def is_conditioned(self) -> bool:
-        return all(
-            (not isinstance(layer, HARPLayer)) or layer.is_conditioned()
-            for layer in self._get_decoder_layers()
-        )
-    
-    def forward(
-        self,
-        input_ids=None,
-        attention_mask=None,
-        labels=None,
-        routing_start_idx=None,
-        xattn_apply_mask=None,
-        **kwargs,
-    ):
-        if not getattr(self, "initialized_harp_flamingo", False):
-            return super().forward(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                labels=labels,
-                **kwargs,
-            )
-
-        if input_ids is None:
-            raise ValueError("input_ids must be provided for HARP-Flamingo forward")
-
-        placeholder_slot_ids = build_placeholder_slot_ids(
-            input_ids,
-            self.placeholder_token_ids,
-            routing_start_idx=routing_start_idx,
-        )
-
-        use_cached_placeholder_locations = (
-            self._use_cached_harp_x
-            and self.is_conditioned()
-            and not placeholder_slot_ids.ne(0).any()
-        )
-
-        for layer in self._get_decoder_layers():
-            if not isinstance(layer, HARPLayer):
-                continue
-            if not use_cached_placeholder_locations:
-                layer.condition_placeholder_slot_ids(placeholder_slot_ids)
-            layer.condition_use_cached_memory(use_cached_placeholder_locations)
-            layer.condition_xattn_apply_mask(xattn_apply_mask)
-
-        kwargs["input_ids"] = input_ids
-        kwargs["attention_mask"] = attention_mask
-        if labels is not None:
-            kwargs["labels"] = labels
-
-        return super().forward(**kwargs)
-
-
 # Shared implementation used by new checkpoints.
 MaskedCrossAttention = structural_xattn.MaskedCrossAttention
 GatedCrossAttentionBlock = structural_xattn.GatedCrossAttentionBlock
@@ -2591,20 +2163,22 @@ extend_instance = structural_xattn.extend_instance
 infer_decoder_layers_attr_name = structural_xattn.infer_decoder_layers_attr_name
 
 
-class SaveHarpXattnCallback(TrainerCallback):
-    def __init__(self, stage_config):
-        self.stage_config = stage_config
+class SaveMailoHLSCheckpointCallback(TrainerCallback):
+    def __init__(self, tokenizer, training_contract):
+        self.tokenizer = tokenizer
+        self.training_contract = training_contract
 
     def on_save(self, args, state, control, **kwargs):
         model = kwargs["model"]
         ckpt_dir = os.path.join(args.output_dir, f"checkpoint-{state.global_step}")
-        os.makedirs(ckpt_dir, exist_ok=True)
+        save_mailohls_adapter(
+            model, self.tokenizer, ckpt_dir, self.training_contract
+        )
 
         harp_sd = get_harp_xattn_state_dict(model)
         if harp_sd:
             torch.save(harp_sd, os.path.join(ckpt_dir, "harp_xattn.pt"))
             print(f"[HARP-SAVE] saved xattn weights to {ckpt_dir}/harp_xattn.pt")
-        dump_json(os.path.join(ckpt_dir, "stage_config.json"), self.stage_config)
         return control
 
 
@@ -2667,22 +2241,6 @@ def get_input_embeddings_module(model):
         raise ValueError("Could not access model input embeddings.")
 
     return emb
-
-
-def unfreeze_input_embeddings(model):
-    """
-    Newly added special tokens need trainable input embeddings.
-    """
-    emb = get_input_embeddings_module(model)
-    emb.weight.requires_grad_(True)
-
-    # Helpful for some HF/PEFT stacks
-    if hasattr(model, "enable_input_require_grads"):
-        model.enable_input_require_grads()
-
-    return emb
-
-
 
 
 # =========================================
@@ -3271,7 +2829,7 @@ def cleanup_cuda():
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
-def build_default_stage_configs(args):
+def build_default_stage_arguments(args):
     # Stage 1: learn objective-conditioned RHS values only
     stage1 = StageRunConfig(
         name="stage1_goal_rhs_only_sft",
@@ -3326,103 +2884,6 @@ def build_default_stage_configs(args):
 # =================================
 # Main Training
 # =================================
-
-class TrainableSpecialTokenEmbedding(nn.Module):
-    """
-    Memory-efficient special-token embedding tuning.
-
-    Base embedding is frozen.
-    Only selected special token ids receive trainable delta vectors.
-
-    Effective embedding:
-        ordinary token: base_emb[token_id]
-        special token: base_emb[token_id] + special_delta[token_id]
-    """
-    def __init__(self, base_emb: nn.Module, special_token_ids: List[int]):
-        super().__init__()
-        self.base_emb = base_emb
-        self.base_emb.weight.requires_grad_(False)
-
-        token_ids = sorted(set(int(x) for x in special_token_ids if int(x) >= 0))
-        if not token_ids:
-            raise ValueError("No valid special token ids were provided.")
-
-        vocab_size, hidden_size = self.base_emb.weight.shape
-
-        lookup = torch.full((vocab_size,), -1, dtype=torch.long)
-        for row_idx, tok_id in enumerate(token_ids):
-            if tok_id >= vocab_size:
-                raise ValueError(f"special token id {tok_id} >= vocab_size {vocab_size}")
-            lookup[tok_id] = row_idx
-
-        self.register_buffer("special_id_to_row", lookup, persistent=False)
-        self.register_buffer(
-            "special_token_ids",
-            torch.tensor(token_ids, dtype=torch.long),
-            persistent=False,
-        )
-
-        # Zero init preserves the base model behavior at step 0.
-        self.special_delta = nn.Parameter(
-            torch.zeros(
-                len(token_ids),
-                hidden_size,
-                dtype=self.base_emb.weight.dtype,
-            )
-        )
-
-    @property
-    def weight(self):
-        # Keeps compatibility with HF utilities that inspect embedding.weight.
-        return self.base_emb.weight
-
-    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
-        out = self.base_emb(input_ids)
-
-        row = self.special_id_to_row.to(input_ids.device)[input_ids]
-        mask = row.ge(0)
-
-        if mask.any():
-            delta = self.special_delta.to(device=out.device, dtype=out.dtype)
-            out = out.clone()
-            out[mask] = out[mask] + delta[row[mask]]
-
-        return out
-
-
-def install_trainable_special_token_embeddings(model, special_ids: List[int]):
-    """
-    Replace the input embedding layer with a frozen base embedding plus
-    trainable deltas only for the added special tokens.
-    """
-    base_emb = get_input_embeddings_module(model)
-    wrapped_emb = TrainableSpecialTokenEmbedding(base_emb, special_ids)
-
-    if hasattr(model, "set_input_embeddings"):
-        model.set_input_embeddings(wrapped_emb)
-    elif hasattr(model, "base_model") and hasattr(model.base_model, "set_input_embeddings"):
-        model.base_model.set_input_embeddings(wrapped_emb)
-    else:
-        raise ValueError("Could not set wrapped input embeddings on this model.")
-
-    # The deterministic RHS objective does not need to generate the special
-    # schema tokens freely, so keep the output head frozen.
-    out_emb = model.get_output_embeddings()
-    if out_emb is not None:
-        out_emb.weight.requires_grad_(False)
-
-    # Needed with gradient checkpointing + frozen base embeddings.
-    if hasattr(model, "enable_input_require_grads"):
-        model.enable_input_require_grads()
-
-    print(
-        f"[TOKENS] trainable special-token embedding deltas: "
-        f"{len(wrapped_emb.special_token_ids)} tokens, "
-        f"{wrapped_emb.special_delta.numel():,} params"
-    )
-
-    return wrapped_emb
-
 
 # =============================================================================
 # Unified target conditioning
@@ -4163,8 +3624,6 @@ def run_single_training(args):
 
     if torch.cuda.is_available():
         print("[CUDA] using:", torch.cuda.get_device_name(0))
-        torch.backends.cuda.matmul.allow_tf32 = True
-        torch.backends.cudnn.allow_tf32 = True
 
     os.makedirs(args.output_dir, exist_ok=True)
     dump_root = os.path.join(args.output_dir, "selected_debug")
@@ -4185,6 +3644,9 @@ def run_single_training(args):
         print("[INFO] val_families:", sorted(val_fams))
         print("[INFO] test_families:", sorted(test_fams))
         raw_train_rows, raw_val_rows, raw_test_rows = split_by_family(rows, val_fams, test_fams)
+        assert_disjoint_nonempty_kernel_splits(
+            raw_train_rows, raw_val_rows, raw_test_rows
+        )
     else:
         raw_train_rows, raw_val_rows, raw_test_rows = split_rows_random_design(
             rows,
@@ -4340,9 +3802,8 @@ def run_single_training(args):
         if not os.path.isfile(manifest_path):
             raise ValueError(f"Stage 2 requires memory manifest: {manifest_path}")
         memory_manifest_sha256 = _file_sha256(Path(manifest_path))
-        stage_config = {
-            "prompt_schema_version": mailohls_contract.PROMPT_SCHEMA_VERSION,
-            "objective": args.objective,
+        structural_config = {
+            "schema": "mailohls-structural-config-v1",
             "mem_dim": args.mem_dim,
             "max_slots": args.max_slots,
             "every_n_layers": args.every_n_layers,
@@ -4352,16 +3813,82 @@ def run_single_training(args):
             "xattn_enable_ff": False,
             "xattn_placement": "post_self_attn_pre_mlp",
             "xattn_gate_init": 0.0,
-            "dataset_sha256": _file_sha256(Path(args.dataset)),
             "memory_manifest_sha256": memory_manifest_sha256,
-            "split_sha256": split_sha256,
-            "seed": args.seed,
         }
 
-    tok = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
+    tok = AutoTokenizer.from_pretrained(
+        args.model,
+        revision=args.model_revision,
+        trust_remote_code=True,
+    )
 
-    special_tokens = [g["token"] for g in GOALS.values()] + TARGET_PLATFORM_TOKENS + SOURCE_PLACEHOLDER_TOKENS + TARGET_PLACEHOLDER_TOKENS
-    tok.add_special_tokens({"additional_special_tokens": special_tokens})
+    special_token_strings = (
+        [goal["token"] for goal in GOALS.values()]
+        + TARGET_PLATFORM_TOKENS
+        + SOURCE_PLACEHOLDER_TOKENS
+        + TARGET_PLACEHOLDER_TOKENS
+    )
+    tok.add_special_tokens({"additional_special_tokens": special_token_strings})
+
+    special_ids = sorted(
+        set(tok.convert_tokens_to_ids(special_token_strings))
+    )
+    if any(token_id < 0 for token_id in special_ids):
+        raise RuntimeError("A MailoHLS special token was not added correctly.")
+
+    training_contract = {
+        "schema": "mailohls-training-contract-v1",
+        "stage": "stage1" if args.disable_harp else "stage2",
+        "git_commit": current_git_commit(),
+        "model": args.model,
+        "model_revision": args.model_revision,
+        "tokenizer": args.model,
+        "dataset_sha256": _file_sha256(Path(args.dataset)),
+        "split_sha256": split_sha256,
+        "prompt_schema_version": mailohls_contract.PROMPT_SCHEMA_VERSION,
+        "objective": args.objective,
+        "seed": args.seed,
+        "tokenizer_size": len(tok),
+        "special_tokens": special_token_strings,
+        "special_token_ids": special_ids,
+        "max_length": args.max_length,
+        "top_k": args.top_k,
+        "device_mode": args.device_mode,
+        "device_token_dropout": args.device_token_dropout,
+        "resource_budget_mode": args.resource_budget_mode,
+        "resource_budget_fracs": args.resource_budget_fracs,
+        "random_budgets_per_case": args.random_budgets_per_case,
+        "random_budget_min_frac": args.random_budget_min_frac,
+        "min_feasible_candidates_per_budget": (
+            args.min_feasible_candidates_per_budget
+        ),
+        "candidate_pool_per_objective": args.candidate_pool_per_objective,
+        "auto_frequency_fraction": args.auto_frequency_fraction,
+        "min_auto_clock_count": args.min_auto_clock_count,
+        "goal_domination_penalty": args.goal_domination_penalty,
+        "goal_max_dominated_gap": args.goal_max_dominated_gap,
+        "min_supervised_sites": args.min_supervised_sites,
+        "min_site_coverage": args.min_site_coverage,
+        "score_weight_min": args.score_weight_min,
+        "score_weight_power": args.score_weight_power,
+        "lora_r": args.lora_r,
+        "lora_alpha": args.lora_alpha,
+        "lora_dropout": args.lora_dropout,
+        "transformers_version": transformers.__version__,
+        "peft_version": peft.__version__,
+        "torch_version": torch.__version__,
+    }
+    if not args.disable_harp:
+        training_contract["structural"] = structural_config
+    dump_json(
+        os.path.join(args.output_dir, "training_contract.json"),
+        training_contract,
+    )
+
+    resume_ckpt = os.path.abspath(args.resume_from_checkpoint) if args.resume_from_checkpoint else ""
+    init_adapter_dir = os.path.abspath(args.init_adapter_dir) if args.init_adapter_dir else ""
+    if not args.disable_harp and init_adapter_dir:
+        require_compatible_stage1_contract(init_adapter_dir, training_contract)
 
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
@@ -4384,6 +3911,7 @@ def run_single_training(args):
 
     base = AutoModelForCausalLM.from_pretrained(
         args.model,
+        revision=args.model_revision,
         quantization_config=bnb,
         device_map={"": 0},
         trust_remote_code=True,
@@ -4414,10 +3942,8 @@ def run_single_training(args):
         bias="none",
         task_type="CAUSAL_LM",
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+        trainable_token_indices=special_ids,
     )
-
-    resume_ckpt = os.path.abspath(args.resume_from_checkpoint) if args.resume_from_checkpoint else ""
-    init_adapter_dir = os.path.abspath(args.init_adapter_dir) if args.init_adapter_dir else ""
 
     if resume_ckpt and os.path.isdir(resume_ckpt):
         model = PeftModel.from_pretrained(
@@ -4496,7 +4022,7 @@ def run_single_training(args):
             mask_mode="segment",
         )
 
-        stage_config["selected_xattn_layers_1based"] = list(
+        structural_config["selected_xattn_layers_1based"] = list(
             model.structural_xattn_layer_indices
         )
 
@@ -4512,47 +4038,11 @@ def run_single_training(args):
     elif args.init_harp_xattn_from:
         load_partial_harp_xattn(model, args.init_harp_xattn_from, tag="HARP-INIT")
 
-    if args.device_mode == "device_adapt":
-        input_emb = get_input_embeddings_module(model)
-        input_emb.weight.requires_grad_(False)
-        print("[TOKENS] embeddings frozen for device adaptation")
-    else:
-        input_emb = unfreeze_input_embeddings(model)
-        print(f"[TOKENS] input embeddings unfrozen: {input_emb.weight.requires_grad}")
-
     model.print_trainable_parameters()
-
-    try:
-        model.tie_weights()
-    except Exception:
-        pass
 
     inp = model.get_input_embeddings().weight
     out = model.get_output_embeddings().weight
     print("tied =", inp.data_ptr() == out.data_ptr())
-
-    def enable_only_selected_rows(weight: torch.nn.Parameter, token_ids):
-        weight.requires_grad_(True)
-        token_ids = torch.tensor(sorted(set(token_ids)), dtype=torch.long)
-
-        def grad_mask_hook(grad):
-            mask = torch.zeros(grad.size(0), device=grad.device, dtype=grad.dtype)
-            mask[token_ids.to(grad.device)] = 1.0
-            return grad * mask.unsqueeze(1)
-
-        weight.register_hook(grad_mask_hook)
-
-    special_ids = tok.convert_tokens_to_ids(
-        [g["token"] for g in GOALS.values()] + TARGET_PLATFORM_TOKENS + SOURCE_PLACEHOLDER_TOKENS + TARGET_PLACEHOLDER_TOKENS
-    )
-
-    if args.device_mode != "device_adapt":
-        inp_emb = model.get_input_embeddings()
-        enable_only_selected_rows(inp_emb.weight, special_ids)
-
-        out_emb = model.get_output_embeddings()
-        if out_emb is not None and out_emb.weight is not inp_emb.weight:
-            enable_only_selected_rows(out_emb.weight, special_ids)
 
     embedding_ids = {id(parameter) for parameter in model.get_input_embeddings().parameters()}
     output_embeddings = model.get_output_embeddings()
@@ -4656,7 +4146,11 @@ def run_single_training(args):
         initial_manifest = verify_and_save_initial_harp_state(
             model, args.initial_state_reference, args.output_dir
         )
-        stage_config["initial_harp_state_sha256"] = initial_manifest["combined_sha256"]
+        structural_config["initial_harp_state_sha256"] = initial_manifest["combined_sha256"]
+        dump_json(
+            os.path.join(args.output_dir, "training_contract.json"),
+            training_contract,
+        )
 
     trainer = LengthGroupedTrainer(
         model=model,
@@ -4682,8 +4176,12 @@ def run_single_training(args):
         candidate_keep_head_tokens=args.candidate_keep_head_tokens,
     )
 
-    if not args.disable_harp:
-        trainer.add_callback(SaveHarpXattnCallback(stage_config))
+    trainer.add_callback(
+        SaveMailoHLSCheckpointCallback(
+            tokenizer=tok,
+            training_contract=training_contract,
+        )
+    )
 
     if selection_cases:
         trainer.add_callback(
@@ -4698,7 +4196,7 @@ def run_single_training(args):
                 mem_bank=mem_bank,
                 mem_dim=args.mem_dim,
                 max_slots=args.max_slots,
-                stage_config=None if args.disable_harp else stage_config,
+                training_contract=training_contract,
             )
         )
 
@@ -4711,22 +4209,17 @@ def run_single_training(args):
 
     best_dir = os.path.join(args.output_dir, args.best_dir_name)
     if not os.path.isdir(best_dir):
-        os.makedirs(best_dir, exist_ok=True)
-        trainer.save_model(best_dir)
-        tok.save_pretrained(best_dir)
+        save_mailohls_adapter(model, tok, best_dir, training_contract)
         if not args.disable_harp:
             torch.save(get_harp_xattn_state_dict(model), os.path.join(best_dir, "harp_xattn.pt"))
-            dump_json(os.path.join(best_dir, "stage_config.json"), stage_config)
 
-    trainer.save_model(args.output_dir)
-    tok.save_pretrained(args.output_dir)
+    save_mailohls_adapter(model, tok, args.output_dir, training_contract)
 
     if not args.disable_harp:
         torch.save(
             get_harp_xattn_state_dict(model),
             os.path.join(args.output_dir, "harp_xattn.pt")
         )
-        dump_json(os.path.join(args.output_dir, "stage_config.json"), stage_config)
         print(f"[DONE] Saved LoRA + HARP xattn adapters to: {args.output_dir}")
     else:
         print(f"[DONE] Saved LoRA adapter to: {args.output_dir}")
@@ -4757,6 +4250,7 @@ def main():
     ap.add_argument("--dataset", type=str, default=str(DEFAULT_SFT_DATASET))
     ap.add_argument("--memory_dir", type=str, default=str(DEFAULT_STRUCTURAL_MEMORY))
     ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-7b-base")
+    ap.add_argument("--model_revision", type=str, default="main")
     ap.add_argument(
         "--objective",
         type=str,
@@ -4961,7 +4455,7 @@ def main():
         run_single_training(args)
         return
 
-    stage1_cfg, stage2_cfg = build_default_stage_configs(args)
+    stage1_cfg, stage2_cfg = build_default_stage_arguments(args)
 
     print("\n" + "=" * 120)
     print(f"[PIPELINE] Running {stage1_cfg.name} for {args.objective}")

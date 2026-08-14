@@ -26,7 +26,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, max_error, 
 import torch
 import pytorch_warmup as warmup
 from torch_geometric.loader import DataLoader
-from torch.utils.data import Dataset, Subset, WeightedRandomSampler
+from torch.utils.data import Dataset, Sampler, Subset, WeightedRandomSampler
 import torch.nn as nn
 import shutil
 import numpy as np
@@ -338,6 +338,72 @@ class KernelBalancedDataset(Dataset):
         return sample
 
 
+class KernelGroupedBatchSampler(Sampler):
+    """Yield balanced batches of kernels with multiple points per kernel."""
+
+    def __init__(
+        self,
+        dataset,
+        *,
+        kernels_per_batch,
+        points_per_kernel,
+        samples_per_kernel_per_epoch,
+        seed,
+    ):
+        self.dataset = dataset
+        self.kernels_per_batch = int(kernels_per_batch)
+        self.points_per_kernel = int(points_per_kernel)
+        self.seed = _as_int_seed(seed)
+        self.epoch = 0
+        by_kernel = defaultdict(list)
+        for index in range(len(dataset)):
+            by_kernel[_sample_kernel(dataset[index])].append(index)
+        self.indices_by_kernel = {
+            kernel: tuple(indices) for kernel, indices in sorted(by_kernel.items())
+        }
+        self.kernels = tuple(self.indices_by_kernel)
+        if len(self.kernels) < self.kernels_per_batch:
+            raise ValueError(
+                'Kernel-grouped sampling requires at least '
+                f'{self.kernels_per_batch} kernels, found {len(self.kernels)}.'
+            )
+        if samples_per_kernel_per_epoch is None:
+            samples_per_kernel_per_epoch = max(
+                1, int(np.ceil(len(dataset) / len(self.kernels)))
+            )
+        self.samples_per_kernel_per_epoch = int(samples_per_kernel_per_epoch)
+        if self.samples_per_kernel_per_epoch <= 0:
+            raise ValueError('samples_per_kernel_per_epoch must be positive.')
+        draws_per_batch = self.kernels_per_batch * self.points_per_kernel
+        target_draws = len(self.kernels) * self.samples_per_kernel_per_epoch
+        self.num_batches = max(1, int(np.ceil(target_draws / draws_per_batch)))
+
+    def __len__(self):
+        return self.num_batches
+
+    def __iter__(self):
+        rng = np.random.default_rng(self.seed + self.epoch)
+        self.epoch += 1
+        kernel_order = list(rng.permutation(self.kernels))
+        cursor = 0
+        for _ in range(self.num_batches):
+            selected_kernels = [
+                kernel_order[(cursor + offset) % len(kernel_order)]
+                for offset in range(self.kernels_per_batch)
+            ]
+            cursor = (cursor + self.kernels_per_batch) % len(kernel_order)
+            batch = []
+            for kernel in selected_kernels:
+                indices = self.indices_by_kernel[str(kernel)]
+                chosen = rng.choice(
+                    indices,
+                    size=self.points_per_kernel,
+                    replace=len(indices) < self.points_per_kernel,
+                )
+                batch.extend(int(index) for index in chosen)
+            yield batch
+
+
 def gen_dataset(li):
     if FLAGS.tiny_overfit:
         train_workers = FLAGS.tiny_overfit_workers
@@ -348,6 +414,21 @@ def gen_dataset(li):
 
     def make_loader(ds, shuffle, workers, *, training=False):
         sampler = None
+        batch_sampler = None
+        if training and bool(getattr(FLAGS, 'kernel_grouped_sampling', False)):
+            batch_sampler = KernelGroupedBatchSampler(
+                ds,
+                kernels_per_batch=FLAGS.kernels_per_batch,
+                points_per_kernel=FLAGS.points_per_kernel,
+                samples_per_kernel_per_epoch=FLAGS.samples_per_kernel_per_epoch,
+                seed=FLAGS.random_seed,
+            )
+            saver.log_info(
+                'Kernel-grouped sampling: '
+                f'{FLAGS.kernels_per_batch} kernels x '
+                f'{FLAGS.points_per_kernel} points, '
+                f'{len(batch_sampler)} batches/epoch.'
+            )
         if training and bool(
             getattr(FLAGS, 'kernel_uniform_sampling', False)
         ):
@@ -367,14 +448,16 @@ def gen_dataset(li):
                     _as_int_seed(FLAGS.random_seed)
                 ),
             )
-        kwargs = dict(
-            batch_size=FLAGS.batch_size,
-            shuffle=shuffle and sampler is None,
-            sampler=sampler,
-            num_workers=workers,
-            pin_memory=False,
-        )
-        if shuffle and sampler is None:
+        kwargs = dict(num_workers=workers, pin_memory=False)
+        if batch_sampler is not None:
+            kwargs['batch_sampler'] = batch_sampler
+        else:
+            kwargs.update(
+                batch_size=FLAGS.batch_size,
+                shuffle=shuffle and sampler is None,
+                sampler=sampler,
+            )
+        if shuffle and sampler is None and batch_sampler is None:
             kwargs["generator"] = torch.Generator().manual_seed(
                 _as_int_seed(FLAGS.random_seed)
             )
@@ -393,6 +476,15 @@ def gen_dataset(li):
     saver.info(f'num features for training: {num_features}')
     edge_dim = train_loader.dataset[0].edge_attr.shape[1]
     saver.info(f'size of the edge attribute is {edge_dim}')
+    if FLAGS.num_features is not None and int(FLAGS.num_features) != int(num_features):
+        raise ValueError(
+            f'--num_features={FLAGS.num_features} does not match runtime {num_features}.'
+        )
+    if FLAGS.edge_dim is not None and int(FLAGS.edge_dim) != int(edge_dim):
+        raise ValueError(
+            f'--edge_dim={FLAGS.edge_dim} does not match runtime {edge_dim}.'
+        )
+    saver.save_resolved_runtime_dimensions(num_features, edge_dim)
 
     return train_loader, val_loader, test_loader, num_features, edge_dim
 
@@ -620,6 +712,10 @@ def update_total_loss(loss, data, target_list, loss_dict, loss_dict_, out_dict, 
         for t in target_list:
             model_key = 'perf' if FLAGS.encode_log and t == 'actual_perf' else t
             loss_dict[t] += loss_dict_[model_key].item() * batch_weight
+        for key, value in loss_dict_.items():
+            if key.startswith('rank_aux/'):
+                loss_dict.setdefault(key, 0.0)
+                loss_dict[key] += value.item() * batch_weight
         return loss_dict, total_loss
     else:
         loss_, pred = torch.max(out_dict[FLAGS.target[0]], 1)
@@ -816,6 +912,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     if bool(getattr(FLAGS, 'kernel_balanced_loss', False)):
         uniform_sampling = bool(
             getattr(FLAGS, 'kernel_uniform_sampling', False)
+            or getattr(FLAGS, 'kernel_grouped_sampling', False)
         )
         li[0] = KernelBalancedDataset(
             li[0], unit_loss_weights=uniform_sampling
@@ -1313,7 +1410,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
 def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler):
     model.train()
     lrs = []
-    total_loss, correct, i = 0, 0, 0
+    total_loss, correct, i, example_count = 0, 0, 0, 0
     target_list, loss_dict = set_target_list()
     for data in tqdm(train_loader):
         if FLAGS.scheduler is not None:
@@ -1322,6 +1419,7 @@ def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler)
             if i == 0:
                 saver.log_info(f"epoch = {epoch}, learning rate = {lr}")
         data = data.to(FLAGS.device)
+        example_count += int(data.num_graphs)
         out_dict, loss, loss_dict_, gae_loss = model(data)
         optimizer.zero_grad()
         loss.backward()
@@ -1343,12 +1441,16 @@ def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler)
         else: pred, correct, total_loss = total_loss_dict
 
         saver.writer.add_scalar('loss/loss', loss, epoch * len(train_loader) + i)
+        for key, value in loss_dict_.items():
+            if key.startswith('rank_aux/'):
+                saver.writer.add_scalar(
+                    key, value.item(), epoch * len(train_loader) + i
+                )
         i += 1
 
     if FLAGS.scheduler is not None and epoch < 2:
         create_dir_if_not_exists(join(saver.get_log_dir(), 'lrs'))
     if FLAGS.task == 'regression':
-        example_count = len(train_loader.sampler)
         return (
             total_loss / example_count,
             {key: v / example_count for key, v in loss_dict.items()},

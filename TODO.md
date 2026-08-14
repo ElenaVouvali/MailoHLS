@@ -31,8 +31,8 @@ Train the GNN to provide structural and pragma-response information that improve
 - [ ] Record the Git commit, dataset manifest/hash, Vitis version, device `xczu7ev-ffvc1156-2-e`, clock period `10.0 ns`, split JSON, and all seeds.
 - [ ] Use `LLM_branch/train/train_SFT_xattn_new.py`; do not mix it with the older training script.
 - [ ] Extract a shared prompt/model contract used by both current training and inference. The current inference script uses an older prompt and defaults to cross-attention every 16 layers, while current training uses target/device-aware prompts and defaults to every 8 layers.
-- [ ] Save `stage_config.json` beside every Stage-2 checkpoint with base model, objective, prompt schema version, memory dimension, maximum slots, cross-attention layer interval, heads, head dimension, FF multiplier, split hash, seed, and memory-manifest hash.
-- [ ] Make inference load `stage_config.json` and fail on incompatible CLI overrides or missing/unexpected cross-attention keys.
+- [x] Save the common `training_contract.json` beside every checkpoint, with a Stage-2 `structural` section for memory and cross-attention configuration.
+- [x] Make inference load the common contract and fail on incompatible structural overrides or missing/unexpected cross-attention keys.
 - [ ] Use one frozen Stage-1 adapter and one saved split for every memory arm.
 - [ ] Verify identical initial Stage-2 trainable weights across arms by hashing the newly initialized cross-attention/gate state before the first optimizer step.
 
@@ -226,3 +226,45 @@ Do not launch the four arms through the checked-in `designsplit_2_stages_3_goals
 - ProgSG: align source/program semantics with graph representations for HLS performance modeling: https://arxiv.org/abs/2305.10838
 - compareXplore: representation-learning and transfer considerations for HLS design-space exploration: https://arxiv.org/abs/2409.13138
 - DiffHLS: recent independent evidence for expressing design outcomes relative to a kernel baseline: https://arxiv.org/abs/2604.09240
+
+
+
+
+
+I expect v16 to improve Kendall τ and top-k design ranking. I do not promise better MAPE. The change directly optimizes the ordering used in DSE, while the current Stage C only uses ranking for checkpoint selection.
+
+Success criteria:
+
+median three-seed worst-target kernel-macro τ greater than 0.326;
+every target still beats the neutral validation baseline;
+no major absolute regression—preferably within 5–10% of Stage C;
+Pathfinder-4 latency τ meaningfully above approximately 0.09;
+real exported memory later beats shuffled memory in Stage 2.
+Next GNN change after v16—not in the same run
+
+mlir_data.py already parses BRAM, DSP, FF and LUT utilization, but discards them before constructing point tensors.
+
+Persist these four fractions and add small absolute auxiliary resource heads:
+
+log1p(BRAM utilization)
+log1p(DSP utilization)
+log1p(FF utilization)
+log1p(LUT utilization)
+
+This is more aligned with MailoHLS than a single aggregate area target because the LLM receives individual resource budgets. Test it separately from the rank loss so you can attribute improvements.
+
+Finally, make the memory exporter load a resolved checkpoint configuration. It currently hashes config.py, not the exact resolved flags. Save and hash:
+
+resolved GNN flags;
+feature-schema JSON;
+checkpoint;
+source PT manifest;
+embedding mode.
+
+
+
+
+
+
+
+

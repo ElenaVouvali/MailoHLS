@@ -8,6 +8,10 @@ import tempfile
 import unittest
 
 import numpy as np
+import torch
+import torch.nn.functional as F
+from collections import Counter, defaultdict
+from torch.utils.data import Sampler
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,7 +41,73 @@ def load_reference_functions():
     return namespace
 
 
+def load_named_definition(path, name, namespace):
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    node = next(
+        item for item in tree.body
+        if isinstance(item, (ast.FunctionDef, ast.ClassDef)) and item.name == name
+    )
+    result = dict(namespace)
+    exec(compile(ast.Module([node], type_ignores=[]), str(path), "exec"), result)
+    return result[name]
+
+
 class StageCHelperTests(unittest.TestCase):
+    def test_within_kernel_rank_loss_averages_kernels_equally(self):
+        rank_loss = load_named_definition(
+            ROOT / "model.py",
+            "within_kernel_rank_loss",
+            {"torch": torch, "F": F},
+        )
+        prediction = torch.tensor([[0.0], [1.0], [2.0], [0.0], [1.0]])
+        target = torch.tensor([[2.0], [1.0], [0.0], [0.0], [1.0]])
+        kernels = ["large", "large", "large", "small", "small"]
+        combined = rank_loss(
+            prediction, target, kernels, temperature=1.0, tie_epsilon=0.05
+        )
+        large = rank_loss(
+            prediction[:3], target[:3], kernels[:3],
+            temperature=1.0, tie_epsilon=0.05,
+        )
+        small = rank_loss(
+            prediction[3:], target[3:], kernels[3:],
+            temperature=1.0, tie_epsilon=0.05,
+        )
+        torch.testing.assert_close(combined, (large + small) / 2)
+
+    def test_kernel_grouped_sampler_has_expected_batch_composition(self):
+        sampler_type = load_named_definition(
+            ROOT / "train_GNN.py",
+            "KernelGroupedBatchSampler",
+            {
+                "Sampler": Sampler,
+                "defaultdict": defaultdict,
+                "np": np,
+                "_as_int_seed": lambda value: int(value),
+                "_sample_kernel": lambda sample: sample.kernel,
+            },
+        )
+        samples = []
+        for kernel_index in range(20):
+            point_count = 1 if kernel_index == 0 else 5
+            samples.extend(
+                SimpleNamespace(kernel=f"kernel-{kernel_index}")
+                for _ in range(point_count)
+            )
+        sampler = sampler_type(
+            samples,
+            kernels_per_batch=16,
+            points_per_kernel=4,
+            samples_per_kernel_per_epoch=4,
+            seed=123,
+        )
+        batches = list(sampler)
+        self.assertEqual(len(batches), 2)
+        for batch in batches:
+            self.assertEqual(len(batch), 64)
+            counts = Counter(samples[index].kernel for index in batch)
+            self.assertEqual(len(counts), 16)
+            self.assertEqual(set(counts.values()), {4})
     def make_manifest(self, path, kernels):
         fields = [
             "kernel", "status", "source_sha256", "toolchain_id", "device",

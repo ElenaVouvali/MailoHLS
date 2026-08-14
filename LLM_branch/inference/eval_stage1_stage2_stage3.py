@@ -13,10 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from einops import rearrange
-from einops_exts import rearrange_many
 from peft import PeftModel
-from torch import einsum
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 from LLM_branch.common import mailohls_contract, structural_xattn
@@ -550,46 +547,14 @@ def get_real_memory_pack_for_kernel(
 
 
 # ============================================================
-# HARP / Flamingo utilities
+# Structural cross-attention utilities
 # ============================================================
-def extend_instance(obj, mixin):
-    base_cls = obj.__class__
-    base_cls_name = obj.__class__.__name__
-    obj.__class__ = type(base_cls_name, (mixin, base_cls), {})
-
-
-def getattr_recursive(obj, att):
-    if att == "":
-        return obj
-    i = att.find(".")
-    if i < 0:
-        return getattr(obj, att)
-    return getattr_recursive(getattr(obj, att[:i]), att[i + 1 :])
-
-
-def setattr_recursive(obj, att, val):
-    if "." in att:
-        obj = getattr_recursive(obj, ".".join(att.split(".")[:-1]))
-    setattr(obj, att.split(".")[-1], val)
-
-
 def get_first_real_device(model):
     for p in model.parameters():
         if p.device.type != "meta":
             return p.device
     return torch.device("cuda:0")
 
-
-def align_module_to_hidden_dtype(module: nn.Module, hidden_states: torch.Tensor):
-    ref_device = hidden_states.device
-    ref_dtype = hidden_states.dtype
-
-    p = next((p for p in module.parameters() if p.is_floating_point()), None)
-    if p is None:
-        return
-
-    if p.device != ref_device or p.dtype != ref_dtype:
-        module.to(device=ref_device, dtype=ref_dtype)
 
 def move_harp_modules_to_model_device(model):
     device = get_first_real_device(model)
@@ -631,441 +596,6 @@ def load_partial_harp_xattn(model, harp_xattn_path: str, tag: str):
     print(f"[{tag}] harp_missing[:10]={harp_missing[:10]}")
     print(f"[{tag}] unexpected[:10]={unexpected[:10]}")
     move_harp_modules_to_model_device(model)
-
-
-def infer_decoder_layers_attr_name(model) -> str:
-    candidates = [
-        "base_model.model.model.layers",
-        "base_model.model.decoder.layers",
-        "base_model.model.transformer.h",
-        "base_model.model.gpt_neox.layers",
-        "model.layers",
-        "decoder.layers",
-        "transformer.h",
-    ]
-    for att in candidates:
-        try:
-            val = getattr_recursive(model, att)
-            if isinstance(val, (nn.ModuleList, list)) and len(val) > 0:
-                return att
-        except Exception:
-            continue
-    raise ValueError("Could not infer decoder layer path. Please add the correct recursive path for this backbone.")
-
-
-# ============================================================
-# HARP cross-attention modules
-# ============================================================
-def exists(val):
-    return val is not None
-
-
-def FeedForward(dim: int, mult: int = 4):
-    inner = int(dim * mult)
-    return nn.Sequential(
-        nn.LayerNorm(dim),
-        nn.Linear(dim, inner, bias=False),
-        nn.GELU(),
-        nn.Linear(inner, dim, bias=False),
-    )
-
-
-class MaskedCrossAttention(nn.Module):
-    def __init__(
-        self,
-        *,
-        dim,
-        dim_memory,
-        dim_head=64,
-        heads=8,
-        only_attend_immediate_memory=True,
-        mask_mode="segment",
-    ):
-        super().__init__()
-        assert mask_mode in {"segment", "token"}
-
-        self.scale = dim_head ** -0.5
-        self.heads = heads
-        self.mask_mode = mask_mode
-        self.only_attend_immediate_memory = only_attend_immediate_memory
-        self.last_debug = {}
-
-        inner_dim = dim_head * heads
-        self.norm = nn.LayerNorm(dim)
-        self.to_q = nn.Linear(dim, inner_dim, bias=False)
-        self.to_kv = nn.Linear(dim_memory, inner_dim * 2, bias=False)
-        self.to_out = nn.Linear(inner_dim, dim, bias=False)
-
-    def forward(
-        self,
-        x,
-        memory,
-        placeholder_slot_ids=None,
-        memory_mask=None,
-        use_cached_memory=False,
-    ):
-        B, T_txt, _ = x.shape
-        _, S, _ = memory.shape
-        h = self.heads
-
-        if not use_cached_memory:
-            assert exists(placeholder_slot_ids), "placeholder_slot_ids is required unless use_cached_memory=True"
-
-        x = self.norm(x)
-        memory = memory.to(dtype=x.dtype)
-
-        q = self.to_q(x)
-        k, v = self.to_kv(memory).chunk(2, dim=-1)
-        q, k, v = rearrange_many((q, k, v), "b n (h d) -> b h n d", h=h)
-
-        q = q * self.scale
-        sim = einsum("b h i d, b h j d -> b h i j", q, k)
-        memory_slots = torch.arange(1, S + 1, device=x.device, dtype=torch.long)
-
-        if exists(placeholder_slot_ids):
-            if use_cached_memory:
-                active_slot_ids = last_seen_slot_id(placeholder_slot_ids).expand(B, T_txt)
-            else:
-                if self.mask_mode == "segment":
-                    active_slot_ids = forward_fill_slot_ids(placeholder_slot_ids)
-                elif self.mask_mode == "token":
-                    active_slot_ids = placeholder_slot_ids
-                else:
-                    raise NotImplementedError()
-
-            text_to_memory_mask = torch.eq(
-                rearrange(active_slot_ids, "b t -> b 1 t 1"),
-                rearrange(memory_slots, "s -> 1 1 1 s"),
-            )
-
-            if self.mask_mode == "token" and not use_cached_memory:
-                text_to_memory_mask = text_to_memory_mask & rearrange(
-                    placeholder_slot_ids.ne(0), "b t -> b 1 t 1"
-                )
-
-            if self.mask_mode == "segment" and not self.only_attend_immediate_memory:
-                text_to_memory_mask = torch.ge(
-                    rearrange(active_slot_ids, "b t -> b 1 t 1"),
-                    rearrange(memory_slots, "s -> 1 1 1 s"),
-                )
-
-            if exists(memory_mask):
-                text_to_memory_mask = text_to_memory_mask & rearrange(
-                    memory_mask, "b s -> b 1 1 s"
-                )
-
-            sim = sim.masked_fill(~text_to_memory_mask, -torch.finfo(sim.dtype).max)
-
-        sim = sim - sim.amax(dim=-1, keepdim=True).detach()
-        attn = sim.softmax(dim=-1)
-
-        if exists(placeholder_slot_ids):
-            text_without_memory_mask = ~text_to_memory_mask.any(dim=-1, keepdim=True)
-            attn = attn.masked_fill(text_without_memory_mask, 0.0)
-
-        out = einsum("b h i j, b h j d -> b h i d", attn, v)
-        out = rearrange(out, "b h n d -> b n (h d)")
-
-        with torch.no_grad():
-            dbg = {
-                "B": int(B),
-                "T_txt": int(T_txt),
-                "S": int(S),
-                "memory_mask_true": int(memory_mask.sum().item()) if exists(memory_mask) else None,
-                "out_abs_mean": float(out.abs().mean().item()),
-                "out_l2_mean": float(out.float().norm(dim=-1).mean().item()),
-            }
-
-            if exists(placeholder_slot_ids):
-                dbg["placeholder_tokens"] = int(placeholder_slot_ids.ne(0).sum().item())
-                dbg["active_tokens_after_fill"] = int(active_slot_ids.ne(0).sum().item())
-                dbg["valid_edges"] = int(text_to_memory_mask.sum().item())
-                dbg["tokens_with_route"] = int(text_to_memory_mask.any(dim=-1).sum().item())
-
-            dbg["attn_mean"] = float(attn.mean().item())
-            dbg["attn_max"] = float(attn.max().item())
-            self.last_debug = dbg
-
-        return self.to_out(out)
-
-
-class GatedCrossAttentionBlock(nn.Module):
-    def __init__(
-        self,
-        *,
-        dim,
-        dim_memory,
-        dim_head=64,
-        heads=8,
-        ff_mult=4,
-        only_attend_immediate_memory=True,
-        mask_mode="segment",
-        enable_ff=True,
-        attn_gate_init=0.05,
-        ff_gate_init=0.05,
-    ):
-        super().__init__()
-        self.attn = MaskedCrossAttention(
-            dim=dim,
-            dim_memory=dim_memory,
-            dim_head=dim_head,
-            heads=heads,
-            only_attend_immediate_memory=only_attend_immediate_memory,
-            mask_mode=mask_mode,
-        )
-        self.attn_gate = nn.Parameter(torch.tensor([attn_gate_init]))
-        self.enable_ff = enable_ff
-
-        if enable_ff:
-            self.ff = FeedForward(dim, mult=ff_mult)
-            self.ff_gate = nn.Parameter(torch.tensor([ff_gate_init]))
-        else:
-            self.ff = None
-            self.register_parameter("ff_gate", None)
-
-    def forward(
-        self,
-        x,
-        memory,
-        placeholder_slot_ids=None,
-        memory_mask=None,
-        use_cached_memory=False,
-        xattn_apply_mask=None,
-    ):
-        attn_out = self.attn(
-            x,
-            memory,
-            placeholder_slot_ids=placeholder_slot_ids,
-            memory_mask=memory_mask,
-            use_cached_memory=use_cached_memory,
-        )
-
-        if xattn_apply_mask is not None:
-            mask = xattn_apply_mask.to(device=attn_out.device, dtype=attn_out.dtype)
-            if mask.ndim == 2:
-                mask = mask.unsqueeze(-1)
-            attn_out = attn_out * mask
-
-        x = x + attn_out * self.attn_gate.tanh()
-
-        if self.ff is not None:
-            ff_out = self.ff(x)
-            if xattn_apply_mask is not None:
-                ff_out = ff_out * mask
-            x = x + ff_out * self.ff_gate.tanh()
-
-        return x
-
-
-def build_placeholder_slot_ids(input_ids, placeholder_token_ids, routing_start_idx=None):
-    slot_ids = torch.zeros_like(input_ids, dtype=torch.long)
-    for slot_idx, tok_id in enumerate(placeholder_token_ids, start=1):
-        slot_ids[input_ids == tok_id] = slot_idx
-
-    if routing_start_idx is not None:
-        if routing_start_idx.ndim == 0:
-            routing_start_idx = routing_start_idx.unsqueeze(0)
-        B, T = input_ids.shape
-        pos = torch.arange(T, device=input_ids.device).unsqueeze(0).expand(B, T)
-        valid = pos >= routing_start_idx.unsqueeze(1)
-        slot_ids = torch.where(valid, slot_ids, torch.zeros_like(slot_ids))
-
-    return slot_ids
-
-
-def forward_fill_slot_ids(slot_ids):
-    B, T = slot_ids.shape
-    pos = torch.arange(T, device=slot_ids.device).unsqueeze(0).expand(B, T)
-    seen_pos = torch.where(slot_ids.ne(0), pos, torch.full_like(pos, -1))
-    last_pos = torch.cummax(seen_pos, dim=1).values
-    gather_pos = last_pos.clamp(min=0)
-    active = slot_ids.gather(1, gather_pos)
-    active = torch.where(last_pos.ge(0), active, torch.zeros_like(active))
-    return active
-
-
-def last_seen_slot_id(slot_ids):
-    B, T = slot_ids.shape
-    pos = torch.arange(T, device=slot_ids.device).unsqueeze(0).expand(B, T)
-    seen_pos = torch.where(slot_ids.ne(0), pos, torch.full_like(pos, -1))
-    last_pos = seen_pos.max(dim=1).values
-    gather_pos = last_pos.clamp(min=0).unsqueeze(1)
-    last_slot = slot_ids.gather(1, gather_pos)
-    last_slot = torch.where(last_pos.ge(0).unsqueeze(1), last_slot, torch.zeros_like(last_slot))
-    return last_slot
-
-
-class HARPLayer(nn.Module):
-    def __init__(self, gated_cross_attn_layer, decoder_layer, gradient_checkpointing=False):
-        super().__init__()
-        self.gated_cross_attn_layer = gated_cross_attn_layer
-        self.decoder_layer = decoder_layer
-        self.harp_x = None
-        self.harp_mask = None
-        self.placeholder_slot_ids = None
-        self.use_cached_memory = False
-        self.xattn_apply_mask = None
-
-        if self.gated_cross_attn_layer is not None:
-            self.gated_cross_attn_layer._use_gradient_checkpointing = gradient_checkpointing
-        self.decoder_layer._use_gradient_checkpointing = gradient_checkpointing
-
-    def condition_xattn_apply_mask(self, xattn_apply_mask):
-        self.xattn_apply_mask = xattn_apply_mask
-
-    def is_conditioned(self) -> bool:
-        return self.harp_x is not None and self.harp_mask is not None and self.placeholder_slot_ids is not None
-
-    def condition_harp_x(self, harp_x, harp_mask):
-        self.harp_x = harp_x
-        self.harp_mask = harp_mask
-
-    def condition_placeholder_slot_ids(self, placeholder_slot_ids):
-        self.placeholder_slot_ids = placeholder_slot_ids
-
-    def condition_use_cached_memory(self, use_cached_memory):
-        self.use_cached_memory = use_cached_memory
-
-    def forward(self, hidden_states, attention_mask=None, **decoder_layer_kwargs):
-        if self.gated_cross_attn_layer is not None:
-            if self.harp_x is None or self.harp_mask is None:
-                raise ValueError("HARP memory must be conditioned before forward pass")
-            if self.placeholder_slot_ids is None:
-                raise ValueError("placeholder_slot_ids must be conditioned before forward pass")
-
-            align_module_to_hidden_dtype(self.gated_cross_attn_layer, hidden_states)
-
-            hidden_states = self.gated_cross_attn_layer(
-                hidden_states,
-                self.harp_x,
-                placeholder_slot_ids=self.placeholder_slot_ids,
-                memory_mask=self.harp_mask,
-                use_cached_memory=bool(self.use_cached_memory),
-                xattn_apply_mask=self.xattn_apply_mask,
-            )
-
-        return self.decoder_layer(hidden_states, attention_mask=attention_mask, **decoder_layer_kwargs)
-    
-
-
-class HARPLMMixin(nn.Module):
-    def set_decoder_layers_attr_name(self, decoder_layers_attr_name):
-        self.decoder_layers_attr_name = decoder_layers_attr_name
-
-    def _get_decoder_layers(self):
-        return getattr_recursive(self, self.decoder_layers_attr_name)
-
-    def _set_decoder_layers(self, value):
-        setattr_recursive(self, self.decoder_layers_attr_name, value)
-
-    def init_harp_flamingo(
-        self,
-        placeholder_token_ids,
-        lang_hidden_size,
-        mem_hidden_size,
-        cross_attn_every_n_layers,
-        gradient_checkpointing,
-        xattn_heads=8,
-        xattn_dim_head=64,
-        xattn_ff_mult=4,
-        only_attend_immediate_memory=True,
-        mask_mode="segment",
-        enable_ff=True,
-    ):
-        decoder_blocks = self._get_decoder_layers()
-        wrapped_layers = []
-        for layer_idx, decoder_layer in enumerate(decoder_blocks):
-            gated_cross_attn_layer = None
-            if (layer_idx + 1) % cross_attn_every_n_layers == 0:
-                gated_cross_attn_layer = GatedCrossAttentionBlock(
-                    dim=lang_hidden_size,
-                    dim_memory=mem_hidden_size,
-                    dim_head=xattn_dim_head,
-                    heads=xattn_heads,
-                    ff_mult=xattn_ff_mult,
-                    only_attend_immediate_memory=only_attend_immediate_memory,
-                    mask_mode=mask_mode,
-                    enable_ff=enable_ff,
-                    attn_gate_init=0.05,
-                    ff_gate_init=0.05,
-                )
-                # gated_cross_attn_layer = GatedCrossAttentionBlock(
-                #     dim=lang_hidden_size,
-                #     dim_memory=mem_hidden_size,
-                #     dim_head=xattn_dim_head,
-                #     heads=xattn_heads,
-                #     ff_mult=xattn_ff_mult,
-                #     only_attend_immediate_memory=only_attend_immediate_memory,
-                #     mask_mode=mask_mode,
-                #     enable_ff=False,
-                #     attn_gate_init=0.01,
-                #     ff_gate_init=0.0,
-                # )
-
-            wrapped_layers.append(
-                HARPLayer(
-                    gated_cross_attn_layer=gated_cross_attn_layer,
-                    decoder_layer=decoder_layer,
-                    gradient_checkpointing=gradient_checkpointing,
-                )
-            )
-
-        self._set_decoder_layers(nn.ModuleList(wrapped_layers))
-        self.placeholder_token_ids = tuple(int(x) for x in placeholder_token_ids)
-        self.initialized_harp_flamingo = True
-        self._use_cached_harp_x = False
-
-    def condition_harp(self, harp_x, harp_mask):
-        for layer in self._get_decoder_layers():
-            if isinstance(layer, HARPLayer):
-                layer.condition_harp_x(harp_x, harp_mask)
-        self._use_cached_harp_x = True
-
-    def clear_harp(self):
-        for layer in self._get_decoder_layers():
-            if isinstance(layer, HARPLayer):
-                layer.condition_harp_x(None, None)
-                layer.condition_placeholder_slot_ids(None)
-                layer.condition_use_cached_memory(False)
-                layer.condition_xattn_apply_mask(None)
-        self._use_cached_harp_x = False
-
-    def is_conditioned(self) -> bool:
-        return all(
-            (not isinstance(layer, HARPLayer)) or layer.is_conditioned()
-            for layer in self._get_decoder_layers()
-        )
-
-    def forward(self, input_ids=None, attention_mask=None, routing_start_idx=None, xattn_apply_mask=None, **kwargs):
-        if not getattr(self, "initialized_harp_flamingo", False):
-            return super().forward(input_ids=input_ids, attention_mask=attention_mask, **kwargs)
-
-        if input_ids is None:
-            raise ValueError("input_ids must be provided for HARP-Flamingo forward")
-
-        placeholder_slot_ids = build_placeholder_slot_ids(
-            input_ids,
-            self.placeholder_token_ids,
-            routing_start_idx=routing_start_idx,
-        )
-
-        use_cached_placeholder_locations = (
-            self._use_cached_harp_x
-            and self.is_conditioned()
-            and not placeholder_slot_ids.ne(0).any()
-        )
-
-        for layer in self._get_decoder_layers():
-            if not isinstance(layer, HARPLayer):
-                continue
-            if not use_cached_placeholder_locations:
-                layer.condition_placeholder_slot_ids(placeholder_slot_ids)
-            layer.condition_use_cached_memory(use_cached_placeholder_locations)
-            layer.condition_xattn_apply_mask(xattn_apply_mask)
-
-        kwargs["input_ids"] = input_ids
-        kwargs["attention_mask"] = attention_mask
-        return super().forward(**kwargs)
 
 
 MaskedCrossAttention = structural_xattn.MaskedCrossAttention
@@ -1472,6 +1002,21 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
     ref_assign = parse_assignment_dict(ref_text)
     pred_assign = parse_assignment_dict(pred_text)
     expected_keys = list(ref_assign.keys())
+    predicted_lines = [line.strip() for line in pred_text.splitlines() if line.strip()]
+    parsed_lhs = []
+    all_lines_parse = True
+    for line in predicted_lines:
+        match = ASSIGN_RE.fullmatch(line)
+        if match is None:
+            all_lines_parse = False
+        else:
+            parsed_lhs.append(match.group(1).upper())
+    expected_key_match = set(pred_assign) == set(ref_assign)
+    schema_compliant = (
+        all_lines_parse
+        and len(parsed_lhs) == len(set(parsed_lhs))
+        and expected_key_match
+    )
 
     exact_value_match_count = sum(
         (k in pred_assign) and (pred_assign[k] == ref_assign[k]) for k in expected_keys
@@ -1480,6 +1025,9 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
     return {
         "canonical_prediction": pred_text,
         "value_accuracy_over_expected": exact_value_match_count / max(len(expected_keys), 1),
+        "schema_compliant": schema_compliant,
+        "expected_key_match": expected_key_match,
+        "exact_design_match": expected_key_match and pred_assign == ref_assign,
         "n_expected": len(expected_keys),
         "n_predicted": len(pred_assign),
     }
@@ -1972,47 +1520,59 @@ def main():
     if args.stage in {"stage2", "stage3"} and not args.memory_dir:
         raise ValueError("--memory_dir is required for stage2/stage3 inference")
     if args.stage in {"stage2", "stage3"}:
-        config_path = os.path.join(args.adapter_dir, "stage_config.json")
-        if not os.path.isfile(config_path):
-            raise ValueError(f"Stage-2 checkpoint is missing {config_path}")
-        with open(config_path, "r", encoding="utf-8") as handle:
-            stage_config = json.load(handle)
+        contract_path = os.path.join(args.adapter_dir, "training_contract.json")
+        if not os.path.isfile(contract_path):
+            raise ValueError(f"Stage-2 checkpoint is missing {contract_path}")
+        with open(contract_path, "r", encoding="utf-8") as handle:
+            training_contract = json.load(handle)
+        if training_contract.get("schema") != "mailohls-training-contract-v1":
+            raise ValueError("Unsupported training contract")
+        if training_contract.get("stage") != "stage2":
+            raise ValueError("Stage-2 inference requires a Stage-2 training contract")
+        if training_contract.get("model") != args.model:
+            raise ValueError(
+                f"--model={args.model!r} conflicts with checkpoint model "
+                f"{training_contract.get('model')!r}"
+            )
+        structural_config = training_contract.get("structural")
+        if not isinstance(structural_config, dict):
+            raise ValueError("Stage-2 training contract has no structural section")
         required = (
-            "prompt_schema_version", "objective", "mem_dim", "max_slots",
+            "mem_dim", "max_slots",
             "every_n_layers", "xattn_heads", "xattn_dim_head", "xattn_ff_mult", "xattn_enable_ff",
-            "memory_manifest_sha256", "split_sha256", "seed",
+            "memory_manifest_sha256",
             "xattn_placement", "xattn_gate_init",
-            "selected_xattn_layers_1based", "dataset_sha256",
+            "selected_xattn_layers_1based",
         )
-        missing = [key for key in required if key not in stage_config]
+        missing = [key for key in required if key not in structural_config]
         if missing:
-            raise ValueError(f"stage_config.json is missing fields: {missing}")
-        if stage_config["prompt_schema_version"] != mailohls_contract.PROMPT_SCHEMA_VERSION:
+            raise ValueError(f"Structural contract is missing fields: {missing}")
+        if training_contract.get("prompt_schema_version") != mailohls_contract.PROMPT_SCHEMA_VERSION:
             raise ValueError("Unsupported prompt_schema_version")
-        if stage_config["xattn_placement"] != "post_self_attn_pre_mlp":
+        if structural_config["xattn_placement"] != "post_self_attn_pre_mlp":
             raise ValueError(
                 "Unsupported structural cross-attention placement: "
-                f"{stage_config['xattn_placement']!r}"
+                f"{structural_config['xattn_placement']!r}"
             )
-        if float(stage_config["xattn_gate_init"]) != 0.0:
+        if float(structural_config["xattn_gate_init"]) != 0.0:
             raise ValueError("Unsupported xattn_gate_init; expected 0.0")
-        if bool(stage_config["xattn_enable_ff"]):
+        if bool(structural_config["xattn_enable_ff"]):
             raise ValueError("Structural cross-attention FF must be disabled")
         args.selected_xattn_layers_1based = tuple(
-            map(int, stage_config["selected_xattn_layers_1based"])
+            map(int, structural_config["selected_xattn_layers_1based"])
         )
         for key in (
             "mem_dim", "max_slots", "every_n_layers", "xattn_heads",
             "xattn_dim_head", "xattn_ff_mult",
         ):
             cli_value = getattr(args, key)
-            trained_value = int(stage_config[key])
+            trained_value = int(structural_config[key])
             if cli_value is not None and cli_value != trained_value:
                 raise ValueError(
                     f"--{key}={cli_value} conflicts with checkpoint value {trained_value}"
                 )
             setattr(args, key, trained_value)
-        args.xattn_enable_ff = bool(stage_config["xattn_enable_ff"])
+        args.xattn_enable_ff = bool(structural_config["xattn_enable_ff"])
         manifest_path = os.path.join(args.memory_dir, "memory_manifest.json")
         if not os.path.isfile(manifest_path):
             raise ValueError(f"Memory bank is missing {manifest_path}")
@@ -2020,7 +1580,7 @@ def main():
         with open(manifest_path, "rb") as handle:
             for chunk in iter(lambda: handle.read(1024 * 1024), b""):
                 digest.update(chunk)
-        if digest.hexdigest() != stage_config["memory_manifest_sha256"]:
+        if digest.hexdigest() != structural_config["memory_manifest_sha256"]:
             raise ValueError("Memory manifest does not match the Stage-2 checkpoint")
     else:
         args.mem_dim = args.mem_dim or 0
@@ -2028,16 +1588,26 @@ def main():
 
     cases = load_cases(args)
     if args.stage in {"stage2", "stage3"}:
-        mismatched = [case.kernel_name for case in cases if case.obj_mode != stage_config["objective"]]
+        mismatched = [case.kernel_name for case in cases if case.obj_mode != training_contract["objective"]]
         if mismatched:
             raise ValueError(
-                f"Evaluation objective must match checkpoint objective {stage_config['objective']}; "
+                f"Evaluation objective must match checkpoint objective {training_contract['objective']}; "
                 f"mismatched cases: {mismatched[:10]}"
             )
     for case in cases:
         mailohls_contract.target_prompt_fields(case.platform_row)
     rhs_candidate_bank = build_or_load_rhs_bank(args)
     tok = build_tokenizer(args.model)
+    if args.stage in {"stage2", "stage3"}:
+        expected_tokens = training_contract.get("special_tokens")
+        expected_ids = training_contract.get("special_token_ids")
+        actual_ids = (
+            sorted(set(tok.convert_tokens_to_ids(expected_tokens)))
+            if isinstance(expected_tokens, list)
+            else None
+        )
+        if len(tok) != training_contract.get("tokenizer_size") or actual_ids != expected_ids:
+            raise ValueError("Tokenizer does not match the checkpoint training contract")
     model = load_stage_model(args, tok)
     if args.stage in {"stage2", "stage3"}:
         actual_layers = tuple(model.structural_xattn_layer_indices)

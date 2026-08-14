@@ -264,6 +264,13 @@ class Saver(object):
         self.model_info_f.write('----- new model info after loading\n')
         self._log_model_info()
 
+    def save_resolved_runtime_dimensions(self, num_features, edge_dim):
+        FLAGS.num_features = int(num_features)
+        FLAGS.edge_dim = int(edge_dim)
+        self._save_conf_code()
+        self.model_info_f.write('----- resolved runtime graph dimensions\n')
+        self._log_model_info()
+
     def _save_to_result_file(self, obj, name=None, to_print=False):
         if not hasattr(self, 'results_f'):
             self.results_f = self._open('results.txt')
