@@ -115,6 +115,7 @@ python -u LLM_branch/train/train_SFT_xattn_new.py \
   --split_json "$SPLIT_JSON" \
   --memory_dir "$MEMORY_DIR" \
   --output_dir "$OUTPUT_DIR" \
+  --initial_state_reference runs/memory_ablation/PARETO_ADP_s123/initial_harp_state.json \
   --best_dir_name best_custom_stage2 \
   --lr_lora 0 --lr_embed 0 \
   --lr_xattn 1e-4 --lr_gate 2e-4 \

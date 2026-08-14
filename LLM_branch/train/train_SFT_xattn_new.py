@@ -1039,6 +1039,62 @@ def dump_json(path: str, obj: Any):
         json.dump(obj, f, indent=2)
 
 
+def dump_json_atomic(path: str, obj: Any):
+    """Write JSON in the destination directory and publish it with os.replace."""
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    temporary = f"{path}.tmp.{os.getpid()}"
+    try:
+        with open(temporary, "x", encoding="utf-8") as handle:
+            json.dump(obj, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def harp_state_manifest(model) -> dict:
+    tensor_hashes = {}
+    combined = hashlib.sha256()
+    selected = sorted(
+        (name, parameter)
+        for name, parameter in model.named_parameters()
+        if "gated_cross_attn_layer" in name
+    )
+    if not selected:
+        raise ValueError("Cannot create initial HARP state manifest: no cross-attention tensors")
+    for name, parameter in selected:
+        tensor = parameter.detach().cpu().contiguous()
+        raw = tensor.view(torch.uint8).numpy().tobytes()
+        digest = hashlib.sha256(raw).hexdigest()
+        tensor_hashes[name] = {"sha256": digest, "shape": list(tensor.shape), "dtype": str(tensor.dtype)}
+        combined.update(name.encode("utf-8"))
+        combined.update(digest.encode("ascii"))
+    return {"combined_sha256": combined.hexdigest(), "tensors": tensor_hashes}
+
+
+def verify_and_save_initial_harp_state(model, reference_path: str, output_dir: str) -> dict:
+    manifest = harp_state_manifest(model)
+    reference = Path(reference_path)
+    if reference.exists():
+        with reference.open("r", encoding="utf-8") as handle:
+            expected = json.load(handle)
+        if expected.get("combined_sha256") != manifest["combined_sha256"]:
+            raise ValueError(
+                "Initial HARP state differs from reference: "
+                f"expected {expected.get('combined_sha256')}, got {manifest['combined_sha256']}"
+            )
+    else:
+        dump_json_atomic(str(reference), manifest)
+        print(f"[INIT-STATE] Created reference atomically: {reference}")
+    output_copy = os.path.join(output_dir, "initial_harp_state.json")
+    dump_json_atomic(output_copy, manifest)
+    print(f"[INIT-STATE] combined_sha256={manifest['combined_sha256']}")
+    return manifest
+
+
 
 # =====================================================
 # Goal-aware point selection
@@ -2390,7 +2446,7 @@ class HARPLayer(nn.Module):
         else:
             kwargs["hidden_states"] = hidden_states
             return self.decoder_layer(**kwargs)
-    
+
 
 
 class HARPLMMixin(nn.Module):
@@ -2421,6 +2477,7 @@ class HARPLMMixin(nn.Module):
         xattn_ff_mult=4,
         only_attend_immediate_memory=True,
         mask_mode="segment",
+        enable_ff=True,
     ):
         self.old_decoder_blocks = self._get_decoder_layers()
         wrapped_layers = []
@@ -2435,7 +2492,7 @@ class HARPLMMixin(nn.Module):
                     ff_mult=xattn_ff_mult,
                     only_attend_immediate_memory=only_attend_immediate_memory,
                     mask_mode=mask_mode,
-                    enable_ff=True,
+                    enable_ff=enable_ff,
                     attn_gate_init=0.05,
                     ff_gate_init=0.05,
                 )
@@ -3537,58 +3594,11 @@ def target_prompt_fields(
     row: Optional[dict],
     device_token_dropout: float = 0.0,
 ) -> dict:
-    row = row or {}
-    device = _norm_device(row.get("device", row.get("Device", "")))
-    caps = DEVICE_RESOURCES.get(device)
-    if caps is None:
-        raise ValueError(f"Unsupported device: {device!r}")
-
-    if TARGET_CFG.device_mode == "device_adapt":
-        device_token = ADAPTED_DEVICE_TOKEN
-    else:
-        device_token = DEVICE_TOKEN_MAP.get(device, UNKNOWN_DEVICE_TOKEN)
-        if (
-            TARGET_CFG.device_mode == "resource_dropout_ablation"
-            and device_token_dropout > 0.0
-            and random.random() < float(device_token_dropout)
-        ):
-            device_token = UNKNOWN_DEVICE_TOKEN
-
-    frequency_mode = str(row.get("frequency_mode", "specified")).lower()
-    selected_clock = _clock_of(row)
-    if frequency_mode == "auto":
-        raw_supported = row.get("available_clock_periods")
-        if not isinstance(raw_supported, (list, tuple)) or not raw_supported:
-            raise ValueError("Automatic-clock rows require available_clock_periods")
-        supported = sorted({_norm_clock(clock) for clock in raw_supported})
-        if selected_clock not in supported:
-            raise ValueError("Selected clock is absent from available_clock_periods")
-    else:
-        supported = [selected_clock]
-    period_token = (
-        AUTO_PERIOD_TOKEN
-        if frequency_mode == "auto"
-        else period_token_from_clock(selected_clock)
+    return mailohls_contract.target_prompt_fields(
+        row or {},
+        device_mode=TARGET_CFG.device_mode,
+        device_token_dropout=device_token_dropout,
     )
-    available = _available_resources(row)
-
-    def pct(resource: str) -> float:
-        return 100.0 * available[resource] / float(caps[resource])
-
-    return {
-        "device_name": device,
-        "device_token": device_token,
-        "period_token": period_token,
-        "supported_clock_periods": ", ".join(f"{clock:g} ns" for clock in supported),
-        "avail_bram": available["BRAM_18K"],
-        "avail_dsp": available["DSP"],
-        "avail_ff": available["FF"],
-        "avail_lut": available["LUT"],
-        "avail_bram_pct": pct("BRAM_18K"),
-        "avail_dsp_pct": pct("DSP"),
-        "avail_ff_pct": pct("FF"),
-        "avail_lut_pct": pct("LUT"),
-    }
 
 
 def build_prompt_sections(
@@ -4321,7 +4331,7 @@ def run_single_training(args):
             raise ValueError(f"Stage 2 requires memory manifest: {manifest_path}")
         memory_manifest_sha256 = _file_sha256(Path(manifest_path))
         stage_config = {
-            "prompt_schema_version": 1,
+            "prompt_schema_version": mailohls_contract.PROMPT_SCHEMA_VERSION,
             "objective": args.objective,
             "mem_dim": args.mem_dim,
             "max_slots": args.max_slots,
@@ -4329,6 +4339,7 @@ def run_single_training(args):
             "xattn_heads": args.xattn_heads,
             "xattn_dim_head": args.xattn_dim_head,
             "xattn_ff_mult": args.xattn_ff_mult,
+            "xattn_enable_ff": bool(args.lr_ff > 0 or args.lr_gate_ff > 0),
             "memory_manifest_sha256": memory_manifest_sha256,
             "split_sha256": split_sha256,
             "seed": args.seed,
@@ -4345,11 +4356,17 @@ def run_single_training(args):
 
     prompt_template = PROMPT_TEMPLATE
 
+    native_bf16 = (
+        torch.cuda.is_available()
+        and torch.cuda.get_device_capability(0)[0] >= 8
+        and torch.cuda.is_bf16_supported()
+    )
+    compute_dtype = torch.bfloat16 if native_bf16 else torch.float16
     bnb = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
         bnb_4bit_use_double_quant=True,
-        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_compute_dtype=compute_dtype,
     )
 
     base = AutoModelForCausalLM.from_pretrained(
@@ -4461,6 +4478,7 @@ def run_single_training(args):
             xattn_ff_mult=args.xattn_ff_mult,
             only_attend_immediate_memory=True,
             mask_mode="segment",
+            enable_ff=bool(args.lr_ff > 0 or args.lr_gate_ff > 0),
         )
 
         print(f"[HARP-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
@@ -4517,6 +4535,30 @@ def run_single_training(args):
         if out_emb is not None and out_emb.weight is not inp_emb.weight:
             enable_only_selected_rows(out_emb.weight, special_ids)
 
+    embedding_ids = {id(parameter) for parameter in model.get_input_embeddings().parameters()}
+    output_embeddings = model.get_output_embeddings()
+    if output_embeddings is not None:
+        embedding_ids.update(id(parameter) for parameter in output_embeddings.parameters())
+    frozen_zero_lr = 0
+    for name, parameter in model.named_parameters():
+        lr = None
+        if id(parameter) in embedding_ids:
+            lr = args.lr_embed
+        elif "lora_" in name:
+            lr = args.lr_lora
+        elif name.endswith("attn_gate"):
+            lr = args.lr_gate
+        elif name.endswith("ff_gate"):
+            lr = args.lr_gate_ff
+        elif "gated_cross_attn_layer.attn." in name:
+            lr = args.lr_xattn
+        elif "gated_cross_attn_layer.ff." in name:
+            lr = args.lr_ff
+        if lr is not None and lr <= 0 and parameter.requires_grad:
+            parameter.requires_grad_(False)
+            frozen_zero_lr += parameter.numel()
+    print(f"[OPT] froze {frozen_zero_lr:,} parameters assigned to zero-LR groups")
+
 
     train_ds = SFTDataset(
         train_rows,
@@ -4545,6 +4587,21 @@ def run_single_training(args):
     effective_total_steps = args.max_steps if args.max_steps > 0 else total_steps
     warmup_steps = int(0.03 * effective_total_steps)
 
+    bf16_ok = native_bf16
+    compute_dtype = torch.bfloat16 if bf16_ok else torch.float16
+
+    bnb = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_compute_dtype=compute_dtype,
+    )
+
+    torch.backends.cuda.matmul.allow_tf32 = False
+    torch.backends.cudnn.allow_tf32 = False
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+
 
     targs = TrainingArguments(
         output_dir=args.output_dir,
@@ -4556,9 +4613,9 @@ def run_single_training(args):
         learning_rate=max(args.lr_lora, args.lr_xattn, args.lr_gate, args.lr_embed),
         warmup_steps=warmup_steps,
         lr_scheduler_type="cosine",
-        bf16=True,
-        fp16=False,
-        tf32=True,
+        bf16=bf16_ok,
+        fp16=not bf16_ok,
+        tf32=False,
         optim="paged_adamw_8bit",
         logging_steps=10,
         eval_strategy="steps" if val_ds is not None else "no",
@@ -4573,6 +4630,14 @@ def run_single_training(args):
         label_names=["labels"],   # <- add this
     )
 
+
+    if not args.disable_harp:
+        if not args.initial_state_reference:
+            raise ValueError("Stage 2 requires --initial_state_reference")
+        initial_manifest = verify_and_save_initial_harp_state(
+            model, args.initial_state_reference, args.output_dir
+        )
+        stage_config["initial_harp_state_sha256"] = initial_manifest["combined_sha256"]
 
     trainer = LengthGroupedTrainer(
         model=model,
@@ -4791,6 +4856,12 @@ def main():
     ap.add_argument("--resume_from_checkpoint", type=str, default="")
     ap.add_argument("--init_adapter_dir", type=str, default="")
     ap.add_argument("--init_harp_xattn_from", type=str, default="")
+    ap.add_argument(
+        "--initial_state_reference",
+        type=str,
+        default="",
+        help="Shared initial_harp_state.json; created atomically by the first arm and verified by later arms.",
+    )
     ap.add_argument("--value_loss_weight", type=float, default=1.0)
 
     # LoRA

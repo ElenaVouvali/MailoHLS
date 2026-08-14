@@ -42,11 +42,7 @@ Anchors and directive names are fixed by the source code.
 ### Directives
 """.lstrip()
 
-OBJ_TOKENS = {
-    "PARETO_LATENCY_EXTREME": "<OBJ=PARETO_LATENCY_EXTREME>",
-    "PARETO_KNEE": "<OBJ=PARETO_KNEE>",
-    "PARETO_AREA_EXTREME": "<OBJ=PARETO_AREA_EXTREME>",
-}
+OBJ_TOKENS = {name: spec["token"] for name, spec in mailohls_contract.GOALS.items()}
 
 TARGET_PLACEHOLDER_TOKENS = [f"<L{i}>" for i in range(1, 65)]
 SOURCE_PLACEHOLDER_TOKENS = [f"<SRC_L{i}>" for i in range(1, 65)]
@@ -103,7 +99,7 @@ def mode_from_weights(w_lat: float, w_area: float) -> str:
         return "PARETO_LATENCY_EXTREME"
     if abs(w_lat - 0.0) < eps and abs(w_area - 1.0) < eps:
         return "PARETO_AREA_EXTREME"
-    return "PARETO_KNEE"
+    return "PARETO_ADP"
 
 
 def normalize_weight_pair(w_lat: float, w_area: float) -> Tuple[float, float]:
@@ -317,13 +313,6 @@ def build_partial_deterministic_target_text(
     }
 
 
-def build_prompt_for_case(code: str, obj_mode: str, w_lat: float, w_area: float) -> str:
-    return PROMPT_TEMPLATE.format(
-        obj_token=OBJ_TOKENS[obj_mode],
-        code=replace_source_labels_with_tokens(code),
-    )
-
-
 # ============================================================
 # Dataset / candidate bank
 # ============================================================
@@ -334,6 +323,7 @@ class InferenceCase:
     obj_mode: str
     w_lat: float
     w_area: float
+    platform_row: dict
     reference_target: Optional[str] = None
 
 
@@ -445,7 +435,7 @@ def objective_from_case_dict(ex: dict) -> Tuple[str, float, float]:
             return obj_mode, 1.0, 0.0
         if obj_mode == "PARETO_AREA_EXTREME":
             return obj_mode, 0.0, 1.0
-        if obj_mode == "PARETO_KNEE":
+        if obj_mode == "PARETO_ADP":
             return obj_mode, 0.5, 0.5
 
     if "objective" in ex:
@@ -457,8 +447,8 @@ def objective_from_case_dict(ex: dict) -> Tuple[str, float, float]:
         if obj in {"pareto_area_extreme", "area_extreme", "area", "min_area"}:
             return "PARETO_AREA_EXTREME", 0.0, 1.0
 
-        if obj in {"pareto_knee", "knee", "balanced", "balance"}:
-            return "PARETO_KNEE", 0.5, 0.5
+        if obj in {"pareto_adp", "pareto_knee", "adp", "knee", "balanced", "balance"}:
+            return "PARETO_ADP", 0.5, 0.5
 
         raise ValueError(f"Unknown objective: {obj}")
 
@@ -492,6 +482,7 @@ def load_inference_cases_jsonl(path: str) -> List[InferenceCase]:
                     obj_mode=obj_mode,
                     w_lat=w_lat,
                     w_area=w_area,
+                    platform_row=ex,
                     reference_target=ref,
                 )
             )
@@ -979,6 +970,7 @@ class HARPLMMixin(nn.Module):
         xattn_ff_mult=4,
         only_attend_immediate_memory=True,
         mask_mode="segment",
+        enable_ff=True,
     ):
         self.old_decoder_blocks = self._get_decoder_layers()
         wrapped_layers = []
@@ -993,7 +985,7 @@ class HARPLMMixin(nn.Module):
                     ff_mult=xattn_ff_mult,
                     only_attend_immediate_memory=only_attend_immediate_memory,
                     mask_mode=mask_mode,
-                    enable_ff=True,
+                    enable_ff=enable_ff,
                     attn_gate_init=0.05,
                     ff_gate_init=0.05,
                 )
@@ -1491,7 +1483,15 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
 # ============================================================
 def build_tokenizer(tokenizer_source: str) -> AutoTokenizer:
     tok = AutoTokenizer.from_pretrained(tokenizer_source, trust_remote_code=True)
-    special_tokens = list(OBJ_TOKENS.values()) + SOURCE_PLACEHOLDER_TOKENS + TARGET_PLACEHOLDER_TOKENS
+    special_tokens = (
+        list(OBJ_TOKENS.values())
+        + list(mailohls_contract.DEVICE_TOKEN_MAP.values())
+        + [mailohls_contract.UNKNOWN_DEVICE_TOKEN, mailohls_contract.ADAPTED_DEVICE_TOKEN]
+        + list(mailohls_contract.PERIOD_TOKEN_MAP.values())
+        + [mailohls_contract.AUTO_PERIOD_TOKEN, mailohls_contract.CLOCK_ANCHOR_TOKEN]
+        + SOURCE_PLACEHOLDER_TOKENS
+        + TARGET_PLACEHOLDER_TOKENS
+    )
     tok.add_special_tokens({"additional_special_tokens": special_tokens})
 
     if tok.pad_token is None:
@@ -1558,6 +1558,7 @@ def attach_harp_modules(
     xattn_heads: int,
     xattn_dim_head: int,
     xattn_ff_mult: int,
+    xattn_enable_ff: bool,
 ):
     extend_instance(model, HARPLMMixin)
     decoder_layers_attr_name = infer_decoder_layers_attr_name(model)
@@ -1579,6 +1580,7 @@ def attach_harp_modules(
         xattn_ff_mult=xattn_ff_mult,
         only_attend_immediate_memory=True,
         mask_mode="segment",
+        enable_ff=xattn_enable_ff,
     )
 
     print(f"[HARP-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
@@ -1616,6 +1618,7 @@ def load_stage_model(args, tok):
             xattn_heads=args.xattn_heads,
             xattn_dim_head=args.xattn_dim_head,
             xattn_ff_mult=args.xattn_ff_mult,
+            xattn_enable_ff=args.xattn_enable_ff,
         )
 
         harp_xattn_path = args.harp_xattn_path
@@ -1698,11 +1701,10 @@ def predict_case(
     sample_top_k: int,                # NEW
     sample_seed: int,                 # NEW
 ) -> Dict[str, Any]:
-    prompt = build_prompt_for_case(
-        code=case.source_text,
-        obj_mode=case.obj_mode,
-        w_lat=case.w_lat,
-        w_area=case.w_area,
+    prompt = mailohls_contract.build_prompt(
+        case.source_text,
+        case.obj_mode,
+        mailohls_contract.target_prompt_fields(case.platform_row),
     )
 
     enc = tok(prompt, add_special_tokens=False)
@@ -1837,8 +1839,8 @@ def build_single_case_from_args(args) -> InferenceCase:
             obj_mode, w_lat, w_area = "PARETO_LATENCY_EXTREME", 1.0, 0.0
         elif obj in {"pareto_area_extreme", "area_extreme", "area", "min_area"}:
             obj_mode, w_lat, w_area = "PARETO_AREA_EXTREME", 0.0, 1.0
-        elif obj in {"pareto_knee", "knee", "balanced", "balance"}:
-            obj_mode, w_lat, w_area = "PARETO_KNEE", 0.5, 0.5
+        elif obj in {"pareto_adp", "pareto_knee", "adp", "knee", "balanced", "balance"}:
+            obj_mode, w_lat, w_area = "PARETO_ADP", 0.5, 0.5
         else:
             raise ValueError(f"Unknown objective: {args.objective}")
     else:
@@ -1851,6 +1853,17 @@ def build_single_case_from_args(args) -> InferenceCase:
         obj_mode=obj_mode,
         w_lat=w_lat,
         w_area=w_area,
+        platform_row={
+            "kernel_name": args.kernel_name,
+            "device": args.device,
+            "clock_period": args.clock_period,
+            "frequency_mode": args.frequency_mode,
+            "available_clock_periods": args.available_clock_periods,
+            "avail_bram": args.avail_bram,
+            "avail_dsp": args.avail_dsp,
+            "avail_ff": args.avail_ff,
+            "avail_lut": args.avail_lut,
+        },
         reference_target=None,
     )
 
@@ -1919,6 +1932,14 @@ def main():
     ap.add_argument("--objective", type=str, default="")
     ap.add_argument("--w_lat", type=float, default=0.5)
     ap.add_argument("--w_area", type=float, default=0.5)
+    ap.add_argument("--device", type=str, default="xczu7ev-ffvc1156-2-e")
+    ap.add_argument("--clock_period", type=float, default=5.0)
+    ap.add_argument("--frequency_mode", choices=["specified", "auto"], default="specified")
+    ap.add_argument("--available_clock_periods", type=float, nargs="+", default=[5.0])
+    ap.add_argument("--avail_bram", type=int)
+    ap.add_argument("--avail_dsp", type=int)
+    ap.add_argument("--avail_ff", type=int)
+    ap.add_argument("--avail_lut", type=int)
 
     # decoding / scoring
     ap.add_argument("--max_prompt_tokens", type=int, default=7168)
@@ -1942,6 +1963,7 @@ def main():
     ap.add_argument("--sample_seed", type=int, default=123)
 
     args = ap.parse_args()
+    args.xattn_enable_ff = False
 
     if args.stage in {"stage2", "stage3"} and not args.memory_dir:
         raise ValueError("--memory_dir is required for stage2/stage3 inference")
@@ -1953,13 +1975,13 @@ def main():
             stage_config = json.load(handle)
         required = (
             "prompt_schema_version", "objective", "mem_dim", "max_slots",
-            "every_n_layers", "xattn_heads", "xattn_dim_head", "xattn_ff_mult",
+            "every_n_layers", "xattn_heads", "xattn_dim_head", "xattn_ff_mult", "xattn_enable_ff",
             "memory_manifest_sha256", "split_sha256", "seed",
         )
         missing = [key for key in required if key not in stage_config]
         if missing:
             raise ValueError(f"stage_config.json is missing fields: {missing}")
-        if stage_config["prompt_schema_version"] != 1:
+        if stage_config["prompt_schema_version"] != mailohls_contract.PROMPT_SCHEMA_VERSION:
             raise ValueError("Unsupported prompt_schema_version")
         for key in (
             "mem_dim", "max_slots", "every_n_layers", "xattn_heads",
@@ -1972,6 +1994,7 @@ def main():
                     f"--{key}={cli_value} conflicts with checkpoint value {trained_value}"
                 )
             setattr(args, key, trained_value)
+        args.xattn_enable_ff = bool(stage_config["xattn_enable_ff"])
         manifest_path = os.path.join(args.memory_dir, "memory_manifest.json")
         if not os.path.isfile(manifest_path):
             raise ValueError(f"Memory bank is missing {manifest_path}")
@@ -1985,11 +2008,20 @@ def main():
         args.mem_dim = args.mem_dim or 0
         args.max_slots = args.max_slots or 64
 
+    cases = load_cases(args)
+    if args.stage in {"stage2", "stage3"}:
+        mismatched = [case.kernel_name for case in cases if case.obj_mode != stage_config["objective"]]
+        if mismatched:
+            raise ValueError(
+                f"Evaluation objective must match checkpoint objective {stage_config['objective']}; "
+                f"mismatched cases: {mismatched[:10]}"
+            )
+    for case in cases:
+        mailohls_contract.target_prompt_fields(case.platform_row)
     rhs_candidate_bank = build_or_load_rhs_bank(args)
     tok = build_tokenizer(args.model)
     model = load_stage_model(args, tok)
     mem_bank = load_memory_bank(args.memory_dir) if args.stage in {"stage2", "stage3"} else None
-    cases = load_cases(args)
 
     for n, p in model.named_parameters():
         if n.endswith("attn_gate"):

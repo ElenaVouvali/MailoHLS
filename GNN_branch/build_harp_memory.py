@@ -67,6 +67,16 @@ def _sha256(path: str) -> str:
     return digest.hexdigest()
 
 
+def _source_pt_manifest_sha256(paths) -> str:
+    digest = hashlib.sha256()
+    for path in sorted(paths, key=lambda item: os.path.basename(item)):
+        digest.update(os.path.basename(path).encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(_sha256(path).encode("ascii"))
+        digest.update(b"\n")
+    return digest.hexdigest()
+
+
 def _git_commit() -> str:
     try:
         return subprocess.check_output(
@@ -99,6 +109,8 @@ def main():
     model.load_state_dict(state)
     model.eval()
     checkpoint_sha256 = _sha256(args.ckpt)
+    gnn_config_sha256 = _sha256(os.path.join(os.path.dirname(__file__), "config.py"))
+    source_pt_manifest_sha256 = _source_pt_manifest_sha256(pt_files)
     git_commit = _git_commit()
 
     print(f"Starting processing of {len(pt_files)} files...")
@@ -187,6 +199,8 @@ def main():
                 "embedding_mode": args.embedding_mode,
                 "disable_pragma_injection": True,
                 "gnn_checkpoint_sha256": checkpoint_sha256,
+                "gnn_config_sha256": gnn_config_sha256,
+                "source_pt_manifest_sha256": source_pt_manifest_sha256,
                 "git_commit": git_commit,
                 "gnn_dim": int(node_embs.size(-1)),
                 "node_embs": node_embs,

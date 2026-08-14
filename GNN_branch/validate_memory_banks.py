@@ -53,6 +53,10 @@ def validate_pack(kernel, current, static, zero, shuffled):
         raise ValueError(f"{kernel}: max_slots differs from tensor shape")
     if not all(torch.isfinite(v).all().item() for v in vectors):
         raise ValueError(f"{kernel}: non-finite memory tensor")
+    for key in ("slot_ids", "slot_cats", "node_ids", "labels", "disable_pragma_injection"):
+        values = [pack.get(key) for pack in packs]
+        if values[0] is None or any(not metadata_equal(values[0], value) for value in values[1:]):
+            raise ValueError(f"{kernel}: inconsistent alignment field {key}")
     if not torch.equal(masks[0], masks[1]) or not metadata_equal(
         current.get("labels"), static.get("labels")
     ):
@@ -75,7 +79,10 @@ def validate_pack(kernel, current, static, zero, shuffled):
         torch.sort(torch.linalg.vector_norm(permuted, dim=1)).values,
     ):
         raise ValueError(f"{kernel}: shuffled active vector norms differ")
-    provenance_keys = ("gnn_checkpoint_sha256", "git_commit")
+    provenance_keys = (
+        "gnn_checkpoint_sha256", "gnn_config_sha256",
+        "source_pt_manifest_sha256", "git_commit",
+    )
     for key in provenance_keys:
         values = [pack.get(key) for pack in packs]
         if not values[0] or any(value != values[0] for value in values[1:]):
@@ -88,7 +95,11 @@ def validate_pack(kernel, current, static, zero, shuffled):
 def provenance(pack):
     return {
         key: pack.get(key)
-        for key in ("ckpt", "gnn_checkpoint_sha256", "git_commit", "embedding_mode", "disable_pragma_injection")
+        for key in (
+            "ckpt", "gnn_checkpoint_sha256", "gnn_config_sha256",
+            "source_pt_manifest_sha256", "git_commit", "embedding_mode",
+            "disable_pragma_injection",
+        )
     }
 
 
