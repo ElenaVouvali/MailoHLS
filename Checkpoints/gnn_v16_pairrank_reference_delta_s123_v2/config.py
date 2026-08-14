@@ -421,16 +421,6 @@ parser.add_argument(
 parser.add_argument('--rank_aux_weight', type=float, default=0.0)
 parser.add_argument('--rank_temperature', type=float, default=1.0)
 parser.add_argument('--rank_tie_epsilon', type=float, default=0.05)
-parser.add_argument('--resource_aux_weight', type=float, default=0.0)
-parser.add_argument(
-    '--resource_eval_budgets',
-    default='0.10;0.25;0.50;0.75;1.00',
-    help=(
-        'Semicolon-separated utilization-fraction budgets. Each entry is '
-        'either one shared fraction or BRAM,DSP,FF,LUT fractions.'
-    ),
-)
-parser.add_argument('--resource_boundary_tolerance', type=float, default=0.02)
 parser.add_argument('--kernel_grouped_sampling', action='store_true')
 parser.add_argument('--kernels_per_batch', type=int, default=16)
 parser.add_argument('--points_per_kernel', type=int, default=4)
@@ -620,10 +610,6 @@ if FLAGS.rank_temperature <= 0:
     parser.error('--rank_temperature must be positive.')
 if FLAGS.rank_tie_epsilon < 0:
     parser.error('--rank_tie_epsilon must be non-negative.')
-if FLAGS.resource_aux_weight < 0:
-    parser.error('--resource_aux_weight must be non-negative.')
-if FLAGS.resource_boundary_tolerance < 0:
-    parser.error('--resource_boundary_tolerance must be non-negative.')
 if not -1.0 <= FLAGS.min_rank_tau <= 1.0:
     parser.error('--min_rank_tau must be between -1 and 1.')
 if FLAGS.max_kernel_zero_baseline_ratio <= 0:

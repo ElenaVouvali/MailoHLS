@@ -160,9 +160,15 @@ EXPECTED_MEMORY_DEPENDENCE_MODEL = (
 )
 QOR_REFERENCE_DEVICE = "xczu7ev-ffvc1156-2-e"
 QOR_REFERENCE_CLOCK_PERIOD_NS = 10.0
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v11-explicit-oov"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v12-resource-targets"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 UNKNOWN_CATEGORY = "<unknown>"
+RESOURCE_KEYS = (
+    "util-BRAM",
+    "util-DSP",
+    "util-FF",
+    "util-LUT",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -1642,6 +1648,9 @@ class MyOwnDataset(Dataset):
                 "actual_area": points[
                     "actual_area"
                 ][local_idx].view(1).float(),
+                "resource_util": points[
+                    "resource_util"
+                ][local_idx].view(1, 4).float(),
             })
         else:
             kwargs["perf"] = points["perf"][local_idx].view(1).long()
@@ -1655,6 +1664,12 @@ class MyOwnDataset(Dataset):
                     f"Non-finite tensor {name} in {graph_name}, "
                     f"point {local_idx}."
                 )
+        if hasattr(data, "resource_util"):
+            resource_util = data.resource_util
+            if not torch.isfinite(resource_util).all():
+                raise RuntimeError("Non-finite resource utilization")
+            if torch.any(resource_util < 0):
+                raise RuntimeError("Negative resource utilization")
         return data
 
 
@@ -2094,6 +2109,7 @@ def get_data_list():
             speedup_values: list[float] = []
             area_values: list[float] = []
             actual_area_values: list[float] = []
+            resource_util_values: list[list[float]] = []
 
             for local_idx, result in enumerate(results):
                 flat = point_to_ordered_values(result.point)
@@ -2140,6 +2156,9 @@ def get_data_list():
                 speedup_values.append(speedup)
                 area_values.append(area_y)
                 actual_area_values.append(result.area)
+                resource_util_values.append([
+                    float(result.res_util[key]) for key in RESOURCE_KEYS
+                ])
 
                 global_index.append({
                     "graph_name": graph_name,
@@ -2169,6 +2188,9 @@ def get_data_list():
                 ),
                 "actual_area": torch.tensor(
                     actual_area_values, dtype=torch.float32
+                ),
+                "resource_util": torch.tensor(
+                    resource_util_values, dtype=torch.float32
                 ),
             }
             torch.save(

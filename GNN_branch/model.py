@@ -18,6 +18,8 @@ from nn_att import MyGlobalAttention
 from collections import OrderedDict, defaultdict
 from typing import Dict, Any, List, Tuple
 
+RESOURCE_NAMES = ("bram", "dsp", "ff", "lut")
+
 
 def within_kernel_rank_loss(
     prediction,
@@ -62,7 +64,8 @@ def within_kernel_rank_loss(
 class Net(nn.Module):
     def __init__(self, in_channels, edge_dim = 0, init_pragma_dict = None,
                  task = FLAGS.task, num_layers = FLAGS.num_layers, D = FLAGS.D,
-                 target = FLAGS.target, target_stats = None): # in_channels: node feature dimension (num_features=153) , edge_dim: edge feature dimension (335) , D : hidden width (64)
+                 target = FLAGS.target, target_stats = None,
+                 resource_stats = None): # in_channels: node feature dimension (num_features=153) , edge_dim: edge feature dimension (335) , D : hidden width (64)
           super(Net, self).__init__()
 
           requested_targets = (
@@ -240,6 +243,27 @@ class Net(nn.Module):
           self.MLPs = make_regression_heads(response_in_D)
           if self.decompose_targets:
               self.center_MLPs = make_regression_heads(in_D)
+          self.resource_heads = None
+          if resource_stats is not None:
+              self.resource_heads = nn.ModuleDict({
+                  name: MLP(
+                      response_in_D,
+                      1,
+                      activation_type=FLAGS.activation,
+                      hidden_channels=[max(8, D // 4)],
+                      num_hidden_lyr=1,
+                  )
+                  for name in RESOURCE_NAMES
+              })
+              self.register_buffer(
+                  "resource_mean",
+                  torch.as_tensor(resource_stats["mean"], dtype=torch.float32),
+              )
+              self.register_buffer(
+                  "resource_std",
+                  torch.as_tensor(resource_stats["std"], dtype=torch.float32)
+                  .clamp_min(1e-8),
+              )
 
           # --- pragma as MLP (only pipeline, unroll and array_partition) ---
           if FLAGS.pragma_as_MLP:
@@ -1087,5 +1111,39 @@ class Net(nn.Module):
             total_loss += float(FLAGS.rank_aux_weight) * torch.stack(
                 rank_losses
             ).mean()
+
+        if self.task == 'regression' and self.resource_heads is not None:
+            if not hasattr(data, "resource_util"):
+                raise RuntimeError(
+                    "Resource auxiliary heads require data.resource_util; "
+                    "regenerate the v12 dataset with --force_regen."
+                )
+            resource_target = torch.log1p(
+                data.resource_util.float().clamp_min(0.0)
+            ).reshape(-1, len(RESOURCE_NAMES))
+            resource_pred_z = torch.cat(
+                [self.resource_heads[name](out_embed) for name in RESOURCE_NAMES],
+                dim=1,
+            )
+            resource_mean = self.resource_mean.to(resource_target)
+            resource_std = self.resource_std.to(resource_target)
+            resource_target_z = (
+                resource_target - resource_mean
+            ) / resource_std
+            resource_point_loss = F.smooth_l1_loss(
+                resource_pred_z,
+                resource_target_z,
+                beta=float(FLAGS.smooth_l1_beta),
+                reduction="none",
+            ).mean(dim=1)
+            resource_weights = self._point_weights(data, resource_target)
+            resource_loss = (
+                resource_point_loss * resource_weights
+            ).mean()
+            total_loss += float(FLAGS.resource_aux_weight) * resource_loss
+            loss_dict["resource_aux"] = resource_loss.detach()
+            out_dict["resource_log1p"] = (
+                resource_pred_z * resource_std + resource_mean
+            )
 
         return out_dict, total_loss, loss_dict, gae_loss

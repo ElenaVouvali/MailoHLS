@@ -1091,6 +1091,8 @@ STAGE1_COMPATIBILITY_FIELDS = (
     "tokenizer_size",
     "special_tokens",
     "special_token_ids",
+    "embedding_weights_tied",
+    "trainable_token_modules",
     "max_length",
     "top_k",
     "device_mode",
@@ -1800,6 +1802,13 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
         (k in pred_assign) and (pred_assign[k] == ref_assign[k])
         for k in expected_keys
     )
+    pragma_kind_counts = defaultdict(lambda: {"correct": 0, "expected": 0})
+    for key in expected_keys:
+        kind = lhs_kind(key)
+        pragma_kind_counts[kind]["expected"] += 1
+        pragma_kind_counts[kind]["correct"] += int(
+            key in pred_assign and pred_assign[key] == ref_assign[key]
+        )
 
     return {
         "canonical_prediction": pred_text,
@@ -1807,6 +1816,10 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
         "schema_compliant": schema_compliant,
         "expected_key_match": expected_key_match,
         "exact_design_match": expected_key_match and pred_assign == ref_assign,
+        "pragma_kind_counts": {
+            kind: dict(counts)
+            for kind, counts in sorted(pragma_kind_counts.items())
+        },
     }
 
 
@@ -1817,6 +1830,50 @@ class SelectionCase:
     source_text: str
     reference_target: str
     row: dict
+
+
+def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
+    """Aggregate selection metrics while giving every kernel equal weight."""
+    if not rows:
+        raise RuntimeError("Validation selection has no cases.")
+    rows_by_kernel = defaultdict(list)
+    for row in rows:
+        rows_by_kernel[row["kernel_name"]].append(row)
+    kernel_value_acc = {
+        kernel: sum(
+            row["value_accuracy_over_expected"] for row in kernel_rows
+        ) / len(kernel_rows)
+        for kernel, kernel_rows in sorted(rows_by_kernel.items())
+    }
+    pragma_kind_totals = defaultdict(lambda: {"correct": 0, "expected": 0})
+    for row in rows:
+        for kind, counts in row["pragma_kind_counts"].items():
+            pragma_kind_totals[kind]["correct"] += counts["correct"]
+            pragma_kind_totals[kind]["expected"] += counts["expected"]
+    return {
+        "mean_value_acc": float(
+            sum(row["value_accuracy_over_expected"] for row in rows) / len(rows)
+        ),
+        "schema_compliance": float(
+            sum(row["schema_compliant"] for row in rows) / len(rows)
+        ),
+        "expected_key_accuracy": float(
+            sum(row["expected_key_match"] for row in rows) / len(rows)
+        ),
+        "exact_design_accuracy": float(
+            sum(row["exact_design_match"] for row in rows) / len(rows)
+        ),
+        "pragma_kind_accuracy": {
+            kind: counts["correct"] / counts["expected"]
+            for kind, counts in sorted(pragma_kind_totals.items())
+            if counts["expected"] > 0
+        },
+        "per_kernel_accuracy": kernel_value_acc,
+        "minimum_kernel_accuracy": min(kernel_value_acc.values()),
+        "selection_score": float(
+            sum(kernel_value_acc.values()) / len(kernel_value_acc)
+        ),
+    }
 
 
 
@@ -1892,6 +1949,10 @@ class StageValSelectionCallback(TrainerCallback):
             "reference_target": case.reference_target,
             "prediction": metrics["canonical_prediction"],
             "value_accuracy_over_expected": float(metrics["value_accuracy_over_expected"]),
+            "schema_compliant": bool(metrics["schema_compliant"]),
+            "expected_key_match": bool(metrics["expected_key_match"]),
+            "exact_design_match": bool(metrics["exact_design_match"]),
+            "pragma_kind_counts": metrics["pragma_kind_counts"],
         }
 
     def on_evaluate(self, args, state, control, **kwargs):
@@ -1904,21 +1965,29 @@ class StageValSelectionCallback(TrainerCallback):
 
         try:
             rows = [self._run_case(model, case) for case in self.selection_cases]
-            mean_value_acc = float(sum(r["value_accuracy_over_expected"] for r in rows) / max(len(rows), 1))
-            selection_score = mean_value_acc
+            summary = summarize_selection_rows(rows)
+            mean_value_acc = summary["mean_value_acc"]
+            schema_compliance = summary["schema_compliance"]
+            expected_key_accuracy = summary["expected_key_accuracy"]
+            exact_design_accuracy = summary["exact_design_accuracy"]
+            pragma_kind_accuracy = summary["pragma_kind_accuracy"]
+            kernel_value_acc = summary["per_kernel_accuracy"]
+            minimum_kernel_accuracy = summary["minimum_kernel_accuracy"]
+            selection_score = summary["selection_score"]
 
             print("\n" + "=" * 100)
             print(f"[VAL-SELECTION] step={state.global_step}")
             print(f"[VAL-SELECTION] mean_value_acc={mean_value_acc:.6f}")
+            print(f"[VAL-SELECTION] schema_compliance={schema_compliance:.6f}")
+            print(f"[VAL-SELECTION] expected_key_accuracy={expected_key_accuracy:.6f}")
+            print(f"[VAL-SELECTION] exact_design_accuracy={exact_design_accuracy:.6f}")
+            print(f"[VAL-SELECTION] pragma_kind_accuracy={pragma_kind_accuracy}")
+            print(f"[VAL-SELECTION] per_kernel_accuracy={kernel_value_acc}")
+            print(f"[VAL-SELECTION] minimum_kernel_accuracy={minimum_kernel_accuracy:.6f}")
             print(f"[VAL-SELECTION] selection_score={selection_score:.6f}")
             print("=" * 100)
 
-            metrics_obj = {
-                "step": int(state.global_step),
-                "mean_value_acc": mean_value_acc,
-                "selection_score": selection_score,
-                "rows": rows,
-            }
+            metrics_obj = {"step": int(state.global_step), **summary, "rows": rows}
 
             dump_json(
                 os.path.join(self.output_dir, f"val_selection_step_{state.global_step}.json"),
@@ -3527,7 +3596,9 @@ class SFTDataset(Dataset):
 def build_selection_cases(
     val_rows: List[dict],
     goal_mode: str,
-    max_kernels: int = 4,
+    max_kernels: int = 0,
+    cases_per_kernel: int = 4,
+    seed: int = 123,
     min_coverage: float = 0.85,
     min_supervised_sites: int = 4,
 ) -> List[SelectionCase]:
@@ -3539,7 +3610,7 @@ def build_selection_cases(
             and row.get("frequency_mode", "specified") == "specified"
         ):
             by_case[target_bucket_key(row)].append(row)
-    cases = []
+    candidates_by_kernel = defaultdict(list)
     for case_key in sorted(by_case):
         best = min(
             by_case[case_key],
@@ -3556,16 +3627,27 @@ def build_selection_cases(
             continue
         if meta["coverage"] < min_coverage:
             continue
-        cases.append(SelectionCase(
+        case = SelectionCase(
             kernel_name=best["kernel_name"],
             obj_mode=goal_mode,
             source_text=best["input"],
             reference_target=target,
             row=best,
-        ))
-        if len(cases) >= max_kernels:
-            break
-    return cases
+        )
+        candidates_by_kernel[case.kernel_name].append(case)
+
+    selected = []
+    kernel_names = sorted(candidates_by_kernel)
+    if max_kernels > 0:
+        kernel_names = kernel_names[:max_kernels]
+    for kernel in kernel_names:
+        candidates = candidates_by_kernel[kernel]
+        rng = random.Random(
+            _stable_seed(("val-selection", goal_mode, kernel), seed)
+        )
+        rng.shuffle(candidates)
+        selected.extend(candidates[:cases_per_kernel])
+    return selected
 
 
 def configure_target_policy(args) -> None:
@@ -3584,6 +3666,10 @@ def configure_target_policy(args) -> None:
 
     if args.top_k < 1:
         raise ValueError("--top_k must be >= 1")
+    if args.selection_num_val_kernels < 0:
+        raise ValueError("--selection_num_val_kernels must be >= 0")
+    if args.selection_cases_per_kernel < 1:
+        raise ValueError("--selection_cases_per_kernel must be >= 1")
     if args.top_k > 1:
         print("[WARN] top_k > 1 creates conflicting completions for identical prompts")
     if not 0.0 < args.random_budget_min_frac <= 1.0:
@@ -3756,10 +3842,16 @@ def run_single_training(args):
             val_rows,
             goal_mode=objective,
             max_kernels=args.selection_num_val_kernels,
+            cases_per_kernel=args.selection_cases_per_kernel,
+            seed=args.seed,
             min_coverage=args.min_site_coverage,
             min_supervised_sites=args.min_supervised_sites,
         ))
-    print(f"[INFO] Built {len(selection_cases)} validation selection cases from {args.selection_num_val_kernels} kernels")
+    selection_kernel_count = len({case.kernel_name for case in selection_cases})
+    print(
+        f"[INFO] Built {len(selection_cases)} validation selection cases from "
+        f"{selection_kernel_count} distinct kernels"
+    )
 
     if args.disable_harp:
         mem_bank = {}
@@ -3880,15 +3972,8 @@ def run_single_training(args):
     }
     if not args.disable_harp:
         training_contract["structural"] = structural_config
-    dump_json(
-        os.path.join(args.output_dir, "training_contract.json"),
-        training_contract,
-    )
-
     resume_ckpt = os.path.abspath(args.resume_from_checkpoint) if args.resume_from_checkpoint else ""
     init_adapter_dir = os.path.abspath(args.init_adapter_dir) if args.init_adapter_dir else ""
-    if not args.disable_harp and init_adapter_dir:
-        require_compatible_stage1_contract(init_adapter_dir, training_contract)
 
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
@@ -3918,13 +4003,34 @@ def run_single_training(args):
     )
 
     base.resize_token_embeddings(len(tok))
-    if hasattr(base.config, "tie_word_embeddings"):
-        base.config.tie_word_embeddings = True
+    input_weight = base.get_input_embeddings().weight
+    output_weight = base.get_output_embeddings().weight
+    weights_tied = input_weight.data_ptr() == output_weight.data_ptr()
 
-    try:
-        base.tie_weights()
-    except Exception as e:
-        print(f"[WARN] tie_weights() failed: {e}")
+    trainable_token_spec = (
+        special_ids
+        if weights_tied
+        else {
+            "embed_tokens": special_ids,
+            "lm_head": special_ids,
+        }
+    )
+    trainable_token_modules = (
+        ["embed_tokens"]
+        if weights_tied
+        else ["embed_tokens", "lm_head"]
+    )
+
+    training_contract["embedding_weights_tied"] = weights_tied
+    training_contract["trainable_token_modules"] = trainable_token_modules
+    dump_json(
+        os.path.join(args.output_dir, "training_contract.json"),
+        training_contract,
+    )
+    if not args.disable_harp and init_adapter_dir:
+        require_compatible_stage1_contract(init_adapter_dir, training_contract)
+
+    print(f"[MODEL] weights_tied={weights_tied}")
 
     base.config.use_cache = False
 
@@ -3942,7 +4048,7 @@ def run_single_training(args):
         bias="none",
         task_type="CAUSAL_LM",
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-        trainable_token_indices=special_ids,
+        trainable_token_indices=trainable_token_spec,
     )
 
     if resume_ckpt and os.path.isdir(resume_ckpt):
@@ -3995,6 +4101,27 @@ def run_single_training(args):
     else:
         model = get_peft_model(base, lora_cfg)
         print("[INIT] Created fresh LoRA adapter")
+
+    token_delta_params = sum(
+        parameter.numel()
+        for name, parameter in model.named_parameters()
+        if "trainable_tokens_delta" in name and parameter.requires_grad
+    )
+    expected_token_delta_params = (
+        len(special_ids)
+        * int(base.config.hidden_size)
+        * (1 if weights_tied else 2)
+    )
+    if token_delta_params != expected_token_delta_params:
+        raise RuntimeError(
+            "Special-token trainable parameter mismatch: "
+            f"actual={token_delta_params}, expected={expected_token_delta_params}, "
+            f"weights_tied={weights_tied}"
+        )
+    print(
+        "[MODEL] special_token_trainable_params="
+        f"{token_delta_params}"
+    )
 
     if not args.disable_harp:
         if args.lr_ff != 0 or args.lr_gate_ff != 0:
@@ -4407,6 +4534,7 @@ def main():
 
     # Best Checkpoint Selection
     ap.add_argument("--selection_num_val_kernels", type=int, default=4)
+    ap.add_argument("--selection_cases_per_kernel", type=int, default=4)
     ap.add_argument("--best_dir_name", type=str, default="best_custom_stage1")
 
     # Trainer / pipeline

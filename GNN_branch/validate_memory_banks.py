@@ -80,8 +80,15 @@ def validate_pack(kernel, current, static, zero, shuffled):
     ):
         raise ValueError(f"{kernel}: shuffled active vector norms differ")
     provenance_keys = (
-        "gnn_checkpoint_sha256", "gnn_config_sha256",
-        "source_pt_manifest_sha256", "git_commit",
+        (
+            "gnn_checkpoint_sha256", "gnn_contract_sha256",
+            "feature_schema_sha256", "source_pt_manifest_sha256", "git_commit",
+        )
+        if current.get("gnn_contract_sha256")
+        else (
+            "gnn_checkpoint_sha256", "gnn_config_sha256",
+            "source_pt_manifest_sha256", "git_commit",
+        )
     )
     for key in provenance_keys:
         values = [pack.get(key) for pack in packs]
@@ -97,6 +104,7 @@ def provenance(pack):
         key: pack.get(key)
         for key in (
             "ckpt", "gnn_checkpoint_sha256", "gnn_config_sha256",
+            "gnn_contract_sha256", "feature_schema_sha256",
             "source_pt_manifest_sha256", "git_commit", "embedding_mode",
             "disable_pragma_injection",
         )
@@ -150,6 +158,21 @@ def main() -> None:
             "mem_dim": expected_shape[1],
             "files": file_records,
         }
+        representative = next(iter(file_records.values()))["provenance"]
+        manifest.update({
+            "gnn_contract_sha256": representative.get("gnn_contract_sha256"),
+            "feature_schema_sha256": representative.get(
+                "feature_schema_sha256"
+            ),
+            "gnn_checkpoint_sha256": representative.get(
+                "gnn_checkpoint_sha256"
+            ),
+            "source_pt_manifest_sha256": representative.get(
+                "source_pt_manifest_sha256"
+            ),
+            "embedding_mode": representative.get("embedding_mode"),
+            "exporter_git_commit": representative.get("git_commit"),
+        })
         (directory / "memory_manifest.json").write_text(
             json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )

@@ -35,7 +35,7 @@ def _tokenizer() -> PreTrainedTokenizerFast:
     )
 
 
-def _base_model() -> LlamaForCausalLM:
+def _base_model(tie_word_embeddings: bool) -> LlamaForCausalLM:
     return LlamaForCausalLM(
         LlamaConfig(
             vocab_size=4,
@@ -47,12 +47,13 @@ def _base_model() -> LlamaForCausalLM:
             max_position_embeddings=32,
             attention_dropout=0.0,
             use_cache=False,
-            tie_word_embeddings=True,
+            tie_word_embeddings=tie_word_embeddings,
         )
     )
 
 
-def test_stage1_adapter_roundtrip(tmp_path):
+@pytest.mark.parametrize("tie_word_embeddings", [True, False])
+def test_stage1_adapter_roundtrip(tmp_path, tie_word_embeddings):
     torch.manual_seed(123)
     tokenizer = _tokenizer()
     special_tokens = ["<MAILOHLS_A>", "<MAILOHLS_B>"]
@@ -61,9 +62,18 @@ def test_stage1_adapter_roundtrip(tmp_path):
     ) == 2
     special_ids = sorted(tokenizer.convert_tokens_to_ids(special_tokens))
 
-    base = _base_model()
+    base = _base_model(tie_word_embeddings)
     base.resize_token_embeddings(len(tokenizer))
-    base.tie_weights()
+    weights_tied = (
+        base.get_input_embeddings().weight.data_ptr()
+        == base.get_output_embeddings().weight.data_ptr()
+    )
+    assert weights_tied is tie_word_embeddings
+    trainable_token_spec = (
+        special_ids
+        if weights_tied
+        else {"embed_tokens": special_ids, "lm_head": special_ids}
+    )
     initial_state = copy.deepcopy(base.state_dict())
     model = get_peft_model(
         base,
@@ -74,11 +84,22 @@ def test_stage1_adapter_roundtrip(tmp_path):
             bias="none",
             task_type="CAUSAL_LM",
             target_modules=["q_proj", "v_proj"],
-            trainable_token_indices=special_ids,
+            trainable_token_indices=trainable_token_spec,
         ),
+    )
+    token_delta_params = sum(
+        parameter.numel()
+        for name, parameter in model.named_parameters()
+        if "trainable_tokens_delta" in name and parameter.requires_grad
+    )
+    assert token_delta_params == len(special_ids) * 32 * (
+        1 if weights_tied else 2
     )
 
     input_ids = torch.tensor([[2, special_ids[0], 3, special_ids[1]]])
+    ordinary_output_before = (
+        model.get_output_embeddings().weight[2].detach().clone()
+    )
     model.train()
     optimizer = torch.optim.AdamW(
         (parameter for parameter in model.parameters() if parameter.requires_grad),
@@ -86,8 +107,32 @@ def test_stage1_adapter_roundtrip(tmp_path):
     )
     loss = model(input_ids=input_ids, labels=input_ids).loss
     loss.backward()
+    token_delta_gradients = {
+        name: parameter.grad
+        for name, parameter in model.named_parameters()
+        if "trainable_tokens_delta" in name
+    }
+    assert any(
+        "embed_tokens" in name
+        and gradient is not None
+        and torch.count_nonzero(gradient).item() > 0
+        for name, gradient in token_delta_gradients.items()
+    )
+    if not weights_tied:
+        assert any(
+            "lm_head" in name
+            and gradient is not None
+            and torch.count_nonzero(gradient).item() > 0
+            for name, gradient in token_delta_gradients.items()
+        )
     optimizer.step()
     optimizer.zero_grad(set_to_none=True)
+    torch.testing.assert_close(
+        ordinary_output_before,
+        model.get_output_embeddings().weight[2],
+        atol=0.0,
+        rtol=0.0,
+    )
 
     model.eval()
     with torch.no_grad():
@@ -102,11 +147,19 @@ def test_stage1_adapter_roundtrip(tmp_path):
     )
 
     reloaded_tokenizer = PreTrainedTokenizerFast.from_pretrained(adapter_dir)
-    fresh_base = _base_model()
+    fresh_base = _base_model(tie_word_embeddings)
     fresh_base.resize_token_embeddings(len(reloaded_tokenizer))
     fresh_base.load_state_dict(initial_state)
-    fresh_base.tie_weights()
+    assert (
+        fresh_base.get_input_embeddings().weight.data_ptr()
+        == fresh_base.get_output_embeddings().weight.data_ptr()
+    ) is tie_word_embeddings
     reloaded = PeftModel.from_pretrained(fresh_base, adapter_dir).eval()
+    if not tie_word_embeddings:
+        assert (
+            reloaded.get_input_embeddings().weight.data_ptr()
+            != reloaded.get_output_embeddings().weight.data_ptr()
+        )
 
     with torch.no_grad():
         logits_after_reload = reloaded(input_ids=input_ids).logits

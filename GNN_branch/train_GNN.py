@@ -38,6 +38,154 @@ from os.path import join, exists, basename
 from collections import Counter, OrderedDict, defaultdict
 
 import pandas as pd
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+
+RESOURCE_NAMES = ("bram", "dsp", "ff", "lut")
+GNN_CHECKPOINT_CONTRACT_PATH = None
+
+
+def _sha256_file(path):
+    digest = hashlib.sha256()
+    with open(path, 'rb') as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b''):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _jsonable(value):
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, dict):
+        return {str(key): _jsonable(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_jsonable(item) for item in value]
+    if isinstance(value, np.generic):
+        return value.item()
+    return str(value)
+
+
+def _canonical_json_sha256(payload):
+    encoded = json.dumps(
+        payload, sort_keys=True, separators=(',', ':'), ensure_ascii=False
+    ).encode('utf-8')
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _git_commit():
+    try:
+        return subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'],
+            cwd=Path(__file__).resolve().parents[1],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return 'unknown'
+
+
+def _dataset_records(dataset):
+    if hasattr(dataset, 'records'):
+        return list(dataset.records)
+    if isinstance(dataset, Subset):
+        records = _dataset_records(dataset.dataset)
+        return [records[index] for index in dataset.indices]
+    if hasattr(dataset, 'dataset'):
+        return _dataset_records(dataset.dataset)
+    raise TypeError(f'Cannot extract split records from {type(dataset)!r}.')
+
+
+def _split_sha256(datasets):
+    payload = {
+        name: _jsonable(_dataset_records(dataset))
+        for name, dataset in zip(('train', 'val', 'test'), datasets)
+    }
+    return _canonical_json_sha256(payload)
+
+
+def write_gnn_checkpoint_contract(
+    *, num_features, edge_dim, target_stats, resource_stats, split_sha256
+):
+    global GNN_CHECKPOINT_CONTRACT_PATH
+    feature_schema_path = Path(data.SCHEMA_PATH).resolve()
+    dataset_manifest_path = Path(data.INDEX_PATH).resolve()
+    feature_schema = json.loads(feature_schema_path.read_text(encoding='utf-8'))
+    resolved_flags = {
+        key: _jsonable(value)
+        for key, value in sorted(vars(FLAGS).items())
+    }
+    model_init_flag_names = (
+        'task', 'num_layers', 'D', 'target', 'gnn_type', 'encode_edge',
+        'encode_edge_position', 'dropout', 'jkn_mode', 'jkn_enable',
+        'gnn_layer_after_MLP', 'node_attention',
+        'node_attention_MLP', 'separate_T', 'separate_P', 'separate_pseudo',
+        'separate_icmp', 'P_use_all_nodes', 'gae_T', 'gae_P', 'input_encode',
+        'decoder_type',
+        'decompose_targets', 'target_mode', 'standardize_targets',
+        'MLP_common_lyr', 'pragma_as_MLP', 'pragma_as_MLP_list',
+        'pragma_scope', 'keep_pragma_attribute', 'pragma_order',
+        'pragma_MLP_hidden_channels',
+        'merge_MLP_hidden_channels', 'activation', 'resource_aux_weight',
+    )
+    model_init_flags = {
+        name: resolved_flags[name]
+        for name in model_init_flag_names if name in resolved_flags
+    }
+    contract = {
+        'format': 'mailohls-gnn-checkpoint-v1',
+        'provenance_status': 'captured_at_training',
+        'git_commit': _git_commit(),
+        'resolved_flags': resolved_flags,
+        'model_init_flags': model_init_flags,
+        'model_init': {
+            'in_channels': int(num_features),
+            'edge_dim': int(edge_dim),
+            'targets': _jsonable(FLAGS.target),
+            'resource_aux_heads': True,
+        },
+        'feature_schema': {
+            'path': str(feature_schema_path),
+            'sha256': _sha256_file(feature_schema_path),
+            'version': feature_schema.get('feature_schema_version'),
+            'node_feature_dim': feature_schema.get('node_feature_dim'),
+            'edge_feature_dim': feature_schema.get('edge_feature_dim'),
+        },
+        'dataset_manifest': {
+            'path': str(dataset_manifest_path),
+            'sha256': _sha256_file(dataset_manifest_path),
+        },
+        'dataset_manifest_sha256': _sha256_file(dataset_manifest_path),
+        'target_stats': _jsonable(target_stats),
+        'resource_stats': _jsonable(resource_stats),
+        'split_sha256': split_sha256,
+    }
+    path = Path(saver.model_logdir) / 'gnn_checkpoint_contract.json'
+    path.write_text(
+        json.dumps(contract, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+    )
+    GNN_CHECKPOINT_CONTRACT_PATH = str(path)
+    saver.log_info(f'Wrote captured GNN checkpoint contract -> {path}')
+    return contract
+
+
+def save_checkpoint_with_sidecar(payload, path, checkpoint_tag, epoch):
+    torch.save(payload, path)
+    if GNN_CHECKPOINT_CONTRACT_PATH is None:
+        raise RuntimeError('GNN checkpoint contract was not initialized.')
+    sidecar = {
+        'format': 'mailohls-gnn-checkpoint-sidecar-v1',
+        'provenance_status': 'captured_at_training',
+        'checkpoint_sha256': _sha256_file(path),
+        'contract_sha256': _sha256_file(GNN_CHECKPOINT_CONTRACT_PATH),
+        'checkpoint_tag': checkpoint_tag,
+        'checkpoint_epoch': int(epoch),
+    }
+    Path(f'{path}.json').write_text(
+        json.dumps(sidecar, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+    )
 
 
 def _as_int_seed(seed):
@@ -128,6 +276,59 @@ def fit_target_statistics(dataset):
             'weighting': weighting,
         }
     saver.log_info(f'Training-only log2 target statistics: {stats}')
+    return stats
+
+
+def fit_resource_statistics(dataset):
+    """Fit log1p resource moments on training kernels only."""
+    rows = []
+    kernels = []
+    for index in range(len(dataset)):
+        sample = dataset[index]
+        if not hasattr(sample, 'resource_util'):
+            raise RuntimeError(
+                'Dataset lacks resource_util; regenerate with --force_regen.'
+            )
+        values = sample.resource_util.reshape(-1).detach().cpu().numpy()
+        if values.shape != (len(RESOURCE_NAMES),):
+            raise RuntimeError(
+                f'Expected four resource targets, got shape {values.shape}.'
+            )
+        if not np.isfinite(values).all() or np.any(values < 0.0):
+            raise RuntimeError('Invalid resource utilization target.')
+        rows.append(np.log1p(values.astype(np.float64)))
+        kernels.append(_sample_kernel(sample))
+    if not rows:
+        raise RuntimeError('Cannot fit resource statistics on an empty dataset.')
+    counts = Counter(kernels)
+    weights = np.asarray(
+        [
+            1.0 / counts[kernel]
+            if bool(getattr(FLAGS, 'kernel_balanced_loss', False))
+            else 1.0
+            for kernel in kernels
+        ],
+        dtype=np.float64,
+    )
+    weights /= weights.sum()
+    matrix = np.stack(rows, axis=0)
+    mean = np.sum(matrix * weights[:, None], axis=0)
+    variance = np.sum(
+        np.square(matrix - mean) * weights[:, None], axis=0
+    )
+    stats = {
+        'names': list(RESOURCE_NAMES),
+        'transform': 'log1p',
+        'mean': mean.tolist(),
+        'std': np.maximum(np.sqrt(variance), 1e-8).tolist(),
+        'count': len(rows),
+        'weighting': (
+            'kernel_balanced'
+            if bool(getattr(FLAGS, 'kernel_balanced_loss', False))
+            else 'point_micro'
+        ),
+    }
+    saver.log_info(f'Training-only resource statistics: {stats}')
     return stats
 
 
@@ -230,18 +431,93 @@ def compute_validation_selection_score(loss_breakdown, baseline_breakdown):
 
 
 def should_update_qualified_rank(
-    target_ratios, ranking_score, best_score, min_delta
+    target_ratios,
+    per_kernel_target_ratios,
+    ranking_score,
+    best_score,
+    min_delta,
+    min_rank_tau,
+    max_kernel_zero_baseline_ratio,
 ):
-    """Gate rank selection behind per-target absolute qualification."""
+    """Gate rank selection behind target- and kernel-level qualification."""
     ratios = [float(value) for value in target_ratios.values()]
+    kernel_ratios = [
+        float(value) for value in per_kernel_target_ratios.values()
+    ]
     ranking_score = float(ranking_score)
     if not ratios or not all(np.isfinite(value) for value in ratios):
         raise RuntimeError(f'Invalid target ratios: {target_ratios}')
+    if not kernel_ratios or not all(
+        np.isfinite(value) for value in kernel_ratios
+    ):
+        raise RuntimeError(
+            f'Invalid per-kernel target ratios: {per_kernel_target_ratios}'
+        )
     if not np.isfinite(ranking_score):
         raise RuntimeError(f'Invalid ranking score: {ranking_score}')
-    qualified = all(value < 1.0 for value in ratios)
+    qualified = (
+        all(value < 1.0 for value in ratios)
+        and ranking_score >= float(min_rank_tau)
+        and max(kernel_ratios) <= float(max_kernel_zero_baseline_ratio)
+    )
     improved = ranking_score > float(best_score) + float(min_delta)
     return qualified and improved
+
+
+def compute_per_kernel_target_baseline_ratios(points_dict, target_stats):
+    """Compare each validation kernel/target loss with its no-learning loss."""
+    ratios = {}
+    for target, values in points_dict.items():
+        if target not in target_stats:
+            raise RuntimeError(f'Missing target statistics for {target!r}.')
+        kernels = values['kernel']
+        predictions = values['pred']
+        if not kernels or len(kernels) != len(predictions):
+            raise RuntimeError(f'Incomplete validation points for {target!r}.')
+
+        baseline_prediction = (
+            0.0
+            if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
+            else float(target_stats[target]['mean'])
+        )
+        standardizer = (
+            float(target_stats[target]['std'])
+            if bool(getattr(FLAGS, 'standardize_targets', False))
+            else 1.0
+        )
+        for kernel in sorted(set(kernels)):
+            indices = [
+                index for index, value in enumerate(kernels)
+                if value == kernel
+            ]
+            actual = np.asarray(
+                [predictions[index][0] for index in indices], dtype=np.float64
+            )
+            predicted = np.asarray(
+                [predictions[index][1] for index in indices], dtype=np.float64
+            )
+            model_loss = float(np.mean(_point_loss_from_error(
+                (actual - predicted) / standardizer
+            )))
+            baseline_loss = float(np.mean(_point_loss_from_error(
+                (actual - baseline_prediction) / standardizer
+            )))
+            if str(FLAGS.loss).lower() == 'rmse':
+                model_loss = float(np.sqrt(model_loss))
+                baseline_loss = float(np.sqrt(baseline_loss))
+            if not np.isfinite(baseline_loss) or baseline_loss <= 1e-12:
+                raise RuntimeError(
+                    'Invalid per-kernel no-learning baseline for '
+                    f'{kernel}/{target}: {baseline_loss!r}'
+                )
+            ratio = model_loss / baseline_loss
+            if not np.isfinite(ratio) or ratio < 0.0:
+                raise RuntimeError(
+                    f'Invalid per-kernel target ratio for {kernel}/{target}: '
+                    f'{ratio!r}'
+                )
+            ratios[f'{kernel}/{target}'] = ratio
+    return ratios
 
 
 class KernelCenteredDataset(Dataset):
@@ -669,7 +945,12 @@ def model_update(model, losses_list, loss, epoch, plot_test, tag):
     if not losses_list or loss < min(losses_list):
         if FLAGS.save_model:
             saver.log_info((f'Saved {tag} model at epoch {epoch}'))
-            torch.save(model.state_dict(), join(saver.model_logdir, f"{tag}_model_state_dict.pth"))
+            save_checkpoint_with_sidecar(
+                model.state_dict(),
+                join(saver.model_logdir, f"{tag}_model_state_dict.pth"),
+                tag,
+                epoch,
+            )
         plot_test = True
     losses_list.append(loss)
 
@@ -756,6 +1037,79 @@ def _string_attribute_at(data, name, index):
     raise RuntimeError(
         f"Could not align string attribute {name!r} with prediction {index}."
     )
+
+
+def _parse_resource_eval_budgets(spec):
+    budgets = []
+    for entry in str(spec).split(';'):
+        if not entry.strip():
+            continue
+        values = [float(value) for value in entry.split(',')]
+        if len(values) == 1:
+            values *= len(RESOURCE_NAMES)
+        if len(values) != len(RESOURCE_NAMES) or any(
+            value < 0.0 for value in values
+        ):
+            raise ValueError(
+                'Resource budgets must be non-negative scalar or '
+                'BRAM,DSP,FF,LUT vectors.'
+            )
+        budgets.append(np.asarray(values, dtype=np.float64))
+    if not budgets:
+        raise ValueError('--resource_eval_budgets produced no budgets.')
+    return budgets
+
+
+def report_resource_metrics(resource_rows, label):
+    """Report stable physical and feasibility metrics for resource heads."""
+    if not resource_rows:
+        return None
+    actual = np.stack([row['actual'] for row in resource_rows])
+    predicted = np.stack([row['predicted'] for row in resource_rows])
+    kernels = [row['kernel'] for row in resource_rows]
+    rows = []
+    for index, resource in enumerate(RESOURCE_NAMES):
+        kernel_taus = []
+        for kernel in sorted(set(kernels)):
+            selected = [i for i, value in enumerate(kernels) if value == kernel]
+            tau = kendalltau(
+                actual[selected, index], predicted[selected, index]
+            )[0]
+            kernel_taus.append(0.0 if not np.isfinite(tau) else float(tau))
+        rows.append({
+            'resource': resource,
+            'mae_percentage_points': float(
+                np.mean(np.abs(predicted[:, index] - actual[:, index])) * 100.0
+            ),
+            'bias_percentage_points': float(
+                np.mean(predicted[:, index] - actual[:, index]) * 100.0
+            ),
+            'kernel_macro_tau': float(np.mean(kernel_taus)),
+        })
+
+    feasibility = []
+    tolerance = float(FLAGS.resource_boundary_tolerance)
+    for budget in _parse_resource_eval_budgets(FLAGS.resource_eval_budgets):
+        actual_feasible = np.all(actual <= budget, axis=1)
+        predicted_feasible = np.all(predicted <= budget, axis=1)
+        false_feasible = predicted_feasible & ~actual_feasible
+        boundary = np.min(np.abs(actual - budget), axis=1) <= tolerance
+        feasibility.append({
+            'budget': budget.tolist(),
+            'accuracy': float(np.mean(predicted_feasible == actual_feasible)),
+            'false_feasible_rate': float(
+                false_feasible.sum() / max(int(predicted_feasible.sum()), 1)
+            ),
+            'boundary_accuracy': (
+                float(np.mean(
+                    predicted_feasible[boundary] == actual_feasible[boundary]
+                )) if boundary.any() else float('nan')
+            ),
+            'boundary_samples': int(boundary.sum()),
+        })
+    report = {'resources': rows, 'feasibility': feasibility}
+    saver.log_info(f'{label} resource metrics: {report}')
+    return report
 
 
 def update_csv_dict(csv_dict, data, i, target_name, target_value, out_value):
@@ -862,6 +1216,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 test_id=resample
             )
 
+    split_sha256 = _split_sha256(li)
+
     model_targets = (
         FLAGS.target if isinstance(FLAGS.target, list) else [FLAGS.target]
     )
@@ -896,6 +1252,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         )
 
     target_stats = fit_target_statistics(li[0])
+    resource_stats = fit_resource_statistics(li[0])
     if FLAGS.decompose_targets:
         li[0] = KernelCenteredDataset(li[0], model_targets)
     baseline_total = None
@@ -929,7 +1286,15 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         edge_dim=edge_dim,
         init_pragma_dict=pragma_dim,
         target_stats=target_stats,
+        resource_stats=resource_stats,
     ).to(FLAGS.device)
+    write_gnn_checkpoint_contract(
+        num_features=num_features,
+        edge_dim=edge_dim,
+        target_stats=target_stats,
+        resource_stats=resource_stats,
+        split_sha256=split_sha256,
+    )
     saver.log_info(f"Model first param device: {next(model.parameters()).device}")
     if torch.cuda.is_available():
         print(torch.cuda.get_device_name(0))
@@ -1017,6 +1382,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     best_qualified_rank_score = float('-inf')
     best_qualified_rank_epoch = None
     best_qualified_rank_ratios = None
+    best_qualified_rank_kernel_ratios = None
 
     if FLAGS.resume_training and exists(ckpt_path):
         st = torch.load(ckpt_path, map_location='cpu')
@@ -1044,6 +1410,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         best_qualified_rank_epoch = st.get("best_qualified_rank_epoch")
         best_qualified_rank_ratios = st.get(
             "best_qualified_rank_ratios"
+        )
+        best_qualified_rank_kernel_ratios = st.get(
+            "best_qualified_rank_kernel_ratios"
         )
         stored_baseline = st.get("baseline_breakdown")
         if val_losses and (
@@ -1120,6 +1489,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 model,
                 epoch,
                 return_metrics=True,
+                qualification_target_stats=target_stats,
             )
             val_losses.append(val)
             current_selection_score, target_ratios = (
@@ -1135,36 +1505,58 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             )
             ranking_score = compute_macro_ranking_score(val_metrics)
             val_ranking_scores.append(ranking_score)
-            qualified = all(
-                float(ratio) < 1.0 for ratio in target_ratios.values()
+            per_kernel_target_ratios = val_metrics.attrs.get(
+                'per_kernel_target_baseline_ratios'
+            )
+            if not per_kernel_target_ratios:
+                raise RuntimeError(
+                    'Validation metrics lack per-kernel target baseline ratios.'
+                )
+            worst_kernel_ratio = max(per_kernel_target_ratios.values())
+            qualified = (
+                all(float(ratio) < 1.0 for ratio in target_ratios.values())
+                and ranking_score >= FLAGS.min_rank_tau
+                and worst_kernel_ratio
+                <= FLAGS.max_kernel_zero_baseline_ratio
             )
             saver.log_info(
                 f'Validation worst-target kernel-macro tau-b: '
-                f'{ranking_score:.6f}; qualified={qualified}'
+                f'{ranking_score:.6f}; worst kernel/target baseline ratio='
+                f'{worst_kernel_ratio:.6f}; qualified={qualified}'
             )
             saver.writer.add_scalar(
                 'val/worst_target_kernel_macro_tau', ranking_score, epoch
             )
             if should_update_qualified_rank(
                 target_ratios,
+                per_kernel_target_ratios,
                 ranking_score,
                 best_qualified_rank_score,
                 FLAGS.early_stopping_min_delta,
+                FLAGS.min_rank_tau,
+                FLAGS.max_kernel_zero_baseline_ratio,
             ):
                 best_qualified_rank_score = ranking_score
                 best_qualified_rank_epoch = epoch
                 best_qualified_rank_ratios = dict(target_ratios)
+                best_qualified_rank_kernel_ratios = dict(
+                    per_kernel_target_ratios
+                )
                 if FLAGS.save_model:
-                    torch.save(
+                    save_checkpoint_with_sidecar(
                         model.state_dict(),
                         join(
                             saver.model_logdir,
                             'val_rank_model_state_dict.pth',
                         ),
+                        'val_rank',
+                        epoch,
                     )
                 saver.log_info(
                     f'Saved qualified rank model at epoch {epoch}; '
-                    f'worst-target kernel-macro tau-b={ranking_score:.6f}'
+                    f'worst-target kernel-macro tau-b={ranking_score:.6f}; '
+                    f'worst kernel/target baseline ratio='
+                    f'{worst_kernel_ratio:.6f}'
                 )
             saver.writer.add_scalar('val/total_objective', val, epoch)
             plot_test = model_update(
@@ -1195,7 +1587,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         gae_train_losses.append(gae_loss_train)
 
         if (epoch + 1) % 2 == 0 or (epoch + 1) == FLAGS.epoch_num:
-            torch.save({
+            checkpoint_state = {
                 "epoch": epoch,
                 "model": model.state_dict(),
                 "optim": optimizer.state_dict(),
@@ -1208,13 +1600,38 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "best_qualified_rank_score": best_qualified_rank_score,
                 "best_qualified_rank_epoch": best_qualified_rank_epoch,
                 "best_qualified_rank_ratios": best_qualified_rank_ratios,
+                "best_qualified_rank_kernel_ratios": (
+                    best_qualified_rank_kernel_ratios
+                ),
                 "initial_selection": initial_selection,
                 "initial_ratios": initial_ratios,
                 "test_losses": test_losses,
                 "target_stats": target_stats,
+                "resource_stats": resource_stats,
                 "baseline_breakdown": baseline_breakdown,
-            }, ckpt_path)
+            }
+            save_checkpoint_with_sidecar(
+                checkpoint_state, ckpt_path, 'last', epoch
+            )
             saver.log_info(f"Checkpoint saved at epoch {epoch} -> {ckpt_path}")
+            if epoch + 1 == 10:
+                epoch_10_path = join(saver.model_logdir, 'epoch_10_ckpt.pt')
+                epoch_10_model_path = join(
+                    saver.model_logdir, 'epoch_10_model_state_dict.pth'
+                )
+                save_checkpoint_with_sidecar(
+                    checkpoint_state, epoch_10_path, 'epoch_10', epoch
+                )
+                save_checkpoint_with_sidecar(
+                    model.state_dict(),
+                    epoch_10_model_path,
+                    'epoch_10_model',
+                    epoch,
+                )
+                saver.log_info(
+                    'Archived epoch 10 secondary checkpoints -> '
+                    f'{epoch_10_path}, {epoch_10_model_path}'
+                )
 
         selection_loss = (
             current_selection_score if len(val_loader) > 0 else loss
@@ -1263,7 +1680,12 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             f'{selection_tag}_model_state_dict.pth',
         )
         if FLAGS.save_model:
-            torch.save(model.state_dict(), selection_path)
+            save_checkpoint_with_sidecar(
+                model.state_dict(),
+                selection_path,
+                selection_tag,
+                selection_epoch,
+            )
     elif len(val_loader) > 0:
         absolute_epoch = val_selection_scores.index(
             min(val_selection_scores)
@@ -1307,12 +1729,23 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 raise RuntimeError(
                     'Stored rank checkpoint is not baseline-qualified.'
                 )
+            if (
+                not best_qualified_rank_kernel_ratios
+                or max(best_qualified_rank_kernel_ratios.values())
+                > FLAGS.max_kernel_zero_baseline_ratio
+                or best_qualified_rank_score < FLAGS.min_rank_tau
+            ):
+                raise RuntimeError(
+                    'Stored rank checkpoint is not kernel/rank-qualified.'
+                )
             restore_checkpoint(rank_path, 'qualified-rank-selected')
             saver.log_info(
                 'Final qualified-rank validation report for epoch '
                 f'{best_qualified_rank_epoch}; worst-target kernel-macro '
                 f'tau-b={best_qualified_rank_score:.6f}; relative target '
-                f'losses={best_qualified_rank_ratios}'
+                f'losses={best_qualified_rank_ratios}; worst kernel/target '
+                f'baseline ratio='
+                f'{max(best_qualified_rank_kernel_ratios.values()):.6f}'
             )
             test(
                 val_loader,
@@ -1558,7 +1991,8 @@ def inference(dataset, init_pragma_dict=None, model_path=FLAGS.model_path,
 
 def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
          csv_dict=None, data_list=None, is_train_set=False,
-         is_val_set=False, return_metrics=False):
+         is_val_set=False, return_metrics=False,
+         qualification_target_stats=None):
     if test_losses is None:
         test_losses = [-1]
     if data_list is None:
@@ -1567,6 +2001,7 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
     my_softplus = nn.Softplus()
     inference_loss, correct, total, count_data = 0, 0, 0, 1
     points_dict = OrderedDict()
+    resource_rows = []
     target_list, loss_dict = set_target_list()
     for target_name in target_list:
         points_dict[target_name] = {
@@ -1591,6 +2026,22 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
             total_loss_dict = update_total_loss(loss, data, target_list, loss_dict, loss_dict_, out_dict, total, correct)
             if FLAGS.task == 'regression': loss_dict, total = total_loss_dict
             else: pred, correct, total = total_loss_dict
+
+            if 'resource_log1p' in out_dict:
+                predicted_resource = torch.expm1(
+                    out_dict['resource_log1p']
+                ).clamp_min(0.0)
+                actual_resource = data.resource_util.reshape(
+                    -1, len(RESOURCE_NAMES)
+                )
+                for index in range(predicted_resource.shape[0]):
+                    resource_rows.append({
+                        'kernel': _kernel_at(data, index),
+                        'actual': actual_resource[index].detach().cpu().numpy(),
+                        'predicted': (
+                            predicted_resource[index].detach().cpu().numpy()
+                        ),
+                    })
 
             for target_name in target_list:
                 if 'inf' in FLAGS.subtask:
@@ -1675,6 +2126,13 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
 
     if FLAGS.task == 'regression':
         df = _report_rmse_etc(points_dict, f'[{tvt}] epoch {epoch}', print_result=True)
+        report_resource_metrics(resource_rows, f'[{tvt}] epoch {epoch}')
+        if qualification_target_stats is not None:
+            df.attrs['per_kernel_target_baseline_ratios'] = (
+                compute_per_kernel_target_baseline_ratios(
+                    points_dict, qualification_target_stats
+                )
+            )
         for _, row in df[df['aggregation'] == 'point_micro'].iterrows():
             saver.log_info(
                 f"[{tvt}] {row['target']} physical RMSE: "

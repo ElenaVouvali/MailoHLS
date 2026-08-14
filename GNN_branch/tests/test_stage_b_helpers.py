@@ -1,5 +1,6 @@
 import ast
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
 from typing import Iterable, Mapping, Sequence
 
@@ -51,18 +52,59 @@ def _load_data_functions(names):
 
 
 class StageBHelperTests(unittest.TestCase):
+    def test_per_kernel_target_ratios_detect_local_failure(self):
+        ratios_for = _load_function(
+            "compute_per_kernel_target_baseline_ratios",
+            {
+                "np": np,
+                "FLAGS": SimpleNamespace(
+                    target_mode="reference_delta",
+                    standardize_targets=False,
+                    loss="mse",
+                ),
+                "_point_loss_from_error": lambda error: np.square(error),
+            },
+        )
+        ratios = ratios_for(
+            {
+                "perf": {
+                    "kernel": ["a", "a", "b", "b"],
+                    "pred": [(1.0, 0.0), (2.0, 0.0), (1.0, 3.0), (1.0, 3.0)],
+                }
+            },
+            {"perf": {"mean": 123.0, "std": 1.0}},
+        )
+        self.assertTrue(np.isclose(ratios["a/perf"], 1.0))
+        self.assertTrue(np.isclose(ratios["b/perf"], 4.0))
+
     def test_rank_checkpoint_requires_every_absolute_baseline(self):
         update = _load_function(
             "should_update_qualified_rank", {"np": np}
         )
         self.assertTrue(update(
-            {"perf": 0.8, "area": 0.9}, 0.2, 0.1, 1e-4
+            {"perf": 0.8, "area": 0.9},
+            {"kernel-a/perf": 0.9, "kernel-a/area": 1.1},
+            0.2, 0.1, 1e-4, 0.0, 1.1,
         ))
         self.assertFalse(update(
-            {"perf": 1.0, "area": 0.1}, 0.9, 0.1, 1e-4
+            {"perf": 1.0, "area": 0.1},
+            {"kernel-a/perf": 0.9},
+            0.9, 0.1, 1e-4, 0.0, 1.1,
         ))
         self.assertFalse(update(
-            {"perf": 0.8, "area": 0.9}, 0.1, 0.1, 1e-4
+            {"perf": 0.8, "area": 0.9},
+            {"kernel-a/perf": 0.9},
+            0.1, 0.1, 1e-4, 0.0, 1.1,
+        ))
+        self.assertFalse(update(
+            {"perf": 0.8, "area": 0.9},
+            {"kernel-a/perf": 1.1001},
+            0.9, 0.1, 1e-4, 0.0, 1.1,
+        ))
+        self.assertFalse(update(
+            {"perf": 0.8, "area": 0.9},
+            {"kernel-a/perf": 0.9},
+            -0.01, -0.2, 1e-4, 0.0, 1.1,
         ))
 
     def test_macro_rank_is_equal_kernel_and_worst_target(self):
