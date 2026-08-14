@@ -231,17 +231,6 @@ Do not launch the four arms through the checked-in `designsplit_2_stages_3_goals
 
 
 
-I expect v16 to improve Kendall τ and top-k design ranking. I do not promise better MAPE. The change directly optimizes the ordering used in DSE, while the current Stage C only uses ranking for checkpoint selection.
-
-Success criteria:
-
-median three-seed worst-target kernel-macro τ greater than 0.326;
-every target still beats the neutral validation baseline;
-no major absolute regression—preferably within 5–10% of Stage C;
-Pathfinder-4 latency τ meaningfully above approximately 0.09;
-real exported memory later beats shuffled memory in Stage 2.
-Next GNN change after v16—not in the same run
-
 mlir_data.py already parses BRAM, DSP, FF and LUT utilization, but discards them before constructing point tensors.
 
 Persist these four fractions and add small absolute auxiliary resource heads:
