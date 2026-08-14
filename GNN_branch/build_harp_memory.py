@@ -1,8 +1,29 @@
 import argparse
+import hashlib
 import glob
 import os
 import re
+import subprocess
+import sys
 import torch
+
+
+def parse_builder_args(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pt_path", required=True)
+    parser.add_argument("--ckpt", required=True)
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--max_slots", type=int, default=64)
+    parser.add_argument(
+        "--embedding_mode",
+        required=True,
+        choices=["current_zero_scope_post_npt", "static_pre_npt"],
+    )
+    return parser.parse_known_args(argv)
+
+
+BUILD_ARGS, GNN_ARGS = parse_builder_args(sys.argv[1:])
+sys.argv = [sys.argv[0], *GNN_ARGS]
 
 from os.path import join, basename
 from torch_geometric.data import Batch
@@ -38,30 +59,29 @@ def _disable_pragma_conditioning(data):
     return data
 
 
+def _sha256(path: str) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _git_commit() -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=os.path.dirname(os.path.abspath(__file__)),
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+
+
 @torch.no_grad()
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--pt_path", default="/home/ubuntu/save/harp/pragma-free_kernels")
-    ap.add_argument("--ckpt", default="/home/ubuntu/logs/all_kernels_GNN_train/run1/val_model_state_dict.pth")
-    ap.add_argument("--out", default="/home/ubuntu/save/harp/memory_tokens")
-
-    # Leakage control
-    ap.add_argument(
-        "--disable_pragma_injection",
-        dest="disable_pragma_injection",
-        action="store_true",
-        help="Build pure-structure memory (recommended default)."
-    )
-    ap.add_argument(
-        "--allow_pragma_injection",
-        dest="disable_pragma_injection",
-        action="store_false",
-        help="Allow pragma-conditioned NPT updates during memory extraction."
-    )
-    ap.set_defaults(disable_pragma_injection=True)
-
-    ap.add_argument("--max_slots", type=int, default=64)
-    args = ap.parse_args()
+    args = BUILD_ARGS
 
     os.makedirs(args.out, exist_ok=True)
 
@@ -78,6 +98,8 @@ def main():
     state = torch.load(args.ckpt, map_location=FLAGS.device)
     model.load_state_dict(state)
     model.eval()
+    checkpoint_sha256 = _sha256(args.ckpt)
+    git_commit = _git_commit()
 
     print(f"Starting processing of {len(pt_files)} files...")
 
@@ -116,11 +138,14 @@ def main():
 
             batch = Batch.from_data_list([pt_point]).to(FLAGS.device)
 
-            if args.disable_pragma_injection:
-                batch = _disable_pragma_conditioning(batch)
+            batch = _disable_pragma_conditioning(batch)
 
-            graph_embed = model.forward_embed(batch)
-            node_emb = model.forward_node_embed(batch)
+            if args.embedding_mode == "current_zero_scope_post_npt":
+                node_emb = model.forward_node_embed(batch)
+            elif args.embedding_mode == "static_pre_npt":
+                node_emb = model.forward_static_node_embed(batch)
+            else:
+                raise AssertionError(args.embedding_mode)
 
 #            # Use X_llm_scopeids and X_llm_labelid to build slot-aligned memory
             scope = batch.X_llm_scopeids.bool()
@@ -149,8 +174,6 @@ def main():
 
             node_embs = node_embs.detach().cpu()
             node_embs_mask = node_embs_mask.detach().cpu()
-            graph_embed = graph_embed.detach().cpu()
-
             node_embs = torch.nan_to_num(node_embs, nan=0.0, posinf=0.0, neginf=0.0)
             max_norm = 20.0
             eps = 1e-6
@@ -161,11 +184,13 @@ def main():
             pack = {
                 "pt_path": kernel_path,
                 "ckpt": args.ckpt,
-                "disable_pragma_injection": bool(args.disable_pragma_injection),
+                "embedding_mode": args.embedding_mode,
+                "disable_pragma_injection": True,
+                "gnn_checkpoint_sha256": checkpoint_sha256,
+                "git_commit": git_commit,
                 "gnn_dim": int(node_embs.size(-1)),
                 "node_embs": node_embs,
                 "node_embs_mask": node_embs_mask,
-                "graph_embed": graph_embed,
                 "max_slots": args.max_slots,
                 "slot_ids": torch.arange(1, args.max_slots + 1, dtype=torch.long),
                 "slot_cats": slot_cats.detach().cpu(),
@@ -197,4 +222,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

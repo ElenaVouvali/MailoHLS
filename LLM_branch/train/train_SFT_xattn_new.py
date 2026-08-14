@@ -52,6 +52,8 @@ from transformers.trainer_pt_utils import LengthGroupedSampler
 
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
 
+from LLM_branch.common import mailohls_contract
+
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SFT_DATASET = REPOSITORY_ROOT / "artifacts" / "llm" / "mailohls_sft.jsonl"
@@ -1409,10 +1411,7 @@ def parse_assignment_dict(text: str) -> Dict[str, str]:
 
 
 def canonicalize_generation(text: str) -> str:
-    return "\n".join(
-        m.group(0).strip()
-        for m in ANCHOR_OR_ASSIGN_RE.finditer(text)
-    ).strip()
+    return mailohls_contract.canonicalize_generation(text)
 
 
 def lhs_kind(lhs: str) -> str:
@@ -1655,6 +1654,7 @@ class StageValSelectionCallback(TrainerCallback):
         mem_bank: Optional[Dict[str, dict]] = None,
         mem_dim: int = 32,
         max_slots: int = 64,
+        stage_config: Optional[dict] = None,
     ):
         self.tok = tokenizer
         self.selection_cases = selection_cases
@@ -1666,6 +1666,7 @@ class StageValSelectionCallback(TrainerCallback):
         self.mem_bank = mem_bank or {}
         self.mem_dim = mem_dim
         self.max_slots = max_slots
+        self.stage_config = stage_config
         self.best_score = -1e18
         self.best_step = -1
 
@@ -1755,6 +1756,8 @@ class StageValSelectionCallback(TrainerCallback):
 
                 model.save_pretrained(best_dir)
                 self.tok.save_pretrained(best_dir)
+                if self.stage_config is not None:
+                    dump_json(os.path.join(best_dir, "stage_config.json"), self.stage_config)
 
                 if hasattr(model, "initialized_harp_flamingo") and getattr(model, "initialized_harp_flamingo", False):
                     harp_sd = get_harp_xattn_state_dict(model)
@@ -2522,6 +2525,9 @@ class HARPLMMixin(nn.Module):
 
 
 class SaveHarpXattnCallback(TrainerCallback):
+    def __init__(self, stage_config):
+        self.stage_config = stage_config
+
     def on_save(self, args, state, control, **kwargs):
         model = kwargs["model"]
         ckpt_dir = os.path.join(args.output_dir, f"checkpoint-{state.global_step}")
@@ -2531,6 +2537,7 @@ class SaveHarpXattnCallback(TrainerCallback):
         if harp_sd:
             torch.save(harp_sd, os.path.join(ckpt_dir, "harp_xattn.pt"))
             print(f"[HARP-SAVE] saved xattn weights to {ckpt_dir}/harp_xattn.pt")
+        dump_json(os.path.join(ckpt_dir, "stage_config.json"), self.stage_config)
         return control
 
 
@@ -3603,10 +3610,8 @@ def build_prompt(
     row: Optional[dict] = None,
     device_token_dropout: float = 0.0,
 ) -> str:
-    header, kernel, suffix, _ = build_prompt_sections(
-        code, obj_mode, row, device_token_dropout
-    )
-    return header + kernel + suffix
+    fields = target_prompt_fields(row, device_token_dropout)
+    return mailohls_contract.build_prompt(code, obj_mode, fields)
 
 
 def clock_target_text(row: Mapping[str, Any]) -> str:
@@ -4171,6 +4176,15 @@ def run_single_training(args):
         print(f"[INFO] random design-point split with val_ratio={args.val_ratio}, test_ratio={args.test_ratio}, split_seed={args.split_seed}, stratify_by_kernel={args.stratify_by_kernel}")
 
     print(f"[INFO] Raw split sizes: train={len(raw_train_rows)} val={len(raw_val_rows)} test={len(raw_test_rows)}")
+    split_payload = {
+        name: sorted(int(row["_jsonl_idx"]) for row in split_rows)
+        for name, split_rows in (
+            ("train", raw_train_rows), ("val", raw_val_rows), ("test", raw_test_rows)
+        )
+    }
+    split_sha256 = hashlib.sha256(
+        json.dumps(split_payload, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
     eval_seed = args.seed + 10_000
 
     if args.save_split_json:
@@ -4301,6 +4315,24 @@ def run_single_training(args):
             print(
                 f"[WARN] {len(missing_memory)} kernels will receive zero HARP memory"
             )
+
+        manifest_path = os.path.join(args.memory_dir, "memory_manifest.json")
+        if not os.path.isfile(manifest_path):
+            raise ValueError(f"Stage 2 requires memory manifest: {manifest_path}")
+        memory_manifest_sha256 = _file_sha256(Path(manifest_path))
+        stage_config = {
+            "prompt_schema_version": 1,
+            "objective": args.objective,
+            "mem_dim": args.mem_dim,
+            "max_slots": args.max_slots,
+            "every_n_layers": args.every_n_layers,
+            "xattn_heads": args.xattn_heads,
+            "xattn_dim_head": args.xattn_dim_head,
+            "xattn_ff_mult": args.xattn_ff_mult,
+            "memory_manifest_sha256": memory_manifest_sha256,
+            "split_sha256": split_sha256,
+            "seed": args.seed,
+        }
 
     tok = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
 
@@ -4567,7 +4599,7 @@ def run_single_training(args):
     )
 
     if not args.disable_harp:
-        trainer.add_callback(SaveHarpXattnCallback())
+        trainer.add_callback(SaveHarpXattnCallback(stage_config))
 
     if selection_cases:
         trainer.add_callback(
@@ -4582,6 +4614,7 @@ def run_single_training(args):
                 mem_bank=mem_bank,
                 mem_dim=args.mem_dim,
                 max_slots=args.max_slots,
+                stage_config=None if args.disable_harp else stage_config,
             )
         )
 
@@ -4599,6 +4632,7 @@ def run_single_training(args):
         tok.save_pretrained(best_dir)
         if not args.disable_harp:
             torch.save(get_harp_xattn_state_dict(model), os.path.join(best_dir, "harp_xattn.pt"))
+            dump_json(os.path.join(best_dir, "stage_config.json"), stage_config)
 
     trainer.save_model(args.output_dir)
     tok.save_pretrained(args.output_dir)
@@ -4608,6 +4642,7 @@ def run_single_training(args):
             get_harp_xattn_state_dict(model),
             os.path.join(args.output_dir, "harp_xattn.pt")
         )
+        dump_json(os.path.join(args.output_dir, "stage_config.json"), stage_config)
         print(f"[DONE] Saved LoRA + HARP xattn adapters to: {args.output_dir}")
     else:
         print(f"[DONE] Saved LoRA adapter to: {args.output_dir}")

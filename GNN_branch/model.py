@@ -653,7 +653,7 @@ class Net(nn.Module):
     '''
     Runs the same way as the forward function up to the final node embeddings representation (out_node_embed)
     '''
-    def _node_embed(self, data):
+    def _node_embed(self, data, embedding_mode="conditioned"):
           data = self._normalize_debug_tensors(data)
           # x : [N, in_channels] = [N, num_features] = [N, F] --> node features (one-hot encoded)
           # edge_index : [2, E] = [2, no_of_edges] (the 2 rows hold source and destination node indices for each edge) --> graph structure
@@ -696,7 +696,16 @@ class Net(nn.Module):
               outs.append(out)
 
           if FLAGS.jkn_enable:
-              out = self.jkn(outs)  # fuses the layer-wise representations (node embeddings) into a single tensor of shape [N, D], jkn_mode=max         
+              out = self.jkn(outs)  # fuses the layer-wise representations (node embeddings) into a single tensor of shape [N, D], jkn_mode=max    
+
+          if embedding_mode == "static_pre_npt":
+              return out
+
+          if embedding_mode != "conditioned":
+              raise ValueError(
+                  f"Unknown node embedding mode: {embedding_mode}"
+              )
+        
           ## pragma as MLP
           if FLAGS.pragma_as_MLP:
               assert hasattr(data, 'X_pragma_per_node'), "Missing X_pragma_per_node"
@@ -748,11 +757,11 @@ class Net(nn.Module):
 
 
     def forward_node_embed(self, data):
-        """
-        Returns the final node embeddings
-        """
-        return self._node_embed(data)
+        return self._node_embed(data, embedding_mode="conditioned")
 
+
+    def forward_static_node_embed(self, data):
+        return self._node_embed(data, embedding_mode="static_pre_npt")
 
 
     '''

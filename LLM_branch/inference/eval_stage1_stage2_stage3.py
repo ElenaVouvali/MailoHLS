@@ -1,4 +1,5 @@
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -17,6 +18,8 @@ from einops_exts import rearrange_many
 from peft import PeftModel
 from torch import einsum
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+from LLM_branch.common import mailohls_contract
 
 
 # ============================================================
@@ -264,9 +267,7 @@ def parse_assignment_dict(text: str) -> Dict[str, str]:
 
 
 def canonicalize_generation(text: str) -> str:
-    return "\n".join(
-        m.group(0).strip() for m in ANCHOR_OR_ASSIGN_RE.finditer(text)
-    ).strip()
+    return mailohls_contract.canonicalize_generation(text)
 
 
 def build_partial_deterministic_target_text(
@@ -626,12 +627,16 @@ def get_harp_xattn_state_dict(model):
 
 def load_partial_harp_xattn(model, harp_xattn_path: str, tag: str):
     if not harp_xattn_path or not os.path.isfile(harp_xattn_path):
-        print(f"[{tag}] no harp_xattn.pt found at: {harp_xattn_path}")
-        return
+        raise FileNotFoundError(f"[{tag}] no harp_xattn.pt found at: {harp_xattn_path}")
 
     harp_sd = torch.load(harp_xattn_path, map_location="cpu", weights_only=True)
     missing, unexpected = model.load_state_dict(harp_sd, strict=False)
     harp_missing = [k for k in missing if "gated_cross_attn_layer" in k]
+    if harp_missing or unexpected:
+        raise ValueError(
+            f"[{tag}] incompatible cross-attention state: "
+            f"missing={harp_missing[:10]}, unexpected={unexpected[:10]}"
+        )
     print(f"[{tag}] harp_missing[:10]={harp_missing[:10]}")
     print(f"[{tag}] unexpected[:10]={unexpected[:10]}")
     move_harp_modules_to_model_device(model)
@@ -1900,12 +1905,12 @@ def main():
 
     # stage2 memory
     ap.add_argument("--memory_dir", type=str, default="")
-    ap.add_argument("--mem_dim", type=int, default=32)
-    ap.add_argument("--max_slots", type=int, default=64)
-    ap.add_argument("--every_n_layers", type=int, default=16)
-    ap.add_argument("--xattn_heads", type=int, default=4)
-    ap.add_argument("--xattn_dim_head", type=int, default=64)
-    ap.add_argument("--xattn_ff_mult", type=int, default=1)
+    ap.add_argument("--mem_dim", type=int)
+    ap.add_argument("--max_slots", type=int)
+    ap.add_argument("--every_n_layers", type=int)
+    ap.add_argument("--xattn_heads", type=int)
+    ap.add_argument("--xattn_dim_head", type=int)
+    ap.add_argument("--xattn_ff_mult", type=int)
 
     # input cases
     ap.add_argument("--input_jsonl", type=str, default="")
@@ -1940,6 +1945,45 @@ def main():
 
     if args.stage in {"stage2", "stage3"} and not args.memory_dir:
         raise ValueError("--memory_dir is required for stage2/stage3 inference")
+    if args.stage in {"stage2", "stage3"}:
+        config_path = os.path.join(args.adapter_dir, "stage_config.json")
+        if not os.path.isfile(config_path):
+            raise ValueError(f"Stage-2 checkpoint is missing {config_path}")
+        with open(config_path, "r", encoding="utf-8") as handle:
+            stage_config = json.load(handle)
+        required = (
+            "prompt_schema_version", "objective", "mem_dim", "max_slots",
+            "every_n_layers", "xattn_heads", "xattn_dim_head", "xattn_ff_mult",
+            "memory_manifest_sha256", "split_sha256", "seed",
+        )
+        missing = [key for key in required if key not in stage_config]
+        if missing:
+            raise ValueError(f"stage_config.json is missing fields: {missing}")
+        if stage_config["prompt_schema_version"] != 1:
+            raise ValueError("Unsupported prompt_schema_version")
+        for key in (
+            "mem_dim", "max_slots", "every_n_layers", "xattn_heads",
+            "xattn_dim_head", "xattn_ff_mult",
+        ):
+            cli_value = getattr(args, key)
+            trained_value = int(stage_config[key])
+            if cli_value is not None and cli_value != trained_value:
+                raise ValueError(
+                    f"--{key}={cli_value} conflicts with checkpoint value {trained_value}"
+                )
+            setattr(args, key, trained_value)
+        manifest_path = os.path.join(args.memory_dir, "memory_manifest.json")
+        if not os.path.isfile(manifest_path):
+            raise ValueError(f"Memory bank is missing {manifest_path}")
+        digest = hashlib.sha256()
+        with open(manifest_path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+        if digest.hexdigest() != stage_config["memory_manifest_sha256"]:
+            raise ValueError("Memory manifest does not match the Stage-2 checkpoint")
+    else:
+        args.mem_dim = args.mem_dim or 0
+        args.max_slots = args.max_slots or 64
 
     rhs_candidate_bank = build_or_load_rhs_bank(args)
     tok = build_tokenizer(args.model)
