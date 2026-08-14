@@ -52,7 +52,7 @@ from transformers.trainer_pt_utils import LengthGroupedSampler
 
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
 
-from LLM_branch.common import mailohls_contract
+from LLM_branch.common import mailohls_contract, structural_xattn
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -1089,7 +1089,9 @@ def verify_and_save_initial_harp_state(model, reference_path: str, output_dir: s
     else:
         dump_json_atomic(str(reference), manifest)
         print(f"[INIT-STATE] Created reference atomically: {reference}")
-    output_copy = os.path.join(output_dir, "initial_harp_state.json")
+    output_copy = os.path.join(
+        output_dir, "initial_harp_state_post_sa_pre_mlp_s123.json"
+    )
     dump_json_atomic(output_copy, manifest)
     print(f"[INIT-STATE] combined_sha256={manifest['combined_sha256']}")
     return manifest
@@ -2479,9 +2481,9 @@ class HARPLMMixin(nn.Module):
         mask_mode="segment",
         enable_ff=True,
     ):
-        self.old_decoder_blocks = self._get_decoder_layers()
+        decoder_blocks = self._get_decoder_layers()
         wrapped_layers = []
-        for layer_idx, decoder_layer in enumerate(self.old_decoder_blocks):
+        for layer_idx, decoder_layer in enumerate(decoder_blocks):
             gated_cross_attn_layer = None
             if (layer_idx + 1) % cross_attn_every_n_layers == 0:
                 gated_cross_attn_layer = GatedCrossAttentionBlock(
@@ -2579,6 +2581,14 @@ class HARPLMMixin(nn.Module):
             kwargs["labels"] = labels
 
         return super().forward(**kwargs)
+
+
+# Shared implementation used by new checkpoints.
+MaskedCrossAttention = structural_xattn.MaskedCrossAttention
+GatedCrossAttentionBlock = structural_xattn.GatedCrossAttentionBlock
+HARPLMMixin = structural_xattn.StructuralCrossAttentionMixin
+extend_instance = structural_xattn.extend_instance
+infer_decoder_layers_attr_name = structural_xattn.infer_decoder_layers_attr_name
 
 
 class SaveHarpXattnCallback(TrainerCallback):
@@ -4339,7 +4349,10 @@ def run_single_training(args):
             "xattn_heads": args.xattn_heads,
             "xattn_dim_head": args.xattn_dim_head,
             "xattn_ff_mult": args.xattn_ff_mult,
-            "xattn_enable_ff": bool(args.lr_ff > 0 or args.lr_gate_ff > 0),
+            "xattn_enable_ff": False,
+            "xattn_placement": "post_self_attn_pre_mlp",
+            "xattn_gate_init": 0.0,
+            "dataset_sha256": _file_sha256(Path(args.dataset)),
             "memory_manifest_sha256": memory_manifest_sha256,
             "split_sha256": split_sha256,
             "seed": args.seed,
@@ -4458,6 +4471,11 @@ def run_single_training(args):
         print("[INIT] Created fresh LoRA adapter")
 
     if not args.disable_harp:
+        if args.lr_ff != 0 or args.lr_gate_ff != 0:
+            raise ValueError(
+                "The post-self-attention/pre-MLP structural branch requires "
+                "--lr_ff 0 and --lr_gate_ff 0"
+            )
         extend_instance(model, HARPLMMixin)
         decoder_layers_attr_name = infer_decoder_layers_attr_name(model)
         model.set_decoder_layers_attr_name(decoder_layers_attr_name)
@@ -4467,18 +4485,19 @@ def run_single_training(args):
         if hidden_size is None:
             raise ValueError("Could not infer LM hidden size from model.config")
 
-        model.init_harp_flamingo(
+        model.init_structural_cross_attention(
             placeholder_token_ids=placeholder_token_ids,
             lang_hidden_size=hidden_size,
             mem_hidden_size=args.mem_dim,
             cross_attn_every_n_layers=args.every_n_layers,
-            gradient_checkpointing=args.gradient_checkpointing,
             xattn_heads=args.xattn_heads,
             xattn_dim_head=args.xattn_dim_head,
-            xattn_ff_mult=args.xattn_ff_mult,
             only_attend_immediate_memory=True,
             mask_mode="segment",
-            enable_ff=bool(args.lr_ff > 0 or args.lr_gate_ff > 0),
+        )
+
+        stage_config["selected_xattn_layers_1based"] = list(
+            model.structural_xattn_layer_indices
         )
 
         print(f"[HARP-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
@@ -4860,7 +4879,10 @@ def main():
         "--initial_state_reference",
         type=str,
         default="",
-        help="Shared initial_harp_state.json; created atomically by the first arm and verified by later arms.",
+        help=(
+            "Shared initial_harp_state_post_sa_pre_mlp_s123.json; created "
+            "atomically by the first arm and verified by later arms."
+        ),
     )
     ap.add_argument("--value_loss_weight", type=float, default=1.0)
 

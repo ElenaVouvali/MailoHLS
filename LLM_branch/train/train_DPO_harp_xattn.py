@@ -1063,15 +1063,13 @@ def build_harp_model(mod, args, tokenizer, trainable: bool):
     if hidden_size is None:
         raise ValueError("Could not infer LM hidden size from model.config")
 
-    model.init_harp_flamingo(
+    model.init_structural_cross_attention(
         placeholder_token_ids=placeholder_token_ids,
         lang_hidden_size=hidden_size,
         mem_hidden_size=args.mem_dim,
         cross_attn_every_n_layers=args.every_n_layers,
-        gradient_checkpointing=(args.gradient_checkpointing and trainable),
         xattn_heads=args.xattn_heads,
         xattn_dim_head=args.xattn_dim_head,
-        xattn_ff_mult=args.xattn_ff_mult,
         only_attend_immediate_memory=True,
         mask_mode="segment",
     )

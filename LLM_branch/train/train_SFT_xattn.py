@@ -33,6 +33,8 @@ from transformers.trainer_pt_utils import LengthGroupedSampler
 
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
 
+from LLM_branch.common import structural_xattn
+
 
 # ==============================
 # Prompt
@@ -1969,9 +1971,9 @@ class HARPLMMixin(nn.Module):
         only_attend_immediate_memory=True,
         mask_mode="segment",
     ):
-        self.old_decoder_blocks = self._get_decoder_layers()
+        decoder_blocks = self._get_decoder_layers()
         wrapped_layers = []
-        for layer_idx, decoder_layer in enumerate(self.old_decoder_blocks):
+        for layer_idx, decoder_layer in enumerate(decoder_blocks):
             gated_cross_attn_layer = None
             if (layer_idx + 1) % cross_attn_every_n_layers == 0:
                 gated_cross_attn_layer = GatedCrossAttentionBlock(
@@ -2069,6 +2071,13 @@ class HARPLMMixin(nn.Module):
             kwargs["labels"] = labels
 
         return super().forward(**kwargs)
+
+
+MaskedCrossAttention = structural_xattn.MaskedCrossAttention
+GatedCrossAttentionBlock = structural_xattn.GatedCrossAttentionBlock
+HARPLMMixin = structural_xattn.StructuralCrossAttentionMixin
+extend_instance = structural_xattn.extend_instance
+infer_decoder_layers_attr_name = structural_xattn.infer_decoder_layers_attr_name
 
 
 class SaveHarpXattnCallback(TrainerCallback):
@@ -3107,15 +3116,13 @@ def run_single_training(args):
         if hidden_size is None:
             raise ValueError("Could not infer LM hidden size from model.config")
 
-        model.init_harp_flamingo(
+        model.init_structural_cross_attention(
             placeholder_token_ids=placeholder_token_ids,
             lang_hidden_size=hidden_size,
             mem_hidden_size=args.mem_dim,
             cross_attn_every_n_layers=args.every_n_layers,
-            gradient_checkpointing=args.gradient_checkpointing,
             xattn_heads=args.xattn_heads,
             xattn_dim_head=args.xattn_dim_head,
-            xattn_ff_mult=args.xattn_ff_mult,
             only_attend_immediate_memory=True,
             mask_mode="segment",
         )

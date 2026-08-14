@@ -19,7 +19,7 @@ from peft import PeftModel
 from torch import einsum
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-from LLM_branch.common import mailohls_contract
+from LLM_branch.common import mailohls_contract, structural_xattn
 
 
 # ============================================================
@@ -972,9 +972,9 @@ class HARPLMMixin(nn.Module):
         mask_mode="segment",
         enable_ff=True,
     ):
-        self.old_decoder_blocks = self._get_decoder_layers()
+        decoder_blocks = self._get_decoder_layers()
         wrapped_layers = []
-        for layer_idx, decoder_layer in enumerate(self.old_decoder_blocks):
+        for layer_idx, decoder_layer in enumerate(decoder_blocks):
             gated_cross_attn_layer = None
             if (layer_idx + 1) % cross_attn_every_n_layers == 0:
                 gated_cross_attn_layer = GatedCrossAttentionBlock(
@@ -1066,6 +1066,13 @@ class HARPLMMixin(nn.Module):
         kwargs["input_ids"] = input_ids
         kwargs["attention_mask"] = attention_mask
         return super().forward(**kwargs)
+
+
+MaskedCrossAttention = structural_xattn.MaskedCrossAttention
+GatedCrossAttentionBlock = structural_xattn.GatedCrossAttentionBlock
+HARPLMMixin = structural_xattn.StructuralCrossAttentionMixin
+extend_instance = structural_xattn.extend_instance
+infer_decoder_layers_attr_name = structural_xattn.infer_decoder_layers_attr_name
 
 
 # ============================================================
@@ -1569,18 +1576,15 @@ def attach_harp_modules(
     if hidden_size is None:
         raise ValueError("Could not infer LM hidden size from model.config")
 
-    model.init_harp_flamingo(
+    model.init_structural_cross_attention(
         placeholder_token_ids=placeholder_token_ids,
         lang_hidden_size=hidden_size,
         mem_hidden_size=mem_dim,
         cross_attn_every_n_layers=every_n_layers,
-        gradient_checkpointing=False,
         xattn_heads=xattn_heads,
         xattn_dim_head=xattn_dim_head,
-        xattn_ff_mult=xattn_ff_mult,
         only_attend_immediate_memory=True,
         mask_mode="segment",
-        enable_ff=xattn_enable_ff,
     )
 
     print(f"[HARP-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
@@ -1977,12 +1981,26 @@ def main():
             "prompt_schema_version", "objective", "mem_dim", "max_slots",
             "every_n_layers", "xattn_heads", "xattn_dim_head", "xattn_ff_mult", "xattn_enable_ff",
             "memory_manifest_sha256", "split_sha256", "seed",
+            "xattn_placement", "xattn_gate_init",
+            "selected_xattn_layers_1based", "dataset_sha256",
         )
         missing = [key for key in required if key not in stage_config]
         if missing:
             raise ValueError(f"stage_config.json is missing fields: {missing}")
         if stage_config["prompt_schema_version"] != mailohls_contract.PROMPT_SCHEMA_VERSION:
             raise ValueError("Unsupported prompt_schema_version")
+        if stage_config["xattn_placement"] != "post_self_attn_pre_mlp":
+            raise ValueError(
+                "Unsupported structural cross-attention placement: "
+                f"{stage_config['xattn_placement']!r}"
+            )
+        if float(stage_config["xattn_gate_init"]) != 0.0:
+            raise ValueError("Unsupported xattn_gate_init; expected 0.0")
+        if bool(stage_config["xattn_enable_ff"]):
+            raise ValueError("Structural cross-attention FF must be disabled")
+        args.selected_xattn_layers_1based = tuple(
+            map(int, stage_config["selected_xattn_layers_1based"])
+        )
         for key in (
             "mem_dim", "max_slots", "every_n_layers", "xattn_heads",
             "xattn_dim_head", "xattn_ff_mult",
@@ -2021,6 +2039,14 @@ def main():
     rhs_candidate_bank = build_or_load_rhs_bank(args)
     tok = build_tokenizer(args.model)
     model = load_stage_model(args, tok)
+    if args.stage in {"stage2", "stage3"}:
+        actual_layers = tuple(model.structural_xattn_layer_indices)
+        if actual_layers != args.selected_xattn_layers_1based:
+            raise ValueError(
+                "Checkpoint structural layer selection does not match the "
+                f"runtime backbone: trained={args.selected_xattn_layers_1based}, "
+                f"runtime={actual_layers}"
+            )
     mem_bank = load_memory_bank(args.memory_dir) if args.stage in {"stage2", "stage3"} else None
 
     for n, p in model.named_parameters():
