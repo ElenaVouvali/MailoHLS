@@ -21,6 +21,9 @@ DATA_SOURCE = (
 MODEL_SOURCE = (
     Path(__file__).resolve().parents[1] / "model.py"
 ).read_text(encoding="utf-8")
+UTILS_SOURCE = (
+    Path(__file__).resolve().parents[1] / "utils.py"
+).read_text(encoding="utf-8")
 
 
 def _load_function(name, globals_dict):
@@ -77,7 +80,112 @@ def _load_model_function(name, globals_dict):
     return namespace[name]
 
 
+def _load_utils_function(name, globals_dict):
+    tree = ast.parse(UTILS_SOURCE)
+    node = next(
+        item for item in tree.body
+        if isinstance(item, ast.FunctionDef) and item.name == name
+    )
+    namespace = dict(globals_dict)
+    exec(compile(ast.Module(body=[node], type_ignores=[]), "utils.py", "exec"), namespace)
+    return namespace[name]
+
+
 class StageBHelperTests(unittest.TestCase):
+    def test_shared_initialization_hash_excludes_resource_state(self):
+        hash_state = _load_utils_function("hash_state_dict", {
+            "hashlib": __import__("hashlib"),
+            "torch": torch,
+        })
+        common = {"encoder.weight": torch.arange(6.0).reshape(2, 3)}
+        r0 = dict(common)
+        r1 = {
+            **common,
+            "resource_heads.bram.weight": torch.randn(1, 3),
+            "resource_mean": torch.randn(4),
+            "resource_std": torch.randn(4),
+        }
+        kwargs = {
+            "exclude_prefixes": ("resource_heads.",),
+            "exclude_names": ("resource_mean", "resource_std"),
+        }
+        self.assertEqual(hash_state(r0, **kwargs), hash_state(r1, **kwargs))
+        changed = {"encoder.weight": common["encoder.weight"] + 1}
+        self.assertNotEqual(
+            hash_state(r0, **kwargs), hash_state(changed, **kwargs)
+        )
+
+    def test_shared_initialization_hash_accepts_scalar_state(self):
+        hash_state = _load_utils_function("hash_state_dict", {
+            "hashlib": __import__("hashlib"),
+            "torch": torch,
+        })
+        first = hash_state({"gate": torch.tensor(0.0)})
+        second = hash_state({"gate": torch.tensor(0.0)})
+        changed = hash_state({"gate": torch.tensor(1.0)})
+        self.assertEqual(first, second)
+        self.assertNotEqual(first, changed)
+
+    def test_resource_training_diagnostics_capture_variation_and_baseline(self):
+        diagnose = _load_function("resource_training_diagnostics", {
+            "np": np,
+            "torch": torch,
+            "defaultdict": __import__("collections").defaultdict,
+            "RESOURCE_NAMES": ("bram", "dsp", "ff", "lut"),
+            "_sample_kernel": lambda sample: sample.kernel,
+            "json": __import__("json"),
+            "saver": SimpleNamespace(log_info=lambda message: None),
+        })
+        train = [
+            SimpleNamespace(kernel="a", resource_util=torch.tensor([[0., .2, .1, .3]])),
+            SimpleNamespace(kernel="a", resource_util=torch.tensor([[0., .2, .3, .5]])),
+            SimpleNamespace(kernel="b", resource_util=torch.tensor([[.4, .2, .2, .4]])),
+            SimpleNamespace(kernel="b", resource_util=torch.tensor([[.4, .2, .2, .4]])),
+        ]
+        stats = diagnose(train)
+        self.assertEqual(stats["bram"]["fraction_zero"], 0.5)
+        self.assertEqual(
+            stats["dsp"]["kernels_with_two_or_more_distinct_values"], 0
+        )
+        self.assertEqual(
+            stats["ff"]["kernels_with_two_or_more_distinct_values"], 1
+        )
+        self.assertEqual(
+            stats["dsp"]["train_mean_baseline_macro_kendall_tau"], 0.0
+        )
+        self.assertGreater(stats["ff"]["train_mean_baseline_mae"], 0.0)
+
+    def test_paired_comparison_requires_all_three_hashes(self):
+        require = _load_function("require_paired_comparison_contract", {
+            "json": __import__("json"),
+        })
+        import tempfile
+        import json
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json") as handle:
+            json.dump({
+                "resolved_flags": {
+                    "resource_aux_weight": 0.0,
+                    "rank_aux_weight": 0.0,
+                },
+                "dataset_manifest_sha256": "dataset",
+                "split_sha256": "split",
+                "shared_initialization_sha256": "init",
+            }, handle)
+            handle.flush()
+            require(
+                handle.name,
+                dataset_manifest_sha256="dataset",
+                split_sha256="split",
+                shared_initialization_sha256="init",
+            )
+            with self.assertRaisesRegex(RuntimeError, "Invalid paired"):
+                require(
+                    handle.name,
+                    dataset_manifest_sha256="dataset",
+                    split_sha256="different",
+                    shared_initialization_sha256="init",
+                )
+
     def test_resource_csv_order_and_percentage_conversion(self):
         functions = _load_data_functions({
             "_as_float", "resource_utilization_from_csv_row"

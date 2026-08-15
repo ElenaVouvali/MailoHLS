@@ -42,6 +42,10 @@ ACTION_ID_RE = re.compile(r"^L[1-9][0-9]*$")
 LOOP_RE = re.compile(r"^(pipeline|unroll)_([1-9][0-9]*)$")
 PARTIAL_ARRAY_RE = re.compile(r"^(block|cyclic)_([1-9][0-9]*)_([1-9][0-9]*)$")
 COMPLETE_ARRAY_RE = re.compile(r"^complete_([1-9][0-9]*)$")
+SOURCE_PLACEHOLDER_RE = re.compile(
+    r"auto\{_[A-Z0-9]+(?:_[A-Z0-9]+)*_(L[1-9][0-9]*)\}",
+    re.IGNORECASE,
+)
 
 UTILIZATION_FIELDS = {
     "BRAM_Utilization_percentage": "bram_util_%",
@@ -218,11 +222,65 @@ def load_actions(kernel: str, source_text: str) -> list[Action]:
     return actions
 
 
-def source_with_placeholders(source_path: Path) -> str:
+def expected_placeholder_lhs(
+    actions: list[Action],
+) -> set[str]:
+    expected = set()
+
+    for action in actions:
+        action_id = action.action_id.upper()
+
+        if action.kind == "loop":
+            expected.update({
+                f"AUTO{{_PIPE_{action_id}}}",
+                f"AUTO{{_UNROLL_{action_id}}}",
+            })
+        else:
+            expected.update({
+                f"AUTO{{_ARRAY_T_{action_id}}}",
+                f"AUTO{{_ARRAY_F_{action_id}}}",
+                f"AUTO{{_ARRAY_D_{action_id}}}",
+            })
+
+    return expected
+
+
+def source_with_placeholders(
+    source_path: Path,
+    actions: list[Action],
+) -> str:
     sys.path.insert(0, str(REPOSITORY_ROOT))
+
     from GNN_branch.insert_placeholders import insert_placeholders
 
-    return "".join(insert_placeholders(str(source_path))).strip()
+    allowed_labels = {
+        action.action_id.upper()
+        for action in actions
+    }
+
+    template = "".join(
+        insert_placeholders(
+            str(source_path),
+            allowed_labels=allowed_labels,
+        )
+    ).strip()
+
+    expected = expected_placeholder_lhs(actions)
+    observed = {
+        match.group(0).upper()
+        for match in SOURCE_PLACEHOLDER_RE.finditer(template)
+    }
+
+    missing = sorted(expected - observed)
+    extra = sorted(observed - expected)
+
+    if missing or extra:
+        raise ValueError(
+            f"Source/action placeholder mismatch for {source_path}: "
+            f"missing={missing}, extra={extra}"
+        )
+
+    return template
 
 
 def cell_text(row: pd.Series, column: str | None) -> str:
@@ -312,22 +370,11 @@ def build_examples(
             raise ValueError(f"{kernel} is absent from {APPLICATION_TABLE}")
         source_text = source_path.read_text(encoding="utf-8", errors="strict")
         actions = load_actions(kernel, source_text)
-        template = source_with_placeholders(source_path)
+        template = source_with_placeholders(
+            source_path,
+            actions,
+        )
         source_templates[kernel] = template
-
-        for action in actions:
-            required = (
-                [f"auto{{_PIPE_{action.action_id}}}", f"auto{{_UNROLL_{action.action_id}}}"]
-                if action.kind == "loop"
-                else [
-                    f"auto{{_ARRAY_T_{action.action_id}}}",
-                    f"auto{{_ARRAY_F_{action.action_id}}}",
-                    f"auto{{_ARRAY_D_{action.action_id}}}",
-                ]
-            )
-            missing = [placeholder for placeholder in required if placeholder not in template]
-            if missing:
-                raise ValueError(f"{kernel} source placeholder(s) missing: {missing}")
 
         frame = pd.read_csv(table_path, dtype={"Device": str})
         missing_columns = sorted(REQUIRED_TABLE_COLUMNS - set(frame.columns))

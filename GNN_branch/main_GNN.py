@@ -11,12 +11,9 @@ os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
 from config import FLAGS
 from train_GNN import train_main, inference
 from saver import saver
-from utils import load
+from utils import load, set_reproducible_seed
 
 from os.path import join, exists
-import random
-
-import numpy as np
 import torch
 
 import config
@@ -29,22 +26,6 @@ from mlir_data import get_data_list, MyOwnDataset
 import mlir_data as data
 
 SAVE_DIR = data.SAVE_DIR
-
-
-def set_reproducible_seed(seed):
-    """Seed model initialization and CPU/CUDA training randomness."""
-    seed = int(seed)
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
-    torch.use_deterministic_algorithms(
-        True,
-        warn_only=bool(FLAGS.allow_nondeterministic),
-    )
 
 
 def maybe_load_pragma_dim():
@@ -66,7 +47,9 @@ def maybe_load_pragma_dim():
 
 if __name__ == '__main__':
 
-    set_reproducible_seed(FLAGS.random_seed)
+    set_reproducible_seed(
+        FLAGS.random_seed, FLAGS.allow_nondeterministic
+    )
 
     # --------------------------------------------------
     # Dataset loading
@@ -78,6 +61,11 @@ if __name__ == '__main__':
         dataset = MyOwnDataset()
         pragma_dim = maybe_load_pragma_dim()
         saver.log_info(f'Read compact dataset from {SAVE_DIR} with {len(dataset)} samples')
+
+    # Dataset loading/regeneration may consume RNG. Reset before any split.
+    set_reproducible_seed(
+        FLAGS.random_seed, FLAGS.allow_nondeterministic
+    )
 
     # --------------------------------------------------
     # Inference helper

@@ -24,8 +24,51 @@ import signal
 import numpy as np
 import scipy.sparse as sp
 import sys
+import hashlib
 
 # from config import FLAGS
+
+
+def set_reproducible_seed(seed, allow_nondeterministic=False):
+    """Reset Python, NumPy, CPU, CUDA, and backend reproducibility state."""
+    seed = int(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    torch.use_deterministic_algorithms(
+        True, warn_only=bool(allow_nondeterministic)
+    )
+
+
+def hash_state_dict(
+    state_dict,
+    exclude_prefixes=(),
+    exclude_names=(),
+):
+    """Hash tensor names, dtypes, shapes, and bytes in canonical name order."""
+    excluded_names = set(exclude_names)
+    digest = hashlib.sha256()
+    for name in sorted(state_dict):
+        if name in excluded_names or any(
+            name.startswith(prefix) for prefix in exclude_prefixes
+        ):
+            continue
+        value = state_dict[name]
+        if not torch.is_tensor(value):
+            raise TypeError(f'Non-tensor state-dict entry: {name}')
+        tensor = value.detach().cpu().contiguous()
+        digest.update(name.encode('utf-8'))
+        digest.update(str(tensor.dtype).encode('ascii'))
+        digest.update(str(tuple(tensor.shape)).encode('ascii'))
+        # ``view(dtype)`` rejects zero-dimensional tensors when element sizes
+        # differ. Flatten first so scalar gates/buffers hash identically to
+        # every other contiguous state entry.
+        digest.update(tensor.reshape(-1).view(torch.uint8).numpy().tobytes())
+    return digest.hexdigest()
 
 def check_nx_version():
     nxvg = '2.2'

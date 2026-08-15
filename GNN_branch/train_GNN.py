@@ -4,7 +4,11 @@
 
 from config import FLAGS
 from saver import saver
-from utils import MLP, OurTimer, MLP_multi_objective, plot_loss_trend, _get_y_with_target, create_dir_if_not_exists, plot_lr_trend
+from utils import (
+    MLP, OurTimer, MLP_multi_objective, plot_loss_trend,
+    _get_y_with_target, create_dir_if_not_exists, plot_lr_trend,
+    hash_state_dict, set_reproducible_seed,
+)
 # from data import MyOwnDataset, get_kernel_samples, split_dataset, split_dataset_resample, split_train_test_kernel
 # import data
 from mlir_data import (
@@ -107,7 +111,8 @@ def _split_sha256(datasets):
 
 
 def write_gnn_checkpoint_contract(
-    *, num_features, edge_dim, target_stats, resource_stats, split_sha256
+    *, num_features, edge_dim, target_stats, resource_stats,
+    resource_diagnostics, split_sha256, shared_initialization_sha256
 ):
     global GNN_CHECKPOINT_CONTRACT_PATH
     feature_schema_path = Path(data.SCHEMA_PATH).resolve()
@@ -160,7 +165,9 @@ def write_gnn_checkpoint_contract(
         'dataset_manifest_sha256': _sha256_file(dataset_manifest_path),
         'target_stats': _jsonable(target_stats),
         'resource_stats': _jsonable(resource_stats),
+        'resource_diagnostics': _jsonable(resource_diagnostics),
         'split_sha256': split_sha256,
+        'shared_initialization_sha256': shared_initialization_sha256,
     }
     path = Path(saver.model_logdir) / 'gnn_checkpoint_contract.json'
     path.write_text(
@@ -346,6 +353,105 @@ def maybe_fit_resource_statistics(dataset, resource_aux_weight):
     if float(resource_aux_weight) <= 0.0:
         return None
     return fit_resource_statistics(dataset)
+
+
+def resource_training_diagnostics(dataset):
+    """Describe raw resource supervision using training points only."""
+    rows = []
+    kernels = []
+    for index in range(len(dataset)):
+        sample = dataset[index]
+        if not hasattr(sample, 'resource_util'):
+            raise RuntimeError(
+                'Dataset lacks resource_util; regenerate with --force_regen.'
+            )
+        values = sample.resource_util.reshape(-1).detach().cpu().numpy()
+        if values.shape != (len(RESOURCE_NAMES),):
+            raise RuntimeError(f'Expected four resources, got {values.shape}.')
+        if not np.isfinite(values).all() or np.any(values < 0.0):
+            raise RuntimeError('Invalid resource utilization target.')
+        rows.append(values.astype(np.float64))
+        kernels.append(_sample_kernel(sample))
+    if not rows:
+        raise RuntimeError('Cannot diagnose resources on an empty training split.')
+
+    matrix = np.stack(rows)
+    diagnostics = {}
+    for column, resource in enumerate(RESOURCE_NAMES):
+        values = matrix[:, column]
+        by_kernel = defaultdict(list)
+        for kernel, value in zip(kernels, values):
+            by_kernel[kernel].append(float(value))
+        kernel_variances = {
+            kernel: float(np.var(kernel_values))
+            for kernel, kernel_values in by_kernel.items()
+        }
+        distinct_kernel_count = sum(
+            len(set(kernel_values)) >= 2
+            for kernel_values in by_kernel.values()
+        )
+        train_mean = float(np.mean(values))
+        baseline_prediction = np.full_like(values, train_mean)
+        # A deterministic constant predictor has no ordering information.
+        baseline_tau = 0.0
+        diagnostics[resource] = {
+            'fraction_zero': float(np.mean(values == 0.0)),
+            'median_utilization': float(np.median(values)),
+            'p95_utilization': float(np.percentile(values, 95)),
+            'within_kernel_variance_mean': float(
+                np.mean(list(kernel_variances.values()))
+            ),
+            'within_kernel_variance_median': float(
+                np.median(list(kernel_variances.values()))
+            ),
+            'kernels_with_two_or_more_distinct_values': int(
+                distinct_kernel_count
+            ),
+            'kernel_count': int(len(by_kernel)),
+            'train_mean_baseline': train_mean,
+            'train_mean_baseline_mae': float(
+                np.mean(np.abs(baseline_prediction - values))
+            ),
+            'train_mean_baseline_macro_kendall_tau': baseline_tau,
+        }
+    saver.log_info(
+        'Training-only raw resource diagnostics: '
+        + json.dumps(diagnostics, sort_keys=True)
+    )
+    return diagnostics
+
+
+def require_paired_comparison_contract(
+    comparison_contract_path,
+    *, dataset_manifest_sha256, split_sha256,
+    shared_initialization_sha256,
+):
+    """Reject an R1 comparison unless its R0 causal invariants match."""
+    if not comparison_contract_path:
+        return
+    with open(comparison_contract_path, 'r', encoding='utf-8') as handle:
+        control = json.load(handle)
+    control_flags = control.get('resolved_flags', {})
+    if float(control_flags.get('resource_aux_weight', -1.0)) != 0.0:
+        raise RuntimeError('Paired control is not an R0 resource-disabled run.')
+    if float(control_flags.get('rank_aux_weight', -1.0)) != 0.0:
+        raise RuntimeError('Paired control did not keep rank auxiliary loss off.')
+    expected = {
+        'dataset_manifest_sha256': dataset_manifest_sha256,
+        'split_sha256': split_sha256,
+        'shared_initialization_sha256': shared_initialization_sha256,
+    }
+    mismatches = {
+        name: {'control': control.get(name), 'current': value}
+        for name, value in expected.items()
+        if control.get(name) != value
+    }
+    if mismatches:
+        raise RuntimeError(
+            'Invalid paired R0/R1 comparison: ' + json.dumps(
+                mismatches, sort_keys=True
+            )
+        )
 
 
 def _point_loss_from_error(error):
@@ -1288,6 +1394,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         )
 
     target_stats = fit_target_statistics(li[0])
+    resource_diagnostics = resource_training_diagnostics(li[0])
     resource_stats = maybe_fit_resource_statistics(
         li[0], FLAGS.resource_aux_weight
     )
@@ -1319,6 +1426,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             li[2] = KernelBalancedDataset(li[2])
 
     train_loader, val_loader, test_loader, num_features, edge_dim = gen_dataset(li)
+    set_reproducible_seed(
+        FLAGS.random_seed, FLAGS.allow_nondeterministic
+    )
     model = Net(
         num_features,
         edge_dim=edge_dim,
@@ -1326,12 +1436,30 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         target_stats=target_stats,
         resource_stats=resource_stats,
     ).to(FLAGS.device)
+    shared_initialization_sha256 = hash_state_dict(
+        model.state_dict(),
+        exclude_prefixes=('resource_heads.',),
+        exclude_names=('resource_mean', 'resource_std'),
+    )
+    # Optional heads may consume initialization RNG; realign later dropout.
+    set_reproducible_seed(
+        FLAGS.random_seed, FLAGS.allow_nondeterministic
+    )
+    dataset_manifest_sha256 = _sha256_file(Path(data.INDEX_PATH).resolve())
+    require_paired_comparison_contract(
+        FLAGS.paired_control_contract,
+        dataset_manifest_sha256=dataset_manifest_sha256,
+        split_sha256=split_sha256,
+        shared_initialization_sha256=shared_initialization_sha256,
+    )
     checkpoint_contract = write_gnn_checkpoint_contract(
         num_features=num_features,
         edge_dim=edge_dim,
         target_stats=target_stats,
         resource_stats=resource_stats,
+        resource_diagnostics=resource_diagnostics,
         split_sha256=split_sha256,
+        shared_initialization_sha256=shared_initialization_sha256,
     )
     assert_resource_contract_matches_state_dict(
         checkpoint_contract, model.state_dict()
