@@ -19,30 +19,8 @@ from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAn
 from LLM_branch.common import mailohls_contract, structural_xattn
 
 
-# ============================================================
-# Prompt / objective tokens
-# ============================================================
-PROMPT_TEMPLATE = """
-### Role: Expert FPGA/HLS engineer.
-
-### Task:
-The kernel marks each directive site with a source marker <SRC_Lk>.
-Predict only the directive RHS values for the given optimization goal.
-Anchors and directive names are fixed by the source code.
-
-### Kernel
-{code}
-
-### Objective
-{obj_token}
-
-### Directives
-""".lstrip()
-
-OBJ_TOKENS = {name: spec["token"] for name, spec in mailohls_contract.GOALS.items()}
-
-TARGET_PLACEHOLDER_TOKENS = [f"<L{i}>" for i in range(1, 65)]
-SOURCE_PLACEHOLDER_TOKENS = [f"<SRC_L{i}>" for i in range(1, 65)]
+TARGET_PLACEHOLDER_TOKENS = mailohls_contract.TARGET_PLACEHOLDER_TOKENS
+SOURCE_PLACEHOLDER_TOKENS = mailohls_contract.SOURCE_PLACEHOLDER_TOKENS
 
 
 # ============================================================
@@ -93,9 +71,9 @@ def normalize_kname(s: str) -> str:
 def mode_from_weights(w_lat: float, w_area: float) -> str:
     eps = 1e-9
     if abs(w_lat - 1.0) < eps and abs(w_area - 0.0) < eps:
-        return "PARETO_LATENCY_EXTREME"
+        return "PARETO_LATENCY"
     if abs(w_lat - 0.0) < eps and abs(w_area - 1.0) < eps:
-        return "PARETO_AREA_EXTREME"
+        return "PARETO_AREA"
     return "PARETO_ADP"
 
 
@@ -145,29 +123,7 @@ def dump_jsonl(path: str, rows: List[dict]):
 # Source / target formatting helpers
 # ============================================================
 def replace_source_labels_with_tokens(text: str) -> str:
-    if not isinstance(text, str):
-        return text
-
-    out = []
-    for line in text.splitlines():
-        stripped = line.lstrip()
-        indent = line[: len(line) - len(stripped)]
-
-        m = SOURCE_LABEL_RE.match(stripped)
-        if not m:
-            out.append(line)
-            continue
-
-        label = (m.group(1) or m.group(2)).upper()
-        rest = stripped[m.end():].lstrip()
-        src_tok = source_placeholder_token(label)
-
-        if rest:
-            out.append(f"{indent}{src_tok} {rest}")
-        else:
-            out.append(f"{indent}{src_tok}")
-
-    return "\n".join(out)
+    return mailohls_contract.replace_source_labels_with_tokens(text)
 
 
 def extract_source_label_order(source_text: str) -> List[str]:
@@ -366,60 +322,20 @@ def load_rows(jsonl_path: str) -> List[dict]:
     return rows
 
 
-def build_rhs_candidate_bank(rows: List[dict]) -> Dict[str, List[str]]:
-    by_kind = defaultdict(set)
-
-    for r in rows:
-        target_core = reorder_target_by_source_order(r["input"], r["target"].strip())
-        rhs_map = build_rhs_map_from_target(target_core)
-        for lhs, rhs in rhs_map.items():
-            rhs = rhs.strip()
-            if rhs and rhs != "?":
-                by_kind[lhs_kind(lhs)].add(rhs)
-
-    fallbacks = {
-        "PIPE": {"0", "1"},
-        "UNROLL": {"0", "1", "2", "4", "8", "16", "32", "64"},
-        "ARRAY_T": {"block", "cyclic", "complete"},
-        "ARRAY_F": {"0", "1", "2", "4", "8", "16", "32", "64"},
-        "ARRAY_D": {"1"},
-    }
-
-    out = {}
-    all_kinds = set(by_kind.keys()) | set(fallbacks.keys())
-    for kind in sorted(all_kinds):
-        vals = set(by_kind.get(kind, set()))
-        vals.update(fallbacks.get(kind, set()))
-        out[kind] = sorted(vals, key=_rhs_sort_key)
-
-    return out
+def load_directive_domain_registry(path: str) -> Dict[str, Dict[str, List[str]]]:
+    from LLM_branch.train.train_SFT_xattn_new import load_directive_domain_registry as load
+    return load(path)
 
 
-def save_rhs_candidate_bank(path: str, bank: Dict[str, List[str]]):
-    dump_json(path, bank)
-
-
-def load_rhs_candidate_bank(path: str) -> Dict[str, List[str]]:
-    with open(path, "r", encoding="utf-8") as f:
-        bank = json.load(f)
-    return {str(k): list(v) for k, v in bank.items()}
-
-
-def get_rhs_candidates_for_lhs(lhs: str, rhs_candidate_bank: Dict[str, List[str]]) -> List[str]:
-    kind = lhs_kind(lhs)
-    cands = rhs_candidate_bank.get(kind, [])
+def get_rhs_candidates_for_lhs(kernel_name, lhs, directive_domain_registry):
+    kernel = normalize_kname(kernel_name)
+    sites = directive_domain_registry.get(kernel)
+    if sites is None:
+        raise KeyError(f"No directive domains found for kernel={kernel_name!r}")
+    cands = sites.get(lhs.strip().upper(), [])
     if not cands:
-        raise KeyError(f"No RHS candidates found for lhs={lhs} kind={kind}")
+        raise KeyError(f"No legal RHS domain for kernel={kernel_name!r}, lhs={lhs!r}")
     return cands
-
-
-def maybe_filter_rows_for_candidate_bank(rows: List[dict], exclude_families: str) -> List[dict]:
-    fams = {normalize_name(x) for x in exclude_families.split(";") if x.strip()}
-    if not fams:
-        return rows
-    return [r for r in rows if normalize_name(r.get("_family", family_id_from_kernel_name(r["kernel_name"]))) not in fams]
-
-
 def objective_from_case_dict(ex: dict) -> Tuple[str, float, float]:
     if "w_lat" in ex and "w_area" in ex:
         w_lat, w_area = normalize_weight_pair(float(ex["w_lat"]), float(ex["w_area"]))
@@ -428,9 +344,9 @@ def objective_from_case_dict(ex: dict) -> Tuple[str, float, float]:
     if "obj_mode" in ex:
         obj_mode = str(ex["obj_mode"]).strip().upper()
 
-        if obj_mode == "PARETO_LATENCY_EXTREME":
+        if obj_mode == "PARETO_LATENCY":
             return obj_mode, 1.0, 0.0
-        if obj_mode == "PARETO_AREA_EXTREME":
+        if obj_mode == "PARETO_AREA":
             return obj_mode, 0.0, 1.0
         if obj_mode == "PARETO_ADP":
             return obj_mode, 0.5, 0.5
@@ -439,10 +355,10 @@ def objective_from_case_dict(ex: dict) -> Tuple[str, float, float]:
         obj = str(ex["objective"]).strip().lower()
 
         if obj in {"pareto_latency_extreme", "latency_extreme", "latency", "min_lat", "min_latency"}:
-            return "PARETO_LATENCY_EXTREME", 1.0, 0.0
+            return "PARETO_LATENCY", 1.0, 0.0
 
         if obj in {"pareto_area_extreme", "area_extreme", "area", "min_area"}:
-            return "PARETO_AREA_EXTREME", 0.0, 1.0
+            return "PARETO_AREA", 0.0, 1.0
 
         if obj in {"pareto_adp", "pareto_knee", "adp", "knee", "balanced", "balance"}:
             return "PARETO_ADP", 0.5, 0.5
@@ -845,7 +761,8 @@ def constrained_decode_rhs_by_candidate_scoring(
     tok,
     prompt_ids: List[int],
     source_text: str,
-    rhs_candidate_bank: Dict[str, List[str]],
+    kernel_name: str,
+    directive_domain_registry: Dict[str, Dict[str, List[str]]],
     score_reduction: str = "mean",
     harp_x: Optional[torch.Tensor] = None,
     harp_mask: Optional[torch.Tensor] = None,
@@ -897,7 +814,9 @@ def constrained_decode_rhs_by_candidate_scoring(
             input_ids, attention_mask = append_token_ids(input_ids, attention_mask, prefix_ids)
             parts.append(prefix_text)
 
-            candidates = get_rhs_candidates_for_lhs(lhs, rhs_candidate_bank)
+            candidates = get_rhs_candidates_for_lhs(
+                kernel_name, lhs, directive_domain_registry
+            )
             scored = []
 
             base_prefix_ids = input_ids[0].tolist()
@@ -1039,7 +958,7 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
 def build_tokenizer(tokenizer_source: str) -> AutoTokenizer:
     tok = AutoTokenizer.from_pretrained(tokenizer_source, trust_remote_code=True)
     special_tokens = (
-        list(OBJ_TOKENS.values())
+        [spec["token"] for spec in mailohls_contract.GOALS.values()]
         + list(mailohls_contract.DEVICE_TOKEN_MAP.values())
         + [mailohls_contract.UNKNOWN_DEVICE_TOKEN, mailohls_contract.ADAPTED_DEVICE_TOKEN]
         + list(mailohls_contract.PERIOD_TOKEN_MAP.values())
@@ -1235,7 +1154,7 @@ def predict_case(
     model,
     tok,
     case: InferenceCase,
-    rhs_candidate_bank: Dict[str, List[str]],
+    directive_domain_registry: Dict[str, Dict[str, List[str]]],
     stage: str,
     max_prompt_tokens: int,
     mem_bank: Optional[Dict[str, dict]],
@@ -1298,7 +1217,8 @@ def predict_case(
             tok=tok,
             prompt_ids=prompt_ids,
             source_text=case.source_text,
-            rhs_candidate_bank=rhs_candidate_bank,
+            kernel_name=case.kernel_name,
+            directive_domain_registry=directive_domain_registry,
             score_reduction=score_reduction,
             harp_x=harp_x,
             harp_mask=harp_mask,
@@ -1388,9 +1308,9 @@ def build_single_case_from_args(args) -> InferenceCase:
         obj = args.objective.strip().lower()
 
         if obj in {"pareto_latency_extreme", "latency_extreme", "latency", "min_lat", "min_latency"}:
-            obj_mode, w_lat, w_area = "PARETO_LATENCY_EXTREME", 1.0, 0.0
+            obj_mode, w_lat, w_area = "PARETO_LATENCY", 1.0, 0.0
         elif obj in {"pareto_area_extreme", "area_extreme", "area", "min_area"}:
-            obj_mode, w_lat, w_area = "PARETO_AREA_EXTREME", 0.0, 1.0
+            obj_mode, w_lat, w_area = "PARETO_AREA", 0.0, 1.0
         elif obj in {"pareto_adp", "pareto_knee", "adp", "knee", "balanced", "balance"}:
             obj_mode, w_lat, w_area = "PARETO_ADP", 0.5, 0.5
         else:
@@ -1426,27 +1346,6 @@ def load_cases(args) -> List[InferenceCase]:
     return [build_single_case_from_args(args)]
 
 
-def build_or_load_rhs_bank(args) -> Dict[str, List[str]]:
-    if args.rhs_candidate_bank_json:
-        bank = load_rhs_candidate_bank(args.rhs_candidate_bank_json)
-        print("[BANK] Loaded RHS candidate bank from JSON")
-        return bank
-
-    if not args.candidate_bank_dataset:
-        raise ValueError("Provide either --rhs_candidate_bank_json or --candidate_bank_dataset")
-
-    rows = load_rows(args.candidate_bank_dataset)
-    rows = maybe_filter_rows_for_candidate_bank(rows, args.candidate_bank_exclude_families)
-    bank = build_rhs_candidate_bank(rows)
-    print("[BANK] Built RHS candidate bank from dataset")
-
-    if args.save_rhs_candidate_bank_json:
-        save_rhs_candidate_bank(args.save_rhs_candidate_bank_json, bank)
-        print(f"[BANK] Saved RHS candidate bank -> {args.save_rhs_candidate_bank_json}")
-
-    return bank
-
-
 # ============================================================
 # Main
 # ============================================================
@@ -1462,11 +1361,7 @@ def main():
     ap.add_argument("--no_4bit", action="store_true")
     ap.add_argument("--device_map", type=str, default="auto")
 
-    # candidate bank
-    ap.add_argument("--candidate_bank_dataset", type=str, default="")
-    ap.add_argument("--candidate_bank_exclude_families", type=str, default="")
-    ap.add_argument("--rhs_candidate_bank_json", type=str, default="")
-    ap.add_argument("--save_rhs_candidate_bank_json", type=str, default="")
+    ap.add_argument("--directive_domain_registry_json", type=str, required=True)
 
     # stage2 memory
     ap.add_argument("--memory_dir", type=str, default="")
@@ -1596,7 +1491,9 @@ def main():
             )
     for case in cases:
         mailohls_contract.target_prompt_fields(case.platform_row)
-    rhs_candidate_bank = build_or_load_rhs_bank(args)
+    directive_domain_registry = load_directive_domain_registry(
+        args.directive_domain_registry_json
+    )
     tok = build_tokenizer(args.model)
     if args.stage in {"stage2", "stage3"}:
         expected_tokens = training_contract.get("special_tokens")
@@ -1630,7 +1527,7 @@ def main():
             model=model,
             tok=tok,
             case=case,
-            rhs_candidate_bank=rhs_candidate_bank,
+            directive_domain_registry=directive_domain_registry,
             stage=args.stage,
             max_prompt_tokens=args.max_prompt_tokens,
             mem_bank=mem_bank,

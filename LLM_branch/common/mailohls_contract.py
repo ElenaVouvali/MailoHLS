@@ -35,10 +35,26 @@ LUT={avail_lut} ({avail_lut_pct:.1f}% of device)
 
 PROMPT_SUFFIX = "\n\n### Selected Clock and Directives\n"
 GOALS = {
-    "PARETO_LATENCY_EXTREME": {"token": "<OBJ=PARETO_LATENCY_EXTREME>", "tag": "pareto_latency_extreme"},
+    "PARETO_LATENCY": {
+        "token": "<OBJ=PARETO_LATENCY>",
+        "tag": "pareto_latency",
+    },
     "PARETO_ADP": {"token": "<OBJ=PARETO_ADP>", "tag": "pareto_adp"},
-    "PARETO_AREA_EXTREME": {"token": "<OBJ=PARETO_AREA_EXTREME>", "tag": "pareto_area_extreme"},
+    "PARETO_AREA": {
+        "token": "<OBJ=PARETO_AREA>",
+        "tag": "pareto_area",
+    },
 }
+GOAL_ORDER = tuple(GOALS)
+
+
+def resolve_objectives(objective: str):
+    """Expand the shared-adapter objective selector in canonical order."""
+    if objective == "ALL":
+        return GOAL_ORDER
+    if objective not in GOALS:
+        raise ValueError(f"Unsupported objective: {objective!r}")
+    return (objective,)
 DEVICE_TOKEN_MAP = {
     "xczu7ev-ffvc1156-2-e": "<DEV=XCZU7EV_FFVC1156_2E>",
     "xcu200-fsgd2104-2-e": "<DEV=XCU200_FSGD2104_2E>",
@@ -58,6 +74,19 @@ RESOURCE_KEYS = ("BRAM_18K", "DSP", "FF", "LUT")
 AVAIL_FIELD_BY_RESOURCE = {
     "BRAM_18K": "avail_bram", "DSP": "avail_dsp", "FF": "avail_ff", "LUT": "avail_lut"
 }
+UTIL_FIELD_BY_RESOURCE = {
+    "BRAM_18K": "bram_util_%",
+    "DSP": "dsp_util_%",
+    "FF": "ff_util_%",
+    "LUT": "lut_util_%",
+}
+DEVICE_MODES = ("known", "resource_dropout_ablation", "device_adapt")
+TARGET_PLATFORM_TOKENS = (
+    sorted(set(DEVICE_TOKEN_MAP.values()))
+    + [UNKNOWN_DEVICE_TOKEN, ADAPTED_DEVICE_TOKEN]
+    + list(PERIOD_TOKEN_MAP.values())
+    + [AUTO_PERIOD_TOKEN, CLOCK_ANCHOR_TOKEN]
+)
 
 SOURCE_LABEL_RE = re.compile(r"^\s*(?:/\*\s*(L\d+)\s*:\s*\*/|(L\d+)\s*:)", re.IGNORECASE)
 TARGET_LINE_LABEL_RE = re.compile(r"auto\{_[A-Z0-9]+(?:_[A-Z0-9]+)*_(L\d+)\}\s*=", re.IGNORECASE)
@@ -173,3 +202,13 @@ def build_prompt(code: str, obj_mode: str, prompt_fields: dict) -> str:
         + replace_source_labels_with_tokens(code)
         + PROMPT_SUFFIX
     )
+
+
+def build_prompt_sections(code: str, obj_mode: str, prompt_fields: dict):
+    """Return the canonical prompt in independently tokenizable sections."""
+    if obj_mode not in GOALS:
+        raise ValueError(f"Unsupported objective: {obj_mode!r}")
+    header = PROMPT_TEMPLATE.format(
+        obj_token=GOALS[obj_mode]["token"], **prompt_fields
+    )
+    return header, replace_source_labels_with_tokens(code), PROMPT_SUFFIX

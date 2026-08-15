@@ -239,9 +239,9 @@ class GoalPreferencePairBuilder:
         return float(lat_gain), float(area_gain)
 
     def _primary_gain_ok(self, lat_gain: float, area_gain: float):
-        if self.objective == "PARETO_LATENCY_EXTREME":
+        if self.objective == "PARETO_LATENCY":
             return lat_gain >= self.min_primary_rel_gain
-        if self.objective == "PARETO_AREA_EXTREME":
+        if self.objective == "PARETO_AREA":
             return area_gain >= self.min_primary_rel_gain
 
         better_axis = max(lat_gain, area_gain)
@@ -411,8 +411,8 @@ def audit_preference_pairs(name: str, rows: List[dict]) -> None:
     gaps = [float(r["score_gap"]) for r in rows]
     diff_counts = [int(r["directive_diff_count"]) for r in rows]
     diff_fracs = [float(r["directive_diff_frac"]) for r in rows]
-    lat_gains = [float(r["latency_rel_gain"]) for r in rows if r["obj_mode"] == "PARETO_LATENCY_EXTREME"]
-    area_gains = [float(r["area_rel_gain"]) for r in rows if r["obj_mode"] == "PARETO_AREA_EXTREME"]    
+    lat_gains = [float(r["latency_rel_gain"]) for r in rows if r["obj_mode"] == "PARETO_LATENCY"]
+    area_gains = [float(r["area_rel_gain"]) for r in rows if r["obj_mode"] == "PARETO_AREA"]
 
     print(f"  total pairs                 : {len(rows)}")
     print(f"  kernel-objective buckets    : {len(by_kernel_obj)}")
@@ -1113,14 +1113,15 @@ def cleanup_cuda():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", type=str, required=True)
+    ap.add_argument("--directive_domain_registry_json", type=str, required=True)
     ap.add_argument("--memory_dir", type=str, required=True)
     ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-7b-base")
     ap.add_argument("--sft_script", type=str, required=True)
 
     ap.add_argument("--objective", type=str, required=True, choices=[
-        "PARETO_LATENCY_EXTREME",
+        "PARETO_LATENCY",
         "PARETO_KNEE",
-        "PARETO_AREA_EXTREME",
+        "PARETO_AREA",
     ])
 
     ap.add_argument("--stage1_adapter_dir", type=str, required=True)
@@ -1323,7 +1324,9 @@ def main():
     if hasattr(policy_model, "print_trainable_parameters"):
         policy_model.print_trainable_parameters()
 
-    rhs_candidate_bank = mod.build_rhs_candidate_bank(train_rows)
+    directive_domain_registry = mod.load_directive_domain_registry(
+        args.directive_domain_registry_json
+    )
 
     selection_cases = mod.build_selection_cases(
         val_rows,
@@ -1392,7 +1395,7 @@ def main():
             mod.StageValSelectionCallback(
                 tokenizer=tokenizer,
                 selection_cases=selection_cases,
-                rhs_candidate_bank=rhs_candidate_bank,
+                directive_domain_registry=directive_domain_registry,
                 output_dir=args.output_dir,
                 max_prompt_tokens=args.max_length,
                 candidate_score_reduction="mean",

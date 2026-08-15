@@ -73,94 +73,15 @@ def current_git_commit() -> str:
         return "unknown"
 
 
-# ==============================
-# Prompt
-# ==============================
-
-PROMPT_TEMPLATE = """
-### Role: Expert FPGA/HLS engineer.
-
-### Task:
-The kernel marks each directive site with a source marker <SRC_Lk>.
-Predict only the directive RHS values for the given optimization goal and target platform.
-Anchors and directive names are fixed by the source code.
-
-### Target Platform
-Device: {device_token}
-Target clock period: {period_token}
-
-Available resources:
-BRAM_18K={avail_bram}
-DSP={avail_dsp}
-FF={avail_ff}
-LUT={avail_lut}
-
-### Objective
-{obj_token}
-
-### Kernel
-{code}
-
-### Directives
-""".lstrip()
-
-
-
-# ==============================
-# Device / Period as input
-# ==============================
-
-DEVICE_RESOURCES = {
-    "xczu7ev-ffvc1156-2-e": {
-        "BRAM_18K": 624,
-        "DSP": 1728,
-        "FF": 460800,
-        "LUT": 230400,
-    },
-    "xcu200-fsgd2104-2-e": {
-        "BRAM_18K": 4320,
-        "DSP": 6840,
-        "FF": 2364480,
-        "LUT": 1182240,
-    },
-}
-
-RESOURCE_KEYS = ("BRAM_18K", "DSP", "FF", "LUT")
-
-UTIL_FIELD_BY_RESOURCE = {
-    "BRAM_18K": "bram_util_%",
-    "DSP": "dsp_util_%",
-    "FF": "ff_util_%",
-    "LUT": "lut_util_%",
-}
-
-AVAIL_FIELD_BY_RESOURCE = {
-    "BRAM_18K": "avail_bram",
-    "DSP": "avail_dsp",
-    "FF": "avail_ff",
-    "LUT": "avail_lut",
-}
-
-DEVICE_TOKEN_MAP = {
-    "xczu7ev-ffvc1156-2-e": "<DEV=XCZU7EV_FFVC1156_2E>",
-    "xcu200-fsgd2104-2-e": "<DEV=XCU200_FSGD2104_2E>",
-}
-
-UNKNOWN_DEVICE_TOKEN = "<DEV=UNKNOWN>"
-
-PERIOD_TOKEN_MAP = {
-    10.0: "<CLK=10NS>",
-    5.0: "<CLK=5NS>",
-    3.33: "<CLK=3P33NS>",
-}
-
-CLOCK_ANCHOR_TOKEN = "<CLOCK>"
-
-TARGET_PLATFORM_TOKENS = (
-    sorted(set(DEVICE_TOKEN_MAP.values()))
-    + [UNKNOWN_DEVICE_TOKEN]
-    + ["<CLK=10NS>", "<CLK=5NS>", "<CLK=3P33NS>"]
-)
+DEVICE_RESOURCES = mailohls_contract.DEVICE_RESOURCES
+RESOURCE_KEYS = mailohls_contract.RESOURCE_KEYS
+UTIL_FIELD_BY_RESOURCE = mailohls_contract.UTIL_FIELD_BY_RESOURCE
+AVAIL_FIELD_BY_RESOURCE = mailohls_contract.AVAIL_FIELD_BY_RESOURCE
+DEVICE_TOKEN_MAP = mailohls_contract.DEVICE_TOKEN_MAP
+UNKNOWN_DEVICE_TOKEN = mailohls_contract.UNKNOWN_DEVICE_TOKEN
+PERIOD_TOKEN_MAP = mailohls_contract.PERIOD_TOKEN_MAP
+CLOCK_ANCHOR_TOKEN = mailohls_contract.CLOCK_ANCHOR_TOKEN
+TARGET_PLATFORM_TOKENS = mailohls_contract.TARGET_PLATFORM_TOKENS
 
 
 def _norm_device(device: Any) -> str:
@@ -279,18 +200,14 @@ def _avail_resource_tuple(row: dict) -> Tuple[int, int, int, int]:
 # Objective + placeholder tokens
 # ==============================
 
-GOALS = {
-    "PARETO_LATENCY_EXTREME": {"token": "<OBJ=PARETO_LATENCY>", "tag": "pareto_latency"},
-    "PARETO_ADP": {"token": "<OBJ=PARETO_ADP>", "tag": "pareto_adp"},
-    "PARETO_AREA_EXTREME": {"token": "<OBJ=PARETO_AREA>", "tag": "pareto_area"},
-}
-GOAL_ORDER = tuple(GOALS.keys())
+GOALS = mailohls_contract.GOALS
+GOAL_ORDER = tuple(GOALS)
 
 # Target anchors used in the generated directives
-TARGET_PLACEHOLDER_TOKENS = [f"<L{i}>" for i in range(1, 65)]
+TARGET_PLACEHOLDER_TOKENS = mailohls_contract.TARGET_PLACEHOLDER_TOKENS
 
 # Source-only structural markers used inside the kernel code
-SOURCE_PLACEHOLDER_TOKENS = [f"<SRC_L{i}>" for i in range(1, 65)]
+SOURCE_PLACEHOLDER_TOKENS = mailohls_contract.SOURCE_PLACEHOLDER_TOKENS
 
 
 def source_placeholder_token(label: str) -> str:
@@ -338,13 +255,7 @@ LHS_KIND_RE = re.compile(
     re.IGNORECASE,
 )
 
-AUTO_PERIOD_TOKEN = "<CLK=AUTO>"
-TARGET_PLATFORM_TOKENS = (
-    sorted(set(DEVICE_TOKEN_MAP.values()))
-    + [UNKNOWN_DEVICE_TOKEN]
-    + list(PERIOD_TOKEN_MAP.values())
-    + [AUTO_PERIOD_TOKEN]
-)
+AUTO_PERIOD_TOKEN = mailohls_contract.AUTO_PERIOD_TOKEN
 
 
 
@@ -353,37 +264,7 @@ TARGET_PLATFORM_TOKENS = (
 # ===========================================
 
 def replace_source_labels_with_tokens(text: str) -> str:
-    """
-    Replace source labels:
-        L1: for (...)
-        /* L2: */ for (...)
-    with source-only structural tokens:
-        <SRC_L1> for (...)
-        <SRC_L2> for (...)
-    """
-    if not isinstance(text, str):
-        return text
-
-    out = []
-    for line in text.splitlines():
-        stripped = line.lstrip()
-        indent = line[: len(line) - len(stripped)]
-
-        m = SOURCE_LABEL_RE.match(stripped)
-        if not m:
-            out.append(line)
-            continue
-
-        label = (m.group(1) or m.group(2)).upper()
-        rest = stripped[m.end():].lstrip()
-
-        src_tok = source_placeholder_token(label)
-        if rest:
-            out.append(f"{indent}{src_tok} {rest}")
-        else:
-            out.append(f"{indent}{src_tok}")
-
-    return "\n".join(out)
+    return mailohls_contract.replace_source_labels_with_tokens(text)
 
 
 def extract_source_label_order(source_text: str) -> List[str]:
@@ -540,6 +421,7 @@ def build_deterministic_rhs_pack(
     tok,
     value_w: float = 1.0,
     kind_loss_weights: Optional[Dict[str, float]] = None,
+    supervise_eos: bool = False,
 ) -> DeterministicRHSPack:
     """
     Build the deterministic target sequence for RHS-only training.
@@ -585,18 +467,43 @@ def build_deterministic_rhs_pack(
         add_rhs(rhs + "\n", weight) # add per-token supervision weighting by directive kind 
                                     # (most difficult directive kind --> larger weight)
 
-    # EOS token is supervised, the model is encouraged to terminate correctly
-    eos_ids = tok(tok.eos_token, add_special_tokens=False)["input_ids"]
-    input_ids.extend(eos_ids)
-    labels.extend(eos_ids)
-    token_weights.extend([value_w] * len(eos_ids))
-    xattn_target_mask.extend([0] * len(eos_ids))
+    if supervise_eos:
+        eos_ids = tok(tok.eos_token, add_special_tokens=False)["input_ids"]
+        input_ids.extend(eos_ids)
+        labels.extend(eos_ids)
+        token_weights.extend([value_w] * len(eos_ids))
+        xattn_target_mask.extend([0] * len(eos_ids))
 
     return DeterministicRHSPack(
         input_ids=input_ids,
         labels=labels,
         token_weights=token_weights,
         xattn_target_mask=xattn_target_mask,
+    )
+
+
+def build_clock_pack(
+    row: Mapping[str, Any],
+    tok,
+    value_w: float = 1.0,
+) -> DeterministicRHSPack:
+    """Keep the clock schema fixed and supervise only its numeric RHS."""
+    selected = row.get("selected_clock_period")
+    if selected in (None, ""):
+        selected = _clock_of(row)
+    fixed_ids = tok(
+        f"{CLOCK_ANCHOR_TOKEN}\nselected_clock_period_ns = ",
+        add_special_tokens=False,
+    )["input_ids"]
+    value_ids = tok(
+        f"{_norm_clock(selected):g}\n",
+        add_special_tokens=False,
+    )["input_ids"]
+    return DeterministicRHSPack(
+        input_ids=fixed_ids + value_ids,
+        labels=[-100] * len(fixed_ids) + value_ids,
+        token_weights=[0.0] * len(fixed_ids) + [value_w] * len(value_ids),
+        xattn_target_mask=[0] * (len(fixed_ids) + len(value_ids)),
     )
 
 
@@ -1094,6 +1001,10 @@ STAGE1_COMPATIBILITY_FIELDS = (
     "embedding_weights_tied",
     "trainable_token_modules",
     "special_token_role",
+    "supervise_eos",
+    "directive_domain_registry_sha256",
+    "directive_loss_weighting",
+    "directive_loss_weights",
     "max_length",
     "top_k",
     "device_mode",
@@ -1592,40 +1503,97 @@ def _rhs_sort_key(rhs: str):
     return (1, s.lower(), s)
 
 
-LEGAL_RHS_BY_KIND = {   # derived from our dataset
-    "PIPE": {"0", "1"},
-    "UNROLL": {"0", "2", "3", "4", "5", "8", "10", "15", "16", "17", "31", "32", "34", "36", "62", "63", "64"},
-    "ARRAY_T": {"block", "cyclic", "complete"},
-    "ARRAY_F": {"0", "2", "4", "8", "16", "32", "64", "128"},
-    "ARRAY_D": {"1", "2"},
-}
+DIRECTIVE_DOMAIN_REGISTRY_SCHEMA = "mailohls-directive-domain-registry-v1"
 
 
-def build_rhs_candidate_bank(rows: List[dict]) -> Dict[str, List[str]]:
-    by_kind = defaultdict(set)
+def load_directive_domain_registry(path: str) -> Dict[str, Dict[str, List[str]]]:
+    """Load exact legal RHS domains keyed by kernel and directive site."""
+    with open(path, "r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    if isinstance(payload, dict) and "kernels" in payload:
+        schema = payload.get("schema")
+        if schema != DIRECTIVE_DOMAIN_REGISTRY_SCHEMA:
+            raise ValueError(f"Unsupported directive registry schema: {schema!r}")
+        payload = payload["kernels"]
+    if not isinstance(payload, dict) or not payload:
+        raise ValueError("Directive domain registry must contain kernel mappings")
 
-    for r in rows:
-        target_core = reorder_target_by_source_order(r["input"], r["target"].strip())
-        rhs_map = build_rhs_map_from_target(target_core)
-        for lhs, rhs in rhs_map.items():
-            rhs = rhs.strip()
-            if rhs and rhs != "?":
-                by_kind[lhs_kind(lhs)].add(rhs)
+    registry: Dict[str, Dict[str, List[str]]] = {}
+    for raw_kernel, raw_sites in payload.items():
+        kernel = normalize_kname(str(raw_kernel))
+        if kernel in registry:
+            raise ValueError(f"Duplicate normalized kernel in directive registry: {kernel}")
+        if not isinstance(raw_sites, dict) or not raw_sites:
+            raise ValueError(f"Kernel {raw_kernel!r} has no directive domains")
+        sites: Dict[str, List[str]] = {}
+        for raw_lhs, raw_values in raw_sites.items():
+            lhs = str(raw_lhs).strip()
+            lhs_kind(lhs)  # validate the site syntax
+            normalized_lhs = lhs.upper()
+            if normalized_lhs in sites:
+                raise ValueError(
+                    f"Duplicate normalized directive site: {raw_kernel}/{lhs}"
+                )
+            if not isinstance(raw_values, list) or not raw_values:
+                raise ValueError(f"Directive site {raw_kernel}/{lhs} has an empty domain")
+            values = [str(value).strip() for value in raw_values]
+            if any(not value or value == "?" for value in values):
+                raise ValueError(f"Directive site {raw_kernel}/{lhs} has an invalid RHS")
+            if len(values) != len(set(values)):
+                raise ValueError(f"Directive site {raw_kernel}/{lhs} has duplicate RHS values")
+            sites[normalized_lhs] = sorted(values, key=_rhs_sort_key)
+        registry[kernel] = sites
+    return registry
 
-    out = {}
-    for kind in sorted(set(by_kind) | set(LEGAL_RHS_BY_KIND)):
-        vals = set(LEGAL_RHS_BY_KIND.get(kind, set()))
-        vals.update(by_kind.get(kind, set()))
-        out[kind] = sorted(vals, key=_rhs_sort_key)
-    return out
 
-
-def get_rhs_candidates_for_lhs(lhs: str, rhs_candidate_bank: Dict[str, List[str]]) -> List[str]:
-    kind = lhs_kind(lhs)
-    cands = rhs_candidate_bank.get(kind, [])
+def get_rhs_candidates_for_lhs(
+    kernel_name: str,
+    lhs: str,
+    directive_domain_registry: Dict[str, Dict[str, List[str]]],
+) -> List[str]:
+    kernel = normalize_kname(kernel_name)
+    sites = directive_domain_registry.get(kernel)
+    if sites is None:
+        raise KeyError(f"No directive domains found for kernel={kernel_name!r}")
+    cands = sites.get(lhs.strip().upper(), [])
     if not cands:
-        raise KeyError(f"No RHS candidates found for lhs={lhs} kind={kind}")
+        raise KeyError(f"No legal RHS domain for kernel={kernel_name!r}, lhs={lhs!r}")
     return cands
+
+
+DIRECTIVE_WEIGHT_MIN = 0.5
+DIRECTIVE_WEIGHT_MAX = 2.0
+
+
+def compute_directive_loss_weights(
+    train_rows: Sequence[Mapping[str, Any]],
+    mode: str,
+) -> Dict[str, float]:
+    """Derive optional directive balancing from the selected training split."""
+    if mode == "uniform":
+        return {}
+    if mode != "inverse_sqrt_frequency":
+        raise ValueError(f"Unsupported directive loss weighting: {mode}")
+
+    counts: Counter = Counter()
+    for row in train_rows:
+        target_core = reorder_target_by_source_order(
+            row["input"], str(row["target"]).strip()
+        )
+        for lhs, rhs in build_rhs_map_from_target(target_core).items():
+            if rhs.strip() and rhs.strip() != "?":
+                counts[lhs_kind(lhs)] += 1
+    if not counts:
+        raise ValueError("Cannot balance directive loss: training split has no RHS targets")
+
+    total = float(sum(counts.values()))
+    return {
+        kind: min(
+            DIRECTIVE_WEIGHT_MAX,
+            max(DIRECTIVE_WEIGHT_MIN, math.sqrt(total / float(count))),
+        )
+        for kind, count in sorted(counts.items())
+    }
 
 
 @torch.no_grad()
@@ -1772,7 +1740,8 @@ def constrained_decode_rhs_by_candidate_scoring(
     tok,
     prompt_ids: List[int],
     source_text: str,
-    rhs_candidate_bank: Dict[str, List[str]],
+    kernel_name: str,
+    directive_domain_registry: Dict[str, Dict[str, List[str]]],
     score_reduction: str = "mean",
     harp_x: Optional[torch.Tensor] = None,
     harp_mask: Optional[torch.Tensor] = None,
@@ -1813,7 +1782,9 @@ def constrained_decode_rhs_by_candidate_scoring(
             input_ids, attention_mask = append_token_ids(input_ids, attention_mask, prefix_ids)
             parts.append(prefix_text)
 
-            candidates = get_rhs_candidates_for_lhs(lhs, rhs_candidate_bank)
+            candidates = get_rhs_candidates_for_lhs(
+                kernel_name, lhs, directive_domain_registry
+            )
 
             scored = []
             effective_batch_size = 1 if use_harp else candidate_batch_size
@@ -1968,7 +1939,7 @@ class StageValSelectionCallback(TrainerCallback):
         self,
         tokenizer,
         selection_cases: List[SelectionCase],
-        rhs_candidate_bank: Dict[str, List[str]],
+        directive_domain_registry: Dict[str, Dict[str, List[str]]],
         output_dir: str,
         max_prompt_tokens: int = 7168,
         candidate_score_reduction: str = "mean",
@@ -1982,7 +1953,7 @@ class StageValSelectionCallback(TrainerCallback):
     ):
         self.tok = tokenizer
         self.selection_cases = selection_cases
-        self.rhs_candidate_bank = rhs_candidate_bank
+        self.directive_domain_registry = directive_domain_registry
         self.output_dir = output_dir
         self.max_prompt_tokens = max_prompt_tokens
         self.candidate_score_reduction = candidate_score_reduction
@@ -2026,7 +1997,8 @@ class StageValSelectionCallback(TrainerCallback):
             tok=self.tok,
             prompt_ids=prompt_ids,
             source_text=case.source_text,
-            rhs_candidate_bank=self.rhs_candidate_bank,
+            kernel_name=case.kernel_name,
+            directive_domain_registry=self.directive_domain_registry,
             score_reduction=self.candidate_score_reduction,
             harp_x=harp_x,
             harp_mask=harp_mask,
@@ -3079,10 +3051,8 @@ def build_default_stage_arguments(args):
 # Unified target conditioning
 # =============================================================================
 
-DEVICE_MODES = ("known", "resource_dropout_ablation", "device_adapt")
-ADAPTED_DEVICE_TOKEN = "<DEV=UNKNOWN>"
-AUTO_PERIOD_TOKEN = "<CLK=AUTO>"
-CLOCK_ANCHOR_TOKEN = "<CLOCK>"
+DEVICE_MODES = mailohls_contract.DEVICE_MODES
+ADAPTED_DEVICE_TOKEN = mailohls_contract.ADAPTED_DEVICE_TOKEN
 
 
 @dataclass
@@ -3103,36 +3073,6 @@ class TargetAwareConfig:
 
 
 TARGET_CFG = TargetAwareConfig()
-
-TARGET_PROMPT_HEADER = """
-### Role: Expert FPGA/HLS engineer.
-
-### Task:
-The kernel marks each directive site with a source marker <SRC_Lk>.
-Select the directive RHS values for the optimization goal and target platform.
-If the clock is <CLK=AUTO>, also select the best supported clock period.
-Anchors and directive names are fixed by the source code.
-
-### Target Platform
-Device class: {device_token}
-Device name: {device_name}
-Target clock period: {period_token}
-Supported measured clock periods: {supported_clock_periods}
-
-Available resources:
-BRAM_18K={avail_bram} ({avail_bram_pct:.1f}% of device)
-DSP={avail_dsp} ({avail_dsp_pct:.1f}% of device)
-FF={avail_ff} ({avail_ff_pct:.1f}% of device)
-LUT={avail_lut} ({avail_lut_pct:.1f}% of device)
-
-### Objective
-{obj_token}
-
-### Kernel
-""".lstrip()
-
-TARGET_PROMPT_SUFFIX = "\n\n### Selected Clock and Directives\n"
-
 
 def load_device_specs(path: str) -> None:
     """Extend the device-capacity registry from a small JSON file.
@@ -3218,12 +3158,7 @@ def filter_rows_for_device_mode(rows: List[dict]) -> List[dict]:
 
 
 def period_token_from_clock(clock_period: Any) -> str:
-    cp = _norm_clock(clock_period)
-    for known_cp, token in PERIOD_TOKEN_MAP.items():
-        if abs(cp - float(known_cp)) < 0.02:
-            return token
-    text = f"{cp:.2f}".rstrip("0").rstrip(".").replace(".", "P")
-    return f"<CLK={text}NS>"
+    return mailohls_contract.period_token_from_clock(clock_period)
 
 
 def _clock_of(row: Mapping[str, Any]) -> float:
@@ -3269,10 +3204,10 @@ def build_prompt_sections(
     device_token_dropout: float = 0.0,
 ) -> Tuple[str, str, str, dict]:
     fields = target_prompt_fields(row, device_token_dropout)
-    header = TARGET_PROMPT_HEADER.format(
-        obj_token=GOALS[obj_mode]["token"], **fields
+    header, canonical_code, suffix = mailohls_contract.build_prompt_sections(
+        code, obj_mode, fields
     )
-    return header, replace_source_labels_with_tokens(code), TARGET_PROMPT_SUFFIX, fields
+    return header, canonical_code, suffix, fields
 
 
 def build_prompt(
@@ -3286,19 +3221,13 @@ def build_prompt(
 
 
 def clock_target_text(row: Mapping[str, Any]) -> str:
-    selected = row.get("selected_clock_period", _clock_of(row))
+    selected = row.get("selected_clock_period")
+    if selected in (None, ""):
+        selected = _clock_of(row)
     return (
         f"{CLOCK_ANCHOR_TOKEN}\n"
         f"selected_clock_period_ns = {_norm_clock(selected):g}\n"
     )
-
-
-TARGET_PLATFORM_TOKENS = (
-    sorted(set(DEVICE_TOKEN_MAP.values()))
-    + [UNKNOWN_DEVICE_TOKEN]
-    + list(PERIOD_TOKEN_MAP.values())
-    + [AUTO_PERIOD_TOKEN, CLOCK_ANCHOR_TOKEN]
-)
 
 
 @dataclass(frozen=True, order=True)
@@ -3647,13 +3576,13 @@ class SFTDataset(Dataset):
         candidate_sites_per_sample: int = 0,
         candidate_negatives_per_site: int = 0,
         device_token_dropout: float = 0.0,
+        supervise_eos: bool = False,
+        input_only_special_ids: Optional[Iterable[int]] = None,
+        kind_loss_weights: Optional[Dict[str, float]] = None,
     ):
         self.samples, self.lengths = [], []
         truncated = 0
-        kind_weights = {
-            "UNROLL": 1.6, "ARRAY_F": 1.2, "PIPE": 1.2,
-            "ARRAY_T": 1.0, "ARRAY_D": 0.8,
-        }
+        kind_weights = dict(kind_loss_weights or {})
         source_token_ids = set(tok.convert_tokens_to_ids(SOURCE_PLACEHOLDER_TOKENS))
 
         for example in rows:
@@ -3672,12 +3601,23 @@ class SFTDataset(Dataset):
                 example["input"], target_core, tok,
                 value_w=value_loss_weight,
                 kind_loss_weights=kind_weights,
+                supervise_eos=supervise_eos,
             )
-            clock_ids = tok(clock_target_text(example), add_special_tokens=False)["input_ids"]
-            target_ids = clock_ids + directives.input_ids
-            target_labels = clock_ids + directives.labels
-            target_weights = [float(value_loss_weight)] * len(clock_ids) + directives.token_weights
-            target_xmask = [0] * len(clock_ids) + directives.xattn_target_mask
+            clock = build_clock_pack(example, tok, value_w=value_loss_weight)
+            target_ids = clock.input_ids + directives.input_ids
+            target_labels = clock.labels + directives.labels
+            target_weights = clock.token_weights + directives.token_weights
+            target_xmask = clock.xattn_target_mask + directives.xattn_target_mask
+
+            input_only_special_id_set = set(input_only_special_ids or ())
+            bad = {
+                int(label) for label in target_labels
+                if int(label) != -100
+            }.intersection(input_only_special_id_set)
+            if bad:
+                raise RuntimeError(
+                    f"Input-only special tokens are supervised: {sorted(bad)}"
+                )
 
             prompt_budget = max_length - len(target_ids)
             fixed_prompt = len(header_ids) + len(suffix_ids)
@@ -3716,7 +3656,7 @@ class SFTDataset(Dataset):
             token_weights = [0.0] * len(prompt_ids) + target_weights
             full_xmask = [0] * len(prompt_ids) + target_xmask
             contrastive_sites = build_contrastive_sites_from_sample(
-                example["input"], target_core, prompt_ids + clock_ids, tok,
+                example["input"], target_core, prompt_ids + clock.input_ids, tok,
                 max_length,
                 example.get("_local_hard_negatives", {}),
                 candidate_sites_per_sample,
@@ -3958,7 +3898,7 @@ def run_single_training(args):
             min_feasible_candidates=3,
         )
 
-    objectives = GOAL_ORDER if args.objective == "ALL" else (args.objective,)
+    objectives = mailohls_contract.resolve_objectives(args.objective)
     goal_key = "all_objectives" if args.objective == "ALL" else GOALS[args.objective]["tag"]
 
     def select_objectives(source_rows):
@@ -3983,8 +3923,15 @@ def run_single_training(args):
     train_rows, train_goal_info = select_objectives(raw_train_rows)
     val_rows, val_goal_info = select_objectives(raw_val_rows)
     test_rows, test_goal_info = select_objectives(raw_test_rows)
+    directive_loss_weights = compute_directive_loss_weights(
+        train_rows, args.directive_loss_weighting
+    )
 
     print(f"[INFO] Selected split sizes: train={len(train_rows)} val={len(val_rows)} test={len(test_rows)}")
+    print(
+        f"[LOSS] directive weighting={args.directive_loss_weighting} "
+        f"weights={directive_loss_weights or 'uniform'}"
+    )
 
     dump_jsonl(os.path.join(dump_root, f"train_selected_{goal_key}.jsonl"), train_rows)
     dump_json(os.path.join(dump_root, f"train_selected_{goal_key}.indices.json"), train_goal_info)
@@ -3994,9 +3941,6 @@ def run_single_training(args):
     if test_rows:
         dump_jsonl(os.path.join(dump_root, f"test_selected_{goal_key}.jsonl"), test_rows)
         dump_json(os.path.join(dump_root, f"test_selected_{goal_key}.indices.json"), test_goal_info)
-
-    rhs_candidate_bank = build_rhs_candidate_bank(train_rows)
-    print("[INFO] RHS candidate bank sizes:", {k: len(v) for k, v in sorted(rhs_candidate_bank.items())})
 
     selection_cases = []
     for objective in objectives:
@@ -4018,6 +3962,24 @@ def run_single_training(args):
         f"{selection_kernel_count} distinct kernels and "
         f"{selection_kernel_device_count} kernel/device groups"
     )
+    directive_domain_registry: Dict[str, Dict[str, List[str]]] = {}
+    if selection_cases:
+        if not args.directive_domain_registry_json:
+            raise ValueError(
+                "Production validation requires --directive_domain_registry_json; "
+                "legal RHS domains must not be inferred from training rows."
+            )
+        directive_domain_registry = load_directive_domain_registry(
+            args.directive_domain_registry_json
+        )
+        for case in selection_cases:
+            for _, lhs in extract_ordered_lhs_plan(case.source_text):
+                get_rhs_candidates_for_lhs(
+                    case.kernel_name, lhs, directive_domain_registry
+                )
+        print(
+            f"[DOMAINS] validated {len(directive_domain_registry)} kernel registries"
+        )
 
     if args.disable_harp:
         mem_bank = {}
@@ -4109,6 +4071,13 @@ def run_single_training(args):
         "tokenizer_size": len(tok),
         "special_tokens": special_token_strings,
         "special_token_ids": special_ids,
+        "supervise_eos": args.supervise_eos,
+        "directive_domain_registry_sha256": (
+            _file_sha256(Path(args.directive_domain_registry_json))
+            if args.directive_domain_registry_json else None
+        ),
+        "directive_loss_weighting": args.directive_loss_weighting,
+        "directive_loss_weights": directive_loss_weights,
         "max_length": args.max_length,
         "top_k": args.top_k,
         "device_mode": args.device_mode,
@@ -4152,8 +4121,6 @@ def run_single_training(args):
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     tok.padding_side = "right"
-
-    prompt_template = PROMPT_TEMPLATE
 
     native_bf16 = (
         torch.cuda.is_available()
@@ -4379,6 +4346,9 @@ def run_single_training(args):
         candidate_sites_per_sample=effective_candidate_sites,
         candidate_negatives_per_site=effective_candidate_negatives,
         device_token_dropout=args.device_token_dropout,
+        supervise_eos=args.supervise_eos,
+        input_only_special_ids=special_ids,
+        kind_loss_weights=directive_loss_weights,
     )
 
     special_id_set = set(special_ids)
@@ -4403,6 +4373,9 @@ def run_single_training(args):
         candidate_sites_per_sample=effective_candidate_sites,
         candidate_negatives_per_site=effective_candidate_negatives,
         device_token_dropout=0.0,
+        supervise_eos=args.supervise_eos,
+        input_only_special_ids=special_ids,
+        kind_loss_weights=directive_loss_weights,
     ) if val_rows else None
 
     collator = PadCollator(tok)
@@ -4504,7 +4477,7 @@ def run_single_training(args):
             StageValSelectionCallback(
                 tokenizer=tok,
                 selection_cases=selection_cases,
-                rhs_candidate_bank=rhs_candidate_bank,
+                directive_domain_registry=directive_domain_registry,
                 output_dir=args.output_dir,
                 max_prompt_tokens=args.max_length,
                 candidate_score_reduction="mean",
@@ -4572,6 +4545,15 @@ def main():
 
     # Data / Memory / Model
     ap.add_argument("--dataset", type=str, default=str(DEFAULT_SFT_DATASET))
+    ap.add_argument(
+        "--directive_domain_registry_json",
+        type=str,
+        default="",
+        help=(
+            "Per-kernel, per-site legal RHS domains used by production "
+            "constrained decoding. Required when validation selection is enabled."
+        ),
+    )
     ap.add_argument("--memory_dir", type=str, default=str(DEFAULT_STRUCTURAL_MEMORY))
     ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-6.7b-base")
     ap.add_argument("--model_revision", type=str, default="main")
@@ -4684,6 +4666,11 @@ def main():
 
     # Training Params
     ap.add_argument("--max_length", type=int, default=7168)
+    ap.add_argument(
+        "--supervise_eos",
+        action="store_true",
+        help="Supervise EOS for free-generation ablations (off in production).",
+    )
     ap.add_argument("--epochs", type=int, default=3)
     ap.add_argument("--batch_size", type=int, default=2)
     ap.add_argument("--grad_accum", type=int, default=4)
@@ -4703,6 +4690,12 @@ def main():
         ),
     )
     ap.add_argument("--value_loss_weight", type=float, default=1.0)
+    ap.add_argument(
+        "--directive_loss_weighting",
+        choices=("uniform", "inverse_sqrt_frequency"),
+        default="uniform",
+        help="Uniform baseline or training-split-only inverse-sqrt balancing.",
+    )
 
     # LoRA
     ap.add_argument("--lr_lora", type=float, default=5e-5)
