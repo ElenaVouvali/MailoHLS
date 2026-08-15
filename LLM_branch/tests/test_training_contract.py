@@ -289,3 +289,59 @@ def test_selection_score_macro_averages_kernels():
     assert summary["mean_value_acc"] == pytest.approx(2.0 / 3.0)
     assert summary["selection_score"] == pytest.approx(0.5)
     assert summary["minimum_kernel_accuracy"] == 0.0
+
+
+def test_prediction_metrics_validate_anchor_schema():
+    reference = "\n".join([
+        "<L1>",
+        "auto{_PIPE_L1} = 1",
+        "auto{_UNROLL_L1} = 0",
+    ])
+
+    exact = evaluate_prediction(reference, reference)
+
+    assert exact["schema_compliant"] is True
+    assert exact["expected_key_match"] is True
+    assert exact["exact_design_match"] is True
+
+    wrong_value = "\n".join([
+        "<L1>",
+        "auto{_PIPE_L1} = 0",
+        "auto{_UNROLL_L1} = 0",
+    ])
+
+    value_result = evaluate_prediction(
+        wrong_value,
+        reference,
+    )
+
+    assert value_result["schema_compliant"] is True
+    assert value_result["expected_key_match"] is True
+    assert value_result["exact_design_match"] is False
+
+    missing_anchor = "\n".join([
+        "auto{_PIPE_L1} = 1",
+        "auto{_UNROLL_L1} = 0",
+    ])
+
+    missing_anchor_result = evaluate_prediction(
+        missing_anchor,
+        reference,
+    )
+
+    assert missing_anchor_result["expected_key_match"] is True
+    assert missing_anchor_result["schema_compliant"] is False
+
+    wrong_anchor = "\n".join([
+        "<L2>",
+        "auto{_PIPE_L1} = 1",
+        "auto{_UNROLL_L1} = 0",
+    ])
+
+    wrong_anchor_result = evaluate_prediction(
+        wrong_anchor,
+        reference,
+    )
+
+    assert wrong_anchor_result["expected_key_match"] is True
+    assert wrong_anchor_result["schema_compliant"] is False

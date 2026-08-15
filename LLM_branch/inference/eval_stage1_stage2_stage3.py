@@ -45,6 +45,26 @@ ASSIGN_RE = re.compile(
     r"^(auto\{_[A-Z0-9]+(?:_[A-Z0-9]+)*_L\d+\})\s*=\s*(.+)$",
     re.IGNORECASE,
 )
+TARGET_ANCHOR_RE = re.compile(r"^<L[1-9][0-9]*>$", re.IGNORECASE)
+
+
+def directive_schema_signature(text: str):
+    """Return the ordered anchor/assignment signature, or None if malformed."""
+    signature = []
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        anchor_match = TARGET_ANCHOR_RE.fullmatch(line)
+        if anchor_match is not None:
+            signature.append(("anchor", anchor_match.group(1).upper()))
+            continue
+        assignment_match = ASSIGN_RE.fullmatch(line)
+        if assignment_match is not None:
+            signature.append(("assignment", assignment_match.group(1).upper()))
+            continue
+        return None
+    return signature
 
 SOURCE_PLACEHOLDER_IN_CODE_RE = re.compile(
     r"auto\{_[A-Z0-9]+(?:_[A-Z0-9]+)*_(L\d+)\}",
@@ -916,26 +936,18 @@ def constrained_decode_rhs_by_candidate_scoring(
 # ============================================================
 def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str, object]:
     pred_text = canonicalize_generation(raw_generation)
-    ref_text = reference_target.strip()
+    ref_text = canonicalize_generation(reference_target)
+
+    ref_signature = directive_schema_signature(ref_text)
+    if ref_signature is None:
+        raise ValueError("Reference target violates the directive schema")
+    pred_signature = directive_schema_signature(pred_text)
 
     ref_assign = parse_assignment_dict(ref_text)
     pred_assign = parse_assignment_dict(pred_text)
     expected_keys = list(ref_assign.keys())
-    predicted_lines = [line.strip() for line in pred_text.splitlines() if line.strip()]
-    parsed_lhs = []
-    all_lines_parse = True
-    for line in predicted_lines:
-        match = ASSIGN_RE.fullmatch(line)
-        if match is None:
-            all_lines_parse = False
-        else:
-            parsed_lhs.append(match.group(1).upper())
-    expected_key_match = set(pred_assign) == set(ref_assign)
-    schema_compliant = (
-        all_lines_parse
-        and len(parsed_lhs) == len(set(parsed_lhs))
-        and expected_key_match
-    )
+    expected_key_match = set(pred_assign.keys()) == set(ref_assign.keys())
+    schema_compliant = pred_signature is not None and pred_signature == ref_signature
 
     exact_value_match_count = sum(
         (k in pred_assign) and (pred_assign[k] == ref_assign[k]) for k in expected_keys
@@ -946,7 +958,7 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
         "value_accuracy_over_expected": exact_value_match_count / max(len(expected_keys), 1),
         "schema_compliant": schema_compliant,
         "expected_key_match": expected_key_match,
-        "exact_design_match": expected_key_match and pred_assign == ref_assign,
+        "exact_design_match": schema_compliant and pred_assign == ref_assign,
         "n_expected": len(expected_keys),
         "n_predicted": len(pred_assign),
     }
