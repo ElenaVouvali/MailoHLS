@@ -280,9 +280,9 @@ def _avail_resource_tuple(row: dict) -> Tuple[int, int, int, int]:
 # ==============================
 
 GOALS = {
-    "PARETO_LATENCY_EXTREME": {"token": "<OBJ=PARETO_LATENCY_EXTREME>", "tag": "pareto_latency_extreme"},
+    "PARETO_LATENCY_EXTREME": {"token": "<OBJ=PARETO_LATENCY>", "tag": "pareto_latency"},
     "PARETO_ADP": {"token": "<OBJ=PARETO_ADP>", "tag": "pareto_adp"},
-    "PARETO_AREA_EXTREME": {"token": "<OBJ=PARETO_AREA_EXTREME>", "tag": "pareto_area_extreme"},
+    "PARETO_AREA_EXTREME": {"token": "<OBJ=PARETO_AREA>", "tag": "pareto_area"},
 }
 GOAL_ORDER = tuple(GOALS.keys())
 
@@ -1093,6 +1093,7 @@ STAGE1_COMPATIBILITY_FIELDS = (
     "special_token_ids",
     "embedding_weights_tied",
     "trainable_token_modules",
+    "special_token_role",
     "max_length",
     "top_k",
     "device_mode",
@@ -1292,9 +1293,9 @@ def pareto_records_for_kernel(items: List[dict]) -> List[dict]:
 
 
 def goal_distance_to_ideal(lat_n: float, area_n: float, goal_mode: str) -> float:
-    if goal_mode == "PARETO_LATENCY_EXTREME":
+    if goal_mode == "PARETO_LATENCY":
         return lat_n
-    if goal_mode == "PARETO_AREA_EXTREME":
+    if goal_mode == "PARETO_AREA":
         return area_n
     if goal_mode == "PARETO_ADP":
         # Handled explicitly in goal_sort_key because it uses raw log(latency * area),
@@ -1316,9 +1317,9 @@ def goal_sort_key(rec: dict, goal_mode: str, domination_penalty: float = 0.0):
     if domination_penalty > 0.0:
         primary = primary + domination_penalty * dom_gap
 
-    if goal_mode == "PARETO_LATENCY_EXTREME":
+    if goal_mode == "PARETO_LATENCY":
         return (primary, area_n)
-    if goal_mode == "PARETO_AREA_EXTREME":
+    if goal_mode == "PARETO_AREA":
         return (primary, lat_n)
     if goal_mode == "PARETO_ADP":
         return (primary, lat_n + area_n, abs(lat_n - area_n))
@@ -1695,6 +1696,76 @@ def score_rhs_candidate_suffix(
 
 
 @torch.no_grad()
+def score_rhs_candidate_batch(
+    *,
+    model,
+    tok,
+    base_input_ids: torch.Tensor,
+    base_attention_mask: torch.Tensor,
+    candidate_texts: List[str],
+):
+    """Score independent RHS suffixes in one non-structural model forward."""
+    if not candidate_texts:
+        return []
+    if base_input_ids.shape[0] != 1 or base_attention_mask.shape[0] != 1:
+        raise ValueError("Candidate batching expects one shared base prefix.")
+    candidate_ids = [
+        tok(text, add_special_tokens=False)["input_ids"]
+        for text in candidate_texts
+    ]
+    if any(not ids for ids in candidate_ids):
+        raise ValueError("A batched candidate tokenized to an empty sequence.")
+
+    device = base_input_ids.device
+    batch_size = len(candidate_ids)
+    base_len = int(base_input_ids.shape[1])
+    max_candidate_len = max(len(ids) for ids in candidate_ids)
+    pad_token_id = tok.pad_token_id
+    if pad_token_id is None:
+        raise ValueError("Candidate batching requires tokenizer.pad_token_id.")
+
+    input_ids = torch.full(
+        (batch_size, base_len + max_candidate_len),
+        int(pad_token_id),
+        dtype=base_input_ids.dtype,
+        device=device,
+    )
+    attention_mask = torch.zeros(
+        (batch_size, base_len + max_candidate_len),
+        dtype=base_attention_mask.dtype,
+        device=device,
+    )
+    input_ids[:, :base_len] = base_input_ids.expand(batch_size, -1)
+    attention_mask[:, :base_len] = base_attention_mask.expand(batch_size, -1)
+    for index, ids in enumerate(candidate_ids):
+        length = len(ids)
+        input_ids[index, base_len:base_len + length] = torch.tensor(
+            ids, dtype=input_ids.dtype, device=device
+        )
+        attention_mask[index, base_len:base_len + length] = 1
+
+    logits = model(
+        input_ids=input_ids,
+        attention_mask=attention_mask,
+    ).logits.float()
+    results = []
+    for index, ids in enumerate(candidate_ids):
+        length = len(ids)
+        candidate_logits = logits[
+            index, base_len - 1:base_len - 1 + length, :
+        ]
+        target = torch.tensor(ids, dtype=torch.long, device=device)
+        token_logprobs = F.log_softmax(candidate_logits, dim=-1).gather(
+            -1, target.unsqueeze(-1)
+        ).squeeze(-1)
+        results.append({
+            "sum_logprob": float(token_logprobs.sum().item()),
+            "mean_logprob": float(token_logprobs.mean().item()),
+        })
+    return results
+
+
+@torch.no_grad()
 def constrained_decode_rhs_by_candidate_scoring(
     *,
     model,
@@ -1706,8 +1777,11 @@ def constrained_decode_rhs_by_candidate_scoring(
     harp_x: Optional[torch.Tensor] = None,
     harp_mask: Optional[torch.Tensor] = None,
     routing_start_idx: Optional[torch.Tensor] = None,
+    candidate_batch_size: int = 1,
 ):
     assert score_reduction in {"mean", "sum"}
+    if candidate_batch_size < 1:
+        raise ValueError("candidate_batch_size must be >= 1")
 
     device = next(model.parameters()).device
     input_ids = torch.tensor([prompt_ids], dtype=torch.long, device=device)
@@ -1742,22 +1816,34 @@ def constrained_decode_rhs_by_candidate_scoring(
             candidates = get_rhs_candidates_for_lhs(lhs, rhs_candidate_bank)
 
             scored = []
-            for rhs in candidates:
-                stats = score_rhs_candidate_suffix(
-                    model=model,
-                    tok=tok,
-                    base_input_ids=input_ids,
-                    base_attention_mask=attention_mask,
-                    candidate_text=rhs + "\n",
-                    routing_start_idx=routing_start_idx,
-                    use_harp=use_harp,
-                )
-                scored.append({
-                    "rhs": rhs,
-                    "score": stats["mean_logprob"] if score_reduction == "mean" else stats["sum_logprob"],
-                    "mean_logprob": stats["mean_logprob"],
-                    "sum_logprob": stats["sum_logprob"],
-                })
+            effective_batch_size = 1 if use_harp else candidate_batch_size
+            for start in range(0, len(candidates), effective_batch_size):
+                rhs_batch = candidates[start:start + effective_batch_size]
+                if effective_batch_size == 1:
+                    batch_stats = [score_rhs_candidate_suffix(
+                        model=model,
+                        tok=tok,
+                        base_input_ids=input_ids,
+                        base_attention_mask=attention_mask,
+                        candidate_text=rhs_batch[0] + "\n",
+                        routing_start_idx=routing_start_idx,
+                        use_harp=use_harp,
+                    )]
+                else:
+                    batch_stats = score_rhs_candidate_batch(
+                        model=model,
+                        tok=tok,
+                        base_input_ids=input_ids,
+                        base_attention_mask=attention_mask,
+                        candidate_texts=[rhs + "\n" for rhs in rhs_batch],
+                    )
+                for rhs, stats in zip(rhs_batch, batch_stats):
+                    scored.append({
+                        "rhs": rhs,
+                        "score": stats["mean_logprob"] if score_reduction == "mean" else stats["sum_logprob"],
+                        "mean_logprob": stats["mean_logprob"],
+                        "sum_logprob": stats["sum_logprob"],
+                    })
 
             scored.sort(key=lambda x: (x["score"], x["sum_logprob"]), reverse=True)
             best = scored[0]
@@ -1891,6 +1977,8 @@ class StageValSelectionCallback(TrainerCallback):
         mem_dim: int = 32,
         max_slots: int = 64,
         training_contract: Optional[dict] = None,
+        selection_eval_steps: int = 200,
+        candidate_batch_size: int = 1,
     ):
         self.tok = tokenizer
         self.selection_cases = selection_cases
@@ -1903,8 +1991,11 @@ class StageValSelectionCallback(TrainerCallback):
         self.mem_dim = mem_dim
         self.max_slots = max_slots
         self.training_contract = training_contract or {}
-        self.best_score = -1e18
+        self.selection_eval_steps = selection_eval_steps
+        self.candidate_batch_size = candidate_batch_size
+        self.best_key = (float("-inf"),) * 4
         self.best_step = -1
+        self.last_selection_step = None
 
     def _run_case(self, model, case: SelectionCase) -> dict:
         prompt = build_prompt(
@@ -1940,6 +2031,7 @@ class StageValSelectionCallback(TrainerCallback):
             harp_x=harp_x,
             harp_mask=harp_mask,
             routing_start_idx=routing_start_idx,
+            candidate_batch_size=self.candidate_batch_size,
         )
 
         metrics = evaluate_prediction(case.reference_target, pred)
@@ -1958,6 +2050,15 @@ class StageValSelectionCallback(TrainerCallback):
     def on_evaluate(self, args, state, control, **kwargs):
         if not state.is_world_process_zero:
             return
+        is_final = state.global_step >= state.max_steps
+        if (
+            not is_final
+            and state.global_step % self.selection_eval_steps != 0
+        ):
+            return
+        if self.last_selection_step == state.global_step:
+            return
+        self.last_selection_step = int(state.global_step)
 
         model = kwargs["model"]
         was_training = model.training
@@ -1974,6 +2075,19 @@ class StageValSelectionCallback(TrainerCallback):
             kernel_value_acc = summary["per_kernel_accuracy"]
             minimum_kernel_accuracy = summary["minimum_kernel_accuracy"]
             selection_score = summary["selection_score"]
+            if schema_compliance != 1.0 or expected_key_accuracy != 1.0:
+                raise RuntimeError(
+                    "Constrained decoder violated its schema contract"
+                )
+            eval_loss = float(
+                kwargs.get("metrics", {}).get("eval_loss", float("inf"))
+            )
+            checkpoint_key = (
+                selection_score,
+                minimum_kernel_accuracy,
+                exact_design_accuracy,
+                -eval_loss,
+            )
 
             print("\n" + "=" * 100)
             print(f"[VAL-SELECTION] step={state.global_step}")
@@ -1985,17 +2099,24 @@ class StageValSelectionCallback(TrainerCallback):
             print(f"[VAL-SELECTION] per_kernel_accuracy={kernel_value_acc}")
             print(f"[VAL-SELECTION] minimum_kernel_accuracy={minimum_kernel_accuracy:.6f}")
             print(f"[VAL-SELECTION] selection_score={selection_score:.6f}")
+            print(f"[VAL-SELECTION] checkpoint_key={checkpoint_key}")
             print("=" * 100)
 
-            metrics_obj = {"step": int(state.global_step), **summary, "rows": rows}
+            metrics_obj = {
+                "step": int(state.global_step),
+                "eval_loss": eval_loss,
+                "checkpoint_key": list(checkpoint_key),
+                **summary,
+                "rows": rows,
+            }
 
             dump_json(
                 os.path.join(self.output_dir, f"val_selection_step_{state.global_step}.json"),
                 metrics_obj,
             )
 
-            if selection_score > self.best_score:
-                self.best_score = selection_score
+            if checkpoint_key > self.best_key:
+                self.best_key = checkpoint_key
                 self.best_step = int(state.global_step)
 
                 best_dir = os.path.join(self.output_dir, self.best_dir_name)
@@ -3360,6 +3481,36 @@ def target_bucket_key(row: Mapping[str, Any]) -> tuple:
     )
 
 
+def shared_budget_fraction(row: Mapping[str, Any]) -> float:
+    device = _norm_device(row["device"])
+    capacities = DEVICE_RESOURCES[device]
+    available = _available_resources(row)
+    return min(
+        available[name] / capacities[name]
+        for name in RESOURCE_KEYS
+    )
+
+
+def evenly_spaced_cases(cases, count):
+    ordered = sorted(
+        cases,
+        key=lambda case: (
+            shared_budget_fraction(case.row),
+            target_bucket_key(case.row),
+        ),
+    )
+    count = min(count, len(ordered))
+    if count == 0:
+        return []
+    if count == 1:
+        return [ordered[len(ordered) // 2]]
+    indices = {
+        round(index * (len(ordered) - 1) / (count - 1))
+        for index in range(count)
+    }
+    return [ordered[index] for index in sorted(indices)]
+
+
 def _rank_and_select_case(
     items: Sequence[dict],
     goal_mode: str,
@@ -3597,8 +3748,7 @@ def build_selection_cases(
     val_rows: List[dict],
     goal_mode: str,
     max_kernels: int = 0,
-    cases_per_kernel: int = 4,
-    seed: int = 123,
+    cases_per_kernel_device: int = 2,
     min_coverage: float = 0.85,
     min_supervised_sites: int = 4,
 ) -> List[SelectionCase]:
@@ -3610,7 +3760,7 @@ def build_selection_cases(
             and row.get("frequency_mode", "specified") == "specified"
         ):
             by_case[target_bucket_key(row)].append(row)
-    candidates_by_kernel = defaultdict(list)
+    candidates_by_kernel_device = defaultdict(list)
     for case_key in sorted(by_case):
         best = min(
             by_case[case_key],
@@ -3634,19 +3784,27 @@ def build_selection_cases(
             reference_target=target,
             row=best,
         )
-        candidates_by_kernel[case.kernel_name].append(case)
+        candidates_by_kernel_device[
+            (case.kernel_name, _norm_device(best["device"]))
+        ].append(case)
 
     selected = []
-    kernel_names = sorted(candidates_by_kernel)
+    kernel_names = sorted({
+        kernel for kernel, _ in candidates_by_kernel_device
+    })
     if max_kernels > 0:
         kernel_names = kernel_names[:max_kernels]
-    for kernel in kernel_names:
-        candidates = candidates_by_kernel[kernel]
-        rng = random.Random(
-            _stable_seed(("val-selection", goal_mode, kernel), seed)
+    selected_kernel_names = set(kernel_names)
+    for kernel_device in sorted(candidates_by_kernel_device):
+        kernel, _ = kernel_device
+        if kernel not in selected_kernel_names:
+            continue
+        selected.extend(
+            evenly_spaced_cases(
+                candidates_by_kernel_device[kernel_device],
+                cases_per_kernel_device,
+            )
         )
-        rng.shuffle(candidates)
-        selected.extend(candidates[:cases_per_kernel])
     return selected
 
 
@@ -3668,8 +3826,12 @@ def configure_target_policy(args) -> None:
         raise ValueError("--top_k must be >= 1")
     if args.selection_num_val_kernels < 0:
         raise ValueError("--selection_num_val_kernels must be >= 0")
-    if args.selection_cases_per_kernel < 1:
-        raise ValueError("--selection_cases_per_kernel must be >= 1")
+    if args.selection_cases_per_kernel_device < 1:
+        raise ValueError("--selection_cases_per_kernel_device must be >= 1")
+    if args.selection_eval_steps < 1:
+        raise ValueError("--selection_eval_steps must be >= 1")
+    if args.selection_candidate_batch_size < 1:
+        raise ValueError("--selection_candidate_batch_size must be >= 1")
     if args.top_k > 1:
         print("[WARN] top_k > 1 creates conflicting completions for identical prompts")
     if not 0.0 < args.random_budget_min_frac <= 1.0:
@@ -3842,15 +4004,19 @@ def run_single_training(args):
             val_rows,
             goal_mode=objective,
             max_kernels=args.selection_num_val_kernels,
-            cases_per_kernel=args.selection_cases_per_kernel,
-            seed=args.seed,
+            cases_per_kernel_device=args.selection_cases_per_kernel_device,
             min_coverage=args.min_site_coverage,
             min_supervised_sites=args.min_supervised_sites,
         ))
     selection_kernel_count = len({case.kernel_name for case in selection_cases})
+    selection_kernel_device_count = len({
+        (case.kernel_name, _norm_device(case.row["device"]))
+        for case in selection_cases
+    })
     print(
         f"[INFO] Built {len(selection_cases)} validation selection cases from "
-        f"{selection_kernel_count} distinct kernels"
+        f"{selection_kernel_count} distinct kernels and "
+        f"{selection_kernel_device_count} kernel/device groups"
     )
 
     if args.disable_harp:
@@ -3963,6 +4129,14 @@ def run_single_training(args):
         "min_site_coverage": args.min_site_coverage,
         "score_weight_min": args.score_weight_min,
         "score_weight_power": args.score_weight_power,
+        "selection_num_val_kernels": args.selection_num_val_kernels,
+        "selection_cases_per_kernel_device": (
+            args.selection_cases_per_kernel_device
+        ),
+        "selection_eval_steps": args.selection_eval_steps,
+        "selection_candidate_batch_size": (
+            args.selection_candidate_batch_size if args.disable_harp else 1
+        ),
         "lora_r": args.lora_r,
         "lora_alpha": args.lora_alpha,
         "lora_dropout": args.lora_dropout,
@@ -4007,22 +4181,14 @@ def run_single_training(args):
     output_weight = base.get_output_embeddings().weight
     weights_tied = input_weight.data_ptr() == output_weight.data_ptr()
 
-    trainable_token_spec = (
-        special_ids
-        if weights_tied
-        else {
-            "embed_tokens": special_ids,
-            "lm_head": special_ids,
-        }
-    )
-    trainable_token_modules = (
-        ["embed_tokens"]
-        if weights_tied
-        else ["embed_tokens", "lm_head"]
-    )
+    # MailoHLS special tokens condition the prompt. They are deliberately not
+    # prediction targets, so only their input-embedding rows are trainable.
+    trainable_token_spec = special_ids
+    trainable_token_modules = ["embed_tokens"]
 
     training_contract["embedding_weights_tied"] = weights_tied
     training_contract["trainable_token_modules"] = trainable_token_modules
+    training_contract["special_token_role"] = "input_context_only"
     dump_json(
         os.path.join(args.output_dir, "training_contract.json"),
         training_contract,
@@ -4108,9 +4274,7 @@ def run_single_training(args):
         if "trainable_tokens_delta" in name and parameter.requires_grad
     )
     expected_token_delta_params = (
-        len(special_ids)
-        * int(base.config.hidden_size)
-        * (1 if weights_tied else 2)
+        len(special_ids) * int(base.config.hidden_size)
     )
     if token_delta_params != expected_token_delta_params:
         raise RuntimeError(
@@ -4196,23 +4360,48 @@ def run_single_training(args):
     print(f"[OPT] froze {frozen_zero_lr:,} parameters assigned to zero-LR groups")
 
 
+    effective_candidate_sites = (
+        args.candidate_sites_per_sample
+        if args.candidate_loss_weight > 0.0 else 0
+    )
+    effective_candidate_negatives = (
+        args.candidate_negatives_per_site
+        if args.candidate_loss_weight > 0.0 else 0
+    )
+    if args.candidate_loss_weight == 0.0:
+        print("[DATASET] candidate loss disabled; skipping local hard negatives")
+
     train_ds = SFTDataset(
         train_rows,
         tok,
         args.max_length,
         value_loss_weight=args.value_loss_weight,
-        candidate_sites_per_sample=args.candidate_sites_per_sample,
-        candidate_negatives_per_site=args.candidate_negatives_per_site,
+        candidate_sites_per_sample=effective_candidate_sites,
+        candidate_negatives_per_site=effective_candidate_negatives,
         device_token_dropout=args.device_token_dropout,
     )
+
+    special_id_set = set(special_ids)
+    for sample in train_ds.samples:
+        supervised = {
+            int(token_id)
+            for token_id, label in zip(sample["input_ids"], sample["labels"])
+            if int(label) != -100
+        }
+        leaked = special_id_set.intersection(supervised)
+        if leaked:
+            raise RuntimeError(
+                "RHS-only supervision leaked special-token ids: "
+                f"{sorted(leaked)}"
+            )
 
     val_ds = SFTDataset(
         val_rows,
         tok,
         args.max_length,
         value_loss_weight=args.value_loss_weight,
-        candidate_sites_per_sample=args.candidate_sites_per_sample,
-        candidate_negatives_per_site=args.candidate_negatives_per_site,
+        candidate_sites_per_sample=effective_candidate_sites,
+        candidate_negatives_per_site=effective_candidate_negatives,
         device_token_dropout=0.0,
     ) if val_rows else None
 
@@ -4297,8 +4486,8 @@ def run_single_training(args):
         lr_gate_ff=args.lr_gate_ff,
         loss_chunk_t=args.loss_chunk_t,
         candidate_loss_weight=args.candidate_loss_weight,
-        candidate_sites_per_sample=args.candidate_sites_per_sample,
-        candidate_negatives_per_site=args.candidate_negatives_per_site,
+        candidate_sites_per_sample=effective_candidate_sites,
+        candidate_negatives_per_site=effective_candidate_negatives,
         candidate_max_prefix_tokens=args.candidate_max_prefix_tokens,
         candidate_keep_head_tokens=args.candidate_keep_head_tokens,
     )
@@ -4324,6 +4513,11 @@ def run_single_training(args):
                 mem_dim=args.mem_dim,
                 max_slots=args.max_slots,
                 training_contract=training_contract,
+                selection_eval_steps=args.selection_eval_steps,
+                candidate_batch_size=(
+                    args.selection_candidate_batch_size
+                    if args.disable_harp else 1
+                ),
             )
         )
 
@@ -4333,6 +4527,9 @@ def run_single_training(args):
     else:
         print(f"[INFO] No checkpoint found. Starting from scratch.")
         trainer.train()
+
+    if val_ds is not None:
+        trainer.evaluate(metric_key_prefix="final_eval")
 
     best_dir = os.path.join(args.output_dir, args.best_dir_name)
     if not os.path.isdir(best_dir):
@@ -4376,7 +4573,7 @@ def main():
     # Data / Memory / Model
     ap.add_argument("--dataset", type=str, default=str(DEFAULT_SFT_DATASET))
     ap.add_argument("--memory_dir", type=str, default=str(DEFAULT_STRUCTURAL_MEMORY))
-    ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-7b-base")
+    ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-6.7b-base")
     ap.add_argument("--model_revision", type=str, default="main")
     ap.add_argument(
         "--objective",
@@ -4405,8 +4602,8 @@ def main():
     ap.add_argument("--goal_domination_penalty", type=float, default=0.25)
     ap.add_argument("--goal_max_dominated_gap", type=float, default=0.12)
     ap.add_argument("--candidate_loss_weight", type=float, default=0.0) # controls the influence of the contrastive loss in the final loss
-    ap.add_argument("--candidate_sites_per_sample", type=int, default=2)
-    ap.add_argument("--candidate_negatives_per_site", type=int, default=2)
+    ap.add_argument("--candidate_sites_per_sample", type=int, default=0)
+    ap.add_argument("--candidate_negatives_per_site", type=int, default=0)
     ap.add_argument("--candidate_max_prefix_tokens", type=int, default=1536)
     ap.add_argument("--candidate_keep_head_tokens", type=int, default=256)
     ap.add_argument("--val_families", type=str, default="rodinia_pathfinder;machsuite_sort_radix")
@@ -4533,8 +4730,16 @@ def main():
     ap.add_argument("--lr_gate_ff", type=float, default=0.0)
 
     # Best Checkpoint Selection
-    ap.add_argument("--selection_num_val_kernels", type=int, default=4)
-    ap.add_argument("--selection_cases_per_kernel", type=int, default=4)
+    ap.add_argument("--selection_num_val_kernels", type=int, default=0)
+    ap.add_argument(
+        "--selection_cases_per_kernel_device",
+        "--selection_cases_per_kernel",
+        dest="selection_cases_per_kernel_device",
+        type=int,
+        default=2,
+    )
+    ap.add_argument("--selection_eval_steps", type=int, default=200)
+    ap.add_argument("--selection_candidate_batch_size", type=int, default=4)
     ap.add_argument("--best_dir_name", type=str, default="best_custom_stage1")
 
     # Trainer / pipeline

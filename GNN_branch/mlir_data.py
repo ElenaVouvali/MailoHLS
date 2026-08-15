@@ -171,6 +171,17 @@ RESOURCE_KEYS = (
 )
 
 
+def resource_utilization_from_csv_row(row: Mapping[str, Any]) -> list[float]:
+    """Return raw utilization fractions in BRAM, DSP, FF, LUT order."""
+    columns = (
+        "BRAM_Utilization_percentage",
+        "DSP_Utilization_percentage",
+        "FF_Utilization_percentage",
+        "LUT_Utilization_percentage",
+    )
+    return [_as_float(row.get(column, 0.0), 0.0) / 100.0 for column in columns]
+
+
 # ---------------------------------------------------------------------------
 # MailoHLS graph constants.
 # ---------------------------------------------------------------------------
@@ -632,20 +643,8 @@ def load_csv_results(kernel: str) -> list[CSVResult]:
                 0.0,
             )
             area = _as_float(row.get("Area", 0.0), 0.0)
-            res_util = {
-                "util-BRAM": _as_float(
-                    row.get("BRAM_Utilization_percentage", 0.0)
-                ) / 100.0,
-                "util-DSP": _as_float(
-                    row.get("DSP_Utilization_percentage", 0.0)
-                ) / 100.0,
-                "util-FF": _as_float(
-                    row.get("FF_Utilization_percentage", 0.0)
-                ) / 100.0,
-                "util-LUT": _as_float(
-                    row.get("LUT_Utilization_percentage", 0.0)
-                ) / 100.0,
-            }
+            resource_values = resource_utilization_from_csv_row(row)
+            res_util = dict(zip(RESOURCE_KEYS, resource_values))
             results.append(
                 CSVResult(
                     point=point,

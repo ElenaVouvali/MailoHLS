@@ -79,7 +79,12 @@ def test_selection_cases_are_limited_per_distinct_kernel(monkeypatch):
     monkeypatch.setattr(
         trainer,
         "target_bucket_key",
-        lambda row: (row["kernel_name"], row["bucket"]),
+        lambda row: (row["kernel_name"], row["device"], row["bucket"]),
+    )
+    monkeypatch.setattr(
+        trainer,
+        "shared_budget_fraction",
+        lambda row: float(row["bucket"]),
     )
     monkeypatch.setattr(
         trainer,
@@ -92,6 +97,7 @@ def test_selection_cases_are_limited_per_distinct_kernel(monkeypatch):
     rows = [
         {
             "kernel_name": kernel,
+            "device": device,
             "bucket": bucket,
             "obj_mode": "PARETO_ADP",
             "frequency_mode": "specified",
@@ -101,18 +107,27 @@ def test_selection_cases_are_limited_per_distinct_kernel(monkeypatch):
             "_score": float(bucket),
         }
         for kernel in ("kernel-a", "kernel-b", "kernel-c")
+        for device in ("device-a", "device-b")
         for bucket in range(5)
     ]
     selected = build_selection_cases(
         rows,
         "PARETO_ADP",
         max_kernels=2,
-        cases_per_kernel=3,
-        seed=123,
+        cases_per_kernel_device=2,
     )
     assert {case.kernel_name for case in selected} == {"kernel-a", "kernel-b"}
-    assert sum(case.kernel_name == "kernel-a" for case in selected) == 3
-    assert sum(case.kernel_name == "kernel-b" for case in selected) == 3
+    assert sum(case.kernel_name == "kernel-a" for case in selected) == 4
+    assert sum(case.kernel_name == "kernel-b" for case in selected) == 4
+    assert {
+        (case.kernel_name, case.row["device"], case.row["bucket"])
+        for case in selected
+    } == {
+        (kernel, device, bucket)
+        for kernel in ("kernel-a", "kernel-b")
+        for device in ("device-a", "device-b")
+        for bucket in (0, 4)
+    }
 
 
 def test_selection_score_macro_averages_kernels():

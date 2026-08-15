@@ -144,7 +144,7 @@ def write_gnn_checkpoint_contract(
             'in_channels': int(num_features),
             'edge_dim': int(edge_dim),
             'targets': _jsonable(FLAGS.target),
-            'resource_aux_heads': True,
+            'resource_aux_heads': resource_stats is not None,
         },
         'feature_schema': {
             'path': str(feature_schema_path),
@@ -186,6 +186,16 @@ def save_checkpoint_with_sidecar(payload, path, checkpoint_tag, epoch):
     Path(f'{path}.json').write_text(
         json.dumps(sidecar, indent=2, sort_keys=True) + '\n', encoding='utf-8'
     )
+
+
+def assert_resource_contract_matches_state_dict(contract, state_dict):
+    expected = bool(contract['model_init']['resource_aux_heads'])
+    present = any(name.startswith('resource_heads.') for name in state_dict)
+    if present != expected:
+        raise RuntimeError(
+            'GNN resource-head contract/state mismatch: '
+            f'contract={expected}, state_dict={present}'
+        )
 
 
 def _as_int_seed(seed):
@@ -330,6 +340,12 @@ def fit_resource_statistics(dataset):
     }
     saver.log_info(f'Training-only resource statistics: {stats}')
     return stats
+
+
+def maybe_fit_resource_statistics(dataset, resource_aux_weight):
+    if float(resource_aux_weight) <= 0.0:
+        return None
+    return fit_resource_statistics(dataset)
 
 
 def _point_loss_from_error(error):
@@ -1060,6 +1076,33 @@ def _parse_resource_eval_budgets(spec):
     return budgets
 
 
+def resource_feasibility_metrics(actual, predicted, budget, tolerance):
+    """Evaluate joint feasibility and its signed max-constraint boundary."""
+    actual = np.asarray(actual, dtype=np.float64)
+    predicted = np.asarray(predicted, dtype=np.float64)
+    budget = np.asarray(budget, dtype=np.float64).reshape(1, -1)
+    actual_feasible = np.all(actual <= budget, axis=1)
+    predicted_feasible = np.all(predicted <= budget, axis=1)
+    false_feasible = predicted_feasible & ~actual_feasible
+    joint_margin = np.max(actual - budget, axis=1)
+    boundary = np.abs(joint_margin) <= float(tolerance)
+    return {
+        'accuracy': float(np.mean(predicted_feasible == actual_feasible)),
+        'false_feasible_fdr': float(
+            false_feasible.sum() / max(int(predicted_feasible.sum()), 1)
+        ),
+        'false_feasible_rate': float(false_feasible.mean()),
+        'boundary_accuracy': (
+            float(np.mean(
+                predicted_feasible[boundary] == actual_feasible[boundary]
+            )) if boundary.any() else float('nan')
+        ),
+        'boundary_samples': int(boundary.sum()),
+        'joint_margin': joint_margin,
+        'boundary_mask': boundary,
+    }
+
+
 def report_resource_metrics(resource_rows, label):
     """Report stable physical and feasibility metrics for resource heads."""
     if not resource_rows:
@@ -1090,22 +1133,15 @@ def report_resource_metrics(resource_rows, label):
     feasibility = []
     tolerance = float(FLAGS.resource_boundary_tolerance)
     for budget in _parse_resource_eval_budgets(FLAGS.resource_eval_budgets):
-        actual_feasible = np.all(actual <= budget, axis=1)
-        predicted_feasible = np.all(predicted <= budget, axis=1)
-        false_feasible = predicted_feasible & ~actual_feasible
-        boundary = np.min(np.abs(actual - budget), axis=1) <= tolerance
+        metrics = resource_feasibility_metrics(
+            actual, predicted, budget, tolerance
+        )
         feasibility.append({
             'budget': budget.tolist(),
-            'accuracy': float(np.mean(predicted_feasible == actual_feasible)),
-            'false_feasible_rate': float(
-                false_feasible.sum() / max(int(predicted_feasible.sum()), 1)
-            ),
-            'boundary_accuracy': (
-                float(np.mean(
-                    predicted_feasible[boundary] == actual_feasible[boundary]
-                )) if boundary.any() else float('nan')
-            ),
-            'boundary_samples': int(boundary.sum()),
+            **{
+                key: value for key, value in metrics.items()
+                if key not in {'joint_margin', 'boundary_mask'}
+            },
         })
     report = {'resources': rows, 'feasibility': feasibility}
     saver.log_info(f'{label} resource metrics: {report}')
@@ -1252,7 +1288,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         )
 
     target_stats = fit_target_statistics(li[0])
-    resource_stats = fit_resource_statistics(li[0])
+    resource_stats = maybe_fit_resource_statistics(
+        li[0], FLAGS.resource_aux_weight
+    )
     if FLAGS.decompose_targets:
         li[0] = KernelCenteredDataset(li[0], model_targets)
     baseline_total = None
@@ -1288,12 +1326,15 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         target_stats=target_stats,
         resource_stats=resource_stats,
     ).to(FLAGS.device)
-    write_gnn_checkpoint_contract(
+    checkpoint_contract = write_gnn_checkpoint_contract(
         num_features=num_features,
         edge_dim=edge_dim,
         target_stats=target_stats,
         resource_stats=resource_stats,
         split_sha256=split_sha256,
+    )
+    assert_resource_contract_matches_state_dict(
+        checkpoint_contract, model.state_dict()
     )
     saver.log_info(f"Model first param device: {next(model.parameters()).device}")
     if torch.cuda.is_available():

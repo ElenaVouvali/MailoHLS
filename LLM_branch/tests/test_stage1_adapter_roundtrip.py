@@ -17,7 +17,11 @@ from tokenizers.models import WordLevel
 from tokenizers.pre_tokenizers import Whitespace
 from transformers import LlamaConfig, LlamaForCausalLM, PreTrainedTokenizerFast
 
-from LLM_branch.train.train_SFT_xattn_new import save_mailohls_adapter
+from LLM_branch.train.train_SFT_xattn_new import (
+    save_mailohls_adapter,
+    score_rhs_candidate_batch,
+    score_rhs_candidate_suffix,
+)
 
 
 def _tokenizer() -> PreTrainedTokenizerFast:
@@ -52,6 +56,40 @@ def _base_model(tie_word_embeddings: bool) -> LlamaForCausalLM:
     )
 
 
+def test_candidate_batch_matches_scalar_scoring():
+    torch.manual_seed(123)
+    tokenizer = _tokenizer()
+    model = _base_model(False).eval()
+    base_input_ids = torch.tensor([[2, 3]])
+    base_attention_mask = torch.ones_like(base_input_ids)
+    candidate_texts = ["alpha", "beta alpha", "alpha beta alpha"]
+
+    scalar = [
+        score_rhs_candidate_suffix(
+            model=model,
+            tok=tokenizer,
+            base_input_ids=base_input_ids,
+            base_attention_mask=base_attention_mask,
+            candidate_text=text,
+        )
+        for text in candidate_texts
+    ]
+    batched = score_rhs_candidate_batch(
+        model=model,
+        tok=tokenizer,
+        base_input_ids=base_input_ids,
+        base_attention_mask=base_attention_mask,
+        candidate_texts=candidate_texts,
+    )
+    for expected, actual in zip(scalar, batched):
+        assert actual["sum_logprob"] == pytest.approx(
+            expected["sum_logprob"], abs=1e-6
+        )
+        assert actual["mean_logprob"] == pytest.approx(
+            expected["mean_logprob"], abs=1e-6
+        )
+
+
 @pytest.mark.parametrize("tie_word_embeddings", [True, False])
 def test_stage1_adapter_roundtrip(tmp_path, tie_word_embeddings):
     torch.manual_seed(123)
@@ -69,11 +107,7 @@ def test_stage1_adapter_roundtrip(tmp_path, tie_word_embeddings):
         == base.get_output_embeddings().weight.data_ptr()
     )
     assert weights_tied is tie_word_embeddings
-    trainable_token_spec = (
-        special_ids
-        if weights_tied
-        else {"embed_tokens": special_ids, "lm_head": special_ids}
-    )
+    trainable_token_spec = special_ids
     initial_state = copy.deepcopy(base.state_dict())
     model = get_peft_model(
         base,
@@ -92,20 +126,24 @@ def test_stage1_adapter_roundtrip(tmp_path, tie_word_embeddings):
         for name, parameter in model.named_parameters()
         if "trainable_tokens_delta" in name and parameter.requires_grad
     )
-    assert token_delta_params == len(special_ids) * 32 * (
-        1 if weights_tied else 2
-    )
+    assert token_delta_params == len(special_ids) * 32
 
-    input_ids = torch.tensor([[2, special_ids[0], 3, special_ids[1]]])
+    input_ids = torch.tensor([[special_ids[0], 2, special_ids[1], 3]])
+    labels = input_ids.clone()
+    for special_id in special_ids:
+        labels[labels == special_id] = -100
     ordinary_output_before = (
         model.get_output_embeddings().weight[2].detach().clone()
+    )
+    output_weights_before = (
+        model.get_output_embeddings().weight.detach().clone()
     )
     model.train()
     optimizer = torch.optim.AdamW(
         (parameter for parameter in model.parameters() if parameter.requires_grad),
         lr=1e-2,
     )
-    loss = model(input_ids=input_ids, labels=input_ids).loss
+    loss = model(input_ids=input_ids, labels=labels).loss
     loss.backward()
     token_delta_gradients = {
         name: parameter.grad
@@ -118,13 +156,9 @@ def test_stage1_adapter_roundtrip(tmp_path, tie_word_embeddings):
         and torch.count_nonzero(gradient).item() > 0
         for name, gradient in token_delta_gradients.items()
     )
-    if not weights_tied:
-        assert any(
-            "lm_head" in name
-            and gradient is not None
-            and torch.count_nonzero(gradient).item() > 0
-            for name, gradient in token_delta_gradients.items()
-        )
+    assert not any(
+        "lm_head" in name for name in token_delta_gradients
+    )
     optimizer.step()
     optimizer.zero_grad(set_to_none=True)
     torch.testing.assert_close(
@@ -133,6 +167,13 @@ def test_stage1_adapter_roundtrip(tmp_path, tie_word_embeddings):
         atol=0.0,
         rtol=0.0,
     )
+    if not weights_tied:
+        torch.testing.assert_close(
+            output_weights_before,
+            model.get_output_embeddings().weight,
+            atol=0.0,
+            rtol=0.0,
+        )
 
     model.eval()
     with torch.no_grad():

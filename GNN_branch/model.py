@@ -21,6 +21,21 @@ from typing import Dict, Any, List, Tuple
 RESOURCE_NAMES = ("bram", "dsp", "ff", "lut")
 
 
+def make_resource_heads(response_in_D, hidden_dim, resource_stats):
+    if resource_stats is None:
+        return None
+    return nn.ModuleDict({
+        name: MLP(
+            response_in_D,
+            1,
+            activation_type=FLAGS.activation,
+            hidden_channels=[max(8, hidden_dim // 4)],
+            num_hidden_lyr=1,
+        )
+        for name in RESOURCE_NAMES
+    })
+
+
 def within_kernel_rank_loss(
     prediction,
     target,
@@ -243,18 +258,10 @@ class Net(nn.Module):
           self.MLPs = make_regression_heads(response_in_D)
           if self.decompose_targets:
               self.center_MLPs = make_regression_heads(in_D)
-          self.resource_heads = None
-          if resource_stats is not None:
-              self.resource_heads = nn.ModuleDict({
-                  name: MLP(
-                      response_in_D,
-                      1,
-                      activation_type=FLAGS.activation,
-                      hidden_channels=[max(8, D // 4)],
-                      num_hidden_lyr=1,
-                  )
-                  for name in RESOURCE_NAMES
-              })
+          self.resource_heads = make_resource_heads(
+              response_in_D, D, resource_stats
+          )
+          if self.resource_heads is not None:
               self.register_buffer(
                   "resource_mean",
                   torch.as_tensor(resource_stats["mean"], dtype=torch.float32),
