@@ -95,8 +95,8 @@ samples_per_kernel_per_epoch : 128
 rank_aux_weight            : 0.0
 rank_temperature           : 1.0
 rank_tie_epsilon           : 0.05
-resource_aux_weight        : 0.0
-paired_control_contract    : None
+resource_aux_weight        : 0.1
+paired_control_contract    : /home/elvouvali/MailoHLS/Checkpoints/gnn_v17_r0c_resource_control_s123/gnn_checkpoint_contract.json
 resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
 resource_boundary_tolerance : 0.02
 kernel_grouped_sampling    : True
@@ -111,7 +111,7 @@ evaluate_test              : False
 final_refit                : False
 final_refit_epochs         : None
 random_seed                : 123
-experiment_name            : gnn_v17_r0c_resource_control_s123
+experiment_name            : gnn_v17_r1c_resource_w010_s123
 allow_nondeterministic     : False
 batch_size                 : 64
 num_workers                : 0
@@ -139,7 +139,7 @@ print_every_iter           : 100
 plot_pred_points           : True
 user                       : elvouvali
 hostname                   : liono
-ts                         : 2026-08-15T11-15-04.848766
+ts                         : 2026-08-15T11-38-34.251278
 
 ----- resolved runtime graph dimensions
 task                       : regression
@@ -239,8 +239,8 @@ samples_per_kernel_per_epoch : 128
 rank_aux_weight            : 0.0
 rank_temperature           : 1.0
 rank_tie_epsilon           : 0.05
-resource_aux_weight        : 0.0
-paired_control_contract    : None
+resource_aux_weight        : 0.1
+paired_control_contract    : /home/elvouvali/MailoHLS/Checkpoints/gnn_v17_r0c_resource_control_s123/gnn_checkpoint_contract.json
 resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
 resource_boundary_tolerance : 0.02
 kernel_grouped_sampling    : True
@@ -255,7 +255,7 @@ evaluate_test              : False
 final_refit                : False
 final_refit_epochs         : None
 random_seed                : 123
-experiment_name            : gnn_v17_r0c_resource_control_s123
+experiment_name            : gnn_v17_r1c_resource_w010_s123
 allow_nondeterministic     : False
 batch_size                 : 64
 num_workers                : 0
@@ -283,83 +283,5 @@ print_every_iter           : 100
 plot_pred_points           : True
 user                       : elvouvali
 hostname                   : liono
-ts                         : 2026-08-15T11-15-04.848766
+ts                         : 2026-08-15T11-38-34.251278
 
-
-##################################
-Net(
-  (conv_first): TransformerConv(407, 64, heads=1)
-  (conv_layers): ModuleList(
-    (0-3): 4 x TransformerConv(64, 64, heads=1)
-  )
-  (jkn): JumpingKnowledge(max)
-  (loss_function): MSELoss()
-  (gate_nn_P): Sequential(
-    (0): Linear(in_features=64, out_features=64, bias=True)
-    (1): ReLU()
-    (2): Linear(in_features=64, out_features=1, bias=True)
-  )
-  (glob_P): MyGlobalAttention(gate_nn=Sequential(
-    (0): Linear(in_features=64, out_features=64, bias=True)
-    (1): ReLU()
-    (2): Linear(in_features=64, out_features=1, bias=True)
-  ), nn=None)
-  (gate_nn_pseudo_B): Sequential(
-    (0): Linear(in_features=64, out_features=64, bias=True)
-    (1): ReLU()
-    (2): Linear(in_features=64, out_features=1, bias=True)
-  )
-  (glob_pseudo_B): MyGlobalAttention(gate_nn=Sequential(
-    (0): Linear(in_features=64, out_features=64, bias=True)
-    (1): ReLU()
-    (2): Linear(in_features=64, out_features=1, bias=True)
-  ), nn=None)
-  (MLPs): MLP_multi_objective(
-    (activation): ELU(alpha=1.0)
-    (layers_common): ModuleList()
-    (MLP_heads): ModuleDict(
-      (perf): ModuleList(
-        (0): Linear(in_features=256, out_features=32, bias=True)
-        (1): Linear(in_features=32, out_features=16, bias=True)
-        (2): Linear(in_features=16, out_features=8, bias=True)
-        (3): Linear(in_features=8, out_features=1, bias=True)
-      )
-      (area): ModuleList(
-        (0): Linear(in_features=256, out_features=32, bias=True)
-        (1): Linear(in_features=32, out_features=16, bias=True)
-        (2): Linear(in_features=16, out_features=8, bias=True)
-        (3): Linear(in_features=8, out_features=1, bias=True)
-      )
-    )
-  )
-  (MLPs_per_pragma): ModuleDict(
-    (pipeline): MLP(
-      (activation): ELU(alpha=1.0)
-      (layers): ModuleList(
-        (0): Linear(in_features=65, out_features=32, bias=True)
-        (1): Linear(in_features=32, out_features=64, bias=True)
-      )
-    )
-    (unroll): MLP(
-      (activation): ELU(alpha=1.0)
-      (layers): ModuleList(
-        (0): Linear(in_features=65, out_features=32, bias=True)
-        (1): Linear(in_features=32, out_features=64, bias=True)
-      )
-    )
-    (array_partition): MLP(
-      (activation): ELU(alpha=1.0)
-      (layers): ModuleList(
-        (0): Linear(in_features=67, out_features=33, bias=True)
-        (1): Linear(in_features=33, out_features=64, bias=True)
-      )
-    )
-    (merge): MLP(
-      (activation): ELU(alpha=1.0)
-      (layers): ModuleList(
-        (0): Linear(in_features=192, out_features=33, bias=True)
-        (1): Linear(in_features=33, out_features=64, bias=True)
-      )
-    )
-  )
-)
