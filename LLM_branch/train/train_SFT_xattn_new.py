@@ -2007,7 +2007,7 @@ class StageValSelectionCallback(TrainerCallback):
         structural_memory = None
         structural_memory_mask = None
         if hasattr(model, "initialized_structural_xattn") and getattr(model, "initialized_structural_xattn", False):
-            structural_memory, structural_memory_mask = get_real_memory_pack_for_kernel(
+            structural_memory, structural_memory_mask = get_structural_memory_pack_for_kernel(
                 self.mem_bank,
                 case.kernel_name,
                 self.max_slots,
@@ -2286,6 +2286,53 @@ def load_memory_bank(
         bank[normalize_kname(k)] = rec
 
     return bank, inferred_mem_dim
+
+
+
+def get_structural_memory_pack_for_kernel(
+    mem_bank: Dict[str, dict],
+    kernel_name: str,
+    max_slots: int,
+    mem_dim: int,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Return one kernel's structural memory as batched [1,S,D] / [1,S].
+
+    Validation selection is a production evaluation path, so missing or
+    malformed structural memory must fail loudly rather than silently
+    substituting zero memory.
+    """
+    pack = (
+        mem_bank.get(kernel_name)
+        or mem_bank.get(normalize_kname(kernel_name))
+    )
+
+    if pack is None:
+        raise KeyError(
+            f"No structural memory found for kernel={kernel_name!r}"
+        )
+
+    kv = pack["kv"]
+    mask = pack["mask"]
+
+    expected_kv_shape = (int(max_slots), int(mem_dim))
+    expected_mask_shape = (int(max_slots),)
+
+    if tuple(kv.shape) != expected_kv_shape:
+        raise ValueError(
+            f"{kernel_name}: structural memory shape "
+            f"{tuple(kv.shape)} != {expected_kv_shape}"
+        )
+
+    if tuple(mask.shape) != expected_mask_shape:
+        raise ValueError(
+            f"{kernel_name}: structural memory mask shape "
+            f"{tuple(mask.shape)} != {expected_mask_shape}"
+        )
+
+    return (
+        kv.unsqueeze(0).contiguous(),
+        mask.unsqueeze(0).contiguous(),
+    )
 
 
 # ================================

@@ -1,6 +1,7 @@
 import torch
 
 from LLM_branch.train.train_SFT_xattn_new import (
+    get_structural_memory_pack_for_kernel,
     load_memory_bank,
 )
 
@@ -84,3 +85,16 @@ def test_sparse_absolute_lk_slots_are_preserved(tmp_path):
         rec["slot_cats"],
         slot_cats,
     )
+
+
+    batched_kv, batched_mask = get_structural_memory_pack_for_kernel(
+        bank,
+        "lava",
+        max_slots=max_slots,
+        mem_dim=dim,
+    )
+
+    assert batched_kv.shape == (1, max_slots, dim)
+    assert batched_mask.shape == (1, max_slots)
+    assert torch.equal(batched_kv[0], kv.float())
+    assert torch.equal(batched_mask[0], mask)
