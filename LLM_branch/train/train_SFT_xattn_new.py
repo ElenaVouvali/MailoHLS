@@ -1976,8 +1976,19 @@ class StageValSelectionCallback(TrainerCallback):
         self.training_contract = training_contract or {}
         self.selection_eval_steps = selection_eval_steps
         self.candidate_batch_size = candidate_batch_size
-        self.best_key = (float("-inf"),) * 4
-        self.best_step = -1
+        best_path = Path(output_dir) / best_dir_name / "best_selection_metrics.json"
+
+        if best_path.is_file():
+            previous = json.loads(best_path.read_text(encoding="utf-8"))
+            self.best_key = tuple(previous["checkpoint_key"])
+            self.best_step = int(previous["step"])
+            print(
+                f"[VAL-SELECTION] Restored previous best: "
+                f"step={self.best_step}, key={self.best_key}"
+            )
+        else:
+            self.best_key = (float("-inf"),) * 4
+            self.best_step = -1
         self.last_selection_step = None
 
     def _run_case(self, model, case: SelectionCase) -> dict:
@@ -2176,30 +2187,93 @@ def load_memory_bank(
         if require_pragma_free_memory and not bool(pack.get("disable_pragma_injection", False)):
             raise ValueError(f"{fn}: memory was not built with disable_pragma_injection=True")
 
+        # Preserve absolute MailoHLS Lk slot alignment.
+        #
+        # build_structural_memory.py stores action Lk at slot k-1.
+        # Sparse action sets are therefore valid; for example, a kernel
+        # may contain active L2..L15 while slot 0 / L1 remains inactive.
+        #
+        # Do NOT compact active vectors to slots 0..N-1: structural_xattn
+        # routes the <Lk> placeholder directly to one-based memory slot k.
         if labels is not None:
-            active = []
-            for i, (lbl, m) in enumerate(zip(labels, mask.tolist())):
-                lbl = int(lbl)
-                if m and lbl > 0:
-                    cat = int(slot_cats[i]) if slot_cats is not None else 0
-                    active.append((lbl, kv[i], cat))
+            labels_t = torch.as_tensor(
+                labels,
+                dtype=torch.long,
+            ).view(-1)
 
-            active.sort(key=lambda x: x[0])
+            if labels_t.numel() != kv.size(0):
+                raise ValueError(
+                    f"{fn}: labels have {labels_t.numel()} entries "
+                    f"for {kv.size(0)} memory slots"
+                )
 
-            dense_kv = torch.zeros_like(kv)
-            dense_mask = torch.zeros_like(mask)
-            dense_slot_cats = torch.zeros((kv.size(0),), dtype=torch.long)
+            expected_slots = torch.arange(
+                1,
+                kv.size(0) + 1,
+                dtype=torch.long,
+            )
 
-            for j, (lbl, vec, cat) in enumerate(active):
-                if lbl != j + 1:
-                    raise ValueError(f"{fn}: non-contiguous labels {[x[0] for x in active]}")
-                dense_kv[j] = vec
-                dense_mask[j] = True
-                dense_slot_cats[j] = cat
+            active_idx = mask.nonzero(
+                as_tuple=False
+            ).view(-1)
 
-            kv = dense_kv.contiguous()
-            mask = dense_mask.contiguous()
-            slot_cats = dense_slot_cats.contiguous()
+            if active_idx.numel() > 0:
+                active_labels = labels_t.index_select(
+                    0,
+                    active_idx,
+                )
+                expected_active = expected_slots.index_select(
+                    0,
+                    active_idx,
+                )
+
+                if not torch.equal(
+                    active_labels,
+                    expected_active,
+                ):
+                    raise ValueError(
+                        f"{fn}: active labels violate absolute Lk "
+                        f"slot alignment: "
+                        f"labels={active_labels.tolist()}, "
+                        f"expected={expected_active.tolist()}"
+                    )
+
+        # slot_ids, when present, must describe the same fixed absolute
+        # one-based structural address space.
+        slot_ids = pack.get("slot_ids", None)
+
+        if slot_ids is not None:
+            slot_ids_t = torch.as_tensor(
+                slot_ids,
+                dtype=torch.long,
+            ).view(-1)
+
+            expected_slots = torch.arange(
+                1,
+                kv.size(0) + 1,
+                dtype=torch.long,
+            )
+
+            if not torch.equal(
+                slot_ids_t,
+                expected_slots,
+            ):
+                raise ValueError(
+                    f"{fn}: slot_ids must equal absolute [1..S]; "
+                    f"got {slot_ids_t.tolist()}"
+                )
+
+        if slot_cats is not None:
+            slot_cats = torch.as_tensor(
+                slot_cats,
+                dtype=torch.long,
+            ).view(-1)
+
+            if slot_cats.numel() != kv.size(0):
+                raise ValueError(
+                    f"{fn}: slot_cats have {slot_cats.numel()} entries "
+                    f"for {kv.size(0)} memory slots"
+                )
 
         k = fn.replace(".memory.pt", "")
         rec = {
