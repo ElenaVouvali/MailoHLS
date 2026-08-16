@@ -423,6 +423,11 @@ parser.add_argument('--rank_temperature', type=float, default=1.0)
 parser.add_argument('--rank_tie_epsilon', type=float, default=0.05)
 parser.add_argument('--resource_aux_weight', type=float, default=0.0)
 parser.add_argument(
+    '--strict_paired_ablation',
+    action='store_true',
+    help='Require an exactly matched R0 control for a causal R0/R1 ablation.'
+)
+parser.add_argument(
     '--paired_control_contract',
     type=str,
     default=None,
@@ -631,12 +636,27 @@ if FLAGS.rank_tie_epsilon < 0:
     parser.error('--rank_tie_epsilon must be non-negative.')
 if FLAGS.resource_aux_weight < 0:
     parser.error('--resource_aux_weight must be non-negative.')
-if FLAGS.resource_aux_weight > 0 and not FLAGS.paired_control_contract:
+
+if FLAGS.resource_aux_weight < 0:
+    parser.error('--resource_aux_weight must be non-negative.')
+
+if FLAGS.strict_paired_ablation:
+    if FLAGS.resource_aux_weight <= 0:
+        parser.error(
+            '--strict_paired_ablation requires --resource_aux_weight > 0.'
+        )
+    if not FLAGS.paired_control_contract:
+        parser.error(
+            '--strict_paired_ablation requires --paired_control_contract.'
+        )
+    if FLAGS.rank_aux_weight != 0:
+        parser.error(
+            '--strict_paired_ablation requires --rank_aux_weight 0.'
+        )
+elif FLAGS.paired_control_contract:
     parser.error(
-        '--resource_aux_weight > 0 requires --paired_control_contract from R0.'
+        '--paired_control_contract is only used with --strict_paired_ablation.'
     )
-if FLAGS.resource_aux_weight > 0 and FLAGS.rank_aux_weight != 0:
-    parser.error('Resource-head causal runs require --rank_aux_weight 0.')
 if FLAGS.resource_boundary_tolerance < 0:
     parser.error('--resource_boundary_tolerance must be non-negative.')
 if not -1.0 <= FLAGS.min_rank_tau <= 1.0:
