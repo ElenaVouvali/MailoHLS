@@ -426,7 +426,7 @@ def load_inference_cases_jsonl(path: str) -> List[InferenceCase]:
 
 
 # ============================================================
-# HARP memory bank
+# STRUCTURAL memory bank
 # ============================================================
 def load_memory_bank(memory_dir: str) -> Dict[str, dict]:
     bank = {}
@@ -495,14 +495,14 @@ def get_first_real_device(model):
     return torch.device("cuda:0")
 
 
-def move_harp_modules_to_model_device(model):
+def move_structural_modules_to_model_device(model):
     device = get_first_real_device(model)
     moved = 0
     for module in model.modules():
         if isinstance(module, GatedCrossAttentionBlock):
             module.to(device=device)
             moved += 1
-    print(f"[HARP-DEVICE] moved {moved} HARP blocks to {device}")
+    print(f"[STRUCTURAL-DEVICE] moved {moved} STRUCTURAL blocks to {device}")
 
 
 def print_xattn_forward_stats(model):
@@ -515,31 +515,31 @@ def print_xattn_forward_stats(model):
         print("[XATTN-DBG] no cross-attn forward stats collected yet")
 
 
-def get_harp_xattn_state_dict(model):
+def get_structural_xattn_state_dict(model):
     sd = model.state_dict()
     return {k: v.detach().cpu() for k, v in sd.items() if "gated_cross_attn_layer" in k}
 
 
-def load_partial_harp_xattn(model, harp_xattn_path: str, tag: str):
-    if not harp_xattn_path or not os.path.isfile(harp_xattn_path):
-        raise FileNotFoundError(f"[{tag}] no harp_xattn.pt found at: {harp_xattn_path}")
+def load_partial_structural_xattn(model, structural_xattn_path: str, tag: str):
+    if not structural_xattn_path or not os.path.isfile(structural_xattn_path):
+        raise FileNotFoundError(f"[{tag}] no structural_xattn.pt found at: {structural_xattn_path}")
 
-    harp_sd = torch.load(harp_xattn_path, map_location="cpu", weights_only=True)
-    missing, unexpected = model.load_state_dict(harp_sd, strict=False)
-    harp_missing = [k for k in missing if "gated_cross_attn_layer" in k]
-    if harp_missing or unexpected:
+    structural_sd = torch.load(structural_xattn_path, map_location="cpu", weights_only=True)
+    missing, unexpected = model.load_state_dict(structural_sd, strict=False)
+    structural_missing = [k for k in missing if "gated_cross_attn_layer" in k]
+    if structural_missing or unexpected:
         raise ValueError(
             f"[{tag}] incompatible cross-attention state: "
-            f"missing={harp_missing[:10]}, unexpected={unexpected[:10]}"
+            f"missing={structural_missing[:10]}, unexpected={unexpected[:10]}"
         )
-    print(f"[{tag}] harp_missing[:10]={harp_missing[:10]}")
+    print(f"[{tag}] structural_missing[:10]={structural_missing[:10]}")
     print(f"[{tag}] unexpected[:10]={unexpected[:10]}")
-    move_harp_modules_to_model_device(model)
+    move_structural_modules_to_model_device(model)
 
 
 MaskedCrossAttention = structural_xattn.MaskedCrossAttention
 GatedCrossAttentionBlock = structural_xattn.GatedCrossAttentionBlock
-HARPLMMixin = structural_xattn.StructuralCrossAttentionMixin
+StructuralCrossAttentionMixin = structural_xattn.StructuralCrossAttentionMixin
 extend_instance = structural_xattn.extend_instance
 infer_decoder_layers_attr_name = structural_xattn.infer_decoder_layers_attr_name
 
@@ -592,7 +592,7 @@ def truncate_scoring_prefix_preserve_target(
     target_prefix_ids = prefix_ids[R:]
 
     # Always preserve the entire generated target prefix if possible,
-    # because HARP routing depends on target anchors already emitted.
+    # because STRUCTURAL routing depends on target anchors already emitted.
     if len(target_prefix_ids) >= max_prefix_tokens:
         kept_target = target_prefix_ids[-max_prefix_tokens:]
         return kept_target, 0
@@ -623,7 +623,7 @@ def score_rhs_candidate_suffix(
     base_attention_mask: torch.Tensor,
     candidate_text: str,
     routing_start_idx: Optional[torch.Tensor] = None,
-    use_harp: bool = False,
+    use_structural_memory: bool = False,
 ):
     device = base_input_ids.device
     cand_ids = tok(candidate_text, add_special_tokens=False)["input_ids"]
@@ -642,9 +642,9 @@ def score_rhs_candidate_suffix(
         "attention_mask": full_attention_mask,
     }
 
-    if use_harp:
+    if use_structural_memory:
         if routing_start_idx is None:
-            raise ValueError("routing_start_idx is required when use_harp=True")
+            raise ValueError("routing_start_idx is required when use_structural_memory=True")
 
         xmask = torch.zeros(
             (1, full_input_ids.shape[1]),
@@ -787,8 +787,8 @@ def constrained_decode_rhs_by_candidate_scoring(
     kernel_name: str,
     directive_domain_registry: Dict[str, Dict[str, List[str]]],
     score_reduction: str = "mean",
-    harp_x: Optional[torch.Tensor] = None,
-    harp_mask: Optional[torch.Tensor] = None,
+    structural_memory: Optional[torch.Tensor] = None,
+    structural_memory_mask: Optional[torch.Tensor] = None,
     routing_start_idx: Optional[torch.Tensor] = None,
     debug_topk: int = 0,
     candidate_max_prefix_tokens: int = 0,
@@ -817,11 +817,11 @@ def constrained_decode_rhs_by_candidate_scoring(
     sequence_sum_logprob = 0.0
     site_count = 0
 
-    harp_enabled = hasattr(model, "condition_harp") and getattr(model, "initialized_harp_flamingo", False)
-    use_harp = harp_enabled and (harp_x is not None) and (harp_mask is not None)
+    structural_enabled = hasattr(model, "condition_structural_memory") and getattr(model, "initialized_structural_xattn", False)
+    use_structural_memory = structural_enabled and (structural_memory is not None) and (structural_memory_mask is not None)
 
-    if use_harp:
-        model.condition_harp(harp_x.to(device), harp_mask.to(device))
+    if use_structural_memory:
+        model.condition_structural_memory(structural_memory.to(device), structural_memory_mask.to(device))
 
     try:
         for label, lhs in extract_ordered_lhs_plan(source_text):
@@ -871,7 +871,7 @@ def constrained_decode_rhs_by_candidate_scoring(
                     base_attention_mask=base_mask,
                     candidate_text=rhs + "\n",
                     routing_start_idx=effective_routing_start_idx,
-                    use_harp=use_harp,
+                    use_structural_memory=use_structural_memory,
                 )
                 scored.append(
                     {
@@ -930,8 +930,8 @@ def constrained_decode_rhs_by_candidate_scoring(
         }
 
     finally:
-        if hasattr(model, "clear_harp"):
-            model.clear_harp()
+        if hasattr(model, "clear_structural_memory"):
+            model.clear_structural_memory()
 
 
 # ============================================================
@@ -1048,7 +1048,7 @@ def load_base_model(
     return model
 
 
-def attach_harp_modules(
+def attach_structural_modules(
     model,
     tok,
     mem_dim: int,
@@ -1058,7 +1058,7 @@ def attach_harp_modules(
     xattn_ff_mult: int,
     xattn_enable_ff: bool,
 ):
-    extend_instance(model, HARPLMMixin)
+    extend_instance(model, StructuralCrossAttentionMixin)
     decoder_layers_attr_name = infer_decoder_layers_attr_name(model)
     model.set_decoder_layers_attr_name(decoder_layers_attr_name)
 
@@ -1078,9 +1078,9 @@ def attach_harp_modules(
         mask_mode="segment",
     )
 
-    print(f"[HARP-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
-    print(f"[HARP-XATTN] inserted gated xattn every {every_n_layers} decoder layers")
-    move_harp_modules_to_model_device(model)
+    print(f"[STRUCTURAL-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
+    print(f"[STRUCTURAL-XATTN] inserted gated xattn every {every_n_layers} decoder layers")
+    move_structural_modules_to_model_device(model)
 
 
 def load_stage_model(args, tok):
@@ -1106,7 +1106,7 @@ def load_stage_model(args, tok):
     model = load_peft_adapter_strict(base, lora_adapter_dir)
 
     if args.stage in {"stage2", "stage3"}:
-        attach_harp_modules(
+        attach_structural_modules(
             model,
             tok,
             mem_dim=args.mem_dim,
@@ -1117,14 +1117,14 @@ def load_stage_model(args, tok):
             xattn_enable_ff=args.xattn_enable_ff,
         )
 
-        harp_xattn_path = args.harp_xattn_path
-        if not harp_xattn_path:
-            harp_xattn_path = os.path.join(args.adapter_dir, "harp_xattn.pt")
+        structural_xattn_path = args.structural_xattn_path
+        if not structural_xattn_path:
+            structural_xattn_path = os.path.join(args.adapter_dir, "structural_xattn.pt")
 
-        load_partial_harp_xattn(
+        load_partial_structural_xattn(
             model,
-            harp_xattn_path,
-            tag=f"HARP-LOAD-{args.stage.upper()}",
+            structural_xattn_path,
+            tag=f"STRUCTURAL-LOAD-{args.stage.upper()}",
         )
 
     model.eval()
@@ -1164,7 +1164,7 @@ def load_peft_adapter_strict(base, adapter_dir: str):
         raise RuntimeError(
             f"LoRA adapter did not load cleanly from {adapter_dir}.\n"
             "For stage2 inference, use the stage1 LoRA adapter directory as --lora_adapter_dir "
-            "(or --adapter_dir), and load stage2 HARP weights via --harp_xattn_path."
+            "(or --adapter_dir), and load stage2 STRUCTURAL weights via --structural_xattn_path."
         )
 
     print(f"[ADAPTER] loaded clean PEFT adapter from: {adapter_dir}")
@@ -1209,12 +1209,12 @@ def predict_case(
     device = get_first_real_device(model)
     routing_start_idx = torch.tensor([len(prompt_ids)], dtype=torch.long, device=device)
 
-    harp_x = None
-    harp_mask = None
+    structural_memory = None
+    structural_memory_mask = None
     if stage in {"stage2", "stage3"}:
         if mem_bank is None:
             raise ValueError("mem_bank must be provided for stage2/stage3 inference")
-        harp_x, harp_mask = get_real_memory_pack_for_kernel(
+        structural_memory, structural_memory_mask = get_real_memory_pack_for_kernel(
             mem_bank,
             case.kernel_name,
             max_slots=max_slots,
@@ -1245,8 +1245,8 @@ def predict_case(
             kernel_name=case.kernel_name,
             directive_domain_registry=directive_domain_registry,
             score_reduction=score_reduction,
-            harp_x=harp_x,
-            harp_mask=harp_mask,
+            structural_memory=structural_memory,
+            structural_memory_mask=structural_memory_mask,
             routing_start_idx=routing_start_idx,
             debug_topk=debug_topk,
             candidate_max_prefix_tokens=candidate_max_prefix_tokens,
@@ -1297,8 +1297,8 @@ def predict_case(
         "candidates": candidates,
     }
 
-    if stage in {"stage2", "stage3"} and harp_mask is not None:
-        row["memory_active_slots"] = int(harp_mask.sum().item())
+    if stage in {"stage2", "stage3"} and structural_memory_mask is not None:
+        row["memory_active_slots"] = int(structural_memory_mask.sum().item())
 
     if case.reference_target is not None:
         row["reference_target"] = case.reference_target
@@ -1382,7 +1382,7 @@ def main():
     ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-7b-base")
     ap.add_argument("--adapter_dir", type=str, required=True)
     ap.add_argument("--lora_adapter_dir", type=str, default="")
-    ap.add_argument("--harp_xattn_path", type=str, default="")
+    ap.add_argument("--structural_xattn_path", type=str, default="")
     ap.add_argument("--no_4bit", action="store_true")
     ap.add_argument("--device_map", type=str, default="auto")
     ap.add_argument(

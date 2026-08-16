@@ -302,22 +302,22 @@ class StructuralMemoryPreMLP(nn.Module):
         super().__init__()
         self.original_norm = original_norm
         self.gated_cross_attn_layer = gated_cross_attn_layer
-        self.harp_x = None
-        self.harp_mask = None
+        self.structural_memory = None
+        self.structural_memory_mask = None
         self.placeholder_slot_ids = None
         self.use_cached_memory = False
         self.xattn_apply_mask = None
 
     def is_conditioned(self):
         return (
-            self.harp_x is not None
-            and self.harp_mask is not None
+            self.structural_memory is not None
+            and self.structural_memory_mask is not None
             and self.placeholder_slot_ids is not None
         )
 
     def clear_conditioning(self):
-        self.harp_x = None
-        self.harp_mask = None
+        self.structural_memory = None
+        self.structural_memory_mask = None
         self.placeholder_slot_ids = None
         self.use_cached_memory = False
         self.xattn_apply_mask = None
@@ -330,9 +330,9 @@ class StructuralMemoryPreMLP(nn.Module):
             )
         hidden_states = self.gated_cross_attn_layer(
             hidden_states,
-            self.harp_x,
+            self.structural_memory,
             placeholder_slot_ids=self.placeholder_slot_ids,
-            memory_mask=self.harp_mask,
+            memory_mask=self.structural_memory_mask,
             use_cached_memory=self.use_cached_memory,
             xattn_apply_mask=self.xattn_apply_mask,
         )
@@ -399,22 +399,22 @@ class StructuralCrossAttentionMixin(nn.Module):
         self.placeholder_token_ids = tuple(map(int, placeholder_token_ids))
         self.structural_xattn_layer_indices = tuple(selected_layers)
         self.initialized_structural_xattn = True
-        self._use_cached_harp_x = False
+        self._use_cached_structural_memory = False
         print(
             "[STRUCTURAL-XATTN] placement=post_self_attn_pre_mlp "
             f"layers={selected_layers}"
         )
 
-    def condition_harp(self, harp_x, harp_mask):
+    def condition_structural_memory(self, structural_memory, structural_memory_mask):
         for wrapper in self._structural_wrappers():
-            wrapper.harp_x = harp_x
-            wrapper.harp_mask = harp_mask
-        self._use_cached_harp_x = True
+            wrapper.structural_memory = structural_memory
+            wrapper.structural_memory_mask = structural_memory_mask
+        self._use_cached_structural_memory = True
 
-    def clear_harp(self):
+    def clear_structural_memory(self):
         for wrapper in self._structural_wrappers():
             wrapper.clear_conditioning()
-        self._use_cached_harp_x = False
+        self._use_cached_structural_memory = False
 
     def is_conditioned(self):
         wrappers = tuple(self._structural_wrappers())
@@ -445,7 +445,7 @@ class StructuralCrossAttentionMixin(nn.Module):
             routing_start_idx=routing_start_idx,
         )
         use_cached_memory = (
-            self._use_cached_harp_x
+            self._use_cached_structural_memory
             and self.is_conditioned()
             and not placeholder_slot_ids.ne(0).any()
         )
@@ -462,5 +462,3 @@ class StructuralCrossAttentionMixin(nn.Module):
         return super().forward(**kwargs)
 
 
-# Historical public name retained for callers, not for checkpoint module paths.
-HARPLMMixin = StructuralCrossAttentionMixin

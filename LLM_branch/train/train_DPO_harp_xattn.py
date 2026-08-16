@@ -574,7 +574,7 @@ class DPOPairCollator:
         return out
     
 
-class HARPDPOTrainer(Trainer):
+class STRUCTURALDPOTrainer(Trainer):
     def __init__(
         self,
         *args,
@@ -710,7 +710,7 @@ class HARPDPOTrainer(Trainer):
     def _normalize_kname(self, s: str) -> str:
         return re.sub(r"[-\s]+", "_", s.strip().lower())
 
-    def _condition_harp_from_kernel_names(self, model, kernel_names: List[str]):
+    def _condition_structural_memory_from_kernel_names(self, model, kernel_names: List[str]):
         kvs, ms = [], []
         for k in kernel_names:
             pack = self.mem_bank.get(k) or self.mem_bank.get(self._normalize_kname(k))
@@ -724,11 +724,11 @@ class HARPDPOTrainer(Trainer):
         mem_kv = torch.stack(kvs, dim=0)
         mem_m = torch.stack(ms, dim=0)
         device = next(model.parameters()).device
-        model.condition_harp(mem_kv.to(device), mem_m.to(device))
+        model.condition_structural_memory(mem_kv.to(device), mem_m.to(device))
 
-    def _clear_harp_if_present(self, model):
-        if hasattr(model, "clear_harp"):
-            model.clear_harp()
+    def _clear_structural_memory_if_present(self, model):
+        if hasattr(model, "clear_structural_memory"):
+            model.clear_structural_memory()
 
     def _sequence_logps(
         self,
@@ -742,14 +742,14 @@ class HARPDPOTrainer(Trainer):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Important:
-        - For the TRAINABLE policy model under grad checkpointing, keep HARP conditioned
+        - For the TRAINABLE policy model under grad checkpointing, keep STRUCTURAL conditioned
         until backward finishes.
         - For the frozen ref model / eval no_grad path, clear immediately after forward.
         """
-        keep_harp_for_backward = bool(torch.is_grad_enabled() and model.training)
+        keep_structural_memory_for_backward = bool(torch.is_grad_enabled() and model.training)
 
-        if hasattr(model, "condition_harp"):
-            self._condition_harp_from_kernel_names(model, kernel_names)
+        if hasattr(model, "condition_structural_memory"):
+            self._condition_structural_memory_from_kernel_names(model, kernel_names)
 
         try:
             outputs = model(
@@ -776,8 +776,8 @@ class HARPDPOTrainer(Trainer):
         finally:
             # DO NOT clear the trainable policy model before backward checkpoint
             # recomputation has happened.
-            if not keep_harp_for_backward:
-                self._clear_harp_if_present(model)
+            if not keep_structural_memory_for_backward:
+                self._clear_structural_memory_if_present(model)
 
     def training_step(self, model, inputs, num_items_in_batch=None):
         model.train()
@@ -792,9 +792,9 @@ class HARPDPOTrainer(Trainer):
         try:
             self.accelerator.backward(loss)
         finally:
-            # Clear ONLY after backward so checkpoint recomputation still sees HARP memory
-            self._clear_harp_if_present(model)
-            self._clear_harp_if_present(self.ref_model)
+            # Clear ONLY after backward so checkpoint recomputation still sees STRUCTURAL memory
+            self._clear_structural_memory_if_present(model)
+            self._clear_structural_memory_if_present(self.ref_model)
 
         return loss.detach() / self.args.gradient_accumulation_steps
 
@@ -922,8 +922,8 @@ class HARPDPOTrainer(Trainer):
             return loss, None, None
 
         finally:
-            self._clear_harp_if_present(model)
-            self._clear_harp_if_present(self.ref_model)
+            self._clear_structural_memory_if_present(model)
+            self._clear_structural_memory_if_present(self.ref_model)
 
 
 def build_tokenizer(mod, tokenizer_source: str):
@@ -993,7 +993,7 @@ def configure_dpo_trainables(
     """
     For stage-3 DPO, do NOT let the whole PEFT adapter move by default.
     We want to preserve the stage-2 language prior and let DPO mainly refine
-    memory-conditioned routing through HARP xattn.
+    memory-conditioned routing through STRUCTURAL xattn.
     """
     model.requires_grad_(False)
 
@@ -1015,7 +1015,7 @@ def configure_dpo_trainables(
 
 
 
-def build_harp_model(mod, args, tokenizer, trainable: bool):
+def build_structural_model(mod, args, tokenizer, trainable: bool):
     bnb = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
@@ -1054,7 +1054,7 @@ def build_harp_model(mod, args, tokenizer, trainable: bool):
         is_trainable=trainable,
     )
 
-    mod.extend_instance(model, mod.HARPLMMixin)
+    mod.extend_instance(model, mod.StructuralCrossAttentionMixin)
     decoder_layers_attr_name = mod.infer_decoder_layers_attr_name(model)
     model.set_decoder_layers_attr_name(decoder_layers_attr_name)
 
@@ -1073,8 +1073,8 @@ def build_harp_model(mod, args, tokenizer, trainable: bool):
         only_attend_immediate_memory=True,
         mask_mode="segment",
     )
-    mod.move_harp_modules_to_model_device(model)
-    mod.load_partial_harp_xattn(model, args.stage2_harp_xattn_path, tag="HARP-LOAD")
+    mod.move_structural_modules_to_model_device(model)
+    mod.load_partial_structural_xattn(model, args.stage2_structural_xattn_path, tag="STRUCTURAL-LOAD")
 
     if trainable:
         configure_dpo_trainables(
@@ -1125,12 +1125,17 @@ def main():
     ])
 
     ap.add_argument("--stage1_adapter_dir", type=str, required=True)
-    ap.add_argument("--stage2_harp_xattn_path", type=str, required=True)
+    ap.add_argument("--stage2_structural_xattn_path", type=str, required=True)
     ap.add_argument("--output_dir", type=str, required=True)
 
     ap.add_argument("--split_mode", type=str, default="family", choices=["family", "random_design"])
     ap.add_argument("--split_json", type=str, default="")
     ap.add_argument("--save_split_json", type=str, default="")
+    ap.add_argument(
+        "--save_selection_debug",
+        action="store_true",
+        help="Persist selected split rows under selected_debug/.",
+    )
     ap.add_argument("--val_families", type=str, default="rodinia_pathfinder;machsuite_sort_radix")
     ap.add_argument("--test_families", type=str, default="serrano_kalman_filter")
     ap.add_argument("--val_ratio", type=float, default=0.10)
@@ -1212,7 +1217,7 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     # if the user did not explicitly choose trainable groups,
-    # train only HARP xattn + attn_gate.
+    # train only STRUCTURAL xattn + attn_gate.
     if not any([
         args.train_lora_dpo,
         args.train_xattn_dpo,
@@ -1235,13 +1240,23 @@ def main():
         rows=rows,
     )
 
-    selected_debug_dir = os.path.join(args.output_dir, "selected_debug")
-    os.makedirs(selected_debug_dir, exist_ok=True)
-    dump_jsonl(os.path.join(selected_debug_dir, "train_selected.jsonl"), train_rows)
-    if val_rows:
-        dump_jsonl(os.path.join(selected_debug_dir, "val_selected.jsonl"), val_rows)
-    if test_rows:
-        dump_jsonl(os.path.join(selected_debug_dir, "test_selected.jsonl"), test_rows)
+    if args.save_selection_debug:
+        selected_debug_dir = os.path.join(args.output_dir, "selected_debug")
+        os.makedirs(selected_debug_dir, exist_ok=True)
+        dump_jsonl(
+            os.path.join(selected_debug_dir, "train_selected.jsonl"),
+            train_rows,
+        )
+        if val_rows:
+            dump_jsonl(
+                os.path.join(selected_debug_dir, "val_selected.jsonl"),
+                val_rows,
+            )
+        if test_rows:
+            dump_jsonl(
+                os.path.join(selected_debug_dir, "test_selected.jsonl"),
+                test_rows,
+            )
 
     print(f"[INFO] Final selected split sizes: train={len(train_rows)} val={len(val_rows)} test={len(test_rows)}")
 
@@ -1317,9 +1332,9 @@ def main():
     collator = DPOPairCollator(tokenizer)
 
     print("[INFO] Building policy model...")
-    policy_model = build_harp_model(mod, args, tokenizer, trainable=True)
+    policy_model = build_structural_model(mod, args, tokenizer, trainable=True)
     print("[INFO] Building frozen reference model...")
-    ref_model = build_harp_model(mod, args, tokenizer, trainable=False)
+    ref_model = build_structural_model(mod, args, tokenizer, trainable=False)
 
     if hasattr(policy_model, "print_trainable_parameters"):
         policy_model.print_trainable_parameters()
@@ -1366,7 +1381,7 @@ def main():
         remove_unused_columns=False,
     )
 
-    trainer = HARPDPOTrainer(
+    trainer = STRUCTURALDPOTrainer(
         model=policy_model,
         ref_model=ref_model,
         args=training_args,
@@ -1388,7 +1403,7 @@ def main():
         lr_embed=args.lr_embed,
     )
 
-    trainer.add_callback(mod.SaveHarpXattnCallback())
+    trainer.add_callback(mod.SaveStructuralXattnCallback())
 
     if selection_cases:
         trainer.add_callback(
@@ -1416,12 +1431,12 @@ def main():
     tokenizer.save_pretrained(args.output_dir)
 
     torch.save(
-        mod.get_harp_xattn_state_dict(policy_model),
-        os.path.join(args.output_dir, "harp_xattn.pt"),
+        mod.get_structural_xattn_state_dict(policy_model),
+        os.path.join(args.output_dir, "structural_xattn.pt"),
     )
 
     print(
-        f"[DPO-HARP-CONFIG] mem_dim={args.mem_dim} "
+        f"[DPO-STRUCTURAL-CONFIG] mem_dim={args.mem_dim} "
         f"max_slots={args.max_slots} "
         f"every_n_layers={args.every_n_layers} "
         f"xattn_heads={args.xattn_heads} "
@@ -1429,7 +1444,7 @@ def main():
         f"xattn_ff_mult={args.xattn_ff_mult}"
     )
 
-    print(f"[DONE] Saved DPO LoRA + HARP xattn adapters to: {args.output_dir}")
+    print(f"[DONE] Saved DPO LoRA + STRUCTURAL xattn adapters to: {args.output_dir}")
 
     cleanup_cuda()
 

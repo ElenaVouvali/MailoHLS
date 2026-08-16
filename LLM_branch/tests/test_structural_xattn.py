@@ -68,8 +68,8 @@ def _inputs():
 
 
 def _condition(model, memory, memory_mask):
-    model.clear_harp()
-    model.condition_harp(memory, memory_mask)
+    model.clear_structural_memory()
+    model.condition_structural_memory(memory, memory_mask)
 
 
 def _set_attention_gate(model, value):
@@ -192,7 +192,7 @@ def test_structural_checkpoint_round_trip(tmp_path):
         for key, value in source.state_dict().items()
         if "gated_cross_attn_layer" in key
     }
-    checkpoint = tmp_path / "harp_xattn.pt"
+    checkpoint = tmp_path / "structural_xattn.pt"
     torch.save(structural_state, checkpoint)
 
     target = _attach(_base_model())
@@ -231,3 +231,17 @@ def test_training_and_inference_architecture_contract_is_identical():
         == models[1].structural_xattn_layer_indices
     )
     assert STRUCTURAL_PLACEMENT == "post_self_attn_pre_mlp"
+
+
+
+def test_structural_initialization_uses_current_contract():
+    model = _attach(_base_model())
+
+    assert model.initialized_structural_xattn is True
+    assert not hasattr(model, "initialized_harp_flamingo")
+
+    assert hasattr(model, "condition_structural_memory")
+    assert hasattr(model, "clear_structural_memory")
+
+    assert not hasattr(model, "condition_harp")
+    assert not hasattr(model, "clear_harp")

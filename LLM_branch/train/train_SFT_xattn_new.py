@@ -7,9 +7,8 @@ from the selected Stage-1 adapter and adds cross-attention over action-aligned
 GNN structural memory.  The specified-clock task is the default; automatic
 selection among measured clocks is an explicit, disabled-by-default ablation.
 
-Some internal classes and checkpoint field names retain the historical "HARP"
-term for compatibility.  In the current pipeline they mean MLIR-derived GNN
-structural memory, not the legacy LLVM graph representation.
+The current pipeline uses MLIR-derived GNN structural memory consistently
+throughout Stage-2 training, validation, and inference.
 """
 
 from __future__ import annotations
@@ -1092,7 +1091,7 @@ def dump_json_atomic(path: str, obj: Any):
             os.unlink(temporary)
 
 
-def harp_state_manifest(model) -> dict:
+def structural_state_manifest(model) -> dict:
     tensor_hashes = {}
     combined = hashlib.sha256()
     selected = sorted(
@@ -1101,7 +1100,7 @@ def harp_state_manifest(model) -> dict:
         if "gated_cross_attn_layer" in name
     )
     if not selected:
-        raise ValueError("Cannot create initial HARP state manifest: no cross-attention tensors")
+        raise ValueError("Cannot create initial STRUCTURAL state manifest: no cross-attention tensors")
     for name, parameter in selected:
         tensor = parameter.detach().cpu().contiguous()
         raw = tensor.view(torch.uint8).numpy().tobytes()
@@ -1112,22 +1111,22 @@ def harp_state_manifest(model) -> dict:
     return {"combined_sha256": combined.hexdigest(), "tensors": tensor_hashes}
 
 
-def verify_and_save_initial_harp_state(model, reference_path: str, output_dir: str) -> dict:
-    manifest = harp_state_manifest(model)
+def verify_and_save_initial_structural_state(model, reference_path: str, output_dir: str) -> dict:
+    manifest = structural_state_manifest(model)
     reference = Path(reference_path)
     if reference.exists():
         with reference.open("r", encoding="utf-8") as handle:
             expected = json.load(handle)
         if expected.get("combined_sha256") != manifest["combined_sha256"]:
             raise ValueError(
-                "Initial HARP state differs from reference: "
+                "Initial STRUCTURAL state differs from reference: "
                 f"expected {expected.get('combined_sha256')}, got {manifest['combined_sha256']}"
             )
     else:
         dump_json_atomic(str(reference), manifest)
         print(f"[INIT-STATE] Created reference atomically: {reference}")
     output_copy = os.path.join(
-        output_dir, "initial_harp_state_post_sa_pre_mlp_s123.json"
+        output_dir, "initial_structural_state_post_sa_pre_mlp_s123.json"
     )
     dump_json_atomic(output_copy, manifest)
     print(f"[INIT-STATE] combined_sha256={manifest['combined_sha256']}")
@@ -1635,7 +1634,7 @@ def score_rhs_candidate_suffix(
     base_attention_mask: torch.Tensor,
     candidate_text: str,
     routing_start_idx: Optional[torch.Tensor] = None,
-    use_harp: bool = False,
+    use_structural_memory: bool = False,
 ):
     device = base_input_ids.device
     cand_ids = tok(candidate_text, add_special_tokens=False)["input_ids"]
@@ -1654,9 +1653,9 @@ def score_rhs_candidate_suffix(
         "attention_mask": full_attention_mask,
     }
 
-    if use_harp:
+    if use_structural_memory:
         if routing_start_idx is None:
-            raise ValueError("routing_start_idx is required when use_harp=True")
+            raise ValueError("routing_start_idx is required when use_structural_memory=True")
 
         xmask = torch.zeros(
             (1, full_input_ids.shape[1]),
@@ -1763,8 +1762,8 @@ def constrained_decode_rhs_by_candidate_scoring(
     kernel_name: str,
     directive_domain_registry: Dict[str, Dict[str, List[str]]],
     score_reduction: str = "mean",
-    harp_x: Optional[torch.Tensor] = None,
-    harp_mask: Optional[torch.Tensor] = None,
+    structural_memory: Optional[torch.Tensor] = None,
+    structural_memory_mask: Optional[torch.Tensor] = None,
     routing_start_idx: Optional[torch.Tensor] = None,
     candidate_batch_size: int = 1,
 ):
@@ -1782,11 +1781,11 @@ def constrained_decode_rhs_by_candidate_scoring(
     parts = []
     current_label = None
 
-    harp_enabled = hasattr(model, "condition_harp") and getattr(model, "initialized_harp_flamingo", False)
-    use_harp = harp_enabled and (harp_x is not None) and (harp_mask is not None)
+    structural_enabled = hasattr(model, "condition_structural_memory") and getattr(model, "initialized_structural_xattn", False)
+    use_structural_memory = structural_enabled and (structural_memory is not None) and (structural_memory_mask is not None)
 
-    if use_harp:
-        model.condition_harp(harp_x.to(device), harp_mask.to(device))
+    if use_structural_memory:
+        model.condition_structural_memory(structural_memory.to(device), structural_memory_mask.to(device))
 
     try:
         for label, lhs in extract_ordered_lhs_plan(source_text):
@@ -1807,7 +1806,7 @@ def constrained_decode_rhs_by_candidate_scoring(
             )
 
             scored = []
-            effective_batch_size = 1 if use_harp else candidate_batch_size
+            effective_batch_size = 1 if use_structural_memory else candidate_batch_size
             for start in range(0, len(candidates), effective_batch_size):
                 rhs_batch = candidates[start:start + effective_batch_size]
                 if effective_batch_size == 1:
@@ -1818,7 +1817,7 @@ def constrained_decode_rhs_by_candidate_scoring(
                         base_attention_mask=attention_mask,
                         candidate_text=rhs_batch[0] + "\n",
                         routing_start_idx=routing_start_idx,
-                        use_harp=use_harp,
+                        use_structural_memory=use_structural_memory,
                     )]
                 else:
                     batch_stats = score_rhs_candidate_batch(
@@ -1847,8 +1846,8 @@ def constrained_decode_rhs_by_candidate_scoring(
         return "".join(parts).rstrip()
 
     finally:
-        if hasattr(model, "clear_harp"):
-            model.clear_harp()
+        if hasattr(model, "clear_structural_memory"):
+            model.clear_structural_memory()
 
 
 
@@ -2005,10 +2004,10 @@ class StageValSelectionCallback(TrainerCallback):
         device = next(model.parameters()).device
         routing_start_idx = torch.tensor([len(prompt_ids)], dtype=torch.long, device=device)
 
-        harp_x = None
-        harp_mask = None
-        if hasattr(model, "initialized_harp_flamingo") and getattr(model, "initialized_harp_flamingo", False):
-            harp_x, harp_mask = get_real_memory_pack_for_kernel(
+        structural_memory = None
+        structural_memory_mask = None
+        if hasattr(model, "initialized_structural_xattn") and getattr(model, "initialized_structural_xattn", False):
+            structural_memory, structural_memory_mask = get_real_memory_pack_for_kernel(
                 self.mem_bank,
                 case.kernel_name,
                 self.max_slots,
@@ -2023,8 +2022,8 @@ class StageValSelectionCallback(TrainerCallback):
             kernel_name=case.kernel_name,
             directive_domain_registry=self.directive_domain_registry,
             score_reduction=self.candidate_score_reduction,
-            harp_x=harp_x,
-            harp_mask=harp_mask,
+            structural_memory=structural_memory,
+            structural_memory_mask=structural_memory_mask,
             routing_start_idx=routing_start_idx,
             candidate_batch_size=self.candidate_batch_size,
         )
@@ -2121,11 +2120,11 @@ class StageValSelectionCallback(TrainerCallback):
                 save_mailohls_adapter(
                     model, self.tok, best_dir, self.training_contract
                 )
-                if hasattr(model, "initialized_harp_flamingo") and getattr(model, "initialized_harp_flamingo", False):
-                    harp_sd = get_harp_xattn_state_dict(model)
-                    if harp_sd:
-                        torch.save(harp_sd, os.path.join(best_dir, "harp_xattn.pt"))
-                        print(f"[VAL-SELECTION] Saved best HARP xattn weights -> {os.path.join(best_dir, 'harp_xattn.pt')}")
+                if hasattr(model, "initialized_structural_xattn") and getattr(model, "initialized_structural_xattn", False):
+                    structural_sd = get_structural_xattn_state_dict(model)
+                    if structural_sd:
+                        torch.save(structural_sd, os.path.join(best_dir, "structural_xattn.pt"))
+                        print(f"[VAL-SELECTION] Saved best STRUCTURAL xattn weights -> {os.path.join(best_dir, 'structural_xattn.pt')}")
 
                 dump_json(
                     os.path.join(best_dir, "best_selection_metrics.json"),
@@ -2140,7 +2139,7 @@ class StageValSelectionCallback(TrainerCallback):
 
 
 # ==========================================
-# HARP memory bank loader (.memory.pt files)
+# STRUCTURAL memory bank loader (.memory.pt files)
 # ==========================================
 
 def load_memory_bank(
@@ -2362,7 +2361,7 @@ def print_xattn_forward_stats(model):
         print("[XATTN-DBG] no cross-attn forward stats collected yet")
 
 
-def get_harp_xattn_state_dict(model):
+def get_structural_xattn_state_dict(model):
     sd = model.state_dict()
     return {
         k: v.detach().cpu()
@@ -2378,35 +2377,35 @@ def get_first_real_device(model):
     return torch.device("cuda:0")
 
 
-def move_harp_modules_to_model_device(model):
+def move_structural_modules_to_model_device(model):
     device = get_first_real_device(model)
     moved = 0
     for module in model.modules():
         if isinstance(module, GatedCrossAttentionBlock):
             module.to(device=device)
             moved += 1
-    print(f"[HARP-DEVICE] moved {moved} HARP blocks to {device}")
+    print(f"[STRUCTURAL-DEVICE] moved {moved} STRUCTURAL blocks to {device}")
 
 
-def load_partial_harp_xattn(model, harp_xattn_path: str, tag: str):
-    if not harp_xattn_path or not os.path.isfile(harp_xattn_path):
-        print(f"[{tag}] no harp_xattn.pt found at: {harp_xattn_path}")
+def load_partial_structural_xattn(model, structural_xattn_path: str, tag: str):
+    if not structural_xattn_path or not os.path.isfile(structural_xattn_path):
+        print(f"[{tag}] no structural_xattn.pt found at: {structural_xattn_path}")
         return
 
-    harp_sd = torch.load(harp_xattn_path, map_location="cpu")
-    missing, unexpected = model.load_state_dict(harp_sd, strict=False)
+    structural_sd = torch.load(structural_xattn_path, map_location="cpu")
+    missing, unexpected = model.load_state_dict(structural_sd, strict=False)
 
-    harp_missing = [k for k in missing if "gated_cross_attn_layer" in k]
-    print(f"[{tag}] harp_missing[:10]={harp_missing[:10]}")
+    structural_missing = [k for k in missing if "gated_cross_attn_layer" in k]
+    print(f"[{tag}] structural_missing[:10]={structural_missing[:10]}")
     print(f"[{tag}] unexpected[:10]={unexpected[:10]}")
 
-    move_harp_modules_to_model_device(model)
+    move_structural_modules_to_model_device(model)
 
 
 # Shared implementation used by new checkpoints.
 MaskedCrossAttention = structural_xattn.MaskedCrossAttention
 GatedCrossAttentionBlock = structural_xattn.GatedCrossAttentionBlock
-HARPLMMixin = structural_xattn.StructuralCrossAttentionMixin
+StructuralCrossAttentionMixin = structural_xattn.StructuralCrossAttentionMixin
 extend_instance = structural_xattn.extend_instance
 infer_decoder_layers_attr_name = structural_xattn.infer_decoder_layers_attr_name
 
@@ -2423,10 +2422,10 @@ class SaveMailoHLSCheckpointCallback(TrainerCallback):
             model, self.tokenizer, ckpt_dir, self.training_contract
         )
 
-        harp_sd = get_harp_xattn_state_dict(model)
-        if harp_sd:
-            torch.save(harp_sd, os.path.join(ckpt_dir, "harp_xattn.pt"))
-            print(f"[HARP-SAVE] saved xattn weights to {ckpt_dir}/harp_xattn.pt")
+        structural_sd = get_structural_xattn_state_dict(model)
+        if structural_sd:
+            torch.save(structural_sd, os.path.join(ckpt_dir, "structural_xattn.pt"))
+            print(f"[STRUCTURAL-SAVE] saved xattn weights to {ckpt_dir}/structural_xattn.pt")
         return control
 
 
@@ -2498,7 +2497,7 @@ def get_input_embeddings_module(model):
 class LengthGroupedTrainer(Trainer):
     """
     - Length-grouped sampling + Per-sample weights
-    - Conditions HARP memory per batch using kernel_name
+    - Conditions STRUCTURAL memory per batch using kernel_name
     - Computes chunked CE to avoid giant [B*T,V] flatten allocations
     """
     def __init__(
@@ -2656,14 +2655,14 @@ class LengthGroupedTrainer(Trainer):
         self.accelerator.backward(loss)
 
         # IMPORTANT: clear only after backward, so checkpoint recomputation
-        # still sees the conditioned HARP state
-        if hasattr(model, "clear_harp"):
-            model.clear_harp()
+        # still sees the conditioned STRUCTURAL state
+        if hasattr(model, "clear_structural_memory"):
+            model.clear_structural_memory()
 
         if self.accelerator.sync_gradients and self.state.global_step != self._last_debug_step:
             if self.state.global_step % 20 == 0:
                 print_xattn_gate_stats(model, print_grads=True)
-                if hasattr(model, "clear_harp") and not getattr(self.args, "disable_harp", False):
+                if hasattr(model, "clear_structural_memory") and not getattr(self.args, "disable_structural_memory", False):
                     print_xattn_forward_stats(model)
                 self._last_debug_step = self.state.global_step
 
@@ -2707,7 +2706,7 @@ class LengthGroupedTrainer(Trainer):
         return (None, logits, None)
 
 
-    def _condition_harp_from_kernel_names(self, model, kernel_names: List[str]):
+    def _condition_structural_memory_from_kernel_names(self, model, kernel_names: List[str]):
         kvs, ms = [], []
         for k in kernel_names:
             pack = self.mem_bank.get(k) or self.mem_bank.get(normalize_kname(k))
@@ -2720,7 +2719,7 @@ class LengthGroupedTrainer(Trainer):
         mem_kv = torch.stack(kvs, dim=0)  # [B, S, mem_dim]
         mem_m  = torch.stack(ms, dim=0)   # [B, S]
         device = next(model.parameters()).device
-        model.condition_harp(mem_kv.to(device), mem_m.to(device))
+        model.condition_structural_memory(mem_kv.to(device), mem_m.to(device))
 
     def truncate_scoring_prefix_preserve_target(
         self,
@@ -2741,7 +2740,7 @@ class LengthGroupedTrainer(Trainer):
         target_prefix_ids = prefix_ids[R:]
 
         # Always preserve the entire generated target prefix if possible,
-        # because HARP routing depends on target anchors already emitted.
+        # because STRUCTURAL routing depends on target anchors already emitted.
         if len(target_prefix_ids) >= max_prefix_tokens:
             kept_target = target_prefix_ids[-max_prefix_tokens:]
             return kept_target, 0
@@ -2769,7 +2768,7 @@ class LengthGroupedTrainer(Trainer):
         prefix_ids: List[int],
         candidate_ids: List[int],
         routing_start_idx: Optional[int],
-        use_harp: bool,
+        use_structural_memory: bool,
     ):
         device = next(model.parameters()).device
 
@@ -2795,9 +2794,9 @@ class LengthGroupedTrainer(Trainer):
             "attention_mask": full_attention_mask,
         }
 
-        if use_harp:
+        if use_structural_memory:
             if effective_route_idx is None:
-                raise ValueError("effective_route_idx is required when use_harp=True")
+                raise ValueError("effective_route_idx is required when use_structural_memory=True")
 
             model_inputs["routing_start_idx"] = torch.tensor(
                 [effective_route_idx],
@@ -2847,7 +2846,7 @@ class LengthGroupedTrainer(Trainer):
         per_sample_losses = []
         per_sample_weights = []
 
-        harp_enabled = hasattr(model, "condition_harp") and getattr(model, "initialized_harp_flamingo", False)
+        structural_enabled = hasattr(model, "condition_structural_memory") and getattr(model, "initialized_structural_xattn", False)
 
         for b_idx, sites in enumerate(contrastive_sites):
             if not sites:
@@ -2855,8 +2854,8 @@ class LengthGroupedTrainer(Trainer):
 
             route_idx = int(routing_start_idx[b_idx].item()) if routing_start_idx is not None else 0
 
-            if harp_enabled:
-                self._condition_harp_from_kernel_names(model, [kernel_names[b_idx]])
+            if structural_enabled:
+                self._condition_structural_memory_from_kernel_names(model, [kernel_names[b_idx]])
 
             site_losses = []
 
@@ -2870,7 +2869,7 @@ class LengthGroupedTrainer(Trainer):
                     prefix_ids=site["prefix_ids"],
                     candidate_ids=site["gold_ids"],
                     routing_start_idx=route_idx,
-                    use_harp=harp_enabled,
+                    use_structural_memory=structural_enabled,
                 )
 
                 neg_scores = [
@@ -2879,7 +2878,7 @@ class LengthGroupedTrainer(Trainer):
                         prefix_ids=site["prefix_ids"],
                         candidate_ids=neg_ids,
                         routing_start_idx=route_idx,
-                        use_harp=harp_enabled,
+                        use_structural_memory=structural_enabled,
                     )
                     for neg_ids in neg_ids_list
                 ]
@@ -2915,17 +2914,17 @@ class LengthGroupedTrainer(Trainer):
         xattn_apply_mask = inputs.pop("xattn_apply_mask", None)
         contrastive_sites = inputs.pop("contrastive_sites", None)
 
-        if kernel_names is not None and hasattr(model, "condition_harp"):
-            self._condition_harp_from_kernel_names(model, kernel_names)
+        if kernel_names is not None and hasattr(model, "condition_structural_memory"):
+            self._condition_structural_memory_from_kernel_names(model, kernel_names)
 
         try:
             routing_start_idx = inputs.pop("routing_start_idx", None)
 
             model_inputs = {k: v for k, v in inputs.items() if k in ("input_ids", "attention_mask")}
 
-            harp_enabled = hasattr(model, "condition_harp") and getattr(model, "initialized_harp_flamingo", False)
+            structural_enabled = hasattr(model, "condition_structural_memory") and getattr(model, "initialized_structural_xattn", False)
 
-            if harp_enabled:
+            if structural_enabled:
                 if routing_start_idx is not None:
                     model_inputs["routing_start_idx"] = routing_start_idx
                 if xattn_apply_mask is not None:
@@ -3006,8 +3005,8 @@ class LengthGroupedTrainer(Trainer):
             return (loss, outputs) if return_outputs else loss
     
         finally:
-            if hasattr(model, "clear_harp") and not model.training:
-                model.clear_harp()
+            if hasattr(model, "clear_structural_memory") and not model.training:
+                model.clear_structural_memory()
 
 
 
@@ -3019,10 +3018,10 @@ class LengthGroupedTrainer(Trainer):
 class StageRunConfig:
     name: str
     output_dir: str
-    disable_harp: bool
+    disable_structural_memory: bool
 
     init_adapter_dir: str = ""
-    init_harp_xattn_from: str = ""
+    init_structural_xattn_from: str = ""
     best_dir_name: str = "best_custom_stage1"
 
     value_loss_weight: float = 1.0
@@ -3049,10 +3048,10 @@ def make_stage_args(base_args, cfg: StageRunConfig):
 
     a.output_dir = cfg.output_dir
     a.best_dir_name = cfg.best_dir_name
-    a.disable_harp = cfg.disable_harp
+    a.disable_structural_memory = cfg.disable_structural_memory
 
     a.init_adapter_dir = cfg.init_adapter_dir
-    a.init_harp_xattn_from = cfg.init_harp_xattn_from
+    a.init_structural_xattn_from = cfg.init_structural_xattn_from
     a.resume_from_checkpoint = ""
 
     a.value_loss_weight = cfg.value_loss_weight
@@ -3083,7 +3082,7 @@ def build_default_stage_arguments(args):
         name="stage1_goal_rhs_only_sft",
         output_dir=args.stage1_output_dir,
         best_dir_name="best_custom_stage1",
-        disable_harp=True,
+        disable_structural_memory=True,
 
         value_loss_weight=1.0,
 
@@ -3100,13 +3099,13 @@ def build_default_stage_arguments(args):
         save_steps=args.save_steps,
     )
 
-    # Stage 2: keep same deterministic target-side format, enable HARP for RHS refinement
+    # Stage 2: keep same deterministic target-side format, enable STRUCTURAL for RHS refinement
     stage2 = StageRunConfig(
-        name="stage2_goal_harp_rhs_only",
+        name="stage2_goal_structural_rhs_only",
         output_dir=args.stage2_output_dir,
-        disable_harp=False,
+        disable_structural_memory=False,
 
-        init_harp_xattn_from="",
+        init_structural_xattn_from="",
         init_adapter_dir=os.path.join(args.stage1_output_dir, "best_custom_stage1"),
         best_dir_name="best_custom_stage2",
 
@@ -3900,8 +3899,10 @@ def run_single_training(args):
         print("[CUDA] using:", torch.cuda.get_device_name(0))
 
     os.makedirs(args.output_dir, exist_ok=True)
-    dump_root = os.path.join(args.output_dir, "selected_debug")
-    os.makedirs(dump_root, exist_ok=True)
+    dump_root = None
+    if args.save_selection_debug:
+        dump_root = os.path.join(args.output_dir, "selected_debug")
+        os.makedirs(dump_root, exist_ok=True)
 
     rows = filter_rows_for_device_mode(load_rows(args.dataset))
     print(f"[INFO] Loaded {len(rows)} raw rows from {args.dataset}")
@@ -4019,14 +4020,33 @@ def run_single_training(args):
         f"weights={directive_loss_weights or 'uniform'}"
     )
 
-    dump_jsonl(os.path.join(dump_root, f"train_selected_{goal_key}.jsonl"), train_rows)
-    dump_json(os.path.join(dump_root, f"train_selected_{goal_key}.indices.json"), train_goal_info)
-    if val_rows:
-        dump_jsonl(os.path.join(dump_root, f"val_selected_{goal_key}.jsonl"), val_rows)
-        dump_json(os.path.join(dump_root, f"val_selected_{goal_key}.indices.json"), val_goal_info)
-    if test_rows:
-        dump_jsonl(os.path.join(dump_root, f"test_selected_{goal_key}.jsonl"), test_rows)
-        dump_json(os.path.join(dump_root, f"test_selected_{goal_key}.indices.json"), test_goal_info)
+    if dump_root is not None:
+        dump_jsonl(
+            os.path.join(dump_root, f"train_selected_{goal_key}.jsonl"),
+            train_rows,
+        )
+        dump_json(
+            os.path.join(dump_root, f"train_selected_{goal_key}.indices.json"),
+            train_goal_info,
+        )
+        if val_rows:
+            dump_jsonl(
+                os.path.join(dump_root, f"val_selected_{goal_key}.jsonl"),
+                val_rows,
+            )
+            dump_json(
+                os.path.join(dump_root, f"val_selected_{goal_key}.indices.json"),
+                val_goal_info,
+            )
+        if test_rows:
+            dump_jsonl(
+                os.path.join(dump_root, f"test_selected_{goal_key}.jsonl"),
+                test_rows,
+            )
+            dump_json(
+                os.path.join(dump_root, f"test_selected_{goal_key}.indices.json"),
+                test_goal_info,
+            )
 
     selection_cases = []
     for objective in objectives:
@@ -4067,7 +4087,7 @@ def run_single_training(args):
             f"[DOMAINS] validated {len(directive_domain_registry)} kernel registries"
         )
 
-    if args.disable_harp:
+    if args.disable_structural_memory:
         mem_bank = {}
         print("[INFO] Structural memory disabled -> skipping memory bank loading")
     else:
@@ -4094,14 +4114,14 @@ def run_single_training(args):
                 and normalize_kname(kernel) not in mem_bank
             )
         )
-        if missing_memory and not args.allow_missing_harp_memory:
+        if missing_memory and not args.allow_missing_structural_memory:
             raise ValueError(
-                "Missing HARP/GNN memory for kernels: "
+                "Missing STRUCTURAL/GNN memory for kernels: "
                 + ", ".join(missing_memory[:20])
             )
         if missing_memory:
             print(
-                f"[WARN] {len(missing_memory)} kernels will receive zero HARP memory"
+                f"[WARN] {len(missing_memory)} kernels will receive zero STRUCTURAL memory"
             )
 
         manifest_path = os.path.join(args.memory_dir, "memory_manifest.json")
@@ -4144,7 +4164,7 @@ def run_single_training(args):
 
     training_contract = {
         "schema": "mailohls-training-contract-v1",
-        "stage": "stage1" if args.disable_harp else "stage2",
+        "stage": "stage1" if args.disable_structural_memory else "stage2",
         "git_commit": current_git_commit(),
         "model": args.model,
         "model_revision": args.model_revision,
@@ -4190,7 +4210,7 @@ def run_single_training(args):
         ),
         "selection_eval_steps": args.selection_eval_steps,
         "selection_candidate_batch_size": (
-            args.selection_candidate_batch_size if args.disable_harp else 1
+            args.selection_candidate_batch_size if args.disable_structural_memory else 1
         ),
         "lora_r": args.lora_r,
         "lora_alpha": args.lora_alpha,
@@ -4199,7 +4219,7 @@ def run_single_training(args):
         "peft_version": peft.__version__,
         "torch_version": torch.__version__,
     }
-    if not args.disable_harp:
+    if not args.disable_structural_memory:
         training_contract["structural"] = structural_config
     resume_ckpt = os.path.abspath(args.resume_from_checkpoint) if args.resume_from_checkpoint else ""
     init_adapter_dir = os.path.abspath(args.init_adapter_dir) if args.init_adapter_dir else ""
@@ -4246,7 +4266,7 @@ def run_single_training(args):
         os.path.join(args.output_dir, "training_contract.json"),
         training_contract,
     )
-    if not args.disable_harp and init_adapter_dir:
+    if not args.disable_structural_memory and init_adapter_dir:
         require_compatible_stage1_contract(init_adapter_dir, training_contract)
 
     print(f"[MODEL] weights_tied={weights_tied}")
@@ -4340,13 +4360,13 @@ def run_single_training(args):
         f"{token_delta_params}"
     )
 
-    if not args.disable_harp:
+    if not args.disable_structural_memory:
         if args.lr_ff != 0 or args.lr_gate_ff != 0:
             raise ValueError(
                 "The post-self-attention/pre-MLP structural branch requires "
                 "--lr_ff 0 and --lr_gate_ff 0"
             )
-        extend_instance(model, HARPLMMixin)
+        extend_instance(model, StructuralCrossAttentionMixin)
         decoder_layers_attr_name = infer_decoder_layers_attr_name(model)
         model.set_decoder_layers_attr_name(decoder_layers_attr_name)
 
@@ -4370,17 +4390,17 @@ def run_single_training(args):
             model.structural_xattn_layer_indices
         )
 
-        print(f"[HARP-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
-        print(f"[HARP-XATTN] inserted gated xattn every {args.every_n_layers} decoder layers")
-        move_harp_modules_to_model_device(model)
+        print(f"[STRUCTURAL-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
+        print(f"[STRUCTURAL-XATTN] inserted gated xattn every {args.every_n_layers} decoder layers")
+        move_structural_modules_to_model_device(model)
     else:
-        print("[HARP-XATTN] disabled for Stage 1 format-only training")
+        print("[STRUCTURAL-XATTN] disabled for Stage 1 format-only training")
 
     if resume_ckpt and os.path.isdir(resume_ckpt):
-        resume_harp_xattn = os.path.join(resume_ckpt, "harp_xattn.pt")
-        load_partial_harp_xattn(model, resume_harp_xattn, tag="HARP-RESUME")
-    elif args.init_harp_xattn_from:
-        load_partial_harp_xattn(model, args.init_harp_xattn_from, tag="HARP-INIT")
+        resume_structural_xattn = os.path.join(resume_ckpt, "structural_xattn.pt")
+        load_partial_structural_xattn(model, resume_structural_xattn, tag="STRUCTURAL-RESUME")
+    elif args.init_structural_xattn_from:
+        load_partial_structural_xattn(model, args.init_structural_xattn_from, tag="STRUCTURAL-INIT")
 
     model.print_trainable_parameters()
 
@@ -4515,13 +4535,13 @@ def run_single_training(args):
     )
 
 
-    if not args.disable_harp:
+    if not args.disable_structural_memory:
         if not args.initial_state_reference:
             raise ValueError("Stage 2 requires --initial_state_reference")
-        initial_manifest = verify_and_save_initial_harp_state(
+        initial_manifest = verify_and_save_initial_structural_state(
             model, args.initial_state_reference, args.output_dir
         )
-        structural_config["initial_harp_state_sha256"] = initial_manifest["combined_sha256"]
+        structural_config["initial_structural_state_sha256"] = initial_manifest["combined_sha256"]
         dump_json(
             os.path.join(args.output_dir, "training_contract.json"),
             training_contract,
@@ -4575,7 +4595,7 @@ def run_single_training(args):
                 selection_eval_steps=args.selection_eval_steps,
                 candidate_batch_size=(
                     args.selection_candidate_batch_size
-                    if args.disable_harp else 1
+                    if args.disable_structural_memory else 1
                 ),
             )
         )
@@ -4593,17 +4613,17 @@ def run_single_training(args):
     best_dir = os.path.join(args.output_dir, args.best_dir_name)
     if not os.path.isdir(best_dir):
         save_mailohls_adapter(model, tok, best_dir, training_contract)
-        if not args.disable_harp:
-            torch.save(get_harp_xattn_state_dict(model), os.path.join(best_dir, "harp_xattn.pt"))
+        if not args.disable_structural_memory:
+            torch.save(get_structural_xattn_state_dict(model), os.path.join(best_dir, "structural_xattn.pt"))
 
     save_mailohls_adapter(model, tok, args.output_dir, training_contract)
 
-    if not args.disable_harp:
+    if not args.disable_structural_memory:
         torch.save(
-            get_harp_xattn_state_dict(model),
-            os.path.join(args.output_dir, "harp_xattn.pt")
+            get_structural_xattn_state_dict(model),
+            os.path.join(args.output_dir, "structural_xattn.pt")
         )
-        print(f"[DONE] Saved LoRA + HARP xattn adapters to: {args.output_dir}")
+        print(f"[DONE] Saved LoRA + STRUCTURAL xattn adapters to: {args.output_dir}")
     else:
         print(f"[DONE] Saved LoRA adapter to: {args.output_dir}")
 
@@ -4614,9 +4634,9 @@ def run_single_training(args):
                 "schema": "mailohls-device-adaptation-v1",
                 "device": TARGET_CFG.adapt_device,
                 "base_adapter": os.path.abspath(args.init_adapter_dir),
-                "base_harp_xattn": (
-                    os.path.abspath(args.init_harp_xattn_from)
-                    if args.init_harp_xattn_from else ""
+                "base_structural_xattn": (
+                    os.path.abspath(args.init_structural_xattn_from)
+                    if args.init_structural_xattn_from else ""
                 ),
                 "active_adapters": ["mailohls_base", "device_adapt"],
                 "device_capacities": DEVICE_RESOURCES[TARGET_CFG.adapt_device],
@@ -4659,6 +4679,14 @@ def main():
     ap.add_argument("--stratify_by_kernel", action="store_true")
     ap.add_argument("--split_json", type=str, default="")
     ap.add_argument("--save_split_json", type=str, default="")
+    ap.add_argument(
+        "--save_selection_debug",
+        action="store_true",
+        help=(
+            "Opt-in debugging artifact: persist the selected train/validation/"
+            "test rows and selection metadata under selected_debug/."
+        ),
+    )
 
     # Goal-specific point selection
     ap.add_argument(
@@ -4765,13 +4793,13 @@ def main():
     ap.add_argument("--gradient_checkpointing", action="store_true")
     ap.add_argument("--resume_from_checkpoint", type=str, default="")
     ap.add_argument("--init_adapter_dir", type=str, default="")
-    ap.add_argument("--init_harp_xattn_from", type=str, default="")
+    ap.add_argument("--init_structural_xattn_from", type=str, default="")
     ap.add_argument(
         "--initial_state_reference",
         type=str,
         default="",
         help=(
-            "Shared initial_harp_state_post_sa_pre_mlp_s123.json; created "
+            "Shared initial_structural_state_post_sa_pre_mlp_s123.json; created "
             "atomically by the first arm and verified by later arms."
         ),
     )
@@ -4790,11 +4818,11 @@ def main():
     ap.add_argument("--lora_alpha", type=int, default=16)
     ap.add_argument("--lora_dropout", type=float, default=0.05)
 
-    # MLIR structural memory (older checkpoint fields retain the HARP name).
+    # MLIR-derived GNN structural memory.
     ap.add_argument("--mem_dim", type=int, default=-1)   # -1 => infer from memory bank
     ap.add_argument("--require_pragma_free_memory", action="store_true")
     ap.add_argument(
-        "--allow_missing_harp_memory",
+        "--allow_missing_structural_memory",
         action="store_true",
         help="Debug only: use zero memory when a kernel embedding is absent.",
     )
@@ -4824,8 +4852,7 @@ def main():
     # Trainer / pipeline
     ap.add_argument(
         "--disable_structural_memory",
-        "--disable_harp",
-        dest="disable_harp",
+        dest="disable_structural_memory",
         action="store_true",
         help="Run directive-only Stage 1 without GNN structural memory.",
     )
@@ -4857,9 +4884,9 @@ def main():
         else GOALS[args.objective]["tag"]
     )
     if not args.stage1_output_dir:
-        args.stage1_output_dir = f"./sft_harp_xattn_{goal_tag}_stage1"
+        args.stage1_output_dir = f"./sft_structural_xattn_{goal_tag}_stage1"
     if not args.stage2_output_dir:
-        args.stage2_output_dir = f"./sft_harp_xattn_{goal_tag}_stage2"
+        args.stage2_output_dir = f"./sft_structural_xattn_{goal_tag}_stage2"
 
     if args.run_mode == "single":
         if not args.output_dir:
