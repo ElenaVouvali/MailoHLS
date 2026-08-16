@@ -45,7 +45,10 @@ ASSIGN_RE = re.compile(
     r"^(auto\{_[A-Z0-9]+(?:_[A-Z0-9]+)*_L\d+\})\s*=\s*(.+)$",
     re.IGNORECASE,
 )
-TARGET_ANCHOR_RE = re.compile(r"^<L[1-9][0-9]*>$", re.IGNORECASE)
+TARGET_ANCHOR_RE = re.compile(
+    r"^<(L[1-9][0-9]*)>$",
+    re.IGNORECASE,
+)
 
 
 def directive_schema_signature(text: str):
@@ -967,8 +970,15 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
 # ============================================================
 # Model loading
 # ============================================================
-def build_tokenizer(tokenizer_source: str) -> AutoTokenizer:
-    tok = AutoTokenizer.from_pretrained(tokenizer_source, trust_remote_code=True)
+def build_tokenizer(
+    tokenizer_source: str,
+    revision: str = "main",
+) -> AutoTokenizer:
+    tok = AutoTokenizer.from_pretrained(
+        tokenizer_source,
+        revision=revision,
+        trust_remote_code=True,
+    )
     special_tokens = (
         [spec["token"] for spec in mailohls_contract.GOALS.values()]
         + list(mailohls_contract.DEVICE_TOKEN_MAP.values())
@@ -1012,6 +1022,7 @@ def load_base_model(
     model_name: str,
     use_4bit: bool = True,
     device_map: str = "auto",
+    revision: str = "main",
 ):
     quant_config = None
     if use_4bit:
@@ -1027,6 +1038,7 @@ def load_base_model(
 
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
+        revision=revision,
         quantization_config=quant_config,
         device_map=device_map,
         trust_remote_code=True,
@@ -1076,6 +1088,7 @@ def load_stage_model(args, tok):
         model_name=args.model,
         use_4bit=not args.no_4bit,
         device_map=args.device_map,
+        revision=args.model_revision,
     )
 
     base.resize_token_embeddings(len(tok))
@@ -1372,6 +1385,11 @@ def main():
     ap.add_argument("--harp_xattn_path", type=str, default="")
     ap.add_argument("--no_4bit", action="store_true")
     ap.add_argument("--device_map", type=str, default="auto")
+    ap.add_argument(
+        "--model_revision",
+        type=str,
+        default="main",
+    )
 
     ap.add_argument("--directive_domain_registry_json", type=str, required=True)
 
@@ -1441,6 +1459,12 @@ def main():
                 f"--model={args.model!r} conflicts with checkpoint model "
                 f"{training_contract.get('model')!r}"
             )
+        if training_contract.get("model_revision") != args.model_revision:
+            raise ValueError(
+                "Model revision does not match the Stage-2 training contract: "
+                f"{args.model_revision} != "
+                f"{training_contract.get('model_revision')}"
+            )
         structural_config = training_contract.get("structural")
         if not isinstance(structural_config, dict):
             raise ValueError("Stage-2 training contract has no structural section")
@@ -1506,7 +1530,10 @@ def main():
     directive_domain_registry = load_directive_domain_registry(
         args.directive_domain_registry_json
     )
-    tok = build_tokenizer(args.model)
+    tok = build_tokenizer(
+        args.model,
+        revision=args.model_revision,
+    )
     if args.stage in {"stage2", "stage3"}:
         expected_tokens = training_contract.get("special_tokens")
         expected_ids = training_contract.get("special_token_ids")
