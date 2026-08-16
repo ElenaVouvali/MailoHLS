@@ -1,0 +1,7164 @@
+{
+  "generation_policy": "exact per-kernel/per-site RHS support from the complete pre-split MailoHLS dataset",
+  "kernels": {
+    "machsuite_gemm_blocked": {
+      "AUTO{_PIPE_L1}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ]
+    },
+    "machsuite_gemm_ncubed": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "machsuite_md_knn": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ]
+    },
+    "machsuite_sort_radix": {
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "2",
+        "4"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "machsuite_spmv_ellpack": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "10"
+      ]
+    },
+    "machsuite_stencil2d": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "62"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "3"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "3"
+      ]
+    },
+    "machsuite_stencil3d": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "31"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "31"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "31"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "31"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "31"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "15"
+      ]
+    },
+    "machsuite_viterbi": {
+      "AUTO{_ARRAY_D_L1}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "63"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "63"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "63"
+      ]
+    },
+    "rodinia_backprop_0_baseline_back": {
+      "AUTO{_PIPE_L1}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "2",
+        "4",
+        "17"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_backprop_0_baseline_forward": {
+      "AUTO{_ARRAY_D_L1}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "2",
+        "4",
+        "17"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_backprop_1_tiling_back": {
+      "AUTO{_ARRAY_D_L1}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ]
+    },
+    "rodinia_cfd_flux_0_baseline_0": {
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4"
+      ]
+    },
+    "rodinia_cfd_step_factor_0_baseline_0": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_cfd_step_factor_1_tiling_0": {
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_cfd_step_factor_2_pipeline_0": {
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_cfd_step_factor_3_unroll_0": {
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ]
+    },
+    "rodinia_cfd_step_factor_4_doublebuffer_0": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L12}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L13}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L14}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L15}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L16}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L17}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L12}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L13}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L14}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L15}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L16}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L17}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L12}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L13}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L14}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L15}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L16}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L17}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L18}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L18}": [
+        "2",
+        "4"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ]
+    },
+    "rodinia_cfd_step_factor_5_coalescing_0": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L12}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L13}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L14}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L15}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L16}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L17}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L12}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L13}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L14}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L15}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L16}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L17}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L12}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L13}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L14}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L15}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L16}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L17}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L18}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L18}": [
+        "2",
+        "4"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ]
+    },
+    "rodinia_dilate_0_baseline_0": {
+      "AUTO{_ARRAY_D_L1}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "5"
+      ]
+    },
+    "rodinia_dilate_1_tiling_0": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L1}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "2",
+        "4",
+        "17"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "36"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_dilate_2_pipeline_0": {
+      "AUTO{_ARRAY_D_L18}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L19}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L18}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L19}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_T_L18}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L19}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L14}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L15}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L16}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L17}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L20}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L14}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "36"
+      ],
+      "AUTO{_UNROLL_L15}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L16}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L17}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L20}": [
+        "2",
+        "4",
+        "17"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ]
+    },
+    "rodinia_dilate_3_pipeline_0": {
+      "AUTO{_ARRAY_D_L18}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L19}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L20}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L21}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L18}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L19}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L20}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L21}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_T_L18}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L19}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L20}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L21}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L14}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L15}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L16}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L17}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L22}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L23}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L24}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L25}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L26}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L27}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L28}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L29}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L30}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L31}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L32}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L33}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L34}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L35}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L14}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "36"
+      ],
+      "AUTO{_UNROLL_L15}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L16}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L17}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L22}": [
+        "0",
+        "2",
+        "4",
+        "17"
+      ],
+      "AUTO{_UNROLL_L23}": [
+        "0",
+        "2",
+        "4"
+      ],
+      "AUTO{_UNROLL_L24}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "36"
+      ],
+      "AUTO{_UNROLL_L25}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L26}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "36"
+      ],
+      "AUTO{_UNROLL_L27}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L28}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "36"
+      ],
+      "AUTO{_UNROLL_L29}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L30}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "36"
+      ],
+      "AUTO{_UNROLL_L31}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L32}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "36"
+      ],
+      "AUTO{_UNROLL_L33}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L34}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L35}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ]
+    },
+    "rodinia_hotspot_0_baseline": {
+      "AUTO{_PIPE_L1}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ]
+    },
+    "rodinia_hotspot_1_tiling": {
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "2",
+        "4",
+        "8"
+      ]
+    },
+    "rodinia_hotspot_2_pipeline": {
+      "AUTO{_ARRAY_D_L14}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L15}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L16}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L1}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_F_L14}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L15}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L16}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_ARRAY_T_L14}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L15}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L16}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L17}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L18}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L19}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L17}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L18}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L19}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ]
+    },
+    "rodinia_hotspot_3_unroll": {
+      "AUTO{_ARRAY_D_L14}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L15}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L16}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L1}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_F_L14}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L15}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L16}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_ARRAY_T_L14}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L15}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L16}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L17}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L18}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L19}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L17}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L18}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L19}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ]
+    },
+    "rodinia_kmeans_0_baseline": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ]
+    },
+    "rodinia_kmeans_1_tiling": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_kmeans_2_pipeline": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_kmeans_3_unroll": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "5"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "34"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_knn_0_baseline": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2"
+      ]
+    },
+    "rodinia_knn_1_tiling": {
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_knn_2_pipeline": {
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_knn_3_unroll": {
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0"
+      ]
+    },
+    "rodinia_knn_4_doublebuffer": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_knn_5_coalescing": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ]
+    },
+    "rodinia_lavamd_0_baseline": {
+      "AUTO{_ARRAY_D_L2}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "2",
+        "4",
+        "8",
+        "27"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_lavamd_1_tiling_0": {
+      "AUTO{_ARRAY_D_L2}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L14}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L15}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L14}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L15}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_lavamd_1_tiling_1": {
+      "AUTO{_ARRAY_D_L2}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L14}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L15}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L14}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L15}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_lavamd_2_pipeline_0": {
+      "AUTO{_ARRAY_D_L2}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "none"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L14}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L15}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "2",
+        "4",
+        "27"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L14}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L15}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_lc_gicov_0_baseline_0": {
+      "AUTO{_ARRAY_D_L1}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L3}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1",
+        "2"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ]
+    },
+    "rodinia_lc_mgvf_0_baseline_0": {
+      "AUTO{_PIPE_L1}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ]
+    },
+    "rodinia_lud_1_tiling_0": {
+      "AUTO{_ARRAY_D_L19}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L20}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_D_L21}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_D_L39}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L40}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L41}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L19}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L20}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L21}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L39}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L40}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L41}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_ARRAY_T_L19}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L20}": [
+        "none"
+      ],
+      "AUTO{_ARRAY_T_L21}": [
+        "none"
+      ],
+      "AUTO{_ARRAY_T_L39}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L40}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L41}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L14}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L15}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L16}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L17}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L18}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L22}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L23}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L24}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L25}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L26}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L27}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L28}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L29}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L30}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L31}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L32}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L33}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L34}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L35}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L36}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L37}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L38}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L42}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L43}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L44}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L45}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L46}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L7}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L14}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L15}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L16}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L17}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L18}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L22}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L23}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L24}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L25}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L26}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L27}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L28}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L29}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L30}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L31}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L32}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L33}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L34}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L35}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L36}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L37}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L38}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L42}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L43}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L44}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L45}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L46}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "16"
+      ],
+      "AUTO{_UNROLL_L7}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16"
+      ]
+    },
+    "rodinia_pathfinder_0_baseline_0": {
+      "AUTO{_ARRAY_D_L3}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L3}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_T_L3}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_pathfinder_4_doublebuffer_0": {
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "1024"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L8}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "2",
+        "4",
+        "8",
+        "16"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L8}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_streamcluster_0_baseline_0": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_streamcluster_1_tiling_0": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L12}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L13}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L12}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L13}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L12}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L13}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L14}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L14}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_streamcluster_2_pipeline_1": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L12}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L13}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L12}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L13}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L12}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L13}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L14}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L14}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "rodinia_streamcluster_3_doublebuffer_0": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L12}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L13}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L14}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L15}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L16}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L17}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L12}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L13}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L14}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L15}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L16}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L17}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L12}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L13}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L14}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L15}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L16}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L17}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L18}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L18}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ]
+    },
+    "rodinia_streamcluster_4_coalescing_0": {
+      "AUTO{_ARRAY_D_L10}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L11}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L12}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L13}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L14}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L15}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L16}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L17}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L4}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L7}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L8}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L9}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L11}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L12}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L13}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L14}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L15}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L16}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L17}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L7}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_F_L8}": [
+        "0"
+      ],
+      "AUTO{_ARRAY_F_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_T_L10}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L11}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L12}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L13}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L14}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L15}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L16}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L17}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L4}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L7}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L8}": [
+        "complete"
+      ],
+      "AUTO{_ARRAY_T_L9}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L18}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L2}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L18}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L2}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ]
+    },
+    "serrano_kalman_filter": {
+      "AUTO{_ARRAY_D_L1}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L5}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L6}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128"
+      ],
+      "AUTO{_ARRAY_F_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_ARRAY_F_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L5}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L6}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L10}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L11}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L12}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L13}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L9}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L10}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L11}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L12}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L13}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8"
+      ],
+      "AUTO{_UNROLL_L9}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "spcl_example_00": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "spcl_example_01": {
+      "AUTO{_PIPE_L1}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "spcl_example_03": {
+      "AUTO{_ARRAY_D_L1}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L1}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256"
+      ],
+      "AUTO{_ARRAY_T_L1}": [
+        "block",
+        "complete",
+        "cyclic"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L6}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L6}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ]
+    },
+    "spcl_example_05": {
+      "AUTO{_ARRAY_D_L2}": [
+        "1"
+      ],
+      "AUTO{_ARRAY_F_L2}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64",
+        "128",
+        "256",
+        "512"
+      ],
+      "AUTO{_ARRAY_T_L2}": [
+        "block",
+        "cyclic"
+      ],
+      "AUTO{_PIPE_L1}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L3}": [
+        "0"
+      ],
+      "AUTO{_PIPE_L4}": [
+        "0",
+        "1"
+      ],
+      "AUTO{_PIPE_L5}": [
+        "0"
+      ],
+      "AUTO{_UNROLL_L1}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L3}": [
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L4}": [
+        "0",
+        "2",
+        "4",
+        "8",
+        "16",
+        "32",
+        "64"
+      ],
+      "AUTO{_UNROLL_L5}": [
+        "0"
+      ]
+    }
+  },
+  "schema": "mailohls-directive-domain-registry-v1",
+  "source_dataset": "mailohls_sft.jsonl",
+  "source_dataset_sha256": "0a235f79abd4b065c0cff0e943ab91ca20408cfe69358b3b61051a98216d6a14"
+}

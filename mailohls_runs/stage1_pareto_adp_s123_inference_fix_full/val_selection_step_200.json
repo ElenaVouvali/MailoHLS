@@ -1,0 +1,366 @@
+{
+  "step": 200,
+  "eval_loss": 0.32243192195892334,
+  "checkpoint_key": [
+    0.6261363636363636,
+    0.5909090909090909,
+    0.0,
+    -0.32243192195892334
+  ],
+  "mean_value_acc": 0.6261363636363636,
+  "schema_compliance": 1.0,
+  "expected_key_accuracy": 1.0,
+  "exact_design_accuracy": 0.0,
+  "pragma_kind_accuracy": {
+    "ARRAY_D": 1.0,
+    "ARRAY_F": 0.625,
+    "ARRAY_T": 0.375,
+    "PIPE": 0.6764705882352942,
+    "UNROLL": 0.5441176470588235
+  },
+  "per_kernel_accuracy": {
+    "machsuite-sort-radix": 0.5909090909090909,
+    "rodinia_pathfinder_0_baseline_0": 0.6,
+    "rodinia_pathfinder_4_doublebuffer_0": 0.6875
+  },
+  "minimum_kernel_accuracy": 0.5909090909090909,
+  "selection_score": 0.6261363636363636,
+  "rows": [
+    {
+      "kernel_name": "machsuite-sort-radix",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 64\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 16\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2",
+      "prediction": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 32",
+      "value_accuracy_over_expected": 0.4090909090909091,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "PIPE": {
+          "correct": 5,
+          "expected": 11
+        },
+        "UNROLL": {
+          "correct": 4,
+          "expected": 11
+        }
+      }
+    },
+    {
+      "kernel_name": "machsuite-sort-radix",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 64\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 16\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2",
+      "prediction": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 32",
+      "value_accuracy_over_expected": 0.4090909090909091,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "PIPE": {
+          "correct": 5,
+          "expected": 11
+        },
+        "UNROLL": {
+          "correct": 4,
+          "expected": 11
+        }
+      }
+    },
+    {
+      "kernel_name": "machsuite-sort-radix",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2",
+      "prediction": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 32",
+      "value_accuracy_over_expected": 0.7727272727272727,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "PIPE": {
+          "correct": 9,
+          "expected": 11
+        },
+        "UNROLL": {
+          "correct": 8,
+          "expected": 11
+        }
+      }
+    },
+    {
+      "kernel_name": "machsuite-sort-radix",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2",
+      "prediction": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 32",
+      "value_accuracy_over_expected": 0.7727272727272727,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "PIPE": {
+          "correct": 9,
+          "expected": 11
+        },
+        "UNROLL": {
+          "correct": 8,
+          "expected": 11
+        }
+      }
+    },
+    {
+      "kernel_name": "rodinia_pathfinder_0_baseline_0",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 32\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 32\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "value_accuracy_over_expected": 0.4,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "ARRAY_D": {
+          "correct": 2,
+          "expected": 2
+        },
+        "ARRAY_F": {
+          "correct": 0,
+          "expected": 2
+        },
+        "ARRAY_T": {
+          "correct": 0,
+          "expected": 2
+        },
+        "PIPE": {
+          "correct": 1,
+          "expected": 2
+        },
+        "UNROLL": {
+          "correct": 1,
+          "expected": 2
+        }
+      }
+    },
+    {
+      "kernel_name": "rodinia_pathfinder_0_baseline_0",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 32\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 32\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "value_accuracy_over_expected": 0.4,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "ARRAY_D": {
+          "correct": 2,
+          "expected": 2
+        },
+        "ARRAY_F": {
+          "correct": 0,
+          "expected": 2
+        },
+        "ARRAY_T": {
+          "correct": 0,
+          "expected": 2
+        },
+        "PIPE": {
+          "correct": 1,
+          "expected": 2
+        },
+        "UNROLL": {
+          "correct": 1,
+          "expected": 2
+        }
+      }
+    },
+    {
+      "kernel_name": "rodinia_pathfinder_0_baseline_0",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "value_accuracy_over_expected": 0.7,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "ARRAY_D": {
+          "correct": 2,
+          "expected": 2
+        },
+        "ARRAY_F": {
+          "correct": 2,
+          "expected": 2
+        },
+        "ARRAY_T": {
+          "correct": 1,
+          "expected": 2
+        },
+        "PIPE": {
+          "correct": 1,
+          "expected": 2
+        },
+        "UNROLL": {
+          "correct": 1,
+          "expected": 2
+        }
+      }
+    },
+    {
+      "kernel_name": "rodinia_pathfinder_0_baseline_0",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "value_accuracy_over_expected": 0.9,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "ARRAY_D": {
+          "correct": 2,
+          "expected": 2
+        },
+        "ARRAY_F": {
+          "correct": 2,
+          "expected": 2
+        },
+        "ARRAY_T": {
+          "correct": 1,
+          "expected": 2
+        },
+        "PIPE": {
+          "correct": 2,
+          "expected": 2
+        },
+        "UNROLL": {
+          "correct": 2,
+          "expected": 2
+        }
+      }
+    },
+    {
+      "kernel_name": "rodinia_pathfinder_4_doublebuffer_0",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 32\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 32\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 64",
+      "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "value_accuracy_over_expected": 0.75,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "ARRAY_D": {
+          "correct": 4,
+          "expected": 4
+        },
+        "ARRAY_F": {
+          "correct": 3,
+          "expected": 4
+        },
+        "ARRAY_T": {
+          "correct": 2,
+          "expected": 4
+        },
+        "PIPE": {
+          "correct": 4,
+          "expected": 4
+        },
+        "UNROLL": {
+          "correct": 2,
+          "expected": 4
+        }
+      }
+    },
+    {
+      "kernel_name": "rodinia_pathfinder_4_doublebuffer_0",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 32\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 32\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 64",
+      "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "value_accuracy_over_expected": 0.7,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "ARRAY_D": {
+          "correct": 4,
+          "expected": 4
+        },
+        "ARRAY_F": {
+          "correct": 3,
+          "expected": 4
+        },
+        "ARRAY_T": {
+          "correct": 1,
+          "expected": 4
+        },
+        "PIPE": {
+          "correct": 4,
+          "expected": 4
+        },
+        "UNROLL": {
+          "correct": 2,
+          "expected": 4
+        }
+      }
+    },
+    {
+      "kernel_name": "rodinia_pathfinder_4_doublebuffer_0",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 16\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 1024\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 16\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0",
+      "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "value_accuracy_over_expected": 0.55,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "ARRAY_D": {
+          "correct": 4,
+          "expected": 4
+        },
+        "ARRAY_F": {
+          "correct": 1,
+          "expected": 4
+        },
+        "ARRAY_T": {
+          "correct": 2,
+          "expected": 4
+        },
+        "PIPE": {
+          "correct": 2,
+          "expected": 4
+        },
+        "UNROLL": {
+          "correct": 2,
+          "expected": 4
+        }
+      }
+    },
+    {
+      "kernel_name": "rodinia_pathfinder_4_doublebuffer_0",
+      "obj_mode": "PARETO_ADP",
+      "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+      "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "value_accuracy_over_expected": 0.75,
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_design_match": false,
+      "pragma_kind_counts": {
+        "ARRAY_D": {
+          "correct": 4,
+          "expected": 4
+        },
+        "ARRAY_F": {
+          "correct": 4,
+          "expected": 4
+        },
+        "ARRAY_T": {
+          "correct": 2,
+          "expected": 4
+        },
+        "PIPE": {
+          "correct": 3,
+          "expected": 4
+        },
+        "UNROLL": {
+          "correct": 2,
+          "expected": 4
+        }
+      }
+    }
+  ]
+}
