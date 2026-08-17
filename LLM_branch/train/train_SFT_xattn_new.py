@@ -5228,12 +5228,47 @@ def run_single_training(args):
 
 
     if not args.disable_structural_memory:
-        if not args.initial_state_reference:
-            raise ValueError("Stage 2 requires --initial_state_reference")
-        initial_manifest = verify_and_save_initial_structural_state(
-            model, args.initial_state_reference, args.output_dir
+        if args.selection_eval_only:
+            if not args.init_structural_xattn_from:
+                raise ValueError(
+                    "--selection_eval_only requires "
+                    "--init_structural_xattn_from"
+                )
+
+            structural_config[
+                "selection_eval_structural_checkpoint"
+            ] = os.path.abspath(
+                args.init_structural_xattn_from
+            )
+
+        else:
+            if not args.initial_state_reference:
+                raise ValueError(
+                    "Stage 2 requires "
+                    "--initial_state_reference"
+                )
+
+            initial_manifest = (
+                verify_and_save_initial_structural_state(
+                    model,
+                    args.initial_state_reference,
+                    args.output_dir,
+                )
+            )
+
+            structural_config[
+                "initial_structural_state_sha256"
+            ] = initial_manifest[
+                "combined_sha256"
+            ]
+
+        dump_json(
+            os.path.join(
+                args.output_dir,
+                "training_contract.json",
+            ),
+            training_contract,
         )
-        structural_config["initial_structural_state_sha256"] = initial_manifest["combined_sha256"]
         dump_json(
             os.path.join(args.output_dir, "training_contract.json"),
             training_contract,
@@ -5292,6 +5327,23 @@ def run_single_training(args):
             )
         )
 
+    if args.selection_eval_only:
+        if val_ds is None:
+            raise ValueError(
+                "Selection eval requires validation data"
+            )
+
+        print(
+            "[EVAL-ONLY] Running fixed-checkpoint "
+            "memory-bank evaluation"
+        )
+
+        trainer.evaluate(
+            metric_key_prefix="eval_only"
+        )
+
+        return
+    
     if args.resume_from_checkpoint and os.path.isdir(args.resume_from_checkpoint):
         print(f"[INFO] Resuming from checkpoint: {args.resume_from_checkpoint}")
         trainer.train(resume_from_checkpoint=args.resume_from_checkpoint)
@@ -5486,6 +5538,14 @@ def main():
     ap.add_argument("--resume_from_checkpoint", type=str, default="")
     ap.add_argument("--init_adapter_dir", type=str, default="")
     ap.add_argument("--init_structural_xattn_from", type=str, default="")
+    ap.add_argument(
+        "--selection_eval_only",
+        action="store_true",
+        help=(
+            "Load an existing Stage-2 structural checkpoint and run "
+            "validation selection without any optimization."
+        ),
+    )
     ap.add_argument(
         "--initial_state_reference",
         type=str,

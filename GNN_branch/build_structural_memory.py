@@ -27,6 +27,10 @@ def parse_builder_args(argv):
         "--gexf_dir",
         default="GNN_branch/MLIR_graphs",
     )
+    parser.add_argument(
+        "--layerwise_out",
+        default="",
+    )
     return parser.parse_args(argv)
 
 
@@ -637,6 +641,21 @@ def main():
 
             elif args.embedding_mode == "static_pre_npt":
                 node_emb = model.forward_static_node_embed(batch)
+                layerwise_node_emb = None
+
+                if args.layerwise_out:
+                    layerwise_node_emb = (
+                        model.forward_static_node_embed_layers(
+                            batch
+                        )
+                    )
+
+                    torch.testing.assert_close(
+                        layerwise_node_emb["jkn"],
+                        node_emb,
+                        rtol=1e-5,
+                        atol=1e-6,
+                    )
 
             else:
                 raise AssertionError(args.embedding_mode)
@@ -839,6 +858,79 @@ def main():
             f"wrote {len(written_kernels)} memories from "
             f"{len(pt_files)} static MLIR graphs"
         )
+
+    if layerwise_node_emb is not None:
+
+        for layer_name, node_tensor \
+                in layerwise_node_emb.items():
+
+            layer_slots = torch.zeros(
+                (
+                    args.max_slots,
+                    node_tensor.size(-1),
+                ),
+                dtype=node_tensor.dtype,
+                device=node_tensor.device,
+            )
+
+            for ni in sel_idx.tolist():
+                lid = int(
+                    label[ni].item()
+                )
+
+                layer_slots[
+                    lid - 1
+                ] = node_tensor[ni]
+
+            layer_slots = (
+                layer_slots
+                .detach()
+                .cpu()
+            )
+
+            layer_slots = torch.nan_to_num(
+                layer_slots,
+                nan=0.0,
+                posinf=0.0,
+                neginf=0.0,
+            )
+
+            layer_dir = os.path.join(
+                args.layerwise_out,
+                layer_name,
+            )
+
+            os.makedirs(
+                layer_dir,
+                exist_ok=True,
+            )
+
+            layer_pack = dict(pack)
+
+            layer_pack[
+                "node_embs"
+            ] = layer_slots
+
+            layer_pack[
+                "gnn_dim"
+            ] = int(
+                layer_slots.size(-1)
+            )
+
+            layer_pack[
+                "embedding_mode"
+            ] = (
+                "static_pre_npt::"
+                + layer_name
+            )
+
+            torch.save(
+                layer_pack,
+                os.path.join(
+                    layer_dir,
+                    f"{base_name}.memory.pt",
+                ),
+            )
 
     print(
         f"[DONE] Exported {len(written_kernels)} "
