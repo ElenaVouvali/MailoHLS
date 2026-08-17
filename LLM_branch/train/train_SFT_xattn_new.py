@@ -1663,7 +1663,33 @@ def score_rhs_candidate_suffix(
             device=device,
         )
         # apply xattn only on the candidate RHS suffix
-        xmask[:, base_len:] = 1.0
+        # Causal LM alignment:
+        #
+        # logits[t] scores input_ids[t + 1].
+        #
+        # The first candidate token is at input position
+        # base_len, therefore it is predicted by the hidden
+        # state at base_len - 1.
+        #
+        # Apply STRUCTURAL fusion to exactly the hidden
+        # positions whose logits score candidate tokens.
+        score_hidden_start = base_len - 1
+        score_hidden_end = (
+            score_hidden_start
+            + cand_len
+        )
+
+        if score_hidden_start < 0:
+            raise ValueError(
+                "Candidate scoring requires a "
+                "non-empty prefix"
+            )
+
+        xmask[
+            :,
+            score_hidden_start:
+            score_hidden_end,
+        ] = 1.0
 
         model_inputs["routing_start_idx"] = routing_start_idx
         model_inputs["xattn_apply_mask"] = xmask
@@ -1766,6 +1792,7 @@ def constrained_decode_rhs_by_candidate_scoring(
     structural_memory_mask: Optional[torch.Tensor] = None,
     routing_start_idx: Optional[torch.Tensor] = None,
     candidate_batch_size: int = 1,
+    return_score_trace: bool = False,
 ):
     assert score_reduction in {"mean", "sum"}
     if candidate_batch_size < 1:
@@ -1780,6 +1807,7 @@ def constrained_decode_rhs_by_candidate_scoring(
 
     parts = []
     current_label = None
+    score_trace = []
 
     structural_enabled = hasattr(model, "condition_structural_memory") and getattr(model, "initialized_structural_xattn", False)
     use_structural_memory = structural_enabled and (structural_memory is not None) and (structural_memory_mask is not None)
@@ -1836,6 +1864,16 @@ def constrained_decode_rhs_by_candidate_scoring(
                     })
 
             scored.sort(key=lambda x: (x["score"], x["sum_logprob"]), reverse=True)
+            score_trace.append(
+                {
+                    "label": label,
+                    "lhs": lhs,
+                    "candidates": [
+                        dict(record)
+                        for record in scored
+                    ],
+                }
+            )
             best = scored[0]
 
             chosen_text = best["rhs"] + "\n"
@@ -1843,7 +1881,14 @@ def constrained_decode_rhs_by_candidate_scoring(
             input_ids, attention_mask = append_token_ids(input_ids, attention_mask, chosen_ids)
             parts.append(chosen_text)
 
-        return "".join(parts).rstrip()
+        prediction = (
+            "".join(parts).rstrip()
+        )
+
+        if return_score_trace:
+            return prediction, score_trace
+
+        return prediction
 
     finally:
         if hasattr(model, "clear_structural_memory"):
@@ -1900,6 +1945,161 @@ class SelectionCase:
     row: dict
 
 
+def summarize_candidate_margins(
+    rows: List[dict],
+) -> Dict[str, object]:
+
+    records = [
+        record
+        for row in rows
+        for record in row.get(
+            "candidate_margins",
+            [],
+        )
+        if record.get(
+            "margin",
+            None,
+        )
+        is not None
+    ]
+
+    if not records:
+        return {
+            "candidate_margin_count": 0,
+            "candidate_margin_mean": None,
+            "candidate_margin_median": None,
+            "candidate_margin_positive_fraction": None,
+            "candidate_gold_mean_rank": None,
+            "candidate_margin_per_kind": {},
+            "candidate_margin_per_kernel": {},
+        }
+
+    margins = [
+        float(r["margin"])
+        for r in records
+    ]
+
+    ranks = [
+        float(r["gold_rank"])
+        for r in records
+    ]
+
+    by_kind = defaultdict(list)
+    by_kernel = defaultdict(list)
+
+    for row in rows:
+        kernel = row[
+            "kernel_name"
+        ]
+
+        for record in row.get(
+            "candidate_margins",
+            [],
+        ):
+            if (
+                record.get(
+                    "margin",
+                    None,
+                )
+                is None
+            ):
+                continue
+
+            by_kind[
+                record["kind"]
+            ].append(record)
+
+            by_kernel[
+                kernel
+            ].append(record)
+
+    def aggregate(group):
+        values = [
+            float(r["margin"])
+            for r in group
+        ]
+
+        group_ranks = [
+            float(r["gold_rank"])
+            for r in group
+        ]
+
+        return {
+            "count": len(group),
+
+            "mean_margin": float(
+                np.mean(values)
+            ),
+
+            "median_margin": float(
+                np.median(values)
+            ),
+
+            "positive_fraction": float(
+                np.mean(
+                    [
+                        value > 0.0
+                        for value
+                        in values
+                    ]
+                )
+            ),
+
+            "mean_gold_rank": float(
+                np.mean(
+                    group_ranks
+                )
+            ),
+        }
+
+    return {
+        "candidate_margin_count":
+            len(records),
+
+        "candidate_margin_mean":
+            float(
+                np.mean(margins)
+            ),
+
+        "candidate_margin_median":
+            float(
+                np.median(margins)
+            ),
+
+        "candidate_margin_positive_fraction":
+            float(
+                np.mean(
+                    [
+                        margin > 0.0
+                        for margin
+                        in margins
+                    ]
+                )
+            ),
+
+        "candidate_gold_mean_rank":
+            float(
+                np.mean(ranks)
+            ),
+
+        "candidate_margin_per_kind": {
+            kind: aggregate(group)
+            for kind, group
+            in sorted(
+                by_kind.items()
+            )
+        },
+
+        "candidate_margin_per_kernel": {
+            kernel: aggregate(group)
+            for kernel, group
+            in sorted(
+                by_kernel.items()
+            )
+        },
+    }
+
+
 def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
     """Aggregate selection metrics while giving every kernel equal weight."""
     if not rows:
@@ -1918,31 +2118,82 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
         for kind, counts in row["pragma_kind_counts"].items():
             pragma_kind_totals[kind]["correct"] += counts["correct"]
             pragma_kind_totals[kind]["expected"] += counts["expected"]
-    return {
+    summary = {
+        # keep ALL your current fields here unchanged
         "mean_value_acc": float(
-            sum(row["value_accuracy_over_expected"] for row in rows) / len(rows)
+            sum(
+                row[
+                    "value_accuracy_over_expected"
+                ]
+                for row in rows
+            )
+            / len(rows)
         ),
+
         "schema_compliance": float(
-            sum(row["schema_compliant"] for row in rows) / len(rows)
+            sum(
+                row[
+                    "schema_compliant"
+                ]
+                for row in rows
+            )
+            / len(rows)
         ),
+
         "expected_key_accuracy": float(
-            sum(row["expected_key_match"] for row in rows) / len(rows)
+            sum(
+                row[
+                    "expected_key_match"
+                ]
+                for row in rows
+            )
+            / len(rows)
         ),
+
         "exact_design_accuracy": float(
-            sum(row["exact_design_match"] for row in rows) / len(rows)
+            sum(
+                row[
+                    "exact_design_match"
+                ]
+                for row in rows
+            )
+            / len(rows)
         ),
+
         "pragma_kind_accuracy": {
-            kind: counts["correct"] / counts["expected"]
-            for kind, counts in sorted(pragma_kind_totals.items())
+            kind:
+                counts["correct"]
+                / counts["expected"]
+            for kind, counts
+            in sorted(
+                pragma_kind_totals.items()
+            )
             if counts["expected"] > 0
         },
-        "per_kernel_accuracy": kernel_value_acc,
-        "minimum_kernel_accuracy": min(kernel_value_acc.values()),
+
+        "per_kernel_accuracy":
+            kernel_value_acc,
+
+        "minimum_kernel_accuracy":
+            min(
+                kernel_value_acc.values()
+            ),
+
         "selection_score": float(
-            sum(kernel_value_acc.values()) / len(kernel_value_acc)
+            sum(
+                kernel_value_acc.values()
+            )
+            / len(kernel_value_acc)
         ),
     }
 
+    summary.update(
+        summarize_candidate_margins(
+            rows
+        )
+    )
+
+    return summary
 
 
 class StageValSelectionCallback(TrainerCallback):
@@ -2014,19 +2265,143 @@ class StageValSelectionCallback(TrainerCallback):
                 self.mem_dim,
             )
 
-        pred = constrained_decode_rhs_by_candidate_scoring(
-            model=model,
-            tok=self.tok,
-            prompt_ids=prompt_ids,
-            source_text=case.source_text,
-            kernel_name=case.kernel_name,
-            directive_domain_registry=self.directive_domain_registry,
-            score_reduction=self.candidate_score_reduction,
-            structural_memory=structural_memory,
-            structural_memory_mask=structural_memory_mask,
-            routing_start_idx=routing_start_idx,
-            candidate_batch_size=self.candidate_batch_size,
+        pred, score_trace = (
+            constrained_decode_rhs_by_candidate_scoring(
+                model=model,
+                tok=self.tok,
+                prompt_ids=prompt_ids,
+                source_text=case.source_text,
+                kernel_name=case.kernel_name,
+                directive_domain_registry=self.directive_domain_registry,
+                score_reduction=self.candidate_score_reduction,
+                structural_memory=structural_memory,
+                structural_memory_mask=structural_memory_mask,
+                routing_start_idx=routing_start_idx,
+                candidate_batch_size=(
+                    self.candidate_batch_size
+                ),
+                return_score_trace=True,
+            )
         )
+        
+        ref_assign = parse_assignment_dict(
+            case.reference_target
+        )
+
+        candidate_margins = []
+
+        for site in score_trace:
+            lhs_key = (
+                site["lhs"]
+                .strip()
+                .upper()
+            )
+
+            gold_rhs = ref_assign.get(
+                lhs_key,
+                None,
+            )
+
+            if gold_rhs is None:
+                continue
+
+            gold_rhs = gold_rhs.strip()
+
+            ranked = site["candidates"]
+
+            gold_records = [
+                record
+                for record in ranked
+                if record["rhs"].strip()
+                == gold_rhs
+            ]
+
+            if len(gold_records) != 1:
+                raise RuntimeError(
+                    f"{case.kernel_name}/{lhs_key}: "
+                    f"expected exactly one gold "
+                    f"candidate {gold_rhs!r}, "
+                    f"found {len(gold_records)}"
+                )
+
+            gold = gold_records[0]
+
+            wrong = [
+                record
+                for record in ranked
+                if record["rhs"].strip()
+                != gold_rhs
+            ]
+
+            gold_rank = next(
+                index + 1
+                for index, record
+                in enumerate(ranked)
+                if record["rhs"].strip()
+                == gold_rhs
+            )
+
+            best_wrong = (
+                max(
+                    wrong,
+                    key=lambda record:
+                        record["score"],
+                )
+                if wrong
+                else None
+            )
+
+            margin = (
+                float(
+                    gold["score"]
+                    - best_wrong["score"]
+                )
+                if best_wrong is not None
+                else None
+            )
+
+            candidate_margins.append(
+                {
+                    "label": site["label"],
+                    "lhs": site["lhs"],
+                    "kind": lhs_kind(
+                        site["lhs"]
+                    ),
+                    "gold_rhs": gold_rhs,
+                    "predicted_rhs": (
+                        ranked[0]["rhs"]
+                    ),
+                    "gold_score": float(
+                        gold["score"]
+                    ),
+                    "best_wrong_rhs": (
+                        best_wrong["rhs"]
+                        if best_wrong
+                        is not None
+                        else None
+                    ),
+                    "best_wrong_score": (
+                        float(
+                            best_wrong[
+                                "score"
+                            ]
+                        )
+                        if best_wrong
+                        is not None
+                        else None
+                    ),
+                    "margin": margin,
+                    "gold_rank": int(
+                        gold_rank
+                    ),
+                    "candidate_count": int(
+                        len(ranked)
+                    ),
+                    "gold_top1": bool(
+                        gold_rank == 1
+                    ),
+                }
+            )
 
         metrics = evaluate_prediction(case.reference_target, pred)
         return {
@@ -2039,6 +2414,7 @@ class StageValSelectionCallback(TrainerCallback):
             "expected_key_match": bool(metrics["expected_key_match"]),
             "exact_design_match": bool(metrics["exact_design_match"]),
             "pragma_kind_counts": metrics["pragma_kind_counts"],
+            "candidate_margins":candidate_margins,
         }
 
     def on_evaluate(self, args, state, control, **kwargs):
@@ -2095,6 +2471,30 @@ class StageValSelectionCallback(TrainerCallback):
             print(f"[VAL-SELECTION] selection_score={selection_score:.6f}")
             print(f"[VAL-SELECTION] checkpoint_key={checkpoint_key}")
             print("=" * 100)
+
+            print(
+                "[VAL-MARGIN] "
+                f"count="
+                f"{summary['candidate_margin_count']} "
+                f"mean="
+                f"{summary['candidate_margin_mean']} "
+                f"median="
+                f"{summary['candidate_margin_median']} "
+                f"positive_fraction="
+                f"{summary['candidate_margin_positive_fraction']} "
+                f"mean_gold_rank="
+                f"{summary['candidate_gold_mean_rank']}"
+            )
+
+            print(
+                "[VAL-MARGIN] per_kind="
+                f"{summary['candidate_margin_per_kind']}"
+            )
+
+            print(
+                "[VAL-MARGIN] per_kernel="
+                f"{summary['candidate_margin_per_kernel']}"
+            )
 
             metrics_obj = {
                 "step": int(state.global_step),
@@ -2408,6 +2808,217 @@ def print_xattn_forward_stats(model):
         print("[XATTN-DBG] no cross-attn forward stats collected yet")
 
 
+def print_xattn_residual_stats(model):
+    found = False
+
+    for name, module in (
+        model.named_modules()
+    ):
+        if (
+            isinstance(
+                module,
+                GatedCrossAttentionBlock,
+            )
+            and getattr(
+                module,
+                "last_debug",
+                None,
+            )
+        ):
+            found = True
+
+            dbg = module.last_debug
+
+            print(
+                f"[XATTN-RESID] {name}: "
+                f"gate={dbg.get('gate_tanh')} "
+                f"active={dbg.get('active_apply_tokens')} "
+                f"hidden_l2={dbg.get('hidden_l2_active_mean')} "
+                f"projected_l2={dbg.get('projected_l2_active_mean')} "
+                f"residual_l2={dbg.get('gated_residual_l2_active_mean')} "
+                f"projected/hidden="
+                f"{dbg.get('projected_to_hidden_ratio_mean')} "
+                f"gated/hidden="
+                f"{dbg.get('gated_to_hidden_ratio_mean')} "
+                f"gated/hidden_max="
+                f"{dbg.get('gated_to_hidden_ratio_max')}"
+            )
+
+    if not found:
+        print(
+            "[XATTN-RESID] "
+            "no residual diagnostics collected"
+        )
+
+
+def _projection_grad_stats(
+    weight: torch.Tensor,
+    grad: Optional[torch.Tensor],
+) -> dict:
+    w = (
+        weight
+        .detach()
+        .float()
+    )
+
+    if grad is None:
+        return {
+            "grad_l2": None,
+            "grad_rms": None,
+            "param_l2": float(
+                w.norm().item()
+            ),
+            "grad_param_ratio": None,
+        }
+
+    g = (
+        grad
+        .detach()
+        .float()
+    )
+
+    grad_l2 = float(
+        g.norm().item()
+    )
+
+    grad_rms = float(
+        g.square()
+        .mean()
+        .sqrt()
+        .item()
+    )
+
+    param_l2 = float(
+        w.norm().item()
+    )
+
+    return {
+        "grad_l2": grad_l2,
+        "grad_rms": grad_rms,
+        "param_l2": param_l2,
+        "grad_param_ratio": (
+            grad_l2
+            / max(
+                param_l2,
+                1e-12,
+            )
+        ),
+    }
+
+
+def _fmt_grad(stats):
+    if stats["grad_l2"] is None:
+        return "grad=None"
+
+    return (
+        f"L2={stats['grad_l2']:.3e} "
+        f"RMS={stats['grad_rms']:.3e} "
+        f"G/P={stats['grad_param_ratio']:.3e}"
+    )
+
+
+def print_xattn_projection_grad_stats(
+    model,
+):
+    found = False
+
+    for name, module in (
+        model.named_modules()
+    ):
+        if not isinstance(
+            module,
+            MaskedCrossAttention,
+        ):
+            continue
+
+        found = True
+
+        q_weight = (
+            module.to_q.weight
+        )
+        q_grad = (
+            module.to_q.weight.grad
+        )
+
+        kv_weight = (
+            module.to_kv.weight
+        )
+        kv_grad = (
+            module.to_kv.weight.grad
+        )
+
+        out_weight = (
+            module.to_out.weight
+        )
+        out_grad = (
+            module.to_out.weight.grad
+        )
+
+        # to_kv(memory).chunk(2, dim=-1)
+        # means the first half of Linear
+        # output rows produces K and the
+        # second half produces V.
+        k_weight, v_weight = (
+            kv_weight.chunk(
+                2,
+                dim=0,
+            )
+        )
+
+        if kv_grad is not None:
+            k_grad, v_grad = (
+                kv_grad.chunk(
+                    2,
+                    dim=0,
+                )
+            )
+        else:
+            k_grad = None
+            v_grad = None
+
+        q_stats = (
+            _projection_grad_stats(
+                q_weight,
+                q_grad,
+            )
+        )
+
+        k_stats = (
+            _projection_grad_stats(
+                k_weight,
+                k_grad,
+            )
+        )
+
+        v_stats = (
+            _projection_grad_stats(
+                v_weight,
+                v_grad,
+            )
+        )
+
+        out_stats = (
+            _projection_grad_stats(
+                out_weight,
+                out_grad,
+            )
+        )
+
+        print(
+            f"[XATTN-GRAD] {name}\n"
+            f"  Q   {_fmt_grad(q_stats)}\n"
+            f"  K   {_fmt_grad(k_stats)}\n"
+            f"  V   {_fmt_grad(v_stats)}\n"
+            f"  OUT {_fmt_grad(out_stats)}"
+        )
+
+    if not found:
+        print(
+            "[XATTN-GRAD] "
+            "no MaskedCrossAttention modules"
+        )
+
+
 def get_structural_xattn_state_dict(model):
     sd = model.state_dict()
     return {
@@ -2708,10 +3319,44 @@ class LengthGroupedTrainer(Trainer):
 
         if self.accelerator.sync_gradients and self.state.global_step != self._last_debug_step:
             if self.state.global_step % 20 == 0:
-                print_xattn_gate_stats(model, print_grads=True)
-                if hasattr(model, "clear_structural_memory") and not getattr(self.args, "disable_structural_memory", False):
-                    print_xattn_forward_stats(model)
-                self._last_debug_step = self.state.global_step
+                print_xattn_gate_stats(
+                    model,
+                    print_grads=True,
+                )
+
+                if (
+                    hasattr(
+                        model,
+                        "clear_structural_memory",
+                    )
+                    and not getattr(
+                        self.args,
+                        "disable_structural_memory",
+                        False,
+                    )
+                ):
+                    print_xattn_forward_stats(
+                        model
+                    )
+
+                    if (
+                        os.environ.get(
+                            "MAILOHLS_XATTN_DIAGNOSTICS",
+                            "0",
+                        )
+                        == "1"
+                    ):
+                        print_xattn_residual_stats(
+                            model
+                        )
+
+                        print_xattn_projection_grad_stats(
+                            model
+                        )
+
+                self._last_debug_step = (
+                    self.state.global_step
+                )
 
         return loss.detach() / self.args.gradient_accumulation_steps
     

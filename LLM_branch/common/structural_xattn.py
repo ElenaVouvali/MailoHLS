@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import torch
+import os
 import torch.nn as nn
 from einops import rearrange
 from einops_exts import rearrange_many
@@ -254,6 +255,14 @@ class GatedCrossAttentionBlock(nn.Module):
             mask_mode=mask_mode,
         )
         self.attn_gate = nn.Parameter(torch.tensor([attn_gate_init]))
+        self.collect_diagnostics = (
+            os.environ.get(
+                "MAILOHLS_XATTN_DIAGNOSTICS",
+                "0",
+            )
+            == "1"
+        )
+        self.last_debug = {}
         self.enable_ff = enable_ff
         if enable_ff:
             self.ff = FeedForward(dim, mult=ff_mult)
@@ -271,27 +280,189 @@ class GatedCrossAttentionBlock(nn.Module):
         use_cached_memory=False,
         xattn_apply_mask=None,
     ):
+        input_hidden = x
+
         attention_output = self.attn(
-            x,
+            input_hidden,
             memory,
-            placeholder_slot_ids=placeholder_slot_ids,
+            placeholder_slot_ids=(
+                placeholder_slot_ids
+            ),
             memory_mask=memory_mask,
             use_cached_memory=use_cached_memory,
         )
+
         apply_mask = None
+
         if xattn_apply_mask is not None:
             apply_mask = xattn_apply_mask.to(
-                device=attention_output.device, dtype=attention_output.dtype
+                device=attention_output.device,
+                dtype=attention_output.dtype,
             )
+
             if apply_mask.ndim == 2:
-                apply_mask = apply_mask.unsqueeze(-1)
-            attention_output = attention_output * apply_mask
-        x = x + attention_output * self.attn_gate.tanh()
+                apply_mask = (
+                    apply_mask.unsqueeze(-1)
+                )
+
+            attention_output = (
+                attention_output
+                * apply_mask
+            )
+
+        gate = self.attn_gate.tanh()
+
+        gated_residual = (
+            attention_output * gate
+        )
+
+        if self.collect_diagnostics:
+            with torch.no_grad():
+                if apply_mask is None:
+                    active = torch.ones(
+                        input_hidden.shape[:2],
+                        dtype=torch.bool,
+                        device=input_hidden.device,
+                    )
+                else:
+                    active = (
+                        apply_mask
+                        .squeeze(-1)
+                        .gt(0)
+                    )
+
+                hidden_norm = (
+                    input_hidden
+                    .float()
+                    .norm(dim=-1)
+                )
+
+                projected_norm = (
+                    attention_output
+                    .float()
+                    .norm(dim=-1)
+                )
+
+                residual_norm = (
+                    gated_residual
+                    .float()
+                    .norm(dim=-1)
+                )
+
+                debug = dict(
+                    getattr(
+                        self.attn,
+                        "last_debug",
+                        {},
+                    )
+                )
+
+                debug.update(
+                    {
+                        "gate_raw": float(
+                            self.attn_gate
+                            .detach()
+                            .float()
+                            .item()
+                        ),
+                        "gate_tanh": float(
+                            gate.detach()
+                            .float()
+                            .item()
+                        ),
+                        "active_apply_tokens":
+                            int(
+                                active
+                                .sum()
+                                .item()
+                            ),
+                    }
+                )
+
+                if active.any().item():
+                    h = hidden_norm[
+                        active
+                    ].clamp_min(1e-12)
+
+                    p = projected_norm[
+                        active
+                    ]
+
+                    r = residual_norm[
+                        active
+                    ]
+
+                    projected_ratio = p / h
+                    residual_ratio = r / h
+
+                    debug.update(
+                        {
+                            "hidden_l2_active_mean":
+                                float(
+                                    h.mean().item()
+                                ),
+
+                            "projected_l2_active_mean":
+                                float(
+                                    p.mean().item()
+                                ),
+
+                            "gated_residual_l2_active_mean":
+                                float(
+                                    r.mean().item()
+                                ),
+
+                            "projected_to_hidden_ratio_mean":
+                                float(
+                                    projected_ratio
+                                    .mean()
+                                    .item()
+                                ),
+
+                            "gated_to_hidden_ratio_mean":
+                                float(
+                                    residual_ratio
+                                    .mean()
+                                    .item()
+                                ),
+
+                            "gated_to_hidden_ratio_median":
+                                float(
+                                    residual_ratio
+                                    .median()
+                                    .item()
+                                ),
+
+                            "gated_to_hidden_ratio_max":
+                                float(
+                                    residual_ratio
+                                    .max()
+                                    .item()
+                                ),
+                        }
+                    )
+
+                self.last_debug = debug
+
+        x = (
+            input_hidden
+            + gated_residual
+        )
+
         if self.ff is not None:
             ff_output = self.ff(x)
+
             if apply_mask is not None:
-                ff_output = ff_output * apply_mask
-            x = x + ff_output * self.ff_gate.tanh()
+                ff_output = (
+                    ff_output * apply_mask
+                )
+
+            x = (
+                x
+                + ff_output
+                * self.ff_gate.tanh()
+            )
+
         return x
 
 
