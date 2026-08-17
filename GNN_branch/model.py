@@ -835,6 +835,58 @@ class Net(nn.Module):
         return self._node_embed(data, embedding_mode="static_pre_npt")
 
 
+    def forward_static_node_embed_layers(self, data):
+        data = self._normalize_debug_tensors(data)
+
+        x = data.x
+        edge_index = data.edge_index
+        edge_attr = data.edge_attr
+
+        activation = (
+            F.elu
+            if FLAGS.activation == "elu"
+            else F.relu
+        )
+
+        outs = []
+
+        out = activation(
+            self.conv_first(
+                x,
+                edge_index,
+                edge_attr=edge_attr,
+            )
+        )
+        outs.append(out)
+
+        for i in range(self.num_conv_layers):
+            conv = self.conv_layers[i]
+
+            out = conv(
+                out,
+                edge_index,
+                edge_attr=edge_attr,
+            )
+
+            if i != self.num_conv_layers - 1:
+                out = activation(out)
+
+            outs.append(out)
+
+        result = {
+            f"conv_{i + 1}": x
+            for i, x in enumerate(outs)
+        }
+
+        result["jkn"] = (
+            self.jkn(outs)
+            if FLAGS.jkn_enable
+            else outs[-1]
+        )
+
+        return result
+
+
     '''
     end-to-end model: produces predictions and losses (regression/classification), optionally adds auxiliary GAE losses, and is the function used during training
     '''
