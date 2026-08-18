@@ -320,6 +320,45 @@ def test_relational_attention_has_multiple_keys_and_qk_gradients():
         ]
         == 9
     )
+    
+    assert (
+        module.last_debug[
+            "tokens_with_route"
+        ]
+        == 3
+    )
+
+    assert (
+        module.last_debug[
+            "keys_per_routed_token_mean"
+        ]
+        == pytest.approx(
+            3.0
+        )
+    )
+
+    assert (
+        module.last_debug[
+            "keys_per_routed_token_max"
+        ]
+        == 3
+    )
+
+    assert (
+        module.last_debug[
+            "multi_key_token_fraction"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        module.last_debug[
+            "multi_key_attention_entropy_mean"
+        ]
+        > 0.0
+    )
 
     assert (
         module.to_q.weight.grad
