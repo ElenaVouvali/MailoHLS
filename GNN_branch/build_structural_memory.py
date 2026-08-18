@@ -780,8 +780,8 @@ def build_action_relation_mask(
 
             candidates.append(
                 (
-                    distance,
                     -depth,
+                    distance,
                     slot,
                 )
             )

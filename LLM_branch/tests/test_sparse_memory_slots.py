@@ -86,13 +86,38 @@ def test_sparse_absolute_lk_slots_are_preserved(tmp_path):
         slot_cats,
     )
 
-
-    batched_kv, batched_mask = get_structural_memory_pack_for_kernel(
+    (
+        batched_kv,
+        batched_mask,
+        batched_relation,
+    ) = get_structural_memory_pack_for_kernel(
         bank,
         "lava",
         max_slots=max_slots,
         mem_dim=dim,
+        structural_routing="exact_slot",
     )
+
+    assert batched_relation is None
+
+    relation = torch.zeros(
+        max_slots,
+        max_slots,
+        dtype=torch.bool,
+    )
+
+    active = torch.where(mask)[0]
+
+    relation[
+        active,
+        active,
+    ] = True
+
+    # Add one real multi-slot edge.
+    relation[1, 2] = True
+    relation[2, 1] = True
+
+    pack["action_relation_mask"] = relation
 
     assert batched_kv.shape == (1, max_slots, dim)
     assert batched_mask.shape == (1, max_slots)

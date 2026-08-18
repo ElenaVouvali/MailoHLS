@@ -13,12 +13,12 @@ transformers = pytest.importorskip("transformers")
 from transformers import LlamaConfig, LlamaForCausalLM
 
 from LLM_branch.common.structural_xattn import (
+    MaskedCrossAttention,
     StructuralCrossAttentionMixin,
     StructuralMemoryPreMLP,
     extend_instance,
     infer_decoder_layers_attr_name,
 )
-
 
 HIDDEN_SIZE = 32
 MEMORY_SIZE = 12

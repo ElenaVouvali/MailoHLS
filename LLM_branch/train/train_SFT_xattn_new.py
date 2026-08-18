@@ -50,7 +50,7 @@ from transformers.trainer_pt_utils import LengthGroupedSampler
 
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
 
-from LLM_branch.common import mailohls_contract, structural_xattn
+from LLM_branch.common import mailohls_contract, structural_xattn, structural_memory
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -1818,8 +1818,9 @@ def constrained_decode_rhs_by_candidate_scoring(
             structural_memory.to(device),
             structural_memory_mask.to(device),
             action_relation_mask=(
-                structural_relation_mask
-                .to(device)
+                structural_relation_mask.to(device)
+                if structural_relation_mask is not None
+                else None
             ),
         )
     try:
@@ -2219,6 +2220,7 @@ class StageValSelectionCallback(TrainerCallback):
         training_contract: Optional[dict] = None,
         selection_eval_steps: int = 200,
         candidate_batch_size: int = 1,
+        structural_routing: str = "exact_slot",
     ):
         self.tok = tokenizer
         self.selection_cases = selection_cases
@@ -2234,6 +2236,16 @@ class StageValSelectionCallback(TrainerCallback):
         self.selection_eval_steps = selection_eval_steps
         self.candidate_batch_size = candidate_batch_size
         best_path = Path(output_dir) / best_dir_name / "best_selection_metrics.json"
+
+        if structural_routing not in {
+            "exact_slot",
+            "compiler_relational",
+        }:
+            raise ValueError(
+                f"Unsupported structural_routing={structural_routing!r}"
+            )
+
+        self.structural_routing = structural_routing
 
         if best_path.is_file():
             previous = json.loads(best_path.read_text(encoding="utf-8"))
@@ -2264,17 +2276,24 @@ class StageValSelectionCallback(TrainerCallback):
 
         structural_memory = None
         structural_memory_mask = None
-        if hasattr(model, "initialized_structural_xattn") and getattr(model, "initialized_structural_xattn", False):
+        structural_relation_mask = None
+        if (
+            hasattr(model, "initialized_structural_xattn")
+            and model.initialized_structural_xattn
+        ):
             (
                 structural_memory,
                 structural_memory_mask,
                 structural_relation_mask,
-            ) = get_structural_memory_pack_for_kernel(
+            ) = structural_memory.get_structural_memory_pack_for_kernel(
                 self.mem_bank,
                 case.kernel_name,
                 self.max_slots,
                 self.mem_dim,
-                )
+                structural_routing=(
+                    self.structural_routing
+                ),
+            )
             
         pred, score_trace = (
             constrained_decode_rhs_by_candidate_scoring(
@@ -2548,282 +2567,6 @@ class StageValSelectionCallback(TrainerCallback):
         finally:
             if was_training:
                 model.train()
-
-
-# ==========================================
-# STRUCTURAL memory bank loader (.memory.pt files)
-# ==========================================
-
-def load_memory_bank(
-    memory_dir: str,
-    expected_mem_dim: Optional[int] = None,
-    expected_max_slots: Optional[int] = None,
-    require_pragma_free_memory: bool = False,
-) -> Tuple[Dict[str, dict], Optional[int]]:
-    bank = {}
-    inferred_mem_dim = None
-
-    for fn in os.listdir(memory_dir):
-        if not fn.endswith(".memory.pt"):
-            continue
-
-        pack = torch.load(os.path.join(memory_dir, fn), map_location="cpu", weights_only=False)
-
-        kv = pack["node_embs"].float()
-        mask = pack["node_embs_mask"].bool()
-        labels = pack.get("labels", None)
-        slot_cats = pack.get("slot_cats", None)
-
-        if kv.ndim != 2:
-            raise ValueError(f"{fn}: node_embs must be [S, D], got {tuple(kv.shape)}")
-        if mask.ndim != 1 or mask.numel() != kv.size(0):
-            raise ValueError(f"{fn}: bad node_embs_mask shape {tuple(mask.shape)} for node_embs {tuple(kv.shape)}")
-
-        gnn_dim = int(pack.get("gnn_dim", kv.size(1)))
-        if gnn_dim != kv.size(1):
-            raise ValueError(f"{fn}: gnn_dim={gnn_dim} but node_embs.size(1)={kv.size(1)}")
-
-        if inferred_mem_dim is None:
-            inferred_mem_dim = gnn_dim
-        elif inferred_mem_dim != gnn_dim:
-            raise ValueError(f"Inconsistent gnn_dim across memory packs: {inferred_mem_dim} vs {gnn_dim}")
-
-        if expected_mem_dim is not None and gnn_dim != expected_mem_dim:
-            raise ValueError(f"{fn}: memory dim mismatch, pack={gnn_dim}, expected={expected_mem_dim}")
-
-        max_slots = int(pack.get("max_slots", kv.size(0)))
-        if expected_max_slots is not None and max_slots != expected_max_slots:
-            raise ValueError(f"{fn}: max_slots mismatch, pack={max_slots}, expected={expected_max_slots}")
-
-        if require_pragma_free_memory and not bool(pack.get("disable_pragma_injection", False)):
-            raise ValueError(f"{fn}: memory was not built with disable_pragma_injection=True")
-
-        # Preserve absolute MailoHLS Lk slot alignment.
-        #
-        # build_structural_memory.py stores action Lk at slot k-1.
-        # Sparse action sets are therefore valid; for example, a kernel
-        # may contain active L2..L15 while slot 0 / L1 remains inactive.
-        #
-        # Do NOT compact active vectors to slots 0..N-1: structural_xattn
-        # routes the <Lk> placeholder directly to one-based memory slot k.
-        if labels is not None:
-            labels_t = torch.as_tensor(
-                labels,
-                dtype=torch.long,
-            ).view(-1)
-
-            if labels_t.numel() != kv.size(0):
-                raise ValueError(
-                    f"{fn}: labels have {labels_t.numel()} entries "
-                    f"for {kv.size(0)} memory slots"
-                )
-
-            expected_slots = torch.arange(
-                1,
-                kv.size(0) + 1,
-                dtype=torch.long,
-            )
-
-            active_idx = mask.nonzero(
-                as_tuple=False
-            ).view(-1)
-
-            if active_idx.numel() > 0:
-                active_labels = labels_t.index_select(
-                    0,
-                    active_idx,
-                )
-                expected_active = expected_slots.index_select(
-                    0,
-                    active_idx,
-                )
-
-                if not torch.equal(
-                    active_labels,
-                    expected_active,
-                ):
-                    raise ValueError(
-                        f"{fn}: active labels violate absolute Lk "
-                        f"slot alignment: "
-                        f"labels={active_labels.tolist()}, "
-                        f"expected={expected_active.tolist()}"
-                    )
-
-        # slot_ids, when present, must describe the same fixed absolute
-        # one-based structural address space.
-        slot_ids = pack.get("slot_ids", None)
-
-        if slot_ids is not None:
-            slot_ids_t = torch.as_tensor(
-                slot_ids,
-                dtype=torch.long,
-            ).view(-1)
-
-            expected_slots = torch.arange(
-                1,
-                kv.size(0) + 1,
-                dtype=torch.long,
-            )
-
-            if not torch.equal(
-                slot_ids_t,
-                expected_slots,
-            ):
-                raise ValueError(
-                    f"{fn}: slot_ids must equal absolute [1..S]; "
-                    f"got {slot_ids_t.tolist()}"
-                )
-
-        if slot_cats is not None:
-            slot_cats = torch.as_tensor(
-                slot_cats,
-                dtype=torch.long,
-            ).view(-1)
-
-            if slot_cats.numel() != kv.size(0):
-                raise ValueError(
-                    f"{fn}: slot_cats have {slot_cats.numel()} entries "
-                    f"for {kv.size(0)} memory slots"
-                )
-
-        k = fn.replace(".memory.pt", "")
-
-        relation_mask = pack.get(
-            "action_relation_mask",
-            None,
-        )
-
-        relation_bits = pack.get(
-            "action_relation_bits",
-            None,
-        )
-
-        if relation_mask is not None:
-
-            relation_mask = (
-                torch.as_tensor(
-                    relation_mask,
-                    dtype=torch.bool,
-                )
-                .contiguous()
-            )
-
-            expected_relation_shape = (
-                kv.size(0),
-                kv.size(0),
-            )
-
-            if tuple(
-                relation_mask.shape
-            ) != expected_relation_shape:
-                raise ValueError(
-                    f"{fn}: action_relation_mask "
-                    f"{tuple(relation_mask.shape)} "
-                    f"!= {expected_relation_shape}"
-                )
-
-            # Relation mask may reference only
-            # active memory slots.
-            active_pairs = (
-                mask[:, None]
-                &
-                mask[None, :]
-            )
-
-            if (
-                relation_mask
-                & ~active_pairs
-            ).any():
-                raise ValueError(
-                    f"{fn}: relation mask references "
-                    "inactive structural slots"
-                )
-
-            active = torch.where(
-                mask
-            )[0]
-
-            if (
-                active.numel() > 0
-                and not relation_mask[
-                    active,
-                    active,
-                ].all()
-            ):
-                raise ValueError(
-                    f"{fn}: active action is missing "
-                    "its self relation"
-                )
-            
-        rec = {
-            "kv": kv.contiguous(),
-            "mask": mask.contiguous(),
-            "relation_mask":
-                (
-                    relation_mask
-                    if relation_mask
-                    is not None
-                    else None
-                ),
-            "relation_bits": relation_bits,
-            "slot_cats": slot_cats,
-            "ckpt": pack.get("ckpt", ""),
-            "disable_pragma_injection": bool(pack.get("disable_pragma_injection", False)),
-        }
-    
-        bank[k] = rec
-        bank[normalize_kname(k)] = rec
-
-    return bank, inferred_mem_dim
-
-
-
-def get_structural_memory_pack_for_kernel(
-    mem_bank: Dict[str, dict],
-    kernel_name: str,
-    max_slots: int,
-    mem_dim: int,
-) -> Tuple[torch.Tensor, torch.Tensor]:
-    """Return one kernel's structural memory as batched [1,S,D] / [1,S].
-
-    Validation selection is a production evaluation path, so missing or
-    malformed structural memory must fail loudly rather than silently
-    substituting zero memory.
-    """
-    pack = (
-        mem_bank.get(kernel_name)
-        or mem_bank.get(normalize_kname(kernel_name))
-    )
-
-    if pack is None:
-        raise KeyError(
-            f"No structural memory found for kernel={kernel_name!r}"
-        )
-
-    kv = pack["kv"]
-    mask = pack["mask"]
-    relation_mask = pack["relation_mask"]
-
-    expected_kv_shape = (int(max_slots), int(mem_dim))
-    expected_mask_shape = (int(max_slots),)
-
-    if tuple(kv.shape) != expected_kv_shape:
-        raise ValueError(
-            f"{kernel_name}: structural memory shape "
-            f"{tuple(kv.shape)} != {expected_kv_shape}"
-        )
-
-    if tuple(mask.shape) != expected_mask_shape:
-        raise ValueError(
-            f"{kernel_name}: structural memory mask shape "
-            f"{tuple(mask.shape)} != {expected_mask_shape}"
-        )
-
-    return (
-        kv.unsqueeze(0),
-        mask.unsqueeze(0),
-        relation_mask.unsqueeze(0),
-    )
 
 
 
@@ -4957,7 +4700,7 @@ def run_single_training(args):
         mem_bank = {}
         print("[INFO] Structural memory disabled -> skipping memory bank loading")
     else:
-        mem_bank, inferred_mem_dim = load_memory_bank(
+        mem_bank, inferred_mem_dim = structural_memory.load_memory_bank(
             args.memory_dir,
             expected_mem_dim=None if args.mem_dim <= 0 else args.mem_dim,
             expected_max_slots=args.max_slots,
@@ -5454,17 +5197,23 @@ def run_single_training(args):
         train_dataset=train_ds,
         eval_dataset=val_ds,
         data_collator=collator,
+
         group_by_length=args.group_by_length,
         mem_bank=mem_bank,
         mem_dim=args.mem_dim,
         max_slots=args.max_slots,
+
+        structural_routing=args.structural_routing,
+
         lr_lora=args.lr_lora,
         lr_xattn=args.lr_xattn,
         lr_embed=args.lr_embed,
         lr_gate=args.lr_gate,
         lr_ff=args.lr_ff,
         lr_gate_ff=args.lr_gate_ff,
+
         loss_chunk_t=args.loss_chunk_t,
+
         candidate_loss_weight=args.candidate_loss_weight,
         candidate_sites_per_sample=effective_candidate_sites,
         candidate_negatives_per_site=effective_candidate_negatives,
@@ -5498,6 +5247,7 @@ def run_single_training(args):
                     args.selection_candidate_batch_size
                     if args.disable_structural_memory else 1
                 ),
+                structural_routing=args.structural_routing,
             )
         )
 
@@ -5782,7 +5532,7 @@ def main():
         action="store_true",
         help="Run directive-only Stage 1 without GNN structural memory.",
     )
-    parser.add_argument(
+    ap.add_argument(
         "--structural_routing",
         choices=[
             "exact_slot",
