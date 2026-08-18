@@ -50,8 +50,15 @@ from transformers.trainer_pt_utils import LengthGroupedSampler
 
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
 
-from LLM_branch.common import mailohls_contract, structural_xattn, structural_memory
+from LLM_branch.common import (
+    mailohls_contract,
+    structural_xattn,
+)
 
+from LLM_branch.common import (
+    structural_memory
+    as structural_memory_utils,
+)
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SFT_DATASET = REPOSITORY_ROOT / "artifacts" / "llm" / "mailohls_sft.jsonl"
@@ -2285,14 +2292,17 @@ class StageValSelectionCallback(TrainerCallback):
                 structural_memory,
                 structural_memory_mask,
                 structural_relation_mask,
-            ) = structural_memory.get_structural_memory_pack_for_kernel(
-                self.mem_bank,
-                case.kernel_name,
-                self.max_slots,
-                self.mem_dim,
-                structural_routing=(
-                    self.structural_routing
-                ),
+            ) = (
+                structural_memory_utils
+                .get_structural_memory_pack_for_kernel(
+                    self.mem_bank,
+                    case.kernel_name,
+                    self.max_slots,
+                    self.mem_dim,
+                    structural_routing=(
+                        self.structural_routing
+                    ),
+                )
             )
             
         pred, score_trace = (
@@ -4700,7 +4710,7 @@ def run_single_training(args):
         mem_bank = {}
         print("[INFO] Structural memory disabled -> skipping memory bank loading")
     else:
-        mem_bank, inferred_mem_dim = structural_memory.load_memory_bank(
+        mem_bank, inferred_mem_dim = structural_memory_utils.load_memory_bank(
             args.memory_dir,
             expected_mem_dim=None if args.mem_dim <= 0 else args.mem_dim,
             expected_max_slots=args.max_slots,
@@ -4737,18 +4747,120 @@ def run_single_training(args):
         if not os.path.isfile(manifest_path):
             raise ValueError(f"Stage 2 requires memory manifest: {manifest_path}")
         memory_manifest_sha256 = _file_sha256(Path(manifest_path))
+        with open(
+            manifest_path,
+            "r",
+            encoding="utf-8",
+        ) as handle:
+            memory_manifest = json.load(
+                handle
+            )
+
+        if (
+            args.structural_routing
+            == "compiler_relational"
+        ):
+            expected_relation_schema = (
+                "mailohls-action-relations-v1"
+            )
+
+            actual_relation_schema = (
+                memory_manifest.get(
+                    "action_relation_schema"
+                )
+            )
+
+            if (
+                actual_relation_schema
+                != expected_relation_schema
+            ):
+                raise ValueError(
+                    "compiler_relational routing "
+                    "requires relation-aware memory: "
+                    f"expected "
+                    f"{expected_relation_schema!r}, "
+                    f"got "
+                    f"{actual_relation_schema!r}"
+                )
+
+            missing_relation_masks = []
+
+            for kernel in sorted(
+                required_kernels
+            ):
+                rec = (
+                    mem_bank.get(kernel)
+                    or mem_bank.get(
+                        normalize_kname(kernel)
+                    )
+                )
+
+                if (
+                    rec is not None
+                    and rec.get(
+                        "relation_mask"
+                    )
+                    is None
+                ):
+                    missing_relation_masks.append(
+                        kernel
+                    )
+
+            if missing_relation_masks:
+                raise ValueError(
+                    "Missing action_relation_mask "
+                    "for compiler_relational kernels: "
+                    + ", ".join(
+                        missing_relation_masks[:20]
+                    )
+                )
+
         structural_config = {
-            "schema": "mailohls-structural-config-v1",
-            "mem_dim": args.mem_dim,
-            "max_slots": args.max_slots,
-            "every_n_layers": args.every_n_layers,
-            "xattn_heads": args.xattn_heads,
-            "xattn_dim_head": args.xattn_dim_head,
-            "xattn_ff_mult": args.xattn_ff_mult,
-            "xattn_enable_ff": False,
-            "xattn_placement": "post_self_attn_pre_mlp",
-            "xattn_gate_init": 0.0,
-            "memory_manifest_sha256": memory_manifest_sha256,
+            "schema":
+                "mailohls-structural-config-v2",
+
+            "mem_dim":
+                args.mem_dim,
+
+            "max_slots":
+                args.max_slots,
+
+            "every_n_layers":
+                args.every_n_layers,
+
+            "xattn_heads":
+                args.xattn_heads,
+
+            "xattn_dim_head":
+                args.xattn_dim_head,
+
+            "xattn_ff_mult":
+                args.xattn_ff_mult,
+
+            "xattn_enable_ff":
+                False,
+
+            "xattn_placement":
+                "post_self_attn_pre_mlp",
+
+            "xattn_gate_init":
+                0.0,
+
+            "structural_routing":
+                args.structural_routing,
+
+            "action_relation_schema":
+                memory_manifest.get(
+                    "action_relation_schema"
+                ),
+
+            "action_relation_policy":
+                memory_manifest.get(
+                    "action_relation_policy"
+                ),
+
+            "memory_manifest_sha256":
+                memory_manifest_sha256,
         }
 
     tok = AutoTokenizer.from_pretrained(
@@ -4828,6 +4940,81 @@ def run_single_training(args):
         "peft_version": peft.__version__,
         "torch_version": torch.__version__,
     }
+
+
+    with open(
+        manifest_path,
+        "r",
+        encoding="utf-8",
+    ) as handle:
+        memory_manifest = json.load(
+            handle
+        )
+
+    if (
+        args.structural_routing
+        == "compiler_relational"
+    ):
+        expected_schema = (
+            "mailohls-action-relations-v1"
+        )
+
+        actual_schema = (
+            memory_manifest.get(
+                "action_relation_schema"
+            )
+        )
+
+        if (
+            actual_schema
+            != expected_schema
+        ):
+            raise ValueError(
+                "compiler_relational routing "
+                "requires relation-aware memory: "
+                f"expected {expected_schema!r}, "
+                f"got {actual_schema!r}"
+            )
+
+        missing_relations = sorted(
+            kernel
+            for kernel in required_kernels
+            if (
+                (
+                    mem_bank.get(kernel)
+                    or mem_bank.get(
+                        normalize_kname(
+                            kernel
+                        )
+                    )
+                ).get(
+                    "relation_mask"
+                )
+                is None
+            )
+        )
+
+        if missing_relations:
+            raise ValueError(
+                "Missing compiler relation masks "
+                "for kernels: "
+                + ", ".join(
+                    missing_relations[:20]
+                )
+            )
+
+    structural_config[
+        "action_relation_schema"
+    ] = memory_manifest.get(
+        "action_relation_schema"
+    )
+
+    structural_config[
+        "action_relation_policy"
+    ] = memory_manifest.get(
+        "action_relation_policy"
+    )
+
     if not args.disable_structural_memory:
         training_contract["structural"] = structural_config
     resume_ckpt = os.path.abspath(args.resume_from_checkpoint) if args.resume_from_checkpoint else ""

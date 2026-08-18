@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Dict, List, Tuple, Any, Optional, Iterable, Mapping, Sequence
+from typing import Dict, Tuple, Optional
 
 import torch
-
-from transformers.trainer_pt_utils import LengthGroupedSampler
 
 
 STRUCTURAL_ROUTING_MODES = {

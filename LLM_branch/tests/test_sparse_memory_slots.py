@@ -1,6 +1,6 @@
 import torch
 
-from LLM_branch.train.train_SFT_xattn_new import (
+from LLM_branch.common.structural_memory import (
     get_structural_memory_pack_for_kernel,
     load_memory_bank,
 )
@@ -99,6 +99,51 @@ def test_sparse_absolute_lk_slots_are_preserved(tmp_path):
     )
 
     assert batched_relation is None
+    assert batched_kv.shape == (
+        1,
+        max_slots,
+        dim,
+    )
+    assert batched_mask.shape == (
+        1,
+        max_slots,
+    )
+    assert torch.equal(
+        batched_kv[0],
+        kv.float(),
+    )
+    assert torch.equal(
+        batched_mask[0],
+        mask,
+    )
+
+
+def test_sparse_relational_lk_slots_are_preserved(
+    tmp_path,
+):
+    max_slots = 64
+    dim = 64
+
+    kv = torch.randn(
+        max_slots,
+        dim,
+    )
+
+    mask = torch.zeros(
+        max_slots,
+        dtype=torch.bool,
+    )
+    mask[1:15] = True
+
+    labels = torch.full(
+        (max_slots,),
+        -1,
+        dtype=torch.long,
+    )
+    labels[1:15] = torch.arange(
+        2,
+        16,
+    )
 
     relation = torch.zeros(
         max_slots,
@@ -106,20 +151,100 @@ def test_sparse_absolute_lk_slots_are_preserved(tmp_path):
         dtype=torch.bool,
     )
 
-    active = torch.where(mask)[0]
+    active = torch.where(
+        mask
+    )[0]
 
+    # Every active Lk sees itself.
     relation[
         active,
         active,
     ] = True
 
-    # Add one real multi-slot edge.
+    # Explicit multi-action structural relation:
+    # L2 <-> L3.
     relation[1, 2] = True
     relation[2, 1] = True
 
-    pack["action_relation_mask"] = relation
+    pack = {
+        "node_embs":
+            kv.clone(),
 
-    assert batched_kv.shape == (1, max_slots, dim)
-    assert batched_mask.shape == (1, max_slots)
-    assert torch.equal(batched_kv[0], kv.float())
-    assert torch.equal(batched_mask[0], mask)
+        "node_embs_mask":
+            mask.clone(),
+
+        "labels":
+            labels,
+
+        "slot_ids":
+            torch.arange(
+                1,
+                max_slots + 1,
+                dtype=torch.long,
+            ),
+
+        "gnn_dim":
+            dim,
+
+        "max_slots":
+            max_slots,
+
+        "disable_pragma_injection":
+            True,
+
+        "action_relation_mask":
+            relation.clone(),
+    }
+
+    torch.save(
+        pack,
+        tmp_path / "lava.memory.pt",
+    )
+
+    bank, inferred_dim = (
+        load_memory_bank(
+            str(tmp_path),
+            expected_mem_dim=dim,
+            expected_max_slots=max_slots,
+            require_pragma_free_memory=True,
+        )
+    )
+
+    (
+        batched_kv,
+        batched_mask,
+        batched_relation,
+    ) = get_structural_memory_pack_for_kernel(
+        bank,
+        "lava",
+        max_slots=max_slots,
+        mem_dim=dim,
+        structural_routing=(
+            "compiler_relational"
+        ),
+    )
+
+    assert inferred_dim == dim
+
+    assert batched_relation.shape == (
+        1,
+        max_slots,
+        max_slots,
+    )
+
+    assert torch.equal(
+        batched_relation[0],
+        relation,
+    )
+
+    # Absolute sparse Lk positioning survives.
+    assert not batched_mask[0, 0]  # L1 absent
+    assert batched_mask[0, 1]      # L2 present
+
+    # Compiler relation survives loading.
+    assert batched_relation[
+        0, 1, 2
+    ]
+    assert batched_relation[
+        0, 2, 1
+    ]
