@@ -245,3 +245,103 @@ def test_structural_initialization_uses_current_contract():
 
     assert not hasattr(model, "condition_harp")
     assert not hasattr(model, "clear_harp")
+
+
+def test_relational_attention_has_multiple_keys_and_qk_gradients():
+
+    torch.manual_seed(123)
+
+    module = MaskedCrossAttention(
+        dim=16,
+        dim_memory=8,
+        dim_head=4,
+        heads=2,
+        mask_mode="segment",
+    )
+
+    x = torch.randn(
+        1,
+        3,
+        16,
+        requires_grad=True,
+    )
+
+    memory = torch.randn(
+        1,
+        4,
+        8,
+    )
+
+    # Route all segment tokens from L2.
+    placeholder = torch.tensor(
+        [[2, 0, 0]],
+        dtype=torch.long,
+    )
+
+    memory_mask = torch.tensor(
+        [[1, 1, 1, 1]],
+        dtype=torch.bool,
+    )
+
+    relation = torch.zeros(
+        1,
+        4,
+        4,
+        dtype=torch.bool,
+    )
+
+    # L2 can see L1, L2, L4.
+    relation[
+        0,
+        1,
+        [0, 1, 3],
+    ] = True
+
+    out = module(
+        x,
+        memory,
+        placeholder_slot_ids=(
+            placeholder
+        ),
+        memory_mask=memory_mask,
+        action_relation_mask=relation,
+    )
+
+    loss = (
+        out.square()
+        .mean()
+    )
+
+    loss.backward()
+
+    assert (
+        module.last_debug[
+            "valid_edges"
+        ]
+        == 9
+    )
+
+    assert (
+        module.to_q.weight.grad
+        .norm()
+        .item()
+        > 0.0
+    )
+
+    k_grad, v_grad = (
+        module.to_kv.weight.grad
+        .chunk(
+            2,
+            dim=0,
+        )
+    )
+
+    assert (
+        k_grad.norm().item()
+        > 0.0
+    )
+
+    assert (
+        v_grad.norm().item()
+        > 0.0
+    )

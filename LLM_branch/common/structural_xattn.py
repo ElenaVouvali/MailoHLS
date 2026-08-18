@@ -134,12 +134,14 @@ class MaskedCrossAttention(nn.Module):
         self.to_kv = nn.Linear(dim_memory, inner_dim * 2, bias=False)
         self.to_out = nn.Linear(inner_dim, dim, bias=False)
 
+
     def forward(
         self,
         x,
         memory,
         placeholder_slot_ids=None,
         memory_mask=None,
+        action_relation_mask=None,
         use_cached_memory=False,
     ):
         batch, text_length, _ = x.shape
@@ -163,34 +165,188 @@ class MaskedCrossAttention(nn.Module):
         )
 
         if placeholder_slot_ids is not None:
-            if use_cached_memory:
-                active_slot_ids = last_seen_slot_id(placeholder_slot_ids).expand(
-                    batch, text_length
-                )
-            elif self.mask_mode == "segment":
-                active_slot_ids = forward_fill_slot_ids(placeholder_slot_ids)
-            else:
-                active_slot_ids = placeholder_slot_ids
 
-            text_to_memory_mask = torch.eq(
-                rearrange(active_slot_ids, "b t -> b 1 t 1"),
-                rearrange(memory_slots, "s -> 1 1 1 s"),
-            )
-            if self.mask_mode == "token" and not use_cached_memory:
-                text_to_memory_mask &= rearrange(
-                    placeholder_slot_ids.ne(0), "b t -> b 1 t 1"
+            if use_cached_memory:
+                active_slot_ids = (
+                    last_seen_slot_id(
+                        placeholder_slot_ids
+                    )
+                    .expand(
+                        batch,
+                        text_length,
+                    )
                 )
-            if self.mask_mode == "segment" and not self.only_attend_immediate_memory:
-                text_to_memory_mask = torch.ge(
-                    rearrange(active_slot_ids, "b t -> b 1 t 1"),
-                    rearrange(memory_slots, "s -> 1 1 1 s"),
+
+            elif self.mask_mode == "segment":
+                active_slot_ids = (
+                    forward_fill_slot_ids(
+                        placeholder_slot_ids
+                    )
                 )
-            if memory_mask is not None:
-                text_to_memory_mask &= rearrange(
-                    memory_mask, "b s -> b 1 1 s"
+
+            else:
+                active_slot_ids = (
+                    placeholder_slot_ids
                 )
-            similarity = similarity.masked_fill(
-                ~text_to_memory_mask, -torch.finfo(similarity.dtype).max
+
+            # ==================================================
+            # NEW: compiler-relational routing
+            # ==================================================
+
+            if action_relation_mask is not None:
+
+                relation = (
+                    action_relation_mask
+                    .to(
+                        device=x.device,
+                        dtype=torch.bool,
+                    )
+                )
+
+                expected_shape = (
+                    batch,
+                    slot_count,
+                    slot_count,
+                )
+
+                if tuple(
+                    relation.shape
+                ) != expected_shape:
+                    raise ValueError(
+                        "action_relation_mask "
+                        f"{tuple(relation.shape)} "
+                        f"!= {expected_shape}"
+                    )
+
+                # Lk IDs are one-based.
+                #
+                # 0 means "no routed action yet".
+                row_index = (
+                    active_slot_ids - 1
+                ).clamp(
+                    min=0,
+                    max=slot_count - 1,
+                )
+
+                # [B,T,S]
+                gather_index = (
+                    row_index
+                    .unsqueeze(-1)
+                    .expand(
+                        -1,
+                        -1,
+                        slot_count,
+                    )
+                )
+
+                allowed = torch.gather(
+                    relation,
+                    dim=1,
+                    index=gather_index,
+                )
+
+                # Tokens before any Lk anchor
+                # must see nothing.
+                allowed &= (
+                    active_slot_ids
+                    .ne(0)
+                    .unsqueeze(-1)
+                )
+
+                if (
+                    self.mask_mode
+                    == "token"
+                    and not use_cached_memory
+                ):
+                    allowed &= (
+                        placeholder_slot_ids
+                        .ne(0)
+                        .unsqueeze(-1)
+                    )
+
+                if memory_mask is not None:
+                    allowed &= (
+                        memory_mask
+                        .bool()
+                        .unsqueeze(1)
+                    )
+
+                # Fail loudly if an active Lk lost
+                # every structural key.
+                routed = (
+                    active_slot_ids
+                    .ne(0)
+                )
+
+                if routed.any():
+
+                    routed_has_key = (
+                        allowed.any(
+                            dim=-1
+                        )
+                    )
+
+                    if not routed_has_key[
+                        routed
+                    ].all():
+                        raise RuntimeError(
+                            "Compiler relational routing "
+                            "produced an active Lk with "
+                            "zero legal memory keys"
+                        )
+
+                # [B,1,T,S]
+                text_to_memory_mask = (
+                    allowed.unsqueeze(1)
+                )
+
+            # ==================================================
+            # OLD: exact one-slot routing
+            # ==================================================
+
+            else:
+
+                text_to_memory_mask = (
+                    torch.eq(
+                        rearrange(
+                            active_slot_ids,
+                            "b t -> b 1 t 1",
+                        ),
+                        rearrange(
+                            memory_slots,
+                            "s -> 1 1 1 s",
+                        ),
+                    )
+                )
+
+                if (
+                    self.mask_mode
+                    == "token"
+                    and not use_cached_memory
+                ):
+                    text_to_memory_mask &= (
+                        rearrange(
+                            placeholder_slot_ids
+                            .ne(0),
+                            "b t -> b 1 t 1",
+                        )
+                    )
+
+                if memory_mask is not None:
+                    text_to_memory_mask &= (
+                        rearrange(
+                            memory_mask,
+                            "b s -> b 1 1 s",
+                        )
+                    )
+
+            similarity = (
+                similarity.masked_fill(
+                    ~text_to_memory_mask,
+                    -torch.finfo(
+                        similarity.dtype
+                    ).max,
+                )
             )
 
         similarity = similarity - similarity.amax(dim=-1, keepdim=True).detach()
@@ -277,6 +433,7 @@ class GatedCrossAttentionBlock(nn.Module):
         memory,
         placeholder_slot_ids=None,
         memory_mask=None,
+        action_relation_mask=None,
         use_cached_memory=False,
         xattn_apply_mask=None,
     ):
@@ -289,7 +446,12 @@ class GatedCrossAttentionBlock(nn.Module):
                 placeholder_slot_ids
             ),
             memory_mask=memory_mask,
-            use_cached_memory=use_cached_memory,
+            action_relation_mask=(
+                action_relation_mask
+            ),
+            use_cached_memory=(
+                use_cached_memory
+            ),
         )
 
         apply_mask = None
@@ -478,6 +640,7 @@ class StructuralMemoryPreMLP(nn.Module):
         self.placeholder_slot_ids = None
         self.use_cached_memory = False
         self.xattn_apply_mask = None
+        self.action_relation_mask = None
 
     def is_conditioned(self):
         return (
@@ -492,6 +655,7 @@ class StructuralMemoryPreMLP(nn.Module):
         self.placeholder_slot_ids = None
         self.use_cached_memory = False
         self.xattn_apply_mask = None
+        self.action_relation_mask = None
 
     def forward(self, hidden_states):
         if not self.is_conditioned():
@@ -502,11 +666,23 @@ class StructuralMemoryPreMLP(nn.Module):
         hidden_states = self.gated_cross_attn_layer(
             hidden_states,
             self.structural_memory,
-            placeholder_slot_ids=self.placeholder_slot_ids,
-            memory_mask=self.structural_memory_mask,
-            use_cached_memory=self.use_cached_memory,
-            xattn_apply_mask=self.xattn_apply_mask,
+            placeholder_slot_ids=(
+                self.placeholder_slot_ids
+            ),
+            memory_mask=(
+                self.structural_memory_mask
+            ),
+            action_relation_mask=(
+                self.action_relation_mask
+            ),
+            use_cached_memory=(
+                self.use_cached_memory
+            ),
+            xattn_apply_mask=(
+                self.xattn_apply_mask
+            ),
         )
+
         return self.original_norm(hidden_states)
 
 
@@ -576,10 +752,28 @@ class StructuralCrossAttentionMixin(nn.Module):
             f"layers={selected_layers}"
         )
 
-    def condition_structural_memory(self, structural_memory, structural_memory_mask):
-        for wrapper in self._structural_wrappers():
-            wrapper.structural_memory = structural_memory
-            wrapper.structural_memory_mask = structural_memory_mask
+
+    def condition_structural_memory(
+        self,
+        structural_memory,
+        structural_memory_mask,
+        action_relation_mask=None,
+    ):
+        for wrapper in (
+            self._structural_wrappers()
+        ):
+            wrapper.structural_memory = (
+                structural_memory
+            )
+
+            wrapper.structural_memory_mask = (
+                structural_memory_mask
+            )
+
+            wrapper.action_relation_mask = (
+                action_relation_mask
+            )
+
         self._use_cached_structural_memory = True
 
     def clear_structural_memory(self):

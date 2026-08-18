@@ -440,6 +440,31 @@ def main() -> None:
 
         zero = dict(static)
 
+        if (
+            "action_relation_mask"
+            in zero
+        ):
+            zero[
+                "action_relation_mask"
+            ] = torch.zeros_like(
+                zero[
+                    "action_relation_mask"
+                ],
+                dtype=torch.bool,
+            )
+
+        if (
+            "action_relation_bits"
+            in zero
+        ):
+            zero[
+                "action_relation_bits"
+            ] = torch.zeros_like(
+                zero[
+                    "action_relation_bits"
+                ]
+            )
+
         zero[
             "node_embs"
         ] = torch.zeros_like(

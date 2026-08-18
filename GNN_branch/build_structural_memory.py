@@ -37,8 +37,924 @@ def parse_builder_args(argv):
 BUILD_ARGS = parse_builder_args(sys.argv[1:])
 sys.argv = [sys.argv[0]]
 
+
+# ----------------------------------------------------------
+# Action-level structural relation schema for Stage 2.
+# ----------------------------------------------------------
+
+ACTION_RELATION_SCHEMA = "mailohls-action-relations-v1"
+
+NODE_TYPE_OP = 0
+NODE_TYPE_PSEUDO_BLOCK = 4
+NODE_TYPE_PRAGMA = 100
+NODE_TYPE_ARRAY_SCOPE = 104
+
+FLOW_CONTROL = 0
+FLOW_CALL = 2
+FLOW_PSEUDO_BLOCK = 4
+FLOW_LOOP_HIERARCHY = 6
+FLOW_ARRAY_SCOPE = 7
+FLOW_REGION = 8
+FLOW_MEMORY_DEPENDENCE = 12
+
+REL_SELF = 1 << 0
+REL_PARENT = 1 << 1
+REL_CHILD = 1 << 2
+REL_ARRAY = 1 << 3
+REL_DEP_FORWARD = 1 << 4
+REL_DEP_REVERSE = 1 << 5
+
+
 from os.path import join, basename
 from torch_geometric.data import Batch, Data
+
+
+def _edge_records(
+    graph,
+    source,
+    target,
+):
+    mapping = graph.get_edge_data(
+        source,
+        target,
+        default={},
+    )
+
+    return list(
+        mapping.values()
+    )
+
+
+def _has_edge(
+    graph,
+    source,
+    target,
+    *,
+    flow=None,
+    role=None,
+    certainty=None,
+):
+    for attrs in _edge_records(
+        graph,
+        source,
+        target,
+    ):
+        if (
+            flow is not None
+            and int(
+                attrs.get(
+                    "flow",
+                    -1,
+                )
+            ) != int(flow)
+        ):
+            continue
+
+        if (
+            role is not None
+            and str(
+                attrs.get(
+                    "role",
+                    "",
+                )
+            ) != str(role)
+        ):
+            continue
+
+        if (
+            certainty is not None
+            and str(
+                attrs.get(
+                    "certainty",
+                    "",
+                )
+            ) != str(certainty)
+        ):
+            continue
+
+        return True
+
+    return False
+
+
+def _numeric_node_map(graph):
+    """
+    nx.read_gexf() normally gives string node IDs.
+    MailoHLS tensor rows use their integer equivalents.
+    """
+    output = {}
+
+    for node in graph.nodes():
+        numeric = int(node)
+
+        if numeric in output:
+            raise RuntimeError(
+                f"Duplicate numeric GEXF node {numeric}"
+            )
+
+        output[numeric] = node
+
+    return output
+
+
+def _loop_action_scope_pseudo(
+    graph,
+    action_id,
+):
+    pseudos = set()
+
+    for node, attrs in graph.nodes(
+        data=True
+    ):
+        if (
+            int(
+                attrs.get(
+                    "type",
+                    -1,
+                )
+            )
+            != NODE_TYPE_PRAGMA
+        ):
+            continue
+
+        if (
+            str(
+                attrs.get(
+                    "action_id",
+                    "",
+                )
+            )
+            != action_id
+        ):
+            continue
+
+        if (
+            str(
+                attrs.get(
+                    "text",
+                    "",
+                )
+            ).upper()
+            not in {
+                "PIPELINE",
+                "UNROLL",
+            }
+        ):
+            continue
+
+        neighbours = (
+            set(
+                graph.predecessors(
+                    node
+                )
+            )
+            |
+            set(
+                graph.successors(
+                    node
+                )
+            )
+        )
+
+        for neighbour in neighbours:
+
+            nattrs = graph.nodes[
+                neighbour
+            ]
+
+            if (
+                int(
+                    nattrs.get(
+                        "type",
+                        -1,
+                    )
+                )
+                != NODE_TYPE_PSEUDO_BLOCK
+            ):
+                continue
+
+            connected = (
+                _has_edge(
+                    graph,
+                    node,
+                    neighbour,
+                    flow=FLOW_PSEUDO_BLOCK,
+                )
+                or
+                _has_edge(
+                    graph,
+                    neighbour,
+                    node,
+                    flow=FLOW_PSEUDO_BLOCK,
+                )
+            )
+
+            if connected:
+                pseudos.add(
+                    neighbour
+                )
+
+    if len(pseudos) != 1:
+        raise RuntimeError(
+            f"{action_id}: expected exactly "
+            f"one loop pseudo scope, "
+            f"found {len(pseudos)}"
+        )
+
+    return next(
+        iter(pseudos)
+    )
+
+
+
+def _loop_region_distances(
+    graph,
+    loop_anchor,
+):
+    """
+    Return nodes structurally reachable inside the loop body.
+
+    Critically:
+      - enter child regions
+      - move forward inside blocks/CFG
+      - optionally enter called helpers
+      - NEVER follow region_exit back out of the loop
+    """
+
+    distances = {}
+    queue = []
+
+    # Enter the loop's regions only.
+    for _, target, attrs in (
+        graph.out_edges(
+            loop_anchor,
+            data=True,
+        )
+    ):
+        if (
+            int(
+                attrs.get(
+                    "flow",
+                    -1,
+                )
+            )
+            == FLOW_REGION
+            and
+            str(
+                attrs.get(
+                    "role",
+                    "",
+                )
+            )
+            == "region_entry"
+        ):
+            queue.append(
+                (target, 1)
+            )
+
+    while queue:
+        node, distance = (
+            queue.pop(0)
+        )
+
+        previous = distances.get(
+            node
+        )
+
+        if (
+            previous is not None
+            and previous <= distance
+        ):
+            continue
+
+        distances[
+            node
+        ] = distance
+
+        for _, target, attrs in (
+            graph.out_edges(
+                node,
+                data=True,
+            )
+        ):
+            flow = int(
+                attrs.get(
+                    "flow",
+                    -1,
+                )
+            )
+
+            role = str(
+                attrs.get(
+                    "role",
+                    "",
+                )
+            )
+
+            follow = False
+
+            if (
+                flow == FLOW_REGION
+                and role
+                == "region_entry"
+            ):
+                follow = True
+
+            elif (
+                flow == FLOW_CONTROL
+                and role
+                in {
+                    "next_in_block",
+                    "block_successor",
+                }
+            ):
+                follow = True
+
+            # If a loop contains a helper call,
+            # include compiler-visible helper
+            # operations too.
+            elif (
+                flow == FLOW_CALL
+                and role == "calls"
+            ):
+                follow = True
+
+            if follow:
+                queue.append(
+                    (
+                        target,
+                        distance + 1,
+                    )
+                )
+
+    return distances
+
+
+
+def build_action_relation_mask(
+    graph,
+    *,
+    node_ids,
+    active_mask,
+    max_slots,
+):
+    """
+    Project the compiler graph into MailoHLS action space.
+
+    N(Lk) contains:
+      1. self
+      2. nearest labeled parent/child loops
+      3. ARRAY_PARTITION actions accessed in the loop
+      4. actions related by proven memory dependences
+    """
+
+    numeric_nodes = (
+        _numeric_node_map(
+            graph
+        )
+    )
+
+    active_mask = (
+        torch.as_tensor(
+            active_mask,
+            dtype=torch.bool,
+        )
+        .view(-1)
+        .cpu()
+    )
+
+    relation_bits = torch.zeros(
+        (
+            max_slots,
+            max_slots,
+        ),
+        dtype=torch.int16,
+    )
+
+    # --------------------------------------------------
+    # slot -> actual GEXF semantic-anchor node
+    # --------------------------------------------------
+
+    slot_to_anchor = {}
+
+    for slot, raw_node_id in enumerate(
+        node_ids
+    ):
+        if not bool(
+            active_mask[slot]
+        ):
+            continue
+
+        if int(raw_node_id) < 0:
+            raise RuntimeError(
+                f"L{slot + 1}: active slot "
+                "has no semantic node"
+            )
+
+        numeric_id = int(
+            raw_node_id
+        )
+
+        if (
+            numeric_id
+            not in numeric_nodes
+        ):
+            raise RuntimeError(
+                f"L{slot + 1}: "
+                f"GEXF node {numeric_id} "
+                "does not exist"
+            )
+
+        slot_to_anchor[
+            slot
+        ] = numeric_nodes[
+            numeric_id
+        ]
+
+    # --------------------------------------------------
+    # A. Self relation.
+    # --------------------------------------------------
+
+    for slot in slot_to_anchor:
+        relation_bits[
+            slot,
+            slot,
+        ] |= REL_SELF
+
+    # --------------------------------------------------
+    # Identify loop / array actions.
+    # --------------------------------------------------
+
+    loop_slots = {}
+    array_slots = {}
+
+    for slot, anchor in (
+        slot_to_anchor.items()
+    ):
+        attrs = graph.nodes[
+            anchor
+        ]
+
+        if (
+            int(
+                attrs.get(
+                    "is_loop",
+                    0,
+                )
+            )
+            == 1
+        ):
+            loop_slots[
+                slot
+            ] = anchor
+
+        elif (
+            int(
+                attrs.get(
+                    "type",
+                    -1,
+                )
+            )
+            == NODE_TYPE_ARRAY_SCOPE
+        ):
+            array_slots[
+                slot
+            ] = anchor
+
+    # --------------------------------------------------
+    # B. Loop hierarchy.
+    #
+    # Map Lk loop actions to their block-scope pseudo.
+    # --------------------------------------------------
+
+    scope_to_slot = {}
+    slot_to_scope = {}
+
+    for slot in loop_slots:
+
+        action_id = (
+            f"L{slot + 1}"
+        )
+
+        pseudo = (
+            _loop_action_scope_pseudo(
+                graph,
+                action_id,
+            )
+        )
+
+        if (
+            pseudo in scope_to_slot
+            and scope_to_slot[
+                pseudo
+            ] != slot
+        ):
+            raise RuntimeError(
+                "Two different Lk loop actions "
+                "map to the same pseudo scope"
+            )
+
+        scope_to_slot[
+            pseudo
+        ] = slot
+
+        slot_to_scope[
+            slot
+        ] = pseudo
+
+    # All loop scopes, including unlabeled loops.
+    parent_of = {}
+
+    for source, target, attrs in (
+        graph.edges(
+            data=True
+        )
+    ):
+        if (
+            int(
+                attrs.get(
+                    "flow",
+                    -1,
+                )
+            )
+            == FLOW_LOOP_HIERARCHY
+            and
+            str(
+                attrs.get(
+                    "role",
+                    "",
+                )
+            )
+            == "loop_parent"
+        ):
+            if (
+                target in parent_of
+                and parent_of[
+                    target
+                ] != source
+            ):
+                raise RuntimeError(
+                    "Loop pseudo scope has "
+                    "multiple structural parents"
+                )
+
+            parent_of[
+                target
+            ] = source
+
+    # Connect each labeled loop action to its
+    # nearest labeled ancestor.
+    #
+    # This also handles an unlabeled loop lying
+    # between two MailoHLS action loops.
+    for child_slot, child_scope in (
+        slot_to_scope.items()
+    ):
+        ancestor = parent_of.get(
+            child_scope
+        )
+
+        while (
+            ancestor is not None
+            and ancestor
+            not in scope_to_slot
+        ):
+            ancestor = parent_of.get(
+                ancestor
+            )
+
+        if ancestor is None:
+            continue
+
+        parent_slot = (
+            scope_to_slot[
+                ancestor
+            ]
+        )
+
+        relation_bits[
+            child_slot,
+            parent_slot,
+        ] |= REL_PARENT
+
+        relation_bits[
+            parent_slot,
+            child_slot,
+        ] |= REL_CHILD
+
+    # --------------------------------------------------
+    # C. Compute operations structurally owned/reachable
+    #    by every Lk loop.
+    # --------------------------------------------------
+
+    loop_distances = {}
+
+    for slot, anchor in (
+        loop_slots.items()
+    ):
+        loop_distances[
+            slot
+        ] = (
+            _loop_region_distances(
+                graph,
+                anchor,
+            )
+        )
+
+    # --------------------------------------------------
+    # D. Array actions.
+    #
+    # array_scope already has exact edges to every
+    # access of its memory root in your MLIR graph.
+    # --------------------------------------------------
+
+    array_accesses = {}
+
+    for array_slot, anchor in (
+        array_slots.items()
+    ):
+        accesses = set()
+
+        for _, target, attrs in (
+            graph.out_edges(
+                anchor,
+                data=True,
+            )
+        ):
+            if (
+                int(
+                    attrs.get(
+                        "flow",
+                        -1,
+                    )
+                )
+                != FLOW_ARRAY_SCOPE
+            ):
+                continue
+
+            role = str(
+                attrs.get(
+                    "role",
+                    "",
+                )
+            )
+
+            if role in {
+                "array_read",
+                "array_write",
+                "array_readwrite",
+            }:
+                accesses.add(
+                    target
+                )
+
+        array_accesses[
+            array_slot
+        ] = accesses
+
+    # Every loop action sees every ARRAY_PARTITION action
+    # whose memory is actually accessed in that loop's
+    # structural region.
+    for loop_slot, distances in (
+        loop_distances.items()
+    ):
+        owned_nodes = set(
+            distances
+        )
+
+        for array_slot, accesses in (
+            array_accesses.items()
+        ):
+            if not (
+                owned_nodes
+                & accesses
+            ):
+                continue
+
+            relation_bits[
+                loop_slot,
+                array_slot,
+            ] |= REL_ARRAY
+
+            relation_bits[
+                array_slot,
+                loop_slot,
+            ] |= REL_ARRAY
+
+    # --------------------------------------------------
+    # E. Proven memory dependence relations.
+    #
+    # Find nearest Lk loop action owning each memory
+    # operation and project op->op dependence to Lk->Lk.
+    # --------------------------------------------------
+
+    def nearest_loop_owner(
+        op_node,
+    ):
+        candidates = []
+
+        for slot, distances in (
+            loop_distances.items()
+        ):
+            distance = (
+                distances.get(
+                    op_node
+                )
+            )
+
+            if distance is None:
+                continue
+
+            anchor = loop_slots[
+                slot
+            ]
+
+            depth = int(
+                graph.nodes[
+                    anchor
+                ].get(
+                    "loop_depth",
+                    0,
+                )
+            )
+
+            candidates.append(
+                (
+                    distance,
+                    -depth,
+                    slot,
+                )
+            )
+
+        if not candidates:
+            return None
+
+        candidates.sort()
+
+        return candidates[0][2]
+
+    for source, target, attrs in (
+        graph.edges(
+            data=True
+        )
+    ):
+        if (
+            int(
+                attrs.get(
+                    "flow",
+                    -1,
+                )
+            )
+            != FLOW_MEMORY_DEPENDENCE
+        ):
+            continue
+
+        if (
+            str(
+                attrs.get(
+                    "certainty",
+                    "",
+                )
+            )
+            != "proven"
+        ):
+            # Do not convert uncertain dependence
+            # summaries into direct action relations.
+            continue
+
+        source_slot = (
+            nearest_loop_owner(
+                source
+            )
+        )
+
+        target_slot = (
+            nearest_loop_owner(
+                target
+            )
+        )
+
+        if (
+            source_slot is None
+            or target_slot is None
+            or source_slot
+            == target_slot
+        ):
+            continue
+
+        relation_bits[
+            source_slot,
+            target_slot,
+        ] |= REL_DEP_FORWARD
+
+        relation_bits[
+            target_slot,
+            source_slot,
+        ] |= REL_DEP_REVERSE
+
+    # --------------------------------------------------
+    # Final boolean visibility mask.
+    # --------------------------------------------------
+
+    relation_mask = (
+        relation_bits != 0
+    )
+
+    active_pairs = (
+        active_mask[:, None]
+        &
+        active_mask[None, :]
+    )
+
+    relation_mask &= (
+        active_pairs
+    )
+
+    relation_bits = (
+        relation_bits
+        * active_pairs.to(
+            relation_bits.dtype
+        )
+    )
+
+    # Every active action must at minimum see itself.
+    for slot in torch.where(
+        active_mask
+    )[0].tolist():
+        if not bool(
+            relation_mask[
+                slot,
+                slot,
+            ]
+        ):
+            raise RuntimeError(
+                f"L{slot + 1}: "
+                "relation mask lost self edge"
+            )
+
+    # --------------------------------------------------
+    # Diagnostics.
+    # --------------------------------------------------
+
+    active_slots = torch.where(
+        active_mask
+    )[0]
+
+    degrees = (
+        relation_mask[
+            active_slots
+        ]
+        .sum(dim=1)
+        .float()
+    )
+
+    stats = {
+        "active_actions":
+            int(
+                active_slots.numel()
+            ),
+
+        "relation_edges":
+            int(
+                relation_mask.sum()
+                .item()
+            ),
+
+        "mean_keys_per_action":
+            float(
+                degrees.mean()
+                .item()
+            )
+            if degrees.numel()
+            else 0.0,
+
+        "max_keys_per_action":
+            int(
+                degrees.max()
+                .item()
+            )
+            if degrees.numel()
+            else 0,
+
+        "multi_key_action_fraction":
+            float(
+                (
+                    degrees > 1
+                )
+                .float()
+                .mean()
+                .item()
+            )
+            if degrees.numel()
+            else 0.0,
+    }
+
+    return (
+        relation_mask,
+        relation_bits,
+        stats,
+    )
+
 
 
 def _disable_pragma_conditioning(data):
@@ -778,6 +1694,13 @@ def main():
             # ------------------------------------------------------
             # 10. Save the Stage-2 structural-memory pack.
             # ------------------------------------------------------
+            action_relation_mask, action_relation_bits, action_relation_stats = build_action_relation_mask(
+                graph,
+                node_ids=node_ids,
+                active_mask=node_embs_mask,
+                max_slots=args.max_slots,
+            )
+
             pack = {
                 "pt_path": kernel_path,
                 "gexf_path": gexf_path,
@@ -830,6 +1753,18 @@ def main():
 
                 "labels":
                     labels,
+
+                "action_relation_schema":
+                    ACTION_RELATION_SCHEMA,
+
+                "action_relation_mask":
+                    action_relation_mask,
+
+                "action_relation_bits":
+                    action_relation_bits,
+
+                "action_relation_stats":
+                    action_relation_stats,
             }
 
             torch.save(
@@ -991,6 +1926,18 @@ def main():
         'checkpoint_epoch': sidecar.get('checkpoint_epoch'),
         'provenance_status': contract['provenance_status'],
     }
+
+    bank_manifest[
+        "action_relation_schema"
+    ] = ACTION_RELATION_SCHEMA
+
+    bank_manifest[
+        "action_relation_policy"
+    ] = (
+        "self+nearest-loop-hierarchy+"
+        "array-access+proven-memory-dependence"
+    )
+    
     with open(join(args.out, 'memory_manifest.json'), 'w', encoding='utf-8') as handle:
         json.dump(bank_manifest, handle, indent=2, sort_keys=True)
         handle.write('\n')

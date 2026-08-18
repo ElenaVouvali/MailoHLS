@@ -1790,6 +1790,7 @@ def constrained_decode_rhs_by_candidate_scoring(
     score_reduction: str = "mean",
     structural_memory: Optional[torch.Tensor] = None,
     structural_memory_mask: Optional[torch.Tensor] = None,
+    structural_relation_mask: Optional[torch.Tensor] = None,
     routing_start_idx: Optional[torch.Tensor] = None,
     candidate_batch_size: int = 1,
     return_score_trace: bool = False,
@@ -1813,8 +1814,14 @@ def constrained_decode_rhs_by_candidate_scoring(
     use_structural_memory = structural_enabled and (structural_memory is not None) and (structural_memory_mask is not None)
 
     if use_structural_memory:
-        model.condition_structural_memory(structural_memory.to(device), structural_memory_mask.to(device))
-
+        model.condition_structural_memory(
+            structural_memory.to(device),
+            structural_memory_mask.to(device),
+            action_relation_mask=(
+                structural_relation_mask
+                .to(device)
+            ),
+        )
     try:
         for label, lhs in extract_ordered_lhs_plan(source_text):
             if label != current_label:
@@ -2258,13 +2265,17 @@ class StageValSelectionCallback(TrainerCallback):
         structural_memory = None
         structural_memory_mask = None
         if hasattr(model, "initialized_structural_xattn") and getattr(model, "initialized_structural_xattn", False):
-            structural_memory, structural_memory_mask = get_structural_memory_pack_for_kernel(
+            (
+                structural_memory,
+                structural_memory_mask,
+                structural_relation_mask,
+            ) = get_structural_memory_pack_for_kernel(
                 self.mem_bank,
                 case.kernel_name,
                 self.max_slots,
                 self.mem_dim,
-            )
-
+                )
+            
         pred, score_trace = (
             constrained_decode_rhs_by_candidate_scoring(
                 model=model,
@@ -2276,6 +2287,7 @@ class StageValSelectionCallback(TrainerCallback):
                 score_reduction=self.candidate_score_reduction,
                 structural_memory=structural_memory,
                 structural_memory_mask=structural_memory_mask,
+                structural_relation_mask=structural_relation_mask,
                 routing_start_idx=routing_start_idx,
                 candidate_batch_size=(
                     self.candidate_batch_size
@@ -2675,13 +2687,90 @@ def load_memory_bank(
                 )
 
         k = fn.replace(".memory.pt", "")
+
+        relation_mask = pack.get(
+            "action_relation_mask",
+            None,
+        )
+
+        relation_bits = pack.get(
+            "action_relation_bits",
+            None,
+        )
+
+        if relation_mask is not None:
+
+            relation_mask = (
+                torch.as_tensor(
+                    relation_mask,
+                    dtype=torch.bool,
+                )
+                .contiguous()
+            )
+
+            expected_relation_shape = (
+                kv.size(0),
+                kv.size(0),
+            )
+
+            if tuple(
+                relation_mask.shape
+            ) != expected_relation_shape:
+                raise ValueError(
+                    f"{fn}: action_relation_mask "
+                    f"{tuple(relation_mask.shape)} "
+                    f"!= {expected_relation_shape}"
+                )
+
+            # Relation mask may reference only
+            # active memory slots.
+            active_pairs = (
+                mask[:, None]
+                &
+                mask[None, :]
+            )
+
+            if (
+                relation_mask
+                & ~active_pairs
+            ).any():
+                raise ValueError(
+                    f"{fn}: relation mask references "
+                    "inactive structural slots"
+                )
+
+            active = torch.where(
+                mask
+            )[0]
+
+            if (
+                active.numel() > 0
+                and not relation_mask[
+                    active,
+                    active,
+                ].all()
+            ):
+                raise ValueError(
+                    f"{fn}: active action is missing "
+                    "its self relation"
+                )
+            
         rec = {
             "kv": kv.contiguous(),
             "mask": mask.contiguous(),
+            "relation_mask":
+                (
+                    relation_mask
+                    if relation_mask
+                    is not None
+                    else None
+                ),
+            "relation_bits": relation_bits,
             "slot_cats": slot_cats,
             "ckpt": pack.get("ckpt", ""),
             "disable_pragma_injection": bool(pack.get("disable_pragma_injection", False)),
         }
+    
         bank[k] = rec
         bank[normalize_kname(k)] = rec
 
@@ -2713,6 +2802,7 @@ def get_structural_memory_pack_for_kernel(
 
     kv = pack["kv"]
     mask = pack["mask"]
+    relation_mask = pack["relation_mask"]
 
     expected_kv_shape = (int(max_slots), int(mem_dim))
     expected_mask_shape = (int(max_slots),)
@@ -2730,9 +2820,11 @@ def get_structural_memory_pack_for_kernel(
         )
 
     return (
-        kv.unsqueeze(0).contiguous(),
-        mask.unsqueeze(0).contiguous(),
+        kv.unsqueeze(0),
+        mask.unsqueeze(0),
+        relation_mask.unsqueeze(0),
     )
+
 
 
 # ================================
@@ -3177,6 +3269,7 @@ class LengthGroupedTrainer(Trainer):
         candidate_negatives_per_site: int = 0,
         candidate_max_prefix_tokens: int = 1536,
         candidate_keep_head_tokens: int = 256,
+        structural_routing: str = "exact_slot",
         **kwargs,
     ):
         self._group_by_length = group_by_length
@@ -3196,6 +3289,7 @@ class LengthGroupedTrainer(Trainer):
         self.candidate_max_prefix_tokens = int(candidate_max_prefix_tokens)
         self.candidate_keep_head_tokens = int(candidate_keep_head_tokens)
         self._last_debug_step = -1
+        self.structural_routing = structural_routing
         super().__init__(*args, **kwargs)
 
     def create_optimizer(self):
@@ -3398,20 +3492,100 @@ class LengthGroupedTrainer(Trainer):
         return (None, logits, None)
 
 
-    def _condition_structural_memory_from_kernel_names(self, model, kernel_names: List[str]):
-        kvs, ms = [], []
-        for k in kernel_names:
-            pack = self.mem_bank.get(k) or self.mem_bank.get(normalize_kname(k))
+    def _condition_structural_memory_from_kernel_names(
+        self,
+        model,
+        kernel_names,
+    ):
+        kvs = []
+        masks = []
+        relations = []
+
+        use_relational = (
+            self.structural_routing
+            == "compiler_relational"
+        )
+
+        for kernel_name in kernel_names:
+
+            pack = (
+                self.mem_bank.get(
+                    kernel_name
+                )
+                or
+                self.mem_bank.get(
+                    normalize_kname(
+                        kernel_name
+                    )
+                )
+            )
+
             if pack is None:
-                kvs.append(torch.zeros((self.max_slots, self.mem_dim), dtype=torch.float32))
-                ms.append(torch.zeros((self.max_slots,), dtype=torch.bool))
-            else:
-                kvs.append(pack["kv"])
-                ms.append(pack["mask"])
-        mem_kv = torch.stack(kvs, dim=0)  # [B, S, mem_dim]
-        mem_m  = torch.stack(ms, dim=0)   # [B, S]
-        device = next(model.parameters()).device
-        model.condition_structural_memory(mem_kv.to(device), mem_m.to(device))
+                raise KeyError(
+                    f"No structural memory for "
+                    f"{kernel_name}"
+                )
+
+            kvs.append(
+                pack["kv"]
+            )
+
+            masks.append(
+                pack["mask"]
+            )
+
+            if use_relational:
+                relation = pack.get(
+                    "relation_mask"
+                )
+
+                if relation is None:
+                    raise ValueError(
+                        f"{kernel_name}: "
+                        "compiler_relational routing "
+                        "requires action_relation_mask"
+                    )
+
+                relations.append(
+                    relation
+                )
+
+        mem_kv = torch.stack(
+            kvs,
+            dim=0,
+        )
+
+        mem_mask = torch.stack(
+            masks,
+            dim=0,
+        )
+
+        relation_mask = (
+            torch.stack(
+                relations,
+                dim=0,
+            )
+            if use_relational
+            else None
+        )
+
+        device = next(
+            model.parameters()
+        ).device
+
+        model.condition_structural_memory(
+            mem_kv.to(device),
+            mem_mask.to(device),
+            action_relation_mask=(
+                relation_mask.to(
+                    device
+                )
+                if relation_mask
+                is not None
+                else None
+            ),
+        )
+
 
     def truncate_scoring_prefix_preserve_target(
         self,
@@ -5607,6 +5781,14 @@ def main():
         dest="disable_structural_memory",
         action="store_true",
         help="Run directive-only Stage 1 without GNN structural memory.",
+    )
+    parser.add_argument(
+        "--structural_routing",
+        choices=[
+            "exact_slot",
+            "compiler_relational",
+        ],
+        default="exact_slot",
     )
     ap.add_argument("--eval_steps", type=int, default=100)
     ap.add_argument("--save_steps", type=int, default=100)
