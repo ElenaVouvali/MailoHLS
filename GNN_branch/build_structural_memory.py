@@ -837,6 +837,120 @@ def main():
                 output_path,
             )
 
+            # ------------------------------------------------------
+            # 11. Optionally export every pre-NPT GNN representation
+            #     for layerwise action-embedding diagnostics.
+            # ------------------------------------------------------
+            if layerwise_node_emb is not None:
+
+                for layer_name, node_tensor in (
+                    layerwise_node_emb.items()
+                ):
+
+                    layer_slots = torch.zeros(
+                        (
+                            args.max_slots,
+                            node_tensor.size(-1),
+                        ),
+                        dtype=node_tensor.dtype,
+                        device=node_tensor.device,
+                    )
+
+                    for ni in sel_idx.tolist():
+                        lid = int(
+                            label[ni].item()
+                        )
+
+                        layer_slots[
+                            lid - 1
+                        ] = node_tensor[ni]
+
+                    # Same CPU / finite-value sanitization
+                    # used for the production memory bank.
+                    layer_slots = (
+                        layer_slots
+                        .detach()
+                        .cpu()
+                    )
+
+                    layer_slots = torch.nan_to_num(
+                        layer_slots,
+                        nan=0.0,
+                        posinf=0.0,
+                        neginf=0.0,
+                    )
+
+                    # Match the production memory export's
+                    # exceptional-vector clipping.
+                    max_norm = 20.0
+                    eps = 1e-6
+
+                    norms = (
+                        layer_slots
+                        .norm(
+                            p=2,
+                            dim=1,
+                            keepdim=True,
+                        )
+                        .clamp(min=eps)
+                    )
+
+                    scale = (
+                        max_norm / norms
+                    ).clamp(max=1.0)
+
+                    layer_slots = (
+                        layer_slots * scale
+                    )
+
+                    layer_dir = os.path.join(
+                        args.layerwise_out,
+                        layer_name,
+                    )
+
+                    os.makedirs(
+                        layer_dir,
+                        exist_ok=True,
+                    )
+
+                    # Preserve exactly the same:
+                    #   mask
+                    #   labels
+                    #   slot IDs
+                    #   categories
+                    #   provenance
+                    # as the production JKN memory pack.
+                    layer_pack = dict(pack)
+
+                    layer_pack[
+                        "node_embs"
+                    ] = layer_slots
+
+                    layer_pack[
+                        "gnn_dim"
+                    ] = int(
+                        layer_slots.size(-1)
+                    )
+
+                    layer_pack[
+                        "embedding_mode"
+                    ] = (
+                        "static_pre_npt::"
+                        + layer_name
+                    )
+
+                    layer_pack[
+                        "layerwise_diagnostic"
+                    ] = True
+
+                    torch.save(
+                        layer_pack,
+                        os.path.join(
+                            layer_dir,
+                            f"{base_name}.memory.pt",
+                        ),
+                    )
+
             written_kernels.append(
                 base_name
             )
@@ -859,78 +973,6 @@ def main():
             f"{len(pt_files)} static MLIR graphs"
         )
 
-    if layerwise_node_emb is not None:
-
-        for layer_name, node_tensor \
-                in layerwise_node_emb.items():
-
-            layer_slots = torch.zeros(
-                (
-                    args.max_slots,
-                    node_tensor.size(-1),
-                ),
-                dtype=node_tensor.dtype,
-                device=node_tensor.device,
-            )
-
-            for ni in sel_idx.tolist():
-                lid = int(
-                    label[ni].item()
-                )
-
-                layer_slots[
-                    lid - 1
-                ] = node_tensor[ni]
-
-            layer_slots = (
-                layer_slots
-                .detach()
-                .cpu()
-            )
-
-            layer_slots = torch.nan_to_num(
-                layer_slots,
-                nan=0.0,
-                posinf=0.0,
-                neginf=0.0,
-            )
-
-            layer_dir = os.path.join(
-                args.layerwise_out,
-                layer_name,
-            )
-
-            os.makedirs(
-                layer_dir,
-                exist_ok=True,
-            )
-
-            layer_pack = dict(pack)
-
-            layer_pack[
-                "node_embs"
-            ] = layer_slots
-
-            layer_pack[
-                "gnn_dim"
-            ] = int(
-                layer_slots.size(-1)
-            )
-
-            layer_pack[
-                "embedding_mode"
-            ] = (
-                "static_pre_npt::"
-                + layer_name
-            )
-
-            torch.save(
-                layer_pack,
-                os.path.join(
-                    layer_dir,
-                    f"{base_name}.memory.pt",
-                ),
-            )
 
     print(
         f"[DONE] Exported {len(written_kernels)} "
