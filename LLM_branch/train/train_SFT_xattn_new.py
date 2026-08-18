@@ -2490,8 +2490,24 @@ class StageValSelectionCallback(TrainerCallback):
                 raise RuntimeError(
                     "Constrained decoder violated its schema contract"
                 )
+            metrics_dict = (
+                kwargs.get(
+                    "metrics",
+                    {},
+                )
+            )
+
             eval_loss = float(
-                kwargs.get("metrics", {}).get("eval_loss", float("inf"))
+                metrics_dict.get(
+                    "eval_loss",
+                    metrics_dict.get(
+                        "eval_only_loss",
+                        metrics_dict.get(
+                            "final_eval_loss",
+                            float("inf"),
+                        ),
+                    ),
+                )
             )
             checkpoint_key = (
                 selection_score,
@@ -2896,11 +2912,47 @@ def load_partial_structural_xattn(model, structural_xattn_path: str, tag: str):
         return
 
     structural_sd = torch.load(structural_xattn_path, map_location="cpu")
-    missing, unexpected = model.load_state_dict(structural_sd, strict=False)
+    missing, unexpected = (
+        model.load_state_dict(
+            structural_sd,
+            strict=False,
+        )
+    )
 
-    structural_missing = [k for k in missing if "gated_cross_attn_layer" in k]
-    print(f"[{tag}] structural_missing[:10]={structural_missing[:10]}")
-    print(f"[{tag}] unexpected[:10]={unexpected[:10]}")
+    structural_missing = [
+        key
+        for key in missing
+        if (
+            "gated_cross_attn_layer"
+            in key
+        )
+    ]
+
+    structural_unexpected = [
+        key
+        for key in unexpected
+        if (
+            "gated_cross_attn_layer"
+            in key
+        )
+    ]
+
+    if (
+        structural_missing
+        or structural_unexpected
+    ):
+        raise RuntimeError(
+            f"[{tag}] incomplete structural "
+            "checkpoint load: "
+            f"missing={structural_missing[:20]}, "
+            f"unexpected="
+            f"{structural_unexpected[:20]}"
+        )
+
+    print(
+        f"[{tag}] loaded all structural "
+        "parameters exactly"
+    )
 
     move_structural_modules_to_model_device(model)
 
@@ -5345,6 +5397,14 @@ def run_single_training(args):
                 args.init_structural_xattn_from
             )
 
+            structural_config[
+                "selection_eval_structural_checkpoint_sha256"
+            ] = _file_sha256(
+                Path(
+                    args.init_structural_xattn_from
+                )
+            )
+            
         else:
             if not args.initial_state_reference:
                 raise ValueError(
