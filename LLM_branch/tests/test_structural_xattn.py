@@ -1,4 +1,4 @@
-"""Regression tests for post-self-attention structural-memory fusion."""
+"""Regression tests for structural-memory fusion placements."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ from LLM_branch.common.structural_xattn import (
     MaskedCrossAttention,
     StructuralCrossAttentionMixin,
     StructuralMemoryPreMLP,
+    StructuralPostDecoderResidual,
     extend_instance,
     infer_decoder_layers_attr_name,
 )
@@ -24,7 +25,8 @@ from LLM_branch.common.structural_xattn import (
 HIDDEN_SIZE = 32
 MEMORY_SIZE = 12
 PLACEHOLDER_TOKEN_IDS = (101, 102, 103)
-STRUCTURAL_PLACEMENT = "post_self_attn_pre_mlp"
+LEGACY_PLACEMENT = "legacy_norm_wrapper"
+DIRECT_PLACEMENT = "post_decoder_residual"
 
 
 def _base_model() -> LlamaForCausalLM:
@@ -50,6 +52,7 @@ def _attach(
     every_n_layers=8,
     attn_gate_scale=1.0,
     memory_value_scale=1.0,
+    structural_fusion_placement=LEGACY_PLACEMENT,
 ):
     extend_instance(model, StructuralCrossAttentionMixin)
     model.set_decoder_layers_attr_name(infer_decoder_layers_attr_name(model))
@@ -64,6 +67,7 @@ def _attach(
         mask_mode="segment",
         attn_gate_scale=attn_gate_scale,
         memory_value_scale=memory_value_scale,
+        structural_fusion_placement=structural_fusion_placement,
     )
     return model.eval()
 
@@ -81,20 +85,28 @@ def _condition(model, memory, memory_mask):
     model.condition_structural_memory(memory, memory_mask)
 
 
+class _ZeroMLP(torch.nn.Module):
+    def forward(self, hidden_states):
+        return torch.zeros_like(hidden_states)
+
+
 def _set_attention_gate(model, value):
-    wrappers = [
+    blocks = [
         module
         for module in model.modules()
-        if isinstance(module, StructuralMemoryPreMLP)
+        if isinstance(module, GatedCrossAttentionBlock)
     ]
-    assert wrappers
-    for wrapper in wrappers:
-        wrapper.gated_cross_attn_layer.attn_gate.data.fill_(value)
+    assert blocks
+    for block in blocks:
+        block.attn_gate.data.fill_(value)
 
 
 @torch.no_grad()
-def test_ordering_is_self_attention_then_structural_attention_then_mlp():
-    model = _attach(_base_model())
+def test_legacy_ordering_is_self_attention_then_structural_attention_then_mlp():
+    model = _attach(
+        _base_model(),
+        structural_fusion_placement=LEGACY_PLACEMENT,
+    )
     layer8 = model.model.layers[7]
     events = []
     hooks = [
@@ -128,9 +140,54 @@ def test_ordering_is_self_attention_then_structural_attention_then_mlp():
 
 
 @torch.no_grad()
-def test_zero_gate_preserves_stage1_logits():
+def test_direct_ordering_is_native_decoder_then_structural_residual():
+    model = _attach(
+        _base_model(),
+        structural_fusion_placement=DIRECT_PLACEMENT,
+    )
+    layer8 = model.model.layers[7]
+    events = []
+    hooks = [
+        layer8.self_attn.register_forward_hook(
+            lambda _module, _args, _output: events.append("layer8.self_attn")
+        ),
+        layer8.mlp.register_forward_hook(
+            lambda _module, _args, _output: events.append("layer8.mlp")
+        ),
+        layer8.structural_post_decoder_residual.gated_cross_attn_layer.register_forward_hook(
+            lambda _module, _args, _output: events.append("layer8.structural_xattn")
+        ),
+    ]
+    try:
+        input_ids, attention_mask, _ = _inputs()
+        _condition(
+            model,
+            torch.randn(1, 3, MEMORY_SIZE),
+            torch.ones(1, 3, dtype=torch.bool),
+        )
+        model(input_ids=input_ids, attention_mask=attention_mask)
+    finally:
+        for hook in hooks:
+            hook.remove()
+
+    assert events == [
+        "layer8.self_attn",
+        "layer8.mlp",
+        "layer8.structural_xattn",
+    ]
+
+
+@pytest.mark.parametrize(
+    "placement",
+    [LEGACY_PLACEMENT, DIRECT_PLACEMENT],
+)
+@torch.no_grad()
+def test_zero_gate_preserves_stage1_logits(placement):
     stage1_model = _base_model()
-    attached_model = _attach(copy.deepcopy(stage1_model))
+    attached_model = _attach(
+        copy.deepcopy(stage1_model),
+        structural_fusion_placement=placement,
+    )
     input_ids, attention_mask, _ = _inputs()
     _condition(
         attached_model,
@@ -150,11 +207,60 @@ def test_zero_gate_preserves_stage1_logits():
 
 
 @torch.no_grad()
-def test_zero_memory_value_scale_preserves_stage1_logits_with_open_gate():
+def test_direct_residual_survives_when_native_mlp_is_zero():
+    stage1_model = _base_model()
+    stage1_model.model.layers[7].mlp = _ZeroMLP()
+
+    legacy_model = _attach(
+        copy.deepcopy(stage1_model),
+        structural_fusion_placement=LEGACY_PLACEMENT,
+    )
+    direct_model = _attach(
+        copy.deepcopy(stage1_model),
+        structural_fusion_placement=DIRECT_PLACEMENT,
+    )
+    _set_attention_gate(legacy_model, 0.5)
+    _set_attention_gate(direct_model, 0.5)
+
+    input_ids, attention_mask, directive_positions = _inputs()
+    memory = torch.randn(1, 3, MEMORY_SIZE)
+    memory_mask = torch.ones(1, 3, dtype=torch.bool)
+    _condition(legacy_model, memory, memory_mask)
+    _condition(direct_model, memory, memory_mask)
+
+    stage1_logits = stage1_model(
+        input_ids=input_ids,
+        attention_mask=attention_mask,
+    ).logits[:, directive_positions, :]
+    legacy_logits = legacy_model(
+        input_ids=input_ids,
+        attention_mask=attention_mask,
+    ).logits[:, directive_positions, :]
+    direct_logits = direct_model(
+        input_ids=input_ids,
+        attention_mask=attention_mask,
+    ).logits[:, directive_positions, :]
+
+    legacy_delta = (legacy_logits - stage1_logits).abs().max().item()
+    direct_delta = (direct_logits - stage1_logits).abs().max().item()
+
+    assert legacy_delta < 1e-6
+    assert direct_delta > 1e-6
+
+
+@pytest.mark.parametrize(
+    "placement",
+    [LEGACY_PLACEMENT, DIRECT_PLACEMENT],
+)
+@torch.no_grad()
+def test_zero_memory_value_scale_preserves_stage1_logits_with_open_gate(
+    placement,
+):
     stage1_model = _base_model()
     attached_model = _attach(
         copy.deepcopy(stage1_model),
         memory_value_scale=0.0,
+        structural_fusion_placement=placement,
     )
     _set_attention_gate(attached_model, 0.1)
     input_ids, attention_mask, _ = _inputs()
@@ -236,9 +342,18 @@ def test_all_false_memory_mask_is_identity_with_nonzero_gate():
     assert max_abs < 1e-5, f"masked-memory max logit difference was {max_abs}"
 
 
+@pytest.mark.parametrize(
+    "placement",
+    [LEGACY_PLACEMENT, DIRECT_PLACEMENT],
+)
 @torch.no_grad()
-def test_real_and_shuffled_memory_change_directive_position_logits():
-    model = _attach(_base_model())
+def test_real_and_shuffled_memory_change_directive_position_logits(
+    placement,
+):
+    model = _attach(
+        _base_model(),
+        structural_fusion_placement=placement,
+    )
     _set_attention_gate(model, 0.1)
     input_ids, attention_mask, directive_positions = _inputs()
     memory = torch.randn(1, 3, MEMORY_SIZE)
@@ -258,7 +373,11 @@ def test_real_and_shuffled_memory_change_directive_position_logits():
 
 
 def test_structural_checkpoint_round_trip(tmp_path):
-    source = _attach(_base_model())
+    source = _attach(
+        _base_model(),
+        every_n_layers=2,
+        structural_fusion_placement=DIRECT_PLACEMENT,
+    )
     _set_attention_gate(source, 0.1)
     structural_state = {
         key: value.detach().clone()
@@ -268,7 +387,11 @@ def test_structural_checkpoint_round_trip(tmp_path):
     checkpoint = tmp_path / "structural_xattn.pt"
     torch.save(structural_state, checkpoint)
 
-    target = _attach(_base_model())
+    target = _attach(
+        _base_model(),
+        every_n_layers=2,
+        structural_fusion_placement=DIRECT_PLACEMENT,
+    )
     loaded_state = torch.load(checkpoint, map_location="cpu", weights_only=True)
     missing, unexpected = target.load_state_dict(loaded_state, strict=False)
     missing_structural = [
@@ -280,22 +403,84 @@ def test_structural_checkpoint_round_trip(tmp_path):
 
     assert not missing_structural
     assert not unexpected_structural
+    assert len(
+        [
+            module
+            for module in target.modules()
+            if isinstance(module, StructuralPostDecoderResidual)
+        ]
+    ) == 4
     for key, expected in structural_state.items():
         assert torch.equal(target.state_dict()[key], expected), key
 
 
-def test_training_and_inference_architecture_contract_is_identical():
+@torch.no_grad()
+def test_post_decoder_residual_full_and_cached_logits_match():
+    full_model = _attach(
+        _base_model(),
+        structural_fusion_placement=DIRECT_PLACEMENT,
+    )
+    cached_model = _attach(
+        _base_model(),
+        structural_fusion_placement=DIRECT_PLACEMENT,
+    )
+    _set_attention_gate(full_model, 0.1)
+    _set_attention_gate(cached_model, 0.1)
+
+    memory = torch.randn(1, 3, MEMORY_SIZE)
+    memory_mask = torch.ones(1, 3, dtype=torch.bool)
+    _condition(full_model, memory, memory_mask)
+    _condition(cached_model, memory, memory_mask)
+
+    input_ids = torch.tensor([[7, 101, 11, 12]])
+    full = full_model(
+        input_ids=input_ids,
+        attention_mask=torch.ones_like(input_ids),
+        use_cache=True,
+    )
+
+    prefix_ids = input_ids[:, :3]
+    prefix = cached_model(
+        input_ids=prefix_ids,
+        attention_mask=torch.ones_like(prefix_ids),
+        use_cache=True,
+    )
+    step = cached_model(
+        input_ids=input_ids[:, 3:],
+        attention_mask=torch.ones_like(input_ids),
+        past_key_values=prefix.past_key_values,
+        use_cache=True,
+    )
+
+    torch.testing.assert_close(
+        step.logits[:, -1, :],
+        full.logits[:, -1, :],
+        rtol=1e-4,
+        atol=1e-5,
+    )
+
+
+@pytest.mark.parametrize(
+    "placement",
+    [LEGACY_PLACEMENT, DIRECT_PLACEMENT],
+)
+def test_training_and_inference_architecture_contract_is_identical(
+    placement,
+):
     reports = []
     models = []
     for _role in ("training", "inference"):
         capture = io.StringIO()
         with redirect_stdout(capture):
-            model = _attach(_base_model())
+            model = _attach(
+                _base_model(),
+                structural_fusion_placement=placement,
+            )
         models.append(model)
         reports.append(capture.getvalue())
 
     expected_report = (
-        "[STRUCTURAL-XATTN] placement=post_self_attn_pre_mlp layers=[8]"
+        f"[STRUCTURAL-XATTN] placement={placement} layers=[8]"
     )
     assert all(expected_report in report for report in reports)
     assert models[0].structural_xattn_layer_indices == (8,)
@@ -303,7 +488,7 @@ def test_training_and_inference_architecture_contract_is_identical():
         models[0].structural_xattn_layer_indices
         == models[1].structural_xattn_layer_indices
     )
-    assert STRUCTURAL_PLACEMENT == "post_self_attn_pre_mlp"
+    assert models[0].structural_fusion_placement == placement
 
 
 

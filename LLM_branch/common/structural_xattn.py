@@ -784,7 +784,12 @@ class GatedCrossAttentionBlock(nn.Module):
 
 
 class StructuralMemoryPreMLP(nn.Module):
-    """Inject structural memory after self-attention and before the native MLP."""
+    """Legacy norm wrapper kept only for exact experiment reproduction.
+
+    This computes ``Norm(u + r_struct)`` for the native MLP, but the native
+    decoder residual remains ``u``.  It therefore does *not* put
+    ``r_struct`` directly on the decoder residual stream.
+    """
 
     def __init__(self, original_norm, gated_cross_attn_layer):
         super().__init__()
@@ -841,6 +846,80 @@ class StructuralMemoryPreMLP(nn.Module):
         return self.original_norm(hidden_states)
 
 
+class StructuralPostDecoderResidual(nn.Module):
+    """Add structural cross-attention to a completed decoder-layer output.
+
+    The native decoder layer remains untouched.  A forward hook passes its
+    first output tensor through this module, so the selected layer computes
+
+        h_next = DecoderLayer(h) + r_struct.
+
+    Keeping this as a child module of the native decoder layer preserves the
+    original self-attention/MLP/LoRA parameter paths used by PEFT.
+    """
+
+    def __init__(self, gated_cross_attn_layer):
+        super().__init__()
+        self.gated_cross_attn_layer = gated_cross_attn_layer
+        self.structural_memory = None
+        self.structural_memory_mask = None
+        self.placeholder_slot_ids = None
+        self.use_cached_memory = False
+        self.xattn_apply_mask = None
+        self.action_relation_mask = None
+
+    def is_conditioned(self):
+        return (
+            self.structural_memory is not None
+            and self.structural_memory_mask is not None
+            and self.placeholder_slot_ids is not None
+        )
+
+    def clear_conditioning(self):
+        self.structural_memory = None
+        self.structural_memory_mask = None
+        self.placeholder_slot_ids = None
+        self.use_cached_memory = False
+        self.xattn_apply_mask = None
+        self.action_relation_mask = None
+
+    def forward(self, hidden_states):
+        if not self.is_conditioned():
+            raise ValueError(
+                "Structural memory and placeholder routing must be conditioned "
+                "before the decoder forward pass"
+            )
+
+        return self.gated_cross_attn_layer(
+            hidden_states,
+            self.structural_memory,
+            placeholder_slot_ids=self.placeholder_slot_ids,
+            memory_mask=self.structural_memory_mask,
+            action_relation_mask=self.action_relation_mask,
+            use_cached_memory=self.use_cached_memory,
+            xattn_apply_mask=self.xattn_apply_mask,
+        )
+
+
+def _apply_post_decoder_structural_residual(
+    decoder_layer,
+    _inputs,
+    outputs,
+):
+    """Forward hook that preserves the native decoder output contract."""
+
+    wrapper = decoder_layer.structural_post_decoder_residual
+
+    if not isinstance(outputs, tuple) or not outputs:
+        raise TypeError(
+            "post_decoder_residual requires the decoder layer to return "
+            "a non-empty tuple whose first element is hidden_states"
+        )
+
+    hidden_states = wrapper(outputs[0])
+    return (hidden_states, *outputs[1:])
+
+
 class StructuralCrossAttentionMixin(nn.Module):
     """Condition and route structural memory into selected decoder layers."""
 
@@ -852,9 +931,21 @@ class StructuralCrossAttentionMixin(nn.Module):
 
     def _structural_wrappers(self):
         for decoder_layer in self._get_decoder_layers():
-            wrapper = getattr(decoder_layer, "post_attention_layernorm", None)
-            if isinstance(wrapper, StructuralMemoryPreMLP):
-                yield wrapper
+            legacy_wrapper = getattr(
+                decoder_layer,
+                "post_attention_layernorm",
+                None,
+            )
+            if isinstance(legacy_wrapper, StructuralMemoryPreMLP):
+                yield legacy_wrapper
+
+            residual_wrapper = getattr(
+                decoder_layer,
+                "structural_post_decoder_residual",
+                None,
+            )
+            if isinstance(residual_wrapper, StructuralPostDecoderResidual):
+                yield residual_wrapper
 
     def init_structural_cross_attention(
         self,
@@ -868,14 +959,31 @@ class StructuralCrossAttentionMixin(nn.Module):
         mask_mode="segment",
         attn_gate_scale=1.0,
         memory_value_scale=1.0,
+        structural_fusion_placement="legacy_norm_wrapper",
     ):
         if cross_attn_every_n_layers <= 0:
             raise ValueError("cross_attn_every_n_layers must be positive")
+
+        supported_placements = {
+            "legacy_norm_wrapper",
+            "post_decoder_residual",
+        }
+        if structural_fusion_placement not in supported_placements:
+            raise ValueError(
+                "Unsupported structural fusion placement: "
+                f"{structural_fusion_placement!r}; expected one of "
+                f"{sorted(supported_placements)}"
+            )
+
         selected_layers = []
         for layer_idx, decoder_layer in enumerate(self._get_decoder_layers()):
             if (layer_idx + 1) % cross_attn_every_n_layers != 0:
                 continue
-            if not hasattr(decoder_layer, "post_attention_layernorm"):
+
+            if (
+                structural_fusion_placement == "legacy_norm_wrapper"
+                and not hasattr(decoder_layer, "post_attention_layernorm")
+            ):
                 raise TypeError(
                     f"Layer {layer_idx + 1} does not expose "
                     "post_attention_layernorm; the selected fusion placement "
@@ -894,20 +1002,44 @@ class StructuralCrossAttentionMixin(nn.Module):
                 attn_gate_scale=attn_gate_scale,
                 memory_value_scale=memory_value_scale,
             )
-            decoder_layer.post_attention_layernorm = StructuralMemoryPreMLP(
-                original_norm=decoder_layer.post_attention_layernorm,
-                gated_cross_attn_layer=gated_xattn,
-            )
+
+            if structural_fusion_placement == "legacy_norm_wrapper":
+                decoder_layer.post_attention_layernorm = StructuralMemoryPreMLP(
+                    original_norm=decoder_layer.post_attention_layernorm,
+                    gated_cross_attn_layer=gated_xattn,
+                )
+            else:
+                if hasattr(
+                    decoder_layer,
+                    "structural_post_decoder_residual",
+                ):
+                    raise RuntimeError(
+                        f"Layer {layer_idx + 1} already has a structural "
+                        "post-decoder residual"
+                    )
+
+                decoder_layer.add_module(
+                    "structural_post_decoder_residual",
+                    StructuralPostDecoderResidual(
+                        gated_cross_attn_layer=gated_xattn,
+                    ),
+                )
+                decoder_layer.register_forward_hook(
+                    _apply_post_decoder_structural_residual
+                )
+
             selected_layers.append(layer_idx + 1)
 
         if not selected_layers:
             raise ValueError("No structural cross-attention layers were inserted")
         self.placeholder_token_ids = tuple(map(int, placeholder_token_ids))
         self.structural_xattn_layer_indices = tuple(selected_layers)
+        self.structural_fusion_placement = structural_fusion_placement
         self.initialized_structural_xattn = True
         self._use_cached_structural_memory = False
         print(
-            "[STRUCTURAL-XATTN] placement=post_self_attn_pre_mlp "
+            "[STRUCTURAL-XATTN] "
+            f"placement={structural_fusion_placement} "
             f"layers={selected_layers} "
             f"gate_scale={float(attn_gate_scale):g} "
             f"memory_value_scale={float(memory_value_scale):g}"
@@ -986,4 +1118,3 @@ class StructuralCrossAttentionMixin(nn.Module):
         if labels is not None:
             kwargs["labels"] = labels
         return super().forward(**kwargs)
-

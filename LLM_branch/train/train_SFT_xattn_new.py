@@ -1098,11 +1098,36 @@ def dump_json_atomic(path: str, obj: Any):
             os.unlink(temporary)
 
 
+def _canonical_structural_parameter_name(name: str) -> str:
+    """Remove placement-only parents from structural parameter names."""
+
+    legacy_path = (
+        ".post_attention_layernorm."
+        "gated_cross_attn_layer."
+    )
+    residual_path = (
+        ".structural_post_decoder_residual."
+        "gated_cross_attn_layer."
+    )
+    canonical_path = (
+        ".structural_fusion."
+        "gated_cross_attn_layer."
+    )
+    return (
+        name
+        .replace(legacy_path, canonical_path)
+        .replace(residual_path, canonical_path)
+    )
+
+
 def structural_state_manifest(model) -> dict:
     tensor_hashes = {}
     combined = hashlib.sha256()
     selected = sorted(
-        (name, parameter)
+        (
+            _canonical_structural_parameter_name(name),
+            parameter,
+        )
         for name, parameter in model.named_parameters()
         if "gated_cross_attn_layer" in name
     )
@@ -1115,7 +1140,12 @@ def structural_state_manifest(model) -> dict:
         tensor_hashes[name] = {"sha256": digest, "shape": list(tensor.shape), "dtype": str(tensor.dtype)}
         combined.update(name.encode("utf-8"))
         combined.update(digest.encode("ascii"))
-    return {"combined_sha256": combined.hexdigest(), "tensors": tensor_hashes}
+    return {
+        "schema": "mailohls-structural-state-manifest-v2",
+        "parameter_name_schema": "placement_canonical_v1",
+        "combined_sha256": combined.hexdigest(),
+        "tensors": tensor_hashes,
+    }
 
 
 def verify_and_save_initial_structural_state(model, reference_path: str, output_dir: str) -> dict:
@@ -1132,8 +1162,14 @@ def verify_and_save_initial_structural_state(model, reference_path: str, output_
     else:
         dump_json_atomic(str(reference), manifest)
         print(f"[INIT-STATE] Created reference atomically: {reference}")
+    placement = getattr(
+        model,
+        "structural_fusion_placement",
+        "legacy_norm_wrapper",
+    )
     output_copy = os.path.join(
-        output_dir, "initial_structural_state_post_sa_pre_mlp_s123.json"
+        output_dir,
+        f"initial_structural_state_{placement}_s123.json",
     )
     dump_json_atomic(output_copy, manifest)
     print(f"[INIT-STATE] combined_sha256={manifest['combined_sha256']}")
@@ -2912,6 +2948,45 @@ def load_partial_structural_xattn(model, structural_xattn_path: str, tag: str):
         return
 
     structural_sd = torch.load(structural_xattn_path, map_location="cpu")
+
+    # Placement changes only the parent module path of each structural block.
+    # Remap that path so legacy and direct-residual checkpoints can be loaded
+    # into either implementation for controlled fixed-theta comparisons.
+    target_keys = set(model.state_dict())
+    remapped_sd = {}
+    remapped_count = 0
+    legacy_path = (
+        ".post_attention_layernorm."
+        "gated_cross_attn_layer."
+    )
+    residual_path = (
+        ".structural_post_decoder_residual."
+        "gated_cross_attn_layer."
+    )
+
+    for key, value in structural_sd.items():
+        candidates = [key]
+        if legacy_path in key:
+            candidates.append(
+                key.replace(legacy_path, residual_path)
+            )
+        if residual_path in key:
+            candidates.append(
+                key.replace(residual_path, legacy_path)
+            )
+
+        mapped_key = next(
+            (
+                candidate
+                for candidate in candidates
+                if candidate in target_keys
+            ),
+            key,
+        )
+        remapped_count += int(mapped_key != key)
+        remapped_sd[mapped_key] = value
+
+    structural_sd = remapped_sd
     missing, unexpected = (
         model.load_state_dict(
             structural_sd,
@@ -2953,6 +3028,11 @@ def load_partial_structural_xattn(model, structural_xattn_path: str, tag: str):
         f"[{tag}] loaded all structural "
         "parameters exactly"
     )
+    if remapped_count:
+        print(
+            f"[{tag}] remapped {remapped_count} placement-specific "
+            "structural checkpoint keys"
+        )
 
     move_structural_modules_to_model_device(model)
 
@@ -5051,7 +5131,7 @@ def run_single_training(args):
                 False,
 
             "xattn_placement":
-                "post_self_attn_pre_mlp",
+                args.structural_fusion_placement,
 
             "xattn_gate_init":
                 0.0,
@@ -5375,7 +5455,7 @@ def run_single_training(args):
     if not args.disable_structural_memory:
         if args.lr_ff != 0 or args.lr_gate_ff != 0:
             raise ValueError(
-                "The post-self-attention/pre-MLP structural branch requires "
+                "The structural branch requires "
                 "--lr_ff 0 and --lr_gate_ff 0"
             )
         extend_instance(model, StructuralCrossAttentionMixin)
@@ -5401,6 +5481,9 @@ def run_single_training(args):
             ),
             memory_value_scale=(
                 args.structural_memory_value_scale
+            ),
+            structural_fusion_placement=(
+                args.structural_fusion_placement
             ),
         )
 
@@ -5969,8 +6052,8 @@ def main():
         type=str,
         default="",
         help=(
-            "Shared initial_structural_state_post_sa_pre_mlp_s123.json; created "
-            "atomically by the first arm and verified by later arms."
+            "Placement-specific shared initial structural-state manifest; "
+            "created atomically by the first arm and verified by later arms."
         ),
     )
     ap.add_argument("--value_loss_weight", type=float, default=1.0)
@@ -6001,6 +6084,22 @@ def main():
     ap.add_argument("--xattn_heads", type=int, default=4)
     ap.add_argument("--xattn_dim_head", type=int, default=64)
     ap.add_argument("--xattn_ff_mult", type=int, default=1)
+    ap.add_argument(
+        "--structural_fusion_placement",
+        choices=(
+            "legacy_norm_wrapper",
+            "post_decoder_residual",
+        ),
+        default="legacy_norm_wrapper",
+        help=(
+            "legacy_norm_wrapper reproduces historical experiments by "
+            "perturbing the native post-attention norm input. "
+            "post_decoder_residual adds the gated structural update directly "
+            "to the completed decoder-layer output. The legacy default avoids "
+            "silently changing old commands; pass post_decoder_residual "
+            "explicitly for the corrected experiment."
+        ),
+    )
     ap.add_argument("--lr_xattn", type=float, default=0.0)
     ap.add_argument("--lr_gate", type=float, default=0.0)
     ap.add_argument("--lr_ff", type=float, default=0.0)
