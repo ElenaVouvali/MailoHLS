@@ -4619,42 +4619,90 @@ def run_single_training(args):
         save_split_spec(args.save_split_json, raw_train_rows, raw_val_rows, raw_test_rows)
         print(f"[INFO] Saved split spec -> {args.save_split_json}")
 
+    eval_only = bool(
+        args.selection_eval_only
+    )
+
+    if eval_only:
+        print(
+            "[EVAL-ONLY] Fast path: "
+            "skipping train/test budget preprocessing; "
+            "validation preprocessing remains unchanged"
+        )
+
+
     if args.resource_budget_mode == "fixed":
-        fractions = parse_resource_budget_fracs(
-            args.resource_budget_fracs
+
+        fractions = (
+            parse_resource_budget_fracs(
+                args.resource_budget_fracs
+            )
         )
-        raw_train_rows = augment_rows_with_resource_budgets(
-            raw_train_rows, fractions
+
+        if not eval_only:
+            raw_train_rows = (
+                augment_rows_with_resource_budgets(
+                    raw_train_rows,
+                    fractions,
+                )
+            )
+
+        # IMPORTANT:
+        # validation stays identical to normal Stage-2 evaluation.
+        raw_val_rows = (
+            augment_rows_with_resource_budgets(
+                raw_val_rows,
+                fractions,
+            )
         )
-        raw_val_rows = augment_rows_with_resource_budgets(
-            raw_val_rows, fractions
-        )
-        raw_test_rows = augment_rows_with_resource_budgets(
-            raw_test_rows, fractions
-        )
+
+        if not eval_only:
+            raw_test_rows = (
+                augment_rows_with_resource_budgets(
+                    raw_test_rows,
+                    fractions,
+                )
+            )
 
     elif args.resource_budget_mode == "random":
-        raw_train_rows = augment_rows_with_random_resource_budgets(
-            raw_train_rows,
-            num_budgets_per_case=args.random_budgets_per_case,
-            seed=args.seed,
-            min_feasible_candidates=(
-                args.min_feasible_candidates_per_budget
-            ),
-        )
-        raw_val_rows = augment_rows_with_random_resource_budgets(
-            raw_val_rows,
-            num_budgets_per_case=args.random_budgets_per_case,
-            seed=eval_seed,
-            min_feasible_candidates=3,
+
+        if not eval_only:
+            raw_train_rows = (
+                augment_rows_with_random_resource_budgets(
+                    raw_train_rows,
+                    num_budgets_per_case=(
+                        args.random_budgets_per_case
+                    ),
+                    seed=args.seed,
+                    min_feasible_candidates=(
+                        args.min_feasible_candidates_per_budget
+                    ),
+                )
+            )
+
+        # Keep EXACTLY the same validation seed and settings.
+        raw_val_rows = (
+            augment_rows_with_random_resource_budgets(
+                raw_val_rows,
+                num_budgets_per_case=(
+                    args.random_budgets_per_case
+                ),
+                seed=eval_seed,
+                min_feasible_candidates=3,
+            )
         )
 
-        raw_test_rows = augment_rows_with_random_resource_budgets(
-            raw_test_rows,
-            num_budgets_per_case=args.random_budgets_per_case,
-            seed=eval_seed + 1,
-            min_feasible_candidates=3,
-        )
+        if not eval_only:
+            raw_test_rows = (
+                augment_rows_with_random_resource_budgets(
+                    raw_test_rows,
+                    num_budgets_per_case=(
+                        args.random_budgets_per_case
+                    ),
+                    seed=eval_seed + 1,
+                    min_feasible_candidates=3,
+                )
+            )
 
     objectives = mailohls_contract.resolve_objectives(args.objective)
     goal_key = "all_objectives" if args.objective == "ALL" else GOALS[args.objective]["tag"]
@@ -4678,12 +4726,83 @@ def run_single_training(args):
         ).shuffle(combined)
         return combined, information
 
-    train_rows, train_goal_info = select_objectives(raw_train_rows)
-    val_rows, val_goal_info = select_objectives(raw_val_rows)
-    test_rows, test_goal_info = select_objectives(raw_test_rows)
-    directive_loss_weights = compute_directive_loss_weights(
-        train_rows, args.directive_loss_weighting
-    )
+    if args.selection_eval_only:
+
+        train_rows = []
+        train_goal_info = {}
+
+        val_rows, val_goal_info = (
+            select_objectives(
+                raw_val_rows
+            )
+        )
+
+        test_rows = []
+        test_goal_info = {}
+
+        # Reuse exactly the Stage-1 training-side
+        # directive weights instead of recomputing
+        # them from training rows that are irrelevant
+        # to this fixed-checkpoint evaluation.
+        stage1_contract_path = (
+            Path(args.init_adapter_dir)
+            / "training_contract.json"
+        )
+
+        if not stage1_contract_path.is_file():
+            raise FileNotFoundError(
+                "selection_eval_only requires the "
+                "Stage-1 training contract: "
+                f"{stage1_contract_path}"
+            )
+
+        with stage1_contract_path.open(
+            "r",
+            encoding="utf-8",
+        ) as handle:
+            stage1_eval_contract = (
+                json.load(handle)
+            )
+
+        directive_loss_weights = dict(
+            stage1_eval_contract.get(
+                "directive_loss_weights",
+                {},
+            )
+        )
+
+        print(
+            "[EVAL-ONLY] selected validation rows="
+            f"{len(val_rows)}; "
+            "train/test objective selection skipped"
+        )
+
+    else:
+
+        train_rows, train_goal_info = (
+            select_objectives(
+                raw_train_rows
+            )
+        )
+
+        val_rows, val_goal_info = (
+            select_objectives(
+                raw_val_rows
+            )
+        )
+
+        test_rows, test_goal_info = (
+            select_objectives(
+                raw_test_rows
+            )
+        )
+
+        directive_loss_weights = (
+            compute_directive_loss_weights(
+                train_rows,
+                args.directive_loss_weighting,
+            )
+        )
 
     print(f"[INFO] Selected split sizes: train={len(train_rows)} val={len(val_rows)} test={len(test_rows)}")
     print(
@@ -4774,9 +4893,20 @@ def run_single_training(args):
             args.mem_dim = inferred_mem_dim
 
         print(f"[INFO] Memory bank keys: {len(mem_bank)}")
-        required_kernels = {
-            row["kernel_name"] for row in train_rows + val_rows + test_rows
-        }
+        if args.selection_eval_only:
+
+            required_kernels = {
+                row["kernel_name"]
+                for row in val_rows
+            }
+
+        else:
+
+            required_kernels = {
+                row["kernel_name"]
+                for row
+                in train_rows + val_rows + test_rows
+            }
         missing_memory = sorted(
             kernel
             for kernel in required_kernels
@@ -5292,32 +5422,69 @@ def run_single_training(args):
     if args.candidate_loss_weight == 0.0:
         print("[DATASET] candidate loss disabled; skipping local hard negatives")
 
-    train_ds = SFTDataset(
-        train_rows,
-        tok,
-        args.max_length,
-        value_loss_weight=args.value_loss_weight,
-        candidate_sites_per_sample=effective_candidate_sites,
-        candidate_negatives_per_site=effective_candidate_negatives,
-        device_token_dropout=args.device_token_dropout,
-        supervise_eos=args.supervise_eos,
-        input_only_special_ids=special_ids,
-        kind_loss_weights=directive_loss_weights,
-    )
+    if args.selection_eval_only:
 
-    special_id_set = set(special_ids)
-    for sample in train_ds.samples:
-        supervised = {
-            int(token_id)
-            for token_id, label in zip(sample["input_ids"], sample["labels"])
-            if int(label) != -100
-        }
-        leaked = special_id_set.intersection(supervised)
-        if leaked:
-            raise RuntimeError(
-                "RHS-only supervision leaked special-token ids: "
-                f"{sorted(leaked)}"
+        train_ds = None
+
+        print(
+            "[EVAL-ONLY] Skipping train "
+            "SFTDataset construction"
+        )
+
+    else:
+
+        train_ds = SFTDataset(
+            train_rows,
+            tok,
+            args.max_length,
+            value_loss_weight=(
+                args.value_loss_weight
+            ),
+            candidate_sites_per_sample=(
+                effective_candidate_sites
+            ),
+            candidate_negatives_per_site=(
+                effective_candidate_negatives
+            ),
+            device_token_dropout=(
+                args.device_token_dropout
+            ),
+            supervise_eos=args.supervise_eos,
+            input_only_special_ids=special_ids,
+            kind_loss_weights=(
+                directive_loss_weights
+            ),
+        )
+
+        special_id_set = set(
+            special_ids
+        )
+
+        for sample in train_ds.samples:
+
+            supervised = {
+                int(token_id)
+                for token_id, label
+                in zip(
+                    sample["input_ids"],
+                    sample["labels"],
+                )
+                if int(label) != -100
+            }
+
+            leaked = (
+                special_id_set
+                .intersection(
+                    supervised
+                )
             )
+
+            if leaked:
+                raise RuntimeError(
+                    "RHS-only supervision leaked "
+                    "special-token ids: "
+                    f"{sorted(leaked)}"
+                )
 
     val_ds = SFTDataset(
         val_rows,
@@ -5334,7 +5501,47 @@ def run_single_training(args):
 
     collator = PadCollator(tok)
 
-    steps_per_epoch = math.ceil(len(train_ds) / max(1, args.batch_size))
+    if args.selection_eval_only:
+
+        steps_per_epoch = 0
+        total_steps = 0
+        effective_total_steps = max(
+            1,
+            args.max_steps
+            if args.max_steps > 0
+            else 1,
+        )
+        warmup_steps = 0
+
+    else:
+
+        steps_per_epoch = math.ceil(
+            len(train_ds)
+            / max(
+                1,
+                args.batch_size,
+            )
+        )
+
+        total_steps = int(
+            steps_per_epoch
+            * args.epochs
+            / max(
+                1,
+                args.grad_accum,
+            )
+        )
+
+        effective_total_steps = (
+            args.max_steps
+            if args.max_steps > 0
+            else total_steps
+        )
+
+        warmup_steps = int(
+            0.03
+            * effective_total_steps
+        )
     total_steps = int(steps_per_epoch * args.epochs / max(1, args.grad_accum))
     effective_total_steps = args.max_steps if args.max_steps > 0 else total_steps
     warmup_steps = int(0.03 * effective_total_steps)
