@@ -2354,9 +2354,7 @@ class StageValSelectionCallback(TrainerCallback):
                 structural_memory_mask=structural_memory_mask,
                 structural_relation_mask=structural_relation_mask,
                 routing_start_idx=routing_start_idx,
-                candidate_batch_size=(
-                    self.candidate_batch_size
-                ),
+                candidate_batch_size=self.candidate_batch_size,
                 return_score_trace=True,
             )
         )
@@ -2492,6 +2490,10 @@ class StageValSelectionCallback(TrainerCallback):
             "exact_design_match": bool(metrics["exact_design_match"]),
             "pragma_kind_counts": metrics["pragma_kind_counts"],
             "candidate_margins":candidate_margins,
+            "jsonl_idx": case.row.get("_jsonl_idx"),
+            "device": case.row.get("device"),
+            "resource_budget_id": case.row.get("resource_budget_id"),
+            "selected_clock_period": case.row.get("selected_clock_period"),
         }
 
     def on_evaluate(self, args, state, control, **kwargs):
@@ -4226,6 +4228,15 @@ def augment_rows_with_random_resource_budgets(
             augmented.extend(attach_shared_budget(row, budget) for row in compact)
             stats["kept_budgets"] += 1
             stats["candidate_rows"] += len(compact)
+
+    cases = sorted(by_case.items())
+    for case_index, (case_key, candidates) in enumerate(cases, 1):
+        if case_index == 1 or case_index % 10 == 0:
+            print(
+                f"[RANDOM-BUDGET] case={case_index}/{len(cases)} "
+                f"key={case_key}",
+                flush=True,
+            )
     print(
         f"[RANDOM-BUDGET] input={len(rows)} output={len(augmented)} "
         f"stats={dict(stats)}"
@@ -5646,25 +5657,6 @@ def run_single_training(args):
             )
         )
 
-        total_steps = int(
-            steps_per_epoch
-            * args.epochs
-            / max(
-                1,
-                args.grad_accum,
-            )
-        )
-
-        effective_total_steps = (
-            args.max_steps
-            if args.max_steps > 0
-            else total_steps
-        )
-
-        warmup_steps = int(
-            0.03
-            * effective_total_steps
-        )
     total_steps = int(steps_per_epoch * args.epochs / max(1, args.grad_accum))
     effective_total_steps = args.max_steps if args.max_steps > 0 else total_steps
     warmup_steps = int(0.03 * effective_total_steps)
@@ -5756,13 +5748,6 @@ def run_single_training(args):
                 "combined_sha256"
             ]
 
-        dump_json(
-            os.path.join(
-                args.output_dir,
-                "training_contract.json",
-            ),
-            training_contract,
-        )
         dump_json(
             os.path.join(args.output_dir, "training_contract.json"),
             training_contract,
