@@ -191,18 +191,19 @@ def main() -> None:
             local_used = local
             if args.local_mode == "deranged":
                 suffix = ".memory.pt"
-            filename = jkn_path.name
-            if not filename.endswith(suffix):
-                raise ValueError(
-                    f"Unexpected memory filename: {filename}"
-                )
-            kernel = filename[:-len(suffix)]
-            local_used = derange_local(
+                filename = jkn_path.name
+                if not filename.endswith(suffix):
+                    raise ValueError(
+                        f"Unexpected memory filename: {filename}"
+                    )
+                kernel = filename[:-len(suffix)]
+                local_used = derange_local(
                     local,
                     mask,
                     seed=args.seed,
                     kernel=kernel,
                 )
+
             local_part = (
                 local_used.index_select(0, active)
                 / local_rms
@@ -240,6 +241,8 @@ def main() -> None:
             "combination": "concat_div_sqrt2",
         }
 
+        output_pack["multiscale"]["local_seed"] = args.seed if args.local_mode == "deranged" else None
+
         torch.save(
             output_pack,
             args.out / jkn_path.name,
@@ -262,6 +265,8 @@ def main() -> None:
         "local_mode": args.local_mode,
         "combination": "concat_div_sqrt2",
     }
+
+    manifest["multiscale"]["local_seed"] = args.seed if args.local_mode == "deranged" else None
 
     (args.out / "memory_manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
