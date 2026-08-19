@@ -32,12 +32,51 @@ def require_equal(a, b, label: str) -> None:
         raise ValueError(f"{label}: JKN/conv1 packs disagree")
 
 
+def kernel_seed(seed: int, kernel: str) -> int:
+    material = f"{seed}:{kernel}".encode()
+    return int.from_bytes(
+        hashlib.sha256(material).digest()[:8],
+        "little",
+    )
+
+
+def derange_local(
+    local: torch.Tensor,
+    mask: torch.Tensor,
+    *,
+    seed: int,
+    kernel: str,
+) -> torch.Tensor:
+    result = local.clone()
+    active = torch.where(mask)[0]
+    n = int(active.numel())
+
+    if n < 2:
+        return result
+
+    generator = torch.Generator().manual_seed(
+        kernel_seed(seed, kernel)
+    )
+    order = torch.randperm(n, generator=generator)
+    source = torch.roll(order, shifts=1)
+
+    original = result[active].clone()
+    result[active[order]] = original[source]
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--jkn_dir", required=True, type=Path)
     parser.add_argument("--conv1_dir", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--local_scale", type=float, default=1.0)
+    parser.add_argument(
+        "--local_mode",
+        choices=("aligned", "deranged"),
+        default="aligned",
+    )
+    parser.add_argument("--seed", type=int, default=123)
     args = parser.parse_args()
 
     if args.out.exists() and any(args.out.iterdir()):
@@ -146,10 +185,26 @@ def main() -> None:
             dtype=torch.float32,
         )
 
+
         if active.numel():
             jkn_part = jkn.index_select(0, active) / jkn_rms
+            local_used = local
+            if args.local_mode == "deranged":
+                suffix = ".memory.pt"
+            filename = jkn_path.name
+            if not filename.endswith(suffix):
+                raise ValueError(
+                    f"Unexpected memory filename: {filename}"
+                )
+            kernel = filename[:-len(suffix)]
+            local_used = derange_local(
+                    local,
+                    mask,
+                    seed=args.seed,
+                    kernel=kernel,
+                )
             local_part = (
-                local.index_select(0, active)
+                local_used.index_select(0, active)
                 / local_rms
                 * args.local_scale
             )
@@ -181,6 +236,7 @@ def main() -> None:
             "jkn_rms": jkn_rms,
             "centered_conv1_rms": local_rms,
             "local_scale": args.local_scale,
+            "local_mode": args.local_mode,
             "combination": "concat_div_sqrt2",
         }
 
@@ -203,6 +259,7 @@ def main() -> None:
         "jkn_rms": jkn_rms,
         "centered_conv1_rms": local_rms,
         "local_scale": args.local_scale,
+        "local_mode": args.local_mode,
         "combination": "concat_div_sqrt2",
     }
 
