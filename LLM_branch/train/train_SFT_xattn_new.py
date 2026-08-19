@@ -2475,6 +2475,10 @@ class StageValSelectionCallback(TrainerCallback):
                     "gold_top1": bool(
                         gold_rank == 1
                     ),
+                    "site_id": (
+                        f"{case.row.get('_jsonl_idx')}::"
+                        f"{site['label']}::{lhs_key}"
+                    ),
                 }
             )
 
@@ -5248,80 +5252,6 @@ def run_single_training(args):
         "peft_version": peft.__version__,
         "torch_version": torch.__version__,
     }
-
-
-    with open(
-        manifest_path,
-        "r",
-        encoding="utf-8",
-    ) as handle:
-        memory_manifest = json.load(
-            handle
-        )
-
-    if (
-        args.structural_routing
-        == "compiler_relational"
-    ):
-        expected_schema = (
-            "mailohls-action-relations-v1"
-        )
-
-        actual_schema = (
-            memory_manifest.get(
-                "action_relation_schema"
-            )
-        )
-
-        if (
-            actual_schema
-            != expected_schema
-        ):
-            raise ValueError(
-                "compiler_relational routing "
-                "requires relation-aware memory: "
-                f"expected {expected_schema!r}, "
-                f"got {actual_schema!r}"
-            )
-
-        missing_relations = sorted(
-            kernel
-            for kernel in required_kernels
-            if (
-                (
-                    mem_bank.get(kernel)
-                    or mem_bank.get(
-                        normalize_kname(
-                            kernel
-                        )
-                    )
-                ).get(
-                    "relation_mask"
-                )
-                is None
-            )
-        )
-
-        if missing_relations:
-            raise ValueError(
-                "Missing compiler relation masks "
-                "for kernels: "
-                + ", ".join(
-                    missing_relations[:20]
-                )
-            )
-
-    structural_config[
-        "action_relation_schema"
-    ] = memory_manifest.get(
-        "action_relation_schema"
-    )
-
-    structural_config[
-        "action_relation_policy"
-    ] = memory_manifest.get(
-        "action_relation_policy"
-    )
 
     if not args.disable_structural_memory:
         assert structural_config is not None

@@ -371,157 +371,161 @@ class MaskedCrossAttention(nn.Module):
         output = einsum("b h i j, b h j d -> b h i d", attention, v)
         output = rearrange(output, "b h n d -> b n (h d)")
 
-        with torch.no_grad():
-            debug = {
-                "B": int(batch),
-                "T_txt": int(text_length),
-                "S": int(slot_count),
-                "memory_mask_true": (
-                    int(memory_mask.sum().item()) if memory_mask is not None else None
-                ),
-                "out_abs_mean": float(output.abs().mean().item()),
-                "out_l2_mean": float(output.float().norm(dim=-1).mean().item()),
-                "attn_mean": float(attention.mean().item()),
-                "attn_max": float(attention.max().item()),
-                "memory_value_scale": self.memory_value_scale,
-            }
+        if self.collect_diagnostics:
+            with torch.no_grad():
+                debug = {
+                    "B": int(batch),
+                    "T_txt": int(text_length),
+                    "S": int(slot_count),
+                    "memory_mask_true": (
+                        int(memory_mask.sum().item()) if memory_mask is not None else None
+                    ),
+                    "out_abs_mean": float(output.abs().mean().item()),
+                    "out_l2_mean": float(output.float().norm(dim=-1).mean().item()),
+                    "attn_mean": float(attention.mean().item()),
+                    "attn_max": float(attention.max().item()),
+                    "memory_value_scale": self.memory_value_scale,
+                }
 
-            if placeholder_slot_ids is not None:
+                if placeholder_slot_ids is not None:
 
-                # [B, 1, T, S] -> [B, T, S]
-                edge_mask = (
-                    text_to_memory_mask
-                    .squeeze(1)
-                )
+                    # [B, 1, T, S] -> [B, T, S]
+                    edge_mask = (
+                        text_to_memory_mask
+                        .squeeze(1)
+                    )
 
-                # Number of legal structural keys
-                # available to each routed text token.
-                keys_per_token = (
-                    edge_mask
-                    .sum(dim=-1)
-                )  # [B,T]
+                    # Number of legal structural keys
+                    # available to each routed text token.
+                    keys_per_token = (
+                        edge_mask
+                        .sum(dim=-1)
+                    )  # [B,T]
 
-                routed_mask = (
-                    keys_per_token > 0
-                )
+                    routed_mask = (
+                        keys_per_token > 0
+                    )
 
-                multi_key_mask = (
-                    keys_per_token > 1
-                )
+                    multi_key_mask = (
+                        keys_per_token > 1
+                    )
 
-                routed_keys = (
-                    keys_per_token[
-                        routed_mask
-                    ]
-                )
+                    routed_keys = (
+                        keys_per_token[
+                            routed_mask
+                        ]
+                    )
 
-                # Attention entropy per head/token:
-                # [B,H,T]
-                attention_entropy = -(
-                    attention
-                    * attention
-                    .clamp_min(1e-12)
-                    .log()
-                ).sum(
-                    dim=-1
-                )
+                    # Attention entropy per head/token:
+                    # [B,H,T]
+                    attention_entropy = -(
+                        attention
+                        * attention
+                        .clamp_min(1e-12)
+                        .log()
+                    ).sum(
+                        dim=-1
+                    )
 
-                # Average heads -> [B,T]
-                attention_entropy = (
-                    attention_entropy
-                    .mean(dim=1)
-                )
+                    # Average heads -> [B,T]
+                    attention_entropy = (
+                        attention_entropy
+                        .mean(dim=1)
+                    )
 
-                multi_key_entropy = (
-                    attention_entropy[
-                        multi_key_mask
-                    ]
-                )
+                    multi_key_entropy = (
+                        attention_entropy[
+                            multi_key_mask
+                        ]
+                    )
 
-                debug.update(
-                    {
-                        "placeholder_tokens":
-                            int(
-                                placeholder_slot_ids
-                                .ne(0)
-                                .sum()
-                                .item()
-                            ),
-
-                        "active_tokens_after_fill":
-                            int(
-                                active_slot_ids
-                                .ne(0)
-                                .sum()
-                                .item()
-                            ),
-
-                        "valid_edges":
-                            int(
-                                text_to_memory_mask
-                                .sum()
-                                .item()
-                            ),
-
-                        "tokens_with_route":
-                            int(
-                                routed_mask
-                                .sum()
-                                .item()
-                            ),
-
-                        "keys_per_routed_token_mean":
-                            (
-                                float(
-                                    routed_keys
-                                    .float()
-                                    .mean()
-                                    .item()
-                                )
-                                if routed_keys.numel()
-                                else 0.0
-                            ),
-
-                        "keys_per_routed_token_max":
-                            (
+                    debug.update(
+                        {
+                            "placeholder_tokens":
                                 int(
-                                    routed_keys
-                                    .max()
+                                    placeholder_slot_ids
+                                    .ne(0)
+                                    .sum()
                                     .item()
-                                )
-                                if routed_keys.numel()
-                                else 0
-                            ),
+                                ),
 
-                        "multi_key_token_fraction":
-                            (
-                                float(
-                                    multi_key_mask[
-                                        routed_mask
-                                    ]
-                                    .float()
-                                    .mean()
+                            "active_tokens_after_fill":
+                                int(
+                                    active_slot_ids
+                                    .ne(0)
+                                    .sum()
                                     .item()
-                                )
-                                if routed_mask.any()
-                                else 0.0
-                            ),
+                                ),
 
-                        "multi_key_attention_entropy_mean":
-                            (
-                                float(
-                                    multi_key_entropy
-                                    .mean()
+                            "valid_edges":
+                                int(
+                                    text_to_memory_mask
+                                    .sum()
                                     .item()
-                                )
-                                if multi_key_entropy.numel()
-                                else 0.0
-                            ),
-                    }
-                )
+                                ),
 
-            self.last_debug = debug
-            
+                            "tokens_with_route":
+                                int(
+                                    routed_mask
+                                    .sum()
+                                    .item()
+                                ),
+
+                            "keys_per_routed_token_mean":
+                                (
+                                    float(
+                                        routed_keys
+                                        .float()
+                                        .mean()
+                                        .item()
+                                    )
+                                    if routed_keys.numel()
+                                    else 0.0
+                                ),
+
+                            "keys_per_routed_token_max":
+                                (
+                                    int(
+                                        routed_keys
+                                        .max()
+                                        .item()
+                                    )
+                                    if routed_keys.numel()
+                                    else 0
+                                ),
+
+                            "multi_key_token_fraction":
+                                (
+                                    float(
+                                        multi_key_mask[
+                                            routed_mask
+                                        ]
+                                        .float()
+                                        .mean()
+                                        .item()
+                                    )
+                                    if routed_mask.any()
+                                    else 0.0
+                                ),
+
+                            "multi_key_attention_entropy_mean":
+                                (
+                                    float(
+                                        multi_key_entropy
+                                        .mean()
+                                        .item()
+                                    )
+                                    if multi_key_entropy.numel()
+                                    else 0.0
+                                ),
+                        }
+                    )
+
+                self.last_debug = debug
+
+        else:
+            self.last_debug = {}
+
         return self.to_out(output)
 
 
@@ -560,12 +564,9 @@ class GatedCrossAttentionBlock(nn.Module):
         # residual instead of changing the gate nonlinearly.
         self.attn_gate_scale = float(attn_gate_scale)
         self.collect_diagnostics = (
-            os.environ.get(
-                "MAILOHLS_XATTN_DIAGNOSTICS",
-                "0",
-            )
-            == "1"
+            os.environ.get("MAILOHLS_XATTN_DIAGNOSTICS", "0") == "1"
         )
+        self.attn.collect_diagnostics = self.collect_diagnostics
         self.last_debug = {}
         self.enable_ff = enable_ff
         if enable_ff:
