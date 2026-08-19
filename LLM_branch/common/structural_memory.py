@@ -196,6 +196,40 @@ def load_memory_bank(
             None,
         )
 
+        RELATION_ALL_BITS = (1 << 6) - 1  # self,parent,child,array,dep_fwd,dep_rev
+
+        if relation_bits is not None:
+            relation_bits = torch.as_tensor(
+                relation_bits,
+                dtype=torch.long,
+            ).contiguous()
+
+            expected_shape = (kv.size(0), kv.size(0))
+            if tuple(relation_bits.shape) != expected_shape:
+                raise ValueError(
+                    f"{fn}: action_relation_bits "
+                    f"{tuple(relation_bits.shape)} != {expected_shape}"
+                )
+
+            if torch.bitwise_and(
+                relation_bits,
+                ~RELATION_ALL_BITS,
+            ).any():
+                raise ValueError(f"{fn}: unknown relation bits")
+
+            if relation_mask is None:
+                raise ValueError(
+                    f"{fn}: relation bits exist without relation mask"
+                )
+
+            if not torch.equal(
+                relation_bits.ne(0),
+                relation_mask,
+            ):
+                raise ValueError(
+                    f"{fn}: relation bits/mask disagree"
+                )
+
         if relation_mask is not None:
 
             relation_mask = (

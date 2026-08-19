@@ -141,6 +141,8 @@ class MaskedCrossAttention(nn.Module):
         self.to_q = nn.Linear(dim, inner_dim, bias=False)
         self.to_kv = nn.Linear(dim_memory, inner_dim * 2, bias=False)
         self.to_out = nn.Linear(inner_dim, dim, bias=False)
+        self.collect_diagnostics = False
+        self.last_debug = {}
 
 
     def forward(

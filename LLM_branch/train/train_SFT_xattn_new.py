@@ -5047,23 +5047,24 @@ def run_single_training(args):
         manifest_path = os.path.join(args.memory_dir, "memory_manifest.json")
         if not os.path.isfile(manifest_path):
             raise ValueError(f"Stage 2 requires memory manifest: {manifest_path}")
-        memory_manifest_sha256 = _file_sha256(Path(manifest_path))
-        with open(
-            manifest_path,
-            "r",
-            encoding="utf-8",
-        ) as handle:
-            memory_manifest = json.load(
-                handle
-            )
 
-        if (
-            args.structural_routing
-            == "compiler_relational"
-        ):
-            expected_relation_schema = (
-                "mailohls-action-relations-v1"
-            )
+        memory_manifest = None
+        memory_manifest_sha256 = None
+        structural_config = None
+
+        if not args.disable_structural_memory:
+            memory_manifest_sha256 = _file_sha256(Path(manifest_path))
+            with open(
+                manifest_path,
+                "r",
+                encoding="utf-8",
+            ) as handle:
+                memory_manifest = json.load(
+                    handle
+                )
+
+        if args.structural_routing == "compiler_relational":
+            expected_relation_schema = "mailohls-action-relations-v1"
 
             actual_relation_schema = (
                 memory_manifest.get(
@@ -5323,6 +5324,7 @@ def run_single_training(args):
     )
 
     if not args.disable_structural_memory:
+        assert structural_config is not None
         training_contract["structural"] = structural_config
     resume_ckpt = os.path.abspath(args.resume_from_checkpoint) if args.resume_from_checkpoint else ""
     init_adapter_dir = os.path.abspath(args.init_adapter_dir) if args.init_adapter_dir else ""
@@ -5544,6 +5546,18 @@ def run_single_training(args):
             frozen_zero_lr += parameter.numel()
     print(f"[OPT] froze {frozen_zero_lr:,} parameters assigned to zero-LR groups")
 
+    if (
+        args.candidate_loss_weight > 0.0
+        and args.gradient_checkpointing
+        and not args.disable_structural_memory
+    ):
+        raise ValueError(
+            "Structural candidate-ranking loss is currently incompatible "
+            "with gradient checkpointing: structural memory is stored as "
+            "mutable decoder-wrapper state and may differ during backward "
+            "recomputation. Disable gradient checkpointing or refactor "
+            "memory/masks into explicit forward inputs."
+        )
 
     effective_candidate_sites = (
         args.candidate_sites_per_sample
