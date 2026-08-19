@@ -13,6 +13,7 @@ transformers = pytest.importorskip("transformers")
 from transformers import LlamaConfig, LlamaForCausalLM
 
 from LLM_branch.common.structural_xattn import (
+    GatedCrossAttentionBlock,
     MaskedCrossAttention,
     StructuralCrossAttentionMixin,
     StructuralMemoryPreMLP,
@@ -43,7 +44,13 @@ def _base_model() -> LlamaForCausalLM:
     return LlamaForCausalLM(config).eval()
 
 
-def _attach(model, *, every_n_layers=8):
+def _attach(
+    model,
+    *,
+    every_n_layers=8,
+    attn_gate_scale=1.0,
+    memory_value_scale=1.0,
+):
     extend_instance(model, StructuralCrossAttentionMixin)
     model.set_decoder_layers_attr_name(infer_decoder_layers_attr_name(model))
     model.init_structural_cross_attention(
@@ -55,6 +62,8 @@ def _attach(model, *, every_n_layers=8):
         xattn_dim_head=8,
         only_attend_immediate_memory=True,
         mask_mode="segment",
+        attn_gate_scale=attn_gate_scale,
+        memory_value_scale=memory_value_scale,
     )
     return model.eval()
 
@@ -138,6 +147,70 @@ def test_zero_gate_preserves_stage1_logits():
 
     max_abs = (stage1_logits - attached_logits).abs().max().item()
     assert max_abs < 1e-5, f"zero-gate max logit difference was {max_abs}"
+
+
+@torch.no_grad()
+def test_zero_memory_value_scale_preserves_stage1_logits_with_open_gate():
+    stage1_model = _base_model()
+    attached_model = _attach(
+        copy.deepcopy(stage1_model),
+        memory_value_scale=0.0,
+    )
+    _set_attention_gate(attached_model, 0.1)
+    input_ids, attention_mask, _ = _inputs()
+    _condition(
+        attached_model,
+        torch.randn(1, 3, MEMORY_SIZE),
+        torch.ones(1, 3, dtype=torch.bool),
+    )
+
+    stage1_logits = stage1_model(
+        input_ids=input_ids, attention_mask=attention_mask
+    ).logits
+    attached_logits = attached_model(
+        input_ids=input_ids, attention_mask=attention_mask
+    ).logits
+
+    max_abs = (stage1_logits - attached_logits).abs().max().item()
+    assert max_abs < 1e-5, f"zero-memory max logit difference was {max_abs}"
+
+
+@torch.no_grad()
+def test_gate_scale_is_runtime_only_and_scales_block_residual_linearly():
+    torch.manual_seed(123)
+    base = GatedCrossAttentionBlock(
+        dim=16,
+        dim_memory=8,
+        dim_head=4,
+        heads=2,
+        attn_gate_scale=1.0,
+    ).eval()
+    scaled = copy.deepcopy(base)
+    scaled.attn_gate_scale = 4.0
+    base.attn_gate.data.fill_(0.1)
+    scaled.attn_gate.data.fill_(0.1)
+
+    x = torch.randn(1, 3, 16)
+    memory = torch.randn(1, 3, 8)
+    placeholder = torch.tensor([[1, 0, 0]], dtype=torch.long)
+    memory_mask = torch.ones(1, 3, dtype=torch.bool)
+
+    y1 = base(
+        x,
+        memory,
+        placeholder_slot_ids=placeholder,
+        memory_mask=memory_mask,
+    )
+    y4 = scaled(
+        x,
+        memory,
+        placeholder_slot_ids=placeholder,
+        memory_mask=memory_mask,
+    )
+
+    assert torch.allclose(y4 - x, 4.0 * (y1 - x), atol=1e-6, rtol=1e-5)
+    assert not any("gate_scale" in key for key in base.state_dict())
+    assert not any("memory_value_scale" in key for key in base.state_dict())
 
 
 @torch.no_grad()

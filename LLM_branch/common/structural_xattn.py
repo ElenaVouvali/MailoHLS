@@ -119,6 +119,7 @@ class MaskedCrossAttention(nn.Module):
         heads=8,
         only_attend_immediate_memory=True,
         mask_mode="segment",
+        memory_value_scale=1.0,
     ):
         super().__init__()
         if mask_mode not in {"segment", "token"}:
@@ -127,6 +128,13 @@ class MaskedCrossAttention(nn.Module):
         self.heads = heads
         self.mask_mode = mask_mode
         self.only_attend_immediate_memory = only_attend_immediate_memory
+        # Runtime-only diagnostic control.  This is deliberately a plain
+        # Python float (not a Parameter or persistent buffer), so loading the
+        # same structural_xattn.pt cannot overwrite it or change checkpoint
+        # compatibility.  It scales node embeddings before K/V projection;
+        # zero therefore means zero structural values while masks/relations
+        # remain intact.
+        self.memory_value_scale = float(memory_value_scale)
         self.last_debug = {}
         inner_dim = dim_head * heads
         self.norm = nn.LayerNorm(dim)
@@ -153,7 +161,10 @@ class MaskedCrossAttention(nn.Module):
             )
 
         x = self.norm(x)
-        memory = memory.to(dtype=x.dtype)
+        memory = (
+            memory.to(dtype=x.dtype)
+            * self.memory_value_scale
+        )
         q = self.to_q(x)
         k, v = self.to_kv(memory).chunk(2, dim=-1)
         q, k, v = rearrange_many(
@@ -370,6 +381,7 @@ class MaskedCrossAttention(nn.Module):
                 "out_l2_mean": float(output.float().norm(dim=-1).mean().item()),
                 "attn_mean": float(attention.mean().item()),
                 "attn_max": float(attention.max().item()),
+                "memory_value_scale": self.memory_value_scale,
             }
 
             if placeholder_slot_ids is not None:
@@ -527,6 +539,8 @@ class GatedCrossAttentionBlock(nn.Module):
         enable_ff=False,
         attn_gate_init=0.0,
         ff_gate_init=0.0,
+        attn_gate_scale=1.0,
+        memory_value_scale=1.0,
     ):
         super().__init__()
         self.attn = MaskedCrossAttention(
@@ -536,8 +550,13 @@ class GatedCrossAttentionBlock(nn.Module):
             heads=heads,
             only_attend_immediate_memory=only_attend_immediate_memory,
             mask_mode=mask_mode,
+            memory_value_scale=memory_value_scale,
         )
         self.attn_gate = nn.Parameter(torch.tensor([attn_gate_init]))
+        # Runtime-only multiplier applied outside tanh.  Keeping it outside
+        # tanh makes a 4x intervention exactly four times the learned gated
+        # residual instead of changing the gate nonlinearly.
+        self.attn_gate_scale = float(attn_gate_scale)
         self.collect_diagnostics = (
             os.environ.get(
                 "MAILOHLS_XATTN_DIAGNOSTICS",
@@ -600,9 +619,12 @@ class GatedCrossAttentionBlock(nn.Module):
             )
 
         gate = self.attn_gate.tanh()
+        effective_gate = (
+            gate * self.attn_gate_scale
+        )
 
         gated_residual = (
-            attention_output * gate
+            attention_output * effective_gate
         )
 
         if self.collect_diagnostics:
@@ -656,6 +678,12 @@ class GatedCrossAttentionBlock(nn.Module):
                         ),
                         "gate_tanh": float(
                             gate.detach()
+                            .float()
+                            .item()
+                        ),
+                        "gate_scale": self.attn_gate_scale,
+                        "gate_effective": float(
+                            effective_gate.detach()
                             .float()
                             .item()
                         ),
@@ -838,6 +866,8 @@ class StructuralCrossAttentionMixin(nn.Module):
         xattn_dim_head=64,
         only_attend_immediate_memory=True,
         mask_mode="segment",
+        attn_gate_scale=1.0,
+        memory_value_scale=1.0,
     ):
         if cross_attn_every_n_layers <= 0:
             raise ValueError("cross_attn_every_n_layers must be positive")
@@ -861,6 +891,8 @@ class StructuralCrossAttentionMixin(nn.Module):
                 enable_ff=False,
                 attn_gate_init=0.0,
                 ff_gate_init=0.0,
+                attn_gate_scale=attn_gate_scale,
+                memory_value_scale=memory_value_scale,
             )
             decoder_layer.post_attention_layernorm = StructuralMemoryPreMLP(
                 original_norm=decoder_layer.post_attention_layernorm,
@@ -876,7 +908,9 @@ class StructuralCrossAttentionMixin(nn.Module):
         self._use_cached_structural_memory = False
         print(
             "[STRUCTURAL-XATTN] placement=post_self_attn_pre_mlp "
-            f"layers={selected_layers}"
+            f"layers={selected_layers} "
+            f"gate_scale={float(attn_gate_scale):g} "
+            f"memory_value_scale={float(memory_value_scale):g}"
         )
 
 
@@ -952,5 +986,4 @@ class StructuralCrossAttentionMixin(nn.Module):
         if labels is not None:
             kwargs["labels"] = labels
         return super().forward(**kwargs)
-
 

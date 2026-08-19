@@ -4559,6 +4559,34 @@ def configure_target_policy(args) -> None:
 
 
 def run_single_training(args):
+    diagnostic_scales = {
+        "structural_gate_scale": float(
+            args.structural_gate_scale
+        ),
+        "structural_memory_value_scale": float(
+            args.structural_memory_value_scale
+        ),
+    }
+    for name, value in diagnostic_scales.items():
+        if not math.isfinite(value) or value < 0.0:
+            raise ValueError(
+                f"--{name} must be finite and non-negative; got {value}"
+            )
+
+    nondefault_scale = any(
+        value != 1.0
+        for value in diagnostic_scales.values()
+    )
+    if nondefault_scale and not args.selection_eval_only:
+        raise ValueError(
+            "Structural gate/memory scales are fixed-checkpoint diagnostic "
+            "controls and require --selection_eval_only"
+        )
+    if nondefault_scale and args.disable_structural_memory:
+        raise ValueError(
+            "Structural gate/memory scales require structural memory"
+        )
+
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -5028,6 +5056,12 @@ def run_single_training(args):
             "xattn_gate_init":
                 0.0,
 
+            "selection_eval_gate_scale":
+                args.structural_gate_scale,
+
+            "selection_eval_memory_value_scale":
+                args.structural_memory_value_scale,
+
             "structural_routing":
                 args.structural_routing,
 
@@ -5362,6 +5396,12 @@ def run_single_training(args):
             xattn_dim_head=args.xattn_dim_head,
             only_attend_immediate_memory=True,
             mask_mode="segment",
+            attn_gate_scale=(
+                args.structural_gate_scale
+            ),
+            memory_value_scale=(
+                args.structural_memory_value_scale
+            ),
         )
 
         structural_config["selected_xattn_layers_1based"] = list(
@@ -5965,6 +6005,27 @@ def main():
     ap.add_argument("--lr_gate", type=float, default=0.0)
     ap.add_argument("--lr_ff", type=float, default=0.0)
     ap.add_argument("--lr_gate_ff", type=float, default=0.0)
+    ap.add_argument(
+        "--structural_gate_scale",
+        type=float,
+        default=1.0,
+        help=(
+            "Fixed-checkpoint diagnostic multiplier applied outside "
+            "tanh(attn_gate). Non-default values require "
+            "--selection_eval_only."
+        ),
+    )
+    ap.add_argument(
+        "--structural_memory_value_scale",
+        type=float,
+        default=1.0,
+        help=(
+            "Fixed-checkpoint diagnostic multiplier for structural node "
+            "embeddings before K/V projection; masks and compiler relations "
+            "are unchanged. Non-default values require "
+            "--selection_eval_only."
+        ),
+    )
 
     # Best Checkpoint Selection
     ap.add_argument("--selection_num_val_kernels", type=int, default=0)
