@@ -32,6 +32,8 @@ from typing import Dict, List, Tuple, Any, Optional, Iterable, Mapping, Sequence
 import torch
 import peft
 import transformers
+import socket
+import sys
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
@@ -4545,6 +4547,9 @@ class SFTDataset(Dataset):
     ):
         self.samples, self.lengths = [], []
         truncated = 0
+        candidate_samples = 0
+        candidate_sites = 0
+        candidate_kinds = Counter()
         kind_weights = dict(kind_loss_weights or {})
         candidate_priority = dict(candidate_kind_priority or {})
         source_token_ids = set(tok.convert_tokens_to_ids(SOURCE_PLACEHOLDER_TOKENS))
@@ -4627,6 +4632,12 @@ class SFTDataset(Dataset):
                 candidate_negatives_per_site,
                 candidate_priority,
             )
+            if contrastive_sites:
+                candidate_samples += 1
+                candidate_sites += len(contrastive_sites)
+                candidate_kinds.update(
+                    site["kind"] for site in contrastive_sites
+                )
             self.samples.append({
                 "input_ids": torch.tensor(input_ids, dtype=torch.long),
                 "attention_mask": torch.ones(len(input_ids), dtype=torch.long),
@@ -4640,6 +4651,51 @@ class SFTDataset(Dataset):
             })
             self.lengths.append(len(input_ids))
         print(f"[DATASET] samples={len(self.samples)} code_truncated={truncated}")
+
+        if candidate_sites_per_sample > 0:
+            if candidate_sites == 0:
+                raise RuntimeError(
+                    "Candidate ranking was requested but no usable "
+                    "hard-negative sites were constructed"
+                )
+            print(
+                "[DATASET-CANDIDATES] "
+                f"samples_with_sites={candidate_samples}/{len(self.samples)} "
+                f"sites={candidate_sites} "
+                f"per_kind={dict(sorted(candidate_kinds.items()))}"
+            )
+
+        site_kind_counts = Counter()
+        samples_with_sites = 0
+        total_candidate_sites = 0
+
+        for sample in self.samples:
+            sites = sample["contrastive_sites"]
+            if sites:
+                samples_with_sites += 1
+            total_candidate_sites += len(sites)
+
+            for site in sites:
+                site_kind_counts[site["kind"]] += 1
+
+        self.candidate_coverage = {
+            "samples": len(self.samples),
+            "samples_with_sites": samples_with_sites,
+            "samples_without_sites": (
+                len(self.samples) - samples_with_sites
+            ),
+            "total_sites": total_candidate_sites,
+            "per_kind": dict(sorted(site_kind_counts.items())),
+        }
+
+        if candidate_sites_per_sample > 0:
+            print(
+                "[CANDIDATE-DATASET] "
+                + json.dumps(
+                    self.candidate_coverage,
+                    sort_keys=True,
+                )
+            )
 
     def __len__(self):
         return len(self.samples)
@@ -5430,6 +5486,32 @@ def run_single_training(args):
         and torch.cuda.is_bf16_supported()
     )
     compute_dtype = torch.bfloat16 if native_bf16 else torch.float16
+    git_dirty = bool(
+        subprocess.check_output(
+            ["git", "status", "--porcelain"],
+            cwd=REPOSITORY_ROOT,
+            text=True,
+        ).strip()
+    )
+
+    training_contract["runtime"] = {
+        "argv": list(sys.argv),
+        "working_directory": os.getcwd(),
+        "hostname": socket.gethostname(),
+        "git_dirty": git_dirty,
+        "cuda_visible_devices": os.environ.get(
+            "CUDA_VISIBLE_DEVICES", ""
+        ),
+        "cuda_device_name": (
+            torch.cuda.get_device_name(0)
+            if torch.cuda.is_available() else None
+        ),
+        "cuda_capability": (
+            list(torch.cuda.get_device_capability(0))
+            if torch.cuda.is_available() else None
+        ),
+        "bnb_compute_dtype": str(compute_dtype),
+    }
     bnb = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
@@ -5697,6 +5779,18 @@ def run_single_training(args):
                 candidate_kind_priority
             ),
         )
+
+        if (
+            args.ce_loss_weight == 0.0
+            and train_ds.candidate_coverage[
+                "samples_without_sites"
+            ] > 0
+        ):
+            raise ValueError(
+                "Candidate-only training contains samples without "
+                "candidate sites: "
+                f"{train_ds.candidate_coverage}"
+            )
 
         special_id_set = set(
             special_ids

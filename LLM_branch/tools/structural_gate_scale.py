@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 
 import argparse
@@ -54,7 +55,46 @@ def main():
         raise RuntimeError("No .attn_gate parameters found")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    torch.save(baked, args.output)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+
+    temporary_output = args.output.with_name(
+        f".{args.output.name}.tmp.{os.getpid()}"
+    )
+
+    if temporary_output.exists():
+        raise FileExistsError(
+            f"Temporary output already exists: {temporary_output}"
+        )
+
+    try:
+        torch.save(baked, temporary_output)
+
+        if temporary_output.stat().st_size == 0:
+            raise RuntimeError(
+                "torch.save produced an empty checkpoint"
+            )
+
+        validated = torch.load(
+            temporary_output,
+            map_location="cpu",
+            weights_only=False,
+        )
+
+        if validated.keys() != baked.keys():
+            raise RuntimeError(
+                "Reloaded checkpoint has different state-dict keys"
+            )
+
+        for key, tensor in validated.items():
+            if torch.is_tensor(tensor) and not torch.isfinite(tensor).all():
+                raise RuntimeError(
+                    f"Non-finite tensor in saved checkpoint: {key}"
+                )
+
+        os.replace(temporary_output, args.output)
+    finally:
+        if temporary_output.exists():
+            temporary_output.unlink()
 
     print(
         f"[GATE-BAKE] gates={found} scale={args.scale:g} "
