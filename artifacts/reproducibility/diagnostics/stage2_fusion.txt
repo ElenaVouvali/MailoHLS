@@ -1,0 +1,78 @@
+[TARGET-CONDITIONING] TargetAwareConfig(device_mode='known', adapt_device='', budget_mode='random', random_budgets_per_case=16, min_budget_frac=0.1, min_feasible_candidates=3, candidate_pool_per_objective=24, auto_frequency_fraction=0.0, min_auto_clock_count=2, strict_source_markers=True, seed=123)
+[CUDA] using: Tesla V100S-PCIE-32GB
+[INFO] Loaded 150026 raw rows from /home/elvouvali/MailoHLS/artifacts/llm/mailohls_sft.jsonl
+[INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
+[INFO] Loaded split from /home/elvouvali/mailohls_runs/stage1_stage2_family_split_s123.json
+[INFO] Raw split sizes: train=133639 val=9682 test=6705
+[RANDOM-BUDGET] input=133639 output=83086 stats={'kept_budgets': 1603, 'candidate_rows': 83086, 'rejected_small_candidate_sets': 29}
+[RANDOM-BUDGET] input=9682 output=4710 stats={'kept_budgets': 96, 'candidate_rows': 4710}
+[RANDOM-BUDGET] input=6705 output=1236 stats={'kept_budgets': 19, 'candidate_rows': 1236, 'rejected_small_candidate_sets': 13}
+[CLOCK-MODE] Counter({'specified': 3835})
+[CLOCK-MODE] Counter({'specified': 144})
+[CLOCK-MODE] Counter({'specified': 57})
+[INFO] Selected split sizes: train=3835 val=144 test=57
+[LOSS] directive weighting=uniform weights=uniform
+[INFO] Built 24 validation selection cases from 3 distinct kernels and 6 kernel/device groups
+[DOMAINS] validated 55 kernel registries
+[INFO] Overriding --mem_dim -1 -> 64 from memory bank
+[INFO] Memory bank keys: 85
+[MODEL] weights_tied=False
+[INIT] Loaded adapter from: /home/elvouvali/mailohls_runs/frozen_stage1_pareto_adp_s123_step400
+[MODEL] special_token_trainable_params=573440
+[STRUCTURAL-XATTN] placement=post_decoder_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-XATTN] decoder_layers_attr_name=base_model.model.model.layers
+[STRUCTURAL-XATTN] inserted gated xattn every 8 decoder layers
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[OPT] froze 20,561,920 parameters assigned to zero-LR groups
+[DATASET] candidate loss disabled; skipping local hard negatives
+[DATASET] samples=3835 code_truncated=0
+[DATASET] samples=144 code_truncated=0
+[INIT-STATE] Created reference atomically: /home/elvouvali/mailohls_runs/stage2_fusion_placement_s123_20260819_190603/shared_initial_structural_state.json
+[INIT-STATE] combined_sha256=0d2170bcdf1bf117adbdd35f68a135b6b67daa2cc43e8e56aa7ed20444488935
+[INFO] No checkpoint found. Starting from scratch.
+[OPT] param groups: lora=0 embed=0 attn_gate=4 ff_gate=0 xattn_attn=8,552,448 xattn_ff=0 lr_lora=0 lr_embed=0 lr_gate=0.0002 lr_gate_ff=0 lr_xattn=0.0001 lr_ff=0
+[VAL-SELECTION] step=20
+[VAL-SELECTION] mean_value_acc=0.683712
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 1.0, 'ARRAY_F': 0.625, 'ARRAY_T': 0.5833333333333334, 'PIPE': 0.6838235294117647, 'UNROLL': 0.625}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.6136363636363636, 'rodinia_pathfinder_0_baseline_0': 0.675, 'rodinia_pathfinder_4_doublebuffer_0': 0.7625}
+[VAL-SELECTION] minimum_kernel_accuracy=0.613636
+[VAL-SELECTION] selection_score=0.683712
+[VAL-SELECTION] checkpoint_key=(0.6837121212121211, 0.6136363636363636, 0.0, -0.31942740082740784)
+[VAL-MARGIN] count=336 mean=0.3568158252125743 median=0.8291340880095959 positive_fraction=0.6071428571428571 mean_gold_rank=1.7946428571428572
+[VAL-MARGIN] per_kind={'ARRAY_F': {'count': 48, 'mean_margin': 0.17085156874024202, 'median_margin': 0.8834238797426224, 'positive_fraction': 0.625, 'mean_gold_rank': 2.4583333333333335}, 'ARRAY_T': {'count': 48, 'mean_margin': 0.018781546629422035, 'median_margin': 0.15895407646894455, 'positive_fraction': 0.5833333333333334, 'mean_gold_rank': 1.4166666666666667}, 'PIPE': {'count': 112, 'mean_margin': 0.31219879450509325, 'median_margin': 1.0546965897083282, 'positive_fraction': 0.6160714285714286, 'mean_gold_rank': 1.3839285714285714}, 'UNROLL': {'count': 128, 'mean_margin': 0.592355177727427, 'median_margin': 1.6566273551434278, 'positive_fraction': 0.6015625, 'mean_gold_rank': 2.046875}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 152, 'mean_margin': 0.15976281943173826, 'median_margin': 0.9882789589464664, 'positive_fraction': 0.5526315789473685, 'mean_gold_rank': 1.6842105263157894}, 'rodinia_pathfinder_0_baseline_0': {'count': 64, 'mean_margin': 0.3058917029679833, 'median_margin': 0.20614778995513916, 'positive_fraction': 0.59375, 'mean_gold_rank': 2.109375}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 120, 'mean_margin': 0.6335758310654153, 'median_margin': 0.8606421090662479, 'positive_fraction': 0.6833333333333333, 'mean_gold_rank': 1.7666666666666666}}
+[VAL-SELECTION] Saved best STRUCTURAL xattn weights -> /home/elvouvali/mailohls_runs/stage2_fusion_placement_s123_20260819_190603/post_decoder_residual/best_custom_stage2/structural_xattn.pt
+[VAL-SELECTION] New best checkpoint at step 20 -> /home/elvouvali/mailohls_runs/stage2_fusion_placement_s123_20260819_190603/post_decoder_residual/best_custom_stage2
+[STRUCTURAL-SAVE] saved xattn weights to /home/elvouvali/mailohls_runs/stage2_fusion_placement_s123_20260819_190603/post_decoder_residual/checkpoint-20/structural_xattn.pt
+[VAL-SELECTION] step=40
+[VAL-SELECTION] mean_value_acc=0.683712
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 1.0, 'ARRAY_F': 0.625, 'ARRAY_T': 0.5833333333333334, 'PIPE': 0.6838235294117647, 'UNROLL': 0.625}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.6136363636363636, 'rodinia_pathfinder_0_baseline_0': 0.675, 'rodinia_pathfinder_4_doublebuffer_0': 0.7625}
+[VAL-SELECTION] minimum_kernel_accuracy=0.613636
+[VAL-SELECTION] selection_score=0.683712
+[VAL-SELECTION] checkpoint_key=(0.6837121212121211, 0.6136363636363636, 0.0, -0.3195088803768158)
+[VAL-MARGIN] count=336 mean=0.35684892050892086 median=0.8265811074525118 positive_fraction=0.6071428571428571 mean_gold_rank=1.7976190476190477
+[VAL-MARGIN] per_kind={'ARRAY_F': {'count': 48, 'mean_margin': 0.17120357110161422, 'median_margin': 0.8820417895913124, 'positive_fraction': 0.625, 'mean_gold_rank': 2.4583333333333335}, 'ARRAY_T': {'count': 48, 'mean_margin': 0.019102800055406988, 'median_margin': 0.15837471932172775, 'positive_fraction': 0.5833333333333334, 'mean_gold_rank': 1.4166666666666667}, 'PIPE': {'count': 112, 'mean_margin': 0.31219880552401136, 'median_margin': 1.0546965301036835, 'positive_fraction': 0.6160714285714286, 'mean_gold_rank': 1.3839285714285714}, 'UNROLL': {'count': 128, 'mean_margin': 0.5921895723185244, 'median_margin': 1.6601717164739966, 'positive_fraction': 0.6015625, 'mean_gold_rank': 2.0546875}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 152, 'mean_margin': 0.15938071193109313, 'median_margin': 0.9921852387487888, 'positive_fraction': 0.5526315789473685, 'mean_gold_rank': 1.6842105263157894}, 'rodinia_pathfinder_0_baseline_0': {'count': 64, 'mean_margin': 0.30714982572885674, 'median_margin': 0.20581431686878204, 'positive_fraction': 0.59375, 'mean_gold_rank': 2.125}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 120, 'mean_margin': 0.6334815019235369, 'median_margin': 0.8637433666735888, 'positive_fraction': 0.6833333333333333, 'mean_gold_rank': 1.7666666666666666}}
+[STRUCTURAL-SAVE] saved xattn weights to /home/elvouvali/mailohls_runs/stage2_fusion_placement_s123_20260819_190603/post_decoder_residual/checkpoint-40/structural_xattn.pt
+[VAL-SELECTION] step=60
+[VAL-SELECTION] mean_value_acc=0.683712
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 1.0, 'ARRAY_F': 0.625, 'ARRAY_T': 0.5833333333333334, 'PIPE': 0.6838235294117647, 'UNROLL': 0.625}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.6136363636363636, 'rodinia_pathfinder_0_baseline_0': 0.675, 'rodinia_pathfinder_4_doublebuffer_0': 0.7625}
+[VAL-SELECTION] minimum_kernel_accuracy=0.613636
+[VAL-SELECTION] selection_score=0.683712
+[VAL-SELECTION] checkpoint_key=(0.6837121212121211, 0.6136363636363636, 0.0, -0.3194951117038727)
+[VAL-MARGIN] count=336 mean=0.35663425592139764 median=0.8265775591135025 positive_fraction=0.6071428571428571 mean_gold_rank=1.7976190476190477
+[VAL-MARGIN] per_kind={'ARRAY_F': {'count': 48, 'mean_margin': 0.171097375275167, 'median_margin': 0.8826176673173904, 'positive_fraction': 0.625, 'mean_gold_rank': 2.4583333333333335}, 'ARRAY_T': {'count': 48, 'mean_margin': 0.01846180412879524, 'median_margin': 0.15920646488666534, 'positive_fraction': 0.5833333333333334, 'mean_gold_rank': 1.4166666666666667}, 'PIPE': {'count': 112, 'mean_margin': 0.3119898895456572, 'median_margin': 1.054696500301361, 'positive_fraction': 0.6160714285714286, 'mean_gold_rank': 1.3839285714285714}, 'UNROLL': {'count': 128, 'mean_margin': 0.5920890761647328, 'median_margin': 1.6601621955633163, 'positive_fraction': 0.6015625, 'mean_gold_rank': 2.0546875}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 152, 'mean_margin': 0.15950699626177156, 'median_margin': 0.9921851791441441, 'positive_fraction': 0.5526315789473685, 'mean_gold_rank': 1.6842105263157894}, 'rodinia_pathfinder_0_baseline_0': {'count': 64, 'mean_margin': 0.30648596056721544, 'median_margin': 0.20615124702453613, 'positive_fraction': 0.59375, 'mean_gold_rank': 2.125}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 120, 'mean_margin': 0.6330745423458211, 'median_margin': 0.8603288568556309, 'positive_fraction': 0.6833333333333333, 'mean_gold_rank': 1.7666666666666666}}
+[STRUCTURAL-SAVE] saved xattn weights to /home/elvouvali/mailohls_runs/stage2_fusion_placement_s123_20260819_190603/post_decoder_residual/checkpoint-60/structural_xattn.pt
+[DONE] Saved LoRA + STRUCTURAL xattn adapters to: /home/elvouvali/mailohls_runs/stage2_fusion_placement_s123_20260819_190603/post_decoder_residual
