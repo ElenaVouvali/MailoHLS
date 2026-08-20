@@ -1089,11 +1089,18 @@ def load_base_model(
 ):
     quant_config = None
     if use_4bit:
+        native_bf16 = (
+            torch.cuda.is_available()
+            and torch.cuda.get_device_capability(0)[0] >= 8
+            and torch.cuda.is_bf16_supported()
+        )
         quant_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_quant_type="nf4",
             bnb_4bit_use_double_quant=True,
-            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_compute_dtype=(
+                torch.bfloat16 if native_bf16 else torch.float16
+            ),
         )
 
     if device_map == "auto":
@@ -1161,12 +1168,14 @@ def load_stage_model(args, tok):
     )
 
     base.resize_token_embeddings(len(tok))
-    if hasattr(base.config, "tie_word_embeddings"):
-        base.config.tie_word_embeddings = True
-    try:
-        base.tie_weights()
-    except Exception:
-        pass
+    if args.stage in {"stage2", "stage3"}:
+        input_weight = base.get_input_embeddings().weight
+        output_weight = base.get_output_embeddings().weight
+        actual_tied = input_weight.data_ptr() == output_weight.data_ptr()
+        if actual_tied != args.embedding_weights_tied:
+            raise ValueError(
+                "Backbone embedding tying differs from the training contract"
+            )
 
     lora_adapter_dir = args.lora_adapter_dir or args.adapter_dir
     if not lora_adapter_dir:
@@ -1239,8 +1248,8 @@ def load_peft_adapter_strict(base, adapter_dir: str):
     if missing_adapter_warnings:
         raise RuntimeError(
             f"LoRA adapter did not load cleanly from {adapter_dir}.\n"
-            "For stage2 inference, use the stage1 LoRA adapter directory as --lora_adapter_dir "
-            "(or --adapter_dir), and load stage2 STRUCTURAL weights via --structural_xattn_path."
+            "Use the self-contained adapter directory for the requested "
+            "stage and its matching structural_xattn.pt."
         )
 
     print(f"[ADAPTER] loaded clean PEFT adapter from: {adapter_dir}")
@@ -1463,7 +1472,7 @@ def main():
 
     # model / stage
     ap.add_argument("--stage", type=str, required=True, choices=["stage1", "stage2", "stage3"])
-    ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-7b-base")
+    ap.add_argument("--model", type=str, default=None)
     ap.add_argument("--adapter_dir", type=str, required=True)
     ap.add_argument("--lora_adapter_dir", type=str, default="")
     ap.add_argument("--structural_xattn_path", type=str, default="")
@@ -1472,7 +1481,7 @@ def main():
     ap.add_argument(
         "--model_revision",
         type=str,
-        default="main",
+        default=None,
     )
 
     ap.add_argument("--directive_domain_registry_json", type=str, required=True)
@@ -1549,29 +1558,70 @@ def main():
     if args.stage in {"stage2", "stage3"} and not args.memory_dir:
         raise ValueError("--memory_dir is required for stage2/stage3 inference")
     if args.stage in {"stage2", "stage3"}:
+        if (
+            args.stage == "stage3"
+            and args.lora_adapter_dir
+            and os.path.realpath(args.lora_adapter_dir)
+            != os.path.realpath(args.adapter_dir)
+        ):
+            raise ValueError(
+                "Stage-3 inference is self-contained; do not override its "
+                "LoRA with --lora_adapter_dir"
+            )
         contract_path = os.path.join(args.adapter_dir, "training_contract.json")
         if not os.path.isfile(contract_path):
-            raise ValueError(f"Stage-2 checkpoint is missing {contract_path}")
+            raise ValueError(
+                f"{args.stage} checkpoint is missing {contract_path}"
+            )
         with open(contract_path, "r", encoding="utf-8") as handle:
             training_contract = json.load(handle)
         if training_contract.get("schema") != "mailohls-training-contract-v1":
             raise ValueError("Unsupported training contract")
-        if training_contract.get("stage") != "stage2":
-            raise ValueError("Stage-2 inference requires a Stage-2 training contract")
-        if training_contract.get("model") != args.model:
+        if training_contract.get("stage") != args.stage:
+            raise ValueError(
+                f"{args.stage} inference requires a matching "
+                f"{args.stage} training contract"
+            )
+        if args.stage == "stage3":
+            parent = training_contract.get("parent_stage2")
+            preference = training_contract.get("stage3_preference")
+            if not isinstance(parent, dict) or not {
+                "contract_sha256", "structural_xattn_sha256"
+            }.issubset(parent):
+                raise ValueError(
+                    "Stage-3 contract has no valid parent_stage2 lineage"
+                )
+            if (
+                not isinstance(preference, dict)
+                or preference.get("schema")
+                != "mailohls-stage3-preference-v1"
+            ):
+                raise ValueError(
+                    "Stage-3 contract has no valid preference section"
+                )
+        trained_model = training_contract.get("model")
+        if args.model and trained_model != args.model:
             raise ValueError(
                 f"--model={args.model!r} conflicts with checkpoint model "
-                f"{training_contract.get('model')!r}"
+                f"{trained_model!r}"
             )
-        if training_contract.get("model_revision") != args.model_revision:
+        args.model = trained_model
+        trained_revision = training_contract.get("model_revision")
+        if args.model_revision and trained_revision != args.model_revision:
             raise ValueError(
-                "Model revision does not match the Stage-2 training contract: "
+                f"Model revision does not match the {args.stage} contract: "
                 f"{args.model_revision} != "
-                f"{training_contract.get('model_revision')}"
+                f"{trained_revision}"
             )
+        args.model_revision = trained_revision
+        args.embedding_weights_tied = bool(
+            training_contract["embedding_weights_tied"]
+        )
         structural_config = training_contract.get("structural")
         if not isinstance(structural_config, dict):
-            raise ValueError("Stage-2 training contract has no structural section")
+            raise ValueError(
+                f"{args.stage} training contract has no structural section"
+            )
         required = (
             "mem_dim", "max_slots",
             "every_n_layers", "xattn_heads", "xattn_dim_head", "xattn_ff_mult", "xattn_enable_ff",
@@ -1643,14 +1693,21 @@ def main():
             for chunk in iter(lambda: handle.read(1024 * 1024), b""):
                 digest.update(chunk)
         if digest.hexdigest() != structural_config["memory_manifest_sha256"]:
-            raise ValueError("Memory manifest does not match the Stage-2 checkpoint")
+            raise ValueError(
+                f"Memory manifest does not match the {args.stage} checkpoint"
+            )
     else:
+        args.model = (
+            args.model or "deepseek-ai/deepseek-coder-7b-base"
+        )
+        args.model_revision = args.model_revision or "main"
         args.mem_dim = args.mem_dim or 0
         args.max_slots = args.max_slots or 64
         args.structural_fusion_placement = None
         args.structural_routing = "exact_slot"
         args.structural_gate_scale = 1.0
         args.structural_memory_value_scale = 1.0
+        args.embedding_weights_tied = None
 
     cases = load_cases(args)
     if args.stage in {"stage2", "stage3"}:

@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Contract-driven MailoHLS Stage 3.  The Stage-2 directory is the single
+# source of truth for model/tokenizer/placement/routing/memory configuration.
+: "${MAILOHLS_DATA:?set MAILOHLS_DATA}"
+: "${MAILOHLS_SPLIT:?set MAILOHLS_SPLIT}"
+: "${MAILOHLS_DOMAINS:?set MAILOHLS_DOMAINS}"
+: "${MAILOHLS_MEMORY:?set MAILOHLS_MEMORY}"
+: "${MAILOHLS_STAGE2:?set MAILOHLS_STAGE2 to the winning Stage-2 adapter}"
+: "${MAILOHLS_STAGE3_OUT:?set MAILOHLS_STAGE3_OUT}"
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "${REPO_ROOT}"
+MODE="${STAGE3_MODE:-preflight}"
+GPU="${STAGE3_GPU:-0}"
+MAX_STEPS="${STAGE3_MAX_STEPS:-60}"
+
+case "${MODE}" in
+  preflight|train) ;;
+  *) echo "STAGE3_MODE must be preflight or train" >&2; exit 2 ;;
+esac
+
+test -f "${MAILOHLS_STAGE2}/training_contract.json"
+test -f "${MAILOHLS_STAGE2}/structural_xattn.pt"
+test -f "${MAILOHLS_MEMORY}/memory_manifest.json"
+mkdir -p "${MAILOHLS_STAGE3_OUT}"
+
+ARGS=(
+  --dataset "${MAILOHLS_DATA}"
+  --split_json "${MAILOHLS_SPLIT}"
+  --directive_domain_registry_json "${MAILOHLS_DOMAINS}"
+  --memory_dir "${MAILOHLS_MEMORY}"
+  --stage2_adapter_dir "${MAILOHLS_STAGE2}"
+  --sft_script "${REPO_ROOT}/LLM_branch/train/train_SFT_xattn_new.py"
+  --output_dir "${MAILOHLS_STAGE3_OUT}"
+  --top_k 6
+  --dpo_chosen_top_k 3
+  --dpo_hard_window 8
+  --dpo_hard_negatives_per_chosen 2
+  --dpo_medium_negatives_per_chosen 1
+  --dpo_min_score_gap 0.02
+  --dpo_hard_gap_max 0.15
+  --dpo_medium_gap_max 0.35
+  --dpo_min_primary_rel_gain 0.02
+  --require_same_supervised_schema
+  --beta 0.1
+  --label_smoothing 0
+  --sft_alpha 0
+  --dpo_logp_reduction mean
+  --train_xattn_dpo
+  --train_attn_gate_dpo
+  --lr_xattn "${STAGE3_LR_XATTN:-5e-5}"
+  --lr_gate "${STAGE3_LR_GATE:-2e-5}"
+  --lr_lora 0
+  --lr_embed 0
+  --lr_ff 0
+  --lr_gate_ff 0
+  --batch_size "${STAGE3_BATCH_SIZE:-1}"
+  --grad_accum "${STAGE3_GRAD_ACCUM:-8}"
+  --max_steps "${MAX_STEPS}"
+  --eval_steps "${STAGE3_EVAL_STEPS:-20}"
+  --save_steps "${STAGE3_SAVE_STEPS:-20}"
+  --logging_steps "${STAGE3_LOGGING_STEPS:-5}"
+  --num_workers "${STAGE3_NUM_WORKERS:-0}"
+  --group_by_length
+  --gradient_checkpointing
+  --save_selection_debug
+  --seed 123
+)
+
+if [[ "${MODE}" == "preflight" ]]; then
+  python -u -m LLM_branch.train.train_DPO_harp_xattn \
+    "${ARGS[@]}" --pair_build_only \
+    2>&1 | tee "${MAILOHLS_STAGE3_OUT}/preflight.log"
+else
+  CUDA_VISIBLE_DEVICES="${GPU}" \
+  python -u -m LLM_branch.train.train_DPO_harp_xattn \
+    "${ARGS[@]}" \
+    2>&1 | tee "${MAILOHLS_STAGE3_OUT}/train.log"
+fi
