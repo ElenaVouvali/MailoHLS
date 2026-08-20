@@ -2300,7 +2300,9 @@ class StageValSelectionCallback(TrainerCallback):
             self.best_step = -1
         self.last_selection_step = None
 
+
     def _run_case(self, model, case: SelectionCase) -> dict:
+
         prompt = build_prompt(
             case.source_text,
             case.obj_mode,
@@ -2359,6 +2361,15 @@ class StageValSelectionCallback(TrainerCallback):
         ref_assign = parse_assignment_dict(
             case.reference_target
         )
+
+        case_id = "::".join([
+            str(case.kernel_name),
+            str(case.obj_mode),
+            str(_norm_device(case.row.get("device", ""))),
+            str(case.row.get("resource_budget_id")),
+            str(case.row.get("selected_clock_period")),
+            str(case.row.get("_jsonl_idx")),
+        ])
 
         candidate_margins = []
 
@@ -2434,6 +2445,7 @@ class StageValSelectionCallback(TrainerCallback):
 
             candidate_margins.append(
                 {
+                    "case_id": case_id,
                     "label": site["label"],
                     "lhs": site["lhs"],
                     "kind": lhs_kind(
@@ -2476,11 +2488,15 @@ class StageValSelectionCallback(TrainerCallback):
                         f"{case.row.get('_jsonl_idx')}::"
                         f"{site['label']}::{lhs_key}"
                     ),
+                    "paired_site_id": (
+                        f"{case_id}::{site['label']}::{lhs_key}"
+                    ),
                 }
             )
 
         metrics = evaluate_prediction(case.reference_target, pred)
         return {
+            "case_id": case_id,
             "kernel_name": case.kernel_name,
             "obj_mode": case.obj_mode,
             "reference_target": case.reference_target,
