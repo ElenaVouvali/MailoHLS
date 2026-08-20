@@ -16,7 +16,11 @@ import torch.nn.functional as F
 from peft import PeftModel
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
-from LLM_branch.common import mailohls_contract, structural_xattn
+from LLM_branch.common import (
+    mailohls_contract,
+    structural_memory as structural_memory_utils,
+    structural_xattn,
+)
 
 
 TARGET_PLACEHOLDER_TOKENS = mailohls_contract.TARGET_PLACEHOLDER_TOKENS
@@ -428,42 +432,28 @@ def load_inference_cases_jsonl(path: str) -> List[InferenceCase]:
 # ============================================================
 # STRUCTURAL memory bank
 # ============================================================
-def load_memory_bank(memory_dir: str) -> Dict[str, dict]:
-    bank = {}
-    for fn in os.listdir(memory_dir):
-        if not fn.endswith(".memory.pt"):
-            continue
+def load_memory_bank(
+    memory_dir: str,
+    *,
+    expected_mem_dim: int,
+    expected_max_slots: int,
+) -> Dict[str, dict]:
+    """Load inference memory through the same validated Stage-2 path.
 
-        pack = torch.load(os.path.join(memory_dir, fn), map_location="cpu", weights_only=False)
-        k = fn.replace(".memory.pt", "")
+    In particular, never compact sparse absolute Lk slots: target placeholders
+    route directly to their one-based compiler action addresses.
+    """
 
-        kv = pack["node_embs"].float()
-        mask = pack["node_embs_mask"].bool()
-        labels = pack.get("labels", None)
-
-        if labels is not None:
-            active = []
-            for i, (lbl, m) in enumerate(zip(labels, mask.tolist())):
-                lbl = int(lbl)
-                if m and lbl > 0:
-                    active.append((lbl, kv[i]))
-
-            active.sort(key=lambda x: x[0])
-
-            dense_kv = torch.zeros_like(kv)
-            dense_mask = torch.zeros_like(mask)
-
-            for j, (lbl, vec) in enumerate(active):
-                assert lbl == j + 1, f"{fn}: non-contiguous labels {[x[0] for x in active]}"
-                dense_kv[j] = vec
-                dense_mask[j] = True
-
-            kv = dense_kv.contiguous()
-            mask = dense_mask.contiguous()
-
-        bank[k] = {"kv": kv.contiguous(), "mask": mask.contiguous()}
-        bank[normalize_kname(k)] = bank[k]
-
+    bank, inferred_mem_dim = structural_memory_utils.load_memory_bank(
+        memory_dir,
+        expected_mem_dim=expected_mem_dim,
+        expected_max_slots=expected_max_slots,
+    )
+    if inferred_mem_dim != expected_mem_dim:
+        raise ValueError(
+            "Inference memory dimension differs from the checkpoint: "
+            f"{inferred_mem_dim} != {expected_mem_dim}"
+        )
     return bank
 
 
@@ -472,16 +462,14 @@ def get_real_memory_pack_for_kernel(
     kernel_name: str,
     max_slots: int,
     mem_dim: int,
+    structural_routing: str,
 ):
-    pack = mem_bank.get(kernel_name) or mem_bank.get(normalize_kname(kernel_name))
-    if pack is None:
-        return (
-            torch.zeros((1, max_slots, mem_dim), dtype=torch.float32),
-            torch.zeros((1, max_slots), dtype=torch.bool),
-        )
-    return (
-        pack["kv"].unsqueeze(0).float(),
-        pack["mask"].unsqueeze(0).bool(),
+    return structural_memory_utils.get_structural_memory_pack_for_kernel(
+        mem_bank,
+        kernel_name,
+        max_slots,
+        mem_dim,
+        structural_routing=structural_routing,
     )
 
 
@@ -524,16 +512,58 @@ def load_partial_structural_xattn(model, structural_xattn_path: str, tag: str):
     if not structural_xattn_path or not os.path.isfile(structural_xattn_path):
         raise FileNotFoundError(f"[{tag}] no structural_xattn.pt found at: {structural_xattn_path}")
 
-    structural_sd = torch.load(structural_xattn_path, map_location="cpu", weights_only=True)
+    structural_sd = torch.load(
+        structural_xattn_path,
+        map_location="cpu",
+        weights_only=True,
+    )
+    target_keys = set(model.state_dict())
+    placement_paths = (
+        (
+            ".post_attention_layernorm."
+            "gated_cross_attn_layer."
+        ),
+        (
+            ".structural_post_decoder_residual."
+            "gated_cross_attn_layer."
+        ),
+        (
+            ".structural_post_self_attention_residual."
+            "gated_cross_attn_layer."
+        ),
+    )
+    remapped = {}
+    for key, value in structural_sd.items():
+        candidates = [key]
+        source_path = next(
+            (path for path in placement_paths if path in key),
+            None,
+        )
+        if source_path is not None:
+            candidates.extend(
+                key.replace(source_path, target_path)
+                for target_path in placement_paths
+                if target_path != source_path
+            )
+        mapped_key = next(
+            (candidate for candidate in candidates if candidate in target_keys),
+            key,
+        )
+        remapped[mapped_key] = value
+
+    structural_sd = remapped
     missing, unexpected = model.load_state_dict(structural_sd, strict=False)
     structural_missing = [k for k in missing if "gated_cross_attn_layer" in k]
-    if structural_missing or unexpected:
+    structural_unexpected = [
+        key for key in unexpected if "gated_cross_attn_layer" in key
+    ]
+    if structural_missing or structural_unexpected:
         raise ValueError(
             f"[{tag}] incompatible cross-attention state: "
-            f"missing={structural_missing[:10]}, unexpected={unexpected[:10]}"
+            f"missing={structural_missing[:10]}, "
+            f"unexpected={structural_unexpected[:10]}"
         )
-    print(f"[{tag}] structural_missing[:10]={structural_missing[:10]}")
-    print(f"[{tag}] unexpected[:10]={unexpected[:10]}")
+    print(f"[{tag}] loaded all structural parameters exactly")
     move_structural_modules_to_model_device(model)
 
 
@@ -614,6 +644,31 @@ def truncate_scoring_prefix_preserve_target(
     return new_prefix, new_routing_start_idx
 
 
+def make_candidate_xattn_apply_mask(
+    *,
+    full_length: int,
+    base_len: int,
+    candidate_len: int,
+    device,
+):
+    """Match the causal candidate-logit mask used during Stage-2 training."""
+
+    start = base_len - 1
+    end = start + candidate_len
+    if start < 0 or end > full_length:
+        raise ValueError(
+            "Invalid causal candidate span: "
+            f"full={full_length} base={base_len} candidate={candidate_len}"
+        )
+    mask = torch.zeros(
+        (1, full_length),
+        dtype=torch.float32,
+        device=device,
+    )
+    mask[:, start:end] = 1.0
+    return mask
+
+
 @torch.no_grad()
 def score_rhs_candidate_suffix(
     *,
@@ -646,13 +701,12 @@ def score_rhs_candidate_suffix(
         if routing_start_idx is None:
             raise ValueError("routing_start_idx is required when use_structural_memory=True")
 
-        xmask = torch.zeros(
-            (1, full_input_ids.shape[1]),
-            dtype=torch.float32,
+        xmask = make_candidate_xattn_apply_mask(
+            full_length=full_input_ids.shape[1],
+            base_len=base_len,
+            candidate_len=cand_len,
             device=device,
         )
-        route_start = int(routing_start_idx[0].item()) if routing_start_idx is not None else base_len
-        xmask[:, route_start:] = 1.0
 
         model_inputs["routing_start_idx"] = routing_start_idx
         model_inputs["xattn_apply_mask"] = xmask
@@ -789,6 +843,7 @@ def constrained_decode_rhs_by_candidate_scoring(
     score_reduction: str = "mean",
     structural_memory: Optional[torch.Tensor] = None,
     structural_memory_mask: Optional[torch.Tensor] = None,
+    structural_relation_mask: Optional[torch.Tensor] = None,
     routing_start_idx: Optional[torch.Tensor] = None,
     debug_topk: int = 0,
     candidate_max_prefix_tokens: int = 0,
@@ -821,7 +876,15 @@ def constrained_decode_rhs_by_candidate_scoring(
     use_structural_memory = structural_enabled and (structural_memory is not None) and (structural_memory_mask is not None)
 
     if use_structural_memory:
-        model.condition_structural_memory(structural_memory.to(device), structural_memory_mask.to(device))
+        model.condition_structural_memory(
+            structural_memory.to(device),
+            structural_memory_mask.to(device),
+            action_relation_mask=(
+                structural_relation_mask.to(device)
+                if structural_relation_mask is not None
+                else None
+            ),
+        )
 
     try:
         for label, lhs in extract_ordered_lhs_plan(source_text):
@@ -1057,6 +1120,9 @@ def attach_structural_modules(
     xattn_dim_head: int,
     xattn_ff_mult: int,
     xattn_enable_ff: bool,
+    structural_fusion_placement: str,
+    structural_gate_scale: float,
+    structural_memory_value_scale: float,
 ):
     extend_instance(model, StructuralCrossAttentionMixin)
     decoder_layers_attr_name = infer_decoder_layers_attr_name(model)
@@ -1076,6 +1142,9 @@ def attach_structural_modules(
         xattn_dim_head=xattn_dim_head,
         only_attend_immediate_memory=True,
         mask_mode="segment",
+        attn_gate_scale=structural_gate_scale,
+        memory_value_scale=structural_memory_value_scale,
+        structural_fusion_placement=structural_fusion_placement,
     )
 
     print(f"[STRUCTURAL-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
@@ -1115,6 +1184,13 @@ def load_stage_model(args, tok):
             xattn_dim_head=args.xattn_dim_head,
             xattn_ff_mult=args.xattn_ff_mult,
             xattn_enable_ff=args.xattn_enable_ff,
+            structural_fusion_placement=(
+                args.structural_fusion_placement
+            ),
+            structural_gate_scale=args.structural_gate_scale,
+            structural_memory_value_scale=(
+                args.structural_memory_value_scale
+            ),
         )
 
         structural_xattn_path = args.structural_xattn_path
@@ -1185,6 +1261,7 @@ def predict_case(
     mem_bank: Optional[Dict[str, dict]],
     mem_dim: int,
     max_slots: int,
+    structural_routing: str,
     score_reduction: str,
     debug_topk: int,
     candidate_max_prefix_tokens: int,
@@ -1211,14 +1288,20 @@ def predict_case(
 
     structural_memory = None
     structural_memory_mask = None
+    structural_relation_mask = None
     if stage in {"stage2", "stage3"}:
         if mem_bank is None:
             raise ValueError("mem_bank must be provided for stage2/stage3 inference")
-        structural_memory, structural_memory_mask = get_real_memory_pack_for_kernel(
+        (
+            structural_memory,
+            structural_memory_mask,
+            structural_relation_mask,
+        ) = get_real_memory_pack_for_kernel(
             mem_bank,
             case.kernel_name,
             max_slots=max_slots,
             mem_dim=mem_dim,
+            structural_routing=structural_routing,
         )
 
     decode_plan = []
@@ -1247,6 +1330,7 @@ def predict_case(
             score_reduction=score_reduction,
             structural_memory=structural_memory,
             structural_memory_mask=structural_memory_mask,
+            structural_relation_mask=structural_relation_mask,
             routing_start_idx=routing_start_idx,
             debug_topk=debug_topk,
             candidate_max_prefix_tokens=candidate_max_prefix_tokens,
@@ -1401,6 +1485,26 @@ def main():
     ap.add_argument("--xattn_heads", type=int)
     ap.add_argument("--xattn_dim_head", type=int)
     ap.add_argument("--xattn_ff_mult", type=int)
+    ap.add_argument(
+        "--structural_fusion_placement",
+        choices=(
+            "legacy_norm_wrapper",
+            "post_decoder_residual",
+            "post_self_attention_residual",
+        ),
+        default=None,
+    )
+    ap.add_argument(
+        "--structural_routing",
+        choices=("exact_slot", "compiler_relational"),
+        default=None,
+    )
+    ap.add_argument("--structural_gate_scale", type=float, default=None)
+    ap.add_argument(
+        "--structural_memory_value_scale",
+        type=float,
+        default=None,
+    )
 
     # input cases
     ap.add_argument("--input_jsonl", type=str, default="")
@@ -1474,16 +1578,25 @@ def main():
             "memory_manifest_sha256",
             "xattn_placement", "xattn_gate_init",
             "selected_xattn_layers_1based",
+            "selection_eval_gate_scale",
+            "selection_eval_memory_value_scale",
+            "structural_routing",
         )
         missing = [key for key in required if key not in structural_config]
         if missing:
             raise ValueError(f"Structural contract is missing fields: {missing}")
         if training_contract.get("prompt_schema_version") != mailohls_contract.PROMPT_SCHEMA_VERSION:
             raise ValueError("Unsupported prompt_schema_version")
-        if structural_config["xattn_placement"] != "post_self_attn_pre_mlp":
+        trained_placement = structural_config["xattn_placement"]
+        supported_placements = {
+            "legacy_norm_wrapper",
+            "post_decoder_residual",
+            "post_self_attention_residual",
+        }
+        if trained_placement not in supported_placements:
             raise ValueError(
                 "Unsupported structural cross-attention placement: "
-                f"{structural_config['xattn_placement']!r}"
+                f"{trained_placement!r}"
             )
         if float(structural_config["xattn_gate_init"]) != 0.0:
             raise ValueError("Unsupported xattn_gate_init; expected 0.0")
@@ -1492,6 +1605,24 @@ def main():
         args.selected_xattn_layers_1based = tuple(
             map(int, structural_config["selected_xattn_layers_1based"])
         )
+        contract_runtime_values = {
+            "structural_fusion_placement": trained_placement,
+            "structural_routing": structural_config["structural_routing"],
+            "structural_gate_scale": float(
+                structural_config["selection_eval_gate_scale"]
+            ),
+            "structural_memory_value_scale": float(
+                structural_config["selection_eval_memory_value_scale"]
+            ),
+        }
+        for key, trained_value in contract_runtime_values.items():
+            cli_value = getattr(args, key)
+            if cli_value is not None and cli_value != trained_value:
+                raise ValueError(
+                    f"--{key}={cli_value!r} conflicts with checkpoint "
+                    f"value {trained_value!r}"
+                )
+            setattr(args, key, trained_value)
         for key in (
             "mem_dim", "max_slots", "every_n_layers", "xattn_heads",
             "xattn_dim_head", "xattn_ff_mult",
@@ -1516,6 +1647,10 @@ def main():
     else:
         args.mem_dim = args.mem_dim or 0
         args.max_slots = args.max_slots or 64
+        args.structural_fusion_placement = None
+        args.structural_routing = "exact_slot"
+        args.structural_gate_scale = 1.0
+        args.structural_memory_value_scale = 1.0
 
     cases = load_cases(args)
     if args.stage in {"stage2", "stage3"}:
@@ -1553,7 +1688,15 @@ def main():
                 f"runtime backbone: trained={args.selected_xattn_layers_1based}, "
                 f"runtime={actual_layers}"
             )
-    mem_bank = load_memory_bank(args.memory_dir) if args.stage in {"stage2", "stage3"} else None
+    mem_bank = (
+        load_memory_bank(
+            args.memory_dir,
+            expected_mem_dim=args.mem_dim,
+            expected_max_slots=args.max_slots,
+        )
+        if args.stage in {"stage2", "stage3"}
+        else None
+    )
 
     for n, p in model.named_parameters():
         if n.endswith("attn_gate"):
@@ -1572,6 +1715,7 @@ def main():
             mem_bank=mem_bank,
             mem_dim=args.mem_dim,
             max_slots=args.max_slots,
+            structural_routing=args.structural_routing,
             score_reduction=args.score_reduction,
             debug_topk=args.debug_topk,
             candidate_max_prefix_tokens=args.candidate_max_prefix_tokens,

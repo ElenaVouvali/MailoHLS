@@ -904,6 +904,105 @@ class StructuralPostDecoderResidual(nn.Module):
         )
 
 
+class StructuralPostSelfAttentionResidual(nn.Module):
+    """Fuse structural memory after self-attention and before the native MLP.
+
+    For a decoder layer whose native computation is::
+
+        u = h + SelfAttention(Norm(h))
+        y = u + MLP(Norm(u))
+
+    this wrapper implements the thesis placement exactly::
+
+        v = u + StructuralCrossAttention(u, memory)
+        y = v + MLP(Norm(v))
+
+    The wrapper is invoked by a pre-hook on ``post_attention_layernorm``.
+    The structural residual ``v - u`` is then added to the native MLP output
+    by a second hook.  Consequently the decoder's unchanged outer residual
+    (which still adds ``u``) produces ``v + MLP(Norm(v))``.  Keeping the
+    native norm and MLP modules in place preserves their PEFT parameter paths
+    and the decoder forward/cache contract.
+    """
+
+    def __init__(self, gated_cross_attn_layer):
+        super().__init__()
+        self.gated_cross_attn_layer = gated_cross_attn_layer
+        self.structural_memory = None
+        self.structural_memory_mask = None
+        self.placeholder_slot_ids = None
+        self.use_cached_memory = False
+        self.xattn_apply_mask = None
+        self.action_relation_mask = None
+        self._pending_structural_residual = None
+
+    def is_conditioned(self):
+        return (
+            self.structural_memory is not None
+            and self.structural_memory_mask is not None
+            and self.placeholder_slot_ids is not None
+        )
+
+    def reset_runtime_state(self):
+        self._pending_structural_residual = None
+
+    def clear_conditioning(self):
+        self.structural_memory = None
+        self.structural_memory_mask = None
+        self.placeholder_slot_ids = None
+        self.use_cached_memory = False
+        self.xattn_apply_mask = None
+        self.action_relation_mask = None
+        self.reset_runtime_state()
+
+    def forward(self, hidden_states):
+        if not self.is_conditioned():
+            raise ValueError(
+                "Structural memory and placeholder routing must be conditioned "
+                "before the decoder forward pass"
+            )
+
+        return self.gated_cross_attn_layer(
+            hidden_states,
+            self.structural_memory,
+            placeholder_slot_ids=self.placeholder_slot_ids,
+            memory_mask=self.structural_memory_mask,
+            action_relation_mask=self.action_relation_mask,
+            use_cached_memory=self.use_cached_memory,
+            xattn_apply_mask=self.xattn_apply_mask,
+        )
+
+    def pre_norm_hook(self, _module, inputs):
+        if not inputs or not torch.is_tensor(inputs[0]):
+            raise TypeError(
+                "post_self_attention_residual expected the post-attention "
+                "normalization input to begin with hidden_states"
+            )
+        if self._pending_structural_residual is not None:
+            raise RuntimeError(
+                "A stale structural residual was not consumed by the native MLP"
+            )
+
+        hidden_states = inputs[0]
+        fused_states = self(hidden_states)
+        self._pending_structural_residual = fused_states - hidden_states
+        return (fused_states, *inputs[1:])
+
+    def mlp_output_hook(self, _module, _inputs, output):
+        residual = self._pending_structural_residual
+        self._pending_structural_residual = None
+        if residual is None:
+            raise RuntimeError(
+                "The native MLP ran without a pending structural residual"
+            )
+        if not torch.is_tensor(output):
+            raise TypeError(
+                "post_self_attention_residual requires the native MLP to "
+                "return a tensor"
+            )
+        return output + residual
+
+
 def _apply_post_decoder_structural_residual(
     decoder_layer,
     _inputs,
@@ -950,6 +1049,17 @@ class StructuralCrossAttentionMixin(nn.Module):
             if isinstance(residual_wrapper, StructuralPostDecoderResidual):
                 yield residual_wrapper
 
+            thesis_wrapper = getattr(
+                decoder_layer,
+                "structural_post_self_attention_residual",
+                None,
+            )
+            if isinstance(
+                thesis_wrapper,
+                StructuralPostSelfAttentionResidual,
+            ):
+                yield thesis_wrapper
+
     def init_structural_cross_attention(
         self,
         placeholder_token_ids,
@@ -970,6 +1080,7 @@ class StructuralCrossAttentionMixin(nn.Module):
         supported_placements = {
             "legacy_norm_wrapper",
             "post_decoder_residual",
+            "post_self_attention_residual",
         }
         if structural_fusion_placement not in supported_placements:
             raise ValueError(
@@ -984,7 +1095,10 @@ class StructuralCrossAttentionMixin(nn.Module):
                 continue
 
             if (
-                structural_fusion_placement == "legacy_norm_wrapper"
+                structural_fusion_placement in {
+                    "legacy_norm_wrapper",
+                    "post_self_attention_residual",
+                }
                 and not hasattr(decoder_layer, "post_attention_layernorm")
             ):
                 raise TypeError(
@@ -1011,7 +1125,7 @@ class StructuralCrossAttentionMixin(nn.Module):
                     original_norm=decoder_layer.post_attention_layernorm,
                     gated_cross_attn_layer=gated_xattn,
                 )
-            else:
+            elif structural_fusion_placement == "post_decoder_residual":
                 if hasattr(
                     decoder_layer,
                     "structural_post_decoder_residual",
@@ -1029,6 +1143,35 @@ class StructuralCrossAttentionMixin(nn.Module):
                 )
                 decoder_layer.register_forward_hook(
                     _apply_post_decoder_structural_residual
+                )
+            else:
+                if not hasattr(decoder_layer, "mlp"):
+                    raise TypeError(
+                        f"Layer {layer_idx + 1} does not expose mlp; "
+                        "post_self_attention_residual is unsupported for "
+                        "this backbone"
+                    )
+                if hasattr(
+                    decoder_layer,
+                    "structural_post_self_attention_residual",
+                ):
+                    raise RuntimeError(
+                        f"Layer {layer_idx + 1} already has a structural "
+                        "post-self-attention residual"
+                    )
+
+                wrapper = StructuralPostSelfAttentionResidual(
+                    gated_cross_attn_layer=gated_xattn,
+                )
+                decoder_layer.add_module(
+                    "structural_post_self_attention_residual",
+                    wrapper,
+                )
+                decoder_layer.post_attention_layernorm.register_forward_pre_hook(
+                    wrapper.pre_norm_hook
+                )
+                decoder_layer.mlp.register_forward_hook(
+                    wrapper.mlp_output_hook
                 )
 
             selected_layers.append(layer_idx + 1)
@@ -1111,6 +1254,13 @@ class StructuralCrossAttentionMixin(nn.Module):
             and not placeholder_slot_ids.ne(0).any()
         )
         for wrapper in self._structural_wrappers():
+            reset_runtime_state = getattr(
+                wrapper,
+                "reset_runtime_state",
+                None,
+            )
+            if reset_runtime_state is not None:
+                reset_runtime_state()
             if not use_cached_memory:
                 wrapper.placeholder_slot_ids = placeholder_slot_ids
             wrapper.use_cached_memory = use_cached_memory

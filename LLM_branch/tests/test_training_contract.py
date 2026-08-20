@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import types
 import torch
 import pytest
 
@@ -360,3 +361,80 @@ def test_candidate_xattn_mask_matches_causal_candidate_logits():
         mask.nonzero(as_tuple=False)[:, 1],
         torch.tensor([4, 5, 6]),
     )
+
+
+def test_candidate_kind_priority_is_validated_and_balanced():
+    priority = trainer.parse_candidate_kind_priority(
+        "UNROLL,PIPE,ARRAY_F"
+    )
+    assert priority["UNROLL"] > priority["PIPE"] > priority["ARRAY_F"]
+    with pytest.raises(ValueError, match="duplicates"):
+        trainer.parse_candidate_kind_priority("PIPE,PIPE")
+    with pytest.raises(ValueError, match="Unknown"):
+        trainer.parse_candidate_kind_priority("PIPE,BOGUS")
+
+    source = "\n".join([
+        "L1:",
+        "auto{_PIPE_L1} = ?",
+        "auto{_UNROLL_L1} = ?",
+        "auto{_ARRAY_F_L1} = ?",
+    ])
+    target = "\n".join([
+        "auto{_PIPE_L1} = 1",
+        "auto{_UNROLL_L1} = 4",
+        "auto{_ARRAY_F_L1} = 8",
+    ])
+    negatives = {
+        "AUTO{_PIPE_L1}": ["0"],
+        "AUTO{_UNROLL_L1}": ["2"],
+        "AUTO{_ARRAY_F_L1}": ["4"],
+    }
+    sites = trainer.build_contrastive_sites_from_sample(
+        source,
+        target,
+        prompt_ids=[],
+        tok=_CharacterTokenizer(),
+        max_length=4096,
+        local_hard_negatives=negatives,
+        candidate_sites_per_sample=3,
+        candidate_negatives_per_site=1,
+        kind_priority=priority,
+    )
+    assert [site["kind"] for site in sites] == [
+        "UNROLL",
+        "PIPE",
+        "ARRAY_F",
+    ]
+
+
+def test_candidate_only_compute_loss_has_a_defined_device():
+    trainer_instance = object.__new__(trainer.LengthGroupedTrainer)
+    trainer_instance.ce_loss_weight = 0.0
+    trainer_instance.candidate_loss_weight = 1.0
+    trainer_instance.candidate_sites_per_sample = 1
+    trainer_instance.candidate_negatives_per_site = 1
+    trainer_instance.state = types.SimpleNamespace(global_step=1)
+
+    model = torch.nn.Linear(2, 2, bias=False)
+    model.train()
+
+    def fake_candidate_loss(self, **_kwargs):
+        return model.weight.square().mean()
+
+    trainer_instance._compute_candidate_loss = types.MethodType(
+        fake_candidate_loss,
+        trainer_instance,
+    )
+    loss = trainer_instance.compute_loss(
+        model,
+        {
+            "input_ids": torch.tensor([[1, 2]]),
+            "attention_mask": torch.ones(1, 2, dtype=torch.long),
+            "labels": torch.tensor([[-100, 2]]),
+            "kernel_name": ["kernel"],
+            "routing_start_idx": torch.tensor([1]),
+            "contrastive_sites": [[{"dummy": True}]],
+        },
+    )
+    loss.backward()
+    assert model.weight.grad is not None

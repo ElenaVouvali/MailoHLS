@@ -1109,6 +1109,10 @@ def _canonical_structural_parameter_name(name: str) -> str:
         ".structural_post_decoder_residual."
         "gated_cross_attn_layer."
     )
+    thesis_path = (
+        ".structural_post_self_attention_residual."
+        "gated_cross_attn_layer."
+    )
     canonical_path = (
         ".structural_fusion."
         "gated_cross_attn_layer."
@@ -1117,6 +1121,7 @@ def _canonical_structural_parameter_name(name: str) -> str:
         name
         .replace(legacy_path, canonical_path)
         .replace(residual_path, canonical_path)
+        .replace(thesis_path, canonical_path)
     )
 
 
@@ -1474,15 +1479,41 @@ def build_contrastive_sites_from_sample(
 
         prefix_ids = prefix_for_site + gold_ids
 
-    sites.sort(
-        key=lambda s: (
-            -float(kind_priority.get(s["kind"], 1.0)),
-            s["label"],
-            s["lhs"],
-        )
-    )
+    # Balance directive kinds within each sample.  A strict global sort can
+    # spend a small site budget entirely on UNROLL and starve the other
+    # directive families.  Round-robin keeps the requested priority as the
+    # cycle order while exposing multiple kinds whenever capacity permits.
+    by_kind = defaultdict(list)
+    first_kind_index = {}
+    for index, site in enumerate(sites):
+        kind = site["kind"]
+        by_kind[kind].append(site)
+        first_kind_index.setdefault(kind, index)
 
-    return sites[:candidate_sites_per_sample]
+    kind_order = sorted(
+        by_kind,
+        key=lambda kind: (
+            -float(kind_priority.get(kind, 0.0)),
+            first_kind_index[kind],
+            kind,
+        ),
+    )
+    selected = []
+    round_index = 0
+    while len(selected) < candidate_sites_per_sample:
+        added = False
+        for kind in kind_order:
+            candidates = by_kind[kind]
+            if round_index < len(candidates):
+                selected.append(candidates[round_index])
+                added = True
+                if len(selected) == candidate_sites_per_sample:
+                    break
+        if not added:
+            break
+        round_index += 1
+
+    return selected
 
 
 
@@ -2991,8 +3022,7 @@ def load_partial_structural_xattn(model, structural_xattn_path: str, tag: str):
     structural_sd = torch.load(structural_xattn_path, map_location="cpu")
 
     # Placement changes only the parent module path of each structural block.
-    # Remap that path so legacy and direct-residual checkpoints can be loaded
-    # into either implementation for controlled fixed-theta comparisons.
+    # Remap that path so every placement can load the same fixed theta.
     target_keys = set(model.state_dict())
     remapped_sd = {}
     remapped_count = 0
@@ -3004,16 +3034,23 @@ def load_partial_structural_xattn(model, structural_xattn_path: str, tag: str):
         ".structural_post_decoder_residual."
         "gated_cross_attn_layer."
     )
+    thesis_path = (
+        ".structural_post_self_attention_residual."
+        "gated_cross_attn_layer."
+    )
+    placement_paths = (legacy_path, residual_path, thesis_path)
 
     for key, value in structural_sd.items():
         candidates = [key]
-        if legacy_path in key:
-            candidates.append(
-                key.replace(legacy_path, residual_path)
-            )
-        if residual_path in key:
-            candidates.append(
-                key.replace(residual_path, legacy_path)
+        source_path = next(
+            (path for path in placement_paths if path in key),
+            None,
+        )
+        if source_path is not None:
+            candidates.extend(
+                key.replace(source_path, target_path)
+                for target_path in placement_paths
+                if target_path != source_path
             )
 
         mapped_key = next(
@@ -3708,6 +3745,7 @@ class LengthGroupedTrainer(Trainer):
         weights = inputs.pop("sample_weight", None)
         kernel_names = inputs.pop("kernel_name", None)
         labels = inputs["labels"]
+        device = labels.device
         token_weights = inputs.pop("token_weights", None)
         xattn_apply_mask = inputs.pop("xattn_apply_mask", None)
         contrastive_sites = inputs.pop("contrastive_sites", None)
@@ -3744,8 +3782,6 @@ class LengthGroupedTrainer(Trainer):
                 shift_token_weights = token_weights[:, 1:].contiguous() if token_weights is not None else None
 
                 B, Tm1 = shift_labels.shape
-                device = shift_labels.device
-
                 chunk_t = int(self.loss_chunk_t)
                 loss_sum = torch.zeros(B, device=device, dtype=torch.float32)
                 tok_cnt = torch.zeros(B, device=device, dtype=torch.float32)
@@ -4505,10 +4541,12 @@ class SFTDataset(Dataset):
         supervise_eos: bool = False,
         input_only_special_ids: Optional[Iterable[int]] = None,
         kind_loss_weights: Optional[Dict[str, float]] = None,
+        candidate_kind_priority: Optional[Dict[str, float]] = None,
     ):
         self.samples, self.lengths = [], []
         truncated = 0
         kind_weights = dict(kind_loss_weights or {})
+        candidate_priority = dict(candidate_kind_priority or {})
         source_token_ids = set(tok.convert_tokens_to_ids(SOURCE_PLACEHOLDER_TOKENS))
 
         for example in rows:
@@ -4587,7 +4625,7 @@ class SFTDataset(Dataset):
                 example.get("_local_hard_negatives", {}),
                 candidate_sites_per_sample,
                 candidate_negatives_per_site,
-                kind_weights,
+                candidate_priority,
             )
             self.samples.append({
                 "input_ids": torch.tensor(input_ids, dtype=torch.long),
@@ -4729,6 +4767,28 @@ def configure_target_policy(args) -> None:
 
 
 def run_single_training(args):
+    candidate_kind_priority = parse_candidate_kind_priority(
+        args.candidate_kind_priority
+    )
+    if args.ce_loss_weight < 0.0:
+        raise ValueError("--ce_loss_weight must be non-negative")
+    if args.candidate_loss_weight < 0.0:
+        raise ValueError("--candidate_loss_weight must be non-negative")
+    if args.ce_loss_weight == 0.0 and args.candidate_loss_weight == 0.0:
+        raise ValueError(
+            "At least one of --ce_loss_weight and "
+            "--candidate_loss_weight must be positive"
+        )
+    if args.candidate_loss_weight > 0.0:
+        if args.candidate_sites_per_sample < 1:
+            raise ValueError(
+                "Candidate loss requires --candidate_sites_per_sample >= 1"
+            )
+        if args.candidate_negatives_per_site < 1:
+            raise ValueError(
+                "Candidate loss requires --candidate_negatives_per_site >= 1"
+            )
+
     diagnostic_scales = {
         "structural_gate_scale": float(
             args.structural_gate_scale
@@ -5336,6 +5396,7 @@ def run_single_training(args):
         "candidate_max_prefix_tokens": args.candidate_max_prefix_tokens,
         "candidate_keep_head_tokens": args.candidate_keep_head_tokens,
         "candidate_kind_priority": args.candidate_kind_priority,
+        "candidate_kind_priority_weights": candidate_kind_priority,
     }
 
     training_contract["stage2_learning_rates"] = {
@@ -5631,6 +5692,9 @@ def run_single_training(args):
             input_only_special_ids=special_ids,
             kind_loss_weights=(
                 directive_loss_weights
+            ),
+            candidate_kind_priority=(
+                candidate_kind_priority
             ),
         )
 
@@ -6127,13 +6191,17 @@ def main():
         choices=(
             "legacy_norm_wrapper",
             "post_decoder_residual",
+            "post_self_attention_residual",
         ),
         default="legacy_norm_wrapper",
         help=(
             "legacy_norm_wrapper reproduces historical experiments by "
             "perturbing the native post-attention norm input. "
             "post_decoder_residual adds the gated structural update directly "
-            "to the completed decoder-layer output. The legacy default avoids "
+            "to the completed decoder-layer output. "
+            "post_self_attention_residual implements the thesis equation by "
+            "placing the gated update after the self-attention residual and "
+            "before the native MLP. The legacy default avoids "
             "silently changing old commands; pass post_decoder_residual "
             "explicitly for the corrected experiment."
         ),
