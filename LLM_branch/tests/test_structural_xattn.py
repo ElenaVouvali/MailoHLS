@@ -517,6 +517,8 @@ def test_relational_attention_has_multiple_keys_and_qk_gradients():
         mask_mode="segment",
     )
 
+    module.collect_diagnostics = True
+
     x = torch.randn(
         1,
         3,
