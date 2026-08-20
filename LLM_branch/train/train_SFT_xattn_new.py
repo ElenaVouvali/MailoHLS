@@ -2148,6 +2148,28 @@ def summarize_candidate_margins(
     }
 
 
+def parse_candidate_kind_priority(spec: str) -> dict:
+    if not spec.strip():
+        return {}
+
+    kinds = [value.strip().upper() for value in spec.split(",") if value.strip()]
+    valid = {"UNROLL", "PIPE", "ARRAY_F", "ARRAY_T", "ARRAY_D"}
+
+    if len(kinds) != len(set(kinds)):
+        raise ValueError("--candidate_kind_priority contains duplicates")
+
+    unknown = set(kinds) - valid
+    if unknown:
+        raise ValueError(
+            f"Unknown candidate directive kinds: {sorted(unknown)}"
+        )
+
+    return {
+        kind: float(len(kinds) - index)
+        for index, kind in enumerate(kinds)
+    }
+
+
 def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
     """Aggregate selection metrics while giving every kernel equal weight."""
     if not rows:
@@ -3173,6 +3195,7 @@ class LengthGroupedTrainer(Trainer):
         candidate_negatives_per_site: int = 0,
         candidate_max_prefix_tokens: int = 1536,
         candidate_keep_head_tokens: int = 256,
+        ce_loss_weight: float = 1.0,
         structural_routing: str = "exact_slot",
         **kwargs,
     ):
@@ -3194,7 +3217,12 @@ class LengthGroupedTrainer(Trainer):
         self.candidate_keep_head_tokens = int(candidate_keep_head_tokens)
         self._last_debug_step = -1
         self.structural_routing = structural_routing
+        self.ce_loss_weight = float(ce_loss_weight)
+
+        if self.ce_loss_weight < 0:
+            raise ValueError("ce_loss_weight must be non-negative")
         super().__init__(*args, **kwargs)
+
 
     def create_optimizer(self):
         if self.optimizer is not None:
@@ -3700,57 +3728,73 @@ class LengthGroupedTrainer(Trainer):
                 if xattn_apply_mask is not None:
                     model_inputs["xattn_apply_mask"] = xattn_apply_mask
 
-            outputs = model(**model_inputs)
-            logits = outputs.logits
+            compute_ce = (
+                not model.training
+                or self.ce_loss_weight > 0.0
+                or return_outputs
+            )
 
-            shift_logits = logits[:, :-1, :].contiguous()
-            shift_labels = labels[:, 1:].contiguous()
-            shift_token_weights = token_weights[:, 1:].contiguous() if token_weights is not None else None
+            if compute_ce:
 
-            B, Tm1 = shift_labels.shape
-            device = shift_labels.device
+                outputs = model(**model_inputs)
+                logits = outputs.logits
 
-            chunk_t = int(self.loss_chunk_t)
-            loss_sum = torch.zeros(B, device=device, dtype=torch.float32)
-            tok_cnt = torch.zeros(B, device=device, dtype=torch.float32)
+                shift_logits = logits[:, :-1, :].contiguous()
+                shift_labels = labels[:, 1:].contiguous()
+                shift_token_weights = token_weights[:, 1:].contiguous() if token_weights is not None else None
 
-            for s in range(0, Tm1, chunk_t):
-                e = min(Tm1, s + chunk_t)
-                logits_chunk = shift_logits[:, s:e, :]
-                labels_chunk = shift_labels[:, s:e]
+                B, Tm1 = shift_labels.shape
+                device = shift_labels.device
 
-                flat_logits = logits_chunk.reshape(-1, logits_chunk.size(-1))
-                flat_labels = labels_chunk.reshape(-1)
+                chunk_t = int(self.loss_chunk_t)
+                loss_sum = torch.zeros(B, device=device, dtype=torch.float32)
+                tok_cnt = torch.zeros(B, device=device, dtype=torch.float32)
 
-                per_tok = F.cross_entropy(
-                    flat_logits,
-                    flat_labels,
-                    ignore_index=-100,
-                    reduction="none",
-                ).view(B, -1)
+                for s in range(0, Tm1, chunk_t):
+                    e = min(Tm1, s + chunk_t)
+                    logits_chunk = shift_logits[:, s:e, :]
+                    labels_chunk = shift_labels[:, s:e]
 
-                mask = labels_chunk.ne(-100)
-                tok_weight = torch.ones_like(per_tok)
+                    flat_logits = logits_chunk.reshape(-1, logits_chunk.size(-1))
+                    flat_labels = labels_chunk.reshape(-1)
 
-                # Each supervised token is weighted by : 
-                # 0 for prompt / fixed schema , directive-kind-specific weight for RHS tokens , value_w for EOS
-                if shift_token_weights is not None:
-                    tok_weight = tok_weight * shift_token_weights[:, s:e].to(per_tok.dtype)
+                    per_tok = F.cross_entropy(
+                        flat_logits,
+                        flat_labels,
+                        ignore_index=-100,
+                        reduction="none",
+                    ).view(B, -1)
 
-                weighted_mask = tok_weight * mask.to(tok_weight.dtype)
-                loss_sum += (per_tok * weighted_mask).sum(dim=1)
-                tok_cnt += weighted_mask.sum(dim=1)
+                    mask = labels_chunk.ne(-100)
+                    tok_weight = torch.ones_like(per_tok)
 
-            # Each example gets normalized by its weighted token count
-            # Long targets do not automatically dominate short ones
-            per_ex = loss_sum / tok_cnt.clamp(min=1.0)
- 
-            # Change the relative contribution to loss of each example
-            if weights is not None:
-                w = weights.to(device=device, dtype=per_ex.dtype)
-                ce_loss = (per_ex * w).sum() / w.sum().clamp(min=1e-8)
+                    # Each supervised token is weighted by : 
+                    # 0 for prompt / fixed schema , directive-kind-specific weight for RHS tokens , value_w for EOS
+                    if shift_token_weights is not None:
+                        tok_weight = tok_weight * shift_token_weights[:, s:e].to(per_tok.dtype)
+
+                    weighted_mask = tok_weight * mask.to(tok_weight.dtype)
+                    loss_sum += (per_tok * weighted_mask).sum(dim=1)
+                    tok_cnt += weighted_mask.sum(dim=1)
+
+                # Each example gets normalized by its weighted token count
+                # Long targets do not automatically dominate short ones
+                per_ex = loss_sum / tok_cnt.clamp(min=1.0)
+    
+                # Change the relative contribution to loss of each example
+                if weights is not None:
+                    w = weights.to(device=device, dtype=per_ex.dtype)
+                    ce_loss = (per_ex * w).sum() / w.sum().clamp(min=1e-8)
+                else:
+                    ce_loss = per_ex.mean()
+            
             else:
-                ce_loss = per_ex.mean()
+                outputs = None
+                ce_loss = torch.zeros(
+                    (),
+                    device=next(model.parameters()).device,
+                    dtype=torch.float32,
+                )
 
             # contrastive loss : active only during training to make eval lighter
             cand_loss = torch.zeros((), device=device, dtype=torch.float32)
@@ -3769,10 +3813,28 @@ class LengthGroupedTrainer(Trainer):
                     sample_weights=weights,
                 )
 
-            # CE loss : predict the exact gold RHS tokens
-            # Contrastive loss :  among plausible alternatives for the same site, prefer the gold RHS over nearby hard negatives
-            loss = ce_loss + self.candidate_loss_weight * cand_loss
-            return (loss, outputs) if return_outputs else loss
+            loss = (
+                self.ce_loss_weight * ce_loss
+                + self.candidate_loss_weight * cand_loss
+            )
+
+            if model.training and self.state.global_step % 10 == 0:
+                print(
+                    "[LOSS-COMP] "
+                    f"step={self.state.global_step} "
+                    f"ce={float(ce_loss.detach()):.6f} "
+                    f"candidate={float(cand_loss.detach()):.6f} "
+                    f"total={float(loss.detach()):.6f}"
+                )
+
+            if return_outputs:
+                if outputs is None:
+                    raise RuntimeError(
+                        "return_outputs=True requires a full model forward"
+                    )
+                return loss, outputs
+
+            return loss
     
         finally:
             if hasattr(model, "clear_structural_memory") and not model.training:
@@ -5266,6 +5328,31 @@ def run_single_training(args):
         "torch_version": torch.__version__,
     }
 
+    training_contract["stage2_loss"] = {
+        "ce_loss_weight": args.ce_loss_weight,
+        "candidate_loss_weight": args.candidate_loss_weight,
+        "candidate_sites_per_sample": args.candidate_sites_per_sample,
+        "candidate_negatives_per_site": args.candidate_negatives_per_site,
+        "candidate_max_prefix_tokens": args.candidate_max_prefix_tokens,
+        "candidate_keep_head_tokens": args.candidate_keep_head_tokens,
+        "candidate_kind_priority": args.candidate_kind_priority,
+    }
+
+    training_contract["stage2_learning_rates"] = {
+        "lora": args.lr_lora,
+        "embedding": args.lr_embed,
+        "xattn": args.lr_xattn,
+        "gate": args.lr_gate,
+    }
+
+    if args.init_structural_xattn_from:
+        structural_config["initial_checkpoint"] = os.path.abspath(
+            args.init_structural_xattn_from
+        )
+        structural_config["initial_checkpoint_sha256"] = _file_sha256(
+            Path(args.init_structural_xattn_from)
+        )
+
     if not args.disable_structural_memory:
         assert structural_config is not None
         training_contract["structural"] = structural_config
@@ -5582,8 +5669,8 @@ def run_single_training(args):
         tok,
         args.max_length,
         value_loss_weight=args.value_loss_weight,
-        candidate_sites_per_sample=effective_candidate_sites,
-        candidate_negatives_per_site=effective_candidate_negatives,
+        candidate_sites_per_sample=0,
+        candidate_negatives_per_site=0,
         device_token_dropout=0.0,
         supervise_eos=args.supervise_eos,
         input_only_special_ids=special_ids,
@@ -5738,6 +5825,7 @@ def run_single_training(args):
         candidate_negatives_per_site=effective_candidate_negatives,
         candidate_max_prefix_tokens=args.candidate_max_prefix_tokens,
         candidate_keep_head_tokens=args.candidate_keep_head_tokens,
+        ce_loss_weight=args.ce_loss_weight,
     )
 
     trainer.add_callback(
@@ -5889,6 +5977,14 @@ def main():
     ap.add_argument("--candidate_negatives_per_site", type=int, default=0)
     ap.add_argument("--candidate_max_prefix_tokens", type=int, default=1536)
     ap.add_argument("--candidate_keep_head_tokens", type=int, default=256)
+    ap.add_argument(
+        "--candidate_kind_priority",
+        default="",
+        help=(
+            "Comma-separated training priority, for example "
+            "UNROLL,PIPE,ARRAY_F,ARRAY_T,ARRAY_D"
+        ),
+    )
     ap.add_argument("--val_families", type=str, default="rodinia_pathfinder;machsuite_sort_radix")
     ap.add_argument("--test_families", type=str, default="serrano-kalman-filter")
     ap.add_argument("--min_supervised_sites", type=int, default=2)
@@ -6096,6 +6192,7 @@ def main():
         ],
         default="exact_slot",
     )
+    ap.add_argument("--ce_loss_weight", type=float, default=1.0)
     ap.add_argument("--eval_steps", type=int, default=100)
     ap.add_argument("--save_steps", type=int, default=100)
     ap.add_argument("--max_steps", type=int, default=-1)

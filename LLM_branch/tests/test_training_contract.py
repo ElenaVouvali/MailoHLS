@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
-
+import torch
 import pytest
 
 import LLM_branch.train.train_SFT_xattn_new as trainer
@@ -345,3 +345,18 @@ def test_prediction_metrics_validate_anchor_schema():
 
     assert wrong_anchor_result["expected_key_match"] is True
     assert wrong_anchor_result["schema_compliant"] is False
+
+
+def test_candidate_xattn_mask_matches_causal_candidate_logits():
+    mask = trainer.make_candidate_xattn_apply_mask(
+        full_length=9,
+        base_len=5,
+        candidate_len=3,
+        device="cpu",
+    )
+
+    assert mask.shape == (1, 9)
+    assert torch.equal(
+        mask.nonzero(as_tuple=False)[:, 1],
+        torch.tensor([4, 5, 6]),
+    )
