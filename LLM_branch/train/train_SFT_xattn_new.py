@@ -1668,6 +1668,30 @@ def append_token_ids(input_ids, attention_mask, new_ids: List[int]):
     return input_ids, attention_mask
 
 
+def make_candidate_xattn_apply_mask(
+    *,
+    full_length: int,
+    base_len: int,
+    candidate_len: int,
+    device,
+):
+    start = base_len - 1
+    end = start + candidate_len
+    if start < 0 or end > full_length:
+        raise ValueError(
+            f"Invalid causal candidate span: "
+            f"full={full_length} base={base_len} candidate={candidate_len}"
+        )
+    mask = torch.zeros(
+        (1, full_length),
+        dtype=torch.float32,
+        device=device,
+    )
+    mask[:, start:end] = 1.0
+    return mask
+
+
+
 @torch.no_grad()
 def score_rhs_candidate_suffix(
     *,
@@ -1700,39 +1724,12 @@ def score_rhs_candidate_suffix(
         if routing_start_idx is None:
             raise ValueError("routing_start_idx is required when use_structural_memory=True")
 
-        xmask = torch.zeros(
-            (1, full_input_ids.shape[1]),
-            dtype=torch.float32,
+        xmask = make_candidate_xattn_apply_mask(
+            full_length=full_input_ids.shape[1],
+            base_len=base_len,
+            candidate_len=cand_len,
             device=device,
         )
-        # apply xattn only on the candidate RHS suffix
-        # Causal LM alignment:
-        #
-        # logits[t] scores input_ids[t + 1].
-        #
-        # The first candidate token is at input position
-        # base_len, therefore it is predicted by the hidden
-        # state at base_len - 1.
-        #
-        # Apply STRUCTURAL fusion to exactly the hidden
-        # positions whose logits score candidate tokens.
-        score_hidden_start = base_len - 1
-        score_hidden_end = (
-            score_hidden_start
-            + cand_len
-        )
-
-        if score_hidden_start < 0:
-            raise ValueError(
-                "Candidate scoring requires a "
-                "non-empty prefix"
-            )
-
-        xmask[
-            :,
-            score_hidden_start:
-            score_hidden_end,
-        ] = 1.0
 
         model_inputs["routing_start_idx"] = routing_start_idx
         model_inputs["xattn_apply_mask"] = xmask
@@ -3545,6 +3542,8 @@ class LengthGroupedTrainer(Trainer):
 
         full_input_ids = torch.cat([base_input_ids, cand_tensor], dim=1)
         full_attention_mask = torch.ones_like(full_input_ids)
+        base_len = len(prefix_ids)
+        cand_len = len(candidate_ids)
 
         model_inputs = {
             "input_ids": full_input_ids,
@@ -3560,18 +3559,16 @@ class LengthGroupedTrainer(Trainer):
                 dtype=torch.long,
                 device=device,
             )
-            xmask = torch.zeros(
-                (1, full_input_ids.shape[1]),
-                dtype=torch.float32,
+
+            xmask = make_candidate_xattn_apply_mask(
+                full_length=full_input_ids.shape[1],
+                base_len=base_len,
+                candidate_len=cand_len,
                 device=device,
             )
-            xmask[:, effective_route_idx:] = 1.0
             model_inputs["xattn_apply_mask"] = xmask
 
         outputs = model(**model_inputs)
-
-        base_len = len(prefix_ids)
-        cand_len = len(candidate_ids)
 
         cand_logits = outputs.logits[:, base_len - 1: base_len - 1 + cand_len, :].float()
         token_logprobs = F.log_softmax(cand_logits, dim=-1)
