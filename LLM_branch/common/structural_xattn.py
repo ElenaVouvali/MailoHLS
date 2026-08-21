@@ -759,6 +759,20 @@ class GatedCrossAttentionBlock(nn.Module):
                                     .max()
                                     .item()
                                 ),
+                            "projected_to_hidden_rms_ratio": float(
+                                attention_output[active].float().square().mean().sqrt().item()
+                                / max(
+                                    input_hidden[active].float().square().mean().sqrt().item(),
+                                    1e-12,
+                                )
+                            ),
+                            "gated_residual_to_hidden_rms_ratio": float(
+                                gated_residual[active].float().square().mean().sqrt().item()
+                                / max(
+                                    input_hidden[active].float().square().mean().sqrt().item(),
+                                    1e-12,
+                                )
+                            ),
                         }
                     )
 

@@ -1312,6 +1312,10 @@ def _source_pt_manifest_sha256(paths) -> str:
     return digest.hexdigest()
 
 
+def _ordered_kernel_list_sha256(kernels) -> str:
+    return hashlib.sha256("\n".join(sorted(kernels)).encode("utf-8")).hexdigest()
+
+
 def _load_json(path):
     with open(path, encoding='utf-8') as handle:
         return json.load(handle)
@@ -1348,6 +1352,8 @@ def _git_commit() -> str:
 @torch.no_grad()
 def main():
     args = BUILD_ARGS
+    if args.layerwise_out and args.embedding_mode != "static_pre_npt":
+        raise ValueError("--layerwise_out requires --embedding_mode static_pre_npt")
 
     contract = _load_json(args.checkpoint_contract)
     sidecar = _load_json(args.checkpoint_sidecar)
@@ -1440,6 +1446,14 @@ def main():
     model.eval()
     checkpoint_sha256 = _sha256(args.ckpt)
     source_pt_manifest_sha256 = _source_pt_manifest_sha256(pt_files)
+    source_gexf_files = [
+        join(args.gexf_dir, f"{os.path.splitext(basename(path))[0]}.gexf")
+        for path in pt_files
+    ]
+    missing_gexf = [path for path in source_gexf_files if not os.path.isfile(path)]
+    if missing_gexf:
+        raise FileNotFoundError("Static graph files are missing: " + ", ".join(missing_gexf[:12]))
+    source_gexf_manifest_sha256 = _source_pt_manifest_sha256(source_gexf_files)
     git_commit = _git_commit()
     contract_sha256 = _sha256(args.checkpoint_contract)
     feature_schema_sha256 = _sha256(args.feature_schema)
@@ -1447,6 +1461,8 @@ def main():
     print(f"Starting processing of {len(pt_files)} files...")
     
     written_kernels = []
+    layerwise_kernels = {}
+    layerwise_dims = {}
 
     for kernel_path in pt_files:
         fname = basename(kernel_path)
@@ -1552,6 +1568,7 @@ def main():
             # static_pre_npt is the recommended Stage-2 representation:
             # it returns before pragma-specific NPT/MLP conditioning.
             # ------------------------------------------------------
+            layerwise_node_emb = None
             if args.embedding_mode == "current_zero_scope_post_npt":
                 node_emb = model.forward_node_embed(batch)
 
@@ -1565,6 +1582,13 @@ def main():
                             batch
                         )
                     )
+                    required_layers = {"jkn", "conv_1"}
+                    missing_layers = required_layers - set(layerwise_node_emb)
+                    if missing_layers:
+                        raise RuntimeError(
+                            "Layerwise export must produce JKN and conv_1 together; missing "
+                            + ", ".join(sorted(missing_layers))
+                        )
 
                     torch.testing.assert_close(
                         layerwise_node_emb["jkn"],
@@ -1720,6 +1744,9 @@ def main():
 
                 "source_pt_manifest_sha256":
                     source_pt_manifest_sha256,
+
+                "source_gexf_manifest_sha256":
+                    source_gexf_manifest_sha256,
 
                 "source_gexf_sha256":
                     _sha256(gexf_path),
@@ -1885,6 +1912,8 @@ def main():
                             f"{base_name}.memory.pt",
                         ),
                     )
+                    layerwise_kernels.setdefault(layer_name, []).append(base_name)
+                    layerwise_dims[layer_name] = int(layer_slots.size(-1))
 
             written_kernels.append(
                 base_name
@@ -1920,11 +1949,16 @@ def main():
         'feature_schema_sha256': feature_schema_sha256,
         'gnn_checkpoint_sha256': checkpoint_sha256,
         'source_pt_manifest_sha256': source_pt_manifest_sha256,
+        'source_gexf_manifest_sha256': source_gexf_manifest_sha256,
         'embedding_mode': args.embedding_mode,
         'exporter_git_commit': git_commit,
         'checkpoint_tag': sidecar.get('checkpoint_tag'),
         'checkpoint_epoch': sidecar.get('checkpoint_epoch'),
         'provenance_status': contract['provenance_status'],
+        'kernel_count': len(written_kernels),
+        'ordered_kernel_list_sha256': _ordered_kernel_list_sha256(written_kernels),
+        'action_slot_schema': 'absolute-lk-v1',
+        'gnn_dim': int(node_embs.size(-1)),
     }
 
     bank_manifest[
@@ -1941,6 +1975,29 @@ def main():
     with open(join(args.out, 'memory_manifest.json'), 'w', encoding='utf-8') as handle:
         json.dump(bank_manifest, handle, indent=2, sort_keys=True)
         handle.write('\n')
+
+    for layer_name, kernels in sorted(layerwise_kernels.items()):
+        if sorted(kernels) != sorted(written_kernels):
+            raise RuntimeError(f"Layer {layer_name} was not exported for the same kernel set")
+        layer_dir = join(args.layerwise_out, layer_name)
+        actual_files = {basename(path) for path in glob.glob(join(layer_dir, "*.memory.pt"))}
+        expected_files = {f"{kernel}.memory.pt" for kernel in written_kernels}
+        if actual_files != expected_files:
+            raise RuntimeError(
+                f"Layer {layer_name} contains stale/missing memory files: "
+                f"missing={sorted(expected_files - actual_files)}, "
+                f"unexpected={sorted(actual_files - expected_files)}"
+            )
+        layer_manifest = dict(bank_manifest)
+        layer_manifest.update({
+            "embedding_mode": f"static_pre_npt::{layer_name}",
+            "layer_name": layer_name,
+            "gnn_dim": layerwise_dims[layer_name],
+        })
+        with open(join(layer_dir, "memory_manifest.json"), "w", encoding="utf-8") as handle:
+            json.dump(layer_manifest, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+        print(f"[LAYER-MANIFEST] {layer_name}: kernels={len(kernels)} dim={layerwise_dims[layer_name]}")
 
 
 

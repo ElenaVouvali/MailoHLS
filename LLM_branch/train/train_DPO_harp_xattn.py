@@ -30,6 +30,8 @@ from transformers import (
 from transformers.trainer_pt_utils import LengthGroupedSampler
 from peft import PeftModel, prepare_model_for_kbit_training
 
+from LLM_branch.common import frozen_stage1
+
 
 
 def build_prompt(mod, source_text: str, obj_mode: str, row: dict) -> str:
@@ -78,20 +80,45 @@ def load_stage2_contract(stage2_adapter_dir: str) -> dict:
     required = {
         "mem_dim", "max_slots", "every_n_layers", "xattn_heads",
         "xattn_dim_head", "xattn_ff_mult", "xattn_enable_ff",
-        "xattn_placement", "selection_eval_gate_scale",
-        "selection_eval_memory_value_scale", "structural_routing",
+        "xattn_placement",
         "memory_manifest_sha256", "selected_xattn_layers_1based",
     }
+    historical_v1 = structural.get("schema") == "mailohls-structural-config-v1"
+    if not historical_v1:
+        required.update({
+            "selection_eval_gate_scale", "selection_eval_memory_value_scale",
+            "structural_routing",
+        })
     missing = sorted(required - set(structural))
     if missing:
         raise ValueError(
             f"Stage-2 structural contract is missing: {missing}"
         )
+    production_fields = {
+        "stage1_contract_sha256", "stage1_adapter_sha256", "special_token_sha256",
+        "stage1_lora_sha256", "frozen_stage1_sha256", "embedding_mode",
+        "action_relation_schema", "apply_mask_policy", "xattn_gate_init",
+        "loss_policy", "trainable_parameter_contract",
+        "normalization_artifact_sha256",
+    }
+    if "trainable_parameter_contract" in structural:
+        missing_production = sorted(production_fields - set(structural))
+        if missing_production:
+            raise ValueError(
+                "Stage-2 production structural contract is missing: "
+                + ", ".join(missing_production)
+            )
+        if structural["loss_policy"] != {
+            "ce_loss_weight": 1.0, "candidate_loss_weight": 0.0
+        }:
+            raise ValueError("Stage-2 production loss policy is incompatible with Stage 3")
+        if structural["apply_mask_policy"] != "rhs_only_causal_logit_positions":
+            raise ValueError("Stage-3 requires the Stage-2 RHS-only structural apply mask")
     if bool(structural["xattn_enable_ff"]):
         raise ValueError("Stage-3 currently requires xattn FF disabled")
     if (
-        float(structural["selection_eval_gate_scale"]) != 1.0
-        or float(structural["selection_eval_memory_value_scale"]) != 1.0
+        float(structural.get("selection_eval_gate_scale", 1.0)) != 1.0
+        or float(structural.get("selection_eval_memory_value_scale", 1.0)) != 1.0
     ):
         raise ValueError(
             "Stage-3 requires deployment-equivalent Stage-2 scales of 1; "
@@ -174,17 +201,20 @@ def apply_parent_contract(mod, args, contract: dict) -> None:
     args.xattn_heads = int(structural["xattn_heads"])
     args.xattn_dim_head = int(structural["xattn_dim_head"])
     args.xattn_ff_mult = int(structural["xattn_ff_mult"])
-    args.structural_fusion_placement = structural["xattn_placement"]
-    args.structural_routing = structural["structural_routing"]
+    args.structural_fusion_placement = {
+        "post_self_attn_pre_mlp": "post_self_attention_residual"
+    }.get(structural["xattn_placement"], structural["xattn_placement"])
+    args.structural_routing = structural.get("structural_routing", "exact_slot")
     args.structural_gate_scale = float(
-        structural["selection_eval_gate_scale"]
+        structural.get("selection_eval_gate_scale", 1.0)
     )
     args.structural_memory_value_scale = float(
-        structural["selection_eval_memory_value_scale"]
+        structural.get("selection_eval_memory_value_scale", 1.0)
     )
     args.selected_xattn_layers_1based = tuple(
         int(x) for x in structural["selected_xattn_layers_1based"]
     )
+    args.stage2_structural_contract_sha256 = canonical_json_sha256(structural)
 
 
 def build_stage3_contract(
@@ -208,6 +238,7 @@ def build_stage3_contract(
             adapter_dir / "structural_xattn.pt"
         ),
         "git_commit": parent_contract.get("git_commit"),
+        "structural_contract_sha256": canonical_json_sha256(parent_contract["structural"]),
     }
     contract["stage3_preference"] = {
         "schema": "mailohls-stage3-preference-v1",
@@ -1229,6 +1260,7 @@ class STRUCTURALDPOTrainer(Trainer):
 
     def training_step(self, model, inputs, num_items_in_batch=None):
         model.train()
+        frozen_stage1.disable_frozen_lora_dropout(model)
         inputs = self._prepare_inputs(inputs)
 
         with self.compute_loss_context_manager():
@@ -1463,6 +1495,8 @@ def configure_dpo_trainables(
     We want to preserve the stage-2 language prior and let DPO mainly refine
     memory-conditioned routing through STRUCTURAL xattn.
     """
+    if train_lora or train_ff_gate:
+        raise ValueError("Stage-3 production keeps Stage-1 LoRA and the structural FF branch frozen")
     model.requires_grad_(False)
 
     for name, param in model.named_parameters():
@@ -1476,6 +1510,7 @@ def configure_dpo_trainables(
             param.requires_grad_(True)
 
     trainable = [(n, p.numel()) for n, p in model.named_parameters() if p.requires_grad]
+    frozen_stage1.assert_stage1_frozen(model)
     print(f"[DPO-TRAINABLE] groups enabled: "
           f"lora={train_lora} xattn={train_xattn} attn_gate={train_attn_gate} ff_gate={train_ff_gate}")
     print(f"[DPO-TRAINABLE] total trainable params: {sum(x[1] for x in trainable):,}")
@@ -1577,11 +1612,9 @@ def build_structural_model(mod, args, tokenizer, trainable: bool):
         )
 
         if args.train_special_token_embeddings:
-            emb = mod.unfreeze_input_embeddings(model)
-            print(f"[TOKENS-DPO] input embeddings unfrozen: {emb.weight.requires_grad}")
-            maybe_restrict_special_token_embeddings(mod, model, tokenizer)
-        else:
-            freeze_embeddings(model)
+            raise ValueError("Stage-3 production keeps special-token embeddings frozen")
+        freeze_embeddings(model)
+        frozen_stage1.disable_frozen_lora_dropout(model)
     else:
         model.requires_grad_(False)
         freeze_embeddings(model)
@@ -1726,6 +1759,8 @@ def main():
         raise ValueError("--label_smoothing must be in [0, 0.5)")
     if args.sft_alpha < 0.0:
         raise ValueError("--sft_alpha must be non-negative")
+    if args.train_lora_dpo or args.train_special_token_embeddings:
+        raise ValueError("Stage-3 production cannot unfreeze Stage-1 LoRA or special-token embeddings")
     if args.top_k < 2:
         raise ValueError("Stage-3 preference construction requires --top_k >= 2")
     if not 0.0 <= args.dpo_min_edit_frac <= args.dpo_max_edit_frac <= 1.0:
@@ -1813,6 +1848,26 @@ def main():
         "memory_manifest_sha256"
     ]:
         raise ValueError("Memory manifest does not match Stage 2")
+    memory_manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+    parent_structural = parent_contract["structural"]
+    if parent_structural.get("embedding_mode") is not None and (
+        memory_manifest.get("embedding_mode") != parent_structural["embedding_mode"]
+    ):
+        raise ValueError("Memory embedding mode does not match the Stage-2 structural contract")
+    if memory_manifest.get("action_relation_schema") != parent_structural.get(
+        "action_relation_schema", memory_manifest.get("action_relation_schema")
+    ):
+        raise ValueError("Memory relation schema does not match the Stage-2 structural contract")
+    expected_stats_hash = parent_structural.get("normalization_artifact_sha256")
+    actual_stats_hash = memory_manifest.get("multiscale", {}).get("normalization_stats_sha256")
+    if expected_stats_hash != actual_stats_hash:
+        raise ValueError("Multiscale normalization provenance does not match Stage 2")
+    if expected_stats_hash:
+        stats_path = Path(args.memory_dir) / memory_manifest["multiscale"].get(
+            "normalization_stats_file", "normalization_stats.json"
+        )
+        if not stats_path.is_file() or file_sha256(stats_path) != expected_stats_hash:
+            raise ValueError("Multiscale normalization artifact does not match Stage 2")
 
     rows = mod.filter_rows_for_device_mode(mod.load_rows(args.dataset))
     print(f"[INFO] Loaded {len(rows)} raw rows from {args.dataset}")
@@ -1938,7 +1993,9 @@ def main():
             "Missing Stage-3 structural memory for: "
             + ", ".join(missing_memory[:20])
         )
-    print(f"[INFO] Memory bank keys: {len(mem_bank)}")
+    mod.structural_memory_utils.print_memory_bank_summary(
+        args.memory_dir, mem_bank, required_kernels
+    )
 
     train_ds = DPOPreferenceDataset(
         mod=mod,
@@ -1959,8 +2016,20 @@ def main():
 
     print("[INFO] Building policy model...")
     policy_model = build_structural_model(mod, args, tokenizer, trainable=True)
+    frozen_policy_stage1 = frozen_stage1.frozen_stage1_hashes(policy_model)
+    for field, actual in (
+        ("stage1_lora_sha256", frozen_policy_stage1["lora_sha256"]),
+        ("special_token_sha256", frozen_policy_stage1["special_token_sha256"]),
+        ("frozen_stage1_sha256", frozen_policy_stage1["combined_sha256"]),
+    ):
+        expected = parent_contract["structural"].get(field)
+        if expected is not None and expected != actual:
+            raise ValueError(f"Loaded Stage-1 state does not match Stage 2: {field}")
     print("[INFO] Building frozen reference model...")
     ref_model = build_structural_model(mod, args, tokenizer, trainable=False)
+    frozen_reference_stage1 = frozen_stage1.frozen_stage1_hashes(ref_model)
+    if frozen_reference_stage1 != frozen_policy_stage1:
+        raise ValueError("Policy/reference models do not share the exact frozen Stage-1 state")
 
     if hasattr(policy_model, "print_trainable_parameters"):
         policy_model.print_trainable_parameters()
@@ -2088,6 +2157,10 @@ def main():
         trainer.train(resume_from_checkpoint=args.resume_from_checkpoint)
     else:
         trainer.train()
+
+    frozen_stage1.assert_frozen_stage1_unchanged(policy_model, frozen_policy_stage1)
+    frozen_stage1.assert_frozen_stage1_unchanged(ref_model, frozen_reference_stage1)
+    print(f"[FROZEN-STAGE1] verified policy/reference sha256={frozen_policy_stage1['combined_sha256']}")
 
     mod.save_mailohls_adapter(
         policy_model,

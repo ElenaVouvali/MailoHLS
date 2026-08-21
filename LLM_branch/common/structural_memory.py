@@ -61,7 +61,7 @@ def load_memory_bank(
     bank = {}
     inferred_mem_dim = None
 
-    for fn in os.listdir(memory_dir):
+    for fn in sorted(os.listdir(memory_dir)):
         if not fn.endswith(".memory.pt"):
             continue
 
@@ -303,10 +303,42 @@ def load_memory_bank(
             "disable_pragma_injection": bool(pack.get("disable_pragma_injection", False)),
         }
     
-        bank[k] = rec
-        bank[normalize_kname(k)] = rec
+        for alias in dict.fromkeys((k, normalize_kname(k))):
+            existing = bank.get(alias)
+            if existing is not None and existing is not rec:
+                raise ValueError(
+                    "Structural-memory normalization collision for "
+                    f"{alias!r}: {existing['_source_kernel']!r} and {k!r}"
+                )
+            rec["_source_kernel"] = k
+            bank[alias] = rec
 
     return bank, inferred_mem_dim
+
+
+def memory_bank_summary(memory_dir: str, bank: Dict[str, dict], required_kernels=()) -> dict:
+    """Distinguish physical packs and unique records from raw/normalized aliases."""
+    required = {normalize_kname(str(kernel)) for kernel in required_kernels}
+    covered = {kernel for kernel in required if kernel in bank}
+    return {
+        "memory_files": sum(name.endswith(".memory.pt") for name in os.listdir(memory_dir)),
+        "unique_memory_records": len({id(record) for record in bank.values()}),
+        "lookup_aliases": len(bank),
+        "required_split_kernels": len(required),
+        "required_split_kernels_covered": len(covered),
+    }
+
+
+def print_memory_bank_summary(memory_dir: str, bank: Dict[str, dict], required_kernels=()) -> dict:
+    summary = memory_bank_summary(memory_dir, bank, required_kernels)
+    print(f"[INFO] Memory files: {summary['memory_files']}")
+    print(f"[INFO] Unique memory records: {summary['unique_memory_records']}")
+    print(f"[INFO] Lookup aliases: {summary['lookup_aliases']}")
+    print(
+        "[INFO] Required split kernels covered: "
+        f"{summary['required_split_kernels_covered']}/{summary['required_split_kernels']}"
+    )
+    return summary
 
 
 def get_structural_memory_pack_for_kernel(

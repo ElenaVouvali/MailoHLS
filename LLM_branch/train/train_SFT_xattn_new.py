@@ -53,6 +53,7 @@ from transformers.trainer_pt_utils import LengthGroupedSampler
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
 
 from LLM_branch.common import (
+    frozen_stage1,
     mailohls_contract,
     structural_xattn,
 )
@@ -67,6 +68,11 @@ DEFAULT_SFT_DATASET = REPOSITORY_ROOT / "artifacts" / "llm" / "mailohls_sft.json
 DEFAULT_STRUCTURAL_MEMORY = (
     REPOSITORY_ROOT / "artifacts" / "llm" / "mlir_structural_memory"
 )
+
+PRODUCTION_STAGE2_PLACEMENT = "post_self_attention_residual"
+PRODUCTION_STAGE2_ROUTING = "compiler_relational"
+STAGE2_APPLY_MASK_POLICY = "rhs_only_causal_logit_positions"
+STAGE2_TRAINABLE_GROUPS = ("structural_cross_attention", "structural_attention_gates")
 
 
 def current_git_commit() -> str:
@@ -1082,6 +1088,69 @@ def require_compatible_stage1_contract(adapter_dir, expected_contract):
             + json.dumps(mismatches, sort_keys=True)
         )
     return contract
+
+
+def assert_stage2_trainable_contract(model) -> dict:
+    """Permit only structural attention projections/norms and attention gates."""
+    groups = {name: [] for name in STAGE2_TRAINABLE_GROUPS}
+    unexpected = []
+    for name, parameter in model.named_parameters():
+        if not parameter.requires_grad:
+            continue
+        if "gated_cross_attn_layer.attn." in name:
+            groups["structural_cross_attention"].append(name)
+        elif name.endswith("gated_cross_attn_layer.attn_gate"):
+            groups["structural_attention_gates"].append(name)
+        else:
+            unexpected.append(name)
+    frozen_stage1.assert_stage1_frozen(model)
+    if unexpected:
+        raise RuntimeError("Unexpected Stage-2 trainable parameters: " + ", ".join(unexpected[:16]))
+    missing = [group for group, names in groups.items() if not names]
+    if missing:
+        raise RuntimeError("Stage-2 trainable parameter groups are missing: " + ", ".join(missing))
+    names = sorted(name for values in groups.values() for name in values)
+    return {
+        "schema": "mailohls-stage2-trainables-v1",
+        "allowed_groups": list(STAGE2_TRAINABLE_GROUPS),
+        "parameter_count": len(names),
+        "parameter_names_sha256": hashlib.sha256("\n".join(names).encode()).hexdigest(),
+        "frozen_groups": ["base_model", "stage1_lora", "special_token_embeddings", "structural_ff"],
+    }
+
+
+def inherit_saved_stage2_architecture(args) -> None:
+    """Historical checkpoints retain their saved placement/routing defaults."""
+    candidates = []
+    if args.resume_from_checkpoint:
+        candidates.append(Path(args.resume_from_checkpoint) / "training_contract.json")
+    if args.selection_eval_only and args.init_structural_xattn_from:
+        candidates.append(Path(args.init_structural_xattn_from).parent / "training_contract.json")
+    for path in candidates:
+        if not path.is_file():
+            continue
+        contract = json.loads(path.read_text(encoding="utf-8"))
+        if contract.get("stage") != "stage2":
+            continue
+        structural = contract.get("structural", {})
+        for argument, field in (
+            ("structural_fusion_placement", "xattn_placement"),
+            ("structural_routing", "structural_routing"),
+            ("every_n_layers", "every_n_layers"),
+            ("xattn_heads", "xattn_heads"),
+            ("xattn_dim_head", "xattn_dim_head"),
+            ("max_slots", "max_slots"),
+        ):
+            if field in structural:
+                value = structural[field]
+                if argument == "structural_fusion_placement" and value == "post_self_attn_pre_mlp":
+                    value = PRODUCTION_STAGE2_PLACEMENT
+                setattr(args, argument, value)
+        if "structural_routing" not in structural:
+            args.structural_routing = "exact_slot"
+        args._saved_stage2_contract = contract
+        print(f"[CONTRACT] Inherited saved Stage-2 architecture from {path}")
+        return
 
 
 def dump_json_atomic(path: str, obj: Any):
@@ -2703,6 +2772,8 @@ class StageValSelectionCallback(TrainerCallback):
         finally:
             if was_training:
                 model.train()
+                if getattr(model, "initialized_structural_xattn", False):
+                    frozen_stage1.disable_frozen_lora_dropout(model)
 
 
 
@@ -2711,7 +2782,7 @@ class StageValSelectionCallback(TrainerCallback):
 # ================================
 
 
-def print_xattn_gate_stats(model, print_grads=True):
+def print_xattn_gate_stats(model, print_grads=True, amp_scale=1.0):
     attn_gates = []
     ff_gates = []
 
@@ -2723,7 +2794,7 @@ def print_xattn_gate_stats(model, print_grads=True):
             grad = None
             grad_abs = None
             if print_grads and p.grad is not None:
-                grad = float(p.grad.detach().cpu().item())
+                grad = float((p.grad.detach() / amp_scale).cpu().item())
                 grad_abs = abs(grad)
 
             row = {
@@ -2825,6 +2896,7 @@ def print_xattn_residual_stats(model):
 def _projection_grad_stats(
     weight: torch.Tensor,
     grad: Optional[torch.Tensor],
+    amp_scale: float = 1.0,
 ) -> dict:
     w = (
         weight
@@ -2846,6 +2918,7 @@ def _projection_grad_stats(
         grad
         .detach()
         .float()
+        .div(float(amp_scale))
     )
 
     grad_l2 = float(
@@ -2890,6 +2963,7 @@ def _fmt_grad(stats):
 
 def print_xattn_projection_grad_stats(
     model,
+    amp_scale=1.0,
 ):
     found = False
 
@@ -2951,6 +3025,7 @@ def print_xattn_projection_grad_stats(
             _projection_grad_stats(
                 q_weight,
                 q_grad,
+                amp_scale,
             )
         )
 
@@ -2958,6 +3033,7 @@ def print_xattn_projection_grad_stats(
             _projection_grad_stats(
                 k_weight,
                 k_grad,
+                amp_scale,
             )
         )
 
@@ -2965,6 +3041,7 @@ def print_xattn_projection_grad_stats(
             _projection_grad_stats(
                 v_weight,
                 v_grad,
+                amp_scale,
             )
         )
 
@@ -2972,6 +3049,7 @@ def print_xattn_projection_grad_stats(
             _projection_grad_stats(
                 out_weight,
                 out_grad,
+                amp_scale,
             )
         )
 
@@ -2988,6 +3066,43 @@ def print_xattn_projection_grad_stats(
             "[XATTN-GRAD] "
             "no MaskedCrossAttention modules"
         )
+
+
+def collect_xattn_diagnostics(model, step: int, amp_scale: float = 1.0) -> list[dict]:
+    rows = []
+    for name, block in model.named_modules():
+        if not isinstance(block, GatedCrossAttentionBlock):
+            continue
+        attention = block.attn
+        kv_grad = attention.to_kv.weight.grad
+        k_grad, v_grad = kv_grad.chunk(2, dim=0) if kv_grad is not None else (None, None)
+        k_weight, v_weight = attention.to_kv.weight.chunk(2, dim=0)
+        debug = dict(getattr(block, "last_debug", {}) or {})
+        row = {
+            "step": int(step),
+            "layer": name,
+            "amp_scale": float(amp_scale),
+            "raw_gate": float(block.attn_gate.detach().float().item()),
+            "tanh_gate": float(block.attn_gate.detach().float().tanh().item()),
+            "effective_gate": float(
+                block.attn_gate.detach().float().tanh().item() * block.attn_gate_scale
+            ),
+            "projected_hidden_rms_ratio": debug.get("projected_to_hidden_rms_ratio"),
+            "gated_residual_hidden_rms_ratio": debug.get("gated_residual_to_hidden_rms_ratio"),
+            "active_rhs_tokens": debug.get("active_apply_tokens", 0),
+            "legal_keys_per_query": debug.get("keys_per_routed_token_mean", 0.0),
+            "multi_key_fraction": debug.get("multi_key_token_fraction", 0.0),
+            "attention_entropy": debug.get("multi_key_attention_entropy_mean", 0.0),
+            "gradient_rms": {
+                "q": _projection_grad_stats(attention.to_q.weight, attention.to_q.weight.grad, amp_scale)["grad_rms"],
+                "k": _projection_grad_stats(k_weight, k_grad, amp_scale)["grad_rms"],
+                "v": _projection_grad_stats(v_weight, v_grad, amp_scale)["grad_rms"],
+                "out": _projection_grad_stats(attention.to_out.weight, attention.to_out.weight.grad, amp_scale)["grad_rms"],
+            },
+        }
+        rows.append(row)
+        print("[XATTN-DIAGNOSTIC] " + json.dumps(row, sort_keys=True))
+    return rows
 
 
 def get_structural_xattn_state_dict(model):
@@ -3236,6 +3351,8 @@ class LengthGroupedTrainer(Trainer):
         candidate_keep_head_tokens: int = 256,
         ce_loss_weight: float = 1.0,
         structural_routing: str = "exact_slot",
+        xattn_diagnostic_steps: int = 20,
+        stage2_trainable_contract: bool = False,
         **kwargs,
     ):
         self._group_by_length = group_by_length
@@ -3258,15 +3375,21 @@ class LengthGroupedTrainer(Trainer):
         self._consecutive_nonfinite_sync_steps = 0
         self.structural_routing = structural_routing
         self.ce_loss_weight = float(ce_loss_weight)
+        self.xattn_diagnostic_steps = int(xattn_diagnostic_steps)
+        self.stage2_trainable_contract = bool(stage2_trainable_contract)
 
         if self.ce_loss_weight < 0:
             raise ValueError("ce_loss_weight must be non-negative")
+        if self.xattn_diagnostic_steps < 0:
+            raise ValueError("xattn_diagnostic_steps must be non-negative")
         super().__init__(*args, **kwargs)
 
 
     def create_optimizer(self):
         if self.optimizer is not None:
             return self.optimizer
+        if self.stage2_trainable_contract:
+            assert_stage2_trainable_contract(self.model)
 
         lora_params, embed_params = [], []
         attn_gate_params, ff_gate_params = [], []
@@ -3303,10 +3426,13 @@ class LengthGroupedTrainer(Trainer):
             else:
                 other_trainables.append((n, p))
 
+        if other_trainables and self.stage2_trainable_contract:
+            raise RuntimeError(
+                "Unexpected Stage-2 optimizer parameters: "
+                + ", ".join(name for name, _ in other_trainables[:12])
+            )
         if other_trainables:
-            print("[WARN] Unexpected trainable params:")
-            for n, _ in other_trainables[:20]:
-                print("  -", n)
+            print("[WARN] Unexpected trainable params:", [name for name, _ in other_trainables[:20]])
 
         opt_groups = []
         if lora_params:
@@ -3368,6 +3494,8 @@ class LengthGroupedTrainer(Trainer):
 
     def training_step(self, model, inputs, num_items_in_batch=None):
         model.train()
+        if self.stage2_trainable_contract:
+            frozen_stage1.disable_frozen_lora_dropout(model)
         inputs = self._prepare_inputs(inputs)
 
         with self.compute_loss_context_manager():
@@ -3414,11 +3542,18 @@ class LengthGroupedTrainer(Trainer):
             else:
                 self._consecutive_nonfinite_sync_steps = 0
 
-        if self.accelerator.sync_gradients and self.state.global_step != self._last_debug_step:
-            if self.state.global_step % 20 == 0:
+        if (
+            self.accelerator.sync_gradients
+            and self.xattn_diagnostic_steps > 0
+            and self.state.global_step != self._last_debug_step
+        ):
+            if self.state.global_step % self.xattn_diagnostic_steps == 0:
+                scaler = getattr(self.accelerator, "scaler", None)
+                amp_scale = float(scaler.get_scale()) if scaler is not None else 1.0
                 print_xattn_gate_stats(
                     model,
                     print_grads=True,
+                    amp_scale=amp_scale,
                 )
 
                 if (
@@ -3436,20 +3571,13 @@ class LengthGroupedTrainer(Trainer):
                         model
                     )
 
-                    if (
-                        os.environ.get(
-                            "MAILOHLS_XATTN_DIAGNOSTICS",
-                            "0",
-                        )
-                        == "1"
-                    ):
-                        print_xattn_residual_stats(
-                            model
-                        )
-
-                        print_xattn_projection_grad_stats(
-                            model
-                        )
+                    print_xattn_residual_stats(model)
+                    print_xattn_projection_grad_stats(model, amp_scale=amp_scale)
+                    rows = collect_xattn_diagnostics(model, self.state.global_step, amp_scale)
+                    diagnostics_path = os.path.join(self.args.output_dir, "xattn_diagnostics.jsonl")
+                    with open(diagnostics_path, "a", encoding="utf-8") as handle:
+                        for row in rows:
+                            handle.write(json.dumps(row, sort_keys=True) + "\n")
 
                 self._last_debug_step = (
                     self.state.global_step
@@ -4445,6 +4573,7 @@ def _rank_and_select_case(
     score_weight_min: float,
     score_weight_power: float,
     frequency_mode: str,
+    build_training_hard_negatives: bool = False,
 ) -> Tuple[List[dict], dict]:
     ranked = rank_goal_candidates(
         list(items), goal_mode, domination_penalty, max_dominated_gap
@@ -4465,14 +4594,16 @@ def _rank_and_select_case(
         return [], {}
     scores = [record["score"] for record in chosen]
     selected = []
-    hard_negatives = build_local_hard_negative_bank(
-        [{"row": r["row"], "score": r["score"]} for r in unique],
-        hard_neg_top_k=max(6, top_k),
-    )
-    hard_negatives = {
-        lhs: sorted(values, key=_rhs_sort_key)
-        for lhs, values in hard_negatives.items()
-    }
+    hard_negatives = {}
+    if build_training_hard_negatives:
+        hard_negatives = build_local_hard_negative_bank(
+            [{"row": r["row"], "score": r["score"]} for r in unique],
+            hard_neg_top_k=max(6, top_k),
+        )
+        hard_negatives = {
+            lhs: sorted(values, key=_rhs_sort_key)
+            for lhs, values in hard_negatives.items()
+        }
     for rank, record in enumerate(chosen):
         out = dict(record["row"])
         out.update({
@@ -4485,8 +4616,9 @@ def _rank_and_select_case(
                 record["score"], min(scores), max(scores),
                 score_weight_min, score_weight_power,
             ),
-            "_local_hard_negatives": hard_negatives,
         })
+        if build_training_hard_negatives:
+            out["_local_hard_negatives"] = hard_negatives
         selected.append(out)
     return selected, {
         "selected": len(selected),
@@ -4504,6 +4636,7 @@ def select_goal_rows(
     max_dominated_gap: float,
     score_weight_min: float = 0.6,
     score_weight_power: float = 1.0,
+    build_training_hard_negatives: bool = False,
 ):
     """Select one deterministic optimum per prompt by default.
 
@@ -4524,7 +4657,8 @@ def select_goal_rows(
     for key, items in sorted(specified.items()):
         chosen, info = _rank_and_select_case(
             items, goal_mode, top_k, domination_penalty, max_dominated_gap,
-            score_weight_min, score_weight_power, "specified"
+            score_weight_min, score_weight_power, "specified",
+            build_training_hard_negatives=build_training_hard_negatives,
         )
         selected.extend(chosen)
         metadata[f"specified::{key!r}"] = info
@@ -4536,7 +4670,8 @@ def select_goal_rows(
             continue
         chosen, info = _rank_and_select_case(
             items, goal_mode, top_k, domination_penalty, max_dominated_gap,
-            score_weight_min, score_weight_power, "auto"
+            score_weight_min, score_weight_power, "auto",
+            build_training_hard_negatives=build_training_hard_negatives,
         )
         for row in chosen:
             # The model may select only among clocks represented by measured
@@ -4880,6 +5015,20 @@ def configure_target_policy(args) -> None:
 
 
 def run_single_training(args):
+    inherit_saved_stage2_architecture(args)
+    if not args.disable_structural_memory and not args.selection_eval_only:
+        if not args.init_adapter_dir and not args.resume_from_checkpoint:
+            raise ValueError("Production Stage 2 requires --init_adapter_dir with the frozen Stage-1 adapter")
+        if args.ce_loss_weight != 1.0 or args.candidate_loss_weight != 0.0:
+            raise ValueError("Production Stage 2 requires --ce_loss_weight 1 and --candidate_loss_weight 0")
+        if args.device_mode == "device_adapt":
+            raise ValueError("Production Stage 2 cannot train a device-adaptation LoRA")
+        if args.lr_lora != 0.0 or args.lr_embed != 0.0:
+            print("[CONTRACT] Freezing Stage-1 LoRA and special-token embeddings")
+        args.lr_lora = 0.0
+        args.lr_embed = 0.0
+        if args.lr_xattn <= 0.0 or args.lr_gate <= 0.0:
+            raise ValueError("Production Stage 2 requires positive structural cross-attention and gate learning rates")
     candidate_kind_priority = parse_candidate_kind_priority(
         args.candidate_kind_priority
     )
@@ -5097,6 +5246,7 @@ def run_single_training(args):
                 max_dominated_gap=args.goal_max_dominated_gap,
                 score_weight_min=args.score_weight_min,
                 score_weight_power=args.score_weight_power,
+                build_training_hard_negatives=(args.candidate_loss_weight > 0.0),
             )
             combined.extend(chosen)
             information[objective] = details
@@ -5271,7 +5421,6 @@ def run_single_training(args):
             print(f"[INFO] Overriding --mem_dim {args.mem_dim} -> {inferred_mem_dim} from memory bank")
             args.mem_dim = inferred_mem_dim
 
-        print(f"[INFO] Memory bank keys: {len(mem_bank)}")
         if args.selection_eval_only:
 
             required_kernels = {
@@ -5293,6 +5442,9 @@ def run_single_training(args):
                 kernel not in mem_bank
                 and normalize_kname(kernel) not in mem_bank
             )
+        )
+        structural_memory_utils.print_memory_bank_summary(
+            args.memory_dir, mem_bank, required_kernels
         )
         if missing_memory and not args.allow_missing_structural_memory:
             raise ValueError(
@@ -5322,6 +5474,24 @@ def run_single_training(args):
                 memory_manifest = json.load(
                     handle
                 )
+            normalization_stats_sha256 = memory_manifest.get("multiscale", {}).get(
+                "normalization_stats_sha256"
+            )
+            if normalization_stats_sha256:
+                normalization_path = Path(args.memory_dir) / memory_manifest.get(
+                    "multiscale", {}
+                ).get("normalization_stats_file", "normalization_stats.json")
+                if not normalization_path.is_file():
+                    raise FileNotFoundError(f"Multiscale normalization artifact is missing: {normalization_path}")
+                if _file_sha256(normalization_path) != normalization_stats_sha256:
+                    raise ValueError("Multiscale normalization artifact does not match its memory manifest")
+                normalization_stats = json.loads(normalization_path.read_text(encoding="utf-8"))
+                if normalization_stats.get("fit_policy") != "training-kernels-only":
+                    raise ValueError("Multiscale normalization must be fitted on training kernels only")
+                if normalization_stats.get("dataset_sha256") != _file_sha256(Path(args.dataset)):
+                    raise ValueError("Multiscale normalization was fitted for a different dataset")
+                if args.split_json and normalization_stats.get("split_sha256") != _file_sha256(Path(args.split_json)):
+                    raise ValueError("Multiscale normalization was fitted for a different split")
 
         if args.structural_routing == "compiler_relational":
             expected_relation_schema = "mailohls-action-relations-v1"
@@ -5429,7 +5599,23 @@ def run_single_training(args):
 
             "memory_manifest_sha256":
                 memory_manifest_sha256,
+
+            "normalization_artifact_sha256":
+                normalization_stats_sha256,
+
+            "embedding_mode": memory_manifest.get("embedding_mode"),
+
+            "apply_mask_policy": STAGE2_APPLY_MASK_POLICY,
+
+            "loss_policy": {
+                "ce_loss_weight": args.ce_loss_weight,
+                "candidate_loss_weight": args.candidate_loss_weight,
+            },
         }
+        saved_structural = getattr(args, "_saved_stage2_contract", {}).get("structural", {})
+        for field in ("stage1_contract_sha256", "stage1_adapter_sha256"):
+            if field in saved_structural:
+                structural_config[field] = saved_structural[field]
 
     tok = AutoTokenizer.from_pretrained(
         args.model,
@@ -5616,6 +5802,12 @@ def run_single_training(args):
     )
     if not args.disable_structural_memory and init_adapter_dir:
         require_compatible_stage1_contract(init_adapter_dir, training_contract)
+        structural_config["stage1_contract_sha256"] = _file_sha256(
+            Path(init_adapter_dir) / "training_contract.json"
+        )
+        structural_config["stage1_adapter_sha256"] = _file_sha256(
+            frozen_stage1.adapter_weights_path(init_adapter_dir)
+        )
 
     print(f"[MODEL] weights_tied={weights_tied}")
 
@@ -5746,6 +5938,18 @@ def run_single_training(args):
         structural_config["selected_xattn_layers_1based"] = list(
             model.structural_xattn_layer_indices
         )
+        if not args.selection_eval_only and not args.resume_from_checkpoint:
+            expected_layers = [8, 16, 24, 32]
+            if structural_config["selected_xattn_layers_1based"] != expected_layers:
+                raise ValueError(
+                    "Production Stage 2 requires structural layers "
+                    f"{expected_layers}, got {structural_config['selected_xattn_layers_1based']}"
+                )
+        if args.xattn_diagnostic_steps > 0:
+            for module in model.modules():
+                if isinstance(module, GatedCrossAttentionBlock):
+                    module.collect_diagnostics = True
+                    module.attn.collect_diagnostics = True
 
         print(f"[STRUCTURAL-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
         print(f"[STRUCTURAL-XATTN] inserted gated xattn every {args.every_n_layers} decoder layers")
@@ -5758,8 +5962,6 @@ def run_single_training(args):
         load_partial_structural_xattn(model, resume_structural_xattn, tag="STRUCTURAL-RESUME")
     elif args.init_structural_xattn_from:
         load_partial_structural_xattn(model, args.init_structural_xattn_from, tag="STRUCTURAL-INIT")
-
-    model.print_trainable_parameters()
 
     inp = model.get_input_embeddings().weight
     out = model.get_output_embeddings().weight
@@ -5788,6 +5990,23 @@ def run_single_training(args):
             parameter.requires_grad_(False)
             frozen_zero_lr += parameter.numel()
     print(f"[OPT] froze {frozen_zero_lr:,} parameters assigned to zero-LR groups")
+
+    frozen_stage1_state = None
+    if not args.disable_structural_memory:
+        model.requires_grad_(False)
+        for name, parameter in model.named_parameters():
+            if "gated_cross_attn_layer.attn." in name or name.endswith(
+                "gated_cross_attn_layer.attn_gate"
+            ):
+                parameter.requires_grad_(not args.selection_eval_only)
+        if not args.selection_eval_only:
+            structural_config["trainable_parameter_contract"] = assert_stage2_trainable_contract(model)
+        frozen_stage1_state = frozen_stage1.frozen_stage1_hashes(model)
+        structural_config["special_token_sha256"] = frozen_stage1_state["special_token_sha256"]
+        structural_config["stage1_lora_sha256"] = frozen_stage1_state["lora_sha256"]
+        structural_config["frozen_stage1_sha256"] = frozen_stage1_state["combined_sha256"]
+        frozen_stage1.disable_frozen_lora_dropout(model)
+    model.print_trainable_parameters()
 
     if (
         args.candidate_loss_weight > 0.0
@@ -6077,6 +6296,10 @@ def run_single_training(args):
         candidate_max_prefix_tokens=args.candidate_max_prefix_tokens,
         candidate_keep_head_tokens=args.candidate_keep_head_tokens,
         ce_loss_weight=args.ce_loss_weight,
+        xattn_diagnostic_steps=args.xattn_diagnostic_steps,
+        stage2_trainable_contract=(
+            not args.disable_structural_memory and not args.selection_eval_only
+        ),
     )
 
     trainer.add_callback(
@@ -6132,6 +6355,10 @@ def run_single_training(args):
     else:
         print(f"[INFO] No checkpoint found. Starting from scratch.")
         trainer.train()
+
+    if frozen_stage1_state is not None:
+        frozen_stage1.assert_frozen_stage1_unchanged(model, frozen_stage1_state)
+        print(f"[FROZEN-STAGE1] verified sha256={frozen_stage1_state['combined_sha256']}")
 
     if val_ds is not None:
         trainer.evaluate(metric_key_prefix="final_eval")
@@ -6398,7 +6625,7 @@ def main():
             "post_decoder_residual",
             "post_self_attention_residual",
         ),
-        default="legacy_norm_wrapper",
+        default=PRODUCTION_STAGE2_PLACEMENT,
         help=(
             "legacy_norm_wrapper reproduces historical experiments by "
             "perturbing the native post-attention norm input. "
@@ -6406,9 +6633,8 @@ def main():
             "to the completed decoder-layer output. "
             "post_self_attention_residual implements the thesis equation by "
             "placing the gated update after the self-attention residual and "
-            "before the native MLP. The legacy default avoids "
-            "silently changing old commands; pass post_decoder_residual "
-            "explicitly for the corrected experiment."
+            "before the native MLP and is the production default. "
+            "Historical checkpoints inherit their saved placement."
         ),
     )
     ap.add_argument("--lr_xattn", type=float, default=0.0)
@@ -6463,7 +6689,13 @@ def main():
             "exact_slot",
             "compiler_relational",
         ],
-        default="exact_slot",
+        default=PRODUCTION_STAGE2_ROUTING,
+    )
+    ap.add_argument(
+        "--xattn_diagnostic_steps",
+        type=int,
+        default=20,
+        help="Write structural-layer diagnostics every N synchronized steps; 0 disables them.",
     )
     ap.add_argument("--ce_loss_weight", type=float, default=1.0)
     ap.add_argument("--eval_steps", type=int, default=100)

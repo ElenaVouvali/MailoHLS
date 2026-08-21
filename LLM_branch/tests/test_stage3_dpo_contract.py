@@ -172,3 +172,71 @@ def test_stage2_parent_artifact_must_be_self_contained(tmp_path):
 
     torch.save({}, tmp_path / "structural_xattn.pt")
     assert load_stage2_contract(str(tmp_path))["stage"] == "stage2"
+
+
+def test_stage3_rejects_incomplete_production_structural_contract(tmp_path):
+    structural = {
+        "mem_dim": 128,
+        "max_slots": 64,
+        "every_n_layers": 8,
+        "xattn_heads": 4,
+        "xattn_dim_head": 64,
+        "xattn_ff_mult": 1,
+        "xattn_enable_ff": False,
+        "xattn_placement": "post_self_attention_residual",
+        "selection_eval_gate_scale": 1.0,
+        "selection_eval_memory_value_scale": 1.0,
+        "structural_routing": "compiler_relational",
+        "memory_manifest_sha256": "memory",
+        "selected_xattn_layers_1based": [8, 16, 24, 32],
+        "trainable_parameter_contract": {"schema": "mailohls-stage2-trainables-v1"},
+    }
+    contract = {
+        "schema": "mailohls-training-contract-v1",
+        "stage": "stage2",
+        "structural": structural,
+    }
+    (tmp_path / "training_contract.json").write_text(json.dumps(contract))
+    torch.save({}, tmp_path / "structural_xattn.pt")
+    with pytest.raises(ValueError, match="production structural contract is missing"):
+        load_stage2_contract(str(tmp_path))
+
+    structural.update({
+        "stage1_contract_sha256": "stage1-contract",
+        "stage1_adapter_sha256": "stage1-adapter",
+        "special_token_sha256": "tokens",
+        "stage1_lora_sha256": "lora",
+        "frozen_stage1_sha256": "frozen",
+        "embedding_mode": "multiscale::jkn+centered_conv1",
+        "action_relation_schema": "mailohls-action-relations-v1",
+        "apply_mask_policy": "rhs_only_causal_logit_positions",
+        "xattn_gate_init": 0.0,
+        "loss_policy": {"ce_loss_weight": 1.0, "candidate_loss_weight": 0.0},
+        "normalization_artifact_sha256": "normalization",
+    })
+    (tmp_path / "training_contract.json").write_text(json.dumps(contract))
+    loaded = load_stage2_contract(str(tmp_path))
+    assert loaded["structural"] == structural
+
+
+def test_historical_stage2_contract_remains_readable(tmp_path):
+    contract = {
+        "schema": "mailohls-training-contract-v1",
+        "stage": "stage2",
+        "structural": {
+            "schema": "mailohls-structural-config-v1",
+            "mem_dim": 64,
+            "max_slots": 64,
+            "every_n_layers": 8,
+            "xattn_heads": 4,
+            "xattn_dim_head": 64,
+            "xattn_ff_mult": 1,
+            "xattn_enable_ff": False,
+            "xattn_placement": "post_self_attn_pre_mlp",
+            "memory_manifest_sha256": "digest",
+            "selected_xattn_layers_1based": [8, 16, 24, 32],
+        },
+    }
+    (tmp_path / "training_contract.json").write_text(json.dumps(contract))
+    torch.save({}, tmp_path / "structural_xattn.pt")
+    assert load_stage2_contract(str(tmp_path)) == contract
