@@ -3255,6 +3255,7 @@ class LengthGroupedTrainer(Trainer):
         self.candidate_max_prefix_tokens = int(candidate_max_prefix_tokens)
         self.candidate_keep_head_tokens = int(candidate_keep_head_tokens)
         self._last_debug_step = -1
+        self._consecutive_nonfinite_sync_steps = 0
         self.structural_routing = structural_routing
         self.ce_loss_weight = float(ce_loss_weight)
 
@@ -3381,6 +3382,37 @@ class LengthGroupedTrainer(Trainer):
         # still sees the conditioned STRUCTURAL state
         if hasattr(model, "clear_structural_memory"):
             model.clear_structural_memory()
+
+        if self.accelerator.sync_gradients:
+            scaler = getattr(self.accelerator, "scaler", None)
+            amp_scale = (
+                float(scaler.get_scale())
+                if scaler is not None
+                else 1.0
+            )
+            nonfinite = [
+                name
+                for name, parameter in model.named_parameters()
+                if (
+                    parameter.grad is not None
+                    and not torch.isfinite(parameter.grad).all().item()
+                )
+            ]
+            if nonfinite:
+                self._consecutive_nonfinite_sync_steps += 1
+                print(
+                    "[NUMERICS] "
+                    f"step={self.state.global_step} "
+                    f"amp_scale={amp_scale:g} "
+                    f"nonfinite_gradients={nonfinite[:8]} "
+                    f"consecutive={self._consecutive_nonfinite_sync_steps}"
+                )
+                if self._consecutive_nonfinite_sync_steps >= 2:
+                    raise FloatingPointError(
+                        "Repeated non-finite synchronized gradients"
+                    )
+            else:
+                self._consecutive_nonfinite_sync_steps = 0
 
         if self.accelerator.sync_gradients and self.state.global_step != self._last_debug_step:
             if self.state.global_step % 20 == 0:
@@ -4860,6 +4892,14 @@ def run_single_training(args):
             "At least one of --ce_loss_weight and "
             "--candidate_loss_weight must be positive"
         )
+    if not 0.0 < args.candidate_max_kind_fraction <= 1.0:
+        raise ValueError(
+            "--candidate_max_kind_fraction must be in (0, 1]"
+        )
+    if not 0.0 <= args.warmup_ratio <= 1.0:
+        raise ValueError("--warmup_ratio must be in [0, 1]")
+    if not math.isfinite(args.max_grad_norm) or args.max_grad_norm < 0.0:
+        raise ValueError("--max_grad_norm must be finite and non-negative")
     if args.candidate_loss_weight > 0.0:
         if args.candidate_sites_per_sample < 1:
             raise ValueError(
@@ -5486,6 +5526,11 @@ def run_single_training(args):
         "xattn": args.lr_xattn,
         "gate": args.lr_gate,
     }
+    training_contract["stage2_optimizer"] = {
+        "lr_scheduler_type": args.lr_scheduler_type,
+        "warmup_ratio": args.warmup_ratio,
+        "max_grad_norm": args.max_grad_norm,
+    }
 
     if args.init_structural_xattn_from:
         structural_config["initial_checkpoint"] = os.path.abspath(
@@ -5814,6 +5859,28 @@ def run_single_training(args):
                     f"remaining_samples={len(train_ds.samples)}"
                 )
 
+            counts = train_ds.candidate_coverage["per_kind"]
+            total_sites = sum(counts.values())
+            required_kinds = {
+                value.strip().upper()
+                for value in args.candidate_required_kinds.split(",")
+                if value.strip()
+            }
+            missing_kinds = sorted(required_kinds - set(counts))
+            if missing_kinds:
+                raise ValueError(
+                    "Candidate-only training is missing required kinds: "
+                    f"{missing_kinds}; observed={counts}"
+                )
+            dominant_fraction = max(counts.values()) / total_sites
+            if dominant_fraction > args.candidate_max_kind_fraction:
+                raise ValueError(
+                    "Candidate-only kind distribution is too concentrated: "
+                    f"dominant_fraction={dominant_fraction:.6f}, "
+                    f"maximum={args.candidate_max_kind_fraction:.6f}, "
+                    f"counts={counts}"
+                )
+
         special_id_set = set(
             special_ids
         )
@@ -5883,7 +5950,9 @@ def run_single_training(args):
 
     total_steps = int(steps_per_epoch * args.epochs / max(1, args.grad_accum))
     effective_total_steps = args.max_steps if args.max_steps > 0 else total_steps
-    warmup_steps = int(0.03 * effective_total_steps)
+    warmup_steps = int(
+        args.warmup_ratio * effective_total_steps
+    )
 
     bf16_ok = native_bf16
     compute_dtype = torch.bfloat16 if bf16_ok else torch.float16
@@ -5910,7 +5979,9 @@ def run_single_training(args):
         gradient_accumulation_steps=args.grad_accum,
         learning_rate=max(args.lr_lora, args.lr_xattn, args.lr_gate, args.lr_embed),
         warmup_steps=warmup_steps,
-        lr_scheduler_type="cosine",
+        lr_scheduler_type=args.lr_scheduler_type,
+        max_grad_norm=args.max_grad_norm,
+        logging_nan_inf_filter=False,
         bf16=bf16_ok,
         fp16=not bf16_ok,
         tf32=False,
@@ -6165,6 +6236,17 @@ def main():
             "UNROLL,PIPE,ARRAY_F,ARRAY_T,ARRAY_D"
         ),
     )
+    ap.add_argument(
+        "--candidate_required_kinds",
+        default="",
+        help="Comma-separated kinds that must appear in candidate training.",
+    )
+    ap.add_argument(
+        "--candidate_max_kind_fraction",
+        type=float,
+        default=1.0,
+        help="Fail if one candidate kind exceeds this fraction.",
+    )
     ap.add_argument("--val_families", type=str, default="rodinia_pathfinder;machsuite_sort_radix")
     ap.add_argument("--test_families", type=str, default="serrano-kalman-filter")
     ap.add_argument("--min_supervised_sites", type=int, default=2)
@@ -6251,6 +6333,13 @@ def main():
     ap.add_argument("--epochs", type=int, default=3)
     ap.add_argument("--batch_size", type=int, default=2)
     ap.add_argument("--grad_accum", type=int, default=4)
+    ap.add_argument(
+        "--lr_scheduler_type",
+        choices=("cosine", "linear", "constant_with_warmup"),
+        default="cosine",
+    )
+    ap.add_argument("--warmup_ratio", type=float, default=0.03)
+    ap.add_argument("--max_grad_norm", type=float, default=1.0)
     ap.add_argument("--num_workers", type=int, default=4)
     ap.add_argument("--group_by_length", action="store_true")
     ap.add_argument("--gradient_checkpointing", action="store_true")
