@@ -4704,6 +4704,31 @@ class SFTDataset(Dataset):
         return self.samples[index]
 
 
+def filter_candidate_only_samples(dataset: SFTDataset) -> int:
+    """Remove samples that cannot contribute to candidate-only training."""
+    before = len(dataset.samples)
+    kept_indices = [
+        index
+        for index, sample in enumerate(dataset.samples)
+        if sample["contrastive_sites"]
+    ]
+    if not kept_indices:
+        raise ValueError(
+            "Candidate-only training has no samples with candidate sites"
+        )
+
+    dataset.samples = [dataset.samples[index] for index in kept_indices]
+    dataset.lengths = [dataset.lengths[index] for index in kept_indices]
+    removed = before - len(dataset.samples)
+    dataset.candidate_coverage = {
+        **dataset.candidate_coverage,
+        "samples": len(dataset.samples),
+        "samples_with_sites": len(dataset.samples),
+        "samples_without_sites": 0,
+    }
+    return removed
+
+
 def build_selection_cases(
     val_rows: List[dict],
     goal_mode: str,
@@ -5780,17 +5805,14 @@ def run_single_training(args):
             ),
         )
 
-        if (
-            args.ce_loss_weight == 0.0
-            and train_ds.candidate_coverage[
-                "samples_without_sites"
-            ] > 0
-        ):
-            raise ValueError(
-                "Candidate-only training contains samples without "
-                "candidate sites: "
-                f"{train_ds.candidate_coverage}"
-            )
+        if args.ce_loss_weight == 0.0:
+            removed = filter_candidate_only_samples(train_ds)
+            if removed:
+                print(
+                    "[CANDIDATE-DATASET] "
+                    f"filtered_zero_supervision_samples={removed} "
+                    f"remaining_samples={len(train_ds.samples)}"
+                )
 
         special_id_set = set(
             special_ids

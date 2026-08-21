@@ -438,3 +438,51 @@ def test_candidate_only_compute_loss_has_a_defined_device():
     )
     loss.backward()
     assert model.weight.grad is not None
+
+
+def test_candidate_only_filter_removes_zero_supervision_samples():
+    dataset = types.SimpleNamespace(
+        samples=[
+            {"contrastive_sites": [{"kind": "PIPE"}]},
+            {"contrastive_sites": []},
+            {"contrastive_sites": [{"kind": "UNROLL"}]},
+        ],
+        lengths=[10, 20, 30],
+        candidate_coverage={
+            "samples": 3,
+            "samples_with_sites": 2,
+            "samples_without_sites": 1,
+            "total_sites": 2,
+            "per_kind": {"PIPE": 1, "UNROLL": 1},
+        },
+    )
+
+    removed = trainer.filter_candidate_only_samples(dataset)
+
+    assert removed == 1
+    assert dataset.lengths == [10, 30]
+    assert len(dataset.samples) == 2
+    assert dataset.candidate_coverage == {
+        "samples": 2,
+        "samples_with_sites": 2,
+        "samples_without_sites": 0,
+        "total_sites": 2,
+        "per_kind": {"PIPE": 1, "UNROLL": 1},
+    }
+
+
+def test_candidate_only_filter_rejects_an_empty_candidate_dataset():
+    dataset = types.SimpleNamespace(
+        samples=[{"contrastive_sites": []}],
+        lengths=[10],
+        candidate_coverage={
+            "samples": 1,
+            "samples_with_sites": 0,
+            "samples_without_sites": 1,
+            "total_sites": 0,
+            "per_kind": {},
+        },
+    )
+
+    with pytest.raises(ValueError, match="no samples with candidate sites"):
+        trainer.filter_candidate_only_samples(dataset)
