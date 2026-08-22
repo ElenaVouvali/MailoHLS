@@ -340,8 +340,8 @@ def preprocess_kernel(
     if valid.empty:
         raise ValueError(f"{kernel} contains no valid QoR rows")
 
-    # Preserve the established MailoHLS floor used by prior labels.
-    valid.loc[:, list(UTILIZATION_COLUMNS)] = valid.loc[:, list(UTILIZATION_COLUMNS)].replace(0, 1)
+    # Zero is a reported utilization, not permission to invent one percent.
+    # Numerical safeguards belong in logarithmic objectives, not measurements.
     aggregated = aggregate_repeated_measurements(valid, directive_columns)
     aggregated = assign_target_local_weights(aggregated, minimum_weight, gamma)
 
@@ -420,6 +420,8 @@ def main() -> int:
         "device": arguments.device if arguments.mode == "gnn" else None,
         "clock_period_ns": arguments.clock_period_ns if arguments.mode == "gnn" else None,
         "input_dir": str(arguments.input_dir.resolve()),
+        "utilization_policy": "reported_percentages_unchanged",
+        "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",
         "kernels": [],
     }
     for index, csv_path in enumerate(csv_files, start=1):

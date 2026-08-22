@@ -333,6 +333,9 @@ def build_selected_splits(mod, args, rows, parent_contract: dict):
         mod.save_split_spec(args.save_split_json, raw_train_rows, raw_val_rows, raw_test_rows)
         print(f"[INFO] Saved split spec -> {args.save_split_json}")
 
+    if args.split_mode == "family":
+        mod.assert_family_split_contract(raw_train_rows, raw_val_rows, raw_test_rows)
+
     split_payload = {
         name: sorted(int(row["_jsonl_idx"]) for row in split_rows)
         for name, split_rows in (
@@ -359,9 +362,6 @@ def build_selected_splits(mod, args, rows, parent_contract: dict):
         raw_val_rows = mod.augment_rows_with_resource_budgets(
             raw_val_rows, fractions
         )
-        raw_test_rows = mod.augment_rows_with_resource_budgets(
-            raw_test_rows, fractions
-        )
     elif args.resource_budget_mode == "random":
         raw_train_rows = mod.augment_rows_with_random_resource_budgets(
             raw_train_rows,
@@ -375,13 +375,7 @@ def build_selected_splits(mod, args, rows, parent_contract: dict):
             raw_val_rows,
             num_budgets_per_case=args.random_budgets_per_case,
             seed=eval_seed,
-            min_feasible_candidates=3,
-        )
-        raw_test_rows = mod.augment_rows_with_random_resource_budgets(
-            raw_test_rows,
-            num_budgets_per_case=args.random_budgets_per_case,
-            seed=eval_seed + 1,
-            min_feasible_candidates=3,
+            min_feasible_candidates=args.min_feasible_candidates_per_budget,
         )
     else:
         raise ValueError(
@@ -408,18 +402,9 @@ def build_selected_splits(mod, args, rows, parent_contract: dict):
         score_weight_power=args.score_weight_power,
     )
 
-    test_rows, _ = mod.select_goal_rows(
-        raw_test_rows,
-        goal_mode=args.objective,
-        top_k=args.top_k,
-        domination_penalty=args.goal_domination_penalty,
-        max_dominated_gap=args.goal_max_dominated_gap,
-        score_weight_min=args.score_weight_min,
-        score_weight_power=args.score_weight_power,
-    )
-
-    print(f"[INFO] Selected split sizes: train={len(train_rows)} val={len(val_rows)} test={len(test_rows)}")
-    return train_rows, val_rows, test_rows
+    print(f"[INFO] Selected split sizes: train={len(train_rows)} val={len(val_rows)}; "
+          f"held-out test rows not selected={len(raw_test_rows)}")
+    return train_rows, val_rows, []
 
 
 def dump_jsonl(path: str, rows: List[dict]) -> None:
@@ -803,12 +788,14 @@ class DPOPreferenceDataset(Dataset):
         tokenizer,
         max_length: int,
         value_weight: float = 1.0,
+        directive_domain_registry: Optional[Dict[str, Dict[str, List[str]]]] = None,
     ):
         self.mod = mod
         self.rows = rows
         self.tok = tokenizer
         self.max_length = max_length
         self.value_weight = float(value_weight)
+        self.directive_domain_registry = directive_domain_registry
         self.samples: List[dict] = []
         self.lengths: List[int] = []
         source_token_ids = set(
@@ -894,6 +881,8 @@ class DPOPreferenceDataset(Dataset):
             completion_text,
             self.tok,
             value_w=self.value_weight,
+            directive_domain_registry=self.directive_domain_registry,
+            kernel_name=kernel_name,
         )
 
         clock = self.mod.build_clock_pack(
@@ -1893,11 +1882,6 @@ def main():
                 os.path.join(selected_debug_dir, "val_selected.jsonl"),
                 val_rows,
             )
-        if test_rows:
-            dump_jsonl(
-                os.path.join(selected_debug_dir, "test_selected.jsonl"),
-                test_rows,
-            )
 
     print(f"[INFO] Final selected split sizes: train={len(train_rows)} val={len(val_rows)} test={len(test_rows)}")
 
@@ -1922,7 +1906,7 @@ def main():
     
     train_pairs = pair_builder.build(train_rows)
     val_pairs = pair_builder.build(val_rows) if val_rows else []
-    test_pairs = pair_builder.build(test_rows) if test_rows else []
+    test_pairs = []
 
     print(f"[INFO] Preference pairs: train={len(train_pairs)} val={len(val_pairs)} test={len(test_pairs)}")
 
@@ -1934,7 +1918,6 @@ def main():
 
     audit_preference_pairs("train", train_pairs)
     audit_preference_pairs("val", val_pairs)
-    audit_preference_pairs("test", test_pairs)
 
     preview_preference_pairs(train_pairs, n=3)
 
@@ -1943,8 +1926,6 @@ def main():
     dump_jsonl(os.path.join(debug_dir, "train_pairs.jsonl"), train_pairs)
     if val_pairs:
         dump_jsonl(os.path.join(debug_dir, "val_pairs.jsonl"), val_pairs)
-    if test_pairs:
-        dump_jsonl(os.path.join(debug_dir, "test_pairs.jsonl"), test_pairs)
 
     training_contract = build_stage3_contract(
         mod,
@@ -1978,9 +1959,7 @@ def main():
         raise ValueError(
             f"Memory dimension {inferred_mem_dim} != contract {args.mem_dim}"
         )
-    required_kernels = {
-        row["kernel_name"] for row in train_rows + val_rows + test_rows
-    }
+    required_kernels = {row["kernel_name"] for row in train_rows + val_rows}
     missing_memory = sorted(
         kernel for kernel in required_kernels
         if (
@@ -1997,12 +1976,16 @@ def main():
         args.memory_dir, mem_bank, required_kernels
     )
 
+    directive_domain_registry = mod.load_directive_domain_registry(
+        args.directive_domain_registry_json
+    )
     train_ds = DPOPreferenceDataset(
         mod=mod,
         rows=train_pairs,
         tokenizer=tokenizer,
         max_length=args.max_length,
         value_weight=args.value_loss_weight,
+        directive_domain_registry=directive_domain_registry,
     )
     val_ds = DPOPreferenceDataset(
         mod=mod,
@@ -2010,6 +1993,7 @@ def main():
         tokenizer=tokenizer,
         max_length=args.max_length,
         value_weight=args.value_loss_weight,
+        directive_domain_registry=directive_domain_registry,
     ) if val_pairs else None
 
     collator = DPOPairCollator(tokenizer)
@@ -2034,10 +2018,6 @@ def main():
     if hasattr(policy_model, "print_trainable_parameters"):
         policy_model.print_trainable_parameters()
 
-    directive_domain_registry = mod.load_directive_domain_registry(
-        args.directive_domain_registry_json
-    )
-
     selection_cases = mod.build_selection_cases(
         val_rows,
         goal_mode=args.objective,
@@ -2059,6 +2039,8 @@ def main():
     )
     training_args = TrainingArguments(
         output_dir=args.output_dir,
+        seed=args.seed,
+        data_seed=args.seed,
         num_train_epochs=args.epochs,
         max_steps=args.max_steps,
         per_device_train_batch_size=args.batch_size,

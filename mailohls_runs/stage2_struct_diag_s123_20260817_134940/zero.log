@@ -1,294 +1,0 @@
-[TARGET-CONDITIONING] TargetAwareConfig(device_mode='known', adapt_device='', budget_mode='random', random_budgets_per_case=16, min_budget_frac=0.1, min_feasible_candidates=3, candidate_pool_per_objective=24, auto_frequency_fraction=0.0, min_auto_clock_count=2, strict_source_markers=True, seed=123)
-[CUDA] using: Tesla V100S-PCIE-32GB
-[INFO] Loaded 150026 raw rows from /home/elvouvali/MailoHLS/artifacts/llm/mailohls_sft.jsonl
-[INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
-[INFO] Loaded split from /home/elvouvali/mailohls_runs/stage1_stage2_family_split_s123.json
-[INFO] Raw split sizes: train=133639 val=9682 test=6705
-[RANDOM-BUDGET] input=133639 output=83086 stats={'kept_budgets': 1603, 'candidate_rows': 83086, 'rejected_small_candidate_sets': 29}
-[RANDOM-BUDGET] input=9682 output=4710 stats={'kept_budgets': 96, 'candidate_rows': 4710}
-[RANDOM-BUDGET] input=6705 output=1236 stats={'kept_budgets': 19, 'candidate_rows': 1236, 'rejected_small_candidate_sets': 13}
-[CLOCK-MODE] Counter({'specified': 3835})
-[CLOCK-MODE] Counter({'specified': 144})
-[CLOCK-MODE] Counter({'specified': 57})
-[INFO] Selected split sizes: train=3835 val=144 test=57
-[LOSS] directive weighting=uniform weights=uniform
-[INFO] Built 24 validation selection cases from 3 distinct kernels and 6 kernel/device groups
-[DOMAINS] validated 55 kernel registries
-[INFO] Overriding --mem_dim -1 -> 64 from memory bank
-[INFO] Memory bank keys: 85
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:13<00:13, 13.37s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:17<00:00,  8.08s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:17<00:00,  8.87s/it]
-[MODEL] weights_tied=False
-[INIT] Loaded adapter from: /home/elvouvali/mailohls_runs/frozen_stage1_pareto_adp_s123_step400
-[MODEL] special_token_trainable_params=573440
-[STRUCTURAL-XATTN] placement=post_self_attn_pre_mlp layers=[8, 16, 24, 32]
-[STRUCTURAL-XATTN] decoder_layers_attr_name=base_model.model.model.layers
-[STRUCTURAL-XATTN] inserted gated xattn every 8 decoder layers
-[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
-trainable params: 29,114,372 || all params: 6,768,857,092 || trainable%: 0.4301
-tied = False
-[OPT] froze 20,561,920 parameters assigned to zero-LR groups
-[DATASET] candidate loss disabled; skipping local hard negatives
-[DATASET] samples=3835 code_truncated=0
-[DATASET] samples=144 code_truncated=0
-[INIT-STATE] Created reference atomically: /home/elvouvali/mailohls_runs/stage2_struct_diag_s123_20260817_134940/initial_structural_state.json
-[INIT-STATE] combined_sha256=490a6845dd2d028bb7257920dc0e095471c5f129666abbe35f3651ad593305c0
-[RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
-[INFO] No checkpoint found. Starting from scratch.
-[OPT] param groups: lora=0 embed=0 attn_gate=4 ff_gate=0 xattn_attn=8,552,448 xattn_ff=0 lr_lora=0 lr_embed=0 lr_gate=0.0002 lr_gate_ff=0 lr_xattn=0.0001 lr_ff=0
-  0%|          | 0/20 [00:00<?, ?it/s]huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-[GATES] attn gates:
-  base_model.model.model.layers.7.post_attention_layernorm.gated_cross_attn_layer.attn_gate: raw=0.00000000 tanh=0.00000000 grad=0.00000000e+00 |grad|=0.00000000e+00
-  base_model.model.model.layers.15.post_attention_layernorm.gated_cross_attn_layer.attn_gate: raw=0.00000000 tanh=0.00000000 grad=0.00000000e+00 |grad|=0.00000000e+00
-  base_model.model.model.layers.23.post_attention_layernorm.gated_cross_attn_layer.attn_gate: raw=0.00000000 tanh=0.00000000 grad=0.00000000e+00 |grad|=0.00000000e+00
-  base_model.model.model.layers.31.post_attention_layernorm.gated_cross_attn_layer.attn_gate: raw=0.00000000 tanh=0.00000000 grad=0.00000000e+00 |grad|=0.00000000e+00
-[GATES] ff gates:
-[XATTN-DBG] base_model.model.model.layers.7.post_attention_layernorm.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 4069, 'S': 64, 'memory_mask_true': 0, 'out_abs_mean': 0.0, 'out_l2_mean': 0.0, 'attn_mean': 0.0, 'attn_max': 0.0, 'placeholder_tokens': 19, 'active_tokens_after_fill': 716, 'valid_edges': 0, 'tokens_with_route': 0}
-[XATTN-DBG] base_model.model.model.layers.15.post_attention_layernorm.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 4069, 'S': 64, 'memory_mask_true': 0, 'out_abs_mean': 0.0, 'out_l2_mean': 0.0, 'attn_mean': 0.0, 'attn_max': 0.0, 'placeholder_tokens': 19, 'active_tokens_after_fill': 716, 'valid_edges': 0, 'tokens_with_route': 0}
-[XATTN-DBG] base_model.model.model.layers.23.post_attention_layernorm.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 4069, 'S': 64, 'memory_mask_true': 0, 'out_abs_mean': 0.0, 'out_l2_mean': 0.0, 'attn_mean': 0.0, 'attn_max': 0.0, 'placeholder_tokens': 19, 'active_tokens_after_fill': 716, 'valid_edges': 0, 'tokens_with_route': 0}
-[XATTN-DBG] base_model.model.model.layers.31.post_attention_layernorm.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 4069, 'S': 64, 'memory_mask_true': 0, 'out_abs_mean': 0.0, 'out_l2_mean': 0.0, 'attn_mean': 0.0, 'attn_max': 0.0, 'placeholder_tokens': 19, 'active_tokens_after_fill': 716, 'valid_edges': 0, 'tokens_with_route': 0}
-[XATTN-RESID] base_model.model.model.layers.7.post_attention_layernorm.gated_cross_attn_layer: gate=0.0 active=106 hidden_l2=42.156131744384766 projected_l2=0.0 residual_l2=0.0 projected/hidden=0.0 gated/hidden=0.0 gated/hidden_max=0.0
-[XATTN-RESID] base_model.model.model.layers.15.post_attention_layernorm.gated_cross_attn_layer: gate=0.0 active=106 hidden_l2=104.54313659667969 projected_l2=0.0 residual_l2=0.0 projected/hidden=0.0 gated/hidden=0.0 gated/hidden_max=0.0
-[XATTN-RESID] base_model.model.model.layers.23.post_attention_layernorm.gated_cross_attn_layer: gate=0.0 active=106 hidden_l2=210.42462158203125 projected_l2=0.0 residual_l2=0.0 projected/hidden=0.0 gated/hidden=0.0 gated/hidden_max=0.0
-[XATTN-RESID] base_model.model.model.layers.31.post_attention_layernorm.gated_cross_attn_layer: gate=0.0 active=106 hidden_l2=487.5275573730469 projected_l2=0.0 residual_l2=0.0 projected/hidden=0.0 gated/hidden=0.0 gated/hidden_max=0.0
-[XATTN-GRAD] base_model.model.model.layers.7.post_attention_layernorm.gated_cross_attn_layer.attn
-  Q   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  K   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  V   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  OUT L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-[XATTN-GRAD] base_model.model.model.layers.15.post_attention_layernorm.gated_cross_attn_layer.attn
-  Q   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  K   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  V   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  OUT L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-[XATTN-GRAD] base_model.model.model.layers.23.post_attention_layernorm.gated_cross_attn_layer.attn
-  Q   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  K   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  V   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  OUT L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-[XATTN-GRAD] base_model.model.model.layers.31.post_attention_layernorm.gated_cross_attn_layer.attn
-  Q   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  K   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  V   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  OUT L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
-  5%|▌         | 1/20 [00:41<13:05, 41.32s/it] 10%|█         | 2/20 [01:07<09:38, 32.12s/it] 15%|█▌        | 3/20 [01:23<07:02, 24.87s/it] 20%|██        | 4/20 [01:34<05:12, 19.52s/it] 25%|██▌       | 5/20 [01:42<03:49, 15.32s/it] 30%|███       | 6/20 [01:47<02:47, 11.95s/it] 35%|███▌      | 7/20 [02:19<03:58, 18.33s/it] 40%|████      | 8/20 [02:49<04:26, 22.21s/it] 45%|████▌     | 9/20 [03:13<04:10, 22.79s/it] 50%|█████     | 10/20 [03:29<03:25, 20.56s/it]                                               {'loss': 0.1048, 'grad_norm': 0.0, 'learning_rate': 0.0001156434465040231, 'epoch': 0.02}
- 50%|█████     | 10/20 [03:29<03:25, 20.56s/it] 55%|█████▌    | 11/20 [03:39<02:34, 17.21s/it] 60%|██████    | 12/20 [03:45<01:51, 13.96s/it] 65%|██████▌   | 13/20 [04:13<02:06, 18.04s/it] 70%|███████   | 14/20 [04:48<02:19, 23.33s/it] 75%|███████▌  | 15/20 [05:15<02:01, 24.37s/it] 80%|████████  | 16/20 [05:31<01:27, 21.97s/it] 85%|████████▌ | 17/20 [05:41<00:55, 18.35s/it] 90%|█████████ | 18/20 [05:48<00:29, 14.90s/it] 95%|█████████▌| 19/20 [06:04<00:15, 15.33s/it]100%|██████████| 20/20 [06:40<00:00, 21.46s/it]                                               {'loss': 0.0941, 'grad_norm': 0.0, 'learning_rate': 1.231165940486234e-06, 'epoch': 0.04}
-100%|██████████| 20/20 [06:40<00:00, 21.46s/it]huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-
-  0%|          | 0/144 [00:00<?, ?it/s][A
-  1%|▏         | 2/144 [00:00<00:39,  3.60it/s][A
-  2%|▏         | 3/144 [00:01<00:55,  2.55it/s][A
-  3%|▎         | 4/144 [00:01<01:03,  2.22it/s][A
-  3%|▎         | 5/144 [00:02<01:14,  1.87it/s][A
-  4%|▍         | 6/144 [00:02<01:08,  2.03it/s][A
-  5%|▍         | 7/144 [00:03<01:03,  2.16it/s][A
-  6%|▌         | 8/144 [00:03<01:06,  2.05it/s][A
-  6%|▋         | 9/144 [00:04<01:14,  1.82it/s][A
-  7%|▋         | 10/144 [00:04<01:07,  1.97it/s][A
-  8%|▊         | 11/144 [00:05<01:03,  2.11it/s][A
-  8%|▊         | 12/144 [00:05<00:59,  2.22it/s][A
-  9%|▉         | 13/144 [00:06<01:02,  2.08it/s][A
- 10%|▉         | 14/144 [00:06<00:59,  2.18it/s][A
- 10%|█         | 15/144 [00:07<01:08,  1.89it/s][A
- 11%|█         | 16/144 [00:07<01:13,  1.74it/s][A
- 12%|█▏        | 17/144 [00:08<01:17,  1.64it/s][A
- 12%|█▎        | 18/144 [00:09<01:09,  1.82it/s][A
- 13%|█▎        | 19/144 [00:09<01:08,  1.82it/s][A
- 14%|█▍        | 20/144 [00:09<01:02,  1.98it/s][A
- 15%|█▍        | 21/144 [00:10<01:03,  1.93it/s][A
- 15%|█▌        | 22/144 [00:11<01:09,  1.76it/s][A
- 16%|█▌        | 23/144 [00:11<01:03,  1.92it/s][A
- 17%|█▋        | 24/144 [00:12<00:58,  2.07it/s][A
- 17%|█▋        | 25/144 [00:12<00:54,  2.18it/s][A
- 18%|█▊        | 26/144 [00:12<00:51,  2.27it/s][A
- 19%|█▉        | 27/144 [00:13<00:49,  2.34it/s][A
- 19%|█▉        | 28/144 [00:13<00:53,  2.16it/s][A
- 20%|██        | 29/144 [00:14<00:51,  2.25it/s][A
- 21%|██        | 30/144 [00:14<00:58,  1.94it/s][A
- 22%|██▏       | 31/144 [00:15<00:54,  2.07it/s][A
- 22%|██▏       | 32/144 [00:15<00:51,  2.18it/s][A
- 23%|██▎       | 33/144 [00:16<00:48,  2.27it/s][A
- 24%|██▎       | 34/144 [00:16<00:56,  1.95it/s][A
- 24%|██▍       | 35/144 [00:17<00:52,  2.08it/s][A
- 25%|██▌       | 36/144 [00:17<00:49,  2.19it/s][A
- 26%|██▌       | 37/144 [00:18<00:51,  2.06it/s][A
- 26%|██▋       | 38/144 [00:18<00:48,  2.17it/s][A
- 27%|██▋       | 39/144 [00:19<00:55,  1.90it/s][A
- 28%|██▊       | 40/144 [00:19<00:51,  2.03it/s][A
- 28%|██▊       | 41/144 [00:20<00:56,  1.82it/s][A
- 29%|██▉       | 42/144 [00:20<00:51,  1.97it/s][A
- 30%|██▉       | 43/144 [00:21<00:47,  2.11it/s][A
- 31%|███       | 44/144 [00:21<00:45,  2.21it/s][A
- 31%|███▏      | 45/144 [00:22<00:47,  2.08it/s][A
- 32%|███▏      | 46/144 [00:22<00:49,  1.99it/s][A
- 33%|███▎      | 47/144 [00:22<00:45,  2.12it/s][A
- 33%|███▎      | 48/144 [00:23<00:43,  2.22it/s][A
- 34%|███▍      | 49/144 [00:23<00:41,  2.30it/s][A
- 35%|███▍      | 50/144 [00:24<00:39,  2.36it/s][A
- 35%|███▌      | 51/144 [00:24<00:42,  2.17it/s][A
- 36%|███▌      | 52/144 [00:25<00:44,  2.05it/s][A
- 37%|███▋      | 53/144 [00:25<00:42,  2.16it/s][A
- 38%|███▊      | 54/144 [00:26<00:44,  2.05it/s][A
- 38%|███▊      | 55/144 [00:26<00:45,  1.97it/s][A
- 39%|███▉      | 56/144 [00:27<00:45,  1.92it/s][A
- 40%|███▉      | 57/144 [00:27<00:46,  1.89it/s][A
- 40%|████      | 58/144 [00:28<00:49,  1.73it/s][A
- 41%|████      | 59/144 [00:28<00:44,  1.90it/s][A
- 42%|████▏     | 60/144 [00:29<00:44,  1.88it/s][A
- 42%|████▏     | 61/144 [00:29<00:41,  2.02it/s][A
- 43%|████▎     | 62/144 [00:30<00:38,  2.15it/s][A
- 44%|████▍     | 63/144 [00:30<00:36,  2.24it/s][A
- 44%|████▍     | 64/144 [00:31<00:34,  2.31it/s][A
- 45%|████▌     | 65/144 [00:31<00:33,  2.37it/s][A
- 46%|████▌     | 66/144 [00:32<00:39,  1.99it/s][A
- 47%|████▋     | 67/144 [00:32<00:36,  2.10it/s][A
- 47%|████▋     | 68/144 [00:33<00:40,  1.86it/s][A
- 48%|████▊     | 69/144 [00:33<00:37,  2.00it/s][A
- 49%|████▊     | 70/144 [00:34<00:41,  1.79it/s][A
- 49%|████▉     | 71/144 [00:34<00:38,  1.91it/s][A
- 50%|█████     | 72/144 [00:35<00:35,  2.02it/s][A
- 51%|█████     | 73/144 [00:35<00:37,  1.91it/s][A
- 51%|█████▏    | 74/144 [00:36<00:34,  2.01it/s][A
- 52%|█████▏    | 75/144 [00:37<00:39,  1.75it/s][A
- 53%|█████▎    | 76/144 [00:37<00:39,  1.73it/s][A
- 53%|█████▎    | 77/144 [00:38<00:42,  1.59it/s][A
- 54%|█████▍    | 78/144 [00:39<00:43,  1.50it/s][A
- 55%|█████▍    | 79/144 [00:39<00:38,  1.67it/s][A
- 56%|█████▌    | 80/144 [00:40<00:35,  1.82it/s][A
- 56%|█████▋    | 81/144 [00:40<00:35,  1.79it/s][A
- 57%|█████▋    | 82/144 [00:41<00:38,  1.63it/s][A
- 58%|█████▊    | 83/144 [00:41<00:37,  1.64it/s][A
- 58%|█████▊    | 84/144 [00:42<00:36,  1.66it/s][A
- 59%|█████▉    | 85/144 [00:43<00:35,  1.66it/s][A
- 60%|█████▉    | 86/144 [00:43<00:37,  1.55it/s][A
- 60%|██████    | 87/144 [00:44<00:32,  1.73it/s][A
- 61%|██████    | 88/144 [00:44<00:29,  1.90it/s][A
- 62%|██████▏   | 89/144 [00:45<00:26,  2.05it/s][A
- 62%|██████▎   | 90/144 [00:45<00:27,  1.97it/s][A
- 63%|██████▎   | 91/144 [00:46<00:25,  2.10it/s][A
- 64%|██████▍   | 92/144 [00:46<00:25,  2.01it/s][A
- 65%|██████▍   | 93/144 [00:47<00:26,  1.95it/s][A
- 65%|██████▌   | 94/144 [00:47<00:24,  2.08it/s][A
- 66%|██████▌   | 95/144 [00:48<00:24,  1.99it/s][A
- 67%|██████▋   | 96/144 [00:48<00:26,  1.79it/s][A
- 67%|██████▋   | 97/144 [00:49<00:26,  1.79it/s][A
- 68%|██████▊   | 98/144 [00:49<00:25,  1.80it/s][A
- 69%|██████▉   | 99/144 [00:50<00:23,  1.95it/s][A
- 69%|██████▉   | 100/144 [00:50<00:22,  1.92it/s][A
- 70%|███████   | 101/144 [00:51<00:22,  1.88it/s][A
- 71%|███████   | 102/144 [00:51<00:22,  1.86it/s][A
- 72%|███████▏  | 103/144 [00:52<00:22,  1.85it/s][A
- 72%|███████▏  | 104/144 [00:52<00:20,  2.00it/s][A
- 73%|███████▎  | 105/144 [00:53<00:21,  1.80it/s][A
- 74%|███████▎  | 106/144 [00:54<00:21,  1.80it/s][A
- 74%|███████▍  | 107/144 [00:54<00:20,  1.80it/s][A
- 75%|███████▌  | 108/144 [00:55<00:21,  1.68it/s][A
- 76%|███████▌  | 109/144 [00:55<00:18,  1.84it/s][A
- 76%|███████▋  | 110/144 [00:56<00:16,  2.00it/s][A
- 77%|███████▋  | 111/144 [00:56<00:15,  2.13it/s][A
- 78%|███████▊  | 112/144 [00:57<00:15,  2.03it/s][A
- 78%|███████▊  | 113/144 [00:57<00:15,  1.95it/s][A
- 79%|███████▉  | 114/144 [00:58<00:15,  1.91it/s][A
- 80%|███████▉  | 115/144 [00:58<00:14,  2.05it/s][A
- 81%|████████  | 116/144 [00:59<00:14,  1.98it/s][A
- 81%|████████▏ | 117/144 [00:59<00:12,  2.10it/s][A
- 82%|████████▏ | 118/144 [01:00<00:14,  1.86it/s][A
- 83%|████████▎ | 119/144 [01:01<00:14,  1.71it/s][A
- 83%|████████▎ | 120/144 [01:01<00:12,  1.88it/s][A
- 84%|████████▍ | 121/144 [01:01<00:12,  1.86it/s][A
- 85%|████████▍ | 122/144 [01:02<00:12,  1.72it/s][A
- 85%|████████▌ | 123/144 [01:03<00:12,  1.62it/s][A
- 86%|████████▌ | 124/144 [01:04<00:12,  1.56it/s][A
- 87%|████████▋ | 125/144 [01:04<00:11,  1.63it/s][A
- 88%|████████▊ | 126/144 [01:05<00:09,  1.81it/s][A
- 88%|████████▊ | 127/144 [01:05<00:08,  1.98it/s][A
- 89%|████████▉ | 128/144 [01:05<00:08,  1.93it/s][A
- 90%|████████▉ | 129/144 [01:06<00:07,  2.07it/s][A
- 90%|█████████ | 130/144 [01:06<00:06,  2.18it/s][A
- 91%|█████████ | 131/144 [01:07<00:06,  2.07it/s][A
- 92%|█████████▏| 132/144 [01:07<00:05,  2.17it/s][A
- 92%|█████████▏| 133/144 [01:08<00:04,  2.25it/s][A
- 93%|█████████▎| 134/144 [01:08<00:04,  2.32it/s][A
- 94%|█████████▍| 135/144 [01:09<00:04,  2.14it/s][A
- 94%|█████████▍| 136/144 [01:09<00:03,  2.03it/s][A
- 95%|█████████▌| 137/144 [01:10<00:03,  2.14it/s][A
- 96%|█████████▌| 138/144 [01:10<00:02,  2.04it/s][A
- 97%|█████████▋| 139/144 [01:11<00:02,  1.82it/s][A
- 97%|█████████▋| 140/144 [01:11<00:02,  1.97it/s][A
- 98%|█████████▊| 141/144 [01:12<00:01,  1.93it/s][A
- 99%|█████████▊| 142/144 [01:12<00:01,  1.75it/s][A
- 99%|█████████▉| 143/144 [01:13<00:00,  1.64it/s][A
-100%|██████████| 144/144 [01:14<00:00,  1.51it/s][A                                               
-                                                 [A{'eval_loss': 0.31939902901649475, 'eval_runtime': 75.2917, 'eval_samples_per_second': 1.913, 'eval_steps_per_second': 1.913, 'epoch': 0.04}
-100%|██████████| 20/20 [07:55<00:00, 21.46s/it]
-100%|██████████| 144/144 [01:14<00:00,  1.51it/s][A
-                                                 [A
-====================================================================================================
-[VAL-SELECTION] step=20
-[VAL-SELECTION] mean_value_acc=0.683712
-[VAL-SELECTION] schema_compliance=1.000000
-[VAL-SELECTION] expected_key_accuracy=1.000000
-[VAL-SELECTION] exact_design_accuracy=0.000000
-[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 1.0, 'ARRAY_F': 0.625, 'ARRAY_T': 0.5833333333333334, 'PIPE': 0.6838235294117647, 'UNROLL': 0.625}
-[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.6136363636363636, 'rodinia_pathfinder_0_baseline_0': 0.675, 'rodinia_pathfinder_4_doublebuffer_0': 0.7625}
-[VAL-SELECTION] minimum_kernel_accuracy=0.613636
-[VAL-SELECTION] selection_score=0.683712
-[VAL-SELECTION] checkpoint_key=(0.6837121212121211, 0.6136363636363636, 0.0, -0.31939902901649475)
-====================================================================================================
-[VAL-MARGIN] count=336 mean=0.3567586143336035 median=0.8277252241969109 positive_fraction=0.6071428571428571 mean_gold_rank=1.7976190476190477
-[VAL-MARGIN] per_kind={'ARRAY_F': {'count': 48, 'mean_margin': 0.17024155782473827, 'median_margin': 0.8834740594029427, 'positive_fraction': 0.625, 'mean_gold_rank': 2.4583333333333335}, 'ARRAY_T': {'count': 48, 'mean_margin': 0.018410785356536508, 'median_margin': 0.1580883115530014, 'positive_fraction': 0.5833333333333334, 'mean_gold_rank': 1.4166666666666667}, 'PIPE': {'count': 112, 'mean_margin': 0.31247687498190707, 'median_margin': 1.0546965897083282, 'positive_fraction': 0.6160714285714286, 'mean_gold_rank': 1.3839285714285714}, 'UNROLL': {'count': 128, 'mean_margin': 0.5923294683235625, 'median_margin': 1.6670620338991284, 'positive_fraction': 0.6015625, 'mean_gold_rank': 2.0546875}}
-[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 152, 'mean_margin': 0.15987209198796168, 'median_margin': 0.9921851493418217, 'positive_fraction': 0.5526315789473685, 'mean_gold_rank': 1.6842105263157894}, 'rodinia_pathfinder_0_baseline_0': {'count': 64, 'mean_margin': 0.30592929636327426, 'median_margin': 0.20886261761188507, 'positive_fraction': 0.59375, 'mean_gold_rank': 2.125}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 120, 'mean_margin': 0.6332571788889254, 'median_margin': 0.8570746928453445, 'positive_fraction': 0.6833333333333333, 'mean_gold_rank': 1.7666666666666666}}
-[VAL-SELECTION] Saved best STRUCTURAL xattn weights -> /home/elvouvali/mailohls_runs/stage2_struct_diag_s123_20260817_134940/zero/best_custom_stage2/structural_xattn.pt
-[VAL-SELECTION] New best checkpoint at step 20 -> /home/elvouvali/mailohls_runs/stage2_struct_diag_s123_20260817_134940/zero/best_custom_stage2
-/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/peft/utils/save_and_load.py:309: UserWarning: Setting `save_embedding_layers` to `True` as the embedding layer has been resized during finetuning.
-  warnings.warn(
-[STRUCTURAL-SAVE] saved xattn weights to /home/elvouvali/mailohls_runs/stage2_struct_diag_s123_20260817_134940/zero/checkpoint-20/structural_xattn.pt
-                                               {'train_runtime': 1361.4343, 'train_samples_per_second': 0.118, 'train_steps_per_second': 0.015, 'train_loss': 0.09942556917667389, 'epoch': 0.04}
-100%|██████████| 20/20 [22:41<00:00, 21.46s/it]100%|██████████| 20/20 [22:41<00:00, 68.07s/it]
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
-To disable this warning, you can either:
-	- Avoid using `tokenizers` before the fork if possible
-	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
-  0%|          | 0/144 [00:00<?, ?it/s]  1%|▏         | 2/144 [00:00<00:39,  3.59it/s]  2%|▏         | 3/144 [00:01<00:55,  2.54it/s]  3%|▎         | 4/144 [00:01<01:03,  2.21it/s]  3%|▎         | 5/144 [00:02<01:14,  1.87it/s]  4%|▍         | 6/144 [00:02<01:08,  2.03it/s]  5%|▍         | 7/144 [00:03<01:03,  2.16it/s]  6%|▌         | 8/144 [00:03<01:06,  2.04it/s]  6%|▋         | 9/144 [00:04<01:14,  1.81it/s]  7%|▋         | 10/144 [00:04<01:08,  1.97it/s]  8%|▊         | 11/144 [00:05<01:03,  2.11it/s]  8%|▊         | 12/144 [00:05<00:59,  2.21it/s]  9%|▉         | 13/144 [00:06<01:03,  2.08it/s] 10%|▉         | 14/144 [00:06<00:59,  2.17it/s] 10%|█         | 15/144 [00:07<01:07,  1.90it/s] 11%|█         | 16/144 [00:07<01:13,  1.73it/s] 12%|█▏        | 17/144 [00:08<01:17,  1.63it/s] 12%|█▎        | 18/144 [00:09<01:09,  1.81it/s] 13%|█▎        | 19/144 [00:09<01:08,  1.82it/s] 14%|█▍        | 20/144 [00:10<01:02,  1.97it/s] 15%|█▍        | 21/144 [00:10<01:03,  1.92it/s] 15%|█▌        | 22/144 [00:11<01:09,  1.75it/s] 16%|█▌        | 23/144 [00:11<01:03,  1.91it/s] 17%|█▋        | 24/144 [00:12<00:58,  2.06it/s] 17%|█▋        | 25/144 [00:12<00:54,  2.17it/s] 18%|█▊        | 26/144 [00:12<00:52,  2.26it/s] 19%|█▉        | 27/144 [00:13<00:50,  2.33it/s] 19%|█▉        | 28/144 [00:13<00:53,  2.15it/s] 20%|██        | 29/144 [00:14<00:51,  2.24it/s] 21%|██        | 30/144 [00:14<00:59,  1.93it/s] 22%|██▏       | 31/144 [00:15<00:54,  2.06it/s] 22%|██▏       | 32/144 [00:15<00:51,  2.17it/s] 23%|██▎       | 33/144 [00:16<00:49,  2.26it/s] 24%|██▎       | 34/144 [00:16<00:56,  1.94it/s] 24%|██▍       | 35/144 [00:17<00:52,  2.07it/s] 25%|██▌       | 36/144 [00:17<00:49,  2.18it/s] 26%|██▌       | 37/144 [00:18<00:51,  2.06it/s] 26%|██▋       | 38/144 [00:18<00:48,  2.17it/s] 27%|██▋       | 39/144 [00:19<00:55,  1.89it/s] 28%|██▊       | 40/144 [00:19<00:51,  2.03it/s] 28%|██▊       | 41/144 [00:20<00:56,  1.82it/s] 29%|██▉       | 42/144 [00:20<00:51,  1.97it/s] 30%|██▉       | 43/144 [00:21<00:48,  2.10it/s] 31%|███       | 44/144 [00:21<00:45,  2.21it/s] 31%|███▏      | 45/144 [00:22<00:47,  2.08it/s] 32%|███▏      | 46/144 [00:22<00:49,  1.99it/s] 33%|███▎      | 47/144 [00:23<00:45,  2.12it/s] 33%|███▎      | 48/144 [00:23<00:43,  2.22it/s] 34%|███▍      | 49/144 [00:23<00:41,  2.30it/s] 35%|███▍      | 50/144 [00:24<00:39,  2.37it/s] 35%|███▌      | 51/144 [00:24<00:42,  2.18it/s] 36%|███▌      | 52/144 [00:25<00:44,  2.06it/s] 37%|███▋      | 53/144 [00:25<00:41,  2.17it/s] 38%|███▊      | 54/144 [00:26<00:43,  2.06it/s] 38%|███▊      | 55/144 [00:26<00:44,  1.98it/s] 39%|███▉      | 56/144 [00:27<00:45,  1.93it/s] 40%|███▉      | 57/144 [00:27<00:45,  1.90it/s] 40%|████      | 58/144 [00:28<00:49,  1.74it/s] 41%|████      | 59/144 [00:29<00:44,  1.90it/s] 42%|████▏     | 60/144 [00:29<00:44,  1.88it/s] 42%|████▏     | 61/144 [00:29<00:40,  2.03it/s] 43%|████▎     | 62/144 [00:30<00:38,  2.16it/s] 44%|████▍     | 63/144 [00:30<00:36,  2.24it/s] 44%|████▍     | 64/144 [00:31<00:34,  2.31it/s] 45%|████▌     | 65/144 [00:31<00:33,  2.37it/s] 46%|████▌     | 66/144 [00:32<00:38,  2.00it/s] 47%|████▋     | 67/144 [00:32<00:36,  2.12it/s] 47%|████▋     | 68/144 [00:33<00:40,  1.87it/s] 48%|████▊     | 69/144 [00:33<00:37,  2.02it/s] 49%|████▊     | 70/144 [00:34<00:40,  1.81it/s] 49%|████▉     | 71/144 [00:34<00:37,  1.97it/s] 50%|█████     | 72/144 [00:35<00:34,  2.10it/s] 51%|█████     | 73/144 [00:35<00:35,  2.02it/s] 51%|█████▏    | 74/144 [00:36<00:32,  2.13it/s] 52%|█████▏    | 75/144 [00:36<00:36,  1.88it/s] 53%|█████▎    | 76/144 [00:37<00:36,  1.86it/s] 53%|█████▎    | 77/144 [00:38<00:39,  1.71it/s] 54%|█████▍    | 78/144 [00:38<00:40,  1.62it/s] 55%|█████▍    | 79/144 [00:39<00:36,  1.80it/s] 56%|█████▌    | 80/144 [00:39<00:32,  1.97it/s] 56%|█████▋    | 81/144 [00:40<00:32,  1.93it/s] 57%|█████▋    | 82/144 [00:40<00:35,  1.76it/s] 58%|█████▊    | 83/144 [00:41<00:34,  1.77it/s] 58%|█████▊    | 84/144 [00:41<00:33,  1.79it/s] 59%|█████▉    | 85/144 [00:42<00:32,  1.79it/s] 60%|█████▉    | 86/144 [00:43<00:34,  1.68it/s] 60%|██████    | 87/144 [00:43<00:30,  1.86it/s] 61%|██████    | 88/144 [00:43<00:27,  2.02it/s] 62%|██████▏   | 89/144 [00:44<00:25,  2.15it/s] 62%|██████▎   | 90/144 [00:44<00:26,  2.04it/s] 63%|██████▎   | 91/144 [00:45<00:24,  2.15it/s] 64%|██████▍   | 92/144 [00:45<00:25,  2.05it/s] 65%|██████▍   | 93/144 [00:46<00:25,  1.98it/s] 65%|██████▌   | 94/144 [00:46<00:23,  2.10it/s] 66%|██████▌   | 95/144 [00:47<00:24,  2.02it/s] 67%|██████▋   | 96/144 [00:48<00:26,  1.81it/s] 67%|██████▋   | 97/144 [00:48<00:25,  1.81it/s] 68%|██████▊   | 98/144 [00:49<00:25,  1.81it/s] 69%|██████▉   | 99/144 [00:49<00:22,  1.96it/s] 69%|██████▉   | 100/144 [00:50<00:22,  1.93it/s] 70%|███████   | 101/144 [00:50<00:22,  1.90it/s] 71%|███████   | 102/144 [00:51<00:22,  1.87it/s] 72%|███████▏  | 103/144 [00:51<00:22,  1.86it/s] 72%|███████▏  | 104/144 [00:52<00:19,  2.01it/s] 73%|███████▎  | 105/144 [00:52<00:21,  1.81it/s] 74%|███████▎  | 106/144 [00:53<00:21,  1.81it/s] 74%|███████▍  | 107/144 [00:53<00:20,  1.81it/s] 75%|███████▌  | 108/144 [00:54<00:21,  1.69it/s] 76%|███████▌  | 109/144 [00:55<00:18,  1.86it/s] 76%|███████▋  | 110/144 [00:55<00:16,  2.02it/s] 77%|███████▋  | 111/144 [00:55<00:15,  2.15it/s] 78%|███████▊  | 112/144 [00:56<00:15,  2.05it/s] 78%|███████▊  | 113/144 [00:56<00:15,  1.97it/s] 79%|███████▉  | 114/144 [00:57<00:15,  1.93it/s] 80%|███████▉  | 115/144 [00:57<00:14,  2.07it/s] 81%|████████  | 116/144 [00:58<00:14,  2.00it/s] 81%|████████▏ | 117/144 [00:58<00:12,  2.12it/s] 82%|████████▏ | 118/144 [00:59<00:13,  1.88it/s] 83%|████████▎ | 119/144 [01:00<00:14,  1.73it/s] 83%|████████▎ | 120/144 [01:00<00:12,  1.90it/s] 84%|████████▍ | 121/144 [01:01<00:12,  1.88it/s] 85%|████████▍ | 122/144 [01:01<00:12,  1.73it/s] 85%|████████▌ | 123/144 [01:02<00:12,  1.64it/s] 86%|████████▌ | 124/144 [01:03<00:12,  1.57it/s] 87%|████████▋ | 125/144 [01:03<00:11,  1.64it/s] 88%|████████▊ | 126/144 [01:04<00:09,  1.82it/s] 88%|████████▊ | 127/144 [01:04<00:08,  1.99it/s] 89%|████████▉ | 128/144 [01:05<00:08,  1.94it/s] 90%|████████▉ | 129/144 [01:05<00:07,  2.08it/s] 90%|█████████ | 130/144 [01:05<00:06,  2.19it/s] 91%|█████████ | 131/144 [01:06<00:06,  2.07it/s] 92%|█████████▏| 132/144 [01:06<00:05,  2.18it/s] 92%|█████████▏| 133/144 [01:07<00:04,  2.27it/s] 93%|█████████▎| 134/144 [01:07<00:04,  2.34it/s] 94%|█████████▍| 135/144 [01:08<00:04,  2.16it/s] 94%|█████████▍| 136/144 [01:08<00:03,  2.05it/s] 95%|█████████▌| 137/144 [01:09<00:03,  2.15it/s] 96%|█████████▌| 138/144 [01:09<00:02,  2.03it/s] 97%|█████████▋| 139/144 [01:10<00:02,  1.82it/s] 97%|█████████▋| 140/144 [01:10<00:02,  1.98it/s] 98%|█████████▊| 141/144 [01:11<00:01,  1.94it/s] 99%|█████████▊| 142/144 [01:11<00:01,  1.77it/s] 99%|█████████▉| 143/144 [01:12<00:00,  1.66it/s]100%|██████████| 144/144 [01:13<00:00,  1.53it/s]100%|██████████| 144/144 [01:13<00:00,  1.96it/s]
-[DONE] Saved LoRA + STRUCTURAL xattn adapters to: /home/elvouvali/mailohls_runs/stage2_struct_diag_s123_20260817_134940/zero

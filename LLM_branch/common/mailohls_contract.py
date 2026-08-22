@@ -3,8 +3,13 @@
 import random
 import re
 from collections import defaultdict
+from itertools import product
 
-PROMPT_SCHEMA_VERSION = 1
+PROMPT_SCHEMA_VERSION = 2
+RESPONSE_PREFIX_POLICY = "selected_clock_as_fixed_response_context"
+CLOCK_SUPERVISION_POLICY = "automatic_clock_only"
+DIRECTIVE_SUPERVISION_POLICY = "decision_sites_only_equal_weight_per_site"
+SEMANTIC_DOMAIN_POLICY = "loop_exclusive_and_conditional_array_partition"
 
 PROMPT_TEMPLATE = """
 ### Role: Expert FPGA/HLS engineer.
@@ -146,6 +151,128 @@ def _norm_device(value) -> str:
 
 def _norm_clock(value) -> float:
     return round(float(value), 2)
+
+
+def family_id_from_kernel_name(name: str) -> str:
+    """Return the shared family identity used by every holdout split."""
+    value = re.sub(r"[-\s]+", "_", str(name).strip().lower())
+    if value.startswith("machsuite_gemm"):
+        return "machsuite_gemm"
+    if value.startswith("machsuite_"):
+        parts = value.split("_")
+        return "_".join(parts[:-1]) if len(parts) >= 3 and parts[-1].isdigit() else value
+    if value.startswith("spcl_example"):
+        return "spcl_example"
+    if value.startswith("serrano_"):
+        return "serrano_kalman_filter"
+    if value.startswith("rodinia_"):
+        rest = value[len("rodinia_"):]
+        for special in ("cfd_flux", "cfd_step_factor", "lc_gicov", "lc_mgvf"):
+            if rest.startswith(special):
+                return f"rodinia_{special}"
+        return f"rodinia_{rest.split('_')[0]}"
+    return value
+
+
+def selected_clock_response_prefix(row: dict) -> str:
+    """Serialize the clock context identically for SFT, DPO, and decoding."""
+    selected = row.get("selected_clock_period")
+    if selected in (None, ""):
+        selected = row.get("clock_period", row.get("Clock_Period_nsec"))
+    if selected in (None, ""):
+        raise ValueError("A selected clock is required for the response prefix")
+    return f"{CLOCK_ANCHOR_TOKEN}\nselected_clock_period_ns = {_norm_clock(selected):g}\n"
+
+
+def selected_clock_response_token_ids(row: dict, tokenizer) -> list[int]:
+    """Match the separate fixed/value tokenization used in SFT target packing."""
+    prefix = selected_clock_response_prefix(row)
+    fixed, selected = prefix.rsplit(" = ", 1)
+    return (
+        tokenizer(f"{fixed} = ", add_special_tokens=False)["input_ids"]
+        + tokenizer(selected, add_special_tokens=False)["input_ids"]
+    )
+
+
+_DIRECTIVE_SITE_RE = re.compile(
+    r"^AUTO\{_(PIPE|UNROLL|ARRAY_T|ARRAY_F|ARRAY_D)_(L\d+)\}$",
+    re.IGNORECASE,
+)
+
+
+def _directive_site(lhs: str) -> tuple[str, str]:
+    match = _DIRECTIVE_SITE_RE.fullmatch(str(lhs).strip())
+    if match is None:
+        raise ValueError(f"Unsupported directive site: {lhs!r}")
+    return match.group(1).upper(), match.group(2).upper()
+
+
+def _valid_action_values(values: dict[str, str]) -> bool:
+    if "PIPE" in values and "UNROLL" in values:
+        try:
+            return not (int(values["PIPE"]) > 0 and int(values["UNROLL"]) > 0)
+        except ValueError:
+            return False
+    if {"ARRAY_T", "ARRAY_F", "ARRAY_D"}.issubset(values):
+        try:
+            factor, dimension = int(values["ARRAY_F"]), int(values["ARRAY_D"])
+        except ValueError:
+            return False
+        kind = values["ARRAY_T"].strip().lower()
+        if kind == "none":
+            return factor == 0 and dimension == 0
+        if kind == "complete":
+            return factor == 0 and dimension > 0
+        return kind in {"block", "cyclic"} and factor > 0 and dimension > 0
+    return True
+
+
+def filter_semantic_candidates(
+    lhs: str,
+    candidates: list[str],
+    chosen_assignments: dict[str, str],
+    site_domains: dict[str, list[str]],
+) -> list[str]:
+    """Keep candidate RHS values that can complete a legal action tuple."""
+    kind, label = _directive_site(lhs)
+    kinds = ("PIPE", "UNROLL") if kind in {"PIPE", "UNROLL"} else (
+        "ARRAY_T", "ARRAY_F", "ARRAY_D"
+    )
+    assignments = {str(key).strip().upper(): str(value).strip()
+                   for key, value in chosen_assignments.items()}
+    legal = []
+    for candidate in candidates:
+        options = []
+        for member in kinds:
+            key = f"AUTO{{_{member}_{label}}}"
+            if member == kind:
+                options.append([str(candidate).strip()])
+            elif key in assignments:
+                options.append([assignments[key]])
+            else:
+                domain = site_domains.get(key)
+                if not domain:
+                    raise ValueError(f"Missing semantic companion domain: {key}")
+                options.append([str(value).strip() for value in domain])
+        if any(_valid_action_values(dict(zip(kinds, combination)))
+               for combination in product(*options)):
+            legal.append(str(candidate).strip())
+    if not legal:
+        raise ValueError(f"No semantically legal RHS remains for {lhs}")
+    return legal
+
+
+def validate_directive_assignments(assignments: dict[str, str]) -> None:
+    """Reject mutually exclusive loop settings and inconsistent array tuples."""
+    grouped = defaultdict(dict)
+    for lhs, rhs in assignments.items():
+        kind, label = _directive_site(lhs)
+        grouped[label][kind] = str(rhs).strip()
+    for label, values in grouped.items():
+        expected = ({"PIPE", "UNROLL"} if "PIPE" in values or "UNROLL" in values
+                    else {"ARRAY_T", "ARRAY_F", "ARRAY_D"})
+        if set(values) != expected or not _valid_action_values(values):
+            raise ValueError(f"Invalid directive action {label}: {dict(values)}")
 
 
 def period_token_from_clock(clock_period) -> str:

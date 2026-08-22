@@ -93,6 +93,13 @@ def validate_preprocessing_manifest(preprocessed_dir: Path) -> Path:
         raise ValueError(f"Unsupported preprocessing schema: {manifest_path}")
     if payload.get("mode") != "llm":
         raise ValueError(f"SFT construction requires an LLM-mode manifest: {manifest_path}")
+    if (payload.get("utilization_policy") != "reported_percentages_unchanged"
+            or payload.get("area_metric")
+            != "arithmetic_mean_of_bram_dsp_ff_lut_percentages"):
+        raise ValueError(
+            "Preprocessed tables use an outdated resource policy; first run "
+            "python -m Preprocessing.data_preprocess --mode llm --force"
+        )
 
     records = payload.get("kernels")
     if not isinstance(records, list) or not records:
@@ -337,6 +344,13 @@ def finite_positive(row: pd.Series, field: str) -> float:
     return value
 
 
+def finite_nonnegative(row: pd.Series, field: str) -> float:
+    value = float(row[field])
+    if not math.isfinite(value) or value < 0.0:
+        raise ValueError(f"Invalid {field}: {value}")
+    return value
+
+
 def boolean(value: Any) -> bool:
     if isinstance(value, bool):
         return value
@@ -398,7 +412,7 @@ def build_examples(
                 "device": device,
                 "clock_period": clock,
                 "latency": finite_positive(row, "Latency_msec"),
-                "area": finite_positive(row, "Area"),
+                "area": finite_nonnegative(row, "Area"),
                 "weight": finite_positive(row, "Weight"),
                 "is_pareto": boolean(row["is_pareto"]),
                 "preprocessed_row": int(row_index),
@@ -408,6 +422,9 @@ def build_examples(
                 if not math.isfinite(utilization) or utilization < 0.0:
                     raise ValueError(f"Invalid {source_field} in {table_path}")
                 record[output_field] = utilization
+            record["resource_pressure_max_pct"] = max(
+                record[field] for field in UTILIZATION_FIELDS.values()
+            )
             examples.append(record)
             target_counts[(device, clock)] += 1
 
@@ -480,6 +497,8 @@ def main() -> int:
         "sources_sha256": file_sha256(sources_path),
         "preprocessing_manifest": repository_path(input_manifest),
         "preprocessing_manifest_sha256": file_sha256(input_manifest),
+        "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",
+        "utilization_policy": "reported_percentages_unchanged",
         "kernel_statistics": kernel_stats,
     }
     manifest_path.parent.mkdir(parents=True, exist_ok=True)

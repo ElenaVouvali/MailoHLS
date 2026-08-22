@@ -36,7 +36,7 @@ import socket
 import sys
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 
 import hashlib
 
@@ -456,6 +456,8 @@ def build_deterministic_rhs_pack(
     value_w: float = 1.0,
     kind_loss_weights: Optional[Dict[str, float]] = None,
     supervise_eos: bool = False,
+    directive_domain_registry: Optional[Dict[str, Dict[str, List[str]]]] = None,
+    kernel_name: Optional[str] = None,
 ) -> DeterministicRHSPack:
     """
     Build the deterministic target sequence for RHS-only training.
@@ -476,12 +478,16 @@ def build_deterministic_rhs_pack(
         token_weights.extend([0.0] * len(ids))
         xattn_target_mask.extend([0] * len(ids))
 
-    def add_rhs(text: str, weight: float):
+    def add_rhs(text: str, weight: float, supervise: bool):
         ids = tok(text, add_special_tokens=False)["input_ids"]
+        if not ids:
+            raise ValueError("Directive RHS tokenized to an empty sequence")
         input_ids.extend(ids)
-        labels.extend(ids)
-        token_weights.extend([weight] * len(ids))
-        xattn_target_mask.extend([1] * len(ids))
+        labels.extend(ids if supervise else [-100] * len(ids))
+        token_weights.extend(
+            [weight / len(ids)] * len(ids) if supervise else [0.0] * len(ids)
+        )
+        xattn_target_mask.extend([int(supervise)] * len(ids))
 
     current_label = None
     kind_loss_weights = kind_loss_weights or {}
@@ -496,10 +502,16 @@ def build_deterministic_rhs_pack(
 
         weight = value_w
         weight *= kind_loss_weights.get(kind, 1.0)
+        supervise = (
+            directive_domain_registry is None
+            or kernel_name is None
+            or len(get_rhs_candidates_for_lhs(
+                kernel_name, lhs, directive_domain_registry
+            )) > 1
+        )
 
         add_fixed(f"{lhs} = ")
-        add_rhs(rhs + "\n", weight) # add per-token supervision weighting by directive kind 
-                                    # (most difficult directive kind --> larger weight)
+        add_rhs(rhs + "\n", weight, supervise)
 
     if supervise_eos:
         eos_ids = tok(tok.eos_token, add_special_tokens=False)["input_ids"]
@@ -521,22 +533,27 @@ def build_clock_pack(
     tok,
     value_w: float = 1.0,
 ) -> DeterministicRHSPack:
-    """Keep the clock schema fixed and supervise only its numeric RHS."""
-    selected = row.get("selected_clock_period")
-    if selected in (None, ""):
-        selected = _clock_of(row)
+    """Keep a specified clock fixed; supervise its RHS only for AUTO rows."""
+    response_prefix = mailohls_contract.selected_clock_response_prefix(dict(row))
     fixed_ids = tok(
         f"{CLOCK_ANCHOR_TOKEN}\nselected_clock_period_ns = ",
         add_special_tokens=False,
     )["input_ids"]
+    selected = response_prefix.rsplit(" = ", 1)[-1]
     value_ids = tok(
-        f"{_norm_clock(selected):g}\n",
+        selected,
         add_special_tokens=False,
     )["input_ids"]
+    supervise_clock = str(row.get("frequency_mode", "specified")).lower() == "auto"
     return DeterministicRHSPack(
         input_ids=fixed_ids + value_ids,
-        labels=[-100] * len(fixed_ids) + value_ids,
-        token_weights=[0.0] * len(fixed_ids) + [value_w] * len(value_ids),
+        labels=[-100] * len(fixed_ids) + (
+            value_ids if supervise_clock else [-100] * len(value_ids)
+        ),
+        token_weights=[0.0] * len(fixed_ids) + (
+            [value_w / len(value_ids)] * len(value_ids)
+            if supervise_clock else [0.0] * len(value_ids)
+        ),
         xattn_target_mask=[0] * (len(fixed_ids) + len(value_ids)),
     )
 
@@ -555,32 +572,7 @@ def normalize_kname(s: str) -> str:
 
 
 def family_id_from_kernel_name(name: str) -> str:
-    s = normalize_kname(name)
-
-    if s.startswith("machsuite_gemm"):
-        return "machsuite_gemm"
-
-    if s.startswith("machsuite_"):
-        parts = s.split("_")
-        if len(parts) >= 3 and parts[-1].isdigit():
-            return "_".join(parts[:-1])
-        return s
-
-    if s.startswith("spcl_example"):
-        return "spcl_example"
-
-    if s.startswith("serrano_"):
-        return "serrano_kalman_filter"
-
-    if s.startswith("rodinia_"):
-        rest = s[len("rodinia_"):]
-        for special in ["cfd_flux", "cfd_step_factor", "lc_gicov", "lc_mgvf"]:
-            if rest.startswith(special):
-                return f"rodinia_{special}"
-        algo = rest.split("_")[0]
-        return f"rodinia_{algo}"
-
-    return s
+    return mailohls_contract.family_id_from_kernel_name(name)
 
 
 def _file_sha256(path: Path) -> str:
@@ -609,6 +601,13 @@ def load_rows(jsonl_path: str) -> List[dict]:
             manifest = json.load(handle)
         if manifest.get("schema") != "mailohls-sft-jsonl-manifest-v2-compact-source":
             raise ValueError(f"Unsupported SFT manifest schema: {manifest_path}")
+        if (manifest.get("utilization_policy") != "reported_percentages_unchanged"
+                or manifest.get("area_metric")
+                != "arithmetic_mean_of_bram_dsp_ff_lut_percentages"):
+            raise ValueError(
+                "SFT dataset uses an outdated resource policy; rebuild the LLM "
+                "preprocessing tables and dataset before final Stage-1 training"
+            )
         if manifest.get("output_sha256") != _file_sha256(dataset_path):
             raise ValueError(f"SFT JSONL hash mismatch: {dataset_path}")
         if manifest.get("sources_sha256") != _file_sha256(sources_path):
@@ -921,6 +920,42 @@ def assert_disjoint_nonempty_kernel_splits(train, val, test) -> None:
             )
 
 
+def assert_family_split_contract(
+    train: Sequence[Mapping[str, Any]],
+    val: Sequence[Mapping[str, Any]],
+    test: Sequence[Mapping[str, Any]],
+    *,
+    minimum_validation_families: int = 3,
+    minimum_test_families: int = 3,
+) -> dict:
+    """Reject family leakage and holdouts too small for a final experiment."""
+    assert_disjoint_nonempty_kernel_splits(train, val, test)
+    family_sets = {
+        name: {family_id_from_kernel_name(row["kernel_name"]) for row in rows}
+        for name, rows in (("train", train), ("val", val), ("test", test))
+    }
+    for left, right in (("train", "val"), ("train", "test"), ("val", "test")):
+        overlap = sorted(family_sets[left] & family_sets[right])
+        if overlap:
+            raise ValueError(f"Family leakage between {left} and {right}: {overlap}")
+    for name, minimum in (("val", minimum_validation_families),
+                          ("test", minimum_test_families)):
+        if len(family_sets[name]) < minimum:
+            raise ValueError(
+                f"Final Stage-1 requires at least {minimum} {name} families; "
+                f"found {len(family_sets[name])}. Rebuild the split with "
+                "python -m Preprocessing.build_family_split."
+            )
+    summary = {
+        name: {"families": sorted(family_sets[name]),
+               "kernel_count": len({row["kernel_name"] for row in rows}),
+               "row_count": len(rows)}
+        for name, rows in (("train", train), ("val", val), ("test", test))
+    }
+    print("[FAMILY-SPLIT] " + json.dumps(summary, sort_keys=True))
+    return summary
+
+
 def split_rows_random_design(
     rows: List[dict],
     val_ratio: float,
@@ -994,10 +1029,24 @@ def load_split_spec(path: str):
 
 def apply_split_spec(rows: List[dict], spec: dict):
     idx_to_row = {int(r["_jsonl_idx"]): r for r in rows}
-
+    names = ("train_jsonl_idx", "val_jsonl_idx", "test_jsonl_idx")
+    missing_fields = [name for name in names if name not in spec]
+    if missing_fields:
+        raise ValueError(f"Split artifact is missing fields: {missing_fields}")
+    memberships = {}
+    for name in names:
+        indices = [int(index) for index in spec[name]]
+        if len(indices) != len(set(indices)):
+            raise ValueError(f"Split artifact repeats an index in {name}")
+        memberships[name] = set(indices)
+    for index, left in enumerate(names):
+        for right in names[index + 1:]:
+            overlap = sorted(memberships[left] & memberships[right])
+            if overlap:
+                raise ValueError(f"Split artifact overlaps {left}/{right}: {overlap[:10]}")
     train_rows = [idx_to_row[i] for i in spec["train_jsonl_idx"] if i in idx_to_row]
-    val_rows   = [idx_to_row[i] for i in spec["val_jsonl_idx"] if i in idx_to_row]
-    test_rows  = [idx_to_row[i] for i in spec["test_jsonl_idx"] if i in idx_to_row]
+    val_rows = [idx_to_row[i] for i in spec["val_jsonl_idx"] if i in idx_to_row]
+    test_rows = [idx_to_row[i] for i in spec["test_jsonl_idx"] if i in idx_to_row]
     return train_rows, val_rows, test_rows
 
 
@@ -1028,6 +1077,12 @@ STAGE1_COMPATIBILITY_FIELDS = (
     "dataset_sha256",
     "split_sha256",
     "prompt_schema_version",
+    "response_prefix_policy",
+    "clock_supervision_policy",
+    "directive_supervision_policy",
+    "semantic_domain_policy",
+    "area_metric",
+    "utilization_policy",
     "objective",
     "tokenizer_size",
     "special_tokens",
@@ -1049,6 +1104,9 @@ STAGE1_COMPATIBILITY_FIELDS = (
     "random_budget_min_frac",
     "min_feasible_candidates_per_budget",
     "candidate_pool_per_objective",
+    "candidate_compaction_policy",
+    "family_sampling_power",
+    "test_access_policy",
     "auto_frequency_fraction",
     "min_auto_clock_count",
     "goal_domination_penalty",
@@ -1116,6 +1174,37 @@ def assert_stage2_trainable_contract(model) -> dict:
         "parameter_count": len(names),
         "parameter_names_sha256": hashlib.sha256("\n".join(names).encode()).hexdigest(),
         "frozen_groups": ["base_model", "stage1_lora", "special_token_embeddings", "structural_ff"],
+    }
+
+
+def assert_stage1_trainable_contract(model) -> dict:
+    """Allow only LoRA matrices and selected input-token embedding deltas."""
+    groups = {"lora": [], "special_token_input_deltas": []}
+    unexpected = []
+    for name, parameter in model.named_parameters():
+        if not parameter.requires_grad:
+            continue
+        if "lora_" in name:
+            groups["lora"].append(name)
+        elif "trainable_tokens_delta" in name:
+            groups["special_token_input_deltas"].append(name)
+        else:
+            unexpected.append(name)
+    if unexpected:
+        raise RuntimeError("Unexpected Stage-1 trainable parameters: "
+                           + ", ".join(unexpected[:16]))
+    missing = [name for name, parameters in groups.items() if not parameters]
+    if missing:
+        raise RuntimeError("Stage-1 trainable parameter groups are missing: "
+                           + ", ".join(missing))
+    names = sorted(name for parameters in groups.values() for name in parameters)
+    return {
+        "schema": "mailohls-stage1-trainables-v1",
+        "allowed_groups": list(groups),
+        "parameter_count": len(names),
+        "parameter_names_sha256": hashlib.sha256("\n".join(names).encode()).hexdigest(),
+        "frozen_groups": ["base_model", "standard_embeddings", "output_embeddings",
+                          "structural_cross_attention"],
     }
 
 
@@ -1732,6 +1821,7 @@ DIRECTIVE_WEIGHT_MAX = 2.0
 def compute_directive_loss_weights(
     train_rows: Sequence[Mapping[str, Any]],
     mode: str,
+    directive_domain_registry: Optional[Dict[str, Dict[str, List[str]]]] = None,
 ) -> Dict[str, float]:
     """Derive optional directive balancing from the selected training split."""
     if mode == "uniform":
@@ -1745,16 +1835,23 @@ def compute_directive_loss_weights(
             row["input"], str(row["target"]).strip()
         )
         for lhs, rhs in build_rhs_map_from_target(target_core).items():
-            if rhs.strip() and rhs.strip() != "?":
+            is_decision = (
+                directive_domain_registry is None
+                or "kernel_name" not in row
+                or len(get_rhs_candidates_for_lhs(
+                    row["kernel_name"], lhs, directive_domain_registry
+                )) > 1
+            )
+            if is_decision and rhs.strip() and rhs.strip() != "?":
                 counts[lhs_kind(lhs)] += 1
     if not counts:
         raise ValueError("Cannot balance directive loss: training split has no RHS targets")
 
-    total = float(sum(counts.values()))
+    reference = float(np.median(list(counts.values())))
     return {
         kind: min(
             DIRECTIVE_WEIGHT_MAX,
-            max(DIRECTIVE_WEIGHT_MIN, math.sqrt(total / float(count))),
+            max(DIRECTIVE_WEIGHT_MIN, math.sqrt(reference / float(count))),
         )
         for kind, count in sorted(counts.items())
     }
@@ -1902,13 +1999,11 @@ def score_rhs_candidate_batch(
     logits = model(
         input_ids=input_ids,
         attention_mask=attention_mask,
-    ).logits.float()
+    ).logits[:, base_len - 1:base_len - 1 + max_candidate_len, :].float()
     results = []
     for index, ids in enumerate(candidate_ids):
         length = len(ids)
-        candidate_logits = logits[
-            index, base_len - 1:base_len - 1 + length, :
-        ]
+        candidate_logits = logits[index, :length, :]
         target = torch.tensor(ids, dtype=torch.long, device=device)
         token_logprobs = F.log_softmax(candidate_logits, dim=-1).gather(
             -1, target.unsqueeze(-1)
@@ -1951,6 +2046,8 @@ def constrained_decode_rhs_by_candidate_scoring(
     parts = []
     current_label = None
     score_trace = []
+    chosen_assignments = {}
+    site_domains = directive_domain_registry[normalize_kname(kernel_name)]
 
     structural_enabled = hasattr(model, "condition_structural_memory") and getattr(model, "initialized_structural_xattn", False)
     use_structural_memory = structural_enabled and (structural_memory is not None) and (structural_memory_mask is not None)
@@ -1979,13 +2076,20 @@ def constrained_decode_rhs_by_candidate_scoring(
             input_ids, attention_mask = append_token_ids(input_ids, attention_mask, prefix_ids)
             parts.append(prefix_text)
 
-            candidates = get_rhs_candidates_for_lhs(
+            original_candidates = get_rhs_candidates_for_lhs(
                 kernel_name, lhs, directive_domain_registry
+            )
+            candidates = mailohls_contract.filter_semantic_candidates(
+                lhs, original_candidates, chosen_assignments, site_domains
             )
 
             scored = []
             effective_batch_size = 1 if use_structural_memory else candidate_batch_size
-            for start in range(0, len(candidates), effective_batch_size):
+            if len(candidates) == 1:
+                scored.append({"rhs": candidates[0], "score": 0.0,
+                               "mean_logprob": 0.0, "sum_logprob": 0.0})
+            for start in range(0 if len(candidates) > 1 else len(candidates),
+                               len(candidates), effective_batch_size):
                 rhs_batch = candidates[start:start + effective_batch_size]
                 if effective_batch_size == 1:
                     batch_stats = [score_rhs_candidate_suffix(
@@ -2018,6 +2122,8 @@ def constrained_decode_rhs_by_candidate_scoring(
                 {
                     "label": label,
                     "lhs": lhs,
+                    "static_candidate_count": len(original_candidates),
+                    "forced_by_semantics": len(candidates) == 1,
                     "candidates": [
                         dict(record)
                         for record in scored
@@ -2027,6 +2133,7 @@ def constrained_decode_rhs_by_candidate_scoring(
             best = scored[0]
 
             chosen_text = best["rhs"] + "\n"
+            chosen_assignments[lhs.strip().upper()] = best["rhs"]
             chosen_ids = tok(chosen_text, add_special_tokens=False)["input_ids"]
             input_ids, attention_mask = append_token_ids(input_ids, attention_mask, chosen_ids)
             parts.append(chosen_text)
@@ -2034,6 +2141,7 @@ def constrained_decode_rhs_by_candidate_scoring(
         prediction = (
             "".join(parts).rstrip()
         )
+        mailohls_contract.validate_directive_assignments(chosen_assignments)
 
         if return_score_trace:
             return prediction, score_trace
@@ -2285,6 +2393,13 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
         ) / len(kernel_rows)
         for kernel, kernel_rows in sorted(rows_by_kernel.items())
     }
+    kernel_decision_acc = {
+        kernel: sum(
+            row.get("decision_site_accuracy", row["value_accuracy_over_expected"])
+            for row in kernel_rows
+        ) / len(kernel_rows)
+        for kernel, kernel_rows in sorted(rows_by_kernel.items())
+    }
     pragma_kind_totals = defaultdict(lambda: {"correct": 0, "expected": 0})
     for row in rows:
         for kind, counts in row["pragma_kind_counts"].items():
@@ -2351,13 +2466,34 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
                 kernel_value_acc.values()
             ),
 
+        "per_kernel_decision_accuracy": kernel_decision_acc,
+        "minimum_kernel_decision_accuracy": min(kernel_decision_acc.values()),
+        "mean_decision_site_accuracy": float(
+            sum(row.get("decision_site_accuracy", row["value_accuracy_over_expected"])
+                for row in rows) / len(rows)
+        ),
+        "decision_site_count": sum(row.get("decision_site_count", 0) for row in rows),
+        "forced_site_count": sum(row.get("forced_site_count", 0) for row in rows),
+
         "selection_score": float(
             sum(
-                kernel_value_acc.values()
+                kernel_decision_acc.values()
             )
-            / len(kernel_value_acc)
+            / len(kernel_decision_acc)
         ),
     }
+
+    budget_groups = defaultdict(list)
+    for row in rows:
+        budget_groups[(row["kernel_name"], row.get("device"),
+                       row.get("selected_clock_period"), row.get("obj_mode"))].append(row)
+    informative = [group for group in budget_groups.values()
+                   if all("reference_target" in row and "prediction" in row for row in group)
+                   and len({row["reference_target"] for row in group}) > 1]
+    summary["budget_counterfactual_groups"] = len(informative)
+    summary["budget_sensitive_prediction_groups"] = sum(
+        len({row["prediction"] for row in group}) > 1 for group in informative
+    )
 
     summary.update(
         summarize_candidate_margins(
@@ -2385,6 +2521,7 @@ class StageValSelectionCallback(TrainerCallback):
         selection_eval_steps: int = 200,
         candidate_batch_size: int = 1,
         structural_routing: str = "exact_slot",
+        early_stopping_patience: int = 0,
     ):
         self.tok = tokenizer
         self.selection_cases = selection_cases
@@ -2399,6 +2536,8 @@ class StageValSelectionCallback(TrainerCallback):
         self.training_contract = training_contract or {}
         self.selection_eval_steps = selection_eval_steps
         self.candidate_batch_size = candidate_batch_size
+        self.early_stopping_patience = int(early_stopping_patience)
+        self.evaluations_without_improvement = 0
         best_path = Path(output_dir) / best_dir_name / "best_selection_metrics.json"
 
         if structural_routing not in {
@@ -2427,18 +2566,24 @@ class StageValSelectionCallback(TrainerCallback):
 
     def _run_case(self, model, case: SelectionCase) -> dict:
 
-        prompt = build_prompt(
+        header, kernel, suffix, _ = build_prompt_sections(
             case.source_text,
             case.obj_mode,
             row=case.row,
             device_token_dropout=0.0,
         )
-
-        enc = self.tok(prompt, add_special_tokens=False)
-        prompt_ids = enc["input_ids"][-self.max_prompt_tokens:] if len(enc["input_ids"]) > self.max_prompt_tokens else enc["input_ids"]
+        base_prompt_ids = [
+            token_id for section in (header, kernel, suffix)
+            for token_id in self.tok(section, add_special_tokens=False)["input_ids"]
+        ]
+        prompt_ids = base_prompt_ids + mailohls_contract.selected_clock_response_token_ids(
+            case.row, self.tok
+        )
+        if len(prompt_ids) > self.max_prompt_tokens:
+            raise ValueError("Validation prompt and selected-clock prefix exceed --max_length")
 
         device = next(model.parameters()).device
-        routing_start_idx = torch.tensor([len(prompt_ids)], dtype=torch.long, device=device)
+        routing_start_idx = torch.tensor([len(base_prompt_ids)], dtype=torch.long, device=device)
 
         structural_memory = None
         structural_memory_mask = None
@@ -2523,15 +2668,9 @@ class StageValSelectionCallback(TrainerCallback):
                 == gold_rhs
             ]
 
-            if len(gold_records) != 1:
-                raise RuntimeError(
-                    f"{case.kernel_name}/{lhs_key}: "
-                    f"expected exactly one gold "
-                    f"candidate {gold_rhs!r}, "
-                    f"found {len(gold_records)}"
-                )
-
-            gold = gold_records[0]
+            if len(gold_records) > 1:
+                raise RuntimeError(f"Duplicate gold candidates for {case.kernel_name}/{lhs_key}")
+            gold = gold_records[0] if gold_records else None
 
             wrong = [
                 record
@@ -2541,11 +2680,9 @@ class StageValSelectionCallback(TrainerCallback):
             ]
 
             gold_rank = next(
-                index + 1
-                for index, record
-                in enumerate(ranked)
-                if record["rhs"].strip()
-                == gold_rhs
+                (index + 1 for index, record in enumerate(ranked)
+                 if record["rhs"].strip() == gold_rhs),
+                len(ranked) + 1,
             )
 
             best_wrong = (
@@ -2563,7 +2700,7 @@ class StageValSelectionCallback(TrainerCallback):
                     gold["score"]
                     - best_wrong["score"]
                 )
-                if best_wrong is not None
+                if best_wrong is not None and gold is not None
                 else None
             )
 
@@ -2579,9 +2716,7 @@ class StageValSelectionCallback(TrainerCallback):
                     "predicted_rhs": (
                         ranked[0]["rhs"]
                     ),
-                    "gold_score": float(
-                        gold["score"]
-                    ),
+                    "gold_score": float(gold["score"]) if gold is not None else None,
                     "best_wrong_rhs": (
                         best_wrong["rhs"]
                         if best_wrong
@@ -2605,6 +2740,8 @@ class StageValSelectionCallback(TrainerCallback):
                     "candidate_count": int(
                         len(ranked)
                     ),
+                    "static_candidate_count": int(site["static_candidate_count"]),
+                    "gold_excluded_by_prior_decision": gold is None,
                     "gold_top1": bool(
                         gold_rank == 1
                     ),
@@ -2619,6 +2756,16 @@ class StageValSelectionCallback(TrainerCallback):
             )
 
         metrics = evaluate_prediction(case.reference_target, pred)
+        pred_assign = parse_assignment_dict(pred)
+        decision_keys = {
+            record["lhs"].strip().upper()
+            for record in score_trace if record["static_candidate_count"] > 1
+        }
+        decision_correct = sum(
+            pred_assign.get(key) == ref_assign.get(key) for key in decision_keys
+        )
+        if not decision_keys:
+            raise ValueError(f"Validation case has no real directive decisions: {case.kernel_name}")
         return {
             "case_id": case_id,
             "kernel_name": case.kernel_name,
@@ -2631,6 +2778,10 @@ class StageValSelectionCallback(TrainerCallback):
             "exact_design_match": bool(metrics["exact_design_match"]),
             "pragma_kind_counts": metrics["pragma_kind_counts"],
             "candidate_margins":candidate_margins,
+            "decision_site_count": len(decision_keys),
+            "decision_site_correct_count": decision_correct,
+            "decision_site_accuracy": decision_correct / len(decision_keys),
+            "forced_site_count": len(ref_assign) - len(decision_keys),
             "jsonl_idx": case.row.get("_jsonl_idx"),
             "device": case.row.get("device"),
             "resource_budget_id": case.row.get("resource_budget_id"),
@@ -2663,7 +2814,7 @@ class StageValSelectionCallback(TrainerCallback):
             exact_design_accuracy = summary["exact_design_accuracy"]
             pragma_kind_accuracy = summary["pragma_kind_accuracy"]
             kernel_value_acc = summary["per_kernel_accuracy"]
-            minimum_kernel_accuracy = summary["minimum_kernel_accuracy"]
+            minimum_kernel_accuracy = summary["minimum_kernel_decision_accuracy"]
             selection_score = summary["selection_score"]
             if schema_compliance != 1.0 or expected_key_accuracy != 1.0:
                 raise RuntimeError(
@@ -2698,11 +2849,18 @@ class StageValSelectionCallback(TrainerCallback):
             print("\n" + "=" * 100)
             print(f"[VAL-SELECTION] step={state.global_step}")
             print(f"[VAL-SELECTION] mean_value_acc={mean_value_acc:.6f}")
+            print(f"[VAL-SELECTION] mean_decision_site_accuracy="
+                  f"{summary['mean_decision_site_accuracy']:.6f}")
             print(f"[VAL-SELECTION] schema_compliance={schema_compliance:.6f}")
             print(f"[VAL-SELECTION] expected_key_accuracy={expected_key_accuracy:.6f}")
             print(f"[VAL-SELECTION] exact_design_accuracy={exact_design_accuracy:.6f}")
             print(f"[VAL-SELECTION] pragma_kind_accuracy={pragma_kind_accuracy}")
             print(f"[VAL-SELECTION] per_kernel_accuracy={kernel_value_acc}")
+            print(f"[VAL-SELECTION] per_kernel_decision_accuracy="
+                  f"{summary['per_kernel_decision_accuracy']}")
+            print(f"[VAL-SELECTION] decision_sites={summary['decision_site_count']} "
+                  f"forced_sites={summary['forced_site_count']} "
+                  f"budget_counterfactual_groups={summary['budget_counterfactual_groups']}")
             print(f"[VAL-SELECTION] minimum_kernel_accuracy={minimum_kernel_accuracy:.6f}")
             print(f"[VAL-SELECTION] selection_score={selection_score:.6f}")
             print(f"[VAL-SELECTION] checkpoint_key={checkpoint_key}")
@@ -2748,6 +2906,7 @@ class StageValSelectionCallback(TrainerCallback):
             if checkpoint_key > self.best_key:
                 self.best_key = checkpoint_key
                 self.best_step = int(state.global_step)
+                self.evaluations_without_improvement = 0
 
                 best_dir = os.path.join(self.output_dir, self.best_dir_name)
                 if os.path.isdir(best_dir):
@@ -2768,6 +2927,14 @@ class StageValSelectionCallback(TrainerCallback):
                 )
 
                 print(f"[VAL-SELECTION] New best checkpoint at step {state.global_step} -> {best_dir}")
+            elif self.early_stopping_patience > 0 and state.global_step > 0:
+                self.evaluations_without_improvement += 1
+                print(f"[EARLY-STOP] no improvement for "
+                      f"{self.evaluations_without_improvement}/"
+                      f"{self.early_stopping_patience} validation evaluations")
+                if self.evaluations_without_improvement >= self.early_stopping_patience:
+                    control.should_training_stop = True
+                    print(f"[EARLY-STOP] retaining best checkpoint from step {self.best_step}")
 
         finally:
             if was_training:
@@ -3334,6 +3501,7 @@ class LengthGroupedTrainer(Trainer):
         self,
         *args,
         group_by_length: bool = False,
+        family_sampling_power: float = 0.0,
         mem_bank: Optional[Dict[str, dict]] = None,
         mem_dim: int = 32,
         max_slots: int = 64,
@@ -3356,6 +3524,7 @@ class LengthGroupedTrainer(Trainer):
         **kwargs,
     ):
         self._group_by_length = group_by_length
+        self.family_sampling_power = float(family_sampling_power)
         self.mem_bank = mem_bank or {}
         self.mem_dim = mem_dim
         self.max_slots = max_slots
@@ -3432,7 +3601,10 @@ class LengthGroupedTrainer(Trainer):
                 + ", ".join(name for name, _ in other_trainables[:12])
             )
         if other_trainables:
-            print("[WARN] Unexpected trainable params:", [name for name, _ in other_trainables[:20]])
+            raise RuntimeError(
+                "Unexpected optimizer parameters: "
+                + ", ".join(name for name, _ in other_trainables[:20])
+            )
 
         opt_groups = []
         if lora_params:
@@ -3447,8 +3619,6 @@ class LengthGroupedTrainer(Trainer):
             opt_groups.append({"params": xattn_attn_params, "lr": self.lr_xattn})
         if xattn_ff_params:
             opt_groups.append({"params": xattn_ff_params, "lr": self.lr_ff})
-        if other_trainables:
-            opt_groups.append({"params": [p for _, p in other_trainables], "lr": self.lr_lora})
 
         try:
             from bitsandbytes.optim import PagedAdamW8bit
@@ -3474,14 +3644,25 @@ class LengthGroupedTrainer(Trainer):
         return self.optimizer
 
     def get_train_dataloader(self):
-        if not self._group_by_length:
+        if self.family_sampling_power > 0.0:
+            families = [family_id_from_kernel_name(sample["kernel_name"])
+                        for sample in self.train_dataset.samples]
+            counts = Counter(families)
+            weights = [counts[family] ** (-self.family_sampling_power)
+                       for family in families]
+            generator = torch.Generator()
+            generator.manual_seed(int(self.args.seed))
+            sampler = WeightedRandomSampler(
+                weights, len(weights), replacement=True, generator=generator
+            )
+        elif not self._group_by_length:
             return super().get_train_dataloader()
-
-        sampler = LengthGroupedSampler(
-            self.args.train_batch_size,
-            dataset=self.train_dataset,
-            lengths=getattr(self.train_dataset, "lengths", None),
-        )
+        else:
+            sampler = LengthGroupedSampler(
+                self.args.train_batch_size,
+                dataset=self.train_dataset,
+                lengths=getattr(self.train_dataset, "lengths", None),
+            )
         return DataLoader(
             self.train_dataset,
             batch_size=self.args.train_batch_size,
@@ -4178,7 +4359,7 @@ class TargetAwareConfig:
     adapt_device: str = ""
     budget_mode: str = "random"
     random_budgets_per_case: int = 16
-    min_budget_frac: float = 0.10
+    min_budget_frac: float = 0.01
     min_feasible_candidates: int = 3
     candidate_pool_per_objective: int = 24
     auto_frequency_fraction: float = 0.0
@@ -4241,12 +4422,16 @@ def filter_rows_for_device_mode(rows: List[dict]) -> List[dict]:
         clock = _clock_of(row)
         if not math.isfinite(clock) or clock <= 0.0:
             raise ValueError(f"Invalid clock period in {row['kernel_name']}")
-        for field in ("latency", "area"):
-            value = float(row.get(field, 0.0))
-            if not math.isfinite(value) or value <= 0.0:
-                raise ValueError(
-                    f"Invalid {field} for {row['kernel_name']}: {value}"
-                )
+        latency = float(row.get("latency", 0.0))
+        if not math.isfinite(latency) or latency <= 0.0:
+            raise ValueError(
+                f"Invalid latency for {row['kernel_name']}: {latency}"
+            )
+        area = float(row.get("area", 0.0))
+        if not math.isfinite(area) or area < 0.0:
+            raise ValueError(
+                f"Invalid area for {row['kernel_name']}: {area}"
+            )
         for resource in RESOURCE_KEYS:
             field = UTIL_FIELD_BY_RESOURCE[resource]
             if field not in row:
@@ -4336,13 +4521,7 @@ def build_prompt(
 
 
 def clock_target_text(row: Mapping[str, Any]) -> str:
-    selected = row.get("selected_clock_period")
-    if selected in (None, ""):
-        selected = _clock_of(row)
-    return (
-        f"{CLOCK_ANCHOR_TOKEN}\n"
-        f"selected_clock_period_ns = {_norm_clock(selected):g}\n"
-    )
+    return mailohls_contract.selected_clock_response_prefix(dict(row))
 
 
 @dataclass(frozen=True, order=True)
@@ -4385,14 +4564,23 @@ def sample_shared_budgets(
     """Generate deterministic budgets shared across all clocks in a case."""
     rng = random.Random(_stable_seed(case_key, seed))
     budgets = {SharedResourceBudget(1.0, 1.0, 1.0, 1.0)}
-    while len(budgets) < max(1, count):
+    attempts = 0
+    while len(budgets) < max(1, count) and attempts < max(100, count * 50):
+        attempts += 1
         draw = rng.random()
-        if draw < 0.15:
-            values = [1.0] * 4
-        elif draw < 0.35:
+        if draw < 0.35:
+            # Straddle measured resource boundaries so feasible optima can change.
+            anchor = candidates[rng.randrange(len(candidates))]
+            limiting = rng.randrange(len(RESOURCE_KEYS))
+            values = [1.0] * len(RESOURCE_KEYS)
+            boundary = _row_used_fraction(anchor, RESOURCE_KEYS[limiting])
+            values[limiting] = math.ceil(boundary * 100.0) / 100.0 + rng.choice(
+                (-0.01, 0.0, 0.01)
+            )
+        elif draw < 0.55:
             scalar = rng.uniform(TARGET_CFG.min_budget_frac, 1.0)
             values = [scalar] * 4
-        elif draw < 0.85:
+        elif draw < 0.90:
             values = [
                 TARGET_CFG.min_budget_frac
                 + (1.0 - TARGET_CFG.min_budget_frac)
@@ -4406,6 +4594,8 @@ def sample_shared_budgets(
                 for resource in RESOURCE_KEYS
             ]
         budgets.add(_quantized_budget(values))
+    if len(budgets) < max(1, count):
+        print(f"[RANDOM-BUDGET] {case_key}: only {len(budgets)} distinct budgets")
     return sorted(budgets)
 
 
@@ -4443,7 +4633,8 @@ def _compact_candidate_union(feasible: Sequence[dict]) -> List[dict]:
     valid = [
         row for row in feasible
         if float(row.get("latency", 0.0)) > 0.0
-        and float(row.get("area", 0.0)) > 0.0
+        and math.isfinite(float(row.get("area", 0.0)))
+        and float(row.get("area", 0.0)) >= 0.0
     ]
     if not valid:
         return []
@@ -4481,7 +4672,7 @@ def augment_rows_with_random_resource_budgets(
     seed: int,
     min_feasible_candidates: int = 3,
 ) -> List[dict]:
-    """Apply each budget to the full kernel/device multi-clock candidate pool."""
+    """Compact each measured clock separately under the same shared budget."""
     by_case = defaultdict(list)
     for row in rows:
         by_case[(row["kernel_name"], _norm_device(row.get("device", "")))].append(row)
@@ -4491,20 +4682,27 @@ def augment_rows_with_random_resource_budgets(
         for budget in sample_shared_budgets(
             case_key, candidates, num_budgets_per_case, seed
         ):
-            feasible = [
-                row for row in candidates
-                if design_fits_shared_budget(row, budget)
-            ]
-            if len(feasible) < min_feasible_candidates:
+            by_clock = defaultdict(list)
+            for row in candidates:
+                if design_fits_shared_budget(row, budget):
+                    by_clock[_clock_of(row)].append(row)
+            kept_clock_count = 0
+            for clock, feasible in sorted(by_clock.items()):
+                if len(feasible) < min_feasible_candidates:
+                    stats["rejected_small_clock_candidate_sets"] += 1
+                    continue
+                compact = _compact_candidate_union(feasible)
+                if len(compact) < min_feasible_candidates:
+                    stats["rejected_after_clock_compaction"] += 1
+                    continue
+                augmented.extend(attach_shared_budget(row, budget) for row in compact)
+                kept_clock_count += 1
+                stats["kept_clock_budgets"] += 1
+                stats["candidate_rows"] += len(compact)
+            if kept_clock_count:
+                stats["kept_budgets"] += 1
+            else:
                 stats["rejected_small_candidate_sets"] += 1
-                continue
-            compact = _compact_candidate_union(feasible)
-            if len(compact) < min_feasible_candidates:
-                stats["rejected_after_compaction"] += 1
-                continue
-            augmented.extend(attach_shared_budget(row, budget) for row in compact)
-            stats["kept_budgets"] += 1
-            stats["candidate_rows"] += len(compact)
 
     cases = sorted(by_case.items())
     for case_index, (case_key, candidates) in enumerate(cases, 1):
@@ -4519,6 +4717,26 @@ def augment_rows_with_random_resource_budgets(
         f"stats={dict(stats)}"
     )
     return augmented
+
+
+def summarize_budget_counterfactuals(rows: Sequence[Mapping[str, Any]]) -> dict:
+    """Count true target changes across budgets without inventing alternatives."""
+    groups = defaultdict(list)
+    for row in rows:
+        if str(row.get("frequency_mode", "specified")).lower() != "specified":
+            continue
+        groups[(row["kernel_name"], _norm_device(row.get("device", "")),
+                _clock_of(row), row.get("obj_mode"))].append(row)
+    informative = {}
+    for key, group in sorted(groups.items(), key=lambda item: repr(item[0])):
+        targets = {canonical_completion_key(row["input"], row["target"])
+                   for row in group}
+        if len(targets) > 1:
+            informative[repr(key)] = len(targets)
+    return {"condition_groups": len(groups),
+            "budget_sensitive_groups": len(informative),
+            "budget_sensitive_fraction": len(informative) / max(1, len(groups)),
+            "distinct_targets_by_group": informative}
 
 
 def target_bucket_key(row: Mapping[str, Any]) -> tuple:
@@ -4643,7 +4861,10 @@ def select_goal_rows(
     ``top_k > 1`` remains an explicit ablation because it creates multiple
     completions for an otherwise identical prompt.
     """
-    specified, automatic = defaultdict(list), defaultdict(list)
+    specified = defaultdict(list)
+    automatic = (
+        defaultdict(list) if TARGET_CFG.auto_frequency_fraction > 0.0 else None
+    )
     for row in rows:
         avail = _available_resources(row)
         base_key = (
@@ -4651,7 +4872,8 @@ def select_goal_rows(
             avail["BRAM_18K"], avail["DSP"], avail["FF"], avail["LUT"],
         )
         specified[(base_key[0], base_key[1], _clock_of(row), *base_key[2:])].append(row)
-        automatic[base_key].append(row)
+        if automatic is not None:
+            automatic[base_key].append(row)
 
     selected, metadata = [], {}
     for key, items in sorted(specified.items()):
@@ -4664,7 +4886,7 @@ def select_goal_rows(
         metadata[f"specified::{key!r}"] = info
 
     auto_rows = []
-    for key, items in sorted(automatic.items()):
+    for key, items in sorted((automatic or {}).items()):
         clocks = sorted({_clock_of(row) for row in items})
         if len(clocks) < TARGET_CFG.min_auto_clock_count:
             continue
@@ -4711,6 +4933,7 @@ class SFTDataset(Dataset):
         input_only_special_ids: Optional[Iterable[int]] = None,
         kind_loss_weights: Optional[Dict[str, float]] = None,
         candidate_kind_priority: Optional[Dict[str, float]] = None,
+        directive_domain_registry: Optional[Dict[str, Dict[str, List[str]]]] = None,
     ):
         self.samples, self.lengths = [], []
         truncated = 0
@@ -4738,12 +4961,19 @@ class SFTDataset(Dataset):
                 value_w=value_loss_weight,
                 kind_loss_weights=kind_weights,
                 supervise_eos=supervise_eos,
+                directive_domain_registry=directive_domain_registry,
+                kernel_name=example["kernel_name"],
             )
             clock = build_clock_pack(example, tok, value_w=value_loss_weight)
             target_ids = clock.input_ids + directives.input_ids
             target_labels = clock.labels + directives.labels
             target_weights = clock.token_weights + directives.token_weights
             target_xmask = clock.xattn_target_mask + directives.xattn_target_mask
+            if not any(weight > 0.0 for weight in target_weights):
+                raise ValueError(
+                    f"Training sample has no directive decisions: "
+                    f"{example['kernel_name']}"
+                )
 
             input_only_special_id_set = set(input_only_special_ids or ())
             bad = {
@@ -4912,7 +5142,7 @@ def build_selection_cases(
             and row.get("frequency_mode", "specified") == "specified"
         ):
             by_case[target_bucket_key(row)].append(row)
-    candidates_by_kernel_device = defaultdict(list)
+    candidates_by_kernel_device_clock = defaultdict(list)
     for case_key in sorted(by_case):
         best = min(
             by_case[case_key],
@@ -4936,27 +5166,38 @@ def build_selection_cases(
             reference_target=target,
             row=best,
         )
-        candidates_by_kernel_device[
-            (case.kernel_name, _norm_device(best["device"]))
+        candidates_by_kernel_device_clock[
+            (case.kernel_name, _norm_device(best["device"]),
+             best.get("selected_clock_period", best.get("clock_period", "unknown")))
         ].append(case)
 
     selected = []
     kernel_names = sorted({
-        kernel for kernel, _ in candidates_by_kernel_device
+        kernel for kernel, _, _ in candidates_by_kernel_device_clock
     })
     if max_kernels > 0:
         kernel_names = kernel_names[:max_kernels]
     selected_kernel_names = set(kernel_names)
-    for kernel_device in sorted(candidates_by_kernel_device):
-        kernel, _ = kernel_device
+    for group_key in sorted(candidates_by_kernel_device_clock, key=repr):
+        kernel, _, _ = group_key
         if kernel not in selected_kernel_names:
             continue
-        selected.extend(
-            evenly_spaced_cases(
-                candidates_by_kernel_device[kernel_device],
-                cases_per_kernel_device,
-            )
+        group = candidates_by_kernel_device_clock[group_key]
+        distinct_target_count = len({case.reference_target for case in group})
+        chosen = evenly_spaced_cases(
+            group,
+            min(cases_per_kernel_device, distinct_target_count),
         )
+        selected_targets = {case.reference_target for case in chosen}
+        if len(chosen) > 1 and len(selected_targets) == 1:
+            alternative = next(
+                (case for case in sorted(group, key=lambda item: shared_budget_fraction(item.row))
+                 if case.reference_target not in selected_targets),
+                None,
+            )
+            if alternative is not None:
+                chosen[-1] = alternative
+        selected.extend(chosen)
     return selected
 
 
@@ -4984,14 +5225,27 @@ def configure_target_policy(args) -> None:
         raise ValueError("--selection_eval_steps must be >= 1")
     if args.selection_candidate_batch_size < 1:
         raise ValueError("--selection_candidate_batch_size must be >= 1")
+    if args.eval_steps < 1 or args.selection_eval_steps % args.eval_steps != 0:
+        raise ValueError("--selection_eval_steps must be a positive multiple of --eval_steps")
+    if args.early_stopping_patience < 0:
+        raise ValueError("--early_stopping_patience must be non-negative")
+    if not 0.0 <= args.family_sampling_power <= 1.0:
+        raise ValueError("--family_sampling_power must be in [0, 1]")
     if args.top_k > 1:
         print("[WARN] top_k > 1 creates conflicting completions for identical prompts")
+    elif args.score_weight_min != 1.0 or args.score_weight_power != 0.0:
+        print("[RANK] top_k=1 gives every selected example unit ranking weight")
     if not 0.0 < args.random_budget_min_frac <= 1.0:
         raise ValueError("--random_budget_min_frac must be in (0, 1]")
     if not 0.0 <= args.auto_frequency_fraction < 1.0:
         raise ValueError("--auto_frequency_fraction must be in [0, 1)")
     if args.auto_frequency_fraction > 0.0 and args.min_auto_clock_count < 2:
         raise ValueError("automatic-clock training requires at least two clocks")
+    if args.auto_frequency_fraction > 0.0:
+        raise ValueError(
+            "Automatic-clock training is not part of the locked Stage-1 contract; "
+            "keep --auto_frequency_fraction 0 until joint clock decoding is implemented."
+        )
     if args.device_mode == "known" and args.device_token_dropout != 0.0:
         raise ValueError("known mode requires --device_token_dropout 0")
     if (
@@ -5016,6 +5270,18 @@ def configure_target_policy(args) -> None:
 
 def run_single_training(args):
     inherit_saved_stage2_architecture(args)
+    if args.disable_structural_memory and args.device_mode != "device_adapt":
+        if args.objective == "ALL" or args.top_k != 1:
+            raise ValueError("Locked Stage 1 requires one objective and --top_k 1")
+        if args.ce_loss_weight != 1.0 or args.candidate_loss_weight != 0.0:
+            raise ValueError("Locked Stage 1 requires --ce_loss_weight 1 and "
+                             "--candidate_loss_weight 0")
+        if args.supervise_eos:
+            raise ValueError("Locked Stage 1 never supervises EOS")
+        if args.lr_lora <= 0.0 or args.lr_embed <= 0.0:
+            raise ValueError("Stage 1 requires positive LoRA and special-token learning rates")
+    if args.group_by_length and args.family_sampling_power > 0.0:
+        print("[SAMPLER] family-balanced sampling overrides --group_by_length")
     if not args.disable_structural_memory and not args.selection_eval_only:
         if not args.init_adapter_dir and not args.resume_from_checkpoint:
             raise ValueError("Production Stage 2 requires --init_adapter_dir with the frozen Stage-1 adapter")
@@ -5110,6 +5376,9 @@ def run_single_training(args):
 
     if args.split_json:
         split_spec = load_split_spec(args.split_json)
+        expected_dataset_hash = split_spec.get("dataset_sha256")
+        if expected_dataset_hash and expected_dataset_hash != _file_sha256(Path(args.dataset)):
+            raise ValueError("Family split was created for a different SFT dataset")
         raw_train_rows, raw_val_rows, raw_test_rows = apply_split_spec(rows, split_spec)
         print(f"[INFO] Loaded split from {args.split_json}")
     elif args.split_mode == "family":
@@ -5131,6 +5400,14 @@ def run_single_training(args):
         )
         print(f"[INFO] random design-point split with val_ratio={args.val_ratio}, test_ratio={args.test_ratio}, split_seed={args.split_seed}, stratify_by_kernel={args.stratify_by_kernel}")
 
+    family_split_summary = None
+    if args.split_mode == "family":
+        family_split_summary = assert_family_split_contract(
+            raw_train_rows, raw_val_rows, raw_test_rows,
+            minimum_validation_families=args.minimum_validation_families,
+            minimum_test_families=args.minimum_test_families,
+        )
+
     print(f"[INFO] Raw split sizes: train={len(raw_train_rows)} val={len(raw_val_rows)} test={len(raw_test_rows)}")
     split_payload = {
         name: sorted(int(row["_jsonl_idx"]) for row in split_rows)
@@ -5142,6 +5419,20 @@ def run_single_training(args):
         json.dumps(split_payload, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
     eval_seed = args.seed + 10_000
+
+    if not args.directive_domain_registry_json:
+        raise ValueError("Final Stage-1/2 training requires --directive_domain_registry_json")
+    directive_domain_registry = load_directive_domain_registry(
+        args.directive_domain_registry_json
+    )
+    registry_payload = json.loads(
+        Path(args.directive_domain_registry_json).read_text(encoding="utf-8")
+    )
+    registry_policy = registry_payload.get("generation_policy")
+    print(f"[DOMAINS] registry_policy={registry_policy!r}")
+    if registry_policy and "pre-split" in str(registry_policy).lower():
+        print("[DOMAINS-WARN] Domains include complete-dataset support. Treat them "
+              "as benchmark-provided design-space metadata and disclose this policy.")
 
     if args.save_split_json:
         save_split_spec(args.save_split_json, raw_train_rows, raw_val_rows, raw_test_rows)
@@ -5184,13 +5475,6 @@ def run_single_training(args):
             )
         )
 
-        if not eval_only:
-            raw_test_rows = (
-                augment_rows_with_resource_budgets(
-                    raw_test_rows,
-                    fractions,
-                )
-            )
 
     elif args.resource_budget_mode == "random":
 
@@ -5216,21 +5500,9 @@ def run_single_training(args):
                     args.random_budgets_per_case
                 ),
                 seed=eval_seed,
-                min_feasible_candidates=3,
+                min_feasible_candidates=args.min_feasible_candidates_per_budget,
             )
         )
-
-        if not eval_only:
-            raw_test_rows = (
-                augment_rows_with_random_resource_budgets(
-                    raw_test_rows,
-                    num_budgets_per_case=(
-                        args.random_budgets_per_case
-                    ),
-                    seed=eval_seed + 1,
-                    min_feasible_candidates=3,
-                )
-            )
 
     objectives = mailohls_contract.resolve_objectives(args.objective)
     goal_key = "all_objectives" if args.objective == "ALL" else GOALS[args.objective]["tag"]
@@ -5320,20 +5592,22 @@ def run_single_training(args):
             )
         )
 
-        test_rows, test_goal_info = (
-            select_objectives(
-                raw_test_rows
-            )
-        )
+        # Held-out test targets are intentionally untouched during training.
+        test_rows, test_goal_info = [], {}
 
         directive_loss_weights = (
             compute_directive_loss_weights(
                 train_rows,
                 args.directive_loss_weighting,
+                directive_domain_registry,
             )
         )
 
-    print(f"[INFO] Selected split sizes: train={len(train_rows)} val={len(val_rows)} test={len(test_rows)}")
+    print(f"[INFO] Selected split sizes: train={len(train_rows)} val={len(val_rows)}; "
+          f"held-out test rows not selected={len(raw_test_rows)}")
+    for split_name, selected_rows in (("train", train_rows), ("val", val_rows)):
+        audit = summarize_budget_counterfactuals(selected_rows)
+        print(f"[BUDGET-AUDIT] {split_name}=" + json.dumps(audit, sort_keys=True))
     print(
         f"[LOSS] directive weighting={args.directive_loss_weighting} "
         f"weights={directive_loss_weights or 'uniform'}"
@@ -5357,15 +5631,6 @@ def run_single_training(args):
                 os.path.join(dump_root, f"val_selected_{goal_key}.indices.json"),
                 val_goal_info,
             )
-        if test_rows:
-            dump_jsonl(
-                os.path.join(dump_root, f"test_selected_{goal_key}.jsonl"),
-                test_rows,
-            )
-            dump_json(
-                os.path.join(dump_root, f"test_selected_{goal_key}.indices.json"),
-                test_goal_info,
-            )
 
     selection_cases = []
     for objective in objectives:
@@ -5387,16 +5652,7 @@ def run_single_training(args):
         f"{selection_kernel_count} distinct kernels and "
         f"{selection_kernel_device_count} kernel/device groups"
     )
-    directive_domain_registry: Dict[str, Dict[str, List[str]]] = {}
     if selection_cases:
-        if not args.directive_domain_registry_json:
-            raise ValueError(
-                "Production validation requires --directive_domain_registry_json; "
-                "legal RHS domains must not be inferred from training rows."
-            )
-        directive_domain_registry = load_directive_domain_registry(
-            args.directive_domain_registry_json
-        )
         for case in selection_cases:
             for _, lhs in extract_ordered_lhs_plan(case.source_text):
                 get_rhs_candidates_for_lhs(
@@ -5433,7 +5689,7 @@ def run_single_training(args):
             required_kernels = {
                 row["kernel_name"]
                 for row
-                in train_rows + val_rows + test_rows
+                in train_rows + val_rows
             }
         missing_memory = sorted(
             kernel
@@ -5647,6 +5903,12 @@ def run_single_training(args):
         "dataset_sha256": _file_sha256(Path(args.dataset)),
         "split_sha256": split_sha256,
         "prompt_schema_version": mailohls_contract.PROMPT_SCHEMA_VERSION,
+        "response_prefix_policy": mailohls_contract.RESPONSE_PREFIX_POLICY,
+        "clock_supervision_policy": mailohls_contract.CLOCK_SUPERVISION_POLICY,
+        "directive_supervision_policy": mailohls_contract.DIRECTIVE_SUPERVISION_POLICY,
+        "semantic_domain_policy": mailohls_contract.SEMANTIC_DOMAIN_POLICY,
+        "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",
+        "utilization_policy": "reported_percentages_unchanged",
         "objective": args.objective,
         "seed": args.seed,
         "tokenizer_size": len(tok),
@@ -5659,6 +5921,8 @@ def run_single_training(args):
         ),
         "directive_loss_weighting": args.directive_loss_weighting,
         "directive_loss_weights": directive_loss_weights,
+        "directive_site_weighting": "equal_total_weight_per_decision_site",
+        "directive_domain_registry_policy": registry_policy,
         "max_length": args.max_length,
         "top_k": args.top_k,
         "device_mode": args.device_mode,
@@ -5671,6 +5935,11 @@ def run_single_training(args):
             args.min_feasible_candidates_per_budget
         ),
         "candidate_pool_per_objective": args.candidate_pool_per_objective,
+        "candidate_compaction_policy": "per_measured_clock",
+        "budget_sampling_policy": "mixed_random_and_measured_resource_boundaries",
+        "family_sampling_power": args.family_sampling_power,
+        "family_split_summary": family_split_summary,
+        "test_access_policy": "split_membership_only_no_target_selection_or_export",
         "auto_frequency_fraction": args.auto_frequency_fraction,
         "min_auto_clock_count": args.min_auto_clock_count,
         "goal_domination_penalty": args.goal_domination_penalty,
@@ -5684,6 +5953,11 @@ def run_single_training(args):
             args.selection_cases_per_kernel_device
         ),
         "selection_eval_steps": args.selection_eval_steps,
+        "selection_metric": "kernel_macro_decision_site_accuracy",
+        "early_stopping_patience": (
+            args.early_stopping_patience if args.disable_structural_memory else 0
+        ),
+        "evaluation_on_start": bool(args.eval_on_start),
         "selection_candidate_batch_size": (
             args.selection_candidate_batch_size if args.disable_structural_memory else 1
         ),
@@ -5801,7 +6075,13 @@ def run_single_training(args):
         training_contract,
     )
     if not args.disable_structural_memory and init_adapter_dir:
-        require_compatible_stage1_contract(init_adapter_dir, training_contract)
+        parent_stage1 = require_compatible_stage1_contract(
+            init_adapter_dir, training_contract
+        )
+        trainable_contract = parent_stage1.get("stage1_trainable_parameter_contract")
+        if not isinstance(trainable_contract, dict):
+            raise ValueError("Stage-1 adapter is missing its trainable-parameter contract")
+        training_contract["stage1_trainable_parameter_contract"] = trainable_contract
         structural_config["stage1_contract_sha256"] = _file_sha256(
             Path(init_adapter_dir) / "training_contract.json"
         )
@@ -6006,6 +6286,11 @@ def run_single_training(args):
         structural_config["stage1_lora_sha256"] = frozen_stage1_state["lora_sha256"]
         structural_config["frozen_stage1_sha256"] = frozen_stage1_state["combined_sha256"]
         frozen_stage1.disable_frozen_lora_dropout(model)
+    elif not args.selection_eval_only and args.device_mode != "device_adapt":
+        training_contract["stage1_trainable_parameter_contract"] = (
+            assert_stage1_trainable_contract(model)
+        )
+        dump_json(os.path.join(args.output_dir, "training_contract.json"), training_contract)
     model.print_trainable_parameters()
 
     if (
@@ -6067,6 +6352,7 @@ def run_single_training(args):
             candidate_kind_priority=(
                 candidate_kind_priority
             ),
+            directive_domain_registry=directive_domain_registry,
         )
 
         if args.ce_loss_weight == 0.0:
@@ -6141,6 +6427,7 @@ def run_single_training(args):
         supervise_eos=args.supervise_eos,
         input_only_special_ids=special_ids,
         kind_loss_weights=directive_loss_weights,
+        directive_domain_registry=directive_domain_registry,
     ) if val_rows else None
 
     collator = PadCollator(tok)
@@ -6191,6 +6478,8 @@ def run_single_training(args):
 
     targs = TrainingArguments(
         output_dir=args.output_dir,
+        seed=args.seed,
+        data_seed=args.seed,
         num_train_epochs=args.epochs,
         max_steps=args.max_steps,
         per_device_train_batch_size=args.batch_size,
@@ -6216,6 +6505,7 @@ def run_single_training(args):
         dataloader_pin_memory=True,
         remove_unused_columns=False,
         label_names=["labels"],   # <- add this
+        eval_on_start=args.eval_on_start,
     )
 
 
@@ -6275,6 +6565,7 @@ def run_single_training(args):
         data_collator=collator,
 
         group_by_length=args.group_by_length,
+        family_sampling_power=args.family_sampling_power,
         mem_bank=mem_bank,
         mem_dim=args.mem_dim,
         max_slots=args.max_slots,
@@ -6329,6 +6620,9 @@ def run_single_training(args):
                     if args.disable_structural_memory else 1
                 ),
                 structural_routing=args.structural_routing,
+                early_stopping_patience=(
+                    args.early_stopping_patience if args.disable_structural_memory else 0
+                ),
             )
         )
 
@@ -6415,7 +6709,11 @@ def main():
     )
     ap.add_argument("--memory_dir", type=str, default=str(DEFAULT_STRUCTURAL_MEMORY))
     ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-6.7b-base")
-    ap.add_argument("--model_revision", type=str, default="main")
+    ap.add_argument(
+        "--model_revision", type=str,
+        default="ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+        help="Pinned DeepSeek-Coder revision used by the locked MailoHLS contract.",
+    )
     ap.add_argument(
         "--objective",
         type=str,
@@ -6431,13 +6729,15 @@ def main():
     ap.add_argument("--split_seed", type=int, default=123)
     ap.add_argument("--stratify_by_kernel", action="store_true")
     ap.add_argument("--split_json", type=str, default="")
+    ap.add_argument("--minimum_validation_families", type=int, default=3)
+    ap.add_argument("--minimum_test_families", type=int, default=3)
     ap.add_argument("--save_split_json", type=str, default="")
     ap.add_argument(
         "--save_selection_debug",
         action="store_true",
         help=(
-            "Opt-in debugging artifact: persist the selected train/validation/"
-            "test rows and selection metadata under selected_debug/."
+            "Opt-in debugging artifact: persist selected training/validation "
+            "rows only; held-out test targets are never selected or exported."
         ),
     )
 
@@ -6519,7 +6819,7 @@ def main():
     ap.add_argument(
         "--random_budget_min_frac",
         type=float,
-        default=0.10,
+        default=0.01,
     )
 
     ap.add_argument(
@@ -6569,6 +6869,10 @@ def main():
     ap.add_argument("--max_grad_norm", type=float, default=1.0)
     ap.add_argument("--num_workers", type=int, default=4)
     ap.add_argument("--group_by_length", action="store_true")
+    ap.add_argument(
+        "--family_sampling_power", type=float, default=0.5,
+        help="Sample families with probability proportional to count^(1-power).",
+    )
     ap.add_argument("--gradient_checkpointing", action="store_true")
     ap.add_argument("--resume_from_checkpoint", type=str, default="")
     ap.add_argument("--init_adapter_dir", type=str, default="")
@@ -6675,6 +6979,11 @@ def main():
     ap.add_argument("--selection_eval_steps", type=int, default=200)
     ap.add_argument("--selection_candidate_batch_size", type=int, default=4)
     ap.add_argument("--best_dir_name", type=str, default="best_custom_stage1")
+    ap.add_argument("--early_stopping_patience", type=int, default=3)
+    ap.add_argument(
+        "--eval_on_start", action=argparse.BooleanOptionalAction, default=True,
+        help="Evaluate the immutable initialization before the first update.",
+    )
 
     # Trainer / pipeline
     ap.add_argument(

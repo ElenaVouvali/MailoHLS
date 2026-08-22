@@ -308,32 +308,7 @@ class InferenceCase:
 
 
 def family_id_from_kernel_name(name: str) -> str:
-    s = normalize_kname(name)
-
-    if s.startswith("machsuite_gemm"):
-        return "machsuite_gemm"
-
-    if s.startswith("machsuite_"):
-        parts = s.split("_")
-        if len(parts) >= 3 and parts[-1].isdigit():
-            return "_".join(parts[:-1])
-        return s
-
-    if s.startswith("spcl_example"):
-        return "spcl_example"
-
-    if s.startswith("serrano_"):
-        return "serrano_kalman_filter"
-
-    if s.startswith("rodinia_"):
-        rest = s[len("rodinia_"):]
-        for special in ["cfd_flux", "cfd_step_factor", "lc_gicov", "lc_mgvf"]:
-            if rest.startswith(special):
-                return f"rodinia_{special}"
-        algo = rest.split("_")[0]
-        return f"rodinia_{algo}"
-
-    return s
+    return mailohls_contract.family_id_from_kernel_name(name)
 
 
 def load_rows(jsonl_path: str) -> List[dict]:
@@ -867,6 +842,8 @@ def constrained_decode_rhs_by_candidate_scoring(
     parts = []
     current_label = None
     site_debug = []
+    chosen_assignments = {}
+    site_domains = directive_domain_registry[normalize_kname(kernel_name)]
 
     sequence_score = 0.0
     sequence_sum_logprob = 0.0
@@ -900,8 +877,11 @@ def constrained_decode_rhs_by_candidate_scoring(
             input_ids, attention_mask = append_token_ids(input_ids, attention_mask, prefix_ids)
             parts.append(prefix_text)
 
-            candidates = get_rhs_candidates_for_lhs(
+            original_candidates = get_rhs_candidates_for_lhs(
                 kernel_name, lhs, directive_domain_registry
+            )
+            candidates = mailohls_contract.filter_semantic_candidates(
+                lhs, original_candidates, chosen_assignments, site_domains
             )
             scored = []
 
@@ -926,7 +906,11 @@ def constrained_decode_rhs_by_candidate_scoring(
                     device=device,
                 )
 
-            for rhs in candidates:
+            if len(candidates) == 1:
+                scored.append({"rhs": candidates[0], "score": 0.0,
+                               "mean_logprob": 0.0, "sum_logprob": 0.0,
+                               "token_count": 0})
+            for rhs in (candidates if len(candidates) > 1 else []):
                 stats = score_rhs_candidate_suffix(
                     model=model,
                     tok=tok,
@@ -956,6 +940,7 @@ def constrained_decode_rhs_by_candidate_scoring(
             )
 
             chosen_text = chosen["rhs"] + "\n"
+            chosen_assignments[lhs.strip().upper()] = chosen["rhs"]
             chosen_ids = tok(chosen_text, add_special_tokens=False)["input_ids"]
             input_ids, attention_mask = append_token_ids(input_ids, attention_mask, chosen_ids)
             parts.append(chosen_text)
@@ -974,11 +959,14 @@ def constrained_decode_rhs_by_candidate_scoring(
                         "chosen_sum_logprob": float(chosen["sum_logprob"]),
                         "chosen_sample_prob": float(chosen.get("sample_prob", 1.0)),
                         "chosen_sample_rank": int(chosen.get("sample_rank", 1)),
+                        "static_candidate_count": len(original_candidates),
+                        "forced_by_semantics": len(candidates) == 1,
                         "top_candidates": ordered[:debug_topk],
                     }
                 )
 
         prediction = "".join(parts).rstrip()
+        mailohls_contract.validate_directive_assignments(chosen_assignments)
         canonical_prediction = canonicalize_generation(prediction)
 
         return {
@@ -1168,7 +1156,7 @@ def load_stage_model(args, tok):
     )
 
     base.resize_token_embeddings(len(tok))
-    if args.stage in {"stage2", "stage3"}:
+    if args.stage in {"stage1", "stage2", "stage3"}:
         input_weight = base.get_input_embeddings().weight
         output_weight = base.get_output_embeddings().weight
         actual_tied = input_weight.data_ptr() == output_weight.data_ptr()
@@ -1283,17 +1271,25 @@ def predict_case(
     sample_top_k: int,                # NEW
     sample_seed: int,                 # NEW
 ) -> Dict[str, Any]:
-    prompt = mailohls_contract.build_prompt(
+    if str(case.platform_row.get("frequency_mode", "specified")).lower() != "specified":
+        raise ValueError("Automatic-clock inference is not implemented in the locked contract")
+    sections = mailohls_contract.build_prompt_sections(
         case.source_text,
         case.obj_mode,
         mailohls_contract.target_prompt_fields(case.platform_row),
     )
-
-    enc = tok(prompt, add_special_tokens=False)
-    prompt_ids = enc["input_ids"][-max_prompt_tokens:] if len(enc["input_ids"]) > max_prompt_tokens else enc["input_ids"]
+    base_prompt_ids = [
+        token_id for section in sections
+        for token_id in tok(section, add_special_tokens=False)["input_ids"]
+    ]
+    prompt_ids = base_prompt_ids + mailohls_contract.selected_clock_response_token_ids(
+        case.platform_row, tok
+    )
+    if len(prompt_ids) > max_prompt_tokens:
+        raise ValueError("Inference prompt and selected-clock prefix exceed --max_length")
 
     device = get_first_real_device(model)
-    routing_start_idx = torch.tensor([len(prompt_ids)], dtype=torch.long, device=device)
+    routing_start_idx = torch.tensor([len(base_prompt_ids)], dtype=torch.long, device=device)
 
     structural_memory = None
     structural_memory_mask = None
@@ -1635,7 +1631,9 @@ def main():
         missing = [key for key in required if key not in structural_config]
         if missing:
             raise ValueError(f"Structural contract is missing fields: {missing}")
-        if training_contract.get("prompt_schema_version") != mailohls_contract.PROMPT_SCHEMA_VERSION:
+        if training_contract.get("prompt_schema_version") not in {
+            1, mailohls_contract.PROMPT_SCHEMA_VERSION
+        }:
             raise ValueError("Unsupported prompt_schema_version")
         trained_placement = structural_config["xattn_placement"]
         supported_placements = {
@@ -1697,26 +1695,65 @@ def main():
                 f"Memory manifest does not match the {args.stage} checkpoint"
             )
     else:
-        args.model = (
-            args.model or "deepseek-ai/deepseek-coder-7b-base"
-        )
-        args.model_revision = args.model_revision or "main"
+        contract_path = os.path.join(args.adapter_dir, "training_contract.json")
+        if not os.path.isfile(contract_path):
+            raise ValueError(f"Stage-1 checkpoint is missing {contract_path}")
+        with open(contract_path, "r", encoding="utf-8") as handle:
+            training_contract = json.load(handle)
+        if (training_contract.get("schema") != "mailohls-training-contract-v1"
+                or training_contract.get("stage") != "stage1"):
+            raise ValueError("Stage-1 inference requires its exact Stage-1 training contract")
+        for field in ("model", "model_revision"):
+            trained = training_contract.get(field)
+            supplied = getattr(args, field)
+            if not trained or (supplied and supplied != trained):
+                raise ValueError(f"--{field} conflicts with the Stage-1 contract")
+            setattr(args, field, trained)
+        trainables = training_contract.get("stage1_trainable_parameter_contract")
+        if (training_contract.get("prompt_schema_version") != 1
+                and (not isinstance(trainables, dict)
+                     or trainables.get("schema") != "mailohls-stage1-trainables-v1")):
+            raise ValueError("Stage-1 checkpoint is missing its trainable-parameter contract")
         args.mem_dim = args.mem_dim or 0
         args.max_slots = args.max_slots or 64
         args.structural_fusion_placement = None
         args.structural_routing = "exact_slot"
         args.structural_gate_scale = 1.0
         args.structural_memory_value_scale = 1.0
-        args.embedding_weights_tied = None
+        args.embedding_weights_tied = bool(training_contract["embedding_weights_tied"])
+
+    required_policies = {
+        "prompt_schema_version": mailohls_contract.PROMPT_SCHEMA_VERSION,
+        "response_prefix_policy": mailohls_contract.RESPONSE_PREFIX_POLICY,
+        "clock_supervision_policy": mailohls_contract.CLOCK_SUPERVISION_POLICY,
+        "directive_supervision_policy": mailohls_contract.DIRECTIVE_SUPERVISION_POLICY,
+        "semantic_domain_policy": mailohls_contract.SEMANTIC_DOMAIN_POLICY,
+    }
+    is_historical = training_contract.get("prompt_schema_version") == 1
+    mismatches = {} if is_historical else {
+        name: {"checkpoint": training_contract.get(name), "runtime": value}
+        for name, value in required_policies.items()
+        if training_contract.get(name) != value
+    }
+    if mismatches:
+        raise ValueError("Checkpoint response contract is incompatible: "
+                         + json.dumps(mismatches, sort_keys=True))
+    domain_digest = hashlib.sha256()
+    with open(args.directive_domain_registry_json, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            domain_digest.update(chunk)
+    if domain_digest.hexdigest() != training_contract.get("directive_domain_registry_sha256"):
+        raise ValueError("Directive-domain registry does not match the checkpoint contract")
 
     cases = load_cases(args)
-    if args.stage in {"stage2", "stage3"}:
-        mismatched = [case.kernel_name for case in cases if case.obj_mode != training_contract["objective"]]
-        if mismatched:
-            raise ValueError(
-                f"Evaluation objective must match checkpoint objective {training_contract['objective']}; "
-                f"mismatched cases: {mismatched[:10]}"
-            )
+    mismatched = [case.kernel_name for case in cases
+                  if training_contract["objective"] != "ALL"
+                  and case.obj_mode != training_contract["objective"]]
+    if mismatched:
+        raise ValueError(
+            f"Evaluation objective must match checkpoint objective {training_contract['objective']}; "
+            f"mismatched cases: {mismatched[:10]}"
+        )
     for case in cases:
         mailohls_contract.target_prompt_fields(case.platform_row)
     directive_domain_registry = load_directive_domain_registry(
@@ -1726,16 +1763,12 @@ def main():
         args.model,
         revision=args.model_revision,
     )
-    if args.stage in {"stage2", "stage3"}:
-        expected_tokens = training_contract.get("special_tokens")
-        expected_ids = training_contract.get("special_token_ids")
-        actual_ids = (
-            sorted(set(tok.convert_tokens_to_ids(expected_tokens)))
-            if isinstance(expected_tokens, list)
-            else None
-        )
-        if len(tok) != training_contract.get("tokenizer_size") or actual_ids != expected_ids:
-            raise ValueError("Tokenizer does not match the checkpoint training contract")
+    expected_tokens = training_contract.get("special_tokens")
+    expected_ids = training_contract.get("special_token_ids")
+    actual_ids = (sorted(set(tok.convert_tokens_to_ids(expected_tokens)))
+                  if isinstance(expected_tokens, list) else None)
+    if len(tok) != training_contract.get("tokenizer_size") or actual_ids != expected_ids:
+        raise ValueError("Tokenizer does not match the checkpoint training contract")
     model = load_stage_model(args, tok)
     if args.stage in {"stage2", "stage3"}:
         actual_layers = tuple(model.structural_xattn_layer_indices)
