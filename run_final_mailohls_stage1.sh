@@ -37,7 +37,7 @@ fi
 
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 
-python -u LLM_branch/train/train_SFT_xattn_new.py \
+python -u -m LLM_branch.train.train_SFT_xattn_new \
   --run_mode single \
   --disable_structural_memory \
   --objective PARETO_ADP \
