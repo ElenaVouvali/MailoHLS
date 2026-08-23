@@ -12,7 +12,7 @@ points_per_kernel="${MAILOHLS_GNN_POINTS_PER_KERNEL:-2}"
 grad_accum_steps="${MAILOHLS_GNN_GRAD_ACCUM_STEPS:-8}"
 target_device="${MAILOHLS_GNN_TARGET_DEVICE:-xczu7ev-ffvc1156-2-e}"
 target_clock="${MAILOHLS_GNN_CLOCK_NS:-10}"
-experiment="${MAILOHLS_GNN_EXPERIMENT:-gnn_final_canonical_s${seed}}"
+experiment="${MAILOHLS_GNN_EXPERIMENT:-gnn_final}"
 
 if [[ ! -f "$split" ]]; then
   printf 'Required shared experiment split does not exist: %s\n' "$split" >&2

@@ -9,7 +9,7 @@ objective="${MAILOHLS_OBJECTIVE:-PARETO_ADP}"
 dataset="${MAILOHLS_SFT_DATASET:-$repo_root/artifacts/llm/mailohls_sft.jsonl}"
 split="${MAILOHLS_FAMILY_SPLIT:-$repo_root/mailohls_runs/mailohls_final_family_split_s${seed}.json}"
 application_dataset="${MAILOHLS_APPLICATION_DATASET_DIR:-$repo_root/Data/ApplicationDataset}"
-output="${MAILOHLS_STAGE1_OUTPUT:-$repo_root/mailohls_runs/stage1_final_source_domains_${objective,,}_s${seed}}"
+output="${MAILOHLS_STAGE1_OUTPUT:-$repo_root/mailohls_runs/stage1_final_${objective,,}"
 
 for artifact in "$dataset" "$split"; do
   if [[ ! -f "$artifact" ]]; then
