@@ -12,8 +12,11 @@ from LLM_branch.train.train_DPO_harp_xattn import (
     load_stage2_contract,
 )
 
+from types import SimpleNamespace
 
 class _PairMod:
+    TARGET_CFG = SimpleNamespace(effective_area_floor=0.0625)
+
     @staticmethod
     def build_partial_deterministic_target_text(
         source,

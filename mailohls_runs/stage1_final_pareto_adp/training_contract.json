@@ -1,7 +1,7 @@
 {
   "schema": "mailohls-training-contract-v1",
   "stage": "stage1",
-  "git_commit": "393993e4a659bbb86b02c23f6d407774e4b11da7",
+  "git_commit": "799c782b7a6a3ea890df6081b8e3dd7c91d82f13",
   "model": "deepseek-ai/deepseek-coder-6.7b-base",
   "model_revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
   "tokenizer": "deepseek-ai/deepseek-coder-6.7b-base",
@@ -304,11 +304,15 @@
     32161
   ],
   "supervise_eos": false,
-  "directive_domain_registry_sha256": "782246f880cc30e93c6499b3440fccdc22f9ce51f7b8d01dc9b32d853d5279ac",
+  "directive_domain_registry_sha256": null,
   "directive_loss_weighting": "uniform",
   "directive_loss_weights": {},
   "directive_site_weighting": "equal_total_weight_per_decision_site",
-  "directive_domain_registry_policy": "exact per-kernel/per-site RHS support from the complete pre-split MailoHLS dataset",
+  "directive_domain_registry_policy": "source_action_metadata_and_compiler_legal_values_v1",
+  "directive_domain_search_space": {
+    "max_unroll_factor": 64,
+    "max_partition_factor": 1024
+  },
   "max_length": 7168,
   "top_k": 1,
   "device_mode": "known",
@@ -426,8 +430,8 @@
       "3",
       "--minimum_test_families",
       "1",
-      "--directive_domain_registry_json",
-      "/home/elvouvali/MailoHLS/MailoHLS-next/artifacts/llm/directive_domain_registry.json",
+      "--application_dataset_dir",
+      "/home/elvouvali/MailoHLS/MailoHLS-next/Data/ApplicationDataset",
       "--model",
       "deepseek-ai/deepseek-coder-6.7b-base",
       "--model_revision",

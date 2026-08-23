@@ -117,6 +117,9 @@
   "feature_schema_version": "mailohls-mlir-features-v13-conditioned-targets",
   "generator_sha256": "5e4f93c89ce4c275c04ff6ed4dd81a17858647a55b0abec0846b8da240da3b05",
   "graph_schema_version": "mailohls-mlir-graph-v7-analysis-features",
+  "locked_test_kernels": [
+    "serrano-kalman-filter"
+  ],
   "node_categorical_fields": [
     "node_kind",
     "exact_text",
@@ -561,17 +564,19 @@
     "pipeline_ii": "raw",
     "unroll_factor": "log2(1 + factor)"
   },
+  "pragma_padding_fit_policy": "training_kernels_only",
   "pragma_storage_policy": "one_tensor_per_unique_directive_configuration",
-  "preprocessed_csv_sha256": "d72d361277a41b9a34ef5f8ba4ca610b75898050007cb03d08d79e20df5c7e18",
+  "preprocessed_csv_sha256": "529e8b11b39e060865c98a9a2390fbef695421894d81fe3e14c2af855833a923",
   "qor_filter": {
     "include_invalid": false,
     "minimum_latency_ms": 0.0,
     "requires_finite_positive_latency_and_nonnegative_area": true
   },
-  "qor_reference_clock_period_ns": null,
-  "qor_reference_device": null,
-  "qor_target_policy": "all_measured_device_clock_targets",
+  "qor_reference_clock_period_ns": 10.0,
+  "qor_reference_device": "xczu7ev-ffvc1156-2-e",
+  "qor_target_policy": "single_reference_target",
   "target_condition_dim": 5,
   "target_condition_policy": "log2_public_device_capacities_and_clock",
+  "test_measurement_policy": "locked_static_graph_only",
   "unknown_category": "<unknown>"
 }
