@@ -353,6 +353,23 @@ class StageBHelperTests(unittest.TestCase):
             -0.01, -0.2, 1e-4, 0.0, 1.1,
         ))
 
+    def test_embedding_rank_uses_aggregate_guardrails_and_tau(self):
+        update = _load_function(
+            "should_update_embedding_rank", {"np": np}
+        )
+        self.assertTrue(update(
+            {"perf": 0.8, "area": 0.9},
+            0.30, 0.20, 1e-4, 0.20,
+        ))
+        self.assertFalse(update(
+            {"perf": 1.01, "area": 0.5},
+            0.90, 0.20, 1e-4, 0.20,
+        ))
+        self.assertFalse(update(
+            {"perf": 0.8, "area": 0.9},
+            0.19, 0.10, 1e-4, 0.20,
+        ))
+
     def test_macro_rank_is_equal_kernel_and_worst_target(self):
         score = _load_function(
             "compute_macro_ranking_score",

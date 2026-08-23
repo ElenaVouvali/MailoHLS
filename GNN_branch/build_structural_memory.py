@@ -1446,6 +1446,32 @@ def main():
     model.eval()
     checkpoint_sha256 = _sha256(args.ckpt)
     source_pt_manifest_sha256 = _source_pt_manifest_sha256(pt_files)
+
+    # Stage-2 export must use the exact static MLIR tensor tree that trained
+    # this checkpoint. Matching tensor dimensions alone is not sufficient.
+    expected_static_tree = (
+        contract.get('training_artifacts', {})
+        .get('static_graph_tensor_tree', {})
+    )
+    expected_static_sha256 = expected_static_tree.get('sha256')
+    if (
+        expected_static_sha256 is not None
+        and source_pt_manifest_sha256 != expected_static_sha256
+    ):
+        raise RuntimeError(
+            'Static MLIR tensor tree differs from the exact tensor tree used '
+            'to train this GNN checkpoint.'
+        )
+    expected_static_count = expected_static_tree.get('count')
+    if (
+        expected_static_count is not None
+        and len(pt_files) != int(expected_static_count)
+    ):
+        raise RuntimeError(
+            'Static MLIR tensor count differs from GNN training provenance: '
+            f'{len(pt_files)} != {expected_static_count}'
+        )
+
     source_gexf_files = [
         join(args.gexf_dir, f"{os.path.splitext(basename(path))[0]}.gexf")
         for path in pt_files
