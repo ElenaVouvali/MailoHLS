@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+from contextlib import nullcontext
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
@@ -20,6 +22,64 @@ class CharacterTokenizer:
 
     def __call__(self, text, add_special_tokens=False):
         return {"input_ids": [ord(character) for character in text]}
+
+
+class _BackwardOnlyAccelerator:
+    scaler = None
+    sync_gradients = True
+
+    @staticmethod
+    def backward(loss):
+        loss.backward()
+
+
+class _AccumulationHarness:
+    training_step = trainer.LengthGroupedTrainer.training_step
+
+    def __init__(self, gradient_accumulation_steps: int):
+        self.args = SimpleNamespace(
+            n_gpu=1,
+            gradient_accumulation_steps=gradient_accumulation_steps,
+            disable_structural_memory=True,
+        )
+        self.accelerator = _BackwardOnlyAccelerator()
+        self.stage2_trainable_contract = False
+        self.xattn_diagnostic_steps = 0
+        self.state = SimpleNamespace(global_step=0)
+
+    @staticmethod
+    def _prepare_inputs(inputs):
+        return inputs
+
+    @staticmethod
+    def compute_loss_context_manager():
+        return nullcontext()
+
+    @staticmethod
+    def compute_loss(model, inputs, num_items_in_batch=None):
+        del num_items_in_batch
+        return (model(inputs["x"]) - inputs["target"]).square().mean()
+
+
+class _FakeScaler:
+    def __init__(self, scale):
+        self.scale = scale
+
+    def get_scale(self):
+        return self.scale
+
+
+class _AMPGuardHarness:
+    _check_amp_optimizer_step = trainer.LengthGroupedTrainer._check_amp_optimizer_step
+
+    def __init__(self, scale):
+        self.state = SimpleNamespace(global_step=0)
+        self.accelerator = SimpleNamespace(
+            scaler=_FakeScaler(scale),
+            optimizer_step_was_skipped=True,
+        )
+        self._consecutive_low_scale_amp_skips = 0
+        self._last_amp_guard_step = -1
 
 
 def _domains():
@@ -222,6 +282,41 @@ def test_reported_zero_utilization_is_preserved_in_area():
     measured = assign_target_local_weights(frame, minimum_weight=0.1, gamma=2.0)
     assert measured.loc[0, "BRAM_Utilization_percentage"] == 0.0
     assert measured.loc[0, "Area"] == pytest.approx(3.0)
+
+
+def test_repeated_examples_match_grad_accumulation_one_and_eight():
+    example = {"x": torch.tensor([[2.0]]), "target": torch.tensor([[1.0]])}
+    reference = torch.nn.Linear(1, 1, bias=False)
+    accumulated = torch.nn.Linear(1, 1, bias=False)
+    with torch.no_grad():
+        reference.weight.fill_(0.25)
+        accumulated.weight.copy_(reference.weight)
+
+    loss_one = _AccumulationHarness(1).training_step(reference, example)
+    harness_eight = _AccumulationHarness(8)
+    losses_eight = [
+        harness_eight.training_step(accumulated, example)
+        for _ in range(8)
+    ]
+
+    assert loss_one.item() == pytest.approx(sum(x.item() for x in losses_eight))
+    assert accumulated.weight.grad == pytest.approx(reference.weight.grad)
+
+
+def test_amp_guard_allows_calibration_and_only_fails_after_low_scale_streak():
+    high_scale = _AMPGuardHarness(scale=65536.0)
+    for step in range(1, 4):
+        high_scale.state.global_step = step
+        high_scale._check_amp_optimizer_step()
+    assert high_scale._consecutive_low_scale_amp_skips == 0
+
+    low_scale = _AMPGuardHarness(scale=trainer.AMP_LOW_SCALE_THRESHOLD)
+    for step in range(1, trainer.AMP_LOW_SCALE_MAX_CONSECUTIVE_SKIPS):
+        low_scale.state.global_step = step
+        low_scale._check_amp_optimizer_step()
+    with pytest.raises(FloatingPointError, match="consecutive synchronized"):
+        low_scale.state.global_step += 1
+        low_scale._check_amp_optimizer_step()
 
 
 def test_stage1_accepts_zero_area_qor(monkeypatch):

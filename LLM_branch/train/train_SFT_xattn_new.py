@@ -73,6 +73,8 @@ PRODUCTION_STAGE2_PLACEMENT = "post_self_attention_residual"
 PRODUCTION_STAGE2_ROUTING = "compiler_relational"
 STAGE2_APPLY_MASK_POLICY = "rhs_only_causal_logit_positions"
 STAGE2_TRAINABLE_GROUPS = ("structural_cross_attention", "structural_attention_gates")
+AMP_LOW_SCALE_THRESHOLD = 1.0
+AMP_LOW_SCALE_MAX_CONSECUTIVE_SKIPS = 8
 
 
 def current_git_commit() -> str:
@@ -3561,7 +3563,8 @@ class LengthGroupedTrainer(Trainer):
         self.candidate_max_prefix_tokens = int(candidate_max_prefix_tokens)
         self.candidate_keep_head_tokens = int(candidate_keep_head_tokens)
         self._last_debug_step = -1
-        self._consecutive_nonfinite_sync_steps = 0
+        self._consecutive_low_scale_amp_skips = 0
+        self._last_amp_guard_step = -1
         self.structural_routing = structural_routing
         self.ce_loss_weight = float(ce_loss_weight)
         self.xattn_diagnostic_steps = int(xattn_diagnostic_steps)
@@ -3717,43 +3720,21 @@ class LengthGroupedTrainer(Trainer):
         if self.args.n_gpu > 1:
             loss = loss.mean()
 
+        if not torch.isfinite(loss.detach()).all().item():
+            if hasattr(model, "clear_structural_memory"):
+                model.clear_structural_memory()
+            raise FloatingPointError(
+                f"Non-finite forward loss at step {self.state.global_step}: "
+                f"{loss.detach().float().cpu().item()}"
+            )
+
+        loss = loss / self.args.gradient_accumulation_steps
         self.accelerator.backward(loss)
 
         # IMPORTANT: clear only after backward, so checkpoint recomputation
         # still sees the conditioned STRUCTURAL state
         if hasattr(model, "clear_structural_memory"):
             model.clear_structural_memory()
-
-        if self.accelerator.sync_gradients:
-            scaler = getattr(self.accelerator, "scaler", None)
-            amp_scale = (
-                float(scaler.get_scale())
-                if scaler is not None
-                else 1.0
-            )
-            nonfinite = [
-                name
-                for name, parameter in model.named_parameters()
-                if (
-                    parameter.grad is not None
-                    and not torch.isfinite(parameter.grad).all().item()
-                )
-            ]
-            if nonfinite:
-                self._consecutive_nonfinite_sync_steps += 1
-                print(
-                    "[NUMERICS] "
-                    f"step={self.state.global_step} "
-                    f"amp_scale={amp_scale:g} "
-                    f"nonfinite_gradients={nonfinite[:8]} "
-                    f"consecutive={self._consecutive_nonfinite_sync_steps}"
-                )
-                if self._consecutive_nonfinite_sync_steps >= 2:
-                    raise FloatingPointError(
-                        "Repeated non-finite synchronized gradients"
-                    )
-            else:
-                self._consecutive_nonfinite_sync_steps = 0
 
         if (
             self.accelerator.sync_gradients
@@ -3796,7 +3777,47 @@ class LengthGroupedTrainer(Trainer):
                     self.state.global_step
                 )
 
-        return loss.detach() / self.args.gradient_accumulation_steps
+        return loss.detach()
+
+    def _check_amp_optimizer_step(self) -> None:
+        """Let GradScaler calibrate, aborting only on persistent low-scale skips."""
+        step = int(self.state.global_step)
+        if step == self._last_amp_guard_step:
+            return
+        self._last_amp_guard_step = step
+
+        scaler = getattr(self.accelerator, "scaler", None)
+        if scaler is None:
+            self._consecutive_low_scale_amp_skips = 0
+            return
+
+        skipped = bool(self.accelerator.optimizer_step_was_skipped)
+        scale = float(scaler.get_scale())
+        if skipped and scale <= AMP_LOW_SCALE_THRESHOLD:
+            self._consecutive_low_scale_amp_skips += 1
+        else:
+            self._consecutive_low_scale_amp_skips = 0
+
+        if skipped:
+            print(
+                "[AMP] "
+                f"step={step} optimizer_step_skipped=true scale={scale:g} "
+                "GradScaler calibration continues "
+                f"low_scale_consecutive={self._consecutive_low_scale_amp_skips}"
+            )
+        if (
+            self._consecutive_low_scale_amp_skips
+            >= AMP_LOW_SCALE_MAX_CONSECUTIVE_SKIPS
+        ):
+            raise FloatingPointError(
+                "AMP skipped "
+                f"{self._consecutive_low_scale_amp_skips} consecutive synchronized "
+                f"updates at scale <= {AMP_LOW_SCALE_THRESHOLD:g}"
+            )
+
+    def _maybe_log_save_evaluate(self, *args, **kwargs):
+        self._check_amp_optimizer_step()
+        return super()._maybe_log_save_evaluate(*args, **kwargs)
     
 
     def prediction_step(self, model, inputs, prediction_loss_only, ignore_keys=None):
