@@ -19,7 +19,7 @@ EXPERIMENT="gnn_final_reference_delta_rank_s123"
 # kernels. generate_neutral_baselines.py appends requested kernels without
 # deleting already authenticated successful rows.
 missing=()
-for kernel in rodinia_lud_1_tiling_0 spcl_example_01; do
+for kernel in spcl_example_01; do
   if ! grep -q "^${kernel},success," "${MANIFEST}"; then
     missing+=("${kernel}")
   fi
@@ -60,6 +60,7 @@ python -u GNN_branch/main_GNN.py \
   --kernel_balanced_loss \
   --kernel_grouped_sampling \
   --kernels_per_batch 4 \
+  --development_exclude_kernels rodinia_lud_1_tiling_0 \
   --points_per_kernel 4 \
   --samples_per_kernel_per_epoch 128 \
   --batch_size 16 \

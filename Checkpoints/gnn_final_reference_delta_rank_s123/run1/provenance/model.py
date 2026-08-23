@@ -1,0 +1,1265 @@
+#-----------------------------------------------------------
+#                       model.py
+#-----------------------------------------------------------
+
+import math
+import torch
+import torch.nn.functional as F
+import torch.nn as nn
+from torch_geometric.data import Data
+from torch_geometric.loader import DataLoader
+from torch_geometric.nn import GATConv, GlobalAttention, JumpingKnowledge, TransformerConv, GCNConv
+from torch_geometric.nn import global_add_pool
+from torch.nn import Sequential, Linear, ReLU
+
+from config import FLAGS
+from saver import saver
+from utils import MLP, _get_y_with_target, MLP_multi_objective
+from nn_att import MyGlobalAttention
+from collections import OrderedDict, defaultdict
+from typing import Dict, Any, List, Tuple
+
+RESOURCE_NAMES = ("bram", "dsp", "ff", "lut")
+
+
+def make_resource_heads(response_in_D, hidden_dim, resource_stats):
+    if resource_stats is None:
+        return None
+    return nn.ModuleDict({
+        name: MLP(
+            response_in_D,
+            1,
+            activation_type=FLAGS.activation,
+            hidden_channels=[max(8, hidden_dim // 4)],
+            num_hidden_lyr=1,
+        )
+        for name in RESOURCE_NAMES
+    })
+
+
+def within_kernel_rank_loss(
+    prediction,
+    target,
+    kernels,
+    *,
+    temperature,
+    tie_epsilon,
+):
+    if temperature <= 0:
+        raise ValueError('temperature must be positive.')
+    if tie_epsilon < 0:
+        raise ValueError('tie_epsilon must be non-negative.')
+    if len(kernels) != int(prediction.shape[0]):
+        raise ValueError('Expected one kernel identity per prediction.')
+    per_kernel = []
+    for kernel in sorted(set(kernels)):
+        indices = [
+            index for index, value in enumerate(kernels) if value == kernel
+        ]
+        if len(indices) < 2:
+            continue
+        pred = prediction[indices].reshape(-1)
+        true = target[indices].reshape(-1)
+        pred_diff = pred[:, None] - pred[None, :]
+        true_diff = true[:, None] - true[None, :]
+        upper = torch.triu(
+            torch.ones_like(true_diff, dtype=torch.bool), diagonal=1
+        )
+        valid = upper & (true_diff.abs() > tie_epsilon)
+        if valid.any():
+            direction = true_diff.sign()
+            loss = F.softplus(
+                -direction[valid] * pred_diff[valid] / temperature
+            ).mean()
+            per_kernel.append(loss)
+    if not per_kernel:
+        return prediction.new_zeros(())
+    return torch.stack(per_kernel).mean()
+
+
+class Net(nn.Module):
+    def __init__(self, in_channels, edge_dim = 0, init_pragma_dict = None,
+                 task = FLAGS.task, num_layers = FLAGS.num_layers, D = FLAGS.D,
+                 target = FLAGS.target, target_stats = None,
+                 resource_stats = None): # in_channels: node feature dimension (num_features=153) , edge_dim: edge feature dimension (335) , D : hidden width (64)
+          super(Net, self).__init__()
+
+          requested_targets = (
+              list(target) if isinstance(target, (list, tuple)) else [target]
+          )
+          self.MLP_version = (
+              'multi_obj' if len(requested_targets) > 1 else 'single_obj'
+          )
+          # gnn_type determines the graph message passing operator
+          if FLAGS.gnn_type == 'gat':
+              conv_class = GATConv
+          elif FLAGS.gnn_type == 'gcn':
+              conv_class = GCNConv
+          elif FLAGS.gnn_type == 'transformer':
+              conv_class = TransformerConv  # graph transformer layer --> x' = x + Σ*a*W*x , where a : multi-head dot product attention coefficients
+                                            # it supports edge_dim so edge_features can influence attention/messages --> x' = x + Σ*a*(W*x + W*e)
+          else:
+              raise NotImplementedError()
+
+          attention_heads = int(getattr(FLAGS, 'graph_attention_heads', 1))
+
+          def make_graph_conv(input_dim):
+              if FLAGS.gnn_type != 'transformer':
+                  return conv_class(input_dim, D)
+              kwargs = {
+                  'heads': attention_heads,
+                  'concat': True,
+                  'beta': bool(getattr(FLAGS, 'graph_residual_beta', False)),
+                  'dropout': FLAGS.dropout,
+              }
+              if FLAGS.encode_edge:
+                  kwargs['edge_dim'] = edge_dim
+              return conv_class(input_dim, D // attention_heads, **kwargs)
+
+          self.conv_first = make_graph_conv(in_channels)
+
+
+          self.num_conv_layers = num_layers - 1 # 5
+          num_layers += FLAGS.gnn_layer_after_MLP # 1 layer after MLP : size 64->64
+          self.conv_layers = nn.ModuleList()
+
+          for _ in range(num_layers - 1):
+              conv = make_graph_conv(D)
+              self.conv_layers.append(conv) # list to hold the 5 conv layers (pre-MLP, pre-pragma, after the first conv) --> all hidden->hidden , size 64->64
+          self.graph_norms = nn.ModuleList(
+              [nn.LayerNorm(D) for _ in range(num_layers)]
+              if bool(getattr(FLAGS, 'graph_layer_norm', False)) else []
+          )
+
+
+          if FLAGS.gae_T: # graph auto encoder for 'T' (targets/pragma vector)
+              if FLAGS.separate_T:
+                  self.gae_transform_T = nn.ModuleDict()
+                  for gname, feat_dim in init_pragma_dict.items():
+                      self.gae_transform_T['all'] = Linear(feat_dim[1], D // 8) # maps the per-graph pragma vector into a compact code of size D//8
+                  channels = [D // 2, D // 4]
+                  self.decoder_T = MLP(D, D // 8,
+                              activation_type=FLAGS.activation,
+                              hidden_channels=channels,
+                              num_hidden_lyr=len(channels)) # maps the graph embedding (size D) to the same D/8 space
+                                                            # builds a decoder that tries to reconstruct the pragma vector from the graph embedding (via cosine loss)
+                                                            # self-supervision to keep embeddings informative about pragmas.
+
+          if FLAGS.gae_P: # graph auto encoder for 'P' (inputs / context nodes)
+              out_channels = in_channels
+              if FLAGS.input_encode:
+                  self.gate_input = Linear(in_channels, 2 * D)  # projects raw node features x, then global-pools them to a graph code.
+                  out_channels = 2 * D
+
+              if FLAGS.decoder_type == 'type1':
+                  decoder_arch = []
+              elif FLAGS.decoder_type == 'type2':
+                  decoder_arch = [D, 2 * D, out_channels]
+              self.decoder_P = MLP(D, out_channels, activation_type = FLAGS.activation,
+                              hidden_channels = decoder_arch,
+                              num_hidden_lyr = len(decoder_arch)) # tries to reconstruct that pooled input code from the graph embedding of size D (again via cosine loss) => the graph embedding keeps information about the input program features
+              if FLAGS.decoder_type == 'None':
+                  for name, param in self.decoder_P.named_parameters():
+                      print(name)
+                      param.requires_grad = False
+
+          if FLAGS.gae_T or FLAGS.gae_P:
+              self.gae_sim_function = nn.CosineSimilarity()
+              self.gae_loss_function = nn.CosineEmbeddingLoss() # this loss tries to maximize the cosine similarity between the encoder output (code in D/8 from pragma vector) and its decoder output (code in D/8 from graph embedding)
+                                                                # the graph embedding keeps pragma semantics because it must reconstruct the pragma code => “self-supervision” : internal signals (the pragma settings) as supervision to structure the embedding, not an external label.
+
+          # Jumping Knowledge aggregates representations from multiple layers --> max_pooling (max{x1,..,xn}) across layer outputs => stabilizes the deep GNN and avoids over-smoothing
+          self.jkn = JumpingKnowledge(FLAGS.jkn_mode, channels=D, num_layers=FLAGS.num_layers)  # or num_layers = 2
+
+          self.task = task
+
+          if task == 'regression':  # predicting performance => we want a single scalar output per graph
+              self.out_dim = 1
+              self.MLP_out_dim = 1
+              self.loss_function = nn.MSELoss()
+          else:
+              self.out_dim = 2
+              self.MLP_out_dim = 2
+              self.loss_function = nn.CrossEntropyLoss()
+
+          if FLAGS.node_attention:
+          # The separate_* create multiple independent attention heads --> each one pools node embeddings into a graph embedding with soft attention weights learned by a small gate network
+              if FLAGS.separate_T:
+                  self.gate_nn_T = self.node_att_gate_nn(D) # builds a tiny MLP, a gate network that maps each D-dim node embedding to 1 logit (score)
+                  self.glob_T = MyGlobalAttention(self.gate_nn_T, None) # implements the attention pooling
+              if FLAGS.separate_P:
+                  self.gate_nn_P = self.node_att_gate_nn(D)
+                  self.glob_P = MyGlobalAttention(self.gate_nn_P, None)
+              if FLAGS.separate_pseudo: ## for now, only pseudo node for block
+                  self.gate_nn_pseudo_B = self.node_att_gate_nn(D)
+                  self.glob_pseudo_B = MyGlobalAttention(self.gate_nn_pseudo_B, None)
+              if FLAGS.separate_icmp:
+                  self.gate_nn_icmp = self.node_att_gate_nn(D)
+                  self.glob_icmp = MyGlobalAttention(self.gate_nn_icmp, None)
+
+
+          if 'regression' in self.task:
+              self.target_list = requested_targets
+          else:
+              self.target_list = ['perf']
+          self.decompose_targets = bool(
+              getattr(FLAGS, 'decompose_targets', False)
+          )
+          self.reference_delta = (
+              getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
+          )
+          self.target_condition_dim = (
+              5 if bool(getattr(FLAGS, 'multi_target_qor', False)) else 0
+          )
+
+          # Target statistics are fitted on training kernels only.  They are
+          # buffers so checkpoints carry the exact transform used by the
+          # regressor and inference cannot silently use different statistics.
+          target_stats = target_stats or {}
+          self.register_buffer(
+              'targets_standardized',
+              torch.tensor(
+                  bool(getattr(FLAGS, 'standardize_targets', False)),
+                  dtype=torch.bool,
+              ),
+          )
+          for target_name in self.target_list:
+              stats = target_stats.get(target_name, {})
+              safe_name = target_name.replace('-', '_')
+              self.register_buffer(
+                  f'target_mean__{safe_name}',
+                  torch.tensor(float(stats.get('mean', 0.0))),
+              )
+              self.register_buffer(
+                  f'target_std__{safe_name}',
+                  torch.tensor(max(float(stats.get('std', 1.0)), 1e-8)),
+              )
+
+          if FLAGS.node_attention:
+              dim = FLAGS.separate_T + FLAGS.separate_P + FLAGS.separate_pseudo + FLAGS.separate_icmp # concatenate the multiple attention headouts
+              in_D = dim * D  # compute the regressor's input width, here : 64*2=128
+          else:
+              in_D = D
+          if D > 64:
+              hidden_channels = [D // 2, D // 4, D // 8, D // 16, D // 32]
+          else:
+              hidden_channels = [D // 2, D // 4, D // 8]  # --> hidden sizes : [32,16,8]
+
+          def make_regression_heads(head_in_D):
+              if self.MLP_version == 'single_obj':
+                  heads = nn.ModuleDict()
+                  for target_name in self.target_list:
+                      heads[target_name] = MLP(
+                          head_in_D,
+                          self.MLP_out_dim,
+                          activation_type=FLAGS.activation,
+                          hidden_channels=hidden_channels,
+                          num_hidden_lyr=len(hidden_channels),
+                      )
+                  return heads
+              return MLP_multi_objective(
+                  head_in_D,
+                  self.MLP_out_dim,
+                  activation_type=FLAGS.activation,
+                  hidden_channels=hidden_channels,
+                  objectives=self.target_list,
+                  num_common_lyr=FLAGS.MLP_common_lyr,
+              )
+
+          # MLPs remains the public/dynamic head name for compatibility with
+          # non-decomposed checkpoints. In Stage B it predicts the pragma
+          # response; center_MLPs predicts a static kernel offset.
+          # Delta-oriented modes expose both the static kernel state
+          # and the change induced by the pragma configuration. kernel_center
+          # therefore learns its baseline instead of requiring a measured
+          # neutral HLS design at inference.
+          response_in_D = (
+              (in_D * 2 if (self.decompose_targets or self.reference_delta)
+               else in_D)
+              + self.target_condition_dim
+          )
+          self.MLPs = make_regression_heads(response_in_D)
+          if self.decompose_targets:
+              self.center_MLPs = make_regression_heads(
+                  in_D + self.target_condition_dim
+              )
+          self.resource_heads = make_resource_heads(
+              response_in_D, D, resource_stats
+          )
+          if self.resource_heads is not None:
+              self.register_buffer(
+                  "resource_mean",
+                  torch.as_tensor(resource_stats["mean"], dtype=torch.float32),
+              )
+              self.register_buffer(
+                  "resource_std",
+                  torch.as_tensor(resource_stats["std"], dtype=torch.float32)
+                  .clamp_min(1e-8),
+              )
+
+          # --- pragma as MLP (only pipeline, unroll and array_partition) ---
+          if FLAGS.pragma_as_MLP:
+              # Expect exactly these two:
+              self.pragma_as_MLP_list = FLAGS.pragma_as_MLP_list  # ['pipeline','unroll', 'array_partition']
+              assert set(self.pragma_as_MLP_list) <= {'pipeline', 'unroll', 'array_partition'}, \
+                  f"Unexpected pragma types: {self.pragma_as_MLP_list}"
+              self.MLPs_per_pragma = nn.ModuleDict()
+              for kind in self.pragma_as_MLP_list:
+                  if kind in ('pipeline', 'unroll'):
+                      extra_dims = 1      # one scalar (II or FACTOR)
+                  elif kind == 'array_partition':
+                      extra_dims = 3      # [type, factor, dim]
+                  else:
+                      raise NotImplementedError(f"Unknown pragma kind {kind}")
+                  
+                  in_D = D + extra_dims
+                  hidden_channels, len_hidden_channels = None, 0
+                  if FLAGS.pragma_MLP_hidden_channels is not None:
+                      hidden_channels = eval(FLAGS.pragma_MLP_hidden_channels)
+                      len_hidden_channels = len(hidden_channels)
+                  # 2 tiny per pragma node MLPs that transform node embeddings (D-dim) using the pragma values (scalar) at that node’s block scope , D + extra_dims --> D
+                  self.MLPs_per_pragma[kind] = MLP(in_D, D, activation_type=FLAGS.activation,
+                                                  hidden_channels=hidden_channels, num_hidden_lyr=len_hidden_channels)
+
+              if FLAGS.pragma_order == 'parallel_and_merge':
+                  # 'parallel_and_merge' method lets the model learn interactions between II and FACTOR rather than committing to a fixed sequential order.
+                  merge_in = D * len(self.pragma_as_MLP_list)  # It runs both per-pragma MLPs in parallel (pipeline and unroll), concatenates their outputs (2*D) at nodes in scope
+                  hidden_channels = eval(FLAGS.merge_MLP_hidden_channels)
+                  self.MLPs_per_pragma['merge'] = MLP(merge_in, D, activation_type=FLAGS.activation,
+                                                      hidden_channels=hidden_channels, num_hidden_lyr=len(hidden_channels)) # passes the concatenation through a merge MLP to get back to D , 2*D --> D
+
+
+
+    def node_att_gate_nn(self, D):  # constructs a tiny MLP, the gate network that computes a scalar score per node from a node’s embedding (size D)
+          if FLAGS.node_attention_MLP:
+              return MLP(D, 1,
+                      activation_type=FLAGS.activation,
+                      hidden_channels=[D // 2, D // 4, D // 8],
+                      num_hidden_lyr=3)
+          else:
+              return Sequential(Linear(D, D), ReLU(), Linear(D, 1)) # two-layer gate : Linear(D->D), ReLU, Linear(D->1) , Output shape : [N, 1]
+
+    def _run_graph_conv(self, conv, node_embeddings, edge_index, edge_attr, layer):
+        if FLAGS.encode_edge and FLAGS.gnn_type == 'transformer':
+            output = conv(node_embeddings, edge_index, edge_attr=edge_attr)
+        else:
+            output = conv(node_embeddings, edge_index)
+        return self.graph_norms[layer](output) if self.graph_norms else output
+
+    # If gae_T = True : encoded_g = Linear(pragmas) and decoded_out = Decoder(graph_embedding) => pushes the graph embedding to retain information predictive of the pragma vector.
+    # If gae_P = True : encoded_g = pooled(input features) and decoded_out = Decoder(graph_embedding) => pushes the graph embedding to retain information predictive of input program features.
+    def cal_gae_loss(self, encoded_g, decoded_out):
+          target = torch.ones(len(encoded_g), device=FLAGS.device)  ## for similarity, use the negative form for dissimilarity
+          target.requires_grad = False
+          gae_loss = self.gae_loss_function(encoded_g, decoded_out, target)
+          return gae_loss
+
+    def _target_transform(self, target_name, tensor):
+        """Return training-set mean/std on ``tensor``'s device and dtype."""
+        safe_name = target_name.replace('-', '_')
+        mean = getattr(self, f'target_mean__{safe_name}').to(tensor)
+        std = getattr(self, f'target_std__{safe_name}').to(tensor)
+        return mean, std
+
+    @staticmethod
+    def _point_weights(data, reference):
+        """Return one loss weight per design point in the current batch."""
+        if not bool(getattr(FLAGS, 'kernel_balanced_loss', False)):
+            return torch.ones(reference.shape[0], device=reference.device,
+                              dtype=reference.dtype)
+        if not hasattr(data, 'kernel_loss_weight'):
+            raise RuntimeError(
+                'kernel_balanced_loss requires kernel_loss_weight on every '
+                'training and validation example.'
+            )
+        weights = data.kernel_loss_weight.reshape(-1).to(reference)
+        if weights.numel() != reference.shape[0]:
+            raise RuntimeError(
+                'Expected one kernel loss weight per graph, got '
+                f'{weights.numel()} for batch size {reference.shape[0]}.'
+            )
+        return weights
+
+    def _normalize_scope_mask(self, mask, ref_tensor):
+        """
+        Ensure scope mask is [N, 1], on the same device/dtype as ref_tensor.
+        ref_tensor is expected to be [N, F].
+        """
+        if mask.dim() == 1:
+            mask = mask.unsqueeze(-1)
+        elif mask.dim() == 2 and mask.size(1) == 1:
+            pass
+        else:
+            raise RuntimeError(
+                f"Scope mask must be [N] or [N,1], got shape={tuple(mask.shape)}"
+            )
+
+        if mask.size(0) != ref_tensor.size(0):
+            raise RuntimeError(
+                f"Scope mask/node count mismatch: mask={tuple(mask.shape)} "
+                f"ref_tensor={tuple(ref_tensor.shape)}"
+            )
+
+        return mask.to(device=ref_tensor.device, dtype=ref_tensor.dtype)
+
+
+    def _get_scope_nodes(self, data, ref_tensor, kind):
+        """
+        Use the correct scope mask for each pragma kind.
+        """
+        if kind == "pipeline":
+            return self._normalize_scope_mask(data.X_pipeline_scopeids, ref_tensor)
+        elif kind == "unroll":
+            return self._normalize_scope_mask(data.X_unroll_scopeids, ref_tensor)
+        elif kind == "array_partition":
+            return self._normalize_scope_mask(data.X_array_partition_scopeids, ref_tensor)
+        elif kind == "merge":
+            masks = []
+            if "pipeline" in self.pragma_as_MLP_list:
+                masks.append(self._normalize_scope_mask(data.X_pipeline_scopeids, ref_tensor))
+            if "unroll" in self.pragma_as_MLP_list:
+                masks.append(self._normalize_scope_mask(data.X_unroll_scopeids, ref_tensor))
+            if "array_partition" in self.pragma_as_MLP_list:
+                masks.append(self._normalize_scope_mask(data.X_array_partition_scopeids, ref_tensor))
+
+            if not masks:
+                raise RuntimeError("No pragma masks found for merge step.")
+
+            scope = masks[0]
+            for m in masks[1:]:
+                scope = torch.maximum(scope, m)
+            return scope
+        else:
+            raise NotImplementedError(f"Unknown pragma kind {kind}")
+
+
+    def mask_emb(self, out, non_zero_ids):
+        """
+        out: [N, F]
+        non_zero_ids: [N] or [N,1]
+        """
+        mask = self._normalize_scope_mask(non_zero_ids, out)
+        return out * mask
+
+    def apply_pragma_mlp(self, mlp_pragma, node_emb, scope_nodes, pragma_tensor, kind):
+          """
+          node_emb: [N, D]
+          kind: 'pipeline' or 'unroll' or 'merge'
+          pragma_tensor:
+            - if kind in {'pipeline','unroll'}: X_pragma_per_node [N,2] ([:,0]=II, [:,1]=FACTOR)
+            - if kind == 'merge': concatenated per-pragma outputs [N, D*len(pragmas)]
+          scope_nodes: [N,1] (1.0 for nodes in scope, 0.0 otherwise)
+          """
+          scope_nodes = self._normalize_scope_mask(scope_nodes, node_emb)
+          non_scope_nodes = 1.0 - scope_nodes
+
+          if kind == 'merge':
+              # mlp over the concatenated per-pragma outputs, only at scoped nodes
+              mlp_inp = self.mask_emb(pragma_tensor, non_zero_ids=scope_nodes)
+              mlp_out = mlp_pragma(mlp_inp)
+              return self.mask_emb(node_emb, non_zero_ids=non_scope_nodes) + \
+                    self.mask_emb(mlp_out, non_zero_ids=scope_nodes)
+
+          # Single-scalar option appended to node emb
+          if kind == 'pipeline':
+              option = pragma_tensor[:, 0:1]    # II
+          elif kind == 'unroll':
+              option = pragma_tensor[:, 1:2]    # FACTOR
+          elif kind == 'array_partition':
+              option = pragma_tensor[:, 2:5]    # [type, factor, dim]
+          else:
+              raise NotImplementedError(f"Unknown pragma kind {kind}")
+    
+          mlp_inp = torch.cat((node_emb, option), dim=1)  # concatenates the scalar (II / factor) to the node embedding
+          mlp_out = mlp_pragma(self.mask_emb(mlp_inp, non_zero_ids=scope_nodes))
+
+          if FLAGS.pragma_order == 'sequential':
+              # write back only on scoped nodes, keep others
+              return self.mask_emb(node_emb, non_zero_ids=non_scope_nodes) + \
+                    self.mask_emb(mlp_out,  non_zero_ids=scope_nodes)
+          elif FLAGS.pragma_order == 'parallel_and_merge':
+              # caller will concatenate these for a later 'merge'
+              return self.mask_emb(mlp_out, non_zero_ids=scope_nodes)
+          else:
+              raise NotImplementedError()
+          
+
+    def _normalize_debug_tensors(self, data):
+        # scope masks should be [N,1] float
+        for name in [
+            'X_contextnids',
+            'X_pragmanids',
+            'X_pragmascopenids',
+            'X_pseudonids',
+            'X_arrayscopenids',
+            'X_pipeline_scopeids',
+            'X_unroll_scopeids',
+            'X_array_partition_scopeids',
+            'X_scopenids',
+            'X_icmpnids',
+        ]:
+            if hasattr(data, name):
+                x = getattr(data, name)
+                if x.dim() == 2 and x.size(1) == 1:
+                    x = x.squeeze(1)
+                setattr(data, name, x.float())
+
+        if hasattr(data, 'X_pragma_per_node'):
+            if data.X_pragma_per_node.dtype != torch.float32:
+                data.X_pragma_per_node = data.X_pragma_per_node.float()
+            assert data.X_pragma_per_node.dim() == 2, \
+                f"Expected X_pragma_per_node to be [N,5], got {tuple(data.X_pragma_per_node.shape)}"
+            assert data.X_pragma_per_node.size(1) == 5, \
+                f"Expected X_pragma_per_node last dim = 5, got {tuple(data.X_pragma_per_node.shape)}"
+
+        if hasattr(data, 'pragmas'):
+            if data.pragmas.dtype != torch.float32:
+                data.pragmas = data.pragmas.float()
+
+        return data
+
+
+    def _pool_graph_nodes(self, node_embeddings, data, out_dict=None):
+        """Pool one node representation without consulting QoR labels."""
+        batch = data.batch
+        if not FLAGS.node_attention:
+            pooled = global_add_pool(node_embeddings, batch)
+            if out_dict is not None:
+                out_dict['emb_T'] = pooled
+            return pooled
+
+        pooled = None
+        if FLAGS.separate_P:
+            if FLAGS.P_use_all_nodes:
+                pooled_P, _ = self.glob_P(node_embeddings, batch)
+            else:
+                pooled_P, _ = self.glob_P(
+                    node_embeddings,
+                    batch,
+                    set_zeros_ids=data.X_contextnids,
+                )
+            pooled = pooled_P
+            if out_dict is not None:
+                out_dict['emb_P'] = pooled_P
+
+        if FLAGS.separate_T:
+            pooled_T, _ = self.glob_T(
+                node_embeddings,
+                batch,
+                set_zeros_ids=data.X_pragmanids,
+            )
+            pooled = (
+                torch.cat((pooled, pooled_T), dim=1)
+                if pooled is not None else pooled_T
+            )
+            if out_dict is not None:
+                out_dict['emb_T'] = pooled_T
+
+        if FLAGS.separate_pseudo:
+            pooled_pseudo, _ = self.glob_pseudo_B(
+                node_embeddings,
+                batch,
+                set_zeros_ids=data.X_pseudonids,
+            )
+            pooled = (
+                torch.cat((pooled, pooled_pseudo), dim=1)
+                if pooled is not None else pooled_pseudo
+            )
+            if out_dict is not None:
+                out_dict['emb_pseudo_b'] = pooled_pseudo
+
+        if FLAGS.separate_icmp:
+            pooled_icmp, _ = self.glob_icmp(
+                node_embeddings,
+                batch,
+                set_zeros_ids=data.X_icmpnids,
+            )
+            pooled = (
+                torch.cat((pooled, pooled_icmp), dim=1)
+                if pooled is not None else pooled_icmp
+            )
+            if out_dict is not None:
+                out_dict['emb_icmp'] = pooled_icmp
+
+        if not (
+            FLAGS.separate_P
+            or FLAGS.separate_T
+            or FLAGS.separate_pseudo
+            or FLAGS.separate_icmp
+        ):
+            pooled, node_scores = self.glob_T(node_embeddings, batch)
+            if out_dict is not None:
+                out_dict['emb_T'] = pooled
+                if FLAGS.subtask == 'visualize':
+                    saver.save_dict(
+                        {'data': data, 'node_att_scores': node_scores},
+                        'node_att.pickle',
+                    )
+
+        if pooled is None:
+            raise RuntimeError('No graph-pooling branch was enabled.')
+        return pooled
+
+
+    '''
+    Runs the same way as the forward function up to the pooled graph representation (out_embed)
+    Returns : out_embed (2d)
+    encoder-only: returns just the pooled graph representation
+    '''
+    def _graph_embed(self, data):
+          data = self._normalize_debug_tensors(data)
+          # x : [N, in_channels] = [N, num_features] = [N, F] --> node features (one-hot encoded)
+          # edge_index : [2, E] = [2, no_of_edges] (the 2 rows hold source and destination node indices for each edge) --> graph structure
+          # edge_attr : [E, edge_dim] --> one feature vector per edge
+          # batch : [N] --> which graph each node belongs to in a mini-batch (B graphs in the batch)
+          x, edge_index, edge_attr, batch = data.x, data.edge_index, data.edge_attr, data.batch
+          pragmas = getattr(data, 'pragmas', None)
+          if hasattr(data, 'kernel'):
+              gname = data.kernel[0]
+          # X_pragma_per_node [N_nodes, 2]: the local [II, FACTOR] values aligned to pragma-scope pseudo nodes
+          # X_pragmascopenids [N_nodes,1]: 1.0 where the pragma should apply, 0.0 elsewhere
+          if hasattr(data, 'X_pragma_per_node'):
+              X_pragma_per_node = data.X_pragma_per_node
+          outs = []
+          out_dict = OrderedDict()
+          if FLAGS.activation == 'relu':
+              activation = F.relu
+          elif FLAGS.activation == 'elu':
+              activation = F.elu
+          else:
+              raise NotImplementedError()
+
+          # first conv
+          out = activation(self._run_graph_conv(
+              self.conv_first, x, edge_index, edge_attr, 0
+          ))
+          outs.append(out)
+
+          # remaining convs
+          for i in range(self.num_conv_layers):
+              conv = self.conv_layers[i]
+              out = self._run_graph_conv(conv, out, edge_index, edge_attr, i + 1)
+              if i != len(self.conv_layers) - 1:  # apply activation on all the graph convs but the very last one (on 4 TransformerConv)
+                  out = activation(out)
+
+              outs.append(out)
+
+          if FLAGS.jkn_enable:
+              out = self.jkn(outs)  # fuses the layer-wise representations (node embeddings) into a single tensor of shape [N, D], jkn_mode=max
+
+          # pragma as MLP
+          if FLAGS.pragma_as_MLP:
+              assert hasattr(data, 'X_pragma_per_node'), "Missing X_pragma_per_node"
+              X_pragma_per_node = data.X_pragma_per_node
+              assert X_pragma_per_node.size(-1) == 5, \
+                  f"X_pragma_per_node must be [...,5] ([PIPE_II, UNROLL_FACTOR, PARTITION_TYPE, PARTITION_FACTOR, PARTITION_DIM]), got {tuple(X_pragma_per_node.size())}"
+              in_merge = None
+              for kind in self.pragma_as_MLP_list:
+                  scope_nodes = self._get_scope_nodes(data, out, kind)
+                  out_MLP = self.apply_pragma_mlp(
+                      self.MLPs_per_pragma[kind],
+                      out,
+                      scope_nodes,
+                      X_pragma_per_node,
+                      kind,
+                    )
+                  if FLAGS.pragma_order == 'sequential':
+                      out = out_MLP
+                  elif FLAGS.pragma_order == 'parallel_and_merge':
+                      in_merge = out_MLP if in_merge is None else torch.cat((in_merge, out_MLP), dim=1)
+                  else:
+                      raise NotImplementedError()
+
+              if FLAGS.pragma_order == 'parallel_and_merge':
+                  # concatenation of both per-pragma outputs [N, 2D] --> merge MLP --> updated node embedding [N, D]
+                  merge_scope = self._get_scope_nodes(data, out, "merge")
+                  out = self.apply_pragma_mlp(
+                      self.MLPs_per_pragma['merge'],
+                      out,
+                      merge_scope,
+                      in_merge,
+                      'merge',
+                      )
+
+              # post-pragma extra conv layers
+              # 1 conv layer after the pragma MLPs to let the network diffuse the local pragma effects through the graph
+              for i, conv in enumerate(self.conv_layers[self.num_conv_layers:]):
+                  out = self._run_graph_conv(
+                      conv, out, edge_index, edge_attr,
+                      self.num_conv_layers + i + 1,
+                  )
+                  layer = i + self.num_conv_layers
+                  if layer != len(self.conv_layers) - 1:
+                      out = activation(out)
+
+          # get a graph-level vector
+          if FLAGS.node_attention:
+              out_gnn = out
+              out_g = None
+              out_P, out_T = None, None
+              if FLAGS.separate_P:
+                  # glob_P: a learnable softmax attention over all nodes --> [B, D] : graph vector that emphasizes nodes useful for prediction
+                  if FLAGS.P_use_all_nodes:
+                      out_P, node_att_scores_P = self.glob_P(out_gnn, batch)
+                  else:
+                      out_P, node_att_scores_P = self.glob_P(out_gnn, batch, set_zeros_ids=data.X_contextnids)
+
+                  out_g = out_P
+
+              if FLAGS.separate_T:
+                  out_T, node_att_scores = self.glob_T(out_gnn, batch, set_zeros_ids=data.X_pragmanids)
+                  if out_P is not None:
+                      out_g = torch.cat((out_P, out_T), dim=1)
+                  else:
+                      out_g = out_T
+
+              if FLAGS.separate_pseudo:
+                  # glob_pseudo_B: attention pooling that can zero-out everything except pseudo block nodes (via the set_zeros_ids mask) --> [B, D]
+                  out_pseudo_B, node_att_scores_pseudo = self.glob_pseudo_B(out_gnn, batch, set_zeros_ids=data.X_pseudonids)
+                  if out_g is not None:
+                      out_g = torch.cat((out_g, out_pseudo_B), dim=1)
+                  else:
+                      out_g = out_pseudo_B
+
+              if FLAGS.separate_icmp:
+                  out_icmp, node_att_scores_icmp = self.glob_icmp(out_gnn, batch, set_zeros_ids=data.X_icmpnids)
+                  if out_g is not None:
+                      out_g = torch.cat((out_g, out_icmp), dim=1)
+                  else:
+                      out_g = out_icmp
+
+              if not FLAGS.separate_P and not FLAGS.separate_T and not FLAGS.separate_pseudo:
+                  out_g, node_att_scores = self.glob_T(out_gnn, batch)
+
+              out_embed = out_g # concat [B, D] embeddings --> final graph embedding [B, 2D] (B graphs in a batch)
+
+          else:
+              out_embed = global_add_pool(out, batch)
+
+          return out_embed
+
+
+    # @torch.no_grad()
+    def forward_embed(self, data):
+        """
+        Returns the pooled graph embedding (to keep a frozen encoder of Net)
+        """
+        self.eval() # frozen encoder
+        return self._graph_embed(data)
+
+
+
+    '''
+    Runs the same way as the forward function up to the final node embeddings representation (out_node_embed)
+    '''
+    def _node_embed(self, data, embedding_mode="conditioned"):
+          data = self._normalize_debug_tensors(data)
+          # x : [N, in_channels] = [N, num_features] = [N, F] --> node features (one-hot encoded)
+          # edge_index : [2, E] = [2, no_of_edges] (the 2 rows hold source and destination node indices for each edge) --> graph structure
+          # edge_attr : [E, edge_dim] --> one feature vector per edge
+          # batch : [N] --> which graph each node belongs to in a mini-batch (B graphs in the batch)
+          x, edge_index, edge_attr, batch = data.x, data.edge_index, data.edge_attr, data.batch
+          pragmas = getattr(data, 'pragmas', None)
+          if hasattr(data, 'kernel'):
+              gname = data.kernel[0]
+          # X_pragma_per_node [N_nodes, 2]: the local [II, FACTOR] values aligned to pragma-scope pseudo nodes
+          # X_pragmascopenids [N_nodes,1]: 1.0 where the pragma should apply, 0.0 elsewhere
+          if hasattr(data, 'X_pragma_per_node'):
+              X_pragma_per_node = data.X_pragma_per_node
+          outs = []
+          out_dict = OrderedDict()
+          if FLAGS.activation == 'relu':
+              activation = F.relu
+          elif FLAGS.activation == 'elu':
+              activation = F.elu
+          else:
+              raise NotImplementedError()
+
+          # first conv
+          out = activation(self._run_graph_conv(
+              self.conv_first, x, edge_index, edge_attr, 0
+          ))
+          outs.append(out)
+
+          # remaining convs
+          for i in range(self.num_conv_layers):
+              conv = self.conv_layers[i]
+              out = self._run_graph_conv(conv, out, edge_index, edge_attr, i + 1)
+              if i != len(self.conv_layers) - 1:  # apply activation on all the graph convs but the very last one (on 4 TransformerConv)
+                  out = activation(out)
+
+              outs.append(out)
+
+          if FLAGS.jkn_enable:
+              out = self.jkn(outs)  # fuses the layer-wise representations (node embeddings) into a single tensor of shape [N, D], jkn_mode=max    
+
+          if embedding_mode == "static_pre_npt":
+              return out
+
+          if embedding_mode != "conditioned":
+              raise ValueError(
+                  f"Unknown node embedding mode: {embedding_mode}"
+              )
+        
+          ## pragma as MLP
+          if FLAGS.pragma_as_MLP:
+              assert hasattr(data, 'X_pragma_per_node'), "Missing X_pragma_per_node"
+              X_pragma_per_node = data.X_pragma_per_node
+              assert X_pragma_per_node.size(-1) == 5, \
+                  f"X_pragma_per_node must be [...,5] ([PIPE_II, UNROLL_FACTOR, PARTITION_TYPE, PARTITION_FACTOR, PARTITION_DIM]), got {tuple(X_pragma_per_node.size())}"
+              in_merge = None
+              for kind in self.pragma_as_MLP_list:
+                  scope_nodes = self._get_scope_nodes(data, out, kind)
+                  out_MLP = self.apply_pragma_mlp(
+                      self.MLPs_per_pragma[kind],
+                      out,
+                      scope_nodes,
+                      X_pragma_per_node,
+                      kind,
+                      )
+                  if FLAGS.pragma_order == 'sequential':
+                      out = out_MLP
+                  elif FLAGS.pragma_order == 'parallel_and_merge':
+                      in_merge = out_MLP if in_merge is None else torch.cat((in_merge, out_MLP), dim=1)
+                  else:
+                      raise NotImplementedError()
+
+              if FLAGS.pragma_order == 'parallel_and_merge':
+                 # merge the two streams back to D using 'merge' MLP
+                  merge_scope = self._get_scope_nodes(data, out, "merge")
+                  out = self.apply_pragma_mlp(
+                      self.MLPs_per_pragma['merge'],
+                      out,
+                      merge_scope,
+                      in_merge,
+                      'merge',
+                      )
+
+              for i, conv in enumerate(self.conv_layers[self.num_conv_layers:]):
+                  out = self._run_graph_conv(
+                      conv, out, edge_index, edge_attr,
+                      self.num_conv_layers + i + 1,
+                  )
+                  layer = i + self.num_conv_layers
+                  if layer != len(self.conv_layers) - 1:
+                      out = activation(out)
+
+          out_node_embed = out
+ 
+
+          return out_node_embed
+
+
+
+    def forward_node_embed(self, data):
+        return self._node_embed(data, embedding_mode="conditioned")
+
+
+    def forward_static_node_embed(self, data):
+        return self._node_embed(data, embedding_mode="static_pre_npt")
+
+
+    def forward_static_node_embed_layers(
+        self,
+        data,
+    ):
+        data = self._normalize_debug_tensors(
+            data
+        )
+
+        x = data.x
+        edge_index = data.edge_index
+        edge_attr = data.edge_attr
+
+        if FLAGS.activation == "elu":
+            activation = F.elu
+        elif FLAGS.activation == "relu":
+            activation = F.relu
+        else:
+            raise NotImplementedError()
+
+        outs = []
+
+        out = activation(self._run_graph_conv(
+            self.conv_first, x, edge_index, edge_attr, 0
+        ))
+
+        outs.append(out)
+
+        for i in range(
+            self.num_conv_layers
+        ):
+            conv = self.conv_layers[i]
+
+            out = self._run_graph_conv(conv, out, edge_index, edge_attr, i + 1)
+
+            # Mirror _node_embed() EXACTLY.
+            if (
+                i
+                != len(
+                    self.conv_layers
+                ) - 1
+            ):
+                out = activation(out)
+
+            outs.append(out)
+
+        jkn = (
+            self.jkn(outs)
+            if FLAGS.jkn_enable
+            else outs[-1]
+        )
+
+        return {
+            **{
+                f"conv_{i + 1}": value
+                for i, value
+                in enumerate(outs)
+            },
+            "jkn": jkn,
+        }
+
+ 
+    '''
+    end-to-end model: produces predictions and losses (regression/classification), optionally adds auxiliary GAE losses, and is the function used during training
+    '''
+    def forward(self, data):
+        data = self._normalize_debug_tensors(data)
+        x, edge_index, edge_attr, batch = \
+            data.x, data.edge_index, data.edge_attr, data.batch
+        pragmas = getattr(data, "pragmas", None)
+        if hasattr(data, 'kernel'):
+            gname = data.kernel[0]
+        if hasattr(data, 'X_pragma_per_node'):
+            X_pragma_per_node = data.X_pragma_per_node
+        outs = []
+        out_dict = OrderedDict()
+        if FLAGS.activation == 'relu':
+            activation = F.relu
+        elif FLAGS.activation == 'elu':
+            activation = F.elu
+        else:
+            raise NotImplementedError()
+
+
+        out = activation(self._run_graph_conv(
+            self.conv_first, x, edge_index, edge_attr, 0
+        ))
+
+        outs.append(out)
+
+        for i in range(self.num_conv_layers):
+            conv = self.conv_layers[i]
+            out = self._run_graph_conv(conv, out, edge_index, edge_attr, i + 1)
+            if i != len(self.conv_layers) - 1:
+                out = activation(out)
+
+            outs.append(out)
+
+        if FLAGS.jkn_enable:
+            out = self.jkn(outs)
+        # The center branch must not see the per-design pragma values injected
+        # below. It predicts only the kernel-level QoR offset from static MLIR.
+        static_node_embeddings = out
+
+        ## pragma as MLP
+        if FLAGS.pragma_as_MLP:
+            assert hasattr(data, 'X_pragma_per_node'), "Missing X_pragma_per_node"
+            X_pragma_per_node = data.X_pragma_per_node
+            assert X_pragma_per_node.size(-1) == 5, \
+                  f"X_pragma_per_node must be [...,5] ([PIPE_II, UNROLL_FACTOR, PARTITION_TYPE, PARTITION_FACTOR, PARTITION_DIM]), got {tuple(X_pragma_per_node.size())}"
+            in_merge = None
+            for kind in self.pragma_as_MLP_list:
+                scope_nodes = self._get_scope_nodes(data, out, kind)
+                out_MLP = self.apply_pragma_mlp(
+                    self.MLPs_per_pragma[kind],
+                    out,
+                    scope_nodes,
+                    X_pragma_per_node,
+                    kind,
+                    )
+                if FLAGS.pragma_order == 'sequential':
+                    out = out_MLP
+                elif FLAGS.pragma_order == 'parallel_and_merge':
+                    in_merge = out_MLP if in_merge is None else torch.cat((in_merge, out_MLP), dim=1)
+                else:
+                    raise NotImplementedError()
+
+            if FLAGS.pragma_order == 'parallel_and_merge':
+                # merge the two streams back to D using 'merge' MLP
+                merge_scope = self._get_scope_nodes(data, out, "merge")
+                out = self.apply_pragma_mlp(
+                    self.MLPs_per_pragma['merge'],
+                    out,
+                    merge_scope,
+                    in_merge,
+                    'merge',
+                )
+
+            for i, conv in enumerate(self.conv_layers[self.num_conv_layers:]):
+                out = self._run_graph_conv(
+                    conv, out, edge_index, edge_attr,
+                    self.num_conv_layers + i + 1,
+                )
+                layer = i + self.num_conv_layers
+                if layer != len(self.conv_layers) - 1:
+                    out = activation(out)
+
+        static_embed = (
+            self._pool_graph_nodes(static_node_embeddings, data)
+            if (self.decompose_targets or self.reference_delta) else None
+        )
+        out = self._pool_graph_nodes(out, data, out_dict=out_dict)
+
+        total_loss = 0
+        gae_loss = 0
+        if FLAGS.gae_T: # graph auto encoder
+            assert pragmas is not None, "Missing `pragmas` in Data for GAE-T path"
+            assert FLAGS.separate_T
+            gname = 'all'
+            encoded_g = self.gae_transform_T[gname](pragmas)
+            decoded_out = self.decoder_T(out_dict['emb_T'])
+            gae_loss = self.cal_gae_loss(encoded_g, decoded_out)
+        if FLAGS.gae_P:
+            assert FLAGS.separate_P
+            encoded_x = x
+            if FLAGS.input_encode:
+                encoded_x = self.gate_input(x)
+            encoded_g = global_add_pool(encoded_x, batch) ## simple addition of node embeddings for gae
+
+            if FLAGS.decoder_type == 'None': ## turn off autograd:
+                decoded_out = self.decoder_P(out_dict['emb_P']).detach()
+            else:
+                decoded_out = self.decoder_P(out_dict['emb_P']).to(FLAGS.device)
+            # gae_loss = (self.gae_loss_function(encoded_g, decoded_out)).mean()
+            gae_loss += self.cal_gae_loss(encoded_g, decoded_out)
+        if FLAGS.gae_P or FLAGS.gae_T:
+            total_loss += torch.abs(gae_loss)
+
+        # The response head sees both the kernel representation and the change
+        # caused by the pragma injection. This makes zero-delta the natural
+        # neutral predictor instead of asking a small head to rediscover the
+        # complete absolute scale of every unseen kernel.
+        out_embed = (
+            torch.cat((static_embed, out - static_embed), dim=1)
+            if (self.decompose_targets or self.reference_delta)
+            else out
+        )
+        center_embed = static_embed
+        if self.target_condition_dim:
+            if not hasattr(data, 'target_condition'):
+                raise RuntimeError('Multi-target QoR requires device/clock target_condition.')
+            target_condition = data.target_condition.reshape(
+                -1, self.target_condition_dim
+            ).to(out_embed)
+            if target_condition.shape[0] != out_embed.shape[0]:
+                raise RuntimeError('Expected one device/clock condition per graph.')
+            out_embed = torch.cat((out_embed, target_condition), dim=1)
+            if center_embed is not None:
+                center_embed = torch.cat((center_embed, target_condition), dim=1)
+        loss_dict = {}
+        rank_losses = []
+
+        if self.MLP_version == 'multi_obj':
+            out_MLPs = self.MLPs(out_embed)
+            center_MLPs = (
+                self.center_MLPs(center_embed)
+                if self.decompose_targets else None
+            )
+        for target_name in self.target_list:
+            if self.MLP_version == 'multi_obj':
+                response_out = out_MLPs[target_name]
+            else:
+                response_out = self.MLPs[target_name](out_embed)
+            if self.decompose_targets:
+                center_out = (
+                    center_MLPs[target_name]
+                    if self.MLP_version == 'multi_obj'
+                    else self.center_MLPs[target_name](center_embed)
+                )
+                out = center_out + response_out
+            else:
+                center_out = None
+                out = response_out
+            target_tensor_name = (
+                f'{target_name}_delta'
+                if self.reference_delta else target_name
+            )
+            y = _get_y_with_target(data, target_tensor_name)
+            if self.task == 'regression':
+                target = y.view((len(y), self.out_dim))
+                mean, std = self._target_transform(target_name, target)
+                loss_target = (
+                    (target - mean) / std
+                    if bool(self.targets_standardized.item())
+                    else target
+                )
+                error = out - loss_target
+                loss_mode = str(FLAGS.loss).lower()
+                if loss_mode in ('mse', 'rmse'):
+                    point_loss = error.pow(2)
+                elif loss_mode == 'smooth_l1':
+                    point_loss = F.smooth_l1_loss(
+                        out,
+                        loss_target,
+                        beta=float(FLAGS.smooth_l1_beta),
+                        reduction='none',
+                    )
+                else:
+                    raise NotImplementedError(loss_mode)
+                point_loss = point_loss.reshape(
+                    target.shape[0], -1
+                ).mean(dim=1)
+                weights = self._point_weights(data, target)
+                weighted_loss = (point_loss * weights).mean()
+                absolute_loss = (
+                    torch.sqrt(weighted_loss)
+                    if loss_mode == 'rmse' else weighted_loss
+                )
+                if self.training:
+                    kernels = list(
+                        getattr(data, 'target_group', data.kernel)
+                        if self.target_condition_dim else data.kernel
+                    )
+                    # Ranking direction is learned from measured QoR
+                    # in original log2 space. Regression may remain standardized;
+                    # only the tie decision is decoupled from standardization.
+                    if getattr(FLAGS, 'rank_tie_relative', None) is not None:
+                        rank_target = target
+                        rank_tie_epsilon = math.log2(
+                            1.0 + float(FLAGS.rank_tie_relative)
+                        )
+                    else:
+                        # Exact legacy behavior for old commands/checkpoints.
+                        rank_target = loss_target
+                        rank_tie_epsilon = float(FLAGS.rank_tie_epsilon)
+                    rank_loss = within_kernel_rank_loss(
+                        out,
+                        rank_target,
+                        kernels,
+                        temperature=float(FLAGS.rank_temperature),
+                        tie_epsilon=rank_tie_epsilon,
+                    )
+                    rank_losses.append(rank_loss)
+                    loss_dict[f'rank_aux/{target_name}'] = rank_loss.detach()
+                training_loss = absolute_loss
+                if self.decompose_targets and self.training:
+                    center_name = f'{target_name}_center'
+                    if not hasattr(data, center_name):
+                        raise RuntimeError(
+                            f'Missing training-only target {center_name}.'
+                        )
+                    center = _get_y_with_target(
+                        data, center_name
+                    ).view_as(target)
+                    center_target = (
+                        (center - mean) / std
+                        if bool(self.targets_standardized.item())
+                        else center
+                    )
+                    response_target = loss_target - center_target
+                    center_mse = (
+                        (center_out - center_target).pow(2)
+                        .reshape(target.shape[0], -1).mean(dim=1)
+                        * weights
+                    ).mean()
+                    response_mse = (
+                        (response_out - response_target).pow(2)
+                        .reshape(target.shape[0], -1).mean(dim=1)
+                        * weights
+                    ).mean()
+                    if loss_mode == 'rmse':
+                        center_aux = torch.sqrt(center_mse)
+                        response_aux = torch.sqrt(response_mse)
+                    else:
+                        center_aux = center_mse
+                        response_aux = response_mse
+                    center_weight = float(FLAGS.center_aux_weight)
+                    response_weight = float(FLAGS.response_aux_weight)
+                    training_loss = (
+                        absolute_loss
+                        + center_weight * center_aux
+                        + response_weight * response_aux
+                    ) / (1.0 + center_weight + response_weight)
+                # Public predictions remain in the original log2 target space;
+                # physical-unit evaluation therefore needs no special case.
+                model_prediction = (
+                    out * std + mean
+                    if bool(self.targets_standardized.item())
+                    else out
+                )
+                if self.reference_delta:
+                    baseline = _get_y_with_target(
+                        data, f'{target_name}_baseline'
+                    ).view_as(model_prediction)
+                    prediction = baseline + model_prediction
+                    out_dict[f'{target_name}_baseline'] = baseline
+                    out_dict[f'{target_name}_delta'] = model_prediction
+                else:
+                    prediction = model_prediction
+                if self.decompose_targets:
+                    out_dict[f'{target_name}_center'] = (
+                        center_out * std + mean
+                        if bool(self.targets_standardized.item())
+                        else center_out
+                    )
+                    out_dict[f'{target_name}_response'] = (
+                        response_out * std
+                        if bool(self.targets_standardized.item())
+                        else response_out
+                    )
+            else:
+                target = y.view((len(y)))
+                loss = self.loss_function(out, target)
+                prediction = out
+            out_dict[target_name] = prediction
+            total_loss += (
+                training_loss if self.task == 'regression' else loss
+            )
+            # Validation selection and the release gate always use absolute
+            # QoR error; auxiliary decomposition losses only shape training.
+            loss_dict[target_name] = (
+                absolute_loss if self.task == 'regression' else loss
+            )
+
+
+        if self.task == 'regression' and self.training and rank_losses:
+            total_loss += float(FLAGS.rank_aux_weight) * torch.stack(
+                rank_losses
+            ).mean()
+
+        if self.task == 'regression' and self.resource_heads is not None:
+            if not hasattr(data, "resource_util"):
+                raise RuntimeError(
+                    "Resource auxiliary heads require data.resource_util; "
+                    "regenerate the v12 dataset with --force_regen."
+                )
+            resource_target = torch.log1p(
+                data.resource_util.float().clamp_min(0.0)
+            ).reshape(-1, len(RESOURCE_NAMES))
+            resource_pred_z = torch.cat(
+                [self.resource_heads[name](out_embed) for name in RESOURCE_NAMES],
+                dim=1,
+            )
+            resource_mean = self.resource_mean.to(resource_target)
+            resource_std = self.resource_std.to(resource_target)
+            resource_target_z = (
+                resource_target - resource_mean
+            ) / resource_std
+            resource_point_loss = F.smooth_l1_loss(
+                resource_pred_z,
+                resource_target_z,
+                beta=float(FLAGS.smooth_l1_beta),
+                reduction="none",
+            ).mean(dim=1)
+            resource_weights = self._point_weights(data, resource_target)
+            resource_loss = (
+                resource_point_loss * resource_weights
+            ).mean()
+            total_loss += float(FLAGS.resource_aux_weight) * resource_loss
+            loss_dict["resource_aux"] = resource_loss.detach()
+            out_dict["resource_log1p"] = (
+                resource_pred_z * resource_std + resource_mean
+            )
+
+        return out_dict, total_loss, loss_dict, gae_loss
