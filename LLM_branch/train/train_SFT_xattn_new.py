@@ -598,6 +598,62 @@ def _file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def selection_contract_sha256(contract: Mapping[str, Any]) -> str:
+    # Stable resume identity. Runtime argv/host state is intentionally excluded.
+    ignored = {
+        "runtime",
+        "stage1_trainable_parameter_contract",
+    }
+    payload = {
+        key: value
+        for key, value in contract.items()
+        if key not in ignored
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        default=str,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def write_effective_directive_domain_registry(
+    output_dir: str,
+    registry: Mapping[str, Mapping[str, Sequence[str]]],
+    generation_policy: Any,
+) -> Tuple[str, str]:
+    # Save the exact normalized legal domains actually used by this run.
+    payload = {
+        "schema": DIRECTIVE_DOMAIN_REGISTRY_SCHEMA,
+        "generation_policy": generation_policy,
+        "kernels": {
+            str(kernel): {
+                str(lhs): [str(value) for value in values]
+                for lhs, values in sorted(sites.items())
+            }
+            for kernel, sites in sorted(registry.items())
+        },
+    }
+    encoded = (
+        json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+        + "\n"
+    ).encode("utf-8")
+    path = Path(output_dir) / "directive_domain_registry.json"
+    temporary = path.with_name(
+        f"{path.name}.tmp.{os.getpid()}"
+    )
+    temporary.write_bytes(encoded)
+    os.replace(temporary, path)
+    return str(path), hashlib.sha256(encoded).hexdigest()
+
+
 def load_rows(jsonl_path: str) -> List[dict]:
     """Load SFT rows and resolve compact source-template references.
 
@@ -2036,6 +2092,202 @@ def score_rhs_candidate_batch(
 
 
 @torch.no_grad()
+def score_teacher_forced_rhs_candidates(
+    *,
+    model,
+    tok,
+    prompt_ids: List[int],
+    source_text: str,
+    kernel_name: str,
+    reference_assignments: Mapping[str, str],
+    directive_domain_registry: Dict[str, Dict[str, List[str]]],
+    score_reduction: str = "mean",
+    structural_memory: Optional[torch.Tensor] = None,
+    structural_memory_mask: Optional[torch.Tensor] = None,
+    structural_relation_mask: Optional[torch.Tensor] = None,
+    routing_start_idx: Optional[torch.Tensor] = None,
+    candidate_batch_size: int = 1,
+) -> List[dict]:
+    # Evaluation-only counterpart of constrained decoding. Candidate scores are
+    # computed normally, but the reference RHS is appended after every site so
+    # a later site's score is not contaminated by an earlier prediction error.
+    assert score_reduction in {"mean", "sum"}
+    if candidate_batch_size < 1:
+        raise ValueError("candidate_batch_size must be >= 1")
+
+    teacher = {
+        str(lhs).strip().upper(): str(rhs).strip()
+        for lhs, rhs in reference_assignments.items()
+    }
+    plan = [
+        (label, lhs)
+        for label, lhs in extract_ordered_lhs_plan(source_text)
+        if lhs.strip().upper() in teacher
+    ]
+    if not plan:
+        raise ValueError(
+            f"Teacher-forced validation has no reference sites: "
+            f"{kernel_name}"
+        )
+
+    device = next(model.parameters()).device
+    input_ids = torch.tensor(
+        [prompt_ids], dtype=torch.long, device=device
+    )
+    attention_mask = torch.ones_like(input_ids)
+    if routing_start_idx is None:
+        routing_start_idx = torch.tensor(
+            [len(prompt_ids)], dtype=torch.long, device=device
+        )
+
+    chosen_assignments = {}
+    site_domains = directive_domain_registry[
+        normalize_kname(kernel_name)
+    ]
+    trace = []
+    current_label = None
+
+    structural_enabled = (
+        hasattr(model, "condition_structural_memory")
+        and getattr(model, "initialized_structural_xattn", False)
+    )
+    use_structural_memory = (
+        structural_enabled
+        and structural_memory is not None
+        and structural_memory_mask is not None
+    )
+    if use_structural_memory:
+        model.condition_structural_memory(
+            structural_memory.to(device),
+            structural_memory_mask.to(device),
+            action_relation_mask=(
+                structural_relation_mask.to(device)
+                if structural_relation_mask is not None
+                else None
+            ),
+        )
+
+    try:
+        for label, lhs in plan:
+            if label != current_label:
+                anchor_ids = tok(
+                    f"{target_placeholder_token(label)}\n",
+                    add_special_tokens=False,
+                )["input_ids"]
+                input_ids, attention_mask = append_token_ids(
+                    input_ids, attention_mask, anchor_ids
+                )
+                current_label = label
+
+            prefix_ids = tok(
+                f"{lhs} = ", add_special_tokens=False
+            )["input_ids"]
+            input_ids, attention_mask = append_token_ids(
+                input_ids, attention_mask, prefix_ids
+            )
+
+            original_candidates = get_rhs_candidates_for_lhs(
+                kernel_name, lhs, directive_domain_registry
+            )
+            candidates = mailohls_contract.filter_semantic_candidates(
+                lhs,
+                original_candidates,
+                chosen_assignments,
+                site_domains,
+            )
+
+            scored = []
+            effective_batch_size = (
+                1 if use_structural_memory else candidate_batch_size
+            )
+            if len(candidates) == 1:
+                scored.append({
+                    "rhs": candidates[0],
+                    "score": 0.0,
+                    "mean_logprob": 0.0,
+                    "sum_logprob": 0.0,
+                })
+
+            for start in range(
+                0 if len(candidates) > 1 else len(candidates),
+                len(candidates),
+                effective_batch_size,
+            ):
+                rhs_batch = candidates[
+                    start:start + effective_batch_size
+                ]
+                if effective_batch_size == 1:
+                    batch_stats = [
+                        score_rhs_candidate_suffix(
+                            model=model,
+                            tok=tok,
+                            base_input_ids=input_ids,
+                            base_attention_mask=attention_mask,
+                            candidate_text=rhs_batch[0] + "\n",
+                            routing_start_idx=routing_start_idx,
+                            use_structural_memory=use_structural_memory,
+                        )
+                    ]
+                else:
+                    batch_stats = score_rhs_candidate_batch(
+                        model=model,
+                        tok=tok,
+                        base_input_ids=input_ids,
+                        base_attention_mask=attention_mask,
+                        candidate_texts=[
+                            rhs + "\n" for rhs in rhs_batch
+                        ],
+                    )
+                for rhs, stats in zip(rhs_batch, batch_stats):
+                    scored.append({
+                        "rhs": rhs,
+                        "score": (
+                            stats["mean_logprob"]
+                            if score_reduction == "mean"
+                            else stats["sum_logprob"]
+                        ),
+                        "mean_logprob": stats["mean_logprob"],
+                        "sum_logprob": stats["sum_logprob"],
+                    })
+
+            scored.sort(
+                key=lambda record: (
+                    record["score"],
+                    record["sum_logprob"],
+                ),
+                reverse=True,
+            )
+            trace.append({
+                "label": label,
+                "lhs": lhs,
+                "static_candidate_count": len(original_candidates),
+                "forced_by_semantics": len(candidates) == 1,
+                "candidates": [dict(record) for record in scored],
+            })
+
+            lhs_key = lhs.strip().upper()
+            gold_rhs = teacher[lhs_key]
+            if gold_rhs not in candidates:
+                raise RuntimeError(
+                    "Reference RHS becomes illegal under its own "
+                    f"teacher-forced prefix: "
+                    f"{kernel_name}/{lhs_key}={gold_rhs}; "
+                    f"legal={candidates}"
+                )
+            chosen_assignments[lhs_key] = gold_rhs
+            gold_ids = tok(
+                gold_rhs + "\n", add_special_tokens=False
+            )["input_ids"]
+            input_ids, attention_mask = append_token_ids(
+                input_ids, attention_mask, gold_ids
+            )
+
+        return trace
+    finally:
+        if hasattr(model, "clear_structural_memory"):
+            model.clear_structural_memory()
+
+@torch.no_grad()
 def constrained_decode_rhs_by_candidate_scoring(
     *,
     model,
@@ -2223,157 +2475,134 @@ class SelectionCase:
     row: dict
 
 
+
 def summarize_candidate_margins(
     rows: List[dict],
 ) -> Dict[str, object]:
-
-    records = [
+    # Free-running local scores.  Cascade exclusions are deliberately kept in
+    # the denominator instead of being silently dropped.
+    all_records = [
         record
         for row in rows
-        for record in row.get(
-            "candidate_margins",
-            [],
-        )
-        if record.get(
-            "margin",
-            None,
-        )
-        is not None
+        for record in row.get("candidate_margins", [])
+    ]
+    valid_records = [
+        record
+        for record in all_records
+        if record.get("margin") is not None
+    ]
+    cascade_records = [
+        record
+        for record in all_records
+        if bool(record.get("gold_excluded_by_prior_decision", False))
     ]
 
-    if not records:
+    def aggregate(group):
+        if not group:
+            return None
+        margins = [float(record["margin"]) for record in group]
+        ranks = [float(record["gold_rank"]) for record in group]
         return {
-            "candidate_margin_count": 0,
-            "candidate_margin_mean": None,
-            "candidate_margin_median": None,
-            "candidate_margin_positive_fraction": None,
-            "candidate_gold_mean_rank": None,
-            "candidate_margin_per_kind": {},
-            "candidate_margin_per_kernel": {},
+            "count": len(group),
+            "mean_margin": float(np.mean(margins)),
+            "median_margin": float(np.median(margins)),
+            "positive_fraction": float(
+                np.mean([margin > 0.0 for margin in margins])
+            ),
+            "mean_gold_rank": float(np.mean(ranks)),
         }
-
-    margins = [
-        float(r["margin"])
-        for r in records
-    ]
-
-    ranks = [
-        float(r["gold_rank"])
-        for r in records
-    ]
 
     by_kind = defaultdict(list)
     by_kernel = defaultdict(list)
-
     for row in rows:
-        kernel = row[
-            "kernel_name"
-        ]
-
-        for record in row.get(
-            "candidate_margins",
-            [],
-        ):
-            if (
-                record.get(
-                    "margin",
-                    None,
-                )
-                is None
-            ):
+        for record in row.get("candidate_margins", []):
+            if record.get("margin") is None:
                 continue
+            by_kind[record["kind"]].append(record)
+            by_kernel[row["kernel_name"]].append(record)
 
-            by_kind[
-                record["kind"]
-            ].append(record)
+    overall = aggregate(valid_records)
+    return {
+        "candidate_margin_count": len(valid_records),
+        "candidate_margin_mean": (
+            overall["mean_margin"] if overall else None
+        ),
+        "candidate_margin_median": (
+            overall["median_margin"] if overall else None
+        ),
+        "candidate_margin_positive_fraction": (
+            overall["positive_fraction"] if overall else None
+        ),
+        "candidate_gold_mean_rank": (
+            overall["mean_gold_rank"] if overall else None
+        ),
+        "candidate_margin_per_kind": {
+            kind: aggregate(group)
+            for kind, group in sorted(by_kind.items())
+        },
+        "candidate_margin_per_kernel": {
+            kernel: aggregate(group)
+            for kernel, group in sorted(by_kernel.items())
+        },
+        "candidate_cascade_site_count": len(all_records),
+        "candidate_cascade_excluded_count": len(cascade_records),
+        "candidate_cascade_excluded_fraction": (
+            float(len(cascade_records) / len(all_records))
+            if all_records else None
+        ),
+    }
 
-            by_kernel[
-                kernel
-            ].append(record)
+
+def summarize_teacher_forced_candidates(
+    rows: List[dict],
+) -> Dict[str, object]:
+    # Evaluation only: local RHS ranking when earlier supervised RHS values are
+    # fixed to their reference values.
+    records = [
+        record
+        for row in rows
+        for record in row.get("teacher_forced_candidates", [])
+    ]
+    if not records:
+        return {
+            "teacher_forced_candidate_count": 0,
+            "teacher_forced_top1_accuracy": None,
+            "teacher_forced_mrr": None,
+            "teacher_forced_mean_margin": None,
+            "teacher_forced_per_kind": {},
+        }
 
     def aggregate(group):
-        values = [
-            float(r["margin"])
-            for r in group
+        ranks = [float(record["gold_rank"]) for record in group]
+        margins = [
+            float(record["margin"])
+            for record in group
+            if record.get("margin") is not None
         ]
-
-        group_ranks = [
-            float(r["gold_rank"])
-            for r in group
-        ]
-
         return {
             "count": len(group),
-
-            "mean_margin": float(
-                np.mean(values)
+            "top1_accuracy": float(
+                np.mean([rank == 1.0 for rank in ranks])
             ),
-
-            "median_margin": float(
-                np.median(values)
-            ),
-
-            "positive_fraction": float(
-                np.mean(
-                    [
-                        value > 0.0
-                        for value
-                        in values
-                    ]
-                )
-            ),
-
-            "mean_gold_rank": float(
-                np.mean(
-                    group_ranks
-                )
+            "mrr": float(np.mean([1.0 / rank for rank in ranks])),
+            "mean_margin": (
+                float(np.mean(margins)) if margins else None
             ),
         }
 
+    by_kind = defaultdict(list)
+    for record in records:
+        by_kind[record["kind"]].append(record)
+
+    overall = aggregate(records)
     return {
-        "candidate_margin_count":
-            len(records),
-
-        "candidate_margin_mean":
-            float(
-                np.mean(margins)
-            ),
-
-        "candidate_margin_median":
-            float(
-                np.median(margins)
-            ),
-
-        "candidate_margin_positive_fraction":
-            float(
-                np.mean(
-                    [
-                        margin > 0.0
-                        for margin
-                        in margins
-                    ]
-                )
-            ),
-
-        "candidate_gold_mean_rank":
-            float(
-                np.mean(ranks)
-            ),
-
-        "candidate_margin_per_kind": {
+        "teacher_forced_candidate_count": len(records),
+        "teacher_forced_top1_accuracy": overall["top1_accuracy"],
+        "teacher_forced_mrr": overall["mrr"],
+        "teacher_forced_mean_margin": overall["mean_margin"],
+        "teacher_forced_per_kind": {
             kind: aggregate(group)
-            for kind, group
-            in sorted(
-                by_kind.items()
-            )
-        },
-
-        "candidate_margin_per_kernel": {
-            kernel: aggregate(group)
-            for kernel, group
-            in sorted(
-                by_kernel.items()
-            )
+            for kind, group in sorted(by_kind.items())
         },
     }
 
@@ -2511,15 +2740,29 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
                    if all("reference_target" in row and "prediction" in row for row in group)
                    and len({row["reference_target"] for row in group}) > 1]
     summary["budget_counterfactual_groups"] = len(informative)
+    summary["budget_counterfactual_case_count"] = sum(
+        len(group) for group in informative
+    )
     summary["budget_sensitive_prediction_groups"] = sum(
         len({row["prediction"] for row in group}) > 1 for group in informative
     )
-
-    summary.update(
-        summarize_candidate_margins(
-            rows
-        )
+    group_decision_accuracies = [
+        float(np.mean([
+            row.get(
+                "decision_site_accuracy",
+                row["value_accuracy_over_expected"],
+            )
+            for row in group
+        ]))
+        for group in informative
+    ]
+    summary["budget_counterfactual_decision_accuracy"] = (
+        float(np.mean(group_decision_accuracies))
+        if group_decision_accuracies else None
     )
+
+    summary.update(summarize_candidate_margins(rows))
+    summary.update(summarize_teacher_forced_candidates(rows))
 
     return summary
 
@@ -2542,6 +2785,8 @@ class StageValSelectionCallback(TrainerCallback):
         candidate_batch_size: int = 1,
         structural_routing: str = "exact_slot",
         early_stopping_patience: int = 0,
+        early_stopping_min_step: int = 0,
+        resume_from_checkpoint: str = "",
     ):
         self.tok = tokenizer
         self.selection_cases = selection_cases
@@ -2557,7 +2802,12 @@ class StageValSelectionCallback(TrainerCallback):
         self.selection_eval_steps = selection_eval_steps
         self.candidate_batch_size = candidate_batch_size
         self.early_stopping_patience = int(early_stopping_patience)
+        self.early_stopping_min_step = max(0, int(early_stopping_min_step))
+        self.resume_from_checkpoint = str(resume_from_checkpoint or "")
         self.evaluations_without_improvement = 0
+        self.selection_contract_sha256 = selection_contract_sha256(
+            self.training_contract
+        )
         best_path = Path(output_dir) / best_dir_name / "best_selection_metrics.json"
 
         if structural_routing not in {
@@ -2570,22 +2820,42 @@ class StageValSelectionCallback(TrainerCallback):
 
         self.structural_routing = structural_routing
 
-        if best_path.is_file():
-            previous = json.loads(best_path.read_text(encoding="utf-8"))
-            self.best_key = tuple(previous["checkpoint_key"])
-            self.best_step = int(previous["step"])
-            print(
-                f"[VAL-SELECTION] Restored previous best: "
-                f"step={self.best_step}, key={self.best_key}"
-            )
+        if self.resume_from_checkpoint:
+            if best_path.is_file():
+                previous = json.loads(
+                    best_path.read_text(encoding="utf-8")
+                )
+                if previous.get("selection_contract_sha256") != (
+                    self.selection_contract_sha256
+                ):
+                    raise RuntimeError(
+                        "Existing custom-best metrics are incompatible with "
+                        "the current Stage-1 contract. Resume only the exact "
+                        "same experiment, or use a new --output_dir."
+                    )
+                self.best_key = tuple(previous["checkpoint_key"])
+                self.best_step = int(previous["step"])
+                print(
+                    "[VAL-SELECTION] Restored compatible previous best: "
+                    f"step={self.best_step}, key={self.best_key}"
+                )
+            else:
+                self.best_key = (float("-inf"),) * 4
+                self.best_step = -1
         else:
+            if best_path.is_file():
+                raise RuntimeError(
+                    "Scratch training output already contains a stale best "
+                    f"checkpoint: {best_path}. Use a new --output_dir or "
+                    "explicitly --resume_from_checkpoint."
+                )
             self.best_key = (float("-inf"),) * 4
             self.best_step = -1
         self.last_selection_step = None
 
 
-    def _run_case(self, model, case: SelectionCase) -> dict:
 
+    def _run_case(self, model, case: SelectionCase) -> dict:
         header, kernel, suffix, _ = build_prompt_sections(
             case.source_text,
             case.obj_mode,
@@ -2593,17 +2863,30 @@ class StageValSelectionCallback(TrainerCallback):
             device_token_dropout=0.0,
         )
         base_prompt_ids = [
-            token_id for section in (header, kernel, suffix)
-            for token_id in self.tok(section, add_special_tokens=False)["input_ids"]
+            token_id
+            for section in (header, kernel, suffix)
+            for token_id in self.tok(
+                section, add_special_tokens=False
+            )["input_ids"]
         ]
-        prompt_ids = base_prompt_ids + mailohls_contract.selected_clock_response_token_ids(
-            case.row, self.tok
+        prompt_ids = (
+            base_prompt_ids
+            + mailohls_contract.selected_clock_response_token_ids(
+                case.row, self.tok
+            )
         )
         if len(prompt_ids) > self.max_prompt_tokens:
-            raise ValueError("Validation prompt and selected-clock prefix exceed --max_length")
+            raise ValueError(
+                "Validation prompt and selected-clock prefix exceed "
+                "--max_length"
+            )
 
         device = next(model.parameters()).device
-        routing_start_idx = torch.tensor([len(base_prompt_ids)], dtype=torch.long, device=device)
+        routing_start_idx = torch.tensor(
+            [len(base_prompt_ids)],
+            dtype=torch.long,
+            device=device,
+        )
 
         structural_memory = None
         structural_memory_mask = None
@@ -2623,32 +2906,45 @@ class StageValSelectionCallback(TrainerCallback):
                     case.kernel_name,
                     self.max_slots,
                     self.mem_dim,
-                    structural_routing=(
-                        self.structural_routing
-                    ),
+                    structural_routing=self.structural_routing,
                 )
             )
-            
-        pred, score_trace = (
-            constrained_decode_rhs_by_candidate_scoring(
-                model=model,
-                tok=self.tok,
-                prompt_ids=prompt_ids,
-                source_text=case.source_text,
-                kernel_name=case.kernel_name,
-                directive_domain_registry=self.directive_domain_registry,
-                score_reduction=self.candidate_score_reduction,
-                structural_memory=structural_memory,
-                structural_memory_mask=structural_memory_mask,
-                structural_relation_mask=structural_relation_mask,
-                routing_start_idx=routing_start_idx,
-                candidate_batch_size=self.candidate_batch_size,
-                return_score_trace=True,
-            )
+
+        # Primary metric: normal free-running constrained decoding.
+        pred, score_trace = constrained_decode_rhs_by_candidate_scoring(
+            model=model,
+            tok=self.tok,
+            prompt_ids=prompt_ids,
+            source_text=case.source_text,
+            kernel_name=case.kernel_name,
+            directive_domain_registry=self.directive_domain_registry,
+            score_reduction=self.candidate_score_reduction,
+            structural_memory=structural_memory,
+            structural_memory_mask=structural_memory_mask,
+            structural_relation_mask=structural_relation_mask,
+            routing_start_idx=routing_start_idx,
+            candidate_batch_size=self.candidate_batch_size,
+            return_score_trace=True,
         )
-        
-        ref_assign = parse_assignment_dict(
-            case.reference_target
+
+        ref_assign = parse_assignment_dict(case.reference_target)
+
+        # Diagnostic only: candidate scores under the correct earlier RHS
+        # prefix.  This does not participate in Stage-1 training loss.
+        teacher_trace = score_teacher_forced_rhs_candidates(
+            model=model,
+            tok=self.tok,
+            prompt_ids=prompt_ids,
+            source_text=case.source_text,
+            kernel_name=case.kernel_name,
+            reference_assignments=ref_assign,
+            directive_domain_registry=self.directive_domain_registry,
+            score_reduction=self.candidate_score_reduction,
+            structural_memory=structural_memory,
+            structural_memory_mask=structural_memory_mask,
+            structural_relation_mask=structural_relation_mask,
+            routing_start_idx=routing_start_idx,
+            candidate_batch_size=self.candidate_batch_size,
         )
 
         case_id = "::".join([
@@ -2660,152 +2956,157 @@ class StageValSelectionCallback(TrainerCallback):
             str(case.row.get("_jsonl_idx")),
         ])
 
-        candidate_margins = []
-
-        for site in score_trace:
-            lhs_key = (
-                site["lhs"]
-                .strip()
-                .upper()
+        # This now mirrors Stage-1 supervision: a reference site is a real
+        # decision only if >1 RHS is legal under the correct prior decisions.
+        decision_keys = {
+            site["lhs"].strip().upper()
+            for site in teacher_trace
+            if not bool(site["forced_by_semantics"])
+        }
+        if not decision_keys:
+            raise ValueError(
+                f"Validation case has no real directive decisions: "
+                f"{case.kernel_name}"
             )
 
-            gold_rhs = ref_assign.get(
-                lhs_key,
-                None,
-            )
-
+        def make_record(site, require_gold):
+            lhs_key = site["lhs"].strip().upper()
+            gold_rhs = ref_assign.get(lhs_key)
             if gold_rhs is None:
-                continue
-
+                return None
             gold_rhs = gold_rhs.strip()
-
             ranked = site["candidates"]
 
             gold_records = [
                 record
                 for record in ranked
-                if record["rhs"].strip()
-                == gold_rhs
+                if record["rhs"].strip() == gold_rhs
             ]
-
             if len(gold_records) > 1:
-                raise RuntimeError(f"Duplicate gold candidates for {case.kernel_name}/{lhs_key}")
+                raise RuntimeError(
+                    f"Duplicate gold candidates for "
+                    f"{case.kernel_name}/{lhs_key}"
+                )
             gold = gold_records[0] if gold_records else None
+            if require_gold and gold is None:
+                raise RuntimeError(
+                    f"Teacher-forced gold candidate disappeared for "
+                    f"{case.kernel_name}/{lhs_key}={gold_rhs}"
+                )
 
             wrong = [
                 record
                 for record in ranked
-                if record["rhs"].strip()
-                != gold_rhs
+                if record["rhs"].strip() != gold_rhs
             ]
-
             gold_rank = next(
-                (index + 1 for index, record in enumerate(ranked)
-                 if record["rhs"].strip() == gold_rhs),
+                (
+                    index + 1
+                    for index, record in enumerate(ranked)
+                    if record["rhs"].strip() == gold_rhs
+                ),
                 len(ranked) + 1,
             )
-
             best_wrong = (
-                max(
-                    wrong,
-                    key=lambda record:
-                        record["score"],
-                )
-                if wrong
-                else None
+                max(wrong, key=lambda record: record["score"])
+                if wrong else None
             )
-
             margin = (
-                float(
-                    gold["score"]
-                    - best_wrong["score"]
-                )
-                if best_wrong is not None and gold is not None
+                float(gold["score"] - best_wrong["score"])
+                if gold is not None and best_wrong is not None
                 else None
             )
+            return {
+                "case_id": case_id,
+                "label": site["label"],
+                "lhs": site["lhs"],
+                "kind": lhs_kind(site["lhs"]),
+                "gold_rhs": gold_rhs,
+                "predicted_rhs": ranked[0]["rhs"],
+                "gold_score": (
+                    float(gold["score"]) if gold is not None else None
+                ),
+                "best_wrong_rhs": (
+                    best_wrong["rhs"] if best_wrong is not None else None
+                ),
+                "best_wrong_score": (
+                    float(best_wrong["score"])
+                    if best_wrong is not None else None
+                ),
+                "margin": margin,
+                "gold_rank": int(gold_rank),
+                "candidate_count": int(len(ranked)),
+                "static_candidate_count": int(
+                    site["static_candidate_count"]
+                ),
+                "forced_by_semantics": bool(
+                    site["forced_by_semantics"]
+                ),
+                "gold_excluded_by_prior_decision": gold is None,
+                "gold_top1": bool(gold_rank == 1),
+                "site_id": (
+                    f"{case.row.get('_jsonl_idx')}::"
+                    f"{site['label']}::{lhs_key}"
+                ),
+                "paired_site_id": (
+                    f"{case_id}::{site['label']}::{lhs_key}"
+                ),
+            }
 
-            candidate_margins.append(
-                {
-                    "case_id": case_id,
-                    "label": site["label"],
-                    "lhs": site["lhs"],
-                    "kind": lhs_kind(
-                        site["lhs"]
-                    ),
-                    "gold_rhs": gold_rhs,
-                    "predicted_rhs": (
-                        ranked[0]["rhs"]
-                    ),
-                    "gold_score": float(gold["score"]) if gold is not None else None,
-                    "best_wrong_rhs": (
-                        best_wrong["rhs"]
-                        if best_wrong
-                        is not None
-                        else None
-                    ),
-                    "best_wrong_score": (
-                        float(
-                            best_wrong[
-                                "score"
-                            ]
-                        )
-                        if best_wrong
-                        is not None
-                        else None
-                    ),
-                    "margin": margin,
-                    "gold_rank": int(
-                        gold_rank
-                    ),
-                    "candidate_count": int(
-                        len(ranked)
-                    ),
-                    "static_candidate_count": int(site["static_candidate_count"]),
-                    "gold_excluded_by_prior_decision": gold is None,
-                    "gold_top1": bool(
-                        gold_rank == 1
-                    ),
-                    "site_id": (
-                        f"{case.row.get('_jsonl_idx')}::"
-                        f"{site['label']}::{lhs_key}"
-                    ),
-                    "paired_site_id": (
-                        f"{case_id}::{site['label']}::{lhs_key}"
-                    ),
-                }
-            )
+        candidate_margins = []
+        for site in score_trace:
+            lhs_key = site["lhs"].strip().upper()
+            if lhs_key not in decision_keys:
+                continue
+            record = make_record(site, require_gold=False)
+            if record is not None:
+                candidate_margins.append(record)
+
+        teacher_forced_candidates = []
+        for site in teacher_trace:
+            lhs_key = site["lhs"].strip().upper()
+            if lhs_key not in decision_keys:
+                continue
+            record = make_record(site, require_gold=True)
+            if record is not None:
+                teacher_forced_candidates.append(record)
 
         metrics = evaluate_prediction(case.reference_target, pred)
         pred_assign = parse_assignment_dict(pred)
-        decision_keys = {
-            record["lhs"].strip().upper()
-            for record in score_trace if record["static_candidate_count"] > 1
-        }
         decision_correct = sum(
-            pred_assign.get(key) == ref_assign.get(key) for key in decision_keys
+            pred_assign.get(key) == ref_assign.get(key)
+            for key in decision_keys
         )
-        if not decision_keys:
-            raise ValueError(f"Validation case has no real directive decisions: {case.kernel_name}")
+
         return {
             "case_id": case_id,
             "kernel_name": case.kernel_name,
             "obj_mode": case.obj_mode,
             "reference_target": case.reference_target,
             "prediction": metrics["canonical_prediction"],
-            "value_accuracy_over_expected": float(metrics["value_accuracy_over_expected"]),
+            "value_accuracy_over_expected": float(
+                metrics["value_accuracy_over_expected"]
+            ),
             "schema_compliant": bool(metrics["schema_compliant"]),
             "expected_key_match": bool(metrics["expected_key_match"]),
             "exact_design_match": bool(metrics["exact_design_match"]),
             "pragma_kind_counts": metrics["pragma_kind_counts"],
-            "candidate_margins":candidate_margins,
+            "candidate_margins": candidate_margins,
+            "teacher_forced_candidates": teacher_forced_candidates,
             "decision_site_count": len(decision_keys),
             "decision_site_correct_count": decision_correct,
-            "decision_site_accuracy": decision_correct / len(decision_keys),
-            "forced_site_count": len(ref_assign) - len(decision_keys),
+            "decision_site_accuracy": (
+                decision_correct / len(decision_keys)
+            ),
+            "forced_site_count": (
+                len(ref_assign) - len(decision_keys)
+            ),
             "jsonl_idx": case.row.get("_jsonl_idx"),
             "device": case.row.get("device"),
             "resource_budget_id": case.row.get("resource_budget_id"),
-            "selected_clock_period": case.row.get("selected_clock_period"),
+            "selected_clock_period": case.row.get(
+                "selected_clock_period"
+            ),
         }
 
     def on_evaluate(self, args, state, control, **kwargs):
@@ -2859,10 +3160,16 @@ class StageValSelectionCallback(TrainerCallback):
                     ),
                 )
             )
+            teacher_mrr = summary["teacher_forced_mrr"]
+            if teacher_mrr is None:
+                raise RuntimeError(
+                    "Teacher-forced validation produced no decision-site "
+                    "ranking records."
+                )
             checkpoint_key = (
                 selection_score,
                 minimum_kernel_accuracy,
-                exact_design_accuracy,
+                float(teacher_mrr),
                 -eval_loss,
             )
 
@@ -2885,6 +3192,31 @@ class StageValSelectionCallback(TrainerCallback):
             print(f"[VAL-SELECTION] selection_score={selection_score:.6f}")
             print(f"[VAL-SELECTION] checkpoint_key={checkpoint_key}")
             print("=" * 100)
+
+            print(
+                "[VAL-LOCAL] "
+                f"count={summary['teacher_forced_candidate_count']} "
+                f"top1={summary['teacher_forced_top1_accuracy']} "
+                f"mrr={summary['teacher_forced_mrr']} "
+                f"mean_margin={summary['teacher_forced_mean_margin']} "
+                f"cascade={summary['candidate_cascade_excluded_count']}/"
+                f"{summary['candidate_cascade_site_count']} "
+                f"cascade_fraction="
+                f"{summary['candidate_cascade_excluded_fraction']}"
+            )
+            print(
+                "[VAL-LOCAL] per_kind="
+                f"{summary['teacher_forced_per_kind']}"
+            )
+            print(
+                "[VAL-BUDGET] "
+                f"groups={summary['budget_counterfactual_groups']} "
+                f"cases={summary['budget_counterfactual_case_count']} "
+                f"decision_accuracy="
+                f"{summary['budget_counterfactual_decision_accuracy']} "
+                f"prediction_sensitive_groups="
+                f"{summary['budget_sensitive_prediction_groups']}"
+            )
 
             print(
                 "[VAL-MARGIN] "
@@ -2914,6 +3246,9 @@ class StageValSelectionCallback(TrainerCallback):
                 "step": int(state.global_step),
                 "eval_loss": eval_loss,
                 "checkpoint_key": list(checkpoint_key),
+                "selection_contract_sha256": (
+                    self.selection_contract_sha256
+                ),
                 **summary,
                 "rows": rows,
             }
@@ -2948,13 +3283,20 @@ class StageValSelectionCallback(TrainerCallback):
 
                 print(f"[VAL-SELECTION] New best checkpoint at step {state.global_step} -> {best_dir}")
             elif self.early_stopping_patience > 0 and state.global_step > 0:
-                self.evaluations_without_improvement += 1
-                print(f"[EARLY-STOP] no improvement for "
-                      f"{self.evaluations_without_improvement}/"
-                      f"{self.early_stopping_patience} validation evaluations")
-                if self.evaluations_without_improvement >= self.early_stopping_patience:
-                    control.should_training_stop = True
-                    print(f"[EARLY-STOP] retaining best checkpoint from step {self.best_step}")
+                if state.global_step < self.early_stopping_min_step:
+                    print(
+                        "[EARLY-STOP] not counting non-improvement before "
+                        f"minimum step {self.early_stopping_min_step}; "
+                        f"current={state.global_step}"
+                    )
+                else:
+                    self.evaluations_without_improvement += 1
+                    print(f"[EARLY-STOP] no improvement for "
+                          f"{self.evaluations_without_improvement}/"
+                          f"{self.early_stopping_patience} validation evaluations")
+                    if self.evaluations_without_improvement >= self.early_stopping_patience:
+                        control.should_training_stop = True
+                        print(f"[EARLY-STOP] retaining best checkpoint from step {self.best_step}")
 
         finally:
             if was_training:
@@ -5164,7 +5506,7 @@ def build_selection_cases(
     val_rows: List[dict],
     goal_mode: str,
     max_kernels: int = 0,
-    cases_per_kernel_device: int = 2,
+    cases_per_kernel_device: int = 4,
     min_coverage: float = 0.85,
     min_supervised_sites: int = 4,
 ) -> List[SelectionCase]:
@@ -5216,21 +5558,34 @@ def build_selection_cases(
         kernel, _, _ = group_key
         if kernel not in selected_kernel_names:
             continue
-        group = candidates_by_kernel_device_clock[group_key]
-        distinct_target_count = len({case.reference_target for case in group})
-        chosen = evenly_spaced_cases(
-            group,
-            min(cases_per_kernel_device, distinct_target_count),
+        group = sorted(
+            candidates_by_kernel_device_clock[group_key],
+            key=lambda case: (
+                shared_budget_fraction(case.row),
+                int(case.row.get("_jsonl_idx", -1)),
+            ),
         )
-        selected_targets = {case.reference_target for case in chosen}
-        if len(chosen) > 1 and len(selected_targets) == 1:
-            alternative = next(
-                (case for case in sorted(group, key=lambda item: shared_budget_fraction(item.row))
-                 if case.reference_target not in selected_targets),
-                None,
+        by_target = defaultdict(list)
+        for case in group:
+            by_target[case.reference_target].append(case)
+
+        # One median-budget representative per distinct correct target.
+        # This maximizes target-changing budget information without repeatedly
+        # evaluating budgets whose correct whole design is identical.
+        representatives = [
+            target_cases[len(target_cases) // 2]
+            for _, target_cases in sorted(by_target.items())
+        ]
+        representatives.sort(
+            key=lambda case: (
+                shared_budget_fraction(case.row),
+                int(case.row.get("_jsonl_idx", -1)),
             )
-            if alternative is not None:
-                chosen[-1] = alternative
+        )
+        chosen = evenly_spaced_cases(
+            representatives,
+            min(cases_per_kernel_device, len(representatives)),
+        )
         selected.extend(chosen)
     return selected
 
@@ -5488,6 +5843,19 @@ def run_single_training(args):
         )
         registry_policy = directive_domains.SOURCE_DOMAIN_POLICY
     print(f"[DOMAINS] registry_policy={registry_policy!r}")
+    (
+        effective_registry_path,
+        effective_registry_sha256,
+    ) = write_effective_directive_domain_registry(
+        args.output_dir,
+        directive_domain_registry,
+        registry_policy,
+    )
+    print(
+        "[DOMAINS] effective_registry_sha256="
+        f"{effective_registry_sha256} "
+        f"artifact={effective_registry_path}"
+    )
     if registry_policy and "pre-split" in str(registry_policy).lower():
         print("[DOMAINS-WARN] Domains include complete-dataset support. Treat them "
               "as benchmark-provided design-space metadata and disclose this policy.")
@@ -5988,13 +6356,16 @@ def run_single_training(args):
         "effective_area_policy": "half_minimum_positive_training_area",
         "objective": args.objective,
         "seed": args.seed,
+        "require_clean_git": bool(args.require_clean_git),
         "tokenizer_size": len(tok),
         "special_tokens": special_token_strings,
         "special_token_ids": special_ids,
         "supervise_eos": args.supervise_eos,
         "directive_domain_registry_sha256": (
-            _file_sha256(Path(args.directive_domain_registry_json))
-            if args.directive_domain_registry_json else None
+            effective_registry_sha256
+        ),
+        "directive_domain_registry_artifact": (
+            os.path.basename(effective_registry_path)
         ),
         "directive_loss_weighting": args.directive_loss_weighting,
         "directive_loss_weights": directive_loss_weights,
@@ -6104,19 +6475,25 @@ def run_single_training(args):
         and torch.cuda.is_bf16_supported()
     )
     compute_dtype = torch.bfloat16 if native_bf16 else torch.float16
-    git_dirty = bool(
-        subprocess.check_output(
-            ["git", "status", "--porcelain"],
-            cwd=REPOSITORY_ROOT,
-            text=True,
-        ).strip()
-    )
+    git_status_tracked = subprocess.check_output(
+        ["git", "status", "--porcelain", "--untracked-files=no"],
+        cwd=REPOSITORY_ROOT,
+        text=True,
+    ).strip()
+    git_dirty = bool(git_status_tracked)
+    if args.require_clean_git and git_dirty:
+        raise RuntimeError(
+            "Final Stage-1 requires a clean tracked git tree. "
+            "Commit or restore tracked changes before training. "
+            f"Dirty entries: {git_status_tracked.splitlines()[:12]}"
+        )
 
     training_contract["runtime"] = {
         "argv": list(sys.argv),
         "working_directory": os.getcwd(),
         "hostname": socket.gethostname(),
         "git_dirty": git_dirty,
+        "git_dirty_policy": "tracked_files_only",
         "cuda_visible_devices": os.environ.get(
             "CUDA_VISIBLE_DEVICES", ""
         ),
@@ -6551,6 +6928,31 @@ def run_single_training(args):
     warmup_steps = int(
         args.warmup_ratio * effective_total_steps
     )
+    effective_updates_per_epoch = (
+        math.ceil(steps_per_epoch / max(1, args.grad_accum))
+        if not args.selection_eval_only
+        else 0
+    )
+    stage1_early_stopping_min_step = (
+        effective_updates_per_epoch
+        if args.disable_structural_memory
+        else 0
+    )
+    training_contract["effective_updates_per_epoch"] = (
+        effective_updates_per_epoch
+    )
+    training_contract["early_stopping_min_step"] = (
+        stage1_early_stopping_min_step
+    )
+    dump_json(
+        os.path.join(args.output_dir, "training_contract.json"),
+        training_contract,
+    )
+    print(
+        "[EARLY-STOP] effective_updates_per_epoch="
+        f"{effective_updates_per_epoch} "
+        f"minimum_counted_step={stage1_early_stopping_min_step}"
+    )
 
     bf16_ok = native_bf16
     compute_dtype = torch.bfloat16 if bf16_ok else torch.float16
@@ -6715,8 +7117,13 @@ def run_single_training(args):
                 ),
                 structural_routing=args.structural_routing,
                 early_stopping_patience=(
-                    args.early_stopping_patience if args.disable_structural_memory else 0
+                    args.early_stopping_patience
+                    if args.disable_structural_memory else 0
                 ),
+                early_stopping_min_step=(
+                    stage1_early_stopping_min_step
+                ),
+                resume_from_checkpoint=args.resume_from_checkpoint,
             )
         )
 
@@ -6979,6 +7386,14 @@ def main():
     )
     ap.add_argument("--gradient_checkpointing", action="store_true")
     ap.add_argument("--resume_from_checkpoint", type=str, default="")
+    ap.add_argument(
+        "--require_clean_git",
+        action="store_true",
+        help=(
+            "Final-run guard: reject tracked working-tree changes. "
+            "Untracked output/helper files are ignored."
+        ),
+    )
     ap.add_argument("--init_adapter_dir", type=str, default="")
     ap.add_argument("--init_structural_xattn_from", type=str, default="")
     ap.add_argument(
@@ -7083,7 +7498,7 @@ def main():
         "--selection_cases_per_kernel",
         dest="selection_cases_per_kernel_device",
         type=int,
-        default=2,
+        default=4,
     )
     ap.add_argument("--selection_eval_steps", type=int, default=200)
     ap.add_argument("--selection_candidate_batch_size", type=int, default=4)

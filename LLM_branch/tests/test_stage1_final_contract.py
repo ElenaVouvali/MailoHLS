@@ -376,3 +376,121 @@ def test_family_split_is_disjoint_deterministic_and_provenance_complete(tmp_path
     assert len(first["dataset_sha256"]) == 64
     training_areas = [rows[index]["area"] for index in first["train_jsonl_idx"]]
     assert first["effective_area_floor"] == min(training_areas) / 2.0
+def test_teacher_forced_local_scoring_uses_reference_prefix(monkeypatch):
+    source = "L1: auto{_PIPE_L1} = ? auto{_UNROLL_L1} = ?"
+    domains = {
+        "kernel_a": {
+            "AUTO{_PIPE_L1}": ["0", "1"],
+            "AUTO{_UNROLL_L1}": ["0", "2"],
+        }
+    }
+
+    def fake_score(**kwargs):
+        rhs = kwargs["candidate_text"].strip()
+        score = {"0": 2.0, "1": 1.0, "2": 3.0}[rhs]
+        return {"mean_logprob": score, "sum_logprob": score}
+
+    monkeypatch.setattr(
+        trainer, "score_rhs_candidate_suffix", fake_score
+    )
+    model = torch.nn.Linear(1, 1, bias=False)
+
+    trace = trainer.score_teacher_forced_rhs_candidates(
+        model=model,
+        tok=CharacterTokenizer(),
+        prompt_ids=[1],
+        source_text=source,
+        kernel_name="kernel-a",
+        reference_assignments={
+            "AUTO{_PIPE_L1}": "1",
+            "AUTO{_UNROLL_L1}": "0",
+        },
+        directive_domain_registry=domains,
+        candidate_batch_size=1,
+    )
+    assert trace[0]["candidates"][0]["rhs"] == "0"
+    # PIPE is teacher-forced to 1 for the prefix, therefore UNROLL becomes
+    # semantically forced to 0 even though the model preferred PIPE=0.
+    assert trace[1]["forced_by_semantics"] is True
+    assert trace[1]["candidates"][0]["rhs"] == "0"
+
+
+def test_selection_summary_exposes_teacher_mrr_cascade_and_budget_accuracy():
+    def make_row(budget, target, accuracy, cascade):
+        return {
+            "kernel_name": "kernel-a",
+            "device": "device-a",
+            "selected_clock_period": 5.0,
+            "obj_mode": "PARETO_ADP",
+            "resource_budget_id": budget,
+            "reference_target": target,
+            "prediction": f"prediction-{budget}",
+            "value_accuracy_over_expected": accuracy,
+            "decision_site_accuracy": accuracy,
+            "decision_site_count": 1,
+            "forced_site_count": 0,
+            "schema_compliant": True,
+            "expected_key_match": True,
+            "exact_design_match": accuracy == 1.0,
+            "pragma_kind_counts": {
+                "PIPE": {
+                    "correct": int(accuracy == 1.0),
+                    "expected": 1,
+                }
+            },
+            "candidate_margins": [{
+                "kind": "PIPE",
+                "margin": None if cascade else 0.25,
+                "gold_rank": 2 if cascade else 1,
+                "gold_excluded_by_prior_decision": cascade,
+            }],
+            "teacher_forced_candidates": [{
+                "kind": "PIPE",
+                "margin": 0.25 if accuracy == 1.0 else -0.25,
+                "gold_rank": 1 if accuracy == 1.0 else 2,
+            }],
+        }
+
+    summary = trainer.summarize_selection_rows([
+        make_row("b1", "target-a", 1.0, False),
+        make_row("b2", "target-b", 0.0, True),
+    ])
+    assert summary["candidate_cascade_excluded_count"] == 1
+    assert summary["candidate_cascade_excluded_fraction"] == pytest.approx(0.5)
+    assert summary["teacher_forced_top1_accuracy"] == pytest.approx(0.5)
+    assert summary["teacher_forced_mrr"] == pytest.approx(0.75)
+    assert summary["budget_counterfactual_groups"] == 1
+    assert summary["budget_counterfactual_decision_accuracy"] == pytest.approx(0.5)
+
+
+def test_scratch_stage1_refuses_stale_custom_best(tmp_path):
+    best_dir = tmp_path / "best_custom_stage1"
+    best_dir.mkdir()
+    (best_dir / "best_selection_metrics.json").write_text(
+        json.dumps({
+            "step": 100,
+            "checkpoint_key": [0.5, 0.4, 0.7, -1.0],
+            "selection_contract_sha256": "old",
+        })
+    )
+    with pytest.raises(RuntimeError, match="stale best"):
+        trainer.StageValSelectionCallback(
+            tokenizer=CharacterTokenizer(),
+            selection_cases=[],
+            directive_domain_registry={},
+            output_dir=str(tmp_path),
+            training_contract={"schema": "test"},
+        )
+
+
+def test_effective_domain_registry_hash_matches_saved_bytes(tmp_path):
+    path, digest = trainer.write_effective_directive_domain_registry(
+        str(tmp_path),
+        {
+            "kernel_a": {
+                "AUTO{_PIPE_L1}": ["0", "1"],
+            }
+        },
+        "source_policy",
+    )
+    assert trainer._file_sha256(trainer.Path(path)) == digest
