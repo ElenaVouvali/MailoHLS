@@ -21,7 +21,7 @@ set -euo pipefail
 # AUTO-clock training remains disabled.
 
 OUT="mailohls_runs/stage1_final_mailohls_s123_v2"
-LOG="mailohls_runs/stage1_final_mailohls_s123_v2.log"
+LOG="${HOME}/stage1_final_mailohls_s123_v2.log"
 
 if [[ -e "${OUT}" ]]; then
   echo "Refusing to reuse existing output directory: ${OUT}" >&2
