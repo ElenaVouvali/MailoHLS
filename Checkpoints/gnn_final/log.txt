@@ -1114,3 +1114,154 @@ Val loss breakdown {'perf': 0.21756395738391268, 'area': 0.39875970685369994}
 Epoch: 020, Train Loss: 0.3604, Val loss: 0.6420, Time: 2.000 mins, 1.563 secs
 Test batch ID (resample): -1 - Epoch 21 train
 epoch = 21, learning rate = 1e-05
+Saved train model at epoch 21
+Epoch 21 val
+[val] epoch 21
+        target   aggregation  samples  kernels     mape      rmse  \
+0   latency_ms   point_micro     2341        4   3.7315  224.2744   
+1   latency_ms        kernel      683        1   0.7112    1.6606   
+2   latency_ms        kernel      519        1   0.7497   24.8005   
+3   latency_ms        kernel      388        1  19.6564  549.8324   
+4   latency_ms        kernel      751        1   0.3115   13.1783   
+5   latency_ms  kernel_macro     2341        4   5.3572  147.3679   
+6   area_score   point_micro     2341        4   2.0096   10.1584   
+7   area_score        kernel      683        1   1.8893    1.9199   
+8   area_score        kernel      519        1   0.3978    5.5871   
+9   area_score        kernel      388        1   4.2536   14.4217   
+10  area_score        kernel      751        1   2.0737   13.7584   
+11  area_score  kernel_macro     2341        4   2.1536    8.9218   
+
+            mse       mae    max_err     tau  \
+0    50299.0208   85.7911  1363.8670  0.5896   
+1        2.7575    1.6511     2.2618  0.3711   
+2      615.0672   11.9050    80.7480  0.3634   
+3   302315.6726  479.1707  1363.8670  0.5439   
+4      173.6665   10.1363    38.8663 -0.0560   
+5    75776.7910  125.7158   371.4358  0.3056   
+6      103.1938    7.5626    34.4616  0.5311   
+7        3.6859    1.5949    11.4451  0.3568   
+8       31.2158    3.4551    34.4616  0.2977   
+9      207.9859   13.2447    23.5211  0.5687   
+10     189.2937   12.8930    21.6442  0.4313   
+11     108.0453    7.7969    22.7680  0.4136   
+
+                                 kernel  
+0                                   NaN  
+1                  machsuite-sort-radix  
+2                     machsuite-viterbi  
+3       rodinia_pathfinder_0_baseline_0  
+4   rodinia_pathfinder_4_doublebuffer_0  
+5                                        
+6                                   NaN  
+7                  machsuite-sort-radix  
+8                     machsuite-viterbi  
+9       rodinia_pathfinder_0_baseline_0  
+10  rodinia_pathfinder_4_doublebuffer_0  
+11                                       
+[val] epoch 21 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 7.965533435344696, 'bias_percentage_points': 7.462728768587112, 'kernel_macro_tau': 0.16535524368613028}, {'resource': 'dsp', 'mae_percentage_points': 2.808692678809166, 'bias_percentage_points': 2.7876920998096466, 'kernel_macro_tau': 0.008293186980495549}, {'resource': 'ff', 'mae_percentage_points': 3.690067306160927, 'bias_percentage_points': 1.6886228695511818, 'kernel_macro_tau': 0.17848001268193442}, {'resource': 'lut', 'mae_percentage_points': 14.558634161949158, 'bias_percentage_points': -5.2057065069675446, 'kernel_macro_tau': -0.10190418643110016}], 'feasibility': [{'budget': [0.1, 0.1, 0.1, 0.1], 'accuracy': 0.6830414352840667, 'false_feasible_fdr': 0.30409356725146197, 'false_feasible_rate': 0.022212729602733874, 'boundary_accuracy': 0.8571428571428571, 'boundary_samples': 469}, {'budget': [0.25, 0.25, 0.25, 0.25], 'accuracy': 0.758650149508757, 'false_feasible_fdr': 0.2331583552055993, 'false_feasible_rate': 0.22768047842802222, 'boundary_accuracy': 0.6759259259259259, 'boundary_samples': 108}, {'budget': [0.5, 0.5, 0.5, 0.5], 'accuracy': 0.8855190089705254, 'false_feasible_fdr': 0.11448099102947458, 'false_feasible_rate': 0.11448099102947458, 'boundary_accuracy': 0.5, 'boundary_samples': 18}, {'budget': [0.75, 0.75, 0.75, 0.75], 'accuracy': 0.9487398547629218, 'false_feasible_fdr': 0.05126014523707817, 'false_feasible_rate': 0.05126014523707817, 'boundary_accuracy': 0.7878787878787878, 'boundary_samples': 66}, {'budget': [1.0, 1.0, 1.0, 1.0], 'accuracy': 1.0, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 1.0, 'boundary_samples': 6}]}
+[val] latency_ms physical RMSE: 224.2744 | MAE: 85.7911 | MAPE: 373.15% | tau-b: 0.5896
+[val] area_score physical RMSE: 10.1584 | MAE: 7.5626 | MAPE: 200.96% | tau-b: 0.5311
+Validation target-balanced selection score: 1.627870; relative target losses={'area': 0.9910383023741306, 'perf': 1.6278700888070783}
+Validation worst-target kernel-macro tau-b: 0.305613; worst kernel/target baseline ratio=13.175643; qualified=False
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.09530321066500619, 'area': 0.21526449715485796, 'rank_aux/perf': 0.6488230561092496, 'rank_aux/area': 0.6355051766708493}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.21885562116906385, 'area': 0.4243799614911403}
+Epoch: 021, Train Loss: 0.3503, Val loss: 0.6689, Time: 1.000 min, 58.279 secs
+Checkpoint saved at epoch 21 -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final/run1/last_ckpt.pt
+Test batch ID (resample): -1 - Epoch 22 train
+epoch = 22, learning rate = 1e-05
+Saved train model at epoch 22
+Epoch 22 val
+[val] epoch 22
+        target   aggregation  samples  kernels     mape      rmse  \
+0   latency_ms   point_micro     2341        4   3.7664  230.9038   
+1   latency_ms        kernel      683        1   0.6394    1.4944   
+2   latency_ms        kernel      519        1   0.6910   24.5949   
+3   latency_ms        kernel      388        1  20.0601  566.1499   
+4   latency_ms        kernel      751        1   0.3175   13.3900   
+5   latency_ms  kernel_macro     2341        4   5.4270  151.4073   
+6   area_score   point_micro     2341        4   1.9815   10.1503   
+7   area_score        kernel      683        1   1.8166    1.8715   
+8   area_score        kernel      519        1   0.3958    5.5878   
+9   area_score        kernel      388        1   4.2087   14.2755   
+10  area_score        kernel      751        1   2.0768   13.8241   
+11  area_score  kernel_macro     2341        4   2.1245    8.8897   
+
+            mse       mae    max_err     tau  \
+0    53316.5734   87.8232  1382.6084  0.5878   
+1        2.2332    1.4830     2.0564  0.3785   
+2      604.9068   11.5976    80.2387  0.3698   
+3   320525.7190  491.7582  1382.6084  0.5527   
+4      179.2910   10.3326    40.0476 -0.0624   
+5    80328.0375  128.7928   376.2378  0.3097   
+6      103.0280    7.5491    34.6323  0.5339   
+7        3.5024    1.5427    11.4137  0.3720   
+8       31.2238    3.4712    34.6323  0.3067   
+9      203.7909   13.1182    23.6549  0.5640   
+10     191.1055   12.9525    21.3871  0.4354   
+11     107.4057    7.7712    22.7720  0.4195   
+
+                                 kernel  
+0                                   NaN  
+1                  machsuite-sort-radix  
+2                     machsuite-viterbi  
+3       rodinia_pathfinder_0_baseline_0  
+4   rodinia_pathfinder_4_doublebuffer_0  
+5                                        
+6                                   NaN  
+7                  machsuite-sort-radix  
+8                     machsuite-viterbi  
+9       rodinia_pathfinder_0_baseline_0  
+10  rodinia_pathfinder_4_doublebuffer_0  
+11                                       
+[val] epoch 22 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 8.23548212647438, 'bias_percentage_points': 7.751936465501785, 'kernel_macro_tau': 0.16329927437461805}, {'resource': 'dsp', 'mae_percentage_points': 2.7958599850535393, 'bias_percentage_points': 2.774873748421669, 'kernel_macro_tau': 0.007372616037546143}, {'resource': 'ff', 'mae_percentage_points': 3.68206724524498, 'bias_percentage_points': 1.6452865675091743, 'kernel_macro_tau': 0.1894103690794946}, {'resource': 'lut', 'mae_percentage_points': 14.483961462974548, 'bias_percentage_points': -5.226186290383339, 'kernel_macro_tau': -0.08712198359723383}], 'feasibility': [{'budget': [0.1, 0.1, 0.1, 0.1], 'accuracy': 0.6979923109782145, 'false_feasible_fdr': 0.25943396226415094, 'false_feasible_rate': 0.02349423323366083, 'boundary_accuracy': 0.8592750533049041, 'boundary_samples': 469}, {'budget': [0.25, 0.25, 0.25, 0.25], 'accuracy': 0.7590773173857326, 'false_feasible_fdr': 0.23305640577175338, 'false_feasible_rate': 0.22768047842802222, 'boundary_accuracy': 0.6759259259259259, 'boundary_samples': 108}, {'budget': [0.5, 0.5, 0.5, 0.5], 'accuracy': 0.8855190089705254, 'false_feasible_fdr': 0.11448099102947458, 'false_feasible_rate': 0.11448099102947458, 'boundary_accuracy': 0.5, 'boundary_samples': 18}, {'budget': [0.75, 0.75, 0.75, 0.75], 'accuracy': 0.9487398547629218, 'false_feasible_fdr': 0.05126014523707817, 'false_feasible_rate': 0.05126014523707817, 'boundary_accuracy': 0.7878787878787878, 'boundary_samples': 66}, {'budget': [1.0, 1.0, 1.0, 1.0], 'accuracy': 1.0, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 1.0, 'boundary_samples': 6}]}
+[val] latency_ms physical RMSE: 230.9038 | MAE: 87.8232 | MAPE: 376.64% | tau-b: 0.5878
+[val] area_score physical RMSE: 10.1503 | MAE: 7.5491 | MAPE: 198.15% | tau-b: 0.5339
+Validation target-balanced selection score: 1.500013; relative target losses={'area': 0.9817033095711483, 'perf': 1.500012924605571}
+Validation worst-target kernel-macro tau-b: 0.309657; worst kernel/target baseline ratio=13.308371; qualified=False
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.0935508655454032, 'area': 0.21470425606472418, 'rank_aux/perf': 0.6379348898306489, 'rank_aux/area': 0.6308170260116458}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.20166612964597702, 'area': 0.42038255404809866}
+Epoch: 022, Train Loss: 0.3487, Val loss: 0.6478, Time: 2.000 mins, 2.999 secs
+Early stopping after 15 epochs without a 0.0001 improvement.
+Final absolute validation report for epoch 7; target-balanced score=0.861674; relative target losses={'area': 0.8616737482535356, 'perf': 0.7706368729045443}
+[best_val] epoch 7
+        target   aggregation  samples  kernels    mape      rmse         mse  \
+0   latency_ms   point_micro     2341        4  1.9049   72.2633   5221.9846   
+1   latency_ms        kernel      683        1  0.6198    1.8132      3.2875   
+2   latency_ms        kernel      519        1  2.3153   24.3922    594.9804   
+3   latency_ms        kernel      388        1  6.3707  173.5597  30122.9732   
+4   latency_ms        kernel      751        1  0.4830   17.3440    300.8150   
+5   latency_ms  kernel_macro     2341        4  2.4472   54.2773   7755.5140   
+6   area_score   point_micro     2341        4  1.7024    7.0080     49.1126   
+7   area_score        kernel      683        1  2.3021    2.1429      4.5919   
+8   area_score        kernel      519        1  0.5031    5.4246     29.4268   
+9   area_score        kernel      388        1  2.9070    9.6096     92.3453   
+10  area_score        kernel      751        1  1.3636    8.9928     80.8705   
+11  area_score  kernel_macro     2341        4  1.7689    6.5425     51.8086   
+
+         mae   max_err     tau                               kernel  
+0    31.1156  572.4704  0.5239                                  NaN  
+1     1.4527    7.3687  0.1909                 machsuite-sort-radix  
+2    15.3595  150.3956  0.2719                    machsuite-viterbi  
+3   133.9674  572.4704  0.3736      rodinia_pathfinder_0_baseline_0  
+4    15.8435   34.5169  0.1399  rodinia_pathfinder_4_doublebuffer_0  
+5    41.6558  191.1879  0.2441                                       
+6     5.4207   33.8334  0.5339                                  NaN  
+7     1.8750   12.3405  0.5257                 machsuite-sort-radix  
+8     3.5097   33.8334  0.2987                    machsuite-viterbi  
+9     8.8177   16.8995  0.4245      rodinia_pathfinder_0_baseline_0  
+10    8.2110   19.3997  0.3770  rodinia_pathfinder_4_doublebuffer_0  
+11    5.6034   20.6183  0.4065                                       
+[best_val] epoch 7 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 5.373094975948334, 'bias_percentage_points': 3.3304858952760696, 'kernel_macro_tau': 0.1375454474930251}, {'resource': 'dsp', 'mae_percentage_points': 2.813619375228882, 'bias_percentage_points': 2.7924828231334686, 'kernel_macro_tau': 0.009042148363494205}, {'resource': 'ff', 'mae_percentage_points': 3.1953103840351105, 'bias_percentage_points': 0.8958280086517334, 'kernel_macro_tau': -0.06523717771355658}, {'resource': 'lut', 'mae_percentage_points': 15.520964562892914, 'bias_percentage_points': -6.634356081485748, 'kernel_macro_tau': -0.2637308307457553}], 'feasibility': [{'budget': [0.1, 0.1, 0.1, 0.1], 'accuracy': 0.5826569841947885, 'false_feasible_fdr': 0.7258064516129032, 'false_feasible_rate': 0.11533532678342588, 'boundary_accuracy': 0.7846481876332623, 'boundary_samples': 469}, {'budget': [0.25, 0.25, 0.25, 0.25], 'accuracy': 0.756087142246903, 'false_feasible_fdr': 0.23881239242685026, 'false_feasible_rate': 0.23707817172148654, 'boundary_accuracy': 0.6759259259259259, 'boundary_samples': 108}, {'budget': [0.5, 0.5, 0.5, 0.5], 'accuracy': 0.8855190089705254, 'false_feasible_fdr': 0.11448099102947458, 'false_feasible_rate': 0.11448099102947458, 'boundary_accuracy': 0.5, 'boundary_samples': 18}, {'budget': [0.75, 0.75, 0.75, 0.75], 'accuracy': 0.9487398547629218, 'false_feasible_fdr': 0.05126014523707817, 'false_feasible_rate': 0.05126014523707817, 'boundary_accuracy': 0.7878787878787878, 'boundary_samples': 66}, {'budget': [1.0, 1.0, 1.0, 1.0], 'accuracy': 1.0, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 1.0, 'boundary_samples': 6}]}
+[best_val] latency_ms physical RMSE: 72.2633 | MAE: 31.1156 | MAPE: 190.49% | tau-b: 0.5239
+[best_val] area_score physical RMSE: 7.0080 | MAE: 5.4207 | MAPE: 170.24% | tau-b: 0.5339
+Wrote physical-unit metrics to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final/run1/best_val_physical_metrics.csv
+Wrote point predictions to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final/run1/best_val_predictions.csv
+Initialized-model ratios are diagnostic only; release qualification uses the deterministic no-learning baseline. initialized={'area': 3.6090194123291863, 'perf': 31.69482696151598}
+minimum summed validation objective at epoch: 9
+target-balanced absolute checkpoint at epoch: 7
+active checkpoint objective=absolute; tag=val; epoch=7
+min train loss at epoch: 22
