@@ -160,7 +160,7 @@ EXPECTED_MEMORY_DEPENDENCE_MODEL = (
 )
 QOR_REFERENCE_DEVICE = "xczu7ev-ffvc1156-2-e"
 QOR_REFERENCE_CLOCK_PERIOD_NS = 10.0
-MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v12-resource-targets"
+MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v13-conditioned-targets"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 UNKNOWN_CATEGORY = "<unknown>"
 RESOURCE_KEYS = (
@@ -169,6 +169,22 @@ RESOURCE_KEYS = (
     "util-FF",
     "util-LUT",
 )
+TARGET_CONDITION_DIM = 5
+TARGET_DEVICE_CAPACITIES = {
+    "xczu7ev-ffvc1156-2-e": (624, 1728, 460800, 230400),
+    "xcu200-fsgd2104-2-e": (4320, 6840, 2364480, 1182240),
+}
+
+
+def target_condition_vector(device: str, clock_period_ns: float) -> list[float]:
+    """Encode public FPGA capacities and clock without fitting on any kernel."""
+    capacities = TARGET_DEVICE_CAPACITIES.get(str(device).strip().lower())
+    if capacities is None:
+        raise ValueError(f"Unknown measured FPGA device: {device!r}")
+    clock = float(clock_period_ns)
+    if not math.isfinite(clock) or clock <= 0.0:
+        raise ValueError(f"Invalid measured clock period: {clock_period_ns!r}")
+    return [math.log2(value) / 24.0 for value in capacities] + [math.log2(clock / 10.0)]
 
 
 def resource_utilization_from_csv_row(row: Mapping[str, Any]) -> list[float]:
@@ -228,6 +244,8 @@ class CSVResult:
     res_util: dict[str, float]
     row_idx: int
     src_csv: str
+    device: str = QOR_REFERENCE_DEVICE
+    clock_period_ns: float = QOR_REFERENCE_CLOCK_PERIOD_NS
 
 
 # ---------------------------------------------------------------------------
@@ -588,7 +606,7 @@ def load_csv_results(kernel: str) -> list[CSVResult]:
     csv_path = _find_csv(kernel)
     kernel_info_map = parse_kernel_info(kernel)
     results: list[CSVResult] = []
-    seen_points: dict[tuple[tuple[str, str], ...], int] = {}
+    seen_points: dict[tuple[Any, ...], int] = {}
 
     with csv_path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle)
@@ -596,17 +614,18 @@ def load_csv_results(kernel: str) -> list[CSVResult]:
         missing = sorted(required - set(reader.fieldnames or []))
         if missing:
             raise RuntimeError(
-                f"{csv_path.name} is not a single-target GNN QoR table; "
+                f"{csv_path.name} is not a valid GNN QoR table; "
                 f"missing columns {missing}. Rerun Preprocessing/data_preprocess.py."
             )
         for row_idx, row in enumerate(reader):
             device = str(row.get("Device", "")).strip()
             clock_period = _as_float(row.get("Clock_Period_nsec"), math.nan)
-            if device != QOR_REFERENCE_DEVICE or not math.isclose(
-                clock_period,
-                QOR_REFERENCE_CLOCK_PERIOD_NS,
-                rel_tol=0.0,
-                abs_tol=1e-9,
+            if not math.isfinite(clock_period) or clock_period <= 0.0:
+                raise RuntimeError(f"{csv_path.name}:{row_idx + 2} has an invalid clock")
+            if bool(getattr(FLAGS, "multi_target_qor", False)):
+                target_condition_vector(device, clock_period)
+            elif device != QOR_REFERENCE_DEVICE or not math.isclose(
+                clock_period, QOR_REFERENCE_CLOCK_PERIOD_NS, rel_tol=0.0, abs_tol=1e-9
             ):
                 raise RuntimeError(
                     f"{csv_path.name}:{row_idx + 2} has target "
@@ -625,8 +644,10 @@ def load_csv_results(kernel: str) -> list[CSVResult]:
                     parse_pragma_token(row[column], action_id, auxiliary)
                 )
 
-            point_key = tuple(
-                sorted((str(key), str(value)) for key, value in point.items())
+            point_key = (
+                device.lower(),
+                round(clock_period, 9),
+                tuple(sorted((str(key), str(value)) for key, value in point.items())),
             )
             previous_row = seen_points.get(point_key)
             if previous_row is not None:
@@ -653,6 +674,8 @@ def load_csv_results(kernel: str) -> list[CSVResult]:
                     res_util=res_util,
                     row_idx=row_idx,
                     src_csv=csv_path.name,
+                    device=device.lower(),
+                    clock_period_ns=clock_period,
                 )
             )
 
@@ -1428,7 +1451,7 @@ def normalize_targets(
             f"Unsupported norm_method: {norm_method}"
         )
 
-    area_safe = area if area > 0 else epsilon
+    area_safe = max(area, float(getattr(FLAGS, "effective_area_floor", epsilon)))
     if norm_method == "const":
         area_y = area_safe * float(
             getattr(FLAGS, "util_normalizer", 1.0)
@@ -1603,12 +1626,17 @@ class MyOwnDataset(Dataset):
 
         graph = self._load_graph(graph_name)
         points = self._load_points(graph_name)
+        directive_idx = int(points["directive_indices"][local_idx])
 
         kwargs = {
             "gname": graph["kernel_name"],
             "graph_name": graph_name,
             "kernel": graph["kernel_name"],
             "key": points["keys"][local_idx],
+            "target_device": points["target_devices"][local_idx],
+            "target_clock_period_ns": points["target_clock_period_ns"][local_idx].view(1).float(),
+            "target_group": points["target_groups"][local_idx],
+            "target_condition": points["target_condition"][local_idx].view(1, TARGET_CONDITION_DIM).float(),
             "x": graph["x"].float(),
             "edge_index": graph["edge_index"],
             "edge_attr": graph["edge_attr"].float(),
@@ -1630,8 +1658,8 @@ class MyOwnDataset(Dataset):
             "X_icmpnids": graph["X_icmpnids"].float(),
             "X_pragma_per_node": points[
                 "X_pragma_per_node"
-            ][local_idx].float(),
-            "pragmas": points["pragmas"][local_idx].float().unsqueeze(0),
+            ][directive_idx].float(),
+            "pragmas": points["pragmas"][directive_idx].float().unsqueeze(0),
         }
 
         if str(getattr(FLAGS, "task", "regression")) == "regression":
@@ -1646,6 +1674,9 @@ class MyOwnDataset(Dataset):
                 "area": points["area"][local_idx].view(1).float(),
                 "actual_area": points[
                     "actual_area"
+                ][local_idx].view(1).float(),
+                "actual_effective_area": points[
+                    "actual_effective_area"
                 ][local_idx].view(1).float(),
                 "resource_util": points[
                     "resource_util"
@@ -1812,7 +1843,7 @@ def _keep_result(result: CSVResult) -> bool:
         math.isfinite(result.perf)
         and result.perf > 0.0
         and math.isfinite(result.area)
-        and result.area > 0.0
+        and result.area >= 0.0
     ):
         return False
 
@@ -1833,14 +1864,29 @@ def _write_schema(
         "generator_sha256": hashlib.sha256(
             Path(__file__).with_name("mlir_graph_gen.py").read_bytes()
         ).hexdigest(),
-        "qor_reference_device": QOR_REFERENCE_DEVICE,
-        "qor_reference_clock_period_ns": QOR_REFERENCE_CLOCK_PERIOD_NS,
+        "qor_target_policy": (
+            "all_measured_device_clock_targets"
+            if bool(getattr(FLAGS, "multi_target_qor", False))
+            else "single_reference_target"
+        ),
+        "qor_reference_device": (
+            None if bool(getattr(FLAGS, "multi_target_qor", False)) else QOR_REFERENCE_DEVICE
+        ),
+        "qor_reference_clock_period_ns": (
+            None if bool(getattr(FLAGS, "multi_target_qor", False)) else QOR_REFERENCE_CLOCK_PERIOD_NS
+        ),
+        "target_condition_dim": TARGET_CONDITION_DIM,
+        "target_condition_policy": "log2_public_device_capacities_and_clock",
+        "pragma_storage_policy": "one_tensor_per_unique_directive_configuration",
+        "effective_area_floor": float(getattr(FLAGS, "effective_area_floor", 1e-6)),
+        "effective_area_policy": "training_split_half_minimum_positive_area",
+        "experiment_split_sha256": getattr(FLAGS, "experiment_split_sha256", None),
         "qor_filter": {
             "include_invalid": bool(getattr(FLAGS, "invalid", False)),
             "minimum_latency_ms": float(
                 getattr(FLAGS, "min_allowed_latency", 0.0)
             ),
-            "requires_finite_positive_latency_and_area": True,
+            "requires_finite_positive_latency_and_nonnegative_area": True,
         },
         "encoder_holdout_kernels": sorted(
             _kernel_set(getattr(FLAGS, "test_kernels", None))
@@ -1907,21 +1953,34 @@ def _validate_cached_schema() -> None:
             "Cached tensors were produced by a different graph generator; "
             "use force_regen=True"
         )
-    if schema.get("qor_reference_device") != QOR_REFERENCE_DEVICE or not math.isclose(
-        _as_float(schema.get("qor_reference_clock_period_ns"), math.nan),
-        QOR_REFERENCE_CLOCK_PERIOD_NS,
-        rel_tol=0.0,
-        abs_tol=1e-9,
-    ):
+    expected_target_policy = (
+        "all_measured_device_clock_targets"
+        if bool(getattr(FLAGS, "multi_target_qor", False))
+        else "single_reference_target"
+    )
+    if schema.get("qor_target_policy") != expected_target_policy:
         raise RuntimeError(
             "Cached tensors use a different QoR target; use force_regen=True"
         )
+    if not math.isclose(
+        _as_float(schema.get("effective_area_floor"), math.nan),
+        float(getattr(FLAGS, "effective_area_floor", 1e-6)),
+        rel_tol=0.0,
+        abs_tol=1e-12,
+    ):
+        raise RuntimeError("Cached tensors use a different effective-area floor; use force_regen=True")
+    if schema.get("experiment_split_sha256") != getattr(FLAGS, "experiment_split_sha256", None):
+        raise RuntimeError("Cached tensors were built for a different shared split; use force_regen=True")
+    if int(schema.get("target_condition_dim", -1)) != TARGET_CONDITION_DIM:
+        raise RuntimeError("Cached tensors use incompatible target conditioning; use force_regen=True")
+    if schema.get("pragma_storage_policy") != "one_tensor_per_unique_directive_configuration":
+        raise RuntimeError("Cached tensors do not deduplicate directive configurations; use force_regen=True")
     expected_filter = {
         "include_invalid": bool(getattr(FLAGS, "invalid", False)),
         "minimum_latency_ms": float(
             getattr(FLAGS, "min_allowed_latency", 0.0)
         ),
-        "requires_finite_positive_latency_and_area": True,
+        "requires_finite_positive_latency_and_nonnegative_area": True,
     }
     actual_filter = schema.get("qor_filter")
     if not isinstance(actual_filter, dict):
@@ -1939,7 +1998,7 @@ def _validate_cached_schema() -> None:
             abs_tol=1e-12,
         )
         or actual_filter.get(
-            "requires_finite_positive_latency_and_area"
+            "requires_finite_positive_latency_and_nonnegative_area"
         ) is not True
     ):
         raise RuntimeError(
@@ -1978,6 +2037,20 @@ def get_data_list():
     for graph_file in graph_files:
         kernel = resolve_kernel_from_graph(graph_file)
         graph_records.append((graph_file, kernel))
+
+    if getattr(FLAGS, "split_json", None):
+        shared_split = json.loads(Path(FLAGS.split_json).read_text(encoding="utf-8"))
+        expected_kernels = set().union(*(
+            set(shared_split[field])
+            for field in ("train_kernels", "val_kernels", "test_kernels")
+        ))
+        graph_kernels = {kernel for _, kernel in graph_records}
+        if graph_kernels != expected_kernels:
+            raise RuntimeError(
+                "MLIR graph/shared-split kernel mismatch: "
+                f"missing_graphs={sorted(expected_kernels - graph_kernels)}, "
+                f"unexpected_graphs={sorted(graph_kernels - expected_kernels)}"
+            )
 
     if not bool(getattr(FLAGS, "force_regen", False)):
         _validate_cached_schema()
@@ -2095,80 +2168,103 @@ def get_data_list():
                 "edge_attr"
             ].shape[1]
 
-            reference_perf = max(
-                (result.perf for result in results if result.perf > 0),
-                default=0.0,
-            )
+            reference_perf_by_target: dict[tuple[str, float], float] = {}
+            for result in results:
+                target = (result.device, result.clock_period_ns)
+                reference_perf_by_target[target] = max(
+                    reference_perf_by_target.get(target, 0.0), result.perf
+                )
 
             keys: list[str] = []
             pragmas: list[torch.Tensor] = []
             per_node_pragmas: list[torch.Tensor] = []
+            directive_indices: list[int] = []
+            directive_to_index: dict[tuple[tuple[str, str], ...], int] = {}
             perf_values: list[float] = []
             actual_perf_values: list[float] = []
             speedup_values: list[float] = []
             area_values: list[float] = []
             actual_area_values: list[float] = []
+            actual_effective_area_values: list[float] = []
             resource_util_values: list[list[float]] = []
+            target_devices: list[str] = []
+            target_clocks: list[float] = []
+            target_groups: list[str] = []
+            target_conditions: list[list[float]] = []
 
             for local_idx, result in enumerate(results):
-                flat = point_to_ordered_values(result.point)
-                if len(flat) != local_pragma_dims[graph_name]:
-                    raise RuntimeError(
-                        f"Pragma length changed for {graph_name}."
+                directive_key = tuple(sorted(
+                    (str(key), str(value)) for key, value in result.point.items()
+                ))
+                directive_idx = directive_to_index.get(directive_key)
+                if directive_idx is None:
+                    flat = point_to_ordered_values(result.point)
+                    if len(flat) != local_pragma_dims[graph_name]:
+                        raise RuntimeError(f"Pragma length changed for {graph_name}.")
+                    masks = build_scope_masks_and_dynamic_pragmas(
+                        graph, ordered_nodes, point=result.point
                     )
-                padded = flat + [0.0] * (
-                    max_pragma_length - len(flat)
-                )
-
-                masks = build_scope_masks_and_dynamic_pragmas(
-                    graph,
-                    ordered_nodes,
-                    point=result.point,
-                )
-
-                # Every non-zero action must reach at least one scope node.
-                nonzero_point = any(value != 0 for value in flat)
-                if nonzero_point and not torch.any(
-                    masks["X_pragma_per_node"] != 0
-                ):
-                    raise RuntimeError(
-                        f"Design point {result.row_idx} for {kernel} has "
-                        "non-zero directives but no MLIR action scope received "
-                        "them. Check pragma-edge/action mapping."
-                    )
+                    if any(value != 0 for value in flat) and not torch.any(
+                        masks["X_pragma_per_node"] != 0
+                    ):
+                        raise RuntimeError(
+                            f"Design point {result.row_idx} for {kernel} has "
+                            "non-zero directives but no MLIR action scope received "
+                            "them. Check pragma-edge/action mapping."
+                        )
+                    directive_idx = len(pragmas)
+                    directive_to_index[directive_key] = directive_idx
+                    pragmas.append(torch.tensor(
+                        flat + [0.0] * (max_pragma_length - len(flat)),
+                        dtype=torch.float32,
+                    ))
+                    per_node_pragmas.append(masks["X_pragma_per_node"])
+                directive_indices.append(directive_idx)
 
                 perf_y, area_y, speedup = normalize_targets(
                     result.perf,
                     result.area,
-                    reference_perf,
+                    reference_perf_by_target[(result.device, result.clock_period_ns)],
                 )
 
                 keys.append(f"csvrow_{result.row_idx}")
-                pragmas.append(
-                    torch.tensor(padded, dtype=torch.float32)
-                )
-                per_node_pragmas.append(
-                    masks["X_pragma_per_node"]
-                )
                 perf_values.append(perf_y)
                 actual_perf_values.append(result.perf)
                 speedup_values.append(speedup)
                 area_values.append(area_y)
                 actual_area_values.append(result.area)
+                actual_effective_area_values.append(max(
+                    result.area, float(getattr(FLAGS, "effective_area_floor", 1e-6))
+                ))
                 resource_util_values.append([
                     float(result.res_util[key]) for key in RESOURCE_KEYS
                 ])
+                target_devices.append(result.device)
+                target_clocks.append(result.clock_period_ns)
+                target_groups.append(
+                    f"{kernel}::{result.device}::{result.clock_period_ns:.9g}"
+                )
+                target_conditions.append(target_condition_vector(
+                    result.device, result.clock_period_ns
+                ))
 
                 global_index.append({
                     "graph_name": graph_name,
                     "kernel_name": kernel,
                     "local_idx": local_idx,
+                    "target_device": result.device,
+                    "target_clock_period_ns": result.clock_period_ns,
                 })
 
             point_payload = {
                 "graph_name": graph_name,
                 "kernel_name": kernel,
                 "keys": keys,
+                "target_devices": target_devices,
+                "target_groups": target_groups,
+                "target_clock_period_ns": torch.tensor(target_clocks, dtype=torch.float32),
+                "target_condition": torch.tensor(target_conditions, dtype=torch.float32),
+                "directive_indices": torch.tensor(directive_indices, dtype=torch.int32),
                 "pragmas": torch.stack(pragmas, dim=0),
                 "X_pragma_per_node": torch.stack(
                     per_node_pragmas, dim=0
@@ -2188,6 +2284,9 @@ def get_data_list():
                 "actual_area": torch.tensor(
                     actual_area_values, dtype=torch.float32
                 ),
+                "actual_effective_area": torch.tensor(
+                    actual_effective_area_values, dtype=torch.float32
+                ),
                 "resource_util": torch.tensor(
                     resource_util_values, dtype=torch.float32
                 ),
@@ -2204,7 +2303,7 @@ def get_data_list():
             print(
                 f"[OK] {kernel}: nodes={graph.number_of_nodes()}, "
                 f"edges={graph.number_of_edges()}, "
-                f"points={len(results)}, pragma_dim="
+                f"points={len(results)}, unique_designs={len(pragmas)}, pragma_dim="
                 f"{local_pragma_dims[graph_name]}, "
                 f"node_oov="
                 f"{static_payload['categorical_oov']['node']['unknown_rate']:.4%}, "

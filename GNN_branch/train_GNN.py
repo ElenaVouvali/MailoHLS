@@ -134,6 +134,8 @@ def write_gnn_checkpoint_contract(
         'pragma_scope', 'keep_pragma_attribute', 'pragma_order',
         'pragma_MLP_hidden_channels',
         'merge_MLP_hidden_channels', 'activation', 'resource_aux_weight',
+        'multi_target_qor', 'graph_attention_heads', 'graph_residual_beta',
+        'graph_layer_norm',
     )
     model_init_flags = {
         name: resolved_flags[name]
@@ -150,6 +152,7 @@ def write_gnn_checkpoint_contract(
             'edge_dim': int(edge_dim),
             'targets': _jsonable(FLAGS.target),
             'resource_aux_heads': resource_stats is not None,
+            'target_condition_dim': data.TARGET_CONDITION_DIM if FLAGS.multi_target_qor else 0,
         },
         'feature_schema': {
             'path': str(feature_schema_path),
@@ -167,6 +170,15 @@ def write_gnn_checkpoint_contract(
         'resource_stats': _jsonable(resource_stats),
         'resource_diagnostics': _jsonable(resource_diagnostics),
         'split_sha256': split_sha256,
+        'experiment_split': {
+            'path': FLAGS.split_json,
+            'sha256': FLAGS.experiment_split_sha256,
+        },
+        'effective_area_floor': float(FLAGS.effective_area_floor),
+        'target_conditioning_policy': (
+            'public_device_capacities_and_clock_in_qor_heads_only'
+            if FLAGS.multi_target_qor else 'single_reference_target'
+        ),
         'shared_initialization_sha256': shared_initialization_sha256,
     }
     path = Path(saver.model_logdir) / 'gnn_checkpoint_contract.json'
@@ -231,6 +243,15 @@ def _sample_kernel(sample):
     if not isinstance(kernel, str) or not kernel:
         raise RuntimeError(f'Missing kernel identity on dataset sample: {kernel!r}')
     return kernel
+
+
+def _sample_target_group(sample):
+    group = getattr(sample, 'target_group', None)
+    if isinstance(group, (list, tuple)):
+        if len(group) != 1:
+            raise RuntimeError(f'Expected one target group per sample, got {group!r}')
+        group = group[0]
+    return str(group) if group else _sample_kernel(sample)
 
 
 def _model_target_name(target):
@@ -754,10 +775,21 @@ class KernelGroupedBatchSampler(Sampler):
         self.seed = _as_int_seed(seed)
         self.epoch = 0
         by_kernel = defaultdict(list)
+        by_kernel_target = defaultdict(lambda: defaultdict(list))
         for index in range(len(dataset)):
-            by_kernel[_sample_kernel(dataset[index])].append(index)
+            sample = dataset[index]
+            kernel = _sample_kernel(sample)
+            by_kernel[kernel].append(index)
+            by_kernel_target[kernel][_sample_target_group(sample)].append(index)
         self.indices_by_kernel = {
             kernel: tuple(indices) for kernel, indices in sorted(by_kernel.items())
+        }
+        self.indices_by_kernel_target = {
+            kernel: {
+                target: tuple(indices)
+                for target, indices in sorted(targets.items())
+            }
+            for kernel, targets in sorted(by_kernel_target.items())
         }
         self.kernels = tuple(self.indices_by_kernel)
         if len(self.kernels) < self.kernels_per_batch:
@@ -792,7 +824,10 @@ class KernelGroupedBatchSampler(Sampler):
             cursor = (cursor + self.kernels_per_batch) % len(kernel_order)
             batch = []
             for kernel in selected_kernels:
-                indices = self.indices_by_kernel[str(kernel)]
+                groups = self.indices_by_kernel_target[str(kernel)]
+                group_names = tuple(groups)
+                target = group_names[int(rng.integers(len(group_names)))]
+                indices = groups[target]
                 chosen = rng.choice(
                     indices,
                     size=self.points_per_kernel,
@@ -2182,6 +2217,7 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
             'actual_delta_log2': [],
             'predicted_delta_log2': [],
             'kernel': [],
+            'target_group': [],
             'point_key': [],
             'sigma_mu': [],
             'sigma+mu': [],
@@ -2239,7 +2275,7 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
                     physical_attr = (
                         'actual_perf'
                         if target_name in {'perf', 'actual_perf'}
-                        else 'actual_area'
+                        else 'actual_effective_area'
                     )
                     physical_true = _get_y_with_target(
                         data, physical_attr
@@ -2272,6 +2308,9 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
                         )
                     points_dict[target_name]['kernel'].append(
                         _kernel_at(data, i)
+                    )
+                    points_dict[target_name]['target_group'].append(
+                        _string_attribute_at(data, 'target_group', i)
                     )
                     points_dict[target_name]['point_key'].append(
                         _string_attribute_at(data, 'key', i)
@@ -2322,6 +2361,7 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
                     prediction_rows.append({
                         'target': target_name,
                         'kernel': kernel,
+                        'target_group': values['target_group'][index],
                         'point_key': values['point_key'][index],
                         'actual_log2': actual_log2,
                         'predicted_log2': predicted_log2,
@@ -2416,6 +2456,7 @@ def _report_rmse_etc(points_dict, label, print_result=True):
         true_values = values['physical_true']
         predicted_values = values['physical_pred']
         kernels = values['kernel']
+        target_groups = values.get('target_group', kernels)
         if not true_values or not (
             len(true_values) == len(predicted_values) == len(kernels)
         ):
@@ -2441,6 +2482,24 @@ def _report_rmse_etc(points_dict, label, print_result=True):
             kernel_metrics = metrics(
                 [true_values[index] for index in indices],
                 [predicted_values[index] for index in indices],
+            )
+            # Ranking is meaningful only between designs for the same FPGA
+            # and clock; never reward cross-target QoR scale differences.
+            target_taus = []
+            for target_group in sorted({target_groups[index] for index in indices}):
+                target_indices = [
+                    index for index in indices if target_groups[index] == target_group
+                ]
+                if len(target_indices) < 2:
+                    continue
+                tau = kendalltau(
+                    [true_values[index] for index in target_indices],
+                    [predicted_values[index] for index in target_indices],
+                )[0]
+                if np.isfinite(tau):
+                    target_taus.append(float(tau))
+            kernel_metrics['tau'] = (
+                float(np.mean(target_taus)) if target_taus else float('nan')
             )
             per_kernel.append(kernel_metrics)
             rows.append({

@@ -85,6 +85,9 @@ class StageCHelperTests(unittest.TestCase):
                 "np": np,
                 "_as_int_seed": lambda value: int(value),
                 "_sample_kernel": lambda sample: sample.kernel,
+                "_sample_target_group": lambda sample: getattr(
+                    sample, "target_group", sample.kernel
+                ),
             },
         )
         samples = []
@@ -108,6 +111,37 @@ class StageCHelperTests(unittest.TestCase):
             counts = Counter(samples[index].kernel for index in batch)
             self.assertEqual(len(counts), 16)
             self.assertEqual(set(counts.values()), {4})
+
+    def test_kernel_grouped_sampler_keeps_device_clock_pairs_together(self):
+        sampler_type = load_named_definition(
+            ROOT / "train_GNN.py",
+            "KernelGroupedBatchSampler",
+            {
+                "Sampler": Sampler,
+                "defaultdict": defaultdict,
+                "np": np,
+                "_as_int_seed": lambda value: int(value),
+                "_sample_kernel": lambda sample: sample.kernel,
+                "_sample_target_group": lambda sample: sample.target_group,
+            },
+        )
+        samples = [
+            SimpleNamespace(kernel=kernel, target_group=f"{kernel}|{target}")
+            for kernel in ("kernel-a", "kernel-b")
+            for target in ("device-a|5", "device-b|10")
+            for _ in range(3)
+        ]
+        sampler = sampler_type(
+            samples, kernels_per_batch=2, points_per_kernel=2,
+            samples_per_kernel_per_epoch=4, seed=123,
+        )
+        for batch in sampler:
+            for kernel in ("kernel-a", "kernel-b"):
+                groups = {
+                    samples[index].target_group
+                    for index in batch if samples[index].kernel == kernel
+                }
+                self.assertEqual(len(groups), 1)
     def make_manifest(self, path, kernels):
         fields = [
             "kernel", "status", "source_sha256", "toolchain_id", "device",

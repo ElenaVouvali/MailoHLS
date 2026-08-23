@@ -1946,6 +1946,9 @@ def main():
     bank_manifest = {
         'schema': 'mailohls-memory-bank-manifest-v2',
         'gnn_contract_sha256': contract_sha256,
+        'experiment_split_sha256': contract.get('experiment_split', {}).get('sha256'),
+        'effective_area_floor': contract.get('effective_area_floor'),
+        'target_conditioning_policy': contract.get('target_conditioning_policy'),
         'feature_schema_sha256': feature_schema_sha256,
         'gnn_checkpoint_sha256': checkpoint_sha256,
         'source_pt_manifest_sha256': source_pt_manifest_sha256,

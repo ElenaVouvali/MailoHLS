@@ -100,12 +100,22 @@ class Net(nn.Module):
           else:
               raise NotImplementedError()
 
-          if FLAGS.encode_edge and FLAGS.gnn_type == 'transformer':
-              self.conv_first = conv_class(in_channels, D, edge_dim=edge_dim, dropout=FLAGS.dropout)  # builds the first graph conv layer 153 --> 64(=D)
-              # dropout (propability) --> stochastically drops activations/attention
-              # ingests x, edge_index, edge_attr
-          else:
-              self.conv_first = conv_class(in_channels, D)
+          attention_heads = int(getattr(FLAGS, 'graph_attention_heads', 1))
+
+          def make_graph_conv(input_dim):
+              if FLAGS.gnn_type != 'transformer':
+                  return conv_class(input_dim, D)
+              kwargs = {
+                  'heads': attention_heads,
+                  'concat': True,
+                  'beta': bool(getattr(FLAGS, 'graph_residual_beta', False)),
+                  'dropout': FLAGS.dropout,
+              }
+              if FLAGS.encode_edge:
+                  kwargs['edge_dim'] = edge_dim
+              return conv_class(input_dim, D // attention_heads, **kwargs)
+
+          self.conv_first = make_graph_conv(in_channels)
 
 
           self.num_conv_layers = num_layers - 1 # 5
@@ -113,11 +123,12 @@ class Net(nn.Module):
           self.conv_layers = nn.ModuleList()
 
           for _ in range(num_layers - 1):
-              if FLAGS.encode_edge and FLAGS.gnn_type == 'transformer':
-                  conv = conv_class(D, D, edge_dim=edge_dim, dropout=FLAGS.dropout)
-              else:
-                  conv = conv_class(D, D)
+              conv = make_graph_conv(D)
               self.conv_layers.append(conv) # list to hold the 5 conv layers (pre-MLP, pre-pragma, after the first conv) --> all hidden->hidden , size 64->64
+          self.graph_norms = nn.ModuleList(
+              [nn.LayerNorm(D) for _ in range(num_layers)]
+              if bool(getattr(FLAGS, 'graph_layer_norm', False)) else []
+          )
 
 
           if FLAGS.gae_T: # graph auto encoder for 'T' (targets/pragma vector)
@@ -196,6 +207,9 @@ class Net(nn.Module):
           self.reference_delta = (
               getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
           )
+          self.target_condition_dim = (
+              5 if bool(getattr(FLAGS, 'multi_target_qor', False)) else 0
+          )
 
           # Target statistics are fitted on training kernels only.  They are
           # buffers so checkpoints carry the exact transform used by the
@@ -254,10 +268,15 @@ class Net(nn.Module):
           # MLPs remains the public/dynamic head name for compatibility with
           # non-decomposed checkpoints. In Stage B it predicts the pragma
           # response; center_MLPs predicts a static kernel offset.
-          response_in_D = in_D * 2 if self.reference_delta else in_D
+          response_in_D = (
+              (in_D * 2 if self.reference_delta else in_D)
+              + self.target_condition_dim
+          )
           self.MLPs = make_regression_heads(response_in_D)
           if self.decompose_targets:
-              self.center_MLPs = make_regression_heads(in_D)
+              self.center_MLPs = make_regression_heads(
+                  in_D + self.target_condition_dim
+              )
           self.resource_heads = make_resource_heads(
               response_in_D, D, resource_stats
           )
@@ -313,6 +332,13 @@ class Net(nn.Module):
                       num_hidden_lyr=3)
           else:
               return Sequential(Linear(D, D), ReLU(), Linear(D, 1)) # two-layer gate : Linear(D->D), ReLU, Linear(D->1) , Output shape : [N, 1]
+
+    def _run_graph_conv(self, conv, node_embeddings, edge_index, edge_attr, layer):
+        if FLAGS.encode_edge and FLAGS.gnn_type == 'transformer':
+            output = conv(node_embeddings, edge_index, edge_attr=edge_attr)
+        else:
+            output = conv(node_embeddings, edge_index)
+        return self.graph_norms[layer](output) if self.graph_norms else output
 
     # If gae_T = True : encoded_g = Linear(pragmas) and decoded_out = Decoder(graph_embedding) => pushes the graph embedding to retain information predictive of the pragma vector.
     # If gae_P = True : encoded_g = pooled(input features) and decoded_out = Decoder(graph_embedding) => pushes the graph embedding to retain information predictive of input program features.
@@ -598,19 +624,15 @@ class Net(nn.Module):
               raise NotImplementedError()
 
           # first conv
-          if FLAGS.encode_edge and  FLAGS.gnn_type == 'transformer':
-              out = activation(self.conv_first(x, edge_index, edge_attr=edge_attr)) # apply ELU activation on first layer TransformerConv
-          else:
-              out = activation(self.conv_first(x, edge_index))
+          out = activation(self._run_graph_conv(
+              self.conv_first, x, edge_index, edge_attr, 0
+          ))
           outs.append(out)
 
           # remaining convs
           for i in range(self.num_conv_layers):
               conv = self.conv_layers[i]
-              if FLAGS.encode_edge and  FLAGS.gnn_type == 'transformer':
-                  out = conv(out, edge_index, edge_attr=edge_attr)
-              else:
-                  out = conv(out, edge_index)
+              out = self._run_graph_conv(conv, out, edge_index, edge_attr, i + 1)
               if i != len(self.conv_layers) - 1:  # apply activation on all the graph convs but the very last one (on 4 TransformerConv)
                   out = activation(out)
 
@@ -656,10 +678,10 @@ class Net(nn.Module):
               # post-pragma extra conv layers
               # 1 conv layer after the pragma MLPs to let the network diffuse the local pragma effects through the graph
               for i, conv in enumerate(self.conv_layers[self.num_conv_layers:]):
-                  if FLAGS.encode_edge and  FLAGS.gnn_type == 'transformer':
-                      out = conv(out, edge_index, edge_attr=edge_attr)
-                  else:
-                      out = conv(out, edge_index)
+                  out = self._run_graph_conv(
+                      conv, out, edge_index, edge_attr,
+                      self.num_conv_layers + i + 1,
+                  )
                   layer = i + self.num_conv_layers
                   if layer != len(self.conv_layers) - 1:
                       out = activation(out)
@@ -748,19 +770,15 @@ class Net(nn.Module):
               raise NotImplementedError()
 
           # first conv
-          if FLAGS.encode_edge and  FLAGS.gnn_type == 'transformer':
-              out = activation(self.conv_first(x, edge_index, edge_attr=edge_attr)) # apply ELU activation on first layer TransformerConv
-          else:
-              out = activation(self.conv_first(x, edge_index))
+          out = activation(self._run_graph_conv(
+              self.conv_first, x, edge_index, edge_attr, 0
+          ))
           outs.append(out)
 
           # remaining convs
           for i in range(self.num_conv_layers):
               conv = self.conv_layers[i]
-              if FLAGS.encode_edge and  FLAGS.gnn_type == 'transformer':
-                  out = conv(out, edge_index, edge_attr=edge_attr)
-              else:
-                  out = conv(out, edge_index)
+              out = self._run_graph_conv(conv, out, edge_index, edge_attr, i + 1)
               if i != len(self.conv_layers) - 1:  # apply activation on all the graph convs but the very last one (on 4 TransformerConv)
                   out = activation(out)
 
@@ -812,10 +830,10 @@ class Net(nn.Module):
                       )
 
               for i, conv in enumerate(self.conv_layers[self.num_conv_layers:]):
-                  if FLAGS.encode_edge and  FLAGS.gnn_type == 'transformer':
-                      out = conv(out, edge_index, edge_attr=edge_attr)
-                  else:
-                      out = conv(out, edge_index)
+                  out = self._run_graph_conv(
+                      conv, out, edge_index, edge_attr,
+                      self.num_conv_layers + i + 1,
+                  )
                   layer = i + self.num_conv_layers
                   if layer != len(self.conv_layers) - 1:
                       out = activation(out)
@@ -856,24 +874,9 @@ class Net(nn.Module):
 
         outs = []
 
-        if (
-            FLAGS.encode_edge
-            and FLAGS.gnn_type == "transformer"
-        ):
-            out = activation(
-                self.conv_first(
-                    x,
-                    edge_index,
-                    edge_attr=edge_attr,
-                )
-            )
-        else:
-            out = activation(
-                self.conv_first(
-                    x,
-                    edge_index,
-                )
-            )
+        out = activation(self._run_graph_conv(
+            self.conv_first, x, edge_index, edge_attr, 0
+        ))
 
         outs.append(out)
 
@@ -882,21 +885,7 @@ class Net(nn.Module):
         ):
             conv = self.conv_layers[i]
 
-            if (
-                FLAGS.encode_edge
-                and FLAGS.gnn_type
-                == "transformer"
-            ):
-                out = conv(
-                    out,
-                    edge_index,
-                    edge_attr=edge_attr,
-                )
-            else:
-                out = conv(
-                    out,
-                    edge_index,
-                )
+            out = self._run_graph_conv(conv, out, edge_index, edge_attr, i + 1)
 
             # Mirror _node_embed() EXACTLY.
             if (
@@ -947,19 +936,15 @@ class Net(nn.Module):
             raise NotImplementedError()
 
 
-        if FLAGS.encode_edge and  FLAGS.gnn_type == 'transformer':
-            out = activation(self.conv_first(x, edge_index, edge_attr=edge_attr))
-        else:
-            out = activation(self.conv_first(x, edge_index))
+        out = activation(self._run_graph_conv(
+            self.conv_first, x, edge_index, edge_attr, 0
+        ))
 
         outs.append(out)
 
         for i in range(self.num_conv_layers):
             conv = self.conv_layers[i]
-            if FLAGS.encode_edge and  FLAGS.gnn_type == 'transformer':
-                out = conv(out, edge_index, edge_attr=edge_attr)
-            else:
-                out = conv(out, edge_index)
+            out = self._run_graph_conv(conv, out, edge_index, edge_attr, i + 1)
             if i != len(self.conv_layers) - 1:
                 out = activation(out)
 
@@ -1006,10 +991,10 @@ class Net(nn.Module):
                 )
 
             for i, conv in enumerate(self.conv_layers[self.num_conv_layers:]):
-                if FLAGS.encode_edge and  FLAGS.gnn_type == 'transformer':
-                    out = conv(out, edge_index, edge_attr=edge_attr)
-                else:
-                    out = conv(out, edge_index)
+                out = self._run_graph_conv(
+                    conv, out, edge_index, edge_attr,
+                    self.num_conv_layers + i + 1,
+                )
                 layer = i + self.num_conv_layers
                 if layer != len(self.conv_layers) - 1:
                     out = activation(out)
@@ -1053,13 +1038,25 @@ class Net(nn.Module):
             torch.cat((static_embed, out - static_embed), dim=1)
             if self.reference_delta else out
         )
+        center_embed = static_embed
+        if self.target_condition_dim:
+            if not hasattr(data, 'target_condition'):
+                raise RuntimeError('Multi-target QoR requires device/clock target_condition.')
+            target_condition = data.target_condition.reshape(
+                -1, self.target_condition_dim
+            ).to(out_embed)
+            if target_condition.shape[0] != out_embed.shape[0]:
+                raise RuntimeError('Expected one device/clock condition per graph.')
+            out_embed = torch.cat((out_embed, target_condition), dim=1)
+            if center_embed is not None:
+                center_embed = torch.cat((center_embed, target_condition), dim=1)
         loss_dict = {}
         rank_losses = []
 
         if self.MLP_version == 'multi_obj':
             out_MLPs = self.MLPs(out_embed)
             center_MLPs = (
-                self.center_MLPs(static_embed)
+                self.center_MLPs(center_embed)
                 if self.decompose_targets else None
             )
         for target_name in self.target_list:
@@ -1071,7 +1068,7 @@ class Net(nn.Module):
                 center_out = (
                     center_MLPs[target_name]
                     if self.MLP_version == 'multi_obj'
-                    else self.center_MLPs[target_name](static_embed)
+                    else self.center_MLPs[target_name](center_embed)
                 )
                 out = center_out + response_out
             else:
@@ -1113,7 +1110,10 @@ class Net(nn.Module):
                     if loss_mode == 'rmse' else weighted_loss
                 )
                 if self.training:
-                    kernels = list(data.kernel)
+                    kernels = list(
+                        getattr(data, 'target_group', data.kernel)
+                        if self.target_condition_dim else data.kernel
+                    )
                     rank_loss = within_kernel_rank_loss(
                         out,
                         loss_target,

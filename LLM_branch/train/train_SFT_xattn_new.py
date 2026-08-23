@@ -491,6 +491,12 @@ def build_deterministic_rhs_pack(
 
     current_label = None
     kind_loss_weights = kind_loss_weights or {}
+    chosen_assignments = {}
+    site_domains = (
+        directive_domain_registry[normalize_kname(kernel_name)]
+        if directive_domain_registry is not None and kernel_name is not None
+        else None
+    )
 
     for label, lhs in plan:
         if label != current_label:
@@ -502,16 +508,22 @@ def build_deterministic_rhs_pack(
 
         weight = value_w
         weight *= kind_loss_weights.get(kind, 1.0)
-        supervise = (
-            directive_domain_registry is None
-            or kernel_name is None
-            or len(get_rhs_candidates_for_lhs(
+        if site_domains is None:
+            supervise = True
+        else:
+            candidates = get_rhs_candidates_for_lhs(
                 kernel_name, lhs, directive_domain_registry
-            )) > 1
-        )
+            )
+            legal = mailohls_contract.filter_semantic_candidates(
+                lhs, candidates, chosen_assignments, site_domains
+            )
+            if rhs not in legal:
+                raise ValueError(f"Gold directive is semantically illegal: {kernel_name}/{lhs}={rhs}")
+            supervise = len(legal) > 1
 
         add_fixed(f"{lhs} = ")
         add_rhs(rhs + "\n", weight, supervise)
+        chosen_assignments[lhs.strip().upper()] = rhs
 
     if supervise_eos:
         eos_ids = tok(tok.eos_token, add_special_tokens=False)["input_ids"]
@@ -1083,6 +1095,8 @@ STAGE1_COMPATIBILITY_FIELDS = (
     "semantic_domain_policy",
     "area_metric",
     "utilization_policy",
+    "effective_area_floor",
+    "effective_area_policy",
     "objective",
     "tokenizer_size",
     "special_tokens",
@@ -1106,6 +1120,7 @@ STAGE1_COMPATIBILITY_FIELDS = (
     "candidate_pool_per_objective",
     "candidate_compaction_policy",
     "family_sampling_power",
+    "family_sampling_replacement",
     "test_access_policy",
     "auto_frequency_fraction",
     "min_auto_clock_count",
@@ -1115,6 +1130,7 @@ STAGE1_COMPATIBILITY_FIELDS = (
     "min_site_coverage",
     "score_weight_min",
     "score_weight_power",
+    "lora_target_modules",
 )
 
 
@@ -1391,7 +1407,7 @@ def pareto_records_for_kernel(items: List[dict]) -> List[dict]:
     out = []
     for row, ln, an in zip(items, lat_n, area_n):
         latency = max(float(row["latency"]), 1e-12)
-        area = max(float(row["area"]), 1e-12)
+        area = max(float(row["area"]), TARGET_CFG.effective_area_floor)
         out.append({
             "row": row,
             "lat_n": float(ln),
@@ -3511,6 +3527,8 @@ class LengthGroupedTrainer(Trainer):
         lr_ff: float = 0.0,
         lr_gate_ff: float = 0.0,
         lr_embed: Optional[float] = None,
+        lora_weight_decay: float = 0.0,
+        family_sampling_replacement: bool = False,
         loss_chunk_t: int = 256,
         candidate_loss_weight: float = 0.0,
         candidate_sites_per_sample: int = 0,
@@ -3534,6 +3552,8 @@ class LengthGroupedTrainer(Trainer):
         self.lr_ff = lr_ff
         self.lr_gate_ff = lr_gate_ff
         self.lr_embed = lr_lora if lr_embed is None else lr_embed
+        self.lora_weight_decay = float(lora_weight_decay)
+        self.family_sampling_replacement = bool(family_sampling_replacement)
         self.loss_chunk_t = loss_chunk_t
         self.candidate_loss_weight = float(candidate_loss_weight)
         self.candidate_sites_per_sample = int(candidate_sites_per_sample)
@@ -3608,9 +3628,14 @@ class LengthGroupedTrainer(Trainer):
 
         opt_groups = []
         if lora_params:
-            opt_groups.append({"params": lora_params, "lr": self.lr_lora})
+            opt_groups.append({
+                "params": lora_params, "lr": self.lr_lora,
+                "weight_decay": self.lora_weight_decay,
+            })
         if embed_params:
-            opt_groups.append({"params": embed_params, "lr": self.lr_embed})
+            opt_groups.append({
+                "params": embed_params, "lr": self.lr_embed, "weight_decay": 0.0
+            })
         if attn_gate_params:
             opt_groups.append({"params": attn_gate_params, "lr": self.lr_gate})
         if ff_gate_params:
@@ -3635,6 +3660,7 @@ class LengthGroupedTrainer(Trainer):
             f"xattn_attn={sum(p.numel() for p in xattn_attn_params):,} "
             f"xattn_ff={sum(p.numel() for p in xattn_ff_params):,} "
             f"lr_lora={self.lr_lora:g} "
+            f"lora_weight_decay={self.lora_weight_decay:g} "
             f"lr_embed={self.lr_embed:g} "
             f"lr_gate={self.lr_gate:g} "
             f"lr_gate_ff={self.lr_gate_ff:g} "
@@ -3653,7 +3679,13 @@ class LengthGroupedTrainer(Trainer):
             generator = torch.Generator()
             generator.manual_seed(int(self.args.seed))
             sampler = WeightedRandomSampler(
-                weights, len(weights), replacement=True, generator=generator
+                weights, len(weights),
+                replacement=self.family_sampling_replacement,
+                generator=generator,
+            )
+            print(
+                f"[SAMPLER] family-aware weighted order: families={len(counts)} "
+                f"replacement={self.family_sampling_replacement} samples={len(weights)}"
             )
         elif not self._group_by_length:
             return super().get_train_dataloader()
@@ -4365,6 +4397,7 @@ class TargetAwareConfig:
     auto_frequency_fraction: float = 0.0
     min_auto_clock_count: int = 2
     strict_source_markers: bool = True
+    effective_area_floor: float = 1e-12
     seed: int = 123
 
 
@@ -4561,38 +4594,16 @@ def sample_shared_budgets(
     count: int,
     seed: int,
 ) -> List[SharedResourceBudget]:
-    """Generate deterministic budgets shared across all clocks in a case."""
+    """Generate a full reference budget plus independent uniform budgets."""
     rng = random.Random(_stable_seed(case_key, seed))
     budgets = {SharedResourceBudget(1.0, 1.0, 1.0, 1.0)}
     attempts = 0
     while len(budgets) < max(1, count) and attempts < max(100, count * 50):
         attempts += 1
-        draw = rng.random()
-        if draw < 0.35:
-            # Straddle measured resource boundaries so feasible optima can change.
-            anchor = candidates[rng.randrange(len(candidates))]
-            limiting = rng.randrange(len(RESOURCE_KEYS))
-            values = [1.0] * len(RESOURCE_KEYS)
-            boundary = _row_used_fraction(anchor, RESOURCE_KEYS[limiting])
-            values[limiting] = math.ceil(boundary * 100.0) / 100.0 + rng.choice(
-                (-0.01, 0.0, 0.01)
-            )
-        elif draw < 0.55:
-            scalar = rng.uniform(TARGET_CFG.min_budget_frac, 1.0)
-            values = [scalar] * 4
-        elif draw < 0.90:
-            values = [
-                TARGET_CFG.min_budget_frac
-                + (1.0 - TARGET_CFG.min_budget_frac)
-                * rng.betavariate(2.0, 1.5)
-                for _ in RESOURCE_KEYS
-            ]
-        else:
-            anchor = candidates[rng.randrange(len(candidates))]
-            values = [
-                _row_used_fraction(anchor, resource) + rng.uniform(0.01, 0.15)
-                for resource in RESOURCE_KEYS
-            ]
+        values = [
+            rng.uniform(TARGET_CFG.min_budget_frac, 1.0)
+            for _ in RESOURCE_KEYS
+        ]
         budgets.add(_quantized_budget(values))
     if len(budgets) < max(1, count):
         print(f"[RANDOM-BUDGET] {case_key}: only {len(budgets)} distinct budgets")
@@ -4652,7 +4663,7 @@ def _compact_candidate_union(feasible: Sequence[dict]) -> List[dict]:
         valid,
         key=lambda r: (
             math.log2(max(float(r["latency"]), 1e-12))
-            + math.log2(max(float(r["area"]), 1e-12)),
+            + math.log2(max(float(r["area"]), TARGET_CFG.effective_area_floor)),
             identity(r),
         ),
     )
@@ -5214,6 +5225,19 @@ def configure_target_policy(args) -> None:
     TARGET_CFG.min_auto_clock_count = args.min_auto_clock_count
     TARGET_CFG.strict_source_markers = not args.allow_source_marker_truncation
     TARGET_CFG.seed = args.seed
+    TARGET_CFG.effective_area_floor = 1e-12
+    if args.split_json:
+        split_path = Path(args.split_json)
+        if split_path.is_file():
+            split_payload = json.loads(split_path.read_text(encoding="utf-8"))
+            TARGET_CFG.effective_area_floor = float(
+                split_payload.get("effective_area_floor", 1e-12)
+            )
+    if (
+        not math.isfinite(TARGET_CFG.effective_area_floor)
+        or TARGET_CFG.effective_area_floor <= 0.0
+    ):
+        raise ValueError("The shared training-only effective-area floor must be positive")
 
     if args.top_k < 1:
         raise ValueError("--top_k must be >= 1")
@@ -5231,6 +5255,8 @@ def configure_target_policy(args) -> None:
         raise ValueError("--early_stopping_patience must be non-negative")
     if not 0.0 <= args.family_sampling_power <= 1.0:
         raise ValueError("--family_sampling_power must be in [0, 1]")
+    if not math.isfinite(args.lora_weight_decay) or args.lora_weight_decay < 0.0:
+        raise ValueError("--lora_weight_decay must be finite and non-negative")
     if args.top_k > 1:
         print("[WARN] top_k > 1 creates conflicting completions for identical prompts")
     elif args.score_weight_min != 1.0 or args.score_weight_power != 0.0:
@@ -5730,6 +5756,17 @@ def run_single_training(args):
                 memory_manifest = json.load(
                     handle
                 )
+            gnn_split_sha256 = memory_manifest.get("experiment_split_sha256")
+            if args.split_json and gnn_split_sha256 and (
+                gnn_split_sha256 != _file_sha256(Path(args.split_json))
+            ):
+                raise ValueError("Structural GNN was trained for a different shared split")
+            gnn_area_floor = memory_manifest.get("effective_area_floor")
+            if gnn_area_floor is not None and not math.isclose(
+                float(gnn_area_floor), TARGET_CFG.effective_area_floor,
+                rel_tol=0.0, abs_tol=1e-12,
+            ):
+                raise ValueError("Structural GNN uses a different training-only effective-area floor")
             normalization_stats_sha256 = memory_manifest.get("multiscale", {}).get(
                 "normalization_stats_sha256"
             )
@@ -5856,6 +5893,12 @@ def run_single_training(args):
             "memory_manifest_sha256":
                 memory_manifest_sha256,
 
+            "gnn_experiment_split_sha256":
+                memory_manifest.get("experiment_split_sha256"),
+
+            "gnn_effective_area_floor":
+                memory_manifest.get("effective_area_floor"),
+
             "normalization_artifact_sha256":
                 normalization_stats_sha256,
 
@@ -5909,6 +5952,8 @@ def run_single_training(args):
         "semantic_domain_policy": mailohls_contract.SEMANTIC_DOMAIN_POLICY,
         "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",
         "utilization_policy": "reported_percentages_unchanged",
+        "effective_area_floor": TARGET_CFG.effective_area_floor,
+        "effective_area_policy": "half_minimum_positive_training_area",
         "objective": args.objective,
         "seed": args.seed,
         "tokenizer_size": len(tok),
@@ -5936,8 +5981,9 @@ def run_single_training(args):
         ),
         "candidate_pool_per_objective": args.candidate_pool_per_objective,
         "candidate_compaction_policy": "per_measured_clock",
-        "budget_sampling_policy": "mixed_random_and_measured_resource_boundaries",
+        "budget_sampling_policy": "full_reference_plus_independent_uniform_resource_budgets",
         "family_sampling_power": args.family_sampling_power,
+        "family_sampling_replacement": args.family_sampling_replacement,
         "family_split_summary": family_split_summary,
         "test_access_policy": "split_membership_only_no_target_selection_or_export",
         "auto_frequency_fraction": args.auto_frequency_fraction,
@@ -5964,6 +6010,8 @@ def run_single_training(args):
         "lora_r": args.lora_r,
         "lora_alpha": args.lora_alpha,
         "lora_dropout": args.lora_dropout,
+        "lora_target_modules": args.lora_target_modules,
+        "lora_weight_decay": args.lora_weight_decay,
         "transformers_version": transformers.__version__,
         "peft_version": peft.__version__,
         "torch_version": torch.__version__,
@@ -6106,7 +6154,11 @@ def run_single_training(args):
         lora_dropout=args.lora_dropout,
         bias="none",
         task_type="CAUSAL_LM",
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+        target_modules=(
+            ["q_proj", "k_proj", "v_proj", "o_proj"]
+            if args.lora_target_modules == "attention"
+            else ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+        ),
         trainable_token_indices=trainable_token_spec,
     )
 
@@ -6575,6 +6627,8 @@ def run_single_training(args):
         lr_lora=args.lr_lora,
         lr_xattn=args.lr_xattn,
         lr_embed=args.lr_embed,
+        lora_weight_decay=args.lora_weight_decay,
+        family_sampling_replacement=args.family_sampling_replacement,
         lr_gate=args.lr_gate,
         lr_ff=args.lr_ff,
         lr_gate_ff=args.lr_gate_ff,
@@ -6730,7 +6784,7 @@ def main():
     ap.add_argument("--stratify_by_kernel", action="store_true")
     ap.add_argument("--split_json", type=str, default="")
     ap.add_argument("--minimum_validation_families", type=int, default=3)
-    ap.add_argument("--minimum_test_families", type=int, default=3)
+    ap.add_argument("--minimum_test_families", type=int, default=1)
     ap.add_argument("--save_split_json", type=str, default="")
     ap.add_argument(
         "--save_selection_debug",
@@ -6873,6 +6927,10 @@ def main():
         "--family_sampling_power", type=float, default=0.5,
         help="Sample families with probability proportional to count^(1-power).",
     )
+    ap.add_argument(
+        "--family_sampling_replacement", action="store_true",
+        help="Legacy ablation: allow duplicate examples instead of one complete epoch.",
+    )
     ap.add_argument("--gradient_checkpointing", action="store_true")
     ap.add_argument("--resume_from_checkpoint", type=str, default="")
     ap.add_argument("--init_adapter_dir", type=str, default="")
@@ -6908,6 +6966,11 @@ def main():
     ap.add_argument("--lora_r", type=int, default=8)
     ap.add_argument("--lora_alpha", type=int, default=16)
     ap.add_argument("--lora_dropout", type=float, default=0.05)
+    ap.add_argument(
+        "--lora_target_modules", choices=("attention", "all_linear"), default="attention",
+        help="Use attention-only LoRA in production; all_linear is a capacity ablation.",
+    )
+    ap.add_argument("--lora_weight_decay", type=float, default=0.01)
 
     # MLIR-derived GNN structural memory.
     ap.add_argument("--mem_dim", type=int, default=-1)   # -1 => infer from memory bank

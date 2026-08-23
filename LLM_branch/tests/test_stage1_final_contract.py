@@ -63,9 +63,9 @@ def test_specified_clock_is_context_but_automatic_clock_is_supervised():
 
 def test_single_choice_rhs_is_context_and_site_weights_are_normalized():
     source = "L1: auto{_PIPE_L1} = ? auto{_UNROLL_L1} = ?"
-    target = "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 12"
+    target = "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 12"
     domains = {"kernel_a": {
-        "AUTO{_PIPE_L1}": ["1"],
+        "AUTO{_PIPE_L1}": ["0"],
         "AUTO{_UNROLL_L1}": ["0", "12"],
     }}
     pack = trainer.build_deterministic_rhs_pack(
@@ -73,7 +73,7 @@ def test_single_choice_rhs_is_context_and_site_weights_are_normalized():
         directive_domain_registry=domains, kernel_name="kernel-a",
     )
     assert sum(pack.token_weights) == pytest.approx(2.0)
-    assert pack.labels[pack.input_ids.index(ord("1"), pack.input_ids.index(ord("=")))] == -100
+    assert pack.labels[pack.input_ids.index(ord("0"), pack.input_ids.index(ord("=")))] == -100
     assert sum(pack.xattn_target_mask) == 3  # RHS "12\n" only.
 
 
@@ -94,6 +94,21 @@ def test_semantic_domains_enforce_exclusive_loops_and_valid_arrays():
         "AUTO{_ARRAY_F_L2}": "2",
         "AUTO{_ARRAY_D_L2}": "1",
     })
+
+
+def test_conditionally_forced_directive_is_not_supervised():
+    source = "L1: auto{_PIPE_L1} = ? auto{_UNROLL_L1} = ?"
+    target = "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0"
+    pack = trainer.build_deterministic_rhs_pack(
+        source, target, CharacterTokenizer(),
+        directive_domain_registry={"kernel_a": {
+            "AUTO{_PIPE_L1}": ["0", "1"],
+            "AUTO{_UNROLL_L1}": ["0", "2"],
+        }},
+        kernel_name="kernel-a",
+    )
+    assert sum(pack.xattn_target_mask) == 2  # Only the real PIPE decision: "1\n".
+    assert sum(pack.token_weights) == pytest.approx(1.0)
 
 
 def test_per_clock_budget_compaction_never_drops_a_measured_clock(monkeypatch):
@@ -248,7 +263,7 @@ def test_outdated_preprocessed_tables_cannot_be_repackaged(tmp_path):
 
 def test_family_split_is_disjoint_deterministic_and_provenance_complete(tmp_path):
     dataset = tmp_path / "dataset.jsonl"
-    rows = [{"kernel_name": f"rodinia_algo{family}_{variant}"}
+    rows = [{"kernel_name": f"rodinia_algo{family}_{variant}", "area": family + 1.0}
             for family in range(12) for variant in range(2)]
     dataset.write_text("".join(json.dumps(row) + "\n" for row in rows))
     first = build_family_split(
@@ -264,3 +279,5 @@ def test_family_split_is_disjoint_deterministic_and_provenance_complete(tmp_path
     assert set(first["train_families"]).isdisjoint(first["test_families"])
     assert len(first["val_kernels"]) == len(first["test_kernels"]) == 6
     assert len(first["dataset_sha256"]) == 64
+    training_areas = [rows[index]["area"] for index in first["train_jsonl_idx"]]
+    assert first["effective_area_floor"] == min(training_areas) / 2.0

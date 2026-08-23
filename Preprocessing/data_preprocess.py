@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Prepare MailoHLS QoR tables for either GNN or target-aware LLM training.
 
-GNN mode keeps one FPGA target so a static kernel graph and pragma assignment
-have one QoR label.  LLM mode keeps every measured target and computes Pareto
-weights independently for each (device, clock-period) design space.
+GNN mode can keep one FPGA target or every measured FPGA/clock target. LLM mode
+keeps every measured target. Pareto weights are always computed independently
+for each (device, clock-period) design space.
 
 Both modes canonicalize equivalent directive spellings (e.g. pipeline == pipeline_1) 
 and aggregate repeated measurements after canonicalization.  Action columns are accepted
@@ -295,6 +295,7 @@ def preprocess_kernel(
     clock_period_ns: float,
     minimum_weight: float,
     gamma: float,
+    all_targets: bool = False,
 ) -> tuple[pd.DataFrame, dict[str, object]]:
     kernel = csv_path.stem
     frame = pd.read_csv(csv_path, dtype={"Device": str})
@@ -308,7 +309,7 @@ def preprocess_kernel(
         if column in frame:
             frame[column] = pd.to_numeric(frame[column], errors="coerce")
 
-    if mode == "gnn":
+    if mode == "gnn" and not all_targets:
         frame = frame[
             (frame["Device"] == device)
             & np.isclose(frame["Clock_Period_nsec"], clock_period_ns, rtol=0.0, atol=1e-9)
@@ -367,7 +368,7 @@ def preprocess_kernel(
     if aggregated.duplicated(effective_keys).any():
         raise AssertionError(f"Duplicate effective pragma points remain for {kernel}")
     targets = aggregated[["Device", "Clock_Period_nsec"]].drop_duplicates()
-    if mode == "gnn" and len(targets) != 1:
+    if mode == "gnn" and not all_targets and len(targets) != 1:
         raise AssertionError(f"GNN output for {kernel} is not single-target")
 
     stats = {
@@ -396,6 +397,10 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--device", default=DEFAULT_GNN_DEVICE)
     parser.add_argument("--clock-period-ns", type=float, default=DEFAULT_GNN_CLOCK_NS)
+    parser.add_argument(
+        "--all-targets", action="store_true",
+        help="For GNN mode, retain every measured device and clock period.",
+    )
     parser.add_argument("--minimum-weight", type=float, default=0.1)
     parser.add_argument("--gamma", type=float, default=2.0)
     parser.add_argument("--force", action="store_true", help="overwrite existing outputs")
@@ -406,6 +411,8 @@ def main() -> int:
     arguments = parse_arguments()
     if not 0.0 < arguments.minimum_weight <= 1.0 or arguments.gamma <= 0.0:
         raise SystemExit("minimum-weight must be in (0, 1] and gamma must be positive")
+    if arguments.all_targets and arguments.mode != "gnn":
+        raise SystemExit("--all-targets is only meaningful for --mode gnn")
     output_dir = arguments.output_dir or (
         DEFAULT_GNN_OUTPUT_DIR if arguments.mode == "gnn" else DEFAULT_LLM_OUTPUT_DIR
     )
@@ -417,8 +424,12 @@ def main() -> int:
     manifest: dict[str, object] = {
         "schema": "mailohls-qor-preprocessing-v1",
         "mode": arguments.mode,
-        "device": arguments.device if arguments.mode == "gnn" else None,
-        "clock_period_ns": arguments.clock_period_ns if arguments.mode == "gnn" else None,
+        "device": arguments.device if arguments.mode == "gnn" and not arguments.all_targets else None,
+        "clock_period_ns": arguments.clock_period_ns if arguments.mode == "gnn" and not arguments.all_targets else None,
+        "target_policy": (
+            "all_measured_targets" if arguments.mode == "llm" or arguments.all_targets
+            else "single_measured_target"
+        ),
         "input_dir": str(arguments.input_dir.resolve()),
         "utilization_policy": "reported_percentages_unchanged",
         "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",
@@ -435,6 +446,7 @@ def main() -> int:
             arguments.clock_period_ns,
             arguments.minimum_weight,
             arguments.gamma,
+            all_targets=arguments.all_targets,
         )
         processed.to_csv(output_path, index=False, float_format="%.12g")
         stats["input_sha256"] = file_sha256(csv_path)

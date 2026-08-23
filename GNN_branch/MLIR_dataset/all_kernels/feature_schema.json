@@ -104,13 +104,17 @@
     "signed_log1p_first_nonzero_distance",
     "loop_carried"
   ],
+  "effective_area_floor": 0.0625,
+  "effective_area_policy": "training_split_half_minimum_positive_area",
   "encoder_holdout_kernels": [
     "machsuite-sort-radix",
+    "machsuite-viterbi",
     "rodinia_pathfinder_0_baseline_0",
     "rodinia_pathfinder_4_doublebuffer_0",
     "serrano-kalman-filter"
   ],
-  "feature_schema_version": "mailohls-mlir-features-v12-resource-targets",
+  "experiment_split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+  "feature_schema_version": "mailohls-mlir-features-v13-conditioned-targets",
   "generator_sha256": "5e4f93c89ce4c275c04ff6ed4dd81a17858647a55b0abec0846b8da240da3b05",
   "graph_schema_version": "mailohls-mlir-graph-v7-analysis-features",
   "node_categorical_fields": [
@@ -203,7 +207,6 @@
       "memref_dim_0_log2_9",
       "memref_dim_1_log2_2",
       "memref_dim_1_log2_4",
-      "memref_dim_1_log2_6",
       "memref_dim_1_log2_7",
       "memref_dynamic_shape",
       "memref_elements_log2_0",
@@ -238,7 +241,6 @@
       "memref_rank1_i32",
       "memref_rank1_i8",
       "memref_rank2_f32",
-      "memref_rank2_f64",
       "memref_rank2_i32",
       "memref_rank_1",
       "memref_rank_2",
@@ -393,7 +395,6 @@
       "memref_dim_0_log2_9",
       "memref_dim_1_log2_2",
       "memref_dim_1_log2_4",
-      "memref_dim_1_log2_6",
       "memref_dim_1_log2_7",
       "memref_dynamic_shape",
       "memref_elements_log2_0",
@@ -424,7 +425,6 @@
       "memref_rank1_i32",
       "memref_rank1_i8",
       "memref_rank2_f32",
-      "memref_rank2_f64",
       "memref_rank2_i32",
       "memref_rank2_i32>)",
       "memref_rank2_i8>)",
@@ -517,7 +517,7 @@
       "op_result"
     ]
   },
-  "node_feature_dim": 407,
+  "node_feature_dim": 403,
   "node_numeric_fields": [
     "is_loop",
     "log1p_loop_depth",
@@ -561,13 +561,17 @@
     "pipeline_ii": "raw",
     "unroll_factor": "log2(1 + factor)"
   },
-  "preprocessed_csv_sha256": "62aa61526a91638092a5ae46b86fb7ddb2f73aea9b786a821e00d871d597e4df",
+  "pragma_storage_policy": "one_tensor_per_unique_directive_configuration",
+  "preprocessed_csv_sha256": "d72d361277a41b9a34ef5f8ba4ca610b75898050007cb03d08d79e20df5c7e18",
   "qor_filter": {
     "include_invalid": false,
     "minimum_latency_ms": 0.0,
-    "requires_finite_positive_latency_and_area": true
+    "requires_finite_positive_latency_and_nonnegative_area": true
   },
-  "qor_reference_clock_period_ns": 10.0,
-  "qor_reference_device": "xczu7ev-ffvc1156-2-e",
+  "qor_reference_clock_period_ns": null,
+  "qor_reference_device": null,
+  "qor_target_policy": "all_measured_device_clock_targets",
+  "target_condition_dim": 5,
+  "target_condition_policy": "log2_public_device_capacities_and_clock",
   "unknown_category": "<unknown>"
 }

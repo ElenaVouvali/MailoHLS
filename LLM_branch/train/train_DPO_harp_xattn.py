@@ -191,6 +191,9 @@ def apply_parent_contract(mod, args, contract: dict) -> None:
         args.auto_frequency_fraction
     )
     mod.TARGET_CFG.min_auto_clock_count = args.min_auto_clock_count
+    mod.TARGET_CFG.effective_area_floor = float(
+        contract.get("effective_area_floor", 1e-12)
+    )
     mod.TARGET_CFG.strict_source_markers = True
     mod.TARGET_CFG.seed = args.seed
 
@@ -545,8 +548,9 @@ class GoalPreferencePairBuilder:
 
         lat_gain = (rj_lat - ch_lat) / max(abs(rj_lat), 1e-12)
         area_gain = (rj_area - ch_area) / max(abs(rj_area), 1e-12)
-        ch_adp = ch_lat * ch_area
-        rj_adp = rj_lat * rj_area
+        area_floor = float(self.mod.TARGET_CFG.effective_area_floor)
+        ch_adp = ch_lat * max(ch_area, area_floor)
+        rj_adp = rj_lat * max(rj_area, area_floor)
         adp_gain = (rj_adp - ch_adp) / max(abs(rj_adp), 1e-12)
         return float(lat_gain), float(area_gain), float(adp_gain)
 

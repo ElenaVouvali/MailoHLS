@@ -4,9 +4,13 @@
 
 from utils import get_user, get_host, get_root_path
 import argparse
+import hashlib
+import json
+import math
 import torch
 from glob import iglob
 from os.path import join
+from pathlib import Path
 
 decoder_arch = []
 
@@ -105,6 +109,22 @@ parser.add_argument(
     '--val_kernels',
     default=None,
     help='Comma-separated kernels used for model selection.',
+)
+parser.add_argument(
+    '--split_json',
+    default=None,
+    help='Authoritative Stage-1/2/3 family split; supplies GNN holdouts and area calibration.',
+)
+parser.add_argument(
+    '--multi_target_qor',
+    action='store_true',
+    help='Train one static encoder with device/clock-conditioned QoR heads.',
+)
+parser.add_argument(
+    '--effective_area_floor',
+    type=float,
+    default=None,
+    help='Override the training-only positive area floor recorded by --split_json.',
 )
 parser.add_argument(
     '--development_exclude_kernels',
@@ -288,6 +308,18 @@ parser.add_argument('--MLP_common_lyr', default=0)
 gnn_type = 'transformer'
 parser.add_argument('--gnn_type', type=str, default=gnn_type)
 parser.add_argument('--dropout', type=float, default=dropout)
+parser.add_argument(
+    '--graph_attention_heads', type=int, default=1,
+    help='TransformerConv attention heads; output width remains --D.',
+)
+parser.add_argument(
+    '--graph_residual_beta', action='store_true',
+    help='Learn the TransformerConv skip/message interpolation.',
+)
+parser.add_argument(
+    '--graph_layer_norm', action='store_true',
+    help='Apply node-wise LayerNorm after each graph message-passing layer.',
+)
 
 jkn_mode = 'max'
 parser.add_argument('--jkn_mode', type=str, default=jkn_mode)
@@ -584,6 +616,48 @@ parser.add_argument('--hostname', default=get_host())
 
 FLAGS = parser.parse_args()
 
+FLAGS.experiment_split_sha256 = None
+if FLAGS.split_json:
+    split_path = Path(FLAGS.split_json).expanduser().resolve()
+    if not split_path.is_file():
+        parser.error(f'--split_json does not exist: {split_path}')
+    split_bytes = split_path.read_bytes()
+    try:
+        experiment_split = json.loads(split_bytes)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        parser.error(f'Invalid --split_json: {exc}')
+    for field in ('train_kernels', 'val_kernels', 'test_kernels'):
+        if not isinstance(experiment_split.get(field), list) or not experiment_split[field]:
+            parser.error(f'--split_json requires a nonempty {field} list.')
+    for field in ('val_kernels', 'test_kernels'):
+        supplied = {value.strip() for value in (getattr(FLAGS, field) or '').split(',') if value.strip()}
+        expected = set(experiment_split[field])
+        if supplied and supplied != expected:
+            parser.error(f'--{field} conflicts with the authoritative split.')
+        setattr(FLAGS, field, ','.join(sorted(expected)))
+    split_floor = experiment_split.get('effective_area_floor')
+    if split_floor is None:
+        parser.error('--split_json has no training-only effective_area_floor; rebuild the split.')
+    split_floor = float(split_floor)
+    if FLAGS.effective_area_floor is not None and not math.isclose(
+        FLAGS.effective_area_floor, split_floor, rel_tol=0.0, abs_tol=1e-12
+    ):
+        parser.error('--effective_area_floor conflicts with the authoritative split.')
+    FLAGS.effective_area_floor = split_floor
+    FLAGS.experiment_split_sha256 = hashlib.sha256(split_bytes).hexdigest()
+    FLAGS.split_json = str(split_path)
+
+if FLAGS.effective_area_floor is None:
+    FLAGS.effective_area_floor = float(FLAGS.epsilon)
+if not math.isfinite(FLAGS.effective_area_floor) or FLAGS.effective_area_floor <= 0.0:
+    parser.error('--effective_area_floor must be finite and positive.')
+if FLAGS.graph_attention_heads <= 0 or FLAGS.D % FLAGS.graph_attention_heads:
+    parser.error('--graph_attention_heads must positively divide --D.')
+if FLAGS.gnn_type != 'transformer' and (
+    FLAGS.graph_attention_heads != 1 or FLAGS.graph_residual_beta
+):
+    parser.error('Multi-head/beta graph attention requires --gnn_type transformer.')
+
 # Preserve old Stage B commands while making the experimental target explicit.
 if FLAGS.decompose_targets:
     if FLAGS.target_mode not in ('absolute', 'kernel_center'):
@@ -602,6 +676,8 @@ if FLAGS.target_mode == 'reference_delta':
         parser.error('--target_mode reference_delta requires --norm_method log2.')
     if not FLAGS.baseline_manifest:
         parser.error('--target_mode reference_delta requires --baseline_manifest.')
+    if FLAGS.multi_target_qor:
+        parser.error('--multi_target_qor requires baseline-free --target_mode absolute or kernel_center.')
 if FLAGS.smooth_l1_beta <= 0:
     parser.error('--smooth_l1_beta must be positive.')
 
