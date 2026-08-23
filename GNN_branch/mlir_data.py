@@ -158,8 +158,10 @@ EXPECTED_COMPILER_ANALYSIS_INPUT_SCHEMA = "mailohls-native-analysis-v3"
 EXPECTED_MEMORY_DEPENDENCE_MODEL = (
     "mlir-affine-proven-with-root-summarized-uncertainty"
 )
-QOR_REFERENCE_DEVICE = "xczu7ev-ffvc1156-2-e"
-QOR_REFERENCE_CLOCK_PERIOD_NS = 10.0
+QOR_REFERENCE_DEVICE = str(
+    getattr(FLAGS, "target_device", "xczu7ev-ffvc1156-2-e")
+).strip().lower()
+QOR_REFERENCE_CLOCK_PERIOD_NS = float(getattr(FLAGS, "clock_period_ns", 10.0))
 MLIR_FEATURE_SCHEMA_VERSION = "mailohls-mlir-features-v13-conditioned-targets"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 UNKNOWN_CATEGORY = "<unknown>"
@@ -445,9 +447,12 @@ def _find_csv(kernel: str) -> Path:
 
 
 def _preprocessed_csv_sha256() -> str:
-    """Hash the complete ordered QoR corpus used to create cached tensors."""
+    """Hash only measured QoR tables actually admitted by the test-access policy."""
     digest = hashlib.sha256()
+    locked = _locked_test_kernels()
     for kernel in sorted(ALL_KERNEL):
+        if kernel in locked:
+            continue
         path = _find_csv(kernel)
         digest.update(kernel.encode("utf-8"))
         digest.update(b"\0")
@@ -1784,6 +1789,52 @@ def _kernel_set(value: Any) -> set[str]:
     return {str(item).strip() for item in value if str(item).strip()}
 
 
+def _locked_test_kernels() -> set[str]:
+    if bool(getattr(FLAGS, "evaluate_test", False)):
+        return set()
+    return _kernel_set(getattr(FLAGS, "test_kernels", None))
+
+
+def _validate_preprocessed_target_contract() -> None:
+    csv_dir = _first_existing_dir(CSV_DIR_CANDIDATES, "preprocessed CSV directory")
+    manifest_path = csv_dir / "preprocessing_manifest.json"
+    if not manifest_path.is_file():
+        raise RuntimeError(
+            f"Missing GNN preprocessing manifest: {manifest_path}; "
+            "rerun scripts/reproduction/prepare_final_experiment.sh"
+        )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected_policy = (
+        "all_measured_targets" if bool(getattr(FLAGS, "multi_target_qor", False))
+        else "single_measured_target"
+    )
+    if manifest.get("mode") != "gnn" or manifest.get("target_policy") != expected_policy:
+        raise RuntimeError(
+            "GNN preprocessing does not match the requested target policy; "
+            "rerun scripts/reproduction/prepare_final_experiment.sh"
+        )
+    if not bool(getattr(FLAGS, "multi_target_qor", False)) and (
+        str(manifest.get("device", "")).strip().lower() != QOR_REFERENCE_DEVICE
+        or not math.isclose(
+            _as_float(manifest.get("clock_period_ns"), math.nan),
+            QOR_REFERENCE_CLOCK_PERIOD_NS,
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        )
+    ):
+        raise RuntimeError(
+            "GNN preprocessing uses a different canonical device/clock; "
+            "rerun scripts/reproduction/prepare_final_experiment.sh"
+        )
+    excluded = _kernel_set(manifest.get("excluded_kernels", ()))
+    locked = _locked_test_kernels()
+    if locked != excluded:
+        raise RuntimeError(
+            "GNN preprocessing does not enforce the configured locked test kernels: "
+            f"expected={sorted(locked)}, excluded={sorted(excluded)}"
+        )
+
+
 def split_train_val_test_kernel(dataset):
     """Split complete kernels so one graph cannot cross split boundaries."""
     test_set = _kernel_set(getattr(FLAGS, "test_kernels", None))
@@ -1799,7 +1850,8 @@ def split_train_val_test_kernel(dataset):
         for record in dataset.records
         if record.get("kernel_name")
     }
-    unknown = (test_set | val_set) - available
+    required_test = test_set if bool(getattr(FLAGS, "evaluate_test", False)) else set()
+    unknown = (required_test | val_set) - available
     if unknown:
         raise RuntimeError(f"Unknown held-out kernels: {sorted(unknown)}")
 
@@ -1819,13 +1871,13 @@ def split_train_val_test_kernel(dataset):
         raise RuntimeError("The kernel-disjoint split has no training points.")
     if val_set and not val_records:
         raise RuntimeError("The configured validation split is empty.")
-    if test_set and not test_records:
+    if required_test and not test_records:
         raise RuntimeError("The configured test split is empty.")
 
     return {
         "train": MyOwnDataset(data_files=train_records),
         "val": MyOwnDataset(data_files=val_records) if val_set else None,
-        "test": MyOwnDataset(data_files=test_records) if test_set else None,
+        "test": MyOwnDataset(data_files=test_records) if test_records else None,
     }
 
 
@@ -1892,6 +1944,12 @@ def _write_schema(
             _kernel_set(getattr(FLAGS, "test_kernels", None))
             | _kernel_set(getattr(FLAGS, "val_kernels", None))
         ),
+        "test_measurement_policy": (
+            "explicitly_unlocked" if bool(getattr(FLAGS, "evaluate_test", False))
+            else "locked_static_graph_only"
+        ),
+        "locked_test_kernels": sorted(_locked_test_kernels()),
+        "pragma_padding_fit_policy": "training_kernels_only",
         "pragma_encoding": {
             "partition_type": dict(ARRAY_TYPE_ENCODING),
             "unroll_factor": "log2(1 + factor)",
@@ -1971,6 +2029,16 @@ def _validate_cached_schema() -> None:
         raise RuntimeError("Cached tensors use a different effective-area floor; use force_regen=True")
     if schema.get("experiment_split_sha256") != getattr(FLAGS, "experiment_split_sha256", None):
         raise RuntimeError("Cached tensors were built for a different shared split; use force_regen=True")
+    expected_test_policy = (
+        "explicitly_unlocked" if bool(getattr(FLAGS, "evaluate_test", False))
+        else "locked_static_graph_only"
+    )
+    if (
+        schema.get("test_measurement_policy") != expected_test_policy
+        or schema.get("locked_test_kernels") != sorted(_locked_test_kernels())
+        or schema.get("pragma_padding_fit_policy") != "training_kernels_only"
+    ):
+        raise RuntimeError("Cached tensors use a different held-out measurement policy; use force_regen=True")
     if int(schema.get("target_condition_dim", -1)) != TARGET_CONDITION_DIM:
         raise RuntimeError("Cached tensors use incompatible target conditioning; use force_regen=True")
     if schema.get("pragma_storage_policy") != "one_tensor_per_unique_directive_configuration":
@@ -2030,6 +2098,7 @@ def get_data_list():
         init_feat_dict:
             graph_name -> [kernel-local pragma length, global max length]
     """
+    _validate_preprocessed_target_contract()
     graph_files = discover_graph_files()
 
     # Exclude unsupported graphs by presence, rather than assuming 55/55.
@@ -2090,9 +2159,13 @@ def get_data_list():
     point_results: dict[str, list[CSVResult]] = {}
     local_pragma_dims: dict[str, int] = {}
     max_pragma_length = 0
+    locked_test_kernels = _locked_test_kernels()
 
     for graph_file, kernel in graph_records:
         graph_name = graph_file.stem
+        if kernel in locked_test_kernels:
+            print(f"[TEST-LOCK] {kernel}: encoding public static graph only; measured QoR not read")
+            continue
         loaded_results = load_csv_results(kernel)
         results = [
             result for result in loaded_results
@@ -2122,10 +2195,21 @@ def get_data_list():
         local_dim = next(iter(lengths))
         point_results[graph_name] = results
         local_pragma_dims[graph_name] = local_dim
-        max_pragma_length = max(max_pragma_length, local_dim)
+        if kernel not in configured_holdout_kernels:
+            max_pragma_length = max(max_pragma_length, local_dim)
 
     if max_pragma_length <= 0:
-        raise RuntimeError("No valid MLIR design points were found.")
+        raise RuntimeError("No valid training-kernel MLIR design points were found.")
+    oversized = sorted(
+        f"{graph_name}={dimension}"
+        for graph_name, dimension in local_pragma_dims.items()
+        if dimension > max_pragma_length
+    )
+    if oversized:
+        raise RuntimeError(
+            "Validation directive vectors exceed the training-fitted padding width "
+            f"{max_pragma_length}: {oversized}"
+        )
 
     tmp_dir = Path(str(SAVE_DIR) + "_tmp")
     if tmp_dir.exists():
@@ -2147,9 +2231,6 @@ def get_data_list():
         for graph_file, kernel in graph_records:
             graph_name = graph_file.stem
             results = point_results.get(graph_name)
-            if not results:
-                continue
-
             graph = nx.read_gexf(graph_file)
             ordered_nodes, _ = _node_id_order(graph)
             static_payload = encode_static_graph(
@@ -2167,6 +2248,10 @@ def get_data_list():
             first_edge_dim = first_edge_dim or static_payload[
                 "edge_attr"
             ].shape[1]
+            if not results:
+                del graph, static_payload
+                gc.collect()
+                continue
 
             reference_perf_by_target: dict[tuple[str, float], float] = {}
             for result in results:

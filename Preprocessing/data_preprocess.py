@@ -401,6 +401,11 @@ def parse_arguments() -> argparse.Namespace:
         "--all-targets", action="store_true",
         help="For GNN mode, retain every measured device and clock period.",
     )
+    parser.add_argument(
+        "--exclude-kernels",
+        default="",
+        help="Comma-separated locked kernels whose measured GNN tables must not be read.",
+    )
     parser.add_argument("--minimum-weight", type=float, default=0.1)
     parser.add_argument("--gamma", type=float, default=2.0)
     parser.add_argument("--force", action="store_true", help="overwrite existing outputs")
@@ -413,13 +418,31 @@ def main() -> int:
         raise SystemExit("minimum-weight must be in (0, 1] and gamma must be positive")
     if arguments.all_targets and arguments.mode != "gnn":
         raise SystemExit("--all-targets is only meaningful for --mode gnn")
+    excluded_kernels = {
+        kernel.strip() for kernel in arguments.exclude_kernels.split(",")
+        if kernel.strip()
+    }
+    if excluded_kernels and arguments.mode != "gnn":
+        raise SystemExit("--exclude-kernels is only meaningful for --mode gnn")
     output_dir = arguments.output_dir or (
         DEFAULT_GNN_OUTPUT_DIR if arguments.mode == "gnn" else DEFAULT_LLM_OUTPUT_DIR
     )
     csv_files = sorted(arguments.input_dir.glob("*.csv"))
     if not csv_files:
         raise SystemExit(f"No CSV files found in {arguments.input_dir}")
+    unknown_exclusions = excluded_kernels - {path.stem for path in csv_files}
+    if unknown_exclusions:
+        raise SystemExit(f"Unknown excluded GNN kernels: {sorted(unknown_exclusions)}")
     output_dir.mkdir(parents=True, exist_ok=True)
+    for kernel in sorted(excluded_kernels):
+        stale_output = output_dir / f"preprocessed-{kernel}.csv"
+        if stale_output.exists():
+            if not arguments.force:
+                raise SystemExit(f"Locked kernel still has an old output: {stale_output}; pass --force")
+            stale_output.unlink()
+    csv_files = [path for path in csv_files if path.stem not in excluded_kernels]
+    if not csv_files:
+        raise SystemExit("No GNN training/validation CSVs remain after exclusions")
 
     manifest: dict[str, object] = {
         "schema": "mailohls-qor-preprocessing-v1",
@@ -433,6 +456,7 @@ def main() -> int:
         "input_dir": str(arguments.input_dir.resolve()),
         "utilization_policy": "reported_percentages_unchanged",
         "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",
+        "excluded_kernels": sorted(excluded_kernels),
         "kernels": [],
     }
     for index, csv_path in enumerate(csv_files, start=1):

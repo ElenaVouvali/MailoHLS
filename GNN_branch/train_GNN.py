@@ -1518,13 +1518,16 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     saver.log_model_architecture(model)
     optimizer = torch.optim.AdamW(model.parameters(), lr=FLAGS.lr, weight_decay=FLAGS.weight_decay)
 
-    num_steps = len(train_loader) * FLAGS.epoch_num
+    updates_per_epoch = (len(train_loader) + FLAGS.grad_accum_steps - 1) // FLAGS.grad_accum_steps
+    num_steps = updates_per_epoch * FLAGS.epoch_num
     warmup_steps = min(
-        max(0, int(FLAGS.warmup_epochs)) * len(train_loader),
+        max(0, int(FLAGS.warmup_epochs)) * updates_per_epoch,
         max(0, num_steps - 1),
     )
     saver.log_info(
         f'Optimization schedule: steps={num_steps}, '
+        f'updates_per_epoch={updates_per_epoch}, '
+        f'grad_accum_steps={FLAGS.grad_accum_steps}, '
         f'warmup_steps={warmup_steps} '
         f'({FLAGS.warmup_epochs} fixed epochs)'
     )
@@ -2049,6 +2052,9 @@ def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler)
     lrs = []
     total_loss, correct, i, example_count = 0, 0, 0, 0
     target_list, loss_dict = set_target_list()
+    accumulation_steps = int(FLAGS.grad_accum_steps)
+    batch_count = len(train_loader)
+    optimizer.zero_grad(set_to_none=True)
     for data in tqdm(train_loader):
         if FLAGS.scheduler is not None:
             lr = optimizer.param_groups[0]['lr']
@@ -2058,14 +2064,18 @@ def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler)
         data = data.to(FLAGS.device)
         example_count += int(data.num_graphs)
         out_dict, loss, loss_dict_, gae_loss = model(data)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        window_start = (i // accumulation_steps) * accumulation_steps
+        window_size = min(accumulation_steps, batch_count - window_start)
+        (loss / window_size).backward()
+        update_optimizer = (i + 1) % accumulation_steps == 0 or i + 1 == batch_count
+        if update_optimizer:
+            optimizer.step()
+            optimizer.zero_grad(set_to_none=True)
 
         #if FLAGS.scheduler is not None:
             # lr_scheduler.step()
             # lr_scheduler.step(lr_scheduler.last_epoch+1)
-        if lr_scheduler is not None and FLAGS.scheduler != 'plateau':
+        if update_optimizer and lr_scheduler is not None and FLAGS.scheduler != 'plateau':
             if warmup_scheduler is not None:
                 with warmup_scheduler.dampening():
                     lr_scheduler.step()

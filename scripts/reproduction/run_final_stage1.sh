@@ -8,15 +8,19 @@ seed="${MAILOHLS_SEED:-123}"
 objective="${MAILOHLS_OBJECTIVE:-PARETO_ADP}"
 dataset="${MAILOHLS_SFT_DATASET:-$repo_root/artifacts/llm/mailohls_sft.jsonl}"
 split="${MAILOHLS_FAMILY_SPLIT:-$repo_root/mailohls_runs/mailohls_final_family_split_s${seed}.json}"
-registry="${MAILOHLS_DOMAIN_REGISTRY:-$repo_root/artifacts/llm/directive_domain_registry.json}"
-output="${MAILOHLS_STAGE1_OUTPUT:-$repo_root/mailohls_runs/stage1_final_locked_${objective,,}_s${seed}}"
+application_dataset="${MAILOHLS_APPLICATION_DATASET_DIR:-$repo_root/Data/ApplicationDataset}"
+output="${MAILOHLS_STAGE1_OUTPUT:-$repo_root/mailohls_runs/stage1_final_source_domains_${objective,,}_s${seed}}"
 
-for artifact in "$dataset" "$split" "$registry"; do
+for artifact in "$dataset" "$split"; do
   if [[ ! -f "$artifact" ]]; then
     printf 'Required Stage-1 artifact does not exist: %s\n' "$artifact" >&2
     exit 1
   fi
 done
+if [[ ! -d "$application_dataset" ]]; then
+  printf 'Required source action metadata does not exist: %s\n' "$application_dataset" >&2
+  exit 1
+fi
 
 python -u -m LLM_branch.train.train_SFT_xattn_new \
   --run_mode single \
@@ -26,7 +30,7 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --split_json "$split" \
   --minimum_validation_families 3 \
   --minimum_test_families 1 \
-  --directive_domain_registry_json "$registry" \
+  --application_dataset_dir "$application_dataset" \
   --model deepseek-ai/deepseek-coder-6.7b-base \
   --model_revision ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912 \
   --top_k 1 \

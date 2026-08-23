@@ -53,6 +53,7 @@ from transformers.trainer_pt_utils import LengthGroupedSampler
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
 
 from LLM_branch.common import (
+    directive_domains,
     frozen_stage1,
     mailohls_contract,
     structural_xattn,
@@ -1108,6 +1109,7 @@ STAGE1_COMPATIBILITY_FIELDS = (
     "special_token_role",
     "supervise_eos",
     "directive_domain_registry_sha256",
+    "directive_domain_registry_policy",
     "directive_loss_weighting",
     "directive_loss_weights",
     "max_length",
@@ -5467,15 +5469,24 @@ def run_single_training(args):
     ).hexdigest()
     eval_seed = args.seed + 10_000
 
-    if not args.directive_domain_registry_json:
-        raise ValueError("Final Stage-1/2 training requires --directive_domain_registry_json")
-    directive_domain_registry = load_directive_domain_registry(
-        args.directive_domain_registry_json
-    )
-    registry_payload = json.loads(
-        Path(args.directive_domain_registry_json).read_text(encoding="utf-8")
-    )
-    registry_policy = registry_payload.get("generation_policy")
+    if args.directive_domain_registry_json:
+        directive_domain_registry = load_directive_domain_registry(
+            args.directive_domain_registry_json
+        )
+        registry_payload = json.loads(
+            Path(args.directive_domain_registry_json).read_text(encoding="utf-8")
+        )
+        registry_policy = registry_payload.get("generation_policy")
+    else:
+        accessible_rows = (
+            row
+            for split_rows in (raw_train_rows, raw_val_rows)
+            for row in split_rows
+        )
+        directive_domain_registry = directive_domains.build_source_domain_registry(
+            accessible_rows, args.application_dataset_dir
+        )
+        registry_policy = directive_domains.SOURCE_DOMAIN_POLICY
     print(f"[DOMAINS] registry_policy={registry_policy!r}")
     if registry_policy and "pre-split" in str(registry_policy).lower():
         print("[DOMAINS-WARN] Domains include complete-dataset support. Treat them "
@@ -5989,6 +6000,14 @@ def run_single_training(args):
         "directive_loss_weights": directive_loss_weights,
         "directive_site_weighting": "equal_total_weight_per_decision_site",
         "directive_domain_registry_policy": registry_policy,
+        "directive_domain_search_space": (
+            {
+                "max_unroll_factor": directive_domains.MAX_UNROLL_FACTOR,
+                "max_partition_factor": directive_domains.MAX_PARTITION_FACTOR,
+            }
+            if registry_policy == directive_domains.SOURCE_DOMAIN_POLICY
+            else None
+        ),
         "max_length": args.max_length,
         "top_k": args.top_k,
         "device_mode": args.device_mode,
@@ -6778,9 +6797,15 @@ def main():
         type=str,
         default="",
         help=(
-            "Per-kernel, per-site legal RHS domains used by production "
-            "constrained decoding. Required when validation selection is enabled."
+            "Optional historical measured-domain registry. By default, legal "
+            "RHS choices are derived only from source action metadata."
         ),
+    )
+    ap.add_argument(
+        "--application_dataset_dir",
+        type=str,
+        default=str(directive_domains.DEFAULT_APPLICATION_DATASET_DIR),
+        help="Kernel source/action metadata used to derive legal directive domains.",
     )
     ap.add_argument("--memory_dir", type=str, default=str(DEFAULT_STRUCTURAL_MEMORY))
     ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-6.7b-base")

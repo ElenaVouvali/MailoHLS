@@ -543,6 +543,12 @@ parser.add_argument(
 )
 batch_size = 64
 parser.add_argument('--batch_size', type=int, default=batch_size)
+parser.add_argument(
+    '--grad_accum_steps',
+    type=int,
+    default=1,
+    help='Microbatches accumulated before each GNN optimizer update.',
+)
 
 parser.add_argument('--num_workers', type=int, default=0)
 parser.add_argument('--eval_num_workers', type=int, default=0)
@@ -741,6 +747,8 @@ if FLAGS.max_kernel_zero_baseline_ratio <= 0:
     parser.error('--max_kernel_zero_baseline_ratio must be positive.')
 if FLAGS.kernels_per_batch <= 0 or FLAGS.points_per_kernel <= 0:
     parser.error('--kernels_per_batch and --points_per_kernel must be positive.')
+if FLAGS.grad_accum_steps <= 0:
+    parser.error('--grad_accum_steps must be positive.')
 if (
     FLAGS.kernel_grouped_sampling
     and FLAGS.kernels_per_batch * FLAGS.points_per_kernel != FLAGS.batch_size

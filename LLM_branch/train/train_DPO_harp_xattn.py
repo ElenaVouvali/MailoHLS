@@ -1263,13 +1263,16 @@ class STRUCTURALDPOTrainer(Trainer):
             loss = loss.mean()
 
         try:
+            if not torch.isfinite(loss.detach()).all().item():
+                raise FloatingPointError("Non-finite Stage-3 loss before backward")
+            loss = loss / self.args.gradient_accumulation_steps
             self.accelerator.backward(loss)
         finally:
             # Clear ONLY after backward so checkpoint recomputation still sees STRUCTURAL memory
             self._clear_structural_memory_if_present(model)
             self._clear_structural_memory_if_present(self.ref_model)
 
-        return loss.detach() / self.args.gradient_accumulation_steps
+        return loss.detach()
 
     def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
         kernel_names = inputs["kernel_name"]
@@ -1625,7 +1628,8 @@ def cleanup_cuda():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", type=str, required=True)
-    ap.add_argument("--directive_domain_registry_json", type=str, required=True)
+    ap.add_argument("--directive_domain_registry_json", type=str, default="")
+    ap.add_argument("--application_dataset_dir", type=str, default="")
     ap.add_argument("--memory_dir", type=str, required=True)
     ap.add_argument("--model", type=str, default=None)
     ap.add_argument("--model_revision", type=str, default=None)
@@ -1826,12 +1830,13 @@ def main():
     registry_sha = parent_contract.get(
         "directive_domain_registry_sha256"
     )
-    if registry_sha and file_sha256(
-        args.directive_domain_registry_json
-    ) != registry_sha:
-        raise ValueError(
-            "Directive-domain registry does not match Stage 2"
-        )
+    if registry_sha:
+        if not args.directive_domain_registry_json:
+            raise ValueError("This historical Stage-2 checkpoint requires its directive-domain registry")
+        if file_sha256(args.directive_domain_registry_json) != registry_sha:
+            raise ValueError("Directive-domain registry does not match Stage 2")
+    elif args.directive_domain_registry_json:
+        raise ValueError("Source-domain Stage-2 checkpoints must not receive a measured registry")
     manifest_path = os.path.join(args.memory_dir, "memory_manifest.json")
     if not os.path.isfile(manifest_path):
         raise FileNotFoundError(
@@ -1980,9 +1985,17 @@ def main():
         args.memory_dir, mem_bank, required_kernels
     )
 
-    directive_domain_registry = mod.load_directive_domain_registry(
-        args.directive_domain_registry_json
-    )
+    if args.directive_domain_registry_json:
+        directive_domain_registry = mod.load_directive_domain_registry(
+            args.directive_domain_registry_json
+        )
+    else:
+        if parent_contract.get("directive_domain_registry_policy") != mod.directive_domains.SOURCE_DOMAIN_POLICY:
+            raise ValueError("Stage-2 checkpoint does not declare source-derived directive domains")
+        directive_domain_registry = mod.directive_domains.build_source_domain_registry(
+            (row for split_rows in (train_rows, val_rows) for row in split_rows),
+            args.application_dataset_dir or None,
+        )
     train_ds = DPOPreferenceDataset(
         mod=mod,
         rows=train_pairs,

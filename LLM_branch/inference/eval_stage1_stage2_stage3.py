@@ -17,6 +17,7 @@ from peft import PeftModel
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 from LLM_branch.common import (
+    directive_domains,
     mailohls_contract,
     structural_memory as structural_memory_utils,
     structural_xattn,
@@ -1415,8 +1416,9 @@ def build_single_case_from_args(args) -> InferenceCase:
     if not args.code_file:
         raise ValueError("--code_file is required for single-case inference")
 
-    with open(args.code_file, "r", encoding="utf-8") as f:
-        source_text = f.read()
+    source_text = directive_domains.prepare_source_template(
+        args.kernel_name, args.code_file, args.application_dataset_dir
+    )
 
     if args.objective:
         obj = args.objective.strip().lower()
@@ -1480,7 +1482,12 @@ def main():
         default=None,
     )
 
-    ap.add_argument("--directive_domain_registry_json", type=str, required=True)
+    ap.add_argument("--directive_domain_registry_json", type=str, default="")
+    ap.add_argument(
+        "--application_dataset_dir",
+        type=str,
+        default=str(directive_domains.DEFAULT_APPLICATION_DATASET_DIR),
+    )
 
     # stage2 memory
     ap.add_argument("--memory_dir", type=str, default="")
@@ -1738,13 +1745,6 @@ def main():
     if mismatches:
         raise ValueError("Checkpoint response contract is incompatible: "
                          + json.dumps(mismatches, sort_keys=True))
-    domain_digest = hashlib.sha256()
-    with open(args.directive_domain_registry_json, "rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            domain_digest.update(chunk)
-    if domain_digest.hexdigest() != training_contract.get("directive_domain_registry_sha256"):
-        raise ValueError("Directive-domain registry does not match the checkpoint contract")
-
     cases = load_cases(args)
     mismatched = [case.kernel_name for case in cases
                   if training_contract["objective"] != "ALL"
@@ -1756,9 +1756,32 @@ def main():
         )
     for case in cases:
         mailohls_contract.target_prompt_fields(case.platform_row)
-    directive_domain_registry = load_directive_domain_registry(
-        args.directive_domain_registry_json
-    )
+    expected_registry_hash = training_contract.get("directive_domain_registry_sha256")
+    if expected_registry_hash:
+        if not args.directive_domain_registry_json:
+            raise ValueError("This historical checkpoint requires its original directive-domain registry")
+        domain_digest = hashlib.sha256()
+        with open(args.directive_domain_registry_json, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                domain_digest.update(chunk)
+        if domain_digest.hexdigest() != expected_registry_hash:
+            raise ValueError("Directive-domain registry does not match the checkpoint contract")
+        directive_domain_registry = load_directive_domain_registry(
+            args.directive_domain_registry_json
+        )
+    else:
+        if args.directive_domain_registry_json:
+            raise ValueError("Source-domain checkpoints must not receive a measured directive registry")
+        if training_contract.get("directive_domain_registry_policy") != directive_domains.SOURCE_DOMAIN_POLICY:
+            raise ValueError("Checkpoint does not declare a supported source-derived directive-domain policy")
+        directive_domain_registry = directive_domains.build_source_domain_registry(
+            (
+                {"kernel_name": case.kernel_name, "input": case.source_text}
+                for case in cases
+            ),
+            args.application_dataset_dir,
+        )
+        print(f"[DOMAINS] source-derived registries: {len(directive_domain_registry)}")
     tok = build_tokenizer(
         args.model,
         revision=args.model_revision,
