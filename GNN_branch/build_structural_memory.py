@@ -1365,6 +1365,29 @@ def main():
         raise RuntimeError('Invalid GNN provenance_status.')
     if sidecar.get('provenance_status') != contract['provenance_status']:
         raise RuntimeError('Checkpoint and contract provenance status differ.')
+
+    encoder_contract = contract.get('mailohls_structural_encoder', {})
+    if encoder_contract:
+        required_mode = encoder_contract.get(
+            'stage2_embedding_mode', 'static_pre_npt'
+        )
+        if args.embedding_mode != required_mode:
+            raise ValueError(
+                'MailoHLS structural memory from this checkpoint requires '
+                f'--embedding_mode {required_mode}; got {args.embedding_mode}.'
+            )
+        if encoder_contract.get(
+            'reference_baseline_required_for_stage2_memory', True
+        ):
+            raise RuntimeError(
+                'Checkpoint contract unexpectedly requires a reference '
+                'baseline during structural-memory export.'
+            )
+        print(
+            '[STRUCTURAL-EXPORT] static MLIR graph only; neutral HLS '
+            'reference is not consumed by Stage-2 memory export.'
+        )
+
     _verify_hash(
         args.checkpoint_contract,
         sidecar['contract_sha256'],
@@ -1758,6 +1781,10 @@ def main():
                 "ckpt": args.ckpt,
                 "embedding_mode": args.embedding_mode,
                 "disable_pragma_injection": True,
+                "gnn_training_target_mode": (
+                    contract.get('model_init_flags', {}).get('target_mode')
+                ),
+                "reference_baseline_used_for_structural_export": False,
 
                 "gnn_checkpoint_sha256":
                     checkpoint_sha256,
@@ -1980,6 +2007,11 @@ def main():
         'source_pt_manifest_sha256': source_pt_manifest_sha256,
         'source_gexf_manifest_sha256': source_gexf_manifest_sha256,
         'embedding_mode': args.embedding_mode,
+        'gnn_training_target_mode': (
+            contract.get('model_init_flags', {}).get('target_mode')
+        ),
+        'reference_baseline_used_for_structural_export': False,
+        'reference_baseline_required_for_stage2_memory': False,
         'exporter_git_commit': git_commit,
         'checkpoint_tag': sidecar.get('checkpoint_tag'),
         'checkpoint_epoch': sidecar.get('checkpoint_epoch'),

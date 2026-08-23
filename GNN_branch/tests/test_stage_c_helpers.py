@@ -235,5 +235,34 @@ class StageCHelperTests(unittest.TestCase):
         self.assertTrue(np.isclose(values["baseline_area_score"], 6.0))
 
 
+    def test_embedding_rank_control_qualifies_regression_before_ranking(self):
+        control = load_named_definition(
+            ROOT / "train_GNN.py",
+            "embedding_rank_control_score",
+            {"np": np},
+        )
+        self.assertAlmostEqual(
+            control(1.20, {"perf": 0.70, "area": 1.20}, 0.45),
+            1.20,
+        )
+        self.assertAlmostEqual(
+            control(0.80, {"perf": 0.70, "area": 0.80}, 0.45),
+            -0.45,
+        )
+
+    def test_structural_export_explicitly_does_not_use_reference_baseline(self):
+        source = (ROOT / "build_structural_memory.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            '"reference_baseline_used_for_structural_export": False',
+            source,
+        )
+        self.assertIn(
+            "'reference_baseline_required_for_stage2_memory': False",
+            source,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

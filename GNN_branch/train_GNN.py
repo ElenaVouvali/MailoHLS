@@ -99,6 +99,14 @@ def snapshot_gnn_training_artifacts():
         'saver.py': Path(__file__).with_name('saver.py').resolve(),
         'reference_delta.py': Path(__file__).with_name('reference_delta.py').resolve(),
     }
+    if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta':
+        if not FLAGS.baseline_manifest:
+            raise RuntimeError(
+                'reference_delta provenance requires --baseline_manifest.'
+            )
+        sources['neutral_baseline_manifest.csv'] = (
+            Path(FLAGS.baseline_manifest).expanduser().resolve()
+        )
     if FLAGS.split_json:
         sources['experiment_split.json'] = Path(FLAGS.split_json).resolve()
 
@@ -150,6 +158,40 @@ def _canonical_json_sha256(payload):
         payload, sort_keys=True, separators=(',', ':'), ensure_ascii=False
     ).encode('utf-8')
     return hashlib.sha256(encoded).hexdigest()
+
+
+def embedding_rank_control_score(
+    selection_score,
+    target_ratios,
+    ranking_score,
+):
+    """Qualification-aware control score for the Stage-2 GNN encoder.
+
+    reference_delta has a meaningful no-learning predictor: zero delta, i.e.
+    leave the measured neutral QoR unchanged.  Before BOTH public QoR targets
+    beat that baseline, LR scheduling/early stopping should continue to favor
+    target-balanced regression.  Once both targets beat it, the control score
+    switches to negative worst-target kernel-macro Kendall tau so lower remains
+    better for the existing scheduler/early-stopping code.
+
+    Checkpoint qualification itself is intentionally unchanged: the existing
+    embedding-rank checkpoint is still saved only when all aggregate target
+    ratios are < 1 and --min_rank_tau is met.
+    """
+    ratios = [float(value) for value in target_ratios.values()]
+    if not ratios:
+        raise ValueError("embedding-rank control requires target ratios")
+    if not all(np.isfinite(value) and value >= 0.0 for value in ratios):
+        raise ValueError(f"invalid target ratios: {target_ratios}")
+
+    selection_score = float(selection_score)
+    ranking_score = float(ranking_score)
+    if not np.isfinite(selection_score) or not np.isfinite(ranking_score):
+        raise ValueError("embedding-rank control received a non-finite score")
+
+    if all(value < 1.0 for value in ratios):
+        return -ranking_score
+    return selection_score
 
 
 def _git_commit():
@@ -253,6 +295,37 @@ def write_gnn_checkpoint_contract(
             'public_device_capacities_and_clock_in_qor_heads_only'
             if FLAGS.multi_target_qor else 'single_reference_target'
         ),
+        'reference_baseline_manifest': (
+            {
+                'path': str(
+                    Path(FLAGS.baseline_manifest).expanduser().resolve()
+                ),
+                'sha256': _sha256_file(
+                    Path(FLAGS.baseline_manifest).expanduser().resolve()
+                ),
+            }
+            if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
+            else None
+        ),
+        'mailohls_structural_encoder': {
+            'training_target_mode': getattr(
+                FLAGS, 'target_mode', 'absolute'
+            ),
+            'training_supervision': (
+                'reference_delta_qor+within_kernel_rank+resource_aux'
+                if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
+                else 'qor'
+            ),
+            'stage2_embedding_mode': 'static_pre_npt',
+            'reference_baseline_role': (
+                'training_target_and_optional_absolute_qor_calibration'
+            ),
+            'reference_baseline_required_for_stage2_memory': False,
+            'checkpoint_selection': (
+                'worst_target_kernel_macro_tau_b_after_'
+                'aggregate_zero_delta_qualification'
+            ),
+        },
         'shared_initialization_sha256': shared_initialization_sha256,
         'training_artifacts': training_artifacts,
     }
@@ -1749,9 +1822,21 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             )
         if val_selection_scores:
             if FLAGS.checkpoint_objective == 'embedding_rank':
-                best_rank = max(val_ranking_scores)
-                best_stopping_loss = -best_rank
-                best_index = val_ranking_scores.index(best_rank)
+                control_scores = [
+                    embedding_rank_control_score(
+                        selection_score,
+                        target_ratios,
+                        ranking_score,
+                    )
+                    for selection_score, target_ratios, ranking_score
+                    in zip(
+                        val_selection_scores,
+                        val_selection_ratios,
+                        val_ranking_scores,
+                    )
+                ]
+                best_stopping_loss = min(control_scores)
+                best_index = control_scores.index(best_stopping_loss)
             else:
                 best_stopping_loss = min(val_selection_scores)
                 best_index = val_selection_scores.index(best_stopping_loss)
@@ -1843,11 +1928,26 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 all(float(ratio) < 1.0 for ratio in target_ratios.values())
                 and ranking_score >= FLAGS.min_rank_tau
             )
+            embedding_control_score = embedding_rank_control_score(
+                current_selection_score,
+                target_ratios,
+                ranking_score,
+            )
+            embedding_control_phase = (
+                'rank'
+                if all(
+                    float(ratio) < 1.0
+                    for ratio in target_ratios.values()
+                )
+                else 'zero_delta_qualification'
+            )
             saver.log_info(
                 f'Validation worst-target kernel-macro tau-b: '
                 f'{ranking_score:.6f}; worst kernel/target baseline ratio='
                 f'{worst_kernel_ratio:.6f}; qualified_rank={qualified}; '
-                f'embedding_rank_qualified={embedding_rank_qualified}'
+                f'embedding_rank_qualified={embedding_rank_qualified}; '
+                f'embedding_control_phase={embedding_control_phase}; '
+                f'embedding_control_score={embedding_control_score:.6f}'
             )
             saver.writer.add_scalar(
                 'val/worst_target_kernel_macro_tau', ranking_score, epoch
@@ -1922,7 +2022,11 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 and epoch + 1 >= int(FLAGS.warmup_epochs)
             ):
                 scheduler_score = (
-                    -ranking_score
+                    embedding_rank_control_score(
+                        current_selection_score,
+                        target_ratios,
+                        ranking_score,
+                    )
                     if FLAGS.checkpoint_objective == 'embedding_rank'
                     else current_selection_score
                 )
@@ -1993,7 +2097,11 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
 
         selection_loss = (
             (
-                -ranking_score
+                embedding_rank_control_score(
+                    current_selection_score,
+                    target_ratios,
+                    ranking_score,
+                )
                 if FLAGS.checkpoint_objective == 'embedding_rank'
                 else current_selection_score
             )
