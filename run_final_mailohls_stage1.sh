@@ -1,42 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-# Final MailoHLS Stage-1 run.
-# Run from the MailoHLS repository root AFTER:
-#   1) applying apply_mailohls_stage1_final_patch.py
-#   2) passing the LLM tests
-#   3) committing all tracked code changes
-#
-# This deliberately keeps the previous promising Stage-1 optimization setup.
-# The only experimental changes are validation/reproducibility improvements:
-#   - 4 distinct-target validation cases per kernel/device/clock when available
-#   - batched candidate scoring for validation only
-#   - teacher-forced MRR/top-1 diagnostics
-#   - cascade + budget-counterfactual diagnostics
-#   - one-effective-epoch early-stop floor
-#   - canonical source-derived directive-domain hash
-#
-# Family sampling remains the old replacement=False behavior.
-# Candidate-ranking TRAINING loss remains disabled.
-# AUTO-clock training remains disabled.
-
-OUT="mailohls_runs/stage1_final_mailohls_s123_v2"
-LOG="${HOME}/stage1_final_mailohls_s123_v2.log"
-
-if [[ -e "${OUT}" ]]; then
-  echo "Refusing to reuse existing output directory: ${OUT}" >&2
-  echo "Choose a new output directory for a scratch run." >&2
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+OUT="${OUT:-mailohls_runs/stage1_final_static_domains_adp_s123}"
+GPU="${CUDA_VISIBLE_DEVICES:-0}"
+if [[ -e "$OUT" ]]; then
+  echo "Refusing to overwrite existing Stage-1 output: $OUT" >&2
   exit 2
 fi
-
 if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
-  echo "Tracked git tree is dirty. Commit or restore tracked changes first:" >&2
+  echo "Tracked git tree is dirty. Commit the final patch before this run." >&2
   git status --short --untracked-files=no >&2
   exit 2
 fi
-
-export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
-
+CUDA_VISIBLE_DEVICES="$GPU" \
 python -u -m LLM_branch.train.train_SFT_xattn_new \
   --run_mode single \
   --disable_structural_memory \
@@ -56,6 +33,7 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --random_budget_min_frac 0.05 \
   --min_feasible_candidates_per_budget 3 \
   --candidate_pool_per_objective 24 \
+  --budget_target_max_duplicates 2 \
   --auto_frequency_fraction 0 \
   --goal_domination_penalty 0.25 \
   --goal_max_dominated_gap 0.12 \
@@ -70,8 +48,8 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --lora_target_modules attention \
   --lora_dropout 0.10 \
   --lora_weight_decay 0.01 \
-  --lr_lora 3e-5 \
-  --lr_embed 1e-5 \
+  --lr_lora 1.5e-5 \
+  --lr_embed 5e-6 \
   --lr_scheduler_type cosine \
   --warmup_ratio 0.05 \
   --max_grad_norm 1 \
@@ -81,13 +59,13 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --gradient_checkpointing \
   --num_workers 0 \
   --loss_chunk_t 128 \
-  --family_sampling_power 0.5 \
+  --family_sampling_power 0 \
   --selection_num_val_kernels 0 \
   --selection_cases_per_kernel_device 4 \
   --selection_candidate_batch_size 4 \
-  --selection_eval_steps 100 \
-  --eval_steps 100 \
-  --save_steps 100 \
+  --selection_eval_steps 50 \
+  --eval_steps 50 \
+  --save_steps 50 \
   --early_stopping_patience 3 \
   --eval_on_start \
   --best_dir_name best_custom_stage1 \
@@ -95,5 +73,4 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --max_steps 1200 \
   --seed 123 \
   --require_clean_git \
-  --output_dir "${OUT}" \
-  2>&1 | tee "${LOG}"
+  --output_dir "$OUT"

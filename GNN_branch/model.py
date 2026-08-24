@@ -1116,7 +1116,7 @@ class Net(nn.Module):
                     torch.sqrt(weighted_loss)
                     if loss_mode == 'rmse' else weighted_loss
                 )
-                if self.training:
+                if self.training and float(FLAGS.rank_aux_weight) > 0.0:
                     kernels = list(
                         getattr(data, 'target_group', data.kernel)
                         if self.target_condition_dim else data.kernel

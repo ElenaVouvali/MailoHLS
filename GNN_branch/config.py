@@ -280,7 +280,13 @@ parser.add_argument(
 )
 parser.add_argument(
     "--checkpoint_objective",
-    choices=("absolute", "qualified_rank", "embedding_rank", "structural_rank"),
+    choices=(
+        "absolute",
+        "qualified_rank",
+        "embedding_rank",
+        "structural_rank",
+        "hardware_regression",
+    ),
     default="absolute",
     help=(
         "Select either the lowest absolute validation-error checkpoint or "
@@ -288,10 +294,13 @@ parser.add_argument(
         "strict per-kernel absolute-error gate used by earlier experiments; "
         "embedding_rank maximizes worst-target kernel-macro Kendall tau while "
         "requiring every aggregate target loss to beat its no-learning baseline."
-        "structural_rank:"
-        "maximize worst-target kernel-macro Kendall tau-b for the"
-        "Stage-2 structural encoder. Absolute QoR ratios are reported"
-        "as diagnostics but are not qualification gates."
+        "structural_rank: "
+        "maximize worst-target kernel-macro Kendall tau-b for the "
+        "Stage-2 structural encoder. Absolute QoR ratios are reported "
+        "as diagnostics but are not qualification gates. "
+        "hardware_regression: minimize the complete validation training "
+        "objective (QoR regression plus enabled physical-resource heads); "
+        "this is the final MailoHLS GNN setting."
     ),
 )
 parser.add_argument(

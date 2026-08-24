@@ -1,4 +1,4 @@
-"""Derive legal directive choices from public source/action metadata only."""
+"""Derive finite directive proposal domains from source/action metadata only."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from typing import Any, Iterable, Mapping
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_APPLICATION_DATASET_DIR = REPOSITORY_ROOT / "Data" / "ApplicationDataset"
-SOURCE_DOMAIN_POLICY = "source_action_metadata_and_compiler_legal_values_v1"
+SOURCE_DOMAIN_POLICY = "source_action_metadata_proposal_domains_v2"
 MAX_UNROLL_FACTOR = 64
 MAX_PARTITION_FACTOR = 1024
 

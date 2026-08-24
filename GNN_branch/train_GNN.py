@@ -1786,6 +1786,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     best_structural_rank_epoch = None
     best_structural_rank_ratios = None
     best_structural_rank_kernel_ratios = None
+    best_hardware_regression_loss = float("inf")
+    best_hardware_regression_epoch = None
 
     if FLAGS.resume_training and exists(ckpt_path):
         st = torch.load(ckpt_path, map_location='cpu')
@@ -1823,6 +1825,12 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         best_embedding_rank_epoch = st.get("best_embedding_rank_epoch")
         best_embedding_rank_ratios = st.get(
             "best_embedding_rank_ratios"
+        )
+        best_hardware_regression_loss = st.get(
+            "best_hardware_regression_loss", float("inf")
+        )
+        best_hardware_regression_epoch = st.get(
+            "best_hardware_regression_epoch"
         )
         stored_baseline = st.get("baseline_breakdown")
         if val_losses and (
@@ -1945,6 +1953,29 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 f'{current_selection_score:.6f}; '
                 f'relative target losses={target_ratios}'
             )
+            if (
+                FLAGS.checkpoint_objective == "hardware_regression"
+                and val
+                < best_hardware_regression_loss
+                - float(FLAGS.early_stopping_min_delta)
+            ):
+                best_hardware_regression_loss = float(val)
+                best_hardware_regression_epoch = epoch
+                if FLAGS.save_model:
+                    save_checkpoint_with_sidecar(
+                        model.state_dict(),
+                        join(
+                            saver.model_logdir,
+                            "val_hardware_regression_model_state_dict.pth",
+                        ),
+                        "val_hardware_regression",
+                        epoch,
+                    )
+                saver.log_info(
+                    "Saved hardware-regression model at epoch "
+                    f"{epoch}; complete validation objective={val:.6f}"
+                )
+
             ranking_score = compute_macro_ranking_score(val_metrics)
             val_ranking_scores.append(ranking_score)
             per_kernel_target_ratios = val_metrics.attrs.get(
@@ -2082,13 +2113,17 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 and epoch + 1 >= int(FLAGS.warmup_epochs)
             ):
                 scheduler_score = (
-                    embedding_rank_control_score(
-                        current_selection_score,
-                        target_ratios,
-                        ranking_score,
+                    val
+                    if FLAGS.checkpoint_objective == "hardware_regression"
+                    else (
+                        embedding_rank_control_score(
+                            current_selection_score,
+                            target_ratios,
+                            ranking_score,
+                        )
+                        if FLAGS.checkpoint_objective == "embedding_rank"
+                        else current_selection_score
                     )
-                    if FLAGS.checkpoint_objective == 'embedding_rank'
-                    else current_selection_score
                 )
                 lr_scheduler.step(scheduler_score)
 
@@ -2125,6 +2160,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "best_embedding_rank_score": best_embedding_rank_score,
                 "best_embedding_rank_epoch": best_embedding_rank_epoch,
                 "best_embedding_rank_ratios": best_embedding_rank_ratios,
+                "best_hardware_regression_loss": best_hardware_regression_loss,
+                "best_hardware_regression_epoch": best_hardware_regression_epoch,
                 "initial_selection": initial_selection,
                 "initial_ratios": initial_ratios,
                 "test_losses": test_losses,
@@ -2157,13 +2194,17 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
 
         selection_loss = (
             (
-                embedding_rank_control_score(
-                    current_selection_score,
-                    target_ratios,
-                    ranking_score,
+                val
+                if FLAGS.checkpoint_objective == "hardware_regression"
+                else (
+                    embedding_rank_control_score(
+                        current_selection_score,
+                        target_ratios,
+                        ranking_score,
+                    )
+                    if FLAGS.checkpoint_objective == "embedding_rank"
+                    else current_selection_score
                 )
-                if FLAGS.checkpoint_objective == 'embedding_rank'
-                else current_selection_score
             )
             if len(val_loader) > 0 else loss
         )
@@ -2239,8 +2280,14 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             absolute_epoch,
             test_losses=[],
         )
-        if absolute_score >= 1.0 or not all(
-            float(ratio) < 1.0 for ratio in absolute_ratios.values()
+        if (
+            FLAGS.checkpoint_objective != "hardware_regression"
+            and (
+                absolute_score >= 1.0
+                or not all(
+                    float(ratio) < 1.0 for ratio in absolute_ratios.values()
+                )
+            )
         ):
             raise RuntimeError(
                 'No validation checkpoint beat the deterministic no-learning '
@@ -2319,7 +2366,23 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 test_losses=[],
             )
 
-        if FLAGS.checkpoint_objective == 'qualified_rank':
+        if FLAGS.checkpoint_objective == "hardware_regression":
+            if best_hardware_regression_epoch is None:
+                raise RuntimeError(
+                    "No hardware-regression validation checkpoint was produced."
+                )
+            selection_tag = "val_hardware_regression"
+            selection_epoch = best_hardware_regression_epoch
+            selection_path = join(
+                saver.model_logdir,
+                "val_hardware_regression_model_state_dict.pth",
+            )
+            saver.log_info(
+                "Final hardware-regression checkpoint: epoch "
+                f"{selection_epoch}; complete validation objective="
+                f"{best_hardware_regression_loss:.6f}"
+            )
+        elif FLAGS.checkpoint_objective == 'qualified_rank':
             if best_qualified_rank_epoch is None:
                 raise RuntimeError(
                     'No baseline-qualified rank checkpoint was produced. '

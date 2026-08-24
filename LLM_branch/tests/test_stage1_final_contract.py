@@ -156,7 +156,7 @@ def test_semantic_domains_enforce_exclusive_loops_and_valid_arrays():
     })
 
 
-def test_conditionally_forced_directive_is_not_supervised():
+def test_related_static_fields_remain_independently_supervised():
     source = "L1: auto{_PIPE_L1} = ? auto{_UNROLL_L1} = ?"
     target = "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0"
     pack = trainer.build_deterministic_rhs_pack(
@@ -167,8 +167,9 @@ def test_conditionally_forced_directive_is_not_supervised():
         }},
         kernel_name="kernel-a",
     )
-    assert sum(pack.xattn_target_mask) == 2  # Only the real PIPE decision: "1\n".
-    assert sum(pack.token_weights) == pytest.approx(1.0)
+    # Both source-derived fields have >1 proposal and both receive supervision.
+    assert sum(pack.xattn_target_mask) == 4
+    assert sum(pack.token_weights) == pytest.approx(2.0)
 
 
 def test_per_clock_budget_compaction_never_drops_a_measured_clock(monkeypatch):
@@ -409,10 +410,12 @@ def test_teacher_forced_local_scoring_uses_reference_prefix(monkeypatch):
         candidate_batch_size=1,
     )
     assert trace[0]["candidates"][0]["rhs"] == "0"
-    # PIPE is teacher-forced to 1 for the prefix, therefore UNROLL becomes
-    # semantically forced to 0 even though the model preferred PIPE=0.
-    assert trace[1]["forced_by_semantics"] is True
-    assert trace[1]["candidates"][0]["rhs"] == "0"
+    # The reference PIPE value is appended to the teacher-forced prefix, but
+    # it must NOT delete source-supported UNROLL proposals. The local scorer
+    # therefore remains free to prefer UNROLL=2.
+    assert trace[1]["forced_by_semantics"] is False
+    assert trace[1]["static_candidate_count"] == 2
+    assert trace[1]["candidates"][0]["rhs"] == "2"
 
 
 def test_selection_summary_exposes_teacher_mrr_cascade_and_budget_accuracy():

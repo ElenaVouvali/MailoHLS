@@ -517,12 +517,12 @@ def build_deterministic_rhs_pack(
             candidates = get_rhs_candidates_for_lhs(
                 kernel_name, lhs, directive_domain_registry
             )
-            legal = mailohls_contract.filter_semantic_candidates(
-                lhs, candidates, chosen_assignments, site_domains
-            )
-            if rhs not in legal:
-                raise ValueError(f"Gold directive is semantically illegal: {kernel_name}/{lhs}={rhs}")
-            supervise = len(legal) > 1
+            if rhs not in candidates:
+                raise ValueError(
+                    "Gold directive is outside the source-derived proposal "
+                    f"domain: {kernel_name}/{lhs}={rhs}; candidates={candidates}"
+                )
+            supervise = len(candidates) > 1
 
         add_fixed(f"{lhs} = ")
         add_rhs(rhs + "\n", weight, supervise)
@@ -2186,14 +2186,8 @@ def score_teacher_forced_rhs_candidates(
                 input_ids, attention_mask, prefix_ids
             )
 
-            original_candidates = get_rhs_candidates_for_lhs(
+            candidates = get_rhs_candidates_for_lhs(
                 kernel_name, lhs, directive_domain_registry
-            )
-            candidates = mailohls_contract.filter_semantic_candidates(
-                lhs,
-                original_candidates,
-                chosen_assignments,
-                site_domains,
             )
 
             scored = []
@@ -2260,8 +2254,11 @@ def score_teacher_forced_rhs_candidates(
             trace.append({
                 "label": label,
                 "lhs": lhs,
-                "static_candidate_count": len(original_candidates),
-                "forced_by_semantics": len(candidates) == 1,
+                "static_candidate_count": len(candidates),
+                # Dynamic cross-directive semantic pruning is intentionally
+                # disabled in the final Stage-1 contract. A singleton static
+                # proposal domain is not "forced by semantics".
+                "forced_by_semantics": False,
                 "candidates": [dict(record) for record in scored],
             })
 
@@ -2348,11 +2345,8 @@ def constrained_decode_rhs_by_candidate_scoring(
             input_ids, attention_mask = append_token_ids(input_ids, attention_mask, prefix_ids)
             parts.append(prefix_text)
 
-            original_candidates = get_rhs_candidates_for_lhs(
+            candidates = get_rhs_candidates_for_lhs(
                 kernel_name, lhs, directive_domain_registry
-            )
-            candidates = mailohls_contract.filter_semantic_candidates(
-                lhs, original_candidates, chosen_assignments, site_domains
             )
 
             scored = []
@@ -2413,7 +2407,7 @@ def constrained_decode_rhs_by_candidate_scoring(
         prediction = (
             "".join(parts).rstrip()
         )
-        mailohls_contract.validate_directive_assignments(chosen_assignments)
+        # Cross-field directive compatibility is learned, not hard-filtered here.
 
         if return_score_trace:
             return prediction, score_trace
@@ -2649,6 +2643,16 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
         ) / len(kernel_rows)
         for kernel, kernel_rows in sorted(rows_by_kernel.items())
     }
+    kernel_joint_action_acc = {
+        kernel: sum(
+            row.get(
+                "joint_action_accuracy",
+                row.get("decision_site_accuracy", row["value_accuracy_over_expected"]),
+            )
+            for row in kernel_rows
+        ) / len(kernel_rows)
+        for kernel, kernel_rows in sorted(rows_by_kernel.items())
+    }
     pragma_kind_totals = defaultdict(lambda: {"correct": 0, "expected": 0})
     for row in rows:
         for kind, counts in row["pragma_kind_counts"].items():
@@ -2717,6 +2721,11 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
 
         "per_kernel_decision_accuracy": kernel_decision_acc,
         "minimum_kernel_decision_accuracy": min(kernel_decision_acc.values()),
+        "per_kernel_joint_action_accuracy": kernel_joint_action_acc,
+        "minimum_kernel_joint_action_accuracy": min(kernel_joint_action_acc.values()),
+        "joint_action_score": float(
+            sum(kernel_joint_action_acc.values()) / len(kernel_joint_action_acc)
+        ),
         "mean_decision_site_accuracy": float(
             sum(row.get("decision_site_accuracy", row["value_accuracy_over_expected"])
                 for row in rows) / len(rows)
@@ -2840,7 +2849,7 @@ class StageValSelectionCallback(TrainerCallback):
                     f"step={self.best_step}, key={self.best_key}"
                 )
             else:
-                self.best_key = (float("-inf"),) * 4
+                self.best_key = (float("-inf"),) * 3
                 self.best_step = -1
         else:
             if best_path.is_file():
@@ -2849,7 +2858,7 @@ class StageValSelectionCallback(TrainerCallback):
                     f"checkpoint: {best_path}. Use a new --output_dir or "
                     "explicitly --resume_from_checkpoint."
                 )
-            self.best_key = (float("-inf"),) * 4
+            self.best_key = (float("-inf"),) * 3
             self.best_step = -1
         self.last_selection_step = None
 
@@ -2956,12 +2965,15 @@ class StageValSelectionCallback(TrainerCallback):
             str(case.row.get("_jsonl_idx")),
         ])
 
-        # This now mirrors Stage-1 supervision: a reference site is a real
-        # decision only if >1 RHS is legal under the correct prior decisions.
+        # Production Stage-1 evaluates every source-derived field whose
+        # proposal domain contains more than one RHS. Related decisions never
+        # disappear because an earlier field took a particular value.
         decision_keys = {
-            site["lhs"].strip().upper()
-            for site in teacher_trace
-            if not bool(site["forced_by_semantics"])
+            lhs.strip().upper()
+            for _, lhs in extract_ordered_lhs_plan(case.source_text)
+            if len(get_rhs_candidates_for_lhs(
+                case.kernel_name, lhs, self.directive_domain_registry
+            )) > 1
         }
         if not decision_keys:
             raise ValueError(
@@ -3078,6 +3090,18 @@ class StageValSelectionCallback(TrainerCallback):
             for key in decision_keys
         )
 
+        action_decision_keys = defaultdict(list)
+        for key in sorted(decision_keys):
+            match = re.search(r"_(L[1-9][0-9]*)\}$", key)
+            if match is None:
+                raise RuntimeError(f"Could not recover action label from {key!r}")
+            action_decision_keys[match.group(1)].append(key)
+        joint_action_count = len(action_decision_keys)
+        joint_action_correct = sum(
+            all(pred_assign.get(key) == ref_assign.get(key) for key in keys)
+            for keys in action_decision_keys.values()
+        )
+
         return {
             "case_id": case_id,
             "kernel_name": case.kernel_name,
@@ -3097,6 +3121,12 @@ class StageValSelectionCallback(TrainerCallback):
             "decision_site_correct_count": decision_correct,
             "decision_site_accuracy": (
                 decision_correct / len(decision_keys)
+            ),
+            "joint_action_count": joint_action_count,
+            "joint_action_correct_count": joint_action_correct,
+            "joint_action_accuracy": (
+                joint_action_correct / joint_action_count
+                if joint_action_count else 0.0
             ),
             "forced_site_count": (
                 len(ref_assign) - len(decision_keys)
@@ -3160,16 +3190,10 @@ class StageValSelectionCallback(TrainerCallback):
                     ),
                 )
             )
-            teacher_mrr = summary["teacher_forced_mrr"]
-            if teacher_mrr is None:
-                raise RuntimeError(
-                    "Teacher-forced validation produced no decision-site "
-                    "ranking records."
-                )
+            joint_action_score = summary["joint_action_score"]
             checkpoint_key = (
                 selection_score,
-                minimum_kernel_accuracy,
-                float(teacher_mrr),
+                joint_action_score,
                 -eval_loss,
             )
 
@@ -3190,6 +3214,10 @@ class StageValSelectionCallback(TrainerCallback):
                   f"budget_counterfactual_groups={summary['budget_counterfactual_groups']}")
             print(f"[VAL-SELECTION] minimum_kernel_accuracy={minimum_kernel_accuracy:.6f}")
             print(f"[VAL-SELECTION] selection_score={selection_score:.6f}")
+            print(
+                f"[VAL-SELECTION] joint_action_score="
+                f"{summary['joint_action_score']:.6f}"
+            )
             print(f"[VAL-SELECTION] checkpoint_key={checkpoint_key}")
             print("=" * 100)
 
@@ -5095,6 +5123,84 @@ def augment_rows_with_random_resource_budgets(
     return augmented
 
 
+
+def compact_duplicate_budget_targets(
+    rows: Sequence[Mapping[str, Any]],
+    max_duplicates: int,
+) -> List[dict]:
+    """Compact duplicate training budgets only after objective selection.
+
+    Repeated targets are grouped by kernel/device/clock/objective/canonical
+    completion. The tightest budget is kept first. If a full-device budget is
+    present it is the second representative; otherwise the loosest budget is.
+    max_duplicates=0 disables compaction. Validation is never compacted.
+    """
+    if max_duplicates <= 0:
+        return [dict(row) for row in rows]
+
+    groups = defaultdict(list)
+    for row in rows:
+        key = (
+            row["kernel_name"],
+            _norm_device(row.get("device", "")),
+            _clock_of(row),
+            row.get("obj_mode"),
+            canonical_completion_key(row["input"], row["target"]),
+        )
+        groups[key].append(dict(row))
+
+    def budget_vector(row):
+        device = _norm_device(row.get("device", ""))
+        capacities = DEVICE_RESOURCES[device]
+        available = _available_resources(row)
+        return tuple(
+            available[name] / capacities[name]
+            for name in RESOURCE_KEYS
+        )
+
+    def tightness_key(row):
+        vector = budget_vector(row)
+        return (
+            min(vector),
+            sum(vector) / len(vector),
+            max(vector),
+            str(row.get("resource_budget_id", "")),
+            int(row.get("_jsonl_idx", -1)),
+        )
+
+    compacted = []
+    repeated_groups = 0
+    for _, group in sorted(groups.items(), key=lambda item: repr(item[0])):
+        ordered = sorted(group, key=tightness_key)
+        if len(ordered) > max_duplicates:
+            repeated_groups += 1
+        chosen = [ordered[0]]
+        if max_duplicates > 1 and len(ordered) > 1:
+            full = [
+                row for row in ordered
+                if all(abs(value - 1.0) <= 1e-9 for value in budget_vector(row))
+            ]
+            second = full[-1] if full else ordered[-1]
+            if second is not chosen[0]:
+                chosen.append(second)
+        if len(chosen) < min(max_duplicates, len(ordered)):
+            chosen_ids = {id(row) for row in chosen}
+            for row in ordered:
+                if id(row) not in chosen_ids:
+                    chosen.append(row)
+                    chosen_ids.add(id(row))
+                if len(chosen) == max_duplicates:
+                    break
+        compacted.extend(chosen[:max_duplicates])
+
+    print(
+        "[BUDGET-COMPACT] "
+        f"input={len(rows)} output={len(compacted)} "
+        f"target_groups={len(groups)} repeated_groups={repeated_groups} "
+        f"max_duplicates={max_duplicates}"
+    )
+    return compacted
+
 def summarize_budget_counterfactuals(rows: Sequence[Mapping[str, Any]]) -> dict:
     """Count true target changes across budgets without inventing alternatives."""
     groups = defaultdict(list)
@@ -6011,6 +6117,10 @@ def run_single_training(args):
                 raw_train_rows
             )
         )
+        train_rows = compact_duplicate_budget_targets(
+            train_rows,
+            args.budget_target_max_duplicates,
+        )
 
         val_rows, val_goal_info = (
             select_objectives(
@@ -6391,6 +6501,10 @@ def run_single_training(args):
             args.min_feasible_candidates_per_budget
         ),
         "candidate_pool_per_objective": args.candidate_pool_per_objective,
+        "budget_target_max_duplicates": args.budget_target_max_duplicates,
+        "budget_target_compaction_policy": (
+            "post_objective_target_tightest_plus_full_or_loosest"
+        ),
         "candidate_compaction_policy": "per_measured_clock",
         "budget_sampling_policy": "full_reference_plus_independent_uniform_resource_budgets",
         "family_sampling_power": args.family_sampling_power,
@@ -6410,7 +6524,7 @@ def run_single_training(args):
             args.selection_cases_per_kernel_device
         ),
         "selection_eval_steps": args.selection_eval_steps,
-        "selection_metric": "kernel_macro_decision_site_accuracy",
+        "selection_metric": "kernel_macro_static_field_accuracy_with_joint_action_tiebreak",
         "early_stopping_patience": (
             args.early_stopping_patience if args.disable_structural_memory else 0
         ),
@@ -6933,11 +7047,7 @@ def run_single_training(args):
         if not args.selection_eval_only
         else 0
     )
-    stage1_early_stopping_min_step = (
-        effective_updates_per_epoch
-        if args.disable_structural_memory
-        else 0
-    )
+    stage1_early_stopping_min_step = 0
     training_contract["effective_updates_per_epoch"] = (
         effective_updates_per_epoch
     )
@@ -7351,6 +7461,16 @@ def main():
         default=24,
     )
     ap.add_argument(
+        "--budget_target_max_duplicates",
+        type=int,
+        default=0,
+        help=(
+            "After objective selection, retain at most this many training "
+            "budget contexts for an identical canonical target. 0 disables "
+            "compaction; final MailoHLS uses 2 (tightest + full/loosest)."
+        ),
+    )
+    ap.add_argument(
         "--min_auto_clock_count",
         type=int,
         default=2,
@@ -7377,8 +7497,11 @@ def main():
     ap.add_argument("--num_workers", type=int, default=4)
     ap.add_argument("--group_by_length", action="store_true")
     ap.add_argument(
-        "--family_sampling_power", type=float, default=0.5,
-        help="Sample families with probability proportional to count^(1-power).",
+        "--family_sampling_power", type=float, default=0.0,
+        help=(
+            "Optional family-reweighted sampling ablation. Production Stage-1 "
+            "uses 0.0, i.e. the ordinary seeded example order."
+        ),
     )
     ap.add_argument(
         "--family_sampling_replacement", action="store_true",
