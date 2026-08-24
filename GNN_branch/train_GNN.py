@@ -330,19 +330,24 @@ def write_gnn_checkpoint_contract(
             'training_target_mode': getattr(
                 FLAGS, 'target_mode', 'absolute'
             ),
-            'training_supervision': (
-                'reference_delta_qor+within_kernel_rank+resource_aux'
-                if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
-                else 'qor'
+            "training_supervision": (
+                "reference_delta_latency+physical_resource_regression"
+                if (
+                    FLAGS.target_mode == "reference_delta"
+                    and list(FLAGS.target) == ["perf"]
+                    and float(FLAGS.rank_aux_weight) == 0.0
+                    and float(FLAGS.resource_aux_weight) > 0.0
+                )
+                else "configured_qor_training_objective"
             ),
             'stage2_embedding_mode': 'static_pre_npt',
-            'reference_baseline_role': (
-                'training_target_and_optional_absolute_qor_calibration'
-            ),
+            "reference_baseline_role":
+            "training_target_for_latency_response_regression",
             'reference_baseline_required_for_stage2_memory': False,
-            'checkpoint_selection': (
-                'worst_target_kernel_macro_tau_b_after_'
-                'aggregate_zero_delta_qualification'
+            "checkpoint_selection": (
+                "minimum_complete_validation_training_objective"
+                if FLAGS.checkpoint_objective == "hardware_regression"
+                else "legacy_checkpoint_policy"
             ),
         },
         'shared_initialization_sha256': shared_initialization_sha256,
