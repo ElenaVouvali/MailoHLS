@@ -286,6 +286,7 @@ parser.add_argument(
         "embedding_rank",
         "structural_rank",
         "hardware_regression",
+        "qualified_lexicographic",
     ),
     default="absolute",
     help=(
@@ -298,9 +299,10 @@ parser.add_argument(
         "maximize worst-target kernel-macro Kendall tau-b for the "
         "Stage-2 structural encoder. Absolute QoR ratios are reported "
         "as diagnostics but are not qualification gates. "
-        "hardware_regression: minimize the complete validation training "
-        "objective (QoR regression plus enabled physical-resource heads); "
-        "this is the final MailoHLS GNN setting."
+        "hardware_regression minimizes the complete summed objective. "
+        "qualified_lexicographic requires calibrated perf/area and useful "
+        "resource heads, then prioritizes within-kernel ranking and resource "
+        "feasibility-boundary correctness."
     ),
 )
 parser.add_argument(
@@ -316,6 +318,15 @@ parser.add_argument(
     help=(
         "Maximum validation loss ratio to the zero/no-learning predictor for "
         "every individual kernel and target in a qualified-rank checkpoint."
+    ),
+)
+parser.add_argument(
+    "--kernel_zero_baseline_additive_tolerance",
+    type=float,
+    default=1e-3,
+    help=(
+        "Small configured-loss allowance for per-kernel zero-delta baselines "
+        "whose loss is numerically close to zero."
     ),
 )
 
@@ -467,6 +478,24 @@ parser.add_argument(
 )
 parser.add_argument('--rank_aux_weight', type=float, default=0.0)
 parser.add_argument('--rank_temperature', type=float, default=1.0)
+parser.add_argument(
+    '--pairwise_delta_weight',
+    type=float,
+    default=0.0,
+    help='Final weight of within-kernel Huber regression on target differences.',
+)
+parser.add_argument(
+    '--pairwise_delta_start_epoch',
+    type=int,
+    default=3,
+    help='First zero-based epoch that receives pairwise-delta supervision.',
+)
+parser.add_argument(
+    '--pairwise_delta_ramp_epochs',
+    type=int,
+    default=2,
+    help='Epochs used to ramp the pairwise-delta weight to its final value.',
+)
 rank_tie_group = parser.add_mutually_exclusive_group()
 rank_tie_group.add_argument(
     '--rank_tie_relative',
@@ -511,6 +540,28 @@ parser.add_argument(
     ),
 )
 parser.add_argument('--resource_boundary_tolerance', type=float, default=0.02)
+parser.add_argument(
+    '--resource_budget_bank',
+    type=str,
+    default=None,
+    help=(
+        'Exact validation_resource_budget_bank.json emitted by the selected '
+        'Stage-1 run. When omitted, an equivalent deterministic independent '
+        'per-kernel budget bank is generated from held-out resource usage.'
+    ),
+)
+parser.add_argument(
+    '--resource_budget_count',
+    type=int,
+    default=16,
+    help='Independent Stage-1-style resource budgets per validation kernel.',
+)
+parser.add_argument(
+    '--resource_budget_min_fraction',
+    type=float,
+    default=0.05,
+    help='Minimum Stage-1-style fraction for each resource budget.',
+)
 parser.add_argument('--kernel_grouped_sampling', action='store_true')
 parser.add_argument('--kernels_per_batch', type=int, default=16)
 parser.add_argument(
@@ -754,6 +805,12 @@ if FLAGS.kernel_uniform_sampling and FLAGS.kernel_grouped_sampling:
     )
 if FLAGS.rank_aux_weight < 0:
     parser.error('--rank_aux_weight must be non-negative.')
+if FLAGS.pairwise_delta_weight < 0:
+    parser.error('--pairwise_delta_weight must be non-negative.')
+if FLAGS.pairwise_delta_start_epoch < 0:
+    parser.error('--pairwise_delta_start_epoch must be non-negative.')
+if FLAGS.pairwise_delta_ramp_epochs <= 0:
+    parser.error('--pairwise_delta_ramp_epochs must be positive.')
 if FLAGS.rank_temperature <= 0:
     parser.error('--rank_temperature must be positive.')
 if FLAGS.rank_tie_relative is None and FLAGS.rank_tie_epsilon is None:
@@ -767,15 +824,15 @@ if FLAGS.rank_tie_relative is not None:
         parser.error('--rank_tie_relative requires --norm_method log2.')
 if FLAGS.rank_tie_epsilon is not None and FLAGS.rank_tie_epsilon < 0:
     parser.error('--rank_tie_epsilon must be non-negative.')
-if FLAGS.rank_aux_weight > 0:
+if FLAGS.rank_aux_weight > 0 or FLAGS.pairwise_delta_weight > 0:
     if not FLAGS.kernel_grouped_sampling:
         parser.error(
-            '--rank_aux_weight > 0 requires --kernel_grouped_sampling so '
+            'Pairwise supervision requires --kernel_grouped_sampling so '
             'same-kernel design points coexist in each microbatch.'
         )
     if FLAGS.points_per_kernel < 2:
         parser.error(
-            '--rank_aux_weight > 0 requires --points_per_kernel >= 2.'
+            'Pairwise supervision requires --points_per_kernel >= 2.'
         )
 if FLAGS.resource_aux_weight < 0:
     parser.error('--resource_aux_weight must be non-negative.')
@@ -802,6 +859,19 @@ elif FLAGS.paired_control_contract:
     )
 if FLAGS.resource_boundary_tolerance < 0:
     parser.error('--resource_boundary_tolerance must be non-negative.')
+if FLAGS.resource_budget_count <= 0:
+    parser.error('--resource_budget_count must be positive.')
+if not 0.0 < FLAGS.resource_budget_min_fraction <= 1.0:
+    parser.error('--resource_budget_min_fraction must be in (0, 1].')
+if FLAGS.resource_budget_bank and not Path(FLAGS.resource_budget_bank).is_file():
+    parser.error('--resource_budget_bank does not exist.')
+if FLAGS.kernel_zero_baseline_additive_tolerance < 0:
+    parser.error('--kernel_zero_baseline_additive_tolerance must be non-negative.')
+if FLAGS.checkpoint_objective == 'qualified_lexicographic':
+    if set(FLAGS.target) != {'perf', 'area'}:
+        parser.error('qualified_lexicographic requires --target perf area.')
+    if FLAGS.resource_aux_weight <= 0:
+        parser.error('qualified_lexicographic requires resource auxiliary heads.')
 if not -1.0 <= FLAGS.min_rank_tau <= 1.0:
     parser.error('--min_rank_tau must be between -1 and 1.')
 if FLAGS.max_kernel_zero_baseline_ratio <= 0:

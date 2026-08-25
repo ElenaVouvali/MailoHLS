@@ -44,8 +44,10 @@ from collections import Counter, OrderedDict, defaultdict
 import pandas as pd
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
+import random
 import subprocess
 
 RESOURCE_NAMES = ("bram", "dsp", "ff", "lut")
@@ -109,6 +111,10 @@ def snapshot_gnn_training_artifacts():
         )
     if FLAGS.split_json:
         sources['experiment_split.json'] = Path(FLAGS.split_json).resolve()
+    if getattr(FLAGS, 'resource_budget_bank', None):
+        sources['validation_resource_budget_bank.json'] = (
+            Path(FLAGS.resource_budget_bank).expanduser().resolve()
+        )
 
     files = {}
     for name, source in sources.items():
@@ -331,6 +337,14 @@ def write_gnn_checkpoint_contract(
                 FLAGS, 'target_mode', 'absolute'
             ),
             "training_supervision": (
+                "reference_delta_perf_area+physical_resources+within_kernel_delta_pairs"
+                if (
+                    FLAGS.target_mode == "reference_delta"
+                    and set(FLAGS.target) == {"perf", "area"}
+                    and float(getattr(FLAGS, "pairwise_delta_weight", 0.0)) > 0.0
+                    and float(FLAGS.resource_aux_weight) > 0.0
+                )
+                else
                 "reference_delta_latency+physical_resource_regression"
                 if (
                     FLAGS.target_mode == "reference_delta"
@@ -342,15 +356,28 @@ def write_gnn_checkpoint_contract(
             ),
             'stage2_embedding_mode': 'static_pre_npt',
             "reference_baseline_role":
-            "training_target_for_latency_response_regression",
+            "training_target_for_qor_response_regression",
             'reference_baseline_required_for_stage2_memory': False,
             "checkpoint_selection": (
+                "qualified_lexicographic_rank_resource_boundary_and_balanced_regression"
+                if FLAGS.checkpoint_objective == "qualified_lexicographic"
+                else
                 "minimum_complete_validation_training_objective"
                 if FLAGS.checkpoint_objective == "hardware_regression"
                 else "legacy_checkpoint_policy"
             ),
         },
         'shared_initialization_sha256': shared_initialization_sha256,
+        'validation_resource_budget_bank': (
+            {
+                'path': str(Path(FLAGS.resource_budget_bank).expanduser().resolve()),
+                'sha256': _sha256_file(
+                    Path(FLAGS.resource_budget_bank).expanduser().resolve()
+                ),
+            }
+            if getattr(FLAGS, 'resource_budget_bank', None)
+            else None
+        ),
         'training_artifacts': training_artifacts,
     }
     path = Path(saver.model_logdir) / 'gnn_checkpoint_contract.json'
@@ -801,6 +828,63 @@ def should_update_embedding_rank(
     return qualified and improved
 
 
+def qualified_lexicographic_metrics(
+    target_ratios,
+    per_kernel_target_ratios,
+    ranking_score,
+    resource_report,
+):
+    """Qualify calibrated QoR/resource heads before comparing encoder rank."""
+    if not target_ratios or not per_kernel_target_ratios:
+        raise RuntimeError('Lexicographic selection requires target baseline ratios.')
+    if not resource_report or not resource_report.get('resources'):
+        raise RuntimeError('Lexicographic selection requires resource-head metrics.')
+    perf_ratios = [
+        float(value)
+        for key, value in per_kernel_target_ratios.items()
+        if str(key).rsplit('/', 1)[-1] in {'perf', 'actual_perf'}
+    ]
+    if not perf_ratios:
+        raise RuntimeError('Lexicographic selection requires per-kernel perf ratios.')
+    resource_ratios = {
+        row['resource']: float(row['mae_baseline_ratio'])
+        for row in resource_report['resources']
+    }
+    boundary = resource_report['independent_budget_summary']
+    boundary_accuracy = float(boundary['boundary_balanced_accuracy'])
+    if not np.isfinite(boundary_accuracy):
+        boundary_accuracy = 0.0
+    false_feasible = float(boundary['false_feasible_fdr'])
+    target_qualified = all(float(ratio) < 1.0 for ratio in target_ratios.values())
+    kernel_qualified = max(perf_ratios) <= float(FLAGS.max_kernel_zero_baseline_ratio)
+    resource_qualified = all(value < 1.0 for value in resource_ratios.values())
+    rank_qualified = float(ranking_score) >= float(FLAGS.min_rank_tau)
+    return {
+        'qualified': (
+            target_qualified and kernel_qualified and resource_qualified and rank_qualified
+        ),
+        'target_qualified': target_qualified,
+        'kernel_perf_qualified': kernel_qualified,
+        'resource_qualified': resource_qualified,
+        'rank_qualified': rank_qualified,
+        'worst_kernel_perf_ratio': max(perf_ratios),
+        'resource_mae_ratios': resource_ratios,
+        'boundary_balanced_accuracy': boundary_accuracy,
+        'false_feasible_fdr': false_feasible,
+        'ranking_score': float(ranking_score),
+    }
+
+
+def scheduled_pairwise_delta_weight(epoch):
+    """Leave zero-delta calibration alone before gradually adding differences."""
+    maximum = float(getattr(FLAGS, 'pairwise_delta_weight', 0.0))
+    start = int(getattr(FLAGS, 'pairwise_delta_start_epoch', 3))
+    ramp = max(1, int(getattr(FLAGS, 'pairwise_delta_ramp_epochs', 2)))
+    if int(epoch) < start:
+        return 0.0
+    return maximum * min(1.0, float(int(epoch) - start + 1) / float(ramp))
+
+
 def compute_per_kernel_target_baseline_ratios(points_dict, target_stats):
     """Compare each validation kernel/target loss with its no-learning loss."""
     ratios = {}
@@ -809,12 +893,26 @@ def compute_per_kernel_target_baseline_ratios(points_dict, target_stats):
             raise RuntimeError(f'Missing target statistics for {target!r}.')
         kernels = values['kernel']
         predictions = values['pred']
-        if not kernels or len(kernels) != len(predictions):
+        delta_mode = getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
+        actual_values = (
+            values.get('actual_delta_log2', [])
+            if delta_mode else [pair[0] for pair in predictions]
+        )
+        predicted_values = (
+            values.get('predicted_delta_log2', [])
+            if delta_mode else [pair[1] for pair in predictions]
+        )
+        if (
+            not kernels
+            or len(kernels) != len(predictions)
+            or len(kernels) != len(actual_values)
+            or len(kernels) != len(predicted_values)
+        ):
             raise RuntimeError(f'Incomplete validation points for {target!r}.')
 
         baseline_prediction = (
             0.0
-            if getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
+            if delta_mode
             else float(target_stats[target]['mean'])
         )
         standardizer = (
@@ -828,10 +926,10 @@ def compute_per_kernel_target_baseline_ratios(points_dict, target_stats):
                 if value == kernel
             ]
             actual = np.asarray(
-                [predictions[index][0] for index in indices], dtype=np.float64
+                [actual_values[index] for index in indices], dtype=np.float64
             )
             predicted = np.asarray(
-                [predictions[index][1] for index in indices], dtype=np.float64
+                [predicted_values[index] for index in indices], dtype=np.float64
             )
             model_loss = float(np.mean(_point_loss_from_error(
                 (actual - predicted) / standardizer
@@ -842,12 +940,23 @@ def compute_per_kernel_target_baseline_ratios(points_dict, target_stats):
             if str(FLAGS.loss).lower() == 'rmse':
                 model_loss = float(np.sqrt(model_loss))
                 baseline_loss = float(np.sqrt(baseline_loss))
-            if not np.isfinite(baseline_loss) or baseline_loss <= 1e-12:
+            if not np.isfinite(baseline_loss) or baseline_loss < 0.0:
                 raise RuntimeError(
                     'Invalid per-kernel no-learning baseline for '
                     f'{kernel}/{target}: {baseline_loss!r}'
                 )
-            ratio = model_loss / baseline_loss
+            tolerance = float(getattr(
+                FLAGS, 'kernel_zero_baseline_additive_tolerance', 1e-3
+            ))
+            denominator = (
+                baseline_loss + tolerance
+                if baseline_loss <= tolerance
+                else baseline_loss
+            )
+            if denominator <= 1e-12:
+                ratio = 0.0 if model_loss <= 1e-12 else float('inf')
+            else:
+                ratio = model_loss / denominator
             if not np.isfinite(ratio) or ratio < 0.0:
                 raise RuntimeError(
                     f'Invalid per-kernel target ratio for {kernel}/{target}: '
@@ -1345,7 +1454,7 @@ def update_total_loss(loss, data, target_list, loss_dict, loss_dict_, out_dict, 
             model_key = 'perf' if FLAGS.encode_log and t == 'actual_perf' else t
             loss_dict[t] += loss_dict_[model_key].item() * batch_weight
         for key, value in loss_dict_.items():
-            if key.startswith('rank_aux/'):
+            if key.startswith(('rank_aux/', 'pairwise_delta/')):
                 loss_dict.setdefault(key, 0.0)
                 loss_dict[key] += value.item() * batch_weight
         return loss_dict, total_loss
@@ -1411,6 +1520,109 @@ def _parse_resource_eval_budgets(spec):
     return budgets
 
 
+def _resource_case_identity(kernel, device, clock_period_ns):
+    return (
+        str(kernel).strip().replace('-', '_').lower(),
+        str(device).strip().lower(),
+        round(float(clock_period_ns), 2),
+    )
+
+
+def _load_stage1_resource_budget_bank(path):
+    if not path:
+        return {}
+    payload = json.loads(Path(path).read_text(encoding='utf-8'))
+    if payload.get('schema') != 'mailohls-stage1-validation-resource-budget-bank-v1':
+        raise RuntimeError(f'Unsupported Stage-1 validation budget bank: {path}')
+    if payload.get('resource_order') != list(RESOURCE_NAMES):
+        raise RuntimeError('Stage-1 validation budget resource ordering is incompatible.')
+    grouped = defaultdict(list)
+    for case in payload.get('cases', []):
+        vector = np.asarray(case['fractions'], dtype=np.float64)
+        if vector.shape != (len(RESOURCE_NAMES),) or not np.isfinite(vector).all():
+            raise RuntimeError(f'Invalid Stage-1 resource budget: {case!r}')
+        grouped[_resource_case_identity(
+            case['kernel'], case['device'], case['clock_period_ns']
+        )].append(vector)
+    if not grouped:
+        raise RuntimeError('The Stage-1 validation resource budget bank is empty.')
+    return dict(grouped)
+
+
+def _generated_stage1_style_budgets(kernel, device, actual):
+    """Deterministic independent fallback when no exact Stage-1 bank is supplied."""
+    count = int(getattr(FLAGS, 'resource_budget_count', 16))
+    floor = float(getattr(FLAGS, 'resource_budget_min_fraction', 0.05))
+    case_key = (str(kernel), str(device).strip().lower())
+    payload = repr((tuple(case_key), int(FLAGS.random_seed) + 10_000)).encode('utf-8')
+    seed = int.from_bytes(hashlib.sha256(payload).digest()[:8], 'big')
+    rng = random.Random(seed)
+    budgets = {(1.0,) * len(RESOURCE_NAMES)}
+    actual = np.asarray(actual, dtype=np.float64)
+    if len(actual) >= 3:
+        pressure = np.max(actual, axis=1) + np.mean(actual, axis=1)
+        cheapest = np.argsort(pressure, kind='stable')
+        anchors = set(cheapest[: min(len(actual), 24)].tolist())
+        for index in range(len(RESOURCE_NAMES)):
+            anchors.update(np.argsort(actual[:, index], kind='stable')[:24].tolist())
+        frontier = set()
+        for index in sorted(anchors):
+            support = [index] + [int(item) for item in cheapest if int(item) != index][:2]
+            envelope = np.max(actual[support], axis=0)
+            if np.any(envelope > 1.0):
+                continue
+            frontier.add(tuple(round(min(1.0, max(
+                floor, math.ceil(float(value) * 100.0 - 1e-9) / 100.0
+            )), 2) for value in envelope))
+        limit = min(max(0, count - 1), max(1, (count - 1) // 2) if count > 1 else 0)
+        frontier -= budgets
+        while len(budgets) < 1 + limit and frontier:
+            selected = max(frontier, key=lambda candidate: (
+                min(sum(abs(a - b) for a, b in zip(candidate, previous))
+                    for previous in budgets),
+                -sum(candidate),
+                tuple(-value for value in candidate),
+            ))
+            budgets.add(selected)
+            frontier.remove(selected)
+    attempts = 0
+    while len(budgets) < count and attempts < max(100, count * 50):
+        attempts += 1
+        budgets.add(tuple(round(rng.uniform(floor, 1.0), 2)
+                          for _ in RESOURCE_NAMES))
+    return [np.asarray(values, dtype=np.float64) for values in sorted(budgets)]
+
+
+def _feasibility_outcome_metrics(actual_feasible, predicted_feasible, boundary):
+    actual_feasible = np.asarray(actual_feasible, dtype=bool)
+    predicted_feasible = np.asarray(predicted_feasible, dtype=bool)
+    boundary = np.asarray(boundary, dtype=bool)
+    false_feasible = predicted_feasible & ~actual_feasible
+    boundary_rates = []
+    for expected in (False, True):
+        selected = boundary & (actual_feasible == expected)
+        if np.any(selected):
+            boundary_rates.append(float(np.mean(
+                predicted_feasible[selected] == actual_feasible[selected]
+            )))
+    return {
+        'accuracy': float(np.mean(predicted_feasible == actual_feasible)),
+        'false_feasible_fdr': float(
+            false_feasible.sum() / max(int(predicted_feasible.sum()), 1)
+        ),
+        'false_feasible_rate': float(false_feasible.mean()),
+        'boundary_accuracy': (
+            float(np.mean(predicted_feasible[boundary] == actual_feasible[boundary]))
+            if boundary.any() else float('nan')
+        ),
+        'boundary_balanced_accuracy': (
+            float(np.mean(boundary_rates)) if boundary_rates else float('nan')
+        ),
+        'boundary_samples': int(boundary.sum()),
+        'sample_count': int(len(actual_feasible)),
+    }
+
+
 def resource_feasibility_metrics(actual, predicted, budget, tolerance):
     """Evaluate joint feasibility and its signed max-constraint boundary."""
     actual = np.asarray(actual, dtype=np.float64)
@@ -1421,6 +1633,12 @@ def resource_feasibility_metrics(actual, predicted, budget, tolerance):
     false_feasible = predicted_feasible & ~actual_feasible
     joint_margin = np.max(actual - budget, axis=1)
     boundary = np.abs(joint_margin) <= float(tolerance)
+    boundary_rates = [
+        float(np.mean(predicted_feasible[selected] == actual_feasible[selected]))
+        for expected in (False, True)
+        for selected in [boundary & (actual_feasible == expected)]
+        if np.any(selected)
+    ]
     return {
         'accuracy': float(np.mean(predicted_feasible == actual_feasible)),
         'false_feasible_fdr': float(
@@ -1428,17 +1646,28 @@ def resource_feasibility_metrics(actual, predicted, budget, tolerance):
         ),
         'false_feasible_rate': float(false_feasible.mean()),
         'boundary_accuracy': (
-            float(np.mean(
-                predicted_feasible[boundary] == actual_feasible[boundary]
-            )) if boundary.any() else float('nan')
+            float(np.mean(predicted_feasible[boundary] == actual_feasible[boundary]))
+            if boundary.any() else float('nan')
+        ),
+        'boundary_balanced_accuracy': (
+            float(np.mean(boundary_rates)) if boundary_rates else float('nan')
         ),
         'boundary_samples': int(boundary.sum()),
+        'sample_count': int(len(actual_feasible)),
         'joint_margin': joint_margin,
         'boundary_mask': boundary,
+        'actual_feasible': actual_feasible,
+        'predicted_feasible': predicted_feasible,
     }
 
 
-def report_resource_metrics(resource_rows, label):
+def report_resource_metrics(
+    resource_rows,
+    label,
+    training_diagnostics=None,
+    *,
+    allow_unseen_cases=False,
+):
     """Report stable physical and feasibility metrics for resource heads."""
     if not resource_rows:
         return None
@@ -1454,7 +1683,7 @@ def report_resource_metrics(resource_rows, label):
                 actual[selected, index], predicted[selected, index]
             )[0]
             kernel_taus.append(0.0 if not np.isfinite(tau) else float(tau))
-        rows.append({
+        row = {
             'resource': resource,
             'mae_percentage_points': float(
                 np.mean(np.abs(predicted[:, index] - actual[:, index])) * 100.0
@@ -1463,22 +1692,90 @@ def report_resource_metrics(resource_rows, label):
                 np.mean(predicted[:, index] - actual[:, index]) * 100.0
             ),
             'kernel_macro_tau': float(np.mean(kernel_taus)),
-        })
+        }
+        if training_diagnostics is not None:
+            constant = float(training_diagnostics[resource]['train_mean_baseline'])
+            baseline_mae = float(np.mean(np.abs(actual[:, index] - constant)) * 100.0)
+            row['constant_train_mean_validation_mae_percentage_points'] = baseline_mae
+            row['mae_baseline_ratio'] = (
+                row['mae_percentage_points'] / baseline_mae
+                if baseline_mae > 1e-12
+                else (0.0 if row['mae_percentage_points'] <= 1e-12 else float('inf'))
+            )
+            row['beats_constant_train_mean'] = (
+                row['mae_percentage_points'] < baseline_mae
+            )
+        rows.append(row)
 
+    exact_bank = _load_stage1_resource_budget_bank(
+        getattr(FLAGS, 'resource_budget_bank', None)
+    )
     feasibility = []
+    generated_unseen_cases = 0
+    pooled_actual, pooled_predicted, pooled_boundary = [], [], []
     tolerance = float(FLAGS.resource_boundary_tolerance)
-    for budget in _parse_resource_eval_budgets(FLAGS.resource_eval_budgets):
-        metrics = resource_feasibility_metrics(
-            actual, predicted, budget, tolerance
+    case_groups = defaultdict(list)
+    for index, row in enumerate(resource_rows):
+        identity = _resource_case_identity(
+            row['kernel'],
+            row.get('device', FLAGS.target_device),
+            row.get('clock_period_ns', FLAGS.clock_period_ns),
         )
+        case_groups[identity].append(index)
+    for identity, indices in sorted(case_groups.items()):
+        kernel_actual = actual[indices]
+        kernel_predicted = predicted[indices]
+        budgets = exact_bank.get(identity)
+        if exact_bank and not budgets and not allow_unseen_cases:
+            raise RuntimeError(
+                'Exact Stage-1 validation budget bank lacks GNN validation case: '
+                f'{identity!r}'
+            )
+        if not budgets:
+            if exact_bank:
+                generated_unseen_cases += 1
+            budgets = _generated_stage1_style_budgets(
+                resource_rows[indices[0]]['kernel'], identity[1], kernel_actual
+            )
+        case_actual, case_predicted, case_boundary = [], [], []
+        for budget in budgets:
+            metrics = resource_feasibility_metrics(
+                kernel_actual, kernel_predicted, budget, tolerance
+            )
+            case_actual.extend(metrics['actual_feasible'].tolist())
+            case_predicted.extend(metrics['predicted_feasible'].tolist())
+            case_boundary.extend(metrics['boundary_mask'].tolist())
+        pooled_actual.extend(case_actual)
+        pooled_predicted.extend(case_predicted)
+        pooled_boundary.extend(case_boundary)
         feasibility.append({
-            'budget': budget.tolist(),
-            **{
-                key: value for key, value in metrics.items()
-                if key not in {'joint_margin', 'boundary_mask'}
-            },
+            'kernel': resource_rows[indices[0]]['kernel'],
+            'device': identity[1],
+            'clock_period_ns': identity[2],
+            'budget_count': len(budgets),
+            **_feasibility_outcome_metrics(
+                case_actual, case_predicted, case_boundary
+            ),
         })
-    report = {'resources': rows, 'feasibility': feasibility}
+    report = {
+        'resources': rows,
+        'feasibility': feasibility,
+        'budget_policy': (
+            'deterministic_stage1_style_independent_budgets_for_unseen_test_cases'
+            if generated_unseen_cases
+            else 'exact_stage1_validation_bank'
+            if exact_bank
+            else 'deterministic_stage1_style_independent_budgets'
+        ),
+        'generated_unseen_case_count': generated_unseen_cases,
+        'independent_budget_summary': _feasibility_outcome_metrics(
+            pooled_actual, pooled_predicted, pooled_boundary
+        ),
+    }
+    if training_diagnostics is not None:
+        report['all_resource_heads_beat_constant_baseline'] = all(
+            row['beats_constant_train_mean'] for row in rows
+        )
     saver.log_info(f'{label} resource metrics: {report}')
     return report
 
@@ -1774,6 +2071,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     val_selection_scores = []
     val_selection_ratios = []
     val_ranking_scores = []
+    val_control_scores = []
+    val_per_kernel_ratios = []
+    val_resource_reports = []
     gae_train_losses, gae_val_losses, gae_test_losses = [], [], []
     plot_test = False
     best_stopping_loss = float('inf')
@@ -1793,6 +2093,11 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     best_structural_rank_kernel_ratios = None
     best_hardware_regression_loss = float("inf")
     best_hardware_regression_epoch = None
+    best_lexicographic_control = float('inf')
+    best_lexicographic_epoch = None
+    best_lexicographic_ratios = None
+    best_lexicographic_kernel_ratios = None
+    best_lexicographic_qualification = None
 
     if FLAGS.resume_training and exists(ckpt_path):
         st = torch.load(ckpt_path, map_location='cpu')
@@ -1812,6 +2117,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         val_selection_scores = st.get("val_selection_scores", [])
         val_selection_ratios = st.get("val_selection_ratios", [])
         val_ranking_scores = st.get("val_ranking_scores", [])
+        val_control_scores = st.get("val_control_scores", [])
+        val_per_kernel_ratios = st.get("val_per_kernel_ratios", [])
+        val_resource_reports = st.get("val_resource_reports", [])
         initial_selection = st.get("initial_selection")
         initial_ratios = st.get("initial_ratios")
         best_qualified_rank_score = st.get(
@@ -1831,17 +2139,38 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         best_embedding_rank_ratios = st.get(
             "best_embedding_rank_ratios"
         )
+        best_structural_rank_score = st.get(
+            "best_structural_rank_score", float('-inf')
+        )
+        best_structural_rank_epoch = st.get("best_structural_rank_epoch")
+        best_structural_rank_ratios = st.get("best_structural_rank_ratios")
+        best_structural_rank_kernel_ratios = st.get(
+            "best_structural_rank_kernel_ratios"
+        )
         best_hardware_regression_loss = st.get(
             "best_hardware_regression_loss", float("inf")
         )
         best_hardware_regression_epoch = st.get(
             "best_hardware_regression_epoch"
         )
+        best_lexicographic_control = st.get(
+            'best_lexicographic_control', float('inf')
+        )
+        best_lexicographic_epoch = st.get('best_lexicographic_epoch')
+        best_lexicographic_ratios = st.get('best_lexicographic_ratios')
+        best_lexicographic_kernel_ratios = st.get(
+            'best_lexicographic_kernel_ratios'
+        )
+        best_lexicographic_qualification = st.get(
+            'best_lexicographic_qualification'
+        )
         stored_baseline = st.get("baseline_breakdown")
         if val_losses and (
             len(val_selection_scores) != len(val_losses)
             or len(val_selection_ratios) != len(val_losses)
             or len(val_ranking_scores) != len(val_losses)
+            or len(val_per_kernel_ratios) != len(val_losses)
+            or len(val_resource_reports) != len(val_losses)
         ):
             raise RuntimeError(
                 "Checkpoint predates qualified-rank validation selection or "
@@ -1857,39 +2186,39 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "Restart without --resume_training."
             )
         if val_selection_scores:
-            if FLAGS.checkpoint_objective == 'embedding_rank':
-                control_scores = [
-                    embedding_rank_control_score(
-                        selection_score,
-                        target_ratios,
-                        ranking_score,
-                    )
-                    for selection_score, target_ratios, ranking_score
-                    in zip(
-                        val_selection_scores,
-                        val_selection_ratios,
-                        val_ranking_scores,
-                    )
-                ]
-                best_stopping_loss = min(control_scores)
-                best_index = control_scores.index(best_stopping_loss)
-
-            elif FLAGS.checkpoint_objective == "structural_rank":
-                if best_structural_rank_epoch is None:
-                    raise RuntimeError(
-                        "No structural-rank checkpoint reached --min_rank_tau."
-                    )
-
-                selection_tag = "val_structural_rank"
-                selection_epoch = best_structural_rank_epoch
-                selection_path = join(
-                    saver.model_logdir,
-                    "val_structural_rank_model_state_dict.pth",
+            reconstructed_scores = [
+                validation_control_score(
+                    FLAGS.checkpoint_objective,
+                    selection_score,
+                    target_ratios,
+                    ranking_score,
+                    total_validation_loss=validation_loss,
+                    per_kernel_target_ratios=kernel_ratios,
+                    resource_report=resource_report,
                 )
-                
-            else:
-                best_stopping_loss = min(val_selection_scores)
-                best_index = val_selection_scores.index(best_stopping_loss)
+                for (
+                    selection_score,
+                    target_ratios,
+                    ranking_score,
+                    validation_loss,
+                    kernel_ratios,
+                    resource_report,
+                ) in zip(
+                    val_selection_scores,
+                    val_selection_ratios,
+                    val_ranking_scores,
+                    val_losses,
+                    val_per_kernel_ratios,
+                    val_resource_reports,
+                )
+            ]
+            if val_control_scores and not np.allclose(
+                val_control_scores, reconstructed_scores, rtol=0.0, atol=1e-12
+            ):
+                raise RuntimeError('Stored validation control history is inconsistent.')
+            val_control_scores = reconstructed_scores
+            best_stopping_loss = min(val_control_scores)
+            best_index = val_control_scores.index(best_stopping_loss)
             epochs_without_improvement = max(
                 0,
                 len(val_selection_scores)
@@ -1907,7 +2236,12 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
 
     if start_epoch == 0 and len(val_loader) > 0:
         initial_val, initial_breakdown, initial_gae, _ = test(
-            val_loader, 'initial_val', model, -1, test_losses=[]
+            val_loader,
+            'initial_val',
+            model,
+            -1,
+            test_losses=[],
+            qualification_resource_diagnostics=resource_diagnostics,
         )
         initial_selection, initial_ratios = compute_validation_selection_score(
             initial_breakdown, baseline_breakdown
@@ -1921,6 +2255,11 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         log_loss(initial_breakdown, initial_gae, 'Initial validation')
 
     for epoch in range(start_epoch, FLAGS.epoch_num):
+        model.current_pairwise_delta_weight = scheduled_pairwise_delta_weight(epoch)
+        saver.log_info(
+            f'Pairwise delta auxiliary weight at epoch {epoch}: '
+            f'{model.current_pairwise_delta_weight:.6f}'
+        )
         plot_test = False
         timer = OurTimer()
         if (
@@ -1945,6 +2284,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 epoch,
                 return_metrics=True,
                 qualification_target_stats=target_stats,
+                qualification_resource_diagnostics=resource_diagnostics,
             )
             val_losses.append(val)
             current_selection_score, target_ratios = (
@@ -1990,6 +2330,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 raise RuntimeError(
                     'Validation metrics lack per-kernel target baseline ratios.'
                 )
+            resource_report = val_metrics.attrs.get('resource_report')
+            val_per_kernel_ratios.append(dict(per_kernel_target_ratios))
+            val_resource_reports.append(resource_report)
             worst_kernel_ratio = max(per_kernel_target_ratios.values())
             qualified = (
                 all(float(ratio) < 1.0 for ratio in target_ratios.values())
@@ -2014,13 +2357,35 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 )
                 else 'zero_delta_qualification'
             )
+            current_control_score = validation_control_score(
+                FLAGS.checkpoint_objective,
+                current_selection_score,
+                target_ratios,
+                ranking_score,
+                total_validation_loss=val,
+                per_kernel_target_ratios=per_kernel_target_ratios,
+                resource_report=resource_report,
+            )
+            val_control_scores.append(current_control_score)
+            lexicographic_qualification = (
+                qualified_lexicographic_metrics(
+                    target_ratios,
+                    per_kernel_target_ratios,
+                    ranking_score,
+                    resource_report,
+                )
+                if FLAGS.checkpoint_objective == 'qualified_lexicographic'
+                else None
+            )
             saver.log_info(
                 f'Validation worst-target kernel-macro tau-b: '
                 f'{ranking_score:.6f}; worst kernel/target baseline ratio='
                 f'{worst_kernel_ratio:.6f}; qualified_rank={qualified}; '
                 f'embedding_rank_qualified={embedding_rank_qualified}; '
                 f'embedding_control_phase={embedding_control_phase}; '
-                f'embedding_control_score={embedding_control_score:.6f}'
+                f'embedding_control_score={embedding_control_score:.6f}; '
+                f'active_control_score={current_control_score:.6f}; '
+                f'lexicographic_qualification={lexicographic_qualification}'
             )
             saver.writer.add_scalar(
                 'val/worst_target_kernel_macro_tau', ranking_score, epoch
@@ -2104,6 +2469,31 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                         "val_structural_rank",
                         epoch,
                     )
+            if (
+                FLAGS.checkpoint_objective == 'qualified_lexicographic'
+                and lexicographic_qualification['qualified']
+                and current_control_score < best_lexicographic_control
+            ):
+                best_lexicographic_control = current_control_score
+                best_lexicographic_epoch = epoch
+                best_lexicographic_ratios = dict(target_ratios)
+                best_lexicographic_kernel_ratios = dict(per_kernel_target_ratios)
+                best_lexicographic_qualification = dict(lexicographic_qualification)
+                if FLAGS.save_model:
+                    save_checkpoint_with_sidecar(
+                        model.state_dict(),
+                        join(
+                            saver.model_logdir,
+                            'val_qualified_lexicographic_model_state_dict.pth',
+                        ),
+                        'val_qualified_lexicographic',
+                        epoch,
+                    )
+                saver.log_info(
+                    'Saved qualified lexicographic model at epoch '
+                    f'{epoch}; control={current_control_score:.6f}; '
+                    f'qualification={lexicographic_qualification}'
+                )
             saver.writer.add_scalar('val/total_objective', val, epoch)
             plot_test = model_update(
                 model,
@@ -2117,20 +2507,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 FLAGS.scheduler == 'plateau'
                 and epoch + 1 >= int(FLAGS.warmup_epochs)
             ):
-                scheduler_score = (
-                    val
-                    if FLAGS.checkpoint_objective == "hardware_regression"
-                    else (
-                        embedding_rank_control_score(
-                            current_selection_score,
-                            target_ratios,
-                            ranking_score,
-                        )
-                        if FLAGS.checkpoint_objective == "embedding_rank"
-                        else current_selection_score
-                    )
-                )
-                lr_scheduler.step(scheduler_score)
+                lr_scheduler.step(current_control_score)
 
         log_loss(loss_dict_train, gae_loss_train, "Train")
         if len(val_loader) > 0:
@@ -2156,6 +2533,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "val_selection_scores": val_selection_scores,
                 "val_selection_ratios": val_selection_ratios,
                 "val_ranking_scores": val_ranking_scores,
+                "val_control_scores": val_control_scores,
+                "val_per_kernel_ratios": val_per_kernel_ratios,
+                "val_resource_reports": val_resource_reports,
                 "best_qualified_rank_score": best_qualified_rank_score,
                 "best_qualified_rank_epoch": best_qualified_rank_epoch,
                 "best_qualified_rank_ratios": best_qualified_rank_ratios,
@@ -2165,8 +2545,23 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "best_embedding_rank_score": best_embedding_rank_score,
                 "best_embedding_rank_epoch": best_embedding_rank_epoch,
                 "best_embedding_rank_ratios": best_embedding_rank_ratios,
+                "best_structural_rank_score": best_structural_rank_score,
+                "best_structural_rank_epoch": best_structural_rank_epoch,
+                "best_structural_rank_ratios": best_structural_rank_ratios,
+                "best_structural_rank_kernel_ratios": (
+                    best_structural_rank_kernel_ratios
+                ),
                 "best_hardware_regression_loss": best_hardware_regression_loss,
                 "best_hardware_regression_epoch": best_hardware_regression_epoch,
+                "best_lexicographic_control": best_lexicographic_control,
+                "best_lexicographic_epoch": best_lexicographic_epoch,
+                "best_lexicographic_ratios": best_lexicographic_ratios,
+                "best_lexicographic_kernel_ratios": (
+                    best_lexicographic_kernel_ratios
+                ),
+                "best_lexicographic_qualification": (
+                    best_lexicographic_qualification
+                ),
                 "initial_selection": initial_selection,
                 "initial_ratios": initial_ratios,
                 "test_losses": test_losses,
@@ -2197,22 +2592,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                     f'{epoch_10_path}, {epoch_10_model_path}'
                 )
 
-        selection_loss = (
-            (
-                val
-                if FLAGS.checkpoint_objective == "hardware_regression"
-                else (
-                    embedding_rank_control_score(
-                        current_selection_score,
-                        target_ratios,
-                        ranking_score,
-                    )
-                    if FLAGS.checkpoint_objective == "embedding_rank"
-                    else current_selection_score
-                )
-            )
-            if len(val_loader) > 0 else loss
-        )
+        selection_loss = current_control_score if len(val_loader) > 0 else loss
         if selection_loss < (
             best_stopping_loss - float(FLAGS.early_stopping_min_delta)
         ):
@@ -2284,9 +2664,13 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             model,
             absolute_epoch,
             test_losses=[],
+            qualification_target_stats=target_stats,
+            qualification_resource_diagnostics=resource_diagnostics,
         )
         if (
-            FLAGS.checkpoint_objective != "hardware_regression"
+            FLAGS.checkpoint_objective not in {
+                "hardware_regression", "qualified_lexicographic"
+            }
             and (
                 absolute_score >= 1.0
                 or not all(
@@ -2336,6 +2720,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 model,
                 best_qualified_rank_epoch,
                 test_losses=[],
+                qualification_target_stats=target_stats,
+                qualification_resource_diagnostics=resource_diagnostics,
             )
 
         embedding_rank_path = join(
@@ -2369,6 +2755,8 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 model,
                 best_embedding_rank_epoch,
                 test_losses=[],
+                qualification_target_stats=target_stats,
+                qualification_resource_diagnostics=resource_diagnostics,
             )
 
         if FLAGS.checkpoint_objective == "hardware_regression":
@@ -2405,6 +2793,37 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             selection_tag = 'val_embedding_rank'
             selection_epoch = best_embedding_rank_epoch
             selection_path = embedding_rank_path
+        elif FLAGS.checkpoint_objective == 'structural_rank':
+            if best_structural_rank_epoch is None:
+                raise RuntimeError(
+                    'No structural-rank checkpoint reached --min_rank_tau.'
+                )
+            selection_tag = 'val_structural_rank'
+            selection_epoch = best_structural_rank_epoch
+            selection_path = join(
+                saver.model_logdir, 'val_structural_rank_model_state_dict.pth'
+            )
+        elif FLAGS.checkpoint_objective == 'qualified_lexicographic':
+            if best_lexicographic_epoch is None:
+                raise RuntimeError(
+                    'No epoch simultaneously passed perf/area zero-delta, '
+                    'per-kernel perf, resource-head, and ranking qualifications. '
+                    'The held-out test set remains locked.'
+                )
+            qualification = qualified_lexicographic_metrics(
+                best_lexicographic_ratios,
+                best_lexicographic_kernel_ratios,
+                best_lexicographic_qualification['ranking_score'],
+                val_resource_reports[best_lexicographic_epoch],
+            )
+            if not qualification['qualified']:
+                raise RuntimeError('The saved lexicographic checkpoint no longer qualifies.')
+            selection_tag = 'val_qualified_lexicographic'
+            selection_epoch = best_lexicographic_epoch
+            selection_path = join(
+                saver.model_logdir,
+                'val_qualified_lexicographic_model_state_dict.pth',
+            )
         else:
             selection_tag = 'val'
             selection_epoch = absolute_epoch
@@ -2413,6 +2832,70 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         # The optional held-out evaluation below must use exactly the declared
         # checkpoint objective, independent of report ordering above.
         restore_checkpoint(selection_path, f'{selection_tag}-selected')
+        active_val, active_breakdown, _, _, active_metrics = test(
+            val_loader,
+            'active_selected_val',
+            model,
+            selection_epoch,
+            test_losses=[],
+            return_metrics=True,
+            qualification_target_stats=target_stats,
+            qualification_resource_diagnostics=resource_diagnostics,
+        )
+        active_selection, active_ratios = compute_validation_selection_score(
+            active_breakdown, baseline_breakdown
+        )
+        active_ranking = compute_macro_ranking_score(active_metrics)
+        active_control = validation_control_score(
+            FLAGS.checkpoint_objective,
+            active_selection,
+            active_ratios,
+            active_ranking,
+            total_validation_loss=active_val,
+            per_kernel_target_ratios=active_metrics.attrs[
+                'per_kernel_target_baseline_ratios'
+            ],
+            resource_report=active_metrics.attrs.get('resource_report'),
+        )
+        active_summary = {
+            'schema': 'mailohls-active-gnn-validation-v1',
+            'checkpoint_objective': FLAGS.checkpoint_objective,
+            'checkpoint_tag': selection_tag,
+            'checkpoint_epoch': int(selection_epoch),
+            'checkpoint_path': str(Path(selection_path).resolve()),
+            'checkpoint_sha256': _sha256_file(selection_path),
+            'validation_total_loss': float(active_val),
+            'target_balanced_regression_loss': float(active_selection),
+            'target_zero_delta_ratios': _jsonable(active_ratios),
+            'per_kernel_target_baseline_ratios': _jsonable(
+                active_metrics.attrs['per_kernel_target_baseline_ratios']
+            ),
+            'worst_target_kernel_macro_tau': float(active_ranking),
+            'validation_control_score': float(active_control),
+            'resource_report': _jsonable(active_metrics.attrs.get('resource_report')),
+        }
+        if FLAGS.checkpoint_objective == 'qualified_lexicographic':
+            active_summary['lexicographic_qualification'] = (
+                qualified_lexicographic_metrics(
+                    active_ratios,
+                    active_metrics.attrs['per_kernel_target_baseline_ratios'],
+                    active_ranking,
+                    active_metrics.attrs['resource_report'],
+                )
+            )
+            if not active_summary['lexicographic_qualification']['qualified']:
+                raise RuntimeError('Restored active checkpoint failed release qualification.')
+        active_path = Path(saver.model_logdir) / 'active_selected_checkpoint.json'
+        active_path.write_text(
+            json.dumps(active_summary, indent=2, sort_keys=True) + '\n',
+            encoding='utf-8',
+        )
+        saver.log_info(
+            'Final ACTIVE validation report: '
+            f'objective={FLAGS.checkpoint_objective}; tag={selection_tag}; '
+            f'epoch={selection_epoch}; control={active_control:.6f}; '
+            f'manifest={active_path}'
+        )
 
         if initial_ratios is None:
             raise RuntimeError(
@@ -2445,6 +2928,7 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             selection_epoch,
             plot_test=True,
             test_losses=[],
+            qualification_resource_diagnostics=resource_diagnostics,
         )
         test_losses.append(test_loss)
         saver.writer.add_scalar('test/final', test_loss, selection_epoch)
@@ -2476,6 +2960,16 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             saver.log_info(
                 'embedding-rank checkpoint at epoch: '
                 f'{best_embedding_rank_epoch}'
+            )
+        if best_structural_rank_epoch is not None:
+            saver.log_info(
+                'structural-rank checkpoint at epoch: '
+                f'{best_structural_rank_epoch}'
+            )
+        if best_lexicographic_epoch is not None:
+            saver.log_info(
+                'qualified-lexicographic checkpoint at epoch: '
+                f'{best_lexicographic_epoch}'
             )
         saver.log_info(
             f'active checkpoint objective={FLAGS.checkpoint_objective}; '
@@ -2528,7 +3022,7 @@ def train(epoch, model, train_loader, optimizer, lr_scheduler, warmup_scheduler)
 
         saver.writer.add_scalar('loss/loss', loss, epoch * len(train_loader) + i)
         for key, value in loss_dict_.items():
-            if key.startswith('rank_aux/'):
+            if key.startswith(('rank_aux/', 'pairwise_delta/')):
                 saver.writer.add_scalar(
                     key, value.item(), epoch * len(train_loader) + i
                 )
@@ -2647,9 +3141,54 @@ def validation_control_score(
     selection_score,
     target_ratios,
     ranking_score,
+    *,
+    total_validation_loss=None,
+    per_kernel_target_ratios=None,
+    resource_report=None,
 ):
+    """One lower-is-better policy for saving, scheduling, stopping, and resume."""
+    if checkpoint_objective == "hardware_regression":
+        if total_validation_loss is None:
+            raise ValueError('Hardware-regression control requires total validation loss.')
+        return float(total_validation_loss)
+
     if checkpoint_objective == "structural_rank":
         return -float(ranking_score)
+
+    if checkpoint_objective == "qualified_lexicographic":
+        qualification = qualified_lexicographic_metrics(
+            target_ratios,
+            per_kernel_target_ratios,
+            ranking_score,
+            resource_report,
+        )
+        if qualification['qualified']:
+            # Ranking differences above 0.001 dominate; closer scores are
+            # ordered by boundary accuracy, false-feasible risk, and QoR fit.
+            return (
+                -float(ranking_score)
+                - 1e-3 * qualification['boundary_balanced_accuracy']
+                + 1e-4 * qualification['false_feasible_fdr']
+                + 1e-5 * float(selection_score)
+            )
+        aggregate_excess = sum(
+            max(0.0, float(value) - 1.0)
+            for value in target_ratios.values()
+        )
+        kernel_excess = max(
+            0.0,
+            qualification['worst_kernel_perf_ratio']
+            - float(FLAGS.max_kernel_zero_baseline_ratio),
+        )
+        resource_excess = sum(
+            max(0.0, min(float(value), 1e6) - 1.0)
+            for value in qualification['resource_mae_ratios'].values()
+        )
+        rank_excess = max(0.0, float(FLAGS.min_rank_tau) - float(ranking_score))
+        return (
+            1.0 + aggregate_excess + kernel_excess + resource_excess + rank_excess
+            + 1e-3 * float(selection_score)
+        )
 
     if checkpoint_objective == "embedding_rank":
         return embedding_rank_control_score(
@@ -2664,7 +3203,8 @@ def validation_control_score(
 def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
          csv_dict=None, data_list=None, is_train_set=False,
          is_val_set=False, return_metrics=False,
-         qualification_target_stats=None):
+         qualification_target_stats=None,
+         qualification_resource_diagnostics=None):
     if test_losses is None:
         test_losses = [-1]
     if data_list is None:
@@ -2710,6 +3250,15 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
                 for index in range(predicted_resource.shape[0]):
                     resource_rows.append({
                         'kernel': _kernel_at(data, index),
+                        'device': (
+                            _string_attribute_at(data, 'target_device', index)
+                            if hasattr(data, 'target_device') else FLAGS.target_device
+                        ),
+                        'clock_period_ns': (
+                            float(data.target_clock_period_ns.reshape(-1)[index].item())
+                            if hasattr(data, 'target_clock_period_ns')
+                            else float(FLAGS.clock_period_ns)
+                        ),
                         'actual': actual_resource[index].detach().cpu().numpy(),
                         'predicted': (
                             predicted_resource[index].detach().cpu().numpy()
@@ -2802,7 +3351,16 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
 
     if FLAGS.task == 'regression':
         df = _report_rmse_etc(points_dict, f'[{tvt}] epoch {epoch}', print_result=True)
-        report_resource_metrics(resource_rows, f'[{tvt}] epoch {epoch}')
+        resource_report = report_resource_metrics(
+            resource_rows,
+            f'[{tvt}] epoch {epoch}',
+            training_diagnostics=qualification_resource_diagnostics,
+            # The shared bank intentionally contains validation kernels only;
+            # unlocking the disjoint test set must not require test leakage.
+            allow_unseen_cases=(tvt == 'test'),
+        )
+        if resource_report is not None:
+            df.attrs['resource_report'] = resource_report
         if qualification_target_stats is not None:
             df.attrs['per_kernel_target_baseline_ratios'] = (
                 compute_per_kernel_target_baseline_ratios(
@@ -2816,7 +3374,10 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
                 f"MAPE: {row['mape']*100:.2f}% | tau-b: "
                 f"{row['tau']:.4f}"
             )
-        if tvt in {'best_val', 'best_rank_val', 'test'}:
+        if tvt in {
+            'best_val', 'best_rank_val', 'best_embedding_rank_val',
+            'best_structural_rank_val', 'active_selected_val', 'test',
+        }:
             metrics_path = join(
                 saver.model_logdir, f'{tvt}_physical_metrics.csv'
             )
@@ -2857,6 +3418,16 @@ def test(loader, tvt, model, epoch, plot_test=False, test_losses=None,
             saver.log_info(
                 f'Wrote point predictions to {predictions_path}'
             )
+            if resource_report is not None:
+                resource_path = join(
+                    saver.model_logdir, f'{tvt}_resource_metrics.json'
+                )
+                Path(resource_path).write_text(
+                    json.dumps(_jsonable(resource_report), indent=2, sort_keys=True)
+                    + '\n',
+                    encoding='utf-8',
+                )
+                saver.log_info(f'Wrote resource validation metrics to {resource_path}')
 
     if FLAGS.task == 'regression':
         if 'inf' in FLAGS.subtask:

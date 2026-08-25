@@ -9,7 +9,7 @@ PROMPT_SCHEMA_VERSION = 2
 RESPONSE_PREFIX_POLICY = "selected_clock_as_fixed_response_context"
 CLOCK_SUPERVISION_POLICY = "automatic_clock_only"
 DIRECTIVE_SUPERVISION_POLICY = "decision_sites_only_equal_weight_per_site"
-SEMANTIC_DOMAIN_POLICY = "loop_exclusive_and_conditional_array_partition"
+SEMANTIC_DOMAIN_POLICY = "independent_loop_directives_and_dataset_encoded_array_tuples"
 
 PROMPT_TEMPLATE = """
 ### Role: Expert FPGA/HLS engineer.
@@ -210,7 +210,10 @@ def _directive_site(lhs: str) -> tuple[str, str]:
 def _valid_action_values(values: dict[str, str]) -> bool:
     if "PIPE" in values and "UNROLL" in values:
         try:
-            return not (int(values["PIPE"]) > 0 and int(values["UNROLL"]) > 0)
+            # PIPE and UNROLL are independent HLS directives. In particular,
+            # pipelining a partially unrolled loop is a valid design choice.
+            # Their individual source-derived domains enforce supported values.
+            return int(values["PIPE"]) >= 0 and int(values["UNROLL"]) >= 0
         except ValueError:
             return False
     if {"ARRAY_T", "ARRAY_F", "ARRAY_D"}.issubset(values):
@@ -219,6 +222,8 @@ def _valid_action_values(values: dict[str, str]) -> bool:
         except ValueError:
             return False
         kind = values["ARRAY_T"].strip().lower()
+        # These are invariants of MailoHLS's measured tuple representation,
+        # not an exhaustive claim about every pragma accepted by Vitis HLS.
         if kind == "none":
             return factor == 0 and dimension == 0
         if kind == "complete":
@@ -233,7 +238,7 @@ def filter_semantic_candidates(
     chosen_assignments: dict[str, str],
     site_domains: dict[str, list[str]],
 ) -> list[str]:
-    """Keep candidate RHS values that can complete a legal action tuple."""
+    """Keep RHS values compatible with the measured directive encoding."""
     kind, label = _directive_site(lhs)
     kinds = ("PIPE", "UNROLL") if kind in {"PIPE", "UNROLL"} else (
         "ARRAY_T", "ARRAY_F", "ARRAY_D"
@@ -263,7 +268,7 @@ def filter_semantic_candidates(
 
 
 def validate_directive_assignments(assignments: dict[str, str]) -> None:
-    """Reject mutually exclusive loop settings and inconsistent array tuples."""
+    """Reject incomplete actions and inconsistent measured array tuples."""
     grouped = defaultdict(dict)
     for lhs, rhs in assignments.items():
         kind, label = _directive_site(lhs)

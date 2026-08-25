@@ -1,6 +1,8 @@
 import ast
 import __future__
+import json
 from pathlib import Path
+import tempfile
 from types import SimpleNamespace
 import unittest
 from typing import Any, Iterable, Mapping, Sequence
@@ -9,6 +11,8 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+from scipy.stats import kendalltau
 from sklearn.preprocessing import OneHotEncoder
 
 
@@ -53,6 +57,10 @@ def _load_data_functions(names):
         "Mapping": Mapping,
         "Any": Any,
         "UNKNOWN_CATEGORY": "<unknown>",
+        "TARGET_DEVICE_CAPACITIES": {
+            "xczu7ev-ffvc1156-2-e": (624, 1728, 460800, 230400),
+        },
+        "QOR_REFERENCE_DEVICE": "xczu7ev-ffvc1156-2-e",
     }
     exec(
         compile(
@@ -198,6 +206,23 @@ class StageBHelperTests(unittest.TestCase):
         })
         self.assertEqual(values, [0.1, 0.2, 0.3, 0.4])
 
+    def test_resource_counts_are_preferred_without_flooring_genuine_zeros(self):
+        functions = _load_data_functions({
+            "_as_float", "resource_utilization_from_csv_row"
+        })
+        values = functions["resource_utilization_from_csv_row"]({
+            "Device": "xczu7ev-ffvc1156-2-e",
+            "BRAM_18K_Used": "0",
+            "DSP_Used": "17",
+            "FF_Used": "4608",
+            "LUT_Used": "2304",
+            "BRAM_Utilization_percentage": "1",
+            "DSP_Utilization_percentage": "1",
+            "FF_Utilization_percentage": "1",
+            "LUT_Utilization_percentage": "1",
+        })
+        np.testing.assert_allclose(values, [0.0, 17 / 1728, 0.01, 0.01])
+
     def test_resource_statistics_are_log1p_and_train_only(self):
         fit = _load_function("fit_resource_statistics", {
             "np": np,
@@ -315,13 +340,169 @@ class StageBHelperTests(unittest.TestCase):
             {
                 "perf": {
                     "kernel": ["a", "a", "b", "b"],
-                    "pred": [(1.0, 0.0), (2.0, 0.0), (1.0, 3.0), (1.0, 3.0)],
+                    "pred": [
+                        (101.0, 100.0), (102.0, 100.0),
+                        (51.0, 53.0), (51.0, 53.0),
+                    ],
+                    "baseline_log2": [100.0, 100.0, 50.0, 50.0],
+                    "actual_delta_log2": [1.0, 2.0, 1.0, 1.0],
+                    "predicted_delta_log2": [0.0, 0.0, 3.0, 3.0],
                 }
             },
             {"perf": {"mean": 123.0, "std": 1.0}},
         )
         self.assertTrue(np.isclose(ratios["a/perf"], 1.0))
         self.assertTrue(np.isclose(ratios["b/perf"], 4.0))
+
+    def test_delta_pair_regression_preserves_zero_error_without_margin_inflation(self):
+        pair_loss = _load_model_function(
+            "within_kernel_delta_pair_loss", {"torch": torch, "F": F}
+        )
+        measured = torch.tensor([[0.0], [1.0], [2.0], [0.0], [0.01]])
+        kernels = ["a", "a", "a", "b", "b"]
+        exact = pair_loss(
+            measured, measured, kernels,
+            tie_target=measured, tie_epsilon=0.05, beta=0.5,
+        )
+        exaggerated = pair_loss(
+            measured * 2.0, measured, kernels,
+            tie_target=measured, tie_epsilon=0.05, beta=0.5,
+        )
+        self.assertEqual(float(exact), 0.0)
+        self.assertGreater(float(exaggerated), 0.0)
+
+    def test_pairwise_delta_weight_waits_for_reference_calibration(self):
+        schedule = _load_function("scheduled_pairwise_delta_weight", {
+            "FLAGS": SimpleNamespace(
+                pairwise_delta_weight=0.05,
+                pairwise_delta_start_epoch=3,
+                pairwise_delta_ramp_epochs=2,
+            ),
+        })
+        np.testing.assert_allclose(
+            [schedule(epoch) for epoch in range(6)],
+            [0.0, 0.0, 0.0, 0.025, 0.05, 0.05],
+        )
+
+    def test_exact_stage1_budget_bank_controls_resource_feasibility(self):
+        flags = SimpleNamespace(
+            resource_boundary_tolerance=0.02,
+            target_device="xczu7ev-ffvc1156-2-e",
+            clock_period_ns=10.0,
+            random_seed=123,
+        )
+        namespace = {
+            "np": np,
+            "json": json,
+            "Path": Path,
+            "hashlib": __import__("hashlib"),
+            "math": __import__("math"),
+            "random": __import__("random"),
+            "defaultdict": __import__("collections").defaultdict,
+            "RESOURCE_NAMES": ("bram", "dsp", "ff", "lut"),
+            "FLAGS": flags,
+            "kendalltau": kendalltau,
+            "saver": SimpleNamespace(log_info=lambda message: None),
+        }
+        for name in (
+            "_resource_case_identity", "_load_stage1_resource_budget_bank",
+            "_generated_stage1_style_budgets",
+            "_feasibility_outcome_metrics", "resource_feasibility_metrics",
+            "report_resource_metrics",
+        ):
+            namespace[name] = _load_function(name, namespace)
+        with tempfile.TemporaryDirectory() as directory:
+            bank_path = Path(directory) / "budgets.json"
+            bank_path.write_text(json.dumps({
+                "schema": "mailohls-stage1-validation-resource-budget-bank-v1",
+                "resource_order": ["bram", "dsp", "ff", "lut"],
+                "cases": [{
+                    "kernel": "kernel-a",
+                    "device": flags.target_device,
+                    "clock_period_ns": 10.0,
+                    "fractions": [0.5, 0.2, 0.8, 0.3],
+                }],
+            }))
+            flags.resource_budget_bank = str(bank_path)
+            diagnostics = {
+                name: {"train_mean_baseline": 0.9}
+                for name in namespace["RESOURCE_NAMES"]
+            }
+            report = namespace["report_resource_metrics"]([
+                {
+                    "kernel": "kernel-a", "device": flags.target_device,
+                    "clock_period_ns": 10.0,
+                    "actual": np.asarray([0.51, 0.10, 0.20, 0.10]),
+                    "predicted": np.asarray([0.49, 0.10, 0.20, 0.10]),
+                },
+                {
+                    "kernel": "kernel-a", "device": flags.target_device,
+                    "clock_period_ns": 10.0,
+                    "actual": np.asarray([0.49, 0.10, 0.20, 0.10]),
+                    "predicted": np.asarray([0.49, 0.10, 0.20, 0.10]),
+                },
+            ], "validation", diagnostics)
+            unseen = [{
+                "kernel": "held-out-test-kernel", "device": flags.target_device,
+                "clock_period_ns": 10.0,
+                "actual": np.asarray([0.51, 0.10, 0.20, 0.10]),
+                "predicted": np.asarray([0.49, 0.10, 0.20, 0.10]),
+            }]
+            with self.assertRaisesRegex(RuntimeError, "lacks GNN validation case"):
+                namespace["report_resource_metrics"](
+                    unseen, "validation", diagnostics
+                )
+            test_report = namespace["report_resource_metrics"](
+                unseen, "test", diagnostics, allow_unseen_cases=True
+            )
+        self.assertEqual(report["budget_policy"], "exact_stage1_validation_bank")
+        self.assertAlmostEqual(
+            report["independent_budget_summary"]["false_feasible_fdr"], 0.5
+        )
+        self.assertAlmostEqual(
+            report["independent_budget_summary"]["boundary_balanced_accuracy"], 0.5
+        )
+        self.assertTrue(report["all_resource_heads_beat_constant_baseline"])
+        self.assertEqual(test_report["generated_unseen_case_count"], 1)
+        self.assertEqual(
+            test_report["budget_policy"],
+            "deterministic_stage1_style_independent_budgets_for_unseen_test_cases",
+        )
+
+    def test_qualified_lexicographic_selection_rejects_uncalibrated_heads(self):
+        flags = SimpleNamespace(
+            max_kernel_zero_baseline_ratio=1.10,
+            min_rank_tau=0.20,
+        )
+        qualify = _load_function("qualified_lexicographic_metrics", {
+            "FLAGS": flags, "np": np,
+        })
+        report = {
+            "resources": [
+                {"resource": name, "mae_baseline_ratio": 0.8}
+                for name in ("bram", "dsp", "ff", "lut")
+            ],
+            "independent_budget_summary": {
+                "boundary_balanced_accuracy": 0.75,
+                "false_feasible_fdr": 0.10,
+            },
+        }
+        qualified = qualify(
+            {"perf": 0.9, "area": 0.8},
+            {"a/perf": 1.05, "a/area": 1.5},
+            0.25,
+            report,
+        )
+        self.assertTrue(qualified["qualified"])
+        report["resources"][0]["mae_baseline_ratio"] = 1.01
+        rejected = qualify(
+            {"perf": 0.9, "area": 0.8},
+            {"a/perf": 1.05},
+            0.25,
+            report,
+        )
+        self.assertFalse(rejected["qualified"])
+        self.assertFalse(rejected["resource_qualified"])
 
     def test_rank_checkpoint_requires_every_absolute_baseline(self):
         update = _load_function(

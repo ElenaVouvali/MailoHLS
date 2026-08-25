@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
-OUT="${OUT:-mailohls_runs/stage1_final_static_domains_adp_s123}"
+OUT="${OUT:-mailohls_runs/stage1_final_final_adp_s123}"
 GPU="${CUDA_VISIBLE_DEVICES:-0}"
 if [[ -e "$OUT" ]]; then
   echo "Refusing to overwrite existing Stage-1 output: $OUT" >&2
@@ -33,13 +33,13 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --random_budget_min_frac 0.05 \
   --min_feasible_candidates_per_budget 3 \
   --candidate_pool_per_objective 24 \
-  --budget_target_max_duplicates 2 \
+  --budget_target_max_duplicates 4 \
   --auto_frequency_fraction 0 \
   --goal_domination_penalty 0.25 \
   --goal_max_dominated_gap 0.12 \
   --min_supervised_sites 2 \
   --min_site_coverage 0.85 \
-  --directive_loss_weighting uniform \
+  --directive_loss_weighting inverse_sqrt_frequency \
   --value_loss_weight 1 \
   --ce_loss_weight 1 \
   --candidate_loss_weight 0 \
@@ -59,7 +59,7 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --gradient_checkpointing \
   --num_workers 0 \
   --loss_chunk_t 128 \
-  --family_sampling_power 0 \
+  --family_sampling_power 0.5 \
   --selection_num_val_kernels 0 \
   --selection_cases_per_kernel_device 4 \
   --selection_candidate_batch_size 4 \
@@ -69,8 +69,8 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --early_stopping_patience 3 \
   --eval_on_start \
   --best_dir_name best_custom_stage1 \
-  --epochs 3 \
-  --max_steps 1200 \
+  --epochs 2 \
+  --max_steps -1 \
   --seed 123 \
   --require_clean_git \
   --output_dir "$OUT"

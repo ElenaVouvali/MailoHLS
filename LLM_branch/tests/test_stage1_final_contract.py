@@ -137,23 +137,68 @@ def test_single_choice_rhs_is_context_and_site_weights_are_normalized():
     assert sum(pack.xattn_target_mask) == 3  # RHS "12\n" only.
 
 
-def test_semantic_domains_enforce_exclusive_loops_and_valid_arrays():
+def test_semantic_domains_allow_pipelined_unrolling_and_enforce_array_encoding():
     domains = _domains()["kernel_a"]
     assert mailohls_contract.filter_semantic_candidates(
         "auto{_UNROLL_L1}", ["0", "2"], {"AUTO{_PIPE_L1}": "1"}, domains
-    ) == ["0"]
+    ) == ["0", "2"]
     assert mailohls_contract.filter_semantic_candidates(
         "auto{_ARRAY_F_L2}", ["0", "2"], {"AUTO{_ARRAY_T_L2}": "complete"}, domains
     ) == ["0"]
-    with pytest.raises(ValueError, match="Invalid directive action"):
-        mailohls_contract.validate_directive_assignments({
-            "AUTO{_PIPE_L1}": "1", "AUTO{_UNROLL_L1}": "2"
-        })
+    mailohls_contract.validate_directive_assignments({
+        "AUTO{_PIPE_L1}": "1", "AUTO{_UNROLL_L1}": "2"
+    })
     mailohls_contract.validate_directive_assignments({
         "AUTO{_ARRAY_T_L2}": "block",
         "AUTO{_ARRAY_F_L2}": "2",
         "AUTO{_ARRAY_D_L2}": "1",
     })
+    with pytest.raises(ValueError, match="Invalid directive action"):
+        mailohls_contract.validate_directive_assignments({
+            "AUTO{_ARRAY_T_L2}": "complete",
+            "AUTO{_ARRAY_F_L2}": "2",
+            "AUTO{_ARRAY_D_L2}": "1",
+        })
+
+
+def test_free_running_decoder_scores_real_candidates_and_enforces_array_tuples(
+    monkeypatch,
+):
+    source = (
+        "L1: auto{_PIPE_L1} = ? auto{_UNROLL_L1} = ?\n"
+        "L2: auto{_ARRAY_T_L2} = ? auto{_ARRAY_F_L2} = ? "
+        "auto{_ARRAY_D_L2} = ?"
+    )
+    model = torch.nn.Linear(1, 1)
+
+    def score_suffix(**kwargs):
+        rhs = kwargs["candidate_text"].strip()
+        scores = {"none": -5.0, "block": -2.0, "complete": 5.0,
+                  "0": 0.0, "1": 2.0, "2": 4.0}
+        score = scores[rhs]
+        return {"mean_logprob": score, "sum_logprob": score}
+
+    monkeypatch.setattr(trainer, "score_rhs_candidate_suffix", score_suffix)
+    prediction, trace = trainer.constrained_decode_rhs_by_candidate_scoring(
+        model=model,
+        tok=CharacterTokenizer(),
+        prompt_ids=[1],
+        source_text=source,
+        kernel_name="kernel-a",
+        directive_domain_registry=_domains(),
+        candidate_batch_size=1,
+        return_score_trace=True,
+    )
+
+    assignments = trainer.parse_assignment_dict(prediction)
+    assert assignments["AUTO{_PIPE_L1}"] == "1"
+    assert assignments["AUTO{_UNROLL_L1}"] == "2"
+    assert assignments["AUTO{_ARRAY_T_L2}"] == "complete"
+    assert assignments["AUTO{_ARRAY_F_L2}"] == "0"
+    assert assignments["AUTO{_ARRAY_D_L2}"] == "1"
+    array_factor = next(row for row in trace if "ARRAY_F" in row["lhs"])
+    assert array_factor["static_candidate_count"] == 2
+    assert array_factor["forced_by_semantics"]
 
 
 def test_related_static_fields_remain_independently_supervised():
@@ -195,6 +240,100 @@ def test_per_clock_budget_compaction_never_drops_a_measured_clock(monkeypatch):
         rows, num_budgets_per_case=1, seed=123, min_feasible_candidates=3
     )
     assert {row["clock_period"] for row in selected} == {3.33, 5.0, 10.0}
+
+
+def test_frontier_aware_budgets_keep_measured_breakpoints_and_three_witnesses(
+    monkeypatch,
+):
+    monkeypatch.setattr(trainer.TARGET_CFG, "min_budget_frac", 0.05)
+    monkeypatch.setattr(trainer.TARGET_CFG, "min_feasible_candidates", 3)
+    monkeypatch.setattr(trainer.TARGET_CFG, "candidate_pool_per_objective", 6)
+    rows = [{
+        "kernel_name": "kernel-a",
+        "device": "xczu7ev-ffvc1156-2-e",
+        "clock_period": 10.0,
+        "_jsonl_idx": index,
+        "input": "L1: auto{_PIPE_L1} = ? auto{_UNROLL_L1} = ?",
+        "target": (
+            f"auto{{_PIPE_L1}} = 0\nauto{{_UNROLL_L1}} = {index}"
+        ),
+        "latency": float(10 - index),
+        "area": float(index + 1),
+        "bram_util_%": float(5 + index * 10),
+        "dsp_util_%": float(8 + index * 4),
+        "ff_util_%": float(10 + index * 2),
+        "lut_util_%": float(12 + index * 3),
+    } for index in range(6)]
+    budgets = trainer.sample_shared_budgets(
+        ("kernel-a", "xczu7ev-ffvc1156-2-e"), rows, 16, 123
+    )
+    breakpoints = trainer._frontier_breakpoint_budgets(rows)
+    assert len(budgets) == 16
+    assert trainer.SharedResourceBudget(1.0, 1.0, 1.0, 1.0) in budgets
+    assert any(budget in breakpoints for budget in budgets)
+    assert all(min(budget.as_dict().values()) >= 0.05 for budget in budgets)
+    for budget in set(budgets).intersection(breakpoints):
+        assert sum(trainer.design_fits_shared_budget(row, budget) for row in rows) >= 3
+
+
+def test_budget_deduplication_preserves_targets_and_diverse_representatives():
+    device = "xczu7ev-ffvc1156-2-e"
+    capacities = mailohls_contract.DEVICE_RESOURCES[device]
+
+    def make_row(index, fractions, target):
+        row = {
+            "kernel_name": "kernel-a", "device": device,
+            "clock_period": 10.0, "obj_mode": "PARETO_ADP",
+            "input": "L1: auto{_PIPE_L1} = ? auto{_UNROLL_L1} = ?",
+            "target": f"auto{{_PIPE_L1}} = 0\nauto{{_UNROLL_L1}} = {target}",
+            "resource_budget_id": f"budget-{index}",
+            "_jsonl_idx": index,
+        }
+        for name, fraction in zip(mailohls_contract.RESOURCE_KEYS, fractions):
+            row[mailohls_contract.AVAIL_FIELD_BY_RESOURCE[name]] = int(
+                round(capacities[name] * fraction)
+            )
+        return row
+
+    repeated = [
+        make_row(0, (.1, .1, .1, .1), 0),
+        make_row(1, (.12, .12, .12, .12), 0),
+        make_row(2, (.15, .8, .15, .8), 0),
+        make_row(3, (.8, .15, .8, .15), 0),
+        make_row(4, (.9, .9, .9, .9), 0),
+        make_row(5, (1.0, 1.0, 1.0, 1.0), 0),
+        make_row(6, (.4, .4, .4, .4), 2),
+    ]
+    selected = trainer.compact_duplicate_budget_targets(repeated, 4)
+    ids = {row["resource_budget_id"] for row in selected}
+    assert len(selected) == 5
+    assert {"budget-0", "budget-5", "budget-6"}.issubset(ids)
+    assert "budget-2" in ids or "budget-3" in ids
+
+
+def test_budget_transition_metric_requires_both_measured_optima_to_be_correct():
+    base = {
+        "kernel_name": "kernel-a", "device": "device-a",
+        "selected_clock_period": 10.0, "obj_mode": "PARETO_ADP",
+        "value_accuracy_over_expected": 1.0, "decision_site_accuracy": 1.0,
+        "schema_compliant": True, "expected_key_match": True,
+        "pragma_kind_counts": {"PIPE": {"correct": 1, "expected": 1}},
+    }
+    rows = [{
+        **base,
+        "reference_target": "target-tight",
+        "prediction": "target-tight",
+        "exact_design_match": True,
+    }, {
+        **base,
+        "reference_target": "target-loose",
+        "prediction": "wrong-but-different",
+        "exact_design_match": False,
+    }]
+    summary = trainer.summarize_selection_rows(rows)
+    assert summary["budget_sensitive_prediction_groups"] == 1
+    assert summary["budget_counterfactual_transition_accuracy"] == 0.0
+    assert summary["budget_counterfactual_exact_design_accuracy"] == 0.5
 
 
 def test_disabled_automatic_clock_does_not_rank_unused_cases(monkeypatch):

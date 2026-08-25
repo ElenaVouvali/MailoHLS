@@ -3,17 +3,24 @@ set -euo pipefail
 
 # Final MailoHLS structural-GNN training run.
 # Run from the MailoHLS repository root after applying and testing
-# apply_mailohls_final_gnn_reference_delta_patch.py.
+# the final Stage-1/GNN patch.
 #
 # The neutral references supervise reference-delta QoR during GNN training.
 # They are NOT consumed when static_pre_npt structural memory is later exported.
 
 MANIFEST="GNN_branch/baselines/neutral_vitis_2021_1.csv"
 SPLIT="mailohls_runs/mailohls_final_family_split_s123.json"
-EXPERIMENT="gnn_final_reference_delta_rank_s123"
+EXPERIMENT="${EXPERIMENT:-gnn_final_final_reference_delta_s123}"
+STAGE1_OUT="${STAGE1_OUT:-mailohls_runs/stage1_final_final_adp_s123}"
+BUDGET_BANK="${RESOURCE_BUDGET_BANK:-${STAGE1_OUT}/validation_resource_budget_bank.json}"
 
 [[ -f "${MANIFEST}" ]] || { echo "Missing ${MANIFEST}" >&2; exit 2; }
 [[ -f "${SPLIT}" ]] || { echo "Missing ${SPLIT}" >&2; exit 2; }
+[[ -f "${BUDGET_BANK}" ]] || {
+  echo "Missing exact Stage-1 validation budget bank: ${BUDGET_BANK}" >&2
+  echo "Start the final Stage-1 run first, or set RESOURCE_BUDGET_BANK." >&2
+  exit 2
+}
 
 # The checked-in development manifest currently lacked these two development
 # kernels. generate_neutral_baselines.py appends requested kernels without
@@ -65,11 +72,20 @@ python -u GNN_branch/main_GNN.py \
   --samples_per_kernel_per_epoch 128 \
   --batch_size 16 \
   --grad_accum_steps 4 \
-  --rank_aux_weight 0.20 \
+  --rank_aux_weight 0 \
+  --pairwise_delta_weight 0.05 \
+  --pairwise_delta_start_epoch 3 \
+  --pairwise_delta_ramp_epochs 2 \
   --rank_tie_relative 0.05 \
   --resource_aux_weight 0.10 \
-  --checkpoint_objective embedding_rank \
+  --resource_budget_bank "${BUDGET_BANK}" \
+  --resource_budget_count 16 \
+  --resource_budget_min_fraction 0.05 \
+  --resource_boundary_tolerance 0.02 \
+  --checkpoint_objective qualified_lexicographic \
   --min_rank_tau 0.20 \
+  --max_kernel_zero_baseline_ratio 1.10 \
+  --kernel_zero_baseline_additive_tolerance 0.001 \
   --epoch_num 100 \
   --lr 3e-5 \
   --scheduler plateau \

@@ -77,6 +77,50 @@ def within_kernel_rank_loss(
     return torch.stack(per_kernel).mean()
 
 
+def within_kernel_delta_pair_loss(
+    prediction,
+    target,
+    kernels,
+    *,
+    tie_target=None,
+    tie_epsilon,
+    beta,
+):
+    """Regress measured same-kernel differences without inflating margins."""
+    if tie_epsilon < 0:
+        raise ValueError('tie_epsilon must be non-negative.')
+    if beta <= 0:
+        raise ValueError('beta must be positive.')
+    if len(kernels) != int(prediction.shape[0]):
+        raise ValueError('Expected one kernel identity per prediction.')
+    tie_values = target if tie_target is None else tie_target
+    per_kernel = []
+    for kernel in sorted(set(kernels)):
+        indices = [index for index, value in enumerate(kernels) if value == kernel]
+        if len(indices) < 2:
+            continue
+        predicted = prediction[indices].reshape(-1)
+        measured = target[indices].reshape(-1)
+        measured_ties = tie_values[indices].reshape(-1)
+        prediction_delta = predicted[:, None] - predicted[None, :]
+        measured_delta = measured[:, None] - measured[None, :]
+        tie_delta = measured_ties[:, None] - measured_ties[None, :]
+        upper = torch.triu(
+            torch.ones_like(measured_delta, dtype=torch.bool), diagonal=1
+        )
+        valid = upper & (tie_delta.abs() > float(tie_epsilon))
+        if valid.any():
+            per_kernel.append(F.smooth_l1_loss(
+                prediction_delta[valid],
+                measured_delta[valid],
+                beta=float(beta),
+                reduction='mean',
+            ))
+    if not per_kernel:
+        return prediction.new_zeros(())
+    return torch.stack(per_kernel).mean()
+
+
 class Net(nn.Module):
     def __init__(self, in_channels, edge_dim = 0, init_pragma_dict = None,
                  task = FLAGS.task, num_layers = FLAGS.num_layers, D = FLAGS.D,
@@ -1059,6 +1103,7 @@ class Net(nn.Module):
                 center_embed = torch.cat((center_embed, target_condition), dim=1)
         loss_dict = {}
         rank_losses = []
+        pairwise_delta_losses = []
 
         if self.MLP_version == 'multi_obj':
             out_MLPs = self.MLPs(out_embed)
@@ -1116,7 +1161,15 @@ class Net(nn.Module):
                     torch.sqrt(weighted_loss)
                     if loss_mode == 'rmse' else weighted_loss
                 )
-                if self.training and float(FLAGS.rank_aux_weight) > 0.0:
+                pairwise_delta_weight = float(getattr(
+                    self,
+                    'current_pairwise_delta_weight',
+                    getattr(FLAGS, 'pairwise_delta_weight', 0.0),
+                ))
+                if self.training and (
+                    float(FLAGS.rank_aux_weight) > 0.0
+                    or pairwise_delta_weight > 0.0
+                ):
                     kernels = list(
                         getattr(data, 'target_group', data.kernel)
                         if self.target_condition_dim else data.kernel
@@ -1133,15 +1186,29 @@ class Net(nn.Module):
                         # Exact legacy behavior for old commands/checkpoints.
                         rank_target = loss_target
                         rank_tie_epsilon = float(FLAGS.rank_tie_epsilon)
-                    rank_loss = within_kernel_rank_loss(
-                        out,
-                        rank_target,
-                        kernels,
-                        temperature=float(FLAGS.rank_temperature),
-                        tie_epsilon=rank_tie_epsilon,
-                    )
-                    rank_losses.append(rank_loss)
-                    loss_dict[f'rank_aux/{target_name}'] = rank_loss.detach()
+                    if float(FLAGS.rank_aux_weight) > 0.0:
+                        rank_loss = within_kernel_rank_loss(
+                            out,
+                            rank_target,
+                            kernels,
+                            temperature=float(FLAGS.rank_temperature),
+                            tie_epsilon=rank_tie_epsilon,
+                        )
+                        rank_losses.append(rank_loss)
+                        loss_dict[f'rank_aux/{target_name}'] = rank_loss.detach()
+                    if pairwise_delta_weight > 0.0:
+                        pair_loss = within_kernel_delta_pair_loss(
+                            out,
+                            loss_target,
+                            kernels,
+                            tie_target=rank_target,
+                            tie_epsilon=rank_tie_epsilon,
+                            beta=float(FLAGS.smooth_l1_beta),
+                        )
+                        pairwise_delta_losses.append(pair_loss)
+                        loss_dict[f'pairwise_delta/{target_name}'] = (
+                            pair_loss.detach()
+                        )
                 training_loss = absolute_loss
                 if self.decompose_targets and self.training:
                     center_name = f'{target_name}_center'
@@ -1227,6 +1294,13 @@ class Net(nn.Module):
             total_loss += float(FLAGS.rank_aux_weight) * torch.stack(
                 rank_losses
             ).mean()
+
+        if self.task == 'regression' and self.training and pairwise_delta_losses:
+            total_loss += float(getattr(
+                self,
+                'current_pairwise_delta_weight',
+                getattr(FLAGS, 'pairwise_delta_weight', 0.0),
+            )) * torch.stack(pairwise_delta_losses).mean()
 
         if self.task == 'regression' and self.resource_heads is not None:
             if not hasattr(data, "resource_util"):

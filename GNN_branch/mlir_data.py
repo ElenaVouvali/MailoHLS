@@ -190,14 +190,44 @@ def target_condition_vector(device: str, clock_period_ns: float) -> list[float]:
 
 
 def resource_utilization_from_csv_row(row: Mapping[str, Any]) -> list[float]:
-    """Return raw utilization fractions in BRAM, DSP, FF, LUT order."""
-    columns = (
-        "BRAM_Utilization_percentage",
-        "DSP_Utilization_percentage",
-        "FF_Utilization_percentage",
-        "LUT_Utilization_percentage",
+    """Prefer physical counts; otherwise preserve measured percentages and zeros."""
+    specifications = (
+        (
+            "BRAM_Utilization_percentage",
+            ("BRAM_18K_Used", "BRAM_Used", "Used_BRAM_18K", "BRAM_18K"),
+        ),
+        ("DSP_Utilization_percentage", ("DSP_Used", "Used_DSP", "DSP")),
+        ("FF_Utilization_percentage", ("FF_Used", "Used_FF", "FF")),
+        ("LUT_Utilization_percentage", ("LUT_Used", "Used_LUT", "LUT")),
     )
-    return [_as_float(row.get(column, 0.0), 0.0) / 100.0 for column in columns]
+    fractions = []
+    for index, (percentage_column, count_columns) in enumerate(specifications):
+        count_column = next(
+            (
+                column for column in count_columns
+                if column in row and str(row[column]).strip() not in {"", "nan", "None"}
+            ),
+            None,
+        )
+        capacities = None
+        if count_column is not None:
+            device = str(row.get(
+                "Device", globals().get("QOR_REFERENCE_DEVICE", "")
+            )).strip().lower()
+            capacities = globals().get("TARGET_DEVICE_CAPACITIES", {}).get(device)
+        if count_column is not None and capacities is not None:
+            value = _as_float(row[count_column], float("nan"))
+            if value != value or abs(value) == float("inf") or value < 0.0:
+                raise ValueError(f"Invalid physical resource count {count_column}={value!r}")
+            fractions.append(value / float(capacities[index]))
+        else:
+            value = _as_float(row.get(percentage_column, 0.0), 0.0)
+            if value != value or abs(value) == float("inf") or value < 0.0:
+                raise ValueError(
+                    f"Invalid resource utilization {percentage_column}={value!r}"
+                )
+            fractions.append(value / 100.0)
+    return fractions
 
 
 # ---------------------------------------------------------------------------

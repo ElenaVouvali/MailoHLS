@@ -215,6 +215,19 @@ def test_prediction_metrics_distinguish_schema_keys_and_values():
     assert not missing_key["expected_key_match"]
     assert not missing_key["exact_design_match"]
 
+    inconsistent_array = evaluate_prediction(
+        "auto{_ARRAY_T_L2} = complete\n"
+        "auto{_ARRAY_F_L2} = 0\n"
+        "auto{_ARRAY_D_L2} = 1",
+        "auto{_ARRAY_T_L2} = complete\n"
+        "auto{_ARRAY_F_L2} = 2\n"
+        "auto{_ARRAY_D_L2} = 1",
+    )
+    assert inconsistent_array["schema_compliant"]
+    assert not inconsistent_array["dataset_encoding_valid"]
+    assert not inconsistent_array["directive_semantic_valid"]
+    assert not inconsistent_array["exact_design_match"]
+
 
 def test_selection_cases_are_limited_per_distinct_kernel(monkeypatch):
     monkeypatch.setattr(

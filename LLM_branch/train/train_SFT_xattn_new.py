@@ -514,8 +514,11 @@ def build_deterministic_rhs_pack(
         if site_domains is None:
             supervise = True
         else:
-            candidates = get_rhs_candidates_for_lhs(
-                kernel_name, lhs, directive_domain_registry
+            _, candidates = constrained_rhs_candidates(
+                kernel_name,
+                lhs,
+                directive_domain_registry,
+                chosen_assignments,
             )
             if rhs not in candidates:
                 raise ValueError(
@@ -1890,6 +1893,28 @@ def get_rhs_candidates_for_lhs(
     return cands
 
 
+def constrained_rhs_candidates(
+    kernel_name: str,
+    lhs: str,
+    directive_domain_registry: Dict[str, Dict[str, List[str]]],
+    chosen_assignments: Mapping[str, str],
+) -> Tuple[List[str], List[str]]:
+    """Apply measured tuple semantics without excluding valid loop combinations."""
+    original_candidates = list(
+        get_rhs_candidates_for_lhs(kernel_name, lhs, directive_domain_registry)
+    )
+    if lhs_kind(lhs) not in {"ARRAY_T", "ARRAY_F", "ARRAY_D"}:
+        return original_candidates, original_candidates
+    site_domains = directive_domain_registry[normalize_kname(kernel_name)]
+    filtered_candidates = mailohls_contract.filter_semantic_candidates(
+        lhs,
+        original_candidates,
+        dict(chosen_assignments),
+        site_domains,
+    )
+    return original_candidates, filtered_candidates
+
+
 DIRECTIVE_WEIGHT_MIN = 0.5
 DIRECTIVE_WEIGHT_MAX = 2.0
 
@@ -1910,16 +1935,21 @@ def compute_directive_loss_weights(
         target_core = reorder_target_by_source_order(
             row["input"], str(row["target"]).strip()
         )
+        chosen_assignments = {}
         for lhs, rhs in build_rhs_map_from_target(target_core).items():
             is_decision = (
                 directive_domain_registry is None
                 or "kernel_name" not in row
-                or len(get_rhs_candidates_for_lhs(
-                    row["kernel_name"], lhs, directive_domain_registry
-                )) > 1
+                or len(constrained_rhs_candidates(
+                    row["kernel_name"],
+                    lhs,
+                    directive_domain_registry,
+                    chosen_assignments,
+                )[1]) > 1
             )
             if is_decision and rhs.strip() and rhs.strip() != "?":
                 counts[lhs_kind(lhs)] += 1
+            chosen_assignments[lhs.strip().upper()] = rhs.strip()
     if not counts:
         raise ValueError("Cannot balance directive loss: training split has no RHS targets")
 
@@ -2186,8 +2216,8 @@ def score_teacher_forced_rhs_candidates(
                 input_ids, attention_mask, prefix_ids
             )
 
-            candidates = get_rhs_candidates_for_lhs(
-                kernel_name, lhs, directive_domain_registry
+            original_candidates, candidates = constrained_rhs_candidates(
+                kernel_name, lhs, directive_domain_registry, chosen_assignments
             )
 
             scored = []
@@ -2254,11 +2284,10 @@ def score_teacher_forced_rhs_candidates(
             trace.append({
                 "label": label,
                 "lhs": lhs,
-                "static_candidate_count": len(candidates),
-                # Dynamic cross-directive semantic pruning is intentionally
-                # disabled in the final Stage-1 contract. A singleton static
-                # proposal domain is not "forced by semantics".
-                "forced_by_semantics": False,
+                "static_candidate_count": len(original_candidates),
+                "forced_by_semantics": (
+                    len(original_candidates) > 1 and len(candidates) == 1
+                ),
                 "candidates": [dict(record) for record in scored],
             })
 
@@ -2345,8 +2374,8 @@ def constrained_decode_rhs_by_candidate_scoring(
             input_ids, attention_mask = append_token_ids(input_ids, attention_mask, prefix_ids)
             parts.append(prefix_text)
 
-            candidates = get_rhs_candidates_for_lhs(
-                kernel_name, lhs, directive_domain_registry
+            original_candidates, candidates = constrained_rhs_candidates(
+                kernel_name, lhs, directive_domain_registry, chosen_assignments
             )
 
             scored = []
@@ -2389,7 +2418,9 @@ def constrained_decode_rhs_by_candidate_scoring(
                     "label": label,
                     "lhs": lhs,
                     "static_candidate_count": len(original_candidates),
-                    "forced_by_semantics": len(candidates) == 1,
+                    "forced_by_semantics": (
+                        len(original_candidates) > 1 and len(candidates) == 1
+                    ),
                     "candidates": [
                         dict(record)
                         for record in scored
@@ -2407,7 +2438,9 @@ def constrained_decode_rhs_by_candidate_scoring(
         prediction = (
             "".join(parts).rstrip()
         )
-        # Cross-field directive compatibility is learned, not hard-filtered here.
+        # Source-derived domains describe compiler-supported individual values;
+        # the additional array check enforces the measured tuple representation.
+        mailohls_contract.validate_directive_assignments(chosen_assignments)
 
         if return_score_trace:
             return prediction, score_trace
@@ -2435,6 +2468,13 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
     expected_keys = list(ref_assign.keys())
     expected_key_match = set(pred_assign.keys()) == set(ref_assign.keys())
     schema_compliant = pred_signature is not None and pred_signature == ref_signature
+    dataset_encoding_valid = False
+    if pred_signature is not None:
+        try:
+            mailohls_contract.validate_directive_assignments(pred_assign)
+            dataset_encoding_valid = True
+        except ValueError:
+            dataset_encoding_valid = False
     exact_value_match_count = sum(
         (k in pred_assign) and (pred_assign[k] == ref_assign[k])
         for k in expected_keys
@@ -2451,8 +2491,14 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
         "canonical_prediction": pred_text,
         "value_accuracy_over_expected": exact_value_match_count / max(len(expected_keys), 1),
         "schema_compliant": schema_compliant,
+        "dataset_encoding_valid": dataset_encoding_valid,
+        # Compatibility alias: this validates MailoHLS's measured encoding,
+        # not the complete compiler legality of an arbitrary pragma program.
+        "directive_semantic_valid": dataset_encoding_valid,
         "expected_key_match": expected_key_match,
-        "exact_design_match": schema_compliant and pred_assign == ref_assign,
+        "exact_design_match": (
+            schema_compliant and dataset_encoding_valid and pred_assign == ref_assign
+        ),
         "pragma_kind_counts": {
             kind: dict(counts)
             for kind, counts in sorted(pragma_kind_counts.items())
@@ -2680,6 +2726,11 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
             / len(rows)
         ),
 
+        "directive_semantic_compliance": float(
+            sum(row.get("directive_semantic_valid", True) for row in rows)
+            / len(rows)
+        ),
+
         "expected_key_accuracy": float(
             sum(
                 row[
@@ -2769,6 +2820,32 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
         float(np.mean(group_decision_accuracies))
         if group_decision_accuracies else None
     )
+    exact_group_accuracies = [
+        float(np.mean([bool(row["exact_design_match"]) for row in group]))
+        for group in informative
+    ]
+    transition_accuracies = []
+    for group in informative:
+        changed_target_pairs = [
+            (first, second)
+            for index, first in enumerate(group)
+            for second in group[index + 1:]
+            if first["reference_target"] != second["reference_target"]
+        ]
+        if changed_target_pairs:
+            transition_accuracies.append(float(np.mean([
+                bool(first["exact_design_match"])
+                and bool(second["exact_design_match"])
+                for first, second in changed_target_pairs
+            ])))
+    summary["budget_counterfactual_exact_design_accuracy"] = (
+        float(np.mean(exact_group_accuracies))
+        if exact_group_accuracies else None
+    )
+    summary["budget_counterfactual_transition_accuracy"] = (
+        float(np.mean(transition_accuracies))
+        if transition_accuracies else None
+    )
 
     summary.update(summarize_candidate_margins(rows))
     summary.update(summarize_teacher_forced_candidates(rows))
@@ -2849,7 +2926,7 @@ class StageValSelectionCallback(TrainerCallback):
                     f"step={self.best_step}, key={self.best_key}"
                 )
             else:
-                self.best_key = (float("-inf"),) * 3
+                self.best_key = (float("-inf"),) * 5
                 self.best_step = -1
         else:
             if best_path.is_file():
@@ -2858,7 +2935,7 @@ class StageValSelectionCallback(TrainerCallback):
                     f"checkpoint: {best_path}. Use a new --output_dir or "
                     "explicitly --resume_from_checkpoint."
                 )
-            self.best_key = (float("-inf"),) * 3
+            self.best_key = (float("-inf"),) * 5
             self.best_step = -1
         self.last_selection_step = None
 
@@ -2965,15 +3042,13 @@ class StageValSelectionCallback(TrainerCallback):
             str(case.row.get("_jsonl_idx")),
         ])
 
-        # Production Stage-1 evaluates every source-derived field whose
-        # proposal domain contains more than one RHS. Related decisions never
-        # disappear because an earlier field took a particular value.
+        # Teacher forcing exposes genuine decisions under the measured action
+        # encoding. Independent PIPE/UNROLL fields both remain decisions;
+        # an array factor made mandatory by its measured type does not.
         decision_keys = {
-            lhs.strip().upper()
-            for _, lhs in extract_ordered_lhs_plan(case.source_text)
-            if len(get_rhs_candidates_for_lhs(
-                case.kernel_name, lhs, self.directive_domain_registry
-            )) > 1
+            site["lhs"].strip().upper()
+            for site in teacher_trace
+            if len(site["candidates"]) > 1
         }
         if not decision_keys:
             raise ValueError(
@@ -3112,6 +3187,7 @@ class StageValSelectionCallback(TrainerCallback):
                 metrics["value_accuracy_over_expected"]
             ),
             "schema_compliant": bool(metrics["schema_compliant"]),
+            "directive_semantic_valid": bool(metrics["directive_semantic_valid"]),
             "expected_key_match": bool(metrics["expected_key_match"]),
             "exact_design_match": bool(metrics["exact_design_match"]),
             "pragma_kind_counts": metrics["pragma_kind_counts"],
@@ -3167,9 +3243,13 @@ class StageValSelectionCallback(TrainerCallback):
             kernel_value_acc = summary["per_kernel_accuracy"]
             minimum_kernel_accuracy = summary["minimum_kernel_decision_accuracy"]
             selection_score = summary["selection_score"]
-            if schema_compliance != 1.0 or expected_key_accuracy != 1.0:
+            if (
+                schema_compliance != 1.0
+                or expected_key_accuracy != 1.0
+                or summary["directive_semantic_compliance"] != 1.0
+            ):
                 raise RuntimeError(
-                    "Constrained decoder violated its schema contract"
+                    "Constrained decoder violated its schema or directive contract"
                 )
             metrics_dict = (
                 kwargs.get(
@@ -3194,6 +3274,8 @@ class StageValSelectionCallback(TrainerCallback):
             checkpoint_key = (
                 selection_score,
                 joint_action_score,
+                float(summary["budget_counterfactual_transition_accuracy"] or 0.0),
+                float(summary["budget_counterfactual_exact_design_accuracy"] or 0.0),
                 -eval_loss,
             )
 
@@ -3242,6 +3324,10 @@ class StageValSelectionCallback(TrainerCallback):
                 f"cases={summary['budget_counterfactual_case_count']} "
                 f"decision_accuracy="
                 f"{summary['budget_counterfactual_decision_accuracy']} "
+                f"exact_design_accuracy="
+                f"{summary['budget_counterfactual_exact_design_accuracy']} "
+                f"correct_transition_accuracy="
+                f"{summary['budget_counterfactual_transition_accuracy']} "
                 f"prediction_sensitive_groups="
                 f"{summary['budget_sensitive_prediction_groups']}"
             )
@@ -4981,24 +5067,102 @@ def _quantized_budget(values: Iterable[float]) -> SharedResourceBudget:
     return SharedResourceBudget(*clipped)
 
 
+def _breakpoint_budget(values: Iterable[float]) -> SharedResourceBudget:
+    """Round measured breakpoints upward so their supporting designs still fit."""
+    return SharedResourceBudget(*[
+        round(
+            min(
+                1.0,
+                max(
+                    TARGET_CFG.min_budget_frac,
+                    math.ceil(float(value) * 100.0 - 1e-9) / 100.0,
+                ),
+            ),
+            2,
+        )
+        for value in values
+    ])
+
+
+def _frontier_breakpoint_budgets(
+    candidates: Sequence[dict],
+) -> List[SharedResourceBudget]:
+    """Anchor budgets at measured designs with three same-clock witnesses."""
+    by_clock = defaultdict(list)
+    for row in candidates:
+        fractions = tuple(_row_used_fraction(row, name) for name in RESOURCE_KEYS)
+        if all(math.isfinite(value) and value <= 1.0 + 1e-9 for value in fractions):
+            by_clock[_clock_of(row)].append(row)
+
+    required = max(1, int(TARGET_CFG.min_feasible_candidates))
+    breakpoints = set()
+    for _, clock_rows in sorted(by_clock.items()):
+        if len(clock_rows) < required:
+            continue
+        cheapest = sorted(
+            clock_rows,
+            key=lambda row: (
+                max(_row_used_fraction(row, name) for name in RESOURCE_KEYS),
+                sum(_row_used_fraction(row, name) for name in RESOURCE_KEYS),
+                int(row.get("_jsonl_idx", -1)),
+            ),
+        )
+        for anchor in _compact_candidate_union(clock_rows):
+            supporting = [anchor]
+            supporting.extend(row for row in cheapest if row is not anchor)
+            supporting = supporting[:required]
+            if len(supporting) != required:
+                continue
+            envelope = [
+                max(_row_used_fraction(row, name) for row in supporting)
+                for name in RESOURCE_KEYS
+            ]
+            breakpoints.add(_breakpoint_budget(envelope))
+    return sorted(breakpoints)
+
+
+def _budget_distance(first: SharedResourceBudget, second: SharedResourceBudget) -> float:
+    return sum(
+        abs(left - right)
+        for left, right in zip(first.as_dict().values(), second.as_dict().values())
+    )
+
+
 def sample_shared_budgets(
     case_key: Tuple[str, str],
     candidates: Sequence[dict],
     count: int,
     seed: int,
 ) -> List[SharedResourceBudget]:
-    """Generate a full reference budget plus independent uniform budgets."""
+    """Mix measured frontier breakpoints with independent resource budgets."""
+    requested = max(1, int(count))
     rng = random.Random(_stable_seed(case_key, seed))
     budgets = {SharedResourceBudget(1.0, 1.0, 1.0, 1.0)}
+    frontier_limit = min(
+        max(0, requested - 1),
+        max(1, (requested - 1) // 2) if requested > 1 else 0,
+    )
+    remaining_breakpoints = set(_frontier_breakpoint_budgets(candidates)) - budgets
+    while len(budgets) < 1 + frontier_limit and remaining_breakpoints:
+        selected = max(
+            remaining_breakpoints,
+            key=lambda budget: (
+                min(_budget_distance(budget, existing) for existing in budgets),
+                -sum(budget.as_dict().values()),
+                tuple(-value for value in budget.as_dict().values()),
+            ),
+        )
+        budgets.add(selected)
+        remaining_breakpoints.remove(selected)
     attempts = 0
-    while len(budgets) < max(1, count) and attempts < max(100, count * 50):
+    while len(budgets) < requested and attempts < max(100, requested * 50):
         attempts += 1
         values = [
             rng.uniform(TARGET_CFG.min_budget_frac, 1.0)
             for _ in RESOURCE_KEYS
         ]
         budgets.add(_quantized_budget(values))
-    if len(budgets) < max(1, count):
+    if len(budgets) < requested:
         print(f"[RANDOM-BUDGET] {case_key}: only {len(budgets)} distinct budgets")
     return sorted(budgets)
 
@@ -5131,8 +5295,8 @@ def compact_duplicate_budget_targets(
     """Compact duplicate training budgets only after objective selection.
 
     Repeated targets are grouped by kernel/device/clock/objective/canonical
-    completion. The tightest budget is kept first. If a full-device budget is
-    present it is the second representative; otherwise the loosest budget is.
+    completion. The tightest and full/loosest budgets are retained first;
+    remaining representatives maximize their distance from budgets kept so far.
     max_duplicates=0 disables compaction. Validation is never compacted.
     """
     if max_duplicates <= 0:
@@ -5184,13 +5348,26 @@ def compact_duplicate_budget_targets(
             if second is not chosen[0]:
                 chosen.append(second)
         if len(chosen) < min(max_duplicates, len(ordered)):
-            chosen_ids = {id(row) for row in chosen}
-            for row in ordered:
-                if id(row) not in chosen_ids:
-                    chosen.append(row)
-                    chosen_ids.add(id(row))
-                if len(chosen) == max_duplicates:
-                    break
+            remaining = [row for row in ordered if all(row is not keep for keep in chosen)]
+            while remaining and len(chosen) < max_duplicates:
+                selected = max(
+                    remaining,
+                    key=lambda row: (
+                        min(
+                            sum(
+                                abs(left - right)
+                                for left, right in zip(
+                                    budget_vector(row), budget_vector(keep)
+                                )
+                            )
+                            for keep in chosen
+                        ),
+                        len({round(value, 4) for value in budget_vector(row)}),
+                        tightness_key(row),
+                    ),
+                )
+                chosen.append(selected)
+                remaining.remove(selected)
         compacted.extend(chosen[:max_duplicates])
 
     print(
@@ -5200,6 +5377,55 @@ def compact_duplicate_budget_targets(
         f"max_duplicates={max_duplicates}"
     )
     return compacted
+
+
+def write_validation_resource_budget_bank(
+    rows: Sequence[Mapping[str, Any]],
+    output_dir: str,
+    *,
+    seed: int,
+    budgets_per_case: int,
+    minimum_fraction: float,
+) -> str:
+    """Export the exact held-out budget contexts for GNN feasibility checks."""
+    cases = {}
+    for row in rows:
+        device = _norm_device(row.get("device", ""))
+        if device not in DEVICE_RESOURCES:
+            continue
+        capacities = DEVICE_RESOURCES[device]
+        available = _available_resources(row)
+        fractions = [
+            float(row.get(
+                f"budget_frac_{name.lower()}",
+                float(available[name]) / float(capacities[name]),
+            ))
+            for name in RESOURCE_KEYS
+        ]
+        key = (
+            str(row["kernel_name"]),
+            device,
+            float(_clock_of(row)),
+            str(row.get("resource_budget_id", "")),
+        )
+        cases[key] = {
+            "kernel": key[0],
+            "device": key[1],
+            "clock_period_ns": key[2],
+            "resource_budget_id": key[3],
+            "fractions": fractions,
+        }
+    destination = os.path.join(output_dir, "validation_resource_budget_bank.json")
+    dump_json(destination, {
+        "schema": "mailohls-stage1-validation-resource-budget-bank-v1",
+        "resource_order": ["bram", "dsp", "ff", "lut"],
+        "seed": int(seed),
+        "requested_budgets_per_case": int(budgets_per_case),
+        "minimum_fraction": float(minimum_fraction),
+        "cases": [value for _, value in sorted(cases.items())],
+    })
+    print(f"[BUDGET-BANK] exact validation resource budgets -> {destination}")
+    return destination
 
 def summarize_budget_counterfactuals(rows: Sequence[Mapping[str, Any]]) -> dict:
     """Count true target changes across budgets without inventing alternatives."""
@@ -6139,6 +6365,14 @@ def run_single_training(args):
             )
         )
 
+    validation_budget_bank_path = write_validation_resource_budget_bank(
+        val_rows,
+        args.output_dir,
+        seed=eval_seed,
+        budgets_per_case=args.random_budgets_per_case,
+        minimum_fraction=args.random_budget_min_frac,
+    )
+
     print(f"[INFO] Selected split sizes: train={len(train_rows)} val={len(val_rows)}; "
           f"held-out test rows not selected={len(raw_test_rows)}")
     for split_name, selected_rows in (("train", train_rows), ("val", val_rows)):
@@ -6489,6 +6723,17 @@ def run_single_training(args):
             if registry_policy == directive_domains.SOURCE_DOMAIN_POLICY
             else None
         ),
+        "directive_semantic_scope": {
+            "individual_value_domains": (
+                "source_derived_compiler_proposal_domains"
+            ),
+            "loop_cross_field": (
+                "PIPE_and_UNROLL_are_independent_and_may_both_be_positive"
+            ),
+            "array_cross_field": (
+                "measured_dataset_tuple_encoding_not_universal_compiler_legality"
+            ),
+        },
         "max_length": args.max_length,
         "top_k": args.top_k,
         "device_mode": args.device_mode,
@@ -6503,10 +6748,18 @@ def run_single_training(args):
         "candidate_pool_per_objective": args.candidate_pool_per_objective,
         "budget_target_max_duplicates": args.budget_target_max_duplicates,
         "budget_target_compaction_policy": (
-            "post_objective_target_tightest_plus_full_or_loosest"
+            "post_objective_target_tightest_full_or_loosest_and_maximin_diversity"
         ),
         "candidate_compaction_policy": "per_measured_clock",
-        "budget_sampling_policy": "full_reference_plus_independent_uniform_resource_budgets",
+        "budget_sampling_policy": (
+            "full_reference_measured_frontier_breakpoints_and_independent_resource_budgets"
+        ),
+        "validation_resource_budget_bank": os.path.abspath(
+            validation_budget_bank_path
+        ),
+        "validation_resource_budget_bank_sha256": _file_sha256(
+            Path(validation_budget_bank_path)
+        ),
         "family_sampling_power": args.family_sampling_power,
         "family_sampling_replacement": args.family_sampling_replacement,
         "family_split_summary": family_split_summary,
@@ -6524,7 +6777,9 @@ def run_single_training(args):
             args.selection_cases_per_kernel_device
         ),
         "selection_eval_steps": args.selection_eval_steps,
-        "selection_metric": "kernel_macro_static_field_accuracy_with_joint_action_tiebreak",
+        "selection_metric": (
+            "kernel_macro_decision_accuracy_joint_actions_and_correct_budget_transitions"
+        ),
         "early_stopping_patience": (
             args.early_stopping_patience if args.disable_structural_memory else 0
         ),
@@ -7037,17 +7292,21 @@ def run_single_training(args):
             )
         )
 
-    total_steps = int(steps_per_epoch * args.epochs / max(1, args.grad_accum))
-    effective_total_steps = args.max_steps if args.max_steps > 0 else total_steps
-    warmup_steps = int(
-        args.warmup_ratio * effective_total_steps
-    )
     effective_updates_per_epoch = (
         math.ceil(steps_per_epoch / max(1, args.grad_accum))
         if not args.selection_eval_only
         else 0
     )
-    stage1_early_stopping_min_step = 0
+    total_steps = effective_updates_per_epoch * args.epochs
+    effective_total_steps = (
+        args.max_steps if args.max_steps > 0 else max(1, total_steps)
+    )
+    warmup_steps = int(args.warmup_ratio * effective_total_steps)
+    stage1_early_stopping_min_step = (
+        effective_updates_per_epoch
+        if args.disable_structural_memory and not args.selection_eval_only
+        else 0
+    )
     training_contract["effective_updates_per_epoch"] = (
         effective_updates_per_epoch
     )
@@ -7436,7 +7695,7 @@ def main():
     ap.add_argument(
         "--random_budget_min_frac",
         type=float,
-        default=0.01,
+        default=0.05,
     )
 
     ap.add_argument(
@@ -7463,11 +7722,11 @@ def main():
     ap.add_argument(
         "--budget_target_max_duplicates",
         type=int,
-        default=0,
+        default=4,
         help=(
             "After objective selection, retain at most this many training "
             "budget contexts for an identical canonical target. 0 disables "
-            "compaction; final MailoHLS uses 2 (tightest + full/loosest)."
+            "compaction; final MailoHLS retains four diverse representatives."
         ),
     )
     ap.add_argument(
@@ -7484,7 +7743,7 @@ def main():
         action="store_true",
         help="Supervise EOS for free-generation ablations (off in production).",
     )
-    ap.add_argument("--epochs", type=int, default=3)
+    ap.add_argument("--epochs", type=int, default=2)
     ap.add_argument("--batch_size", type=int, default=2)
     ap.add_argument("--grad_accum", type=int, default=4)
     ap.add_argument(
@@ -7497,10 +7756,10 @@ def main():
     ap.add_argument("--num_workers", type=int, default=4)
     ap.add_argument("--group_by_length", action="store_true")
     ap.add_argument(
-        "--family_sampling_power", type=float, default=0.0,
+        "--family_sampling_power", type=float, default=0.5,
         help=(
-            "Optional family-reweighted sampling ablation. Production Stage-1 "
-            "uses 0.0, i.e. the ordinary seeded example order."
+            "Family-aware ordering; without replacement every example remains "
+            "present exactly once in a complete epoch."
         ),
     )
     ap.add_argument(
@@ -7540,7 +7799,7 @@ def main():
     ap.add_argument(
         "--directive_loss_weighting",
         choices=("uniform", "inverse_sqrt_frequency"),
-        default="uniform",
+        default="inverse_sqrt_frequency",
         help="Uniform baseline or training-split-only inverse-sqrt balancing.",
     )
 
@@ -7623,7 +7882,7 @@ def main():
         type=int,
         default=4,
     )
-    ap.add_argument("--selection_eval_steps", type=int, default=200)
+    ap.add_argument("--selection_eval_steps", type=int, default=50)
     ap.add_argument("--selection_candidate_batch_size", type=int, default=4)
     ap.add_argument("--best_dir_name", type=str, default="best_custom_stage1")
     ap.add_argument("--early_stopping_patience", type=int, default=3)
@@ -7654,8 +7913,8 @@ def main():
         help="Write structural-layer diagnostics every N synchronized steps; 0 disables them.",
     )
     ap.add_argument("--ce_loss_weight", type=float, default=1.0)
-    ap.add_argument("--eval_steps", type=int, default=100)
-    ap.add_argument("--save_steps", type=int, default=100)
+    ap.add_argument("--eval_steps", type=int, default=50)
+    ap.add_argument("--save_steps", type=int, default=50)
     ap.add_argument("--max_steps", type=int, default=-1)
     ap.add_argument("--loss_chunk_t", type=int, default=256)
     ap.add_argument("--run_mode", type=str, default="two_stage", choices=["single", "two_stage"])
