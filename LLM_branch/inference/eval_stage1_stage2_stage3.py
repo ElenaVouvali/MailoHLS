@@ -1272,8 +1272,11 @@ def predict_case(
     sample_top_k: int,                # NEW
     sample_seed: int,                 # NEW
 ) -> Dict[str, Any]:
-    if str(case.platform_row.get("frequency_mode", "specified")).lower() != "specified":
-        raise ValueError("Automatic-clock inference is not implemented in the locked contract")
+    frequency_mode = str(
+        case.platform_row.get("frequency_mode", "specified")
+    ).strip().lower()
+    if frequency_mode not in {"specified", "auto"}:
+        raise ValueError(f"Unsupported frequency_mode: {frequency_mode!r}")
     sections = mailohls_contract.build_prompt_sections(
         case.source_text,
         case.obj_mode,
@@ -1283,9 +1286,59 @@ def predict_case(
         token_id for section in sections
         for token_id in tok(section, add_special_tokens=False)["input_ids"]
     ]
-    prompt_ids = base_prompt_ids + mailohls_contract.selected_clock_response_token_ids(
-        case.platform_row, tok
-    )
+    clock_debug = None
+    if frequency_mode == "specified":
+        selected_clock = float(
+            case.platform_row.get(
+                "selected_clock_period",
+                case.platform_row.get("clock_period"),
+            )
+        )
+        clock_prefix_ids = mailohls_contract.selected_clock_response_token_ids(
+            case.platform_row, tok
+        )
+    else:
+        raw_supported = case.platform_row.get("available_clock_periods")
+        if not isinstance(raw_supported, (list, tuple)) or len(raw_supported) < 2:
+            raise ValueError(
+                "AUTO inference requires at least two available_clock_periods"
+            )
+        supported = sorted({round(float(value), 2) for value in raw_supported})
+        fixed_text = f"{mailohls_contract.CLOCK_ANCHOR_TOKEN}\nselected_clock_period_ns = "
+        fixed_ids = tok(fixed_text, add_special_tokens=False)["input_ids"]
+        device = get_first_real_device(model)
+        base_input = torch.tensor(
+            [base_prompt_ids + fixed_ids], dtype=torch.long, device=device
+        )
+        base_mask = torch.ones_like(base_input)
+        scored_clocks = []
+        for clock in supported:
+            value_text = f"{clock:g}\n"
+            stats = score_rhs_candidate_suffix(
+                model=model,
+                tok=tok,
+                base_input_ids=base_input,
+                base_attention_mask=base_mask,
+                candidate_text=value_text,
+                use_structural_memory=False,
+            )
+            scored_clocks.append({
+                "clock_period_ns": clock,
+                "score": stats["mean_logprob"],
+                **stats,
+            })
+        scored_clocks.sort(
+            key=lambda item: (item["score"], item["sum_logprob"]),
+            reverse=True,
+        )
+        selected_clock = float(scored_clocks[0]["clock_period_ns"])
+        predicted_row = dict(case.platform_row)
+        predicted_row["selected_clock_period"] = selected_clock
+        clock_prefix_ids = mailohls_contract.selected_clock_response_token_ids(
+            predicted_row, tok
+        )
+        clock_debug = scored_clocks
+    prompt_ids = base_prompt_ids + clock_prefix_ids
     if len(prompt_ids) > max_prompt_tokens:
         raise ValueError("Inference prompt and selected-clock prefix exceed --max_length")
 
@@ -1385,7 +1438,22 @@ def predict_case(
         ),
         "unique_sample_ids_by_model_score": [int(x["sample_id"]) for x in unique_candidates_sorted],
         "candidates": candidates,
+        "frequency_mode": frequency_mode,
+        "predicted_clock_period_ns": selected_clock,
     }
+    if frequency_mode == "auto":
+        row["supported_clock_periods_ns"] = sorted({
+            round(float(value), 2)
+            for value in case.platform_row["available_clock_periods"]
+        })
+        row["clock_candidates"] = clock_debug
+        reference_clock = case.platform_row.get("selected_clock_period")
+        if reference_clock not in (None, ""):
+            reference_clock = round(float(reference_clock), 2)
+            row["reference_clock_period_ns"] = reference_clock
+            row["clock_correct"] = (
+                round(float(selected_clock), 2) == reference_clock
+            )
 
     if stage in {"stage2", "stage3"} and structural_memory_mask is not None:
         row["memory_active_slots"] = int(structural_memory_mask.sum().item())

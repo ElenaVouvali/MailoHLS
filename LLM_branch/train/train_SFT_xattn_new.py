@@ -5294,8 +5294,10 @@ def compact_duplicate_budget_targets(
 ) -> List[dict]:
     """Compact duplicate training budgets only after objective selection.
 
-    Repeated targets are grouped by kernel/device/clock/objective/canonical
-    completion. The tightest and full/loosest budgets are retained first;
+    Repeated targets are grouped by kernel/device/frequency-mode/clock/
+    objective/canonical completion. AUTO prompts must never be compacted with
+    specified-clock prompts that happen to select the same measured clock.
+    The tightest and full/loosest budgets are retained first;
     remaining representatives maximize their distance from budgets kept so far.
     max_duplicates=0 disables compaction. Validation is never compacted.
     """
@@ -5307,6 +5309,7 @@ def compact_duplicate_budget_targets(
         key = (
             row["kernel_name"],
             _norm_device(row.get("device", "")),
+            str(row.get("frequency_mode", "specified")).strip().lower(),
             _clock_of(row),
             row.get("obj_mode"),
             canonical_completion_key(row["input"], row["target"]),

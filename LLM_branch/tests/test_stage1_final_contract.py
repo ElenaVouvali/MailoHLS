@@ -311,6 +311,37 @@ def test_budget_deduplication_preserves_targets_and_diverse_representatives():
     assert "budget-2" in ids or "budget-3" in ids
 
 
+def test_budget_deduplication_separates_auto_and_specified_prompts():
+    device = "xczu7ev-ffvc1156-2-e"
+    capacities = mailohls_contract.DEVICE_RESOURCES[device]
+    base = {
+        "kernel_name": "kernel-a",
+        "device": device,
+        "clock_period": 5.0,
+        "selected_clock_period": 5.0,
+        "obj_mode": "PARETO_ADP",
+        "input": "L1: auto{_PIPE_L1} = ?",
+        "target": "auto{_PIPE_L1} = 1",
+        "avail_bram": capacities["BRAM_18K"],
+        "avail_dsp": capacities["DSP"],
+        "avail_ff": capacities["FF"],
+        "avail_lut": capacities["LUT"],
+    }
+    rows = [
+        dict(base, frequency_mode="specified", resource_budget_id="specified"),
+        dict(
+            base,
+            frequency_mode="auto",
+            available_clock_periods=[3.33, 5.0, 10.0],
+            resource_budget_id="auto",
+        ),
+    ]
+
+    selected = trainer.compact_duplicate_budget_targets(rows, 1)
+
+    assert {row["frequency_mode"] for row in selected} == {"specified", "auto"}
+
+
 def test_budget_transition_metric_requires_both_measured_optima_to_be_correct():
     base = {
         "kernel_name": "kernel-a", "device": "device-a",
