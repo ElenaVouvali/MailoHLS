@@ -382,6 +382,28 @@ class StageBHelperTests(unittest.TestCase):
         response = anchored(head, neutral, neutral)
         torch.testing.assert_close(response, torch.zeros_like(response))
 
+    def test_qor_output_initialization_preserves_tenth_scale_signal(self):
+        initialize = _load_model_function(
+            "initialize_qor_heads_conservatively",
+            {"torch": torch, "nn": torch.nn},
+        )
+
+        class Head(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layers = torch.nn.ModuleList([torch.nn.Linear(3, 1)])
+
+        heads = torch.nn.ModuleDict({"perf": Head()})
+        before = heads["perf"].layers[-1].weight.detach().clone()
+        initialize(heads, scale=0.1)
+        torch.testing.assert_close(
+            heads["perf"].layers[-1].weight, before * 0.1
+        )
+        torch.testing.assert_close(
+            heads["perf"].layers[-1].bias,
+            torch.zeros_like(heads["perf"].layers[-1].bias),
+        )
+
     def test_anchored_head_cancels_static_bias_but_keeps_context(self):
         anchored = _load_model_function(
             "anchored_head_response", {"torch": torch}
@@ -408,6 +430,18 @@ class StageBHelperTests(unittest.TestCase):
             [schedule(epoch) for epoch in range(6)],
             [0.0, 0.0, 0.0, 0.025, 0.05, 0.05],
         )
+
+    def test_pairwise_calibration_relaxed_policy_activates_after_one_stable_transition(self):
+        update = _load_function("update_pairwise_calibration_state", {"np": np})
+        previous, count, ready = update(
+            0.575, None, 0, tolerance=0.20, patience=1
+        )
+        self.assertFalse(ready)
+        previous, count, ready = update(
+            0.743, previous, count, tolerance=0.20, patience=1
+        )
+        self.assertTrue(ready)
+        self.assertEqual(count, 1)
 
     def test_exact_stage1_budget_bank_controls_resource_feasibility(self):
         flags = SimpleNamespace(

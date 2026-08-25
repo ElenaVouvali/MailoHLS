@@ -76,6 +76,7 @@ def main():
         'separate_icmp', 'P_use_all_nodes', 'gae_T', 'gae_P', 'input_encode',
         'decoder_type',
         'decompose_targets', 'target_mode', 'standardize_targets',
+        'qor_output_init_scale',
         'MLP_common_lyr', 'pragma_as_MLP', 'pragma_as_MLP_list',
         'pragma_scope', 'keep_pragma_attribute', 'pragma_order',
         'pragma_MLP_hidden_channels',
