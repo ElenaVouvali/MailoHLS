@@ -37,6 +37,30 @@ def make_resource_heads(response_in_D, hidden_dim, resource_stats):
     })
 
 
+def initialize_qor_heads_conservatively(heads, scale=0.01):
+    """Reduce only QoR output-layer weights; leave resource heads untouched."""
+    if scale <= 0.0 or scale > 1.0:
+        raise ValueError('QoR output initialization scale must be in (0, 1].')
+    if isinstance(heads, nn.ModuleDict):
+        output_layers = [head.layers[-1] for head in heads.values()]
+    else:
+        output_layers = [layers[-1] for layers in heads.MLP_heads.values()]
+    with torch.no_grad():
+        for layer in output_layers:
+            layer.weight.mul_(float(scale))
+            if layer.bias is not None:
+                layer.bias.zero_()
+
+
+def anchored_head_response(head, full_input, neutral_input):
+    """Evaluate one shared head twice so a neutral change is exactly zero."""
+    full = head(full_input)
+    neutral = head(neutral_input)
+    if isinstance(full, dict):
+        return {name: value - neutral[name] for name, value in full.items()}
+    return full - neutral
+
+
 def within_kernel_rank_loss(
     prediction,
     target,
@@ -323,10 +347,12 @@ class Net(nn.Module):
               + self.target_condition_dim
           )
           self.MLPs = make_regression_heads(response_in_D)
+          initialize_qor_heads_conservatively(self.MLPs)
           if self.decompose_targets:
               self.center_MLPs = make_regression_heads(
                   in_D + self.target_condition_dim
               )
+              initialize_qor_heads_conservatively(self.center_MLPs)
           self.resource_heads = make_resource_heads(
               response_in_D, D, resource_stats
           )
@@ -1090,6 +1116,10 @@ class Net(nn.Module):
             else out
         )
         center_embed = static_embed
+        neutral_embed = (
+            torch.cat((static_embed, torch.zeros_like(out - static_embed)), dim=1)
+            if self.reference_delta else None
+        )
         if self.target_condition_dim:
             if not hasattr(data, 'target_condition'):
                 raise RuntimeError('Multi-target QoR requires device/clock target_condition.')
@@ -1099,6 +1129,12 @@ class Net(nn.Module):
             if target_condition.shape[0] != out_embed.shape[0]:
                 raise RuntimeError('Expected one device/clock condition per graph.')
             out_embed = torch.cat((out_embed, target_condition), dim=1)
+            if neutral_embed is not None:
+                # The identical device/clock condition in both evaluations is
+                # essential: only the modeled pragma response may survive.
+                neutral_embed = torch.cat(
+                    (neutral_embed, target_condition), dim=1
+                )
             if center_embed is not None:
                 center_embed = torch.cat((center_embed, target_condition), dim=1)
         loss_dict = {}
@@ -1106,7 +1142,12 @@ class Net(nn.Module):
         pairwise_delta_losses = []
 
         if self.MLP_version == 'multi_obj':
-            out_MLPs = self.MLPs(out_embed)
+            if self.reference_delta:
+                out_MLPs = anchored_head_response(
+                    self.MLPs, out_embed, neutral_embed
+                )
+            else:
+                out_MLPs = self.MLPs(out_embed)
             center_MLPs = (
                 self.center_MLPs(center_embed)
                 if self.decompose_targets else None
@@ -1115,7 +1156,13 @@ class Net(nn.Module):
             if self.MLP_version == 'multi_obj':
                 response_out = out_MLPs[target_name]
             else:
-                response_out = self.MLPs[target_name](out_embed)
+                response_out = (
+                    anchored_head_response(
+                        self.MLPs[target_name], out_embed, neutral_embed
+                    )
+                    if self.reference_delta
+                    else self.MLPs[target_name](out_embed)
+                )
             if self.decompose_targets:
                 center_out = (
                     center_MLPs[target_name]
@@ -1135,9 +1182,15 @@ class Net(nn.Module):
                 target = y.view((len(y), self.out_dim))
                 mean, std = self._target_transform(target_name, target)
                 loss_target = (
-                    (target - mean) / std
-                    if bool(self.targets_standardized.item())
-                    else target
+                    target / std
+                    if (
+                        self.reference_delta
+                        and bool(self.targets_standardized.item())
+                    )
+                    else (
+                        (target - mean) / std
+                        if bool(self.targets_standardized.item()) else target
+                    )
                 )
                 error = out - loss_target
                 loss_mode = str(FLAGS.loss).lower()
@@ -1251,9 +1304,15 @@ class Net(nn.Module):
                 # Public predictions remain in the original log2 target space;
                 # physical-unit evaluation therefore needs no special case.
                 model_prediction = (
-                    out * std + mean
-                    if bool(self.targets_standardized.item())
-                    else out
+                    out * std
+                    if (
+                        self.reference_delta
+                        and bool(self.targets_standardized.item())
+                    )
+                    else (
+                        out * std + mean
+                        if bool(self.targets_standardized.item()) else out
+                    )
                 )
                 if self.reference_delta:
                     baseline = _get_y_with_target(

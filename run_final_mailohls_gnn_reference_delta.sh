@@ -75,7 +75,7 @@ python -u GNN_branch/main_GNN.py \
   --rank_aux_weight 0 \
   --pairwise_delta_weight 0.05 \
   --pairwise_delta_start_epoch 3 \
-  --pairwise_delta_ramp_epochs 2 \
+  --pairwise_delta_ramp_epochs 3 \
   --rank_tie_relative 0.05 \
   --resource_aux_weight 0.10 \
   --resource_budget_bank "${BUDGET_BANK}" \

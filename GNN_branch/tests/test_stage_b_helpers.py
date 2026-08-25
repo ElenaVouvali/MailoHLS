@@ -371,6 +371,31 @@ class StageBHelperTests(unittest.TestCase):
         self.assertEqual(float(exact), 0.0)
         self.assertGreater(float(exaggerated), 0.0)
 
+    def test_anchored_head_is_exactly_zero_for_neutral_change(self):
+        anchored = _load_model_function(
+            "anchored_head_response", {"torch": torch}
+        )
+        head = torch.nn.Sequential(
+            torch.nn.Linear(4, 8), torch.nn.ReLU(), torch.nn.Linear(8, 1)
+        )
+        neutral = torch.randn(5, 4)
+        response = anchored(head, neutral, neutral)
+        torch.testing.assert_close(response, torch.zeros_like(response))
+
+    def test_anchored_head_cancels_static_bias_but_keeps_context(self):
+        anchored = _load_model_function(
+            "anchored_head_response", {"torch": torch}
+        )
+        head = torch.nn.Linear(2, 1)
+        with torch.no_grad():
+            head.weight.copy_(torch.tensor([[2.0, 3.0]]))
+            head.bias.fill_(17.0)
+        full = torch.tensor([[4.0, 5.0]])
+        neutral = torch.tensor([[4.0, 0.0]])
+        torch.testing.assert_close(
+            anchored(head, full, neutral), torch.tensor([[15.0]])
+        )
+
     def test_pairwise_delta_weight_waits_for_reference_calibration(self):
         schedule = _load_function("scheduled_pairwise_delta_weight", {
             "FLAGS": SimpleNamespace(

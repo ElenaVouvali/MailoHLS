@@ -213,10 +213,10 @@ def should_update_structural_rank(
             f"Invalid structural ranking score: {ranking_score}"
         )
 
-    return (
-        ranking_score >= float(min_rank_tau)
-        and ranking_score > float(best_score) + float(min_delta)
-    )
+    # Structural memory is a separately releasable artifact.  Always retain
+    # its best finite held-out-validation encoder, even when calibrated QoR
+    # prediction (or a requested tau claim threshold) does not qualify.
+    return ranking_score > float(best_score) + float(min_delta)
 
 
 def _git_commit():
@@ -875,14 +875,31 @@ def qualified_lexicographic_metrics(
     }
 
 
-def scheduled_pairwise_delta_weight(epoch):
+def scheduled_pairwise_delta_weight(epoch, activation_epoch=None):
     """Leave zero-delta calibration alone before gradually adding differences."""
     maximum = float(getattr(FLAGS, 'pairwise_delta_weight', 0.0))
     start = int(getattr(FLAGS, 'pairwise_delta_start_epoch', 3))
     ramp = max(1, int(getattr(FLAGS, 'pairwise_delta_ramp_epochs', 2)))
-    if int(epoch) < start:
+    if activation_epoch is not None:
+        start = max(start, int(activation_epoch))
+    if int(epoch) < start or activation_epoch is False:
         return 0.0
     return maximum * min(1.0, float(int(epoch) - start + 1) / float(ramp))
+
+
+def update_pairwise_calibration_state(
+    perf_ratio, previous_ratio, stable_epochs, *, tolerance, patience
+):
+    """Require calibrated and stationary validation latency before ranking."""
+    ratio = float(perf_ratio)
+    calibrated = np.isfinite(ratio) and ratio < 1.0
+    stable = (
+        calibrated
+        and previous_ratio is not None
+        and abs(ratio - float(previous_ratio)) <= float(tolerance)
+    )
+    count = int(stable_epochs) + 1 if stable else 0
+    return ratio, count, count >= int(patience)
 
 
 def compute_per_kernel_target_baseline_ratios(points_dict, target_stats):
@@ -2098,6 +2115,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
     best_lexicographic_ratios = None
     best_lexicographic_kernel_ratios = None
     best_lexicographic_qualification = None
+    pairwise_activation_epoch = None
+    pairwise_previous_perf_ratio = None
+    pairwise_stable_epochs = 0
 
     if FLAGS.resume_training and exists(ckpt_path):
         st = torch.load(ckpt_path, map_location='cpu')
@@ -2157,6 +2177,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
             'best_lexicographic_control', float('inf')
         )
         best_lexicographic_epoch = st.get('best_lexicographic_epoch')
+        pairwise_activation_epoch = st.get('pairwise_activation_epoch')
+        pairwise_previous_perf_ratio = st.get('pairwise_previous_perf_ratio')
+        pairwise_stable_epochs = st.get('pairwise_stable_epochs', 0)
         best_lexicographic_ratios = st.get('best_lexicographic_ratios')
         best_lexicographic_kernel_ratios = st.get(
             'best_lexicographic_kernel_ratios'
@@ -2255,7 +2278,18 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
         log_loss(initial_breakdown, initial_gae, 'Initial validation')
 
     for epoch in range(start_epoch, FLAGS.epoch_num):
-        model.current_pairwise_delta_weight = scheduled_pairwise_delta_weight(epoch)
+        requires_calibration = (
+            getattr(FLAGS, 'target_mode', 'absolute') == 'reference_delta'
+            and float(getattr(FLAGS, 'pairwise_delta_weight', 0.0)) > 0.0
+        )
+        activation = (
+            pairwise_activation_epoch
+            if pairwise_activation_epoch is not None
+            else (False if requires_calibration else None)
+        )
+        model.current_pairwise_delta_weight = scheduled_pairwise_delta_weight(
+            epoch, activation
+        )
         saver.log_info(
             f'Pairwise delta auxiliary weight at epoch {epoch}: '
             f'{model.current_pairwise_delta_weight:.6f}'
@@ -2293,6 +2327,27 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 )
             )
             val_selection_ratios.append(target_ratios)
+            if requires_calibration and pairwise_activation_epoch is None:
+                perf_ratio = target_ratios.get('perf')
+                if perf_ratio is None:
+                    raise RuntimeError(
+                        'Pairwise calibration requires a validation perf target.'
+                    )
+                pairwise_previous_perf_ratio, pairwise_stable_epochs, ready = (
+                    update_pairwise_calibration_state(
+                        perf_ratio,
+                        pairwise_previous_perf_ratio,
+                        pairwise_stable_epochs,
+                        tolerance=FLAGS.pairwise_calibration_tolerance,
+                        patience=FLAGS.pairwise_calibration_stable_epochs,
+                    )
+                )
+                if ready:
+                    pairwise_activation_epoch = epoch + 1
+                    saver.log_info(
+                        'Validation latency calibration is stable; pairwise '
+                        f'supervision activates at epoch {pairwise_activation_epoch}.'
+                    )
             saver.log_info(
                 f'Validation target-balanced selection score: '
                 f'{current_selection_score:.6f}; '
@@ -2562,6 +2617,9 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 "best_lexicographic_qualification": (
                     best_lexicographic_qualification
                 ),
+                "pairwise_activation_epoch": pairwise_activation_epoch,
+                "pairwise_previous_perf_ratio": pairwise_previous_perf_ratio,
+                "pairwise_stable_epochs": pairwise_stable_epochs,
                 "initial_selection": initial_selection,
                 "initial_ratios": initial_ratios,
                 "test_losses": test_losses,
@@ -2758,6 +2816,67 @@ def train_main(dataset, pragma_dim = None, val_ratio=FLAGS.val_ratio, test_ratio
                 qualification_target_stats=target_stats,
                 qualification_resource_diagnostics=resource_diagnostics,
             )
+
+        # Stage-2 consumes encoder embeddings, so publish its independently
+        # selected checkpoint before enforcing any calibrated-surrogate gate.
+        # Downstream ablations remain an explicit release requirement rather
+        # than being conflated with latency/area prediction qualification.
+        if best_structural_rank_epoch is None:
+            raise RuntimeError(
+                'No finite structural validation-ranking checkpoint was produced.'
+            )
+        structural_path = join(
+            saver.model_logdir, 'val_structural_rank_model_state_dict.pth'
+        )
+        structural_summary = {
+            'schema': 'mailohls-structural-encoder-release-v1',
+            'checkpoint_tag': 'val_structural_rank',
+            'checkpoint_epoch': int(best_structural_rank_epoch),
+            'checkpoint_path': (
+                str(Path(structural_path).resolve())
+                if exists(structural_path) else None
+            ),
+            'checkpoint_sha256': (
+                _sha256_file(structural_path)
+                if exists(structural_path) else None
+            ),
+            'held_out_worst_target_kernel_macro_tau': float(
+                best_structural_rank_score
+            ),
+            'qor_ratios_diagnostic_only': _jsonable(
+                best_structural_rank_ratios
+            ),
+            'per_kernel_qor_ratios_diagnostic_only': _jsonable(
+                best_structural_rank_kernel_ratios
+            ),
+            'surrogate_calibration_qualified': bool(
+                best_structural_rank_ratios
+                and all(
+                    float(value) < 1.0
+                    for value in best_structural_rank_ratios.values()
+                )
+            ),
+            'release_policy': {
+                'checkpoint_selection': 'held_out_structural_ranking',
+                'requires_downstream_structural_ablations': True,
+                'required_comparisons': [
+                    'real_aligned_vs_no_structural_memory',
+                    'real_aligned_vs_misaligned_structural_memory',
+                ],
+                'calibrated_qor_claims_use_separate_strict_gate': True,
+            },
+        }
+        structural_manifest = (
+            Path(saver.model_logdir) / 'structural_selected_checkpoint.json'
+        )
+        structural_manifest.write_text(
+            json.dumps(structural_summary, indent=2, sort_keys=True) + '\n',
+            encoding='utf-8',
+        )
+        saver.log_info(
+            'Published independent structural-encoder checkpoint manifest: '
+            f'{structural_manifest}'
+        )
 
         if FLAGS.checkpoint_objective == "hardware_regression":
             if best_hardware_regression_epoch is None:

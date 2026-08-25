@@ -496,6 +496,14 @@ parser.add_argument(
     default=2,
     help='Epochs used to ramp the pairwise-delta weight to its final value.',
 )
+parser.add_argument(
+    '--pairwise_calibration_stable_epochs', type=int, default=2,
+    help='Consecutive calibrated validation epochs required before pairwise loss.',
+)
+parser.add_argument(
+    '--pairwise_calibration_tolerance', type=float, default=0.02,
+    help='Maximum change in validation perf baseline ratio considered stable.',
+)
 rank_tie_group = parser.add_mutually_exclusive_group()
 rank_tie_group.add_argument(
     '--rank_tie_relative',
@@ -811,6 +819,10 @@ if FLAGS.pairwise_delta_start_epoch < 0:
     parser.error('--pairwise_delta_start_epoch must be non-negative.')
 if FLAGS.pairwise_delta_ramp_epochs <= 0:
     parser.error('--pairwise_delta_ramp_epochs must be positive.')
+if FLAGS.pairwise_calibration_stable_epochs <= 0:
+    parser.error('--pairwise_calibration_stable_epochs must be positive.')
+if FLAGS.pairwise_calibration_tolerance < 0:
+    parser.error('--pairwise_calibration_tolerance must be non-negative.')
 if FLAGS.rank_temperature <= 0:
     parser.error('--rank_temperature must be positive.')
 if FLAGS.rank_tie_relative is None and FLAGS.rank_tie_epsilon is None:

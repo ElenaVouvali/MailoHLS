@@ -17,7 +17,7 @@
     "version": "mailohls-mlir-features-v13-conditioned-targets"
   },
   "format": "mailohls-gnn-checkpoint-v1",
-  "git_commit": "a50d8b740b571c6169cca1ae4f7a627780e0d21a",
+  "git_commit": "78e581c58c7795d4b5dcae1d3b3287aeca0b4597",
   "mailohls_structural_encoder": {
     "checkpoint_selection": "qualified_lexicographic_rank_resource_boundary_and_balanced_regression",
     "reference_baseline_required_for_stage2_memory": false,
@@ -173,7 +173,9 @@
     "num_layers": 4,
     "num_workers": 2,
     "paired_control_contract": null,
-    "pairwise_delta_ramp_epochs": 2,
+    "pairwise_calibration_stable_epochs": 2,
+    "pairwise_calibration_tolerance": 0.02,
+    "pairwise_delta_ramp_epochs": 3,
     "pairwise_delta_start_epoch": 3,
     "pairwise_delta_weight": 0.05,
     "persistent_workers": false,
@@ -323,7 +325,7 @@
     "transform": "log1p",
     "weighting": "kernel_balanced"
   },
-  "shared_initialization_sha256": "0dfd0aec248b438425a968a89ed5c55d928d8e016c8770e3055ae06e793b3945",
+  "shared_initialization_sha256": "10052cc376fe34718e21c45cc38dc14db9dd5ca98f46b5b720c1ebdc99661434",
   "split_sha256": "dbf02969b40f20064a2111bf9ed3201dd604b7dc90ad1066aa65e954408335ff",
   "target_conditioning_policy": "single_reference_target",
   "target_stats": {
@@ -348,7 +350,7 @@
     },
     "files": {
       "config.py": {
-        "sha256": "8f148bfce697e9d96e3511d465ae4177d9bd8668cf6feec68edb369aa48d6668",
+        "sha256": "515ac91dabd450f2c1038d17ea60ff7408ac86a07ac5c3b403cf9a9b121f829f",
         "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_final_reference_delta_s123/run1/provenance/config.py",
         "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/config.py"
       },
@@ -383,7 +385,7 @@
         "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/mlir_graph_gen.py"
       },
       "model.py": {
-        "sha256": "7db7fd6fc85f3b388ebcce85c19b44102c95b598262f357e8a32803366479df9",
+        "sha256": "f30a8206ebf421e60e9da0871cf86a7cdaef8c98980fa65e65bef5d2a94e6573",
         "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_final_reference_delta_s123/run1/provenance/model.py",
         "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/model.py"
       },
@@ -413,7 +415,7 @@
         "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/saver.py"
       },
       "train_GNN.py": {
-        "sha256": "2693d706b749bfddcd9662fc85338396c95e2eb0ef6b18900828717cbe408fba",
+        "sha256": "cdfc5ac3461c5919e7fb7142b6bc2082d68eca0df58a6a55284851e4ffe1c791",
         "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_final_reference_delta_s123/run1/provenance/train_GNN.py",
         "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/train_GNN.py"
       },
@@ -428,9 +430,9 @@
         "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json"
       }
     },
-    "git_commit": "a50d8b740b571c6169cca1ae4f7a627780e0d21a",
+    "git_commit": "78e581c58c7795d4b5dcae1d3b3287aeca0b4597",
     "manifest_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_final_reference_delta_s123/run1/provenance/provenance_manifest.json",
-    "manifest_sha256": "ea0486f0dcd18ec43681d5d3dd654677340c087798485cb2a7a54c783a36c680",
+    "manifest_sha256": "d01bf0a87b028b5d5c4487daa38341bda9e5d224fe54a318dceca785c4e41ac3",
     "schema": "mailohls-gnn-training-artifacts-v1",
     "static_graph_tensor_tree": {
       "count": 55,

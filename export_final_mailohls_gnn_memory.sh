@@ -4,14 +4,14 @@ set -euo pipefail
 # Export the selected final GNN as synthesis-free Stage-2 structural memory.
 # Run from the MailoHLS repository root after the final GNN training succeeds.
 
-EXP="Checkpoints/gnn_final_reference_delta_rank_s123/run1"
-CKPT="${EXP}/val_embedding_rank_model_state_dict.pth"
+EXP="${EXP:-Checkpoints/gnn_final_final_reference_delta_s123/run1}"
+CKPT="${CKPT:-${EXP}/epoch_10_model_state_dict.pth}"
+BASE_OUT="${BASE_OUT:-artifacts/gnn/final_final_reference_delta_epoch10_s123}"
 CONTRACT="${EXP}/gnn_checkpoint_contract.json"
 SIDECAR="${CKPT}.json"
 SCHEMA="GNN_branch/MLIR_dataset/all_kernels/feature_schema.json"
 PT_DIR="GNN_branch/MLIR_dataset/all_kernels/graphs"
 GEXF_DIR="GNN_branch/MLIR_graphs"
-BASE_OUT="artifacts/gnn/final_reference_delta_rank_s123"
 STATIC_OUT="${BASE_OUT}/static_jkn"
 LAYERWISE_OUT="${BASE_OUT}/layerwise"
 MULTISCALE_OUT="${BASE_OUT}/multiscale_aligned"
