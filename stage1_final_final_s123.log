@@ -2751,3 +2751,48 @@ trainable params: 8,962,048 || all params: 6,748,704,768 || trainable%: 0.1328
  71%|███████   | 250/354 [5:00:01<40:16, 23.23s/it]
 100%|██████████| 383/383 [03:02<00:00,  2.02it/s][A
                                                  [A
+====================================================================================================
+[VAL-SELECTION] step=250
+[VAL-SELECTION] mean_value_acc=0.488997
+[VAL-SELECTION] mean_decision_site_accuracy=0.430664
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.8888888888888888, 'ARRAY_F': 0.5714285714285714, 'ARRAY_T': 0.5873015873015873, 'PIPE': 0.4426229508196721, 'UNROLL': 0.32786885245901637}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.49242424242424243, 'machsuite-viterbi': 0.3202614379084967, 'rodinia_pathfinder_0_baseline_0': 0.5555555555555556, 'rodinia_pathfinder_4_doublebuffer_0': 0.5888888888888889}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.49242424242424243, 'machsuite-viterbi': 0.3202614379084967, 'rodinia_pathfinder_0_baseline_0': 0.4444444444444444, 'rodinia_pathfinder_4_doublebuffer_0': 0.4861111111111111}
+[VAL-SELECTION] decision_sites=501 forced_sites=54 budget_counterfactual_groups=8
+[VAL-SELECTION] minimum_kernel_accuracy=0.320261
+[VAL-SELECTION] selection_score=0.435810
+[VAL-SELECTION] joint_action_score=0.300505
+[VAL-SELECTION] checkpoint_key=(0.4358103089720737, 0.3005050505050505, 0.0, 0.0, -0.4325196444988251)
+====================================================================================================
+[VAL-LOCAL] count=501 top1=0.6167664670658682 mrr=0.7774300605138929 mean_margin=0.4306177817714473 cascade=0/501 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 9, 'top1_accuracy': 0.4444444444444444, 'mrr': 0.7222222222222222, 'mean_margin': -0.07128994166851044}, 'ARRAY_F': {'count': 63, 'top1_accuracy': 0.5873015873015873, 'mrr': 0.7142794154698917, 'mean_margin': -0.0014121210764324855}, 'ARRAY_T': {'count': 63, 'top1_accuracy': 0.6349206349206349, 'mrr': 0.7962962962962964, 'mean_margin': 0.08409735962512001}, 'PIPE': {'count': 183, 'top1_accuracy': 0.4918032786885246, 'mrr': 0.7459016393442623, 'mean_margin': 0.0065437886517881695}, 'UNROLL': {'count': 183, 'top1_accuracy': 0.7540983606557377, 'mrr': 0.8269190736403851, 'mean_margin': 1.14740128300911}}
+[VAL-BUDGET] groups=8 cases=17 decision_accuracy=0.3626685049019608 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=2
+[VAL-MARGIN] count=501 mean=-0.2639819843238666 median=-0.15634354948997498 positive_fraction=0.4311377245508982 mean_gold_rank=2.2295409181636727
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 9, 'mean_margin': -0.11547844443056318, 'median_margin': -0.23433268070220947, 'positive_fraction': 0.2222222222222222, 'mean_gold_rank': 1.7777777777777777}, 'ARRAY_F': {'count': 63, 'mean_margin': -0.1363934946675149, 'median_margin': 0.3596249222755432, 'positive_fraction': 0.5714285714285714, 'mean_gold_rank': 2.4285714285714284}, 'ARRAY_T': {'count': 63, 'mean_margin': -0.008967965723030151, 'median_margin': 0.07838219404220581, 'positive_fraction': 0.5873015873015873, 'mean_gold_rank': 1.5555555555555556}, 'PIPE': {'count': 183, 'mean_margin': -0.06379067429590746, 'median_margin': -0.026123464107513428, 'positive_fraction': 0.4426229508196721, 'mean_gold_rank': 1.5573770491803278}, 'UNROLL': {'count': 183, 'mean_margin': -0.6031923647302004, 'median_margin': -0.9797224253416061, 'positive_fraction': 0.32786885245901637, 'mean_gold_rank': 3.087431693989071}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 132, 'mean_margin': -0.12168549825737225, 'median_margin': -0.019799694418907166, 'positive_fraction': 0.49242424242424243, 'mean_gold_rank': 2.0}, 'machsuite-viterbi': {'count': 153, 'mean_margin': -0.5440114194883362, 'median_margin': -0.5780301988124847, 'positive_fraction': 0.3202614379084967, 'mean_gold_rank': 2.5359477124183005}, 'rodinia_pathfinder_0_baseline_0': {'count': 72, 'mean_margin': -0.08793622948643234, 'median_margin': -0.2318268120288849, 'positive_fraction': 0.4444444444444444, 'mean_gold_rank': 1.8055555555555556}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 144, 'mean_margin': -0.18491203244128782, 'median_margin': -0.01228843629360199, 'positive_fraction': 0.4861111111111111, 'mean_gold_rank': 2.326388888888889}}
+[EARLY-STOP] no improvement for 2/3 validation evaluations
+/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/peft/utils/save_and_load.py:309: UserWarning: Setting `save_embedding_layers` to `True` as the embedding layer has been resized during finetuning.
+  warnings.warn(
+[LOSS-COMP] step=250 ce=0.176753 candidate=0.000000 total=0.176753
+[LOSS-COMP] step=250 ce=0.150739 candidate=0.000000 total=0.150739
+[LOSS-COMP] step=250 ce=0.353480 candidate=0.000000 total=0.353480
+[LOSS-COMP] step=250 ce=0.587436 candidate=0.000000 total=0.587436
+[LOSS-COMP] step=250 ce=0.360907 candidate=0.000000 total=0.360907
+[LOSS-COMP] step=250 ce=0.488669 candidate=0.000000 total=0.488669
+[LOSS-COMP] step=250 ce=0.350348 candidate=0.000000 total=0.350348
+[LOSS-COMP] step=250 ce=0.538264 candidate=0.000000 total=0.538264
+ 71%|███████   | 251/354 [5:35:05<20:06:05, 702.58s/it] 71%|███████   | 252/354 [5:35:31<14:09:17, 499.59s/it] 71%|███████▏  | 253/354 [5:35:55<10:00:23, 356.67s/it] 72%|███████▏  | 254/354 [5:36:10<7:03:37, 254.17s/it]  72%|███████▏  | 255/354 [5:36:33<5:05:11, 184.96s/it] 72%|███████▏  | 256/354 [5:36:54<3:41:32, 135.64s/it] 73%|███████▎  | 257/354 [5:37:17<2:44:41, 101.87s/it] 73%|███████▎  | 258/354 [5:37:45<2:07:52, 79.92s/it]  73%|███████▎  | 259/354 [5:38:05<1:37:46, 61.75s/it] 73%|███████▎  | 260/354 [5:38:21<1:15:25, 48.14s/it]                                                     {'loss': 0.4079, 'grad_norm': 5.558183670043945, 'learning_rate': 2.7538828989256783e-06, 'epoch': 1.46}
+ 73%|███████▎  | 260/354 [5:38:21<1:15:25, 48.14s/it][LOSS-COMP] step=260 ce=0.449519 candidate=0.000000 total=0.449519
+[LOSS-COMP] step=260 ce=0.504898 candidate=0.000000 total=0.504898
+[LOSS-COMP] step=260 ce=0.352589 candidate=0.000000 total=0.352589
+[LOSS-COMP] step=260 ce=0.520675 candidate=0.000000 total=0.520675
+[LOSS-COMP] step=260 ce=0.611868 candidate=0.000000 total=0.611868
+[LOSS-COMP] step=260 ce=0.305083 candidate=0.000000 total=0.305083
+[LOSS-COMP] step=260 ce=0.386517 candidate=0.000000 total=0.386517
+[LOSS-COMP] step=260 ce=0.498669 candidate=0.000000 total=0.498669
+[GATES] attn gates:
+[GATES] ff gates:
+ 74%|███████▎  | 261/354 [5:38:52<1:06:24, 42.84s/it] 74%|███████▍  | 262/354 [5:39:17<57:31, 37.52s/it]  
