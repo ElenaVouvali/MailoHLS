@@ -9,6 +9,8 @@ STAGE1="${STAGE1:-mailohls_runs/stage1_final_final_adp_s123/best_custom_stage1}"
 MEMORY="${MEMORY:-artifacts/gnn/absolute_direct_rank_epoch9_s123/multiscale_aligned}"
 OUT="${OUT:-mailohls_runs/stage2_specified_adp_epoch9_s123}"
 
+INIT_REF="${INIT_REF:-mailohls_runs/stage2_initial_states/post_self_attention_residual_s123.json}"
+
 for required in \
   "$STAGE1/adapter_model.safetensors" \
   "$STAGE1/training_contract.json" \
@@ -96,4 +98,5 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --epochs 4 \
   --max_steps -1 \
   --seed 123 \
-  --output_dir "$OUT"
+  --output_dir "$OUT" \
+  --initial_state_reference "$INIT_REF" 
