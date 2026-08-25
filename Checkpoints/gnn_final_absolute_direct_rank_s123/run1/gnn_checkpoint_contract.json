@@ -1,0 +1,441 @@
+{
+  "dataset_manifest": {
+    "path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels/index.pt",
+    "sha256": "4432f9c6841e94f7da3648fc5f82a0fc8b55932b6193561d84a4739b2f3c4d30"
+  },
+  "dataset_manifest_sha256": "4432f9c6841e94f7da3648fc5f82a0fc8b55932b6193561d84a4739b2f3c4d30",
+  "effective_area_floor": 0.0625,
+  "experiment_split": {
+    "path": "/home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json",
+    "sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c"
+  },
+  "feature_schema": {
+    "edge_feature_dim": 82,
+    "node_feature_dim": 403,
+    "path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels/feature_schema.json",
+    "sha256": "5d80dc0253c0a862ee2146859842ce1f4c0b8f0d9c394b1ede839838969370c6",
+    "version": "mailohls-mlir-features-v13-conditioned-targets"
+  },
+  "format": "mailohls-gnn-checkpoint-v1",
+  "git_commit": "e79daf6f5abedd98f149b352921a965b10802f48",
+  "mailohls_structural_encoder": {
+    "checkpoint_selection": "qualified_lexicographic_rank_resource_boundary_and_balanced_regression",
+    "reference_baseline_required_for_stage2_memory": false,
+    "reference_baseline_role": "training_target_for_qor_response_regression",
+    "stage2_embedding_mode": "static_pre_npt",
+    "training_supervision": "configured_qor_training_objective",
+    "training_target_mode": "absolute"
+  },
+  "model_init": {
+    "edge_dim": 82,
+    "in_channels": 403,
+    "resource_aux_heads": true,
+    "target_condition_dim": 0,
+    "targets": [
+      "perf",
+      "area"
+    ]
+  },
+  "model_init_flags": {
+    "D": 64,
+    "MLP_common_lyr": 0,
+    "P_use_all_nodes": true,
+    "activation": "elu",
+    "decompose_targets": false,
+    "dropout": 0.2,
+    "encode_edge": true,
+    "encode_edge_position": true,
+    "gae_P": false,
+    "gae_T": false,
+    "gnn_layer_after_MLP": 1,
+    "gnn_type": "transformer",
+    "graph_attention_heads": 1,
+    "graph_layer_norm": false,
+    "graph_residual_beta": false,
+    "jkn_enable": true,
+    "jkn_mode": "max",
+    "keep_pragma_attribute": false,
+    "merge_MLP_hidden_channels": "[in_D // 2]",
+    "multi_target_qor": false,
+    "node_attention": true,
+    "node_attention_MLP": false,
+    "num_layers": 4,
+    "pragma_MLP_hidden_channels": "[in_D // 2]",
+    "pragma_as_MLP": true,
+    "pragma_as_MLP_list": [
+      "pipeline",
+      "unroll",
+      "array_partition"
+    ],
+    "pragma_order": "parallel_and_merge",
+    "pragma_scope": "block",
+    "qor_output_init_scale": 1.0,
+    "resource_aux_weight": 0.1,
+    "separate_P": true,
+    "separate_T": false,
+    "separate_icmp": false,
+    "separate_pseudo": true,
+    "standardize_targets": true,
+    "target": [
+      "perf",
+      "area"
+    ],
+    "target_mode": "absolute",
+    "task": "regression"
+  },
+  "provenance_status": "captured_at_training",
+  "reference_baseline_manifest": null,
+  "resolved_flags": {
+    "D": 64,
+    "FT_extra": false,
+    "MLP_common_lyr": 0,
+    "P_use_all_nodes": true,
+    "activation": "elu",
+    "all_kernels": true,
+    "allow_incomplete_dataset": false,
+    "allow_nondeterministic": false,
+    "baseline_manifest": null,
+    "batch_size": 64,
+    "benchmarks": [
+      "machsuite",
+      "poly"
+    ],
+    "center_aux_weight": 0.25,
+    "checkpoint_objective": "qualified_lexicographic",
+    "class_model_path": null,
+    "clock_period_ns": 10.0,
+    "dataset": "mlir",
+    "decompose_targets": false,
+    "development_exclude_kernels": "rodinia_lud_1_tiling_0",
+    "device": "cuda:0",
+    "dropout": 0.2,
+    "early_stopping_min_delta": 0.0001,
+    "early_stopping_patience": 8,
+    "edge_dim": 82,
+    "effective_area_floor": 0.0625,
+    "encode_edge": true,
+    "encode_edge_position": true,
+    "encode_log": false,
+    "encoder_path": null,
+    "ensemble": 0,
+    "ensemble_weights": null,
+    "epoch_num": 40,
+    "epsilon": 1e-06,
+    "eval_num_workers": 0,
+    "evaluate_test": false,
+    "experiment_name": "gnn_final_absolute_direct_rank_s123",
+    "experiment_split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+    "explorer": "exhaustive",
+    "feature_extract": false,
+    "final_refit": false,
+    "final_refit_epochs": null,
+    "fix_gnn_layer": 1,
+    "force_regen": false,
+    "gae_P": false,
+    "gae_T": false,
+    "gnn_layer_after_MLP": 1,
+    "gnn_type": "transformer",
+    "grad_accum_steps": 1,
+    "graph_attention_heads": 1,
+    "graph_layer_norm": false,
+    "graph_residual_beta": false,
+    "graph_type": "extended-pseudo-block-connected-hierarchy",
+    "hostname": "liono",
+    "invalid": false,
+    "jkn_enable": true,
+    "jkn_mode": "max",
+    "keep_pragma_attribute": false,
+    "kernel_balanced_loss": true,
+    "kernel_grouped_sampling": true,
+    "kernel_uniform_sampling": false,
+    "kernel_zero_baseline_additive_tolerance": 0.001,
+    "kernels_per_batch": 16,
+    "load_pretrained": false,
+    "loss": "smooth_l1",
+    "lr": 3e-05,
+    "max_kernel_zero_baseline_ratio": 1.25,
+    "max_number": 10000000000.0,
+    "merge_MLP_hidden_channels": "[in_D // 2]",
+    "min_allowed_latency": 0.0,
+    "min_rank_tau": 0.2,
+    "mlir_graph_dir": null,
+    "model_path": null,
+    "model_tag": "test",
+    "multi_target_qor": false,
+    "new_speedup": true,
+    "node_attention": true,
+    "node_attention_MLP": false,
+    "norm_method": "log2",
+    "normalizer": 10000000.0,
+    "num_features": 403,
+    "num_layers": 4,
+    "num_workers": 2,
+    "paired_control_contract": null,
+    "pairwise_calibration_stable_epochs": 2,
+    "pairwise_calibration_tolerance": 0.02,
+    "pairwise_delta_ramp_epochs": 2,
+    "pairwise_delta_start_epoch": 3,
+    "pairwise_delta_weight": 0.0,
+    "persistent_workers": false,
+    "plateau_factor": 0.5,
+    "plateau_patience": 4,
+    "plot_dse": false,
+    "plot_pred_points": true,
+    "points_per_kernel": 4,
+    "pragma_MLP_hidden_channels": "[in_D // 2]",
+    "pragma_as_MLP": true,
+    "pragma_as_MLP_list": [
+      "pipeline",
+      "unroll",
+      "array_partition"
+    ],
+    "pragma_dim_path": null,
+    "pragma_order": "parallel_and_merge",
+    "pragma_scope": "block",
+    "prefetch_factor": 1,
+    "print_every_iter": 100,
+    "prune_class": true,
+    "prune_util": true,
+    "qor_output_init_scale": 1.0,
+    "random_seed": 123,
+    "rank_aux_weight": 0.05,
+    "rank_temperature": 1.0,
+    "rank_tie_epsilon": null,
+    "rank_tie_relative": 0.05,
+    "resample": false,
+    "resource_aux_weight": 0.1,
+    "resource_boundary_tolerance": 0.02,
+    "resource_budget_bank": "mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json",
+    "resource_budget_count": 16,
+    "resource_budget_min_fraction": 0.05,
+    "resource_eval_budgets": "0.10;0.25;0.50;0.75;1.00",
+    "response_aux_weight": 1.0,
+    "resume_training": false,
+    "samples_per_kernel_per_epoch": 128,
+    "sanity_print_n": 0,
+    "save_model": true,
+    "scheduler": "plateau",
+    "separate_P": true,
+    "separate_T": false,
+    "separate_icmp": false,
+    "separate_pseudo": true,
+    "smooth_l1_beta": 0.5,
+    "split_json": "/home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json",
+    "standardize_targets": true,
+    "strict_paired_ablation": false,
+    "subtask": "train",
+    "tag": "whole-machsuite-poly",
+    "target": [
+      "perf",
+      "area"
+    ],
+    "target_device": "xczu7ev-ffvc1156-2-e",
+    "target_kernel": null,
+    "target_mode": "absolute",
+    "task": "regression",
+    "test_kernels": "serrano-kalman-filter",
+    "tiny_overfit": false,
+    "tiny_overfit_batch_size": 16,
+    "tiny_overfit_epochs": 300,
+    "tiny_overfit_kernel": "machsuite-gemm-blocked",
+    "tiny_overfit_num_samples": 64,
+    "tiny_overfit_workers": 0,
+    "user": "elvouvali",
+    "util_normalizer": 1,
+    "v_db": "v21",
+    "val_kernels": "machsuite-sort-radix,machsuite-viterbi,rodinia_pathfinder_0_baseline_0,rodinia_pathfinder_4_doublebuffer_0",
+    "val_ratio": 0.05,
+    "vis_per_kernel": true,
+    "vitis_hls_version": "2021.1",
+    "warmup": "linear",
+    "warmup_epochs": 0,
+    "weight_decay": 0.0001
+  },
+  "resource_diagnostics": {
+    "bram": {
+      "fraction_zero": 0.17069479477184132,
+      "kernel_count": 49,
+      "kernels_with_two_or_more_distinct_values": 30,
+      "median_utilization": 0.17000000178813934,
+      "p95_utilization": 0.6700000166893005,
+      "train_mean_baseline": 0.23629993109634315,
+      "train_mean_baseline_macro_kendall_tau": 0.0,
+      "train_mean_baseline_mae": 0.20524598471050773,
+      "within_kernel_variance_mean": 0.009116444860814879,
+      "within_kernel_variance_median": 0.0005308468347194192
+    },
+    "dsp": {
+      "fraction_zero": 0.3700986012382481,
+      "kernel_count": 49,
+      "kernels_with_two_or_more_distinct_values": 43,
+      "median_utilization": 0.009999999776482582,
+      "p95_utilization": 0.3400000035762787,
+      "train_mean_baseline": 0.06157624389471414,
+      "train_mean_baseline_macro_kendall_tau": 0.0,
+      "train_mean_baseline_mae": 0.0821222638108145,
+      "within_kernel_variance_mean": 0.011877574450752383,
+      "within_kernel_variance_median": 0.003625618935668812
+    },
+    "ff": {
+      "fraction_zero": 0.057418023389130934,
+      "kernel_count": 49,
+      "kernels_with_two_or_more_distinct_values": 47,
+      "median_utilization": 0.05999999865889549,
+      "p95_utilization": 0.36000001430511475,
+      "train_mean_baseline": 0.1018248106639365,
+      "train_mean_baseline_macro_kendall_tau": 0.0,
+      "train_mean_baseline_mae": 0.08518457122156581,
+      "within_kernel_variance_mean": 0.010717783473322253,
+      "within_kernel_variance_median": 0.00679270270413212
+    },
+    "lut": {
+      "fraction_zero": 0.0011465260261407934,
+      "kernel_count": 49,
+      "kernels_with_two_or_more_distinct_values": 47,
+      "median_utilization": 0.17000000178813934,
+      "p95_utilization": 0.6899999976158142,
+      "train_mean_baseline": 0.23370259097646823,
+      "train_mean_baseline_macro_kendall_tau": 0.0,
+      "train_mean_baseline_mae": 0.15754660515564342,
+      "within_kernel_variance_mean": 0.027414675331606433,
+      "within_kernel_variance_median": 0.024887532157975553
+    }
+  },
+  "resource_stats": {
+    "count": 21805,
+    "mean": [
+      0.12774283913961543,
+      0.040184554186011606,
+      0.08271243068448943,
+      0.17074090799497885
+    ],
+    "names": [
+      "bram",
+      "dsp",
+      "ff",
+      "lut"
+    ],
+    "std": [
+      0.1721689580397501,
+      0.09680164383252285,
+      0.10168584771017716,
+      0.15256741250645012
+    ],
+    "transform": "log1p",
+    "weighting": "kernel_balanced"
+  },
+  "shared_initialization_sha256": "200c6e9ef01f17e938c81cf23ed668e5404286c1028a198b4869f10c89417f4b",
+  "split_sha256": "dbf02969b40f20064a2111bf9ed3201dd604b7dc90ad1066aa65e954408335ff",
+  "target_conditioning_policy": "single_reference_target",
+  "target_stats": {
+    "area": {
+      "count": 21805,
+      "mean": 2.6539198388791405,
+      "std": 2.0959825109533976,
+      "weighting": "kernel_balanced"
+    },
+    "perf": {
+      "count": 21805,
+      "mean": 4.254439712167248,
+      "std": 5.518232133284257,
+      "weighting": "kernel_balanced"
+    }
+  },
+  "training_artifacts": {
+    "design_point_tensor_tree": {
+      "count": 54,
+      "path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels/points",
+      "sha256": "f297c8a3cb5dd8f335f6943104c8919eacc218db245a5f3e35d84cbf1354233b"
+    },
+    "files": {
+      "config.py": {
+        "sha256": "6f11aa579d4cd1d6827fd21b7f4a4a4a5eaf2cc97dcd63981c316d2ac3199f9f",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/config.py",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/config.py"
+      },
+      "encoders.pkl": {
+        "sha256": "e395ae9b01dc3e4af938bc6ce7ddd0e8f777e062d29cbb664844a1aabb833904",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/encoders.pkl",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels/encoders.pkl"
+      },
+      "experiment_split.json": {
+        "sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/experiment_split.json",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json"
+      },
+      "feature_schema.json": {
+        "sha256": "5d80dc0253c0a862ee2146859842ce1f4c0b8f0d9c394b1ede839838969370c6",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/feature_schema.json",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels/feature_schema.json"
+      },
+      "index.pt": {
+        "sha256": "4432f9c6841e94f7da3648fc5f82a0fc8b55932b6193561d84a4739b2f3c4d30",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/index.pt",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels/index.pt"
+      },
+      "mlir_data.py": {
+        "sha256": "8185511b9347b5c5650ae1c31a8a65e27d7dbbb8ab13fce3c95fe45ac426fbcd",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/mlir_data.py",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/mlir_data.py"
+      },
+      "mlir_graph_gen.py": {
+        "sha256": "5e4f93c89ce4c275c04ff6ed4dd81a17858647a55b0abec0846b8da240da3b05",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/mlir_graph_gen.py",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/mlir_graph_gen.py"
+      },
+      "model.py": {
+        "sha256": "e13f2d71961137e137716a424fb1a8a580f10d6689059c0cf14003b73663f5f5",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/model.py",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/model.py"
+      },
+      "nn_att.py": {
+        "sha256": "838b880d92c0aa5fa1bc72c3466819866e15bfcaf80ef569a5e515d5ce95f330",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/nn_att.py",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/nn_att.py"
+      },
+      "pragma_dim.pt": {
+        "sha256": "d8a96ab3e54c526e5189fe42d1c83819e436db5d5833d82ba69e2eee6f43b138",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/pragma_dim.pt",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels/pragma_dim.pt"
+      },
+      "reference_delta.py": {
+        "sha256": "af8a29a012d6bfefba11d4c5039440745bb11446848be3772f4832154c12f6b1",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/reference_delta.py",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/reference_delta.py"
+      },
+      "saver.py": {
+        "sha256": "8d82617817a9e74be487152588e58f380e7891ff7995e848deab73d39506b824",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/saver.py",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/saver.py"
+      },
+      "train_GNN.py": {
+        "sha256": "ccf7bff7216c3f140064c1133e68283a1f33150582497b81c8e802cd8e10eed5",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/train_GNN.py",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/train_GNN.py"
+      },
+      "utils.py": {
+        "sha256": "e6d7522074c29c140736a4e5a5f504a8d719253f5b71baad1714515b3e15f254",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/utils.py",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/utils.py"
+      },
+      "validation_resource_budget_bank.json": {
+        "sha256": "0f13b71d736f906be9223a85cf1833467bc9dcc68ef78c25b604ff340e2a77a2",
+        "snapshot_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/validation_resource_budget_bank.json",
+        "source_path": "/home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json"
+      }
+    },
+    "git_commit": "e79daf6f5abedd98f149b352921a965b10802f48",
+    "manifest_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/provenance/provenance_manifest.json",
+    "manifest_sha256": "c4272b6a17d8ea102d34829921fbdabaacc104ecabc8c188f8150ba50284f3b7",
+    "schema": "mailohls-gnn-training-artifacts-v1",
+    "static_graph_tensor_tree": {
+      "count": 55,
+      "path": "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels/graphs",
+      "sha256": "75d2f40816ec47dadf8c7767d5e7fc4530289f79066e306f09478b3d088d53d7"
+    }
+  },
+  "validation_resource_budget_bank": {
+    "path": "/home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json",
+    "sha256": "0f13b71d736f906be9223a85cf1833467bc9dcc68ef78c25b604ff340e2a77a2"
+  }
+}

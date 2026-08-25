@@ -1,0 +1,690 @@
+task                       : regression
+subtask                    : train
+plot_dse                   : False
+vis_per_kernel             : True
+force_regen                : False
+allow_incomplete_dataset   : False
+min_allowed_latency        : 0.0
+epsilon                    : 1e-06
+normalizer                 : 10000000.0
+util_normalizer            : 1
+max_number                 : 10000000000.0
+norm_method                : log2
+new_speedup                : True
+invalid                    : False
+encode_log                 : False
+v_db                       : v21
+test_kernels               : serrano-kalman-filter
+val_kernels                : machsuite-sort-radix,
+                           : machsuite-viterbi,
+                           : rodinia_pathfinder_0_baseline_0,
+                           : rodinia_pathfinder_4_doublebuffer_0
+split_json                 : /home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json
+multi_target_qor           : False
+effective_area_floor       : 0.0625
+development_exclude_kernels : rodinia_lud_1_tiling_0
+target_kernel              : None
+all_kernels                : True
+dataset                    : mlir
+benchmarks                 : ['machsuite',
+                           :  'poly']
+tag                        : whole-machsuite-poly
+graph_type                 : extended-pseudo-block-connected-hierarchy
+mlir_graph_dir             : None
+encoder_path               : None
+pragma_dim_path            : None
+encode_edge                : True
+encode_edge_position       : True
+num_layers                 : 4
+num_features               : 403
+edge_dim                   : 82
+target                     : ['perf',
+                           :  'area']
+decompose_targets          : False
+target_mode                : absolute
+baseline_manifest          : None
+target_device              : xczu7ev-ffvc1156-2-e
+clock_period_ns            : 10.0
+vitis_hls_version          : 2021.1
+center_aux_weight          : 0.25
+qor_output_init_scale      : 1.0
+response_aux_weight        : 1.0
+checkpoint_objective       : qualified_lexicographic
+min_rank_tau               : 0.2
+max_kernel_zero_baseline_ratio : 1.25
+kernel_zero_baseline_additive_tolerance : 0.001
+MLP_common_lyr             : 0
+gnn_type                   : transformer
+dropout                    : 0.2
+graph_attention_heads      : 1
+graph_residual_beta        : False
+graph_layer_norm           : False
+jkn_mode                   : max
+jkn_enable                 : True
+node_attention             : True
+node_attention_MLP         : False
+separate_P                 : True
+separate_icmp              : False
+separate_T                 : False
+separate_pseudo            : True
+P_use_all_nodes            : True
+gae_T                      : False
+gae_P                      : False
+gnn_layer_after_MLP        : 1
+pragma_as_MLP              : True
+pragma_as_MLP_list         : ['pipeline',
+                           :  'unroll',
+                           :  'array_partition']
+pragma_scope               : block
+keep_pragma_attribute      : False
+pragma_order               : parallel_and_merge
+pragma_MLP_hidden_channels : [in_D // 2]
+merge_MLP_hidden_channels  : [in_D // 2]
+model_path                 : None
+ensemble                   : 0
+ensemble_weights           : None
+class_model_path           : None
+feature_extract            : False
+fix_gnn_layer              : 1
+FT_extra                   : False
+save_model                 : True
+resample                   : False
+val_ratio                  : 0.05
+activation                 : elu
+D                          : 64
+weight_decay               : 0.0001
+scheduler                  : plateau
+warmup                     : linear
+lr                         : 3e-05
+standardize_targets        : True
+kernel_balanced_loss       : True
+kernel_uniform_sampling    : False
+samples_per_kernel_per_epoch : 128
+rank_aux_weight            : 0.05
+rank_temperature           : 1.0
+pairwise_delta_weight      : 0.0
+pairwise_delta_start_epoch : 3
+pairwise_delta_ramp_epochs : 2
+pairwise_calibration_stable_epochs : 2
+pairwise_calibration_tolerance : 0.02
+rank_tie_relative          : 0.05
+rank_tie_epsilon           : None
+resource_aux_weight        : 0.1
+strict_paired_ablation     : False
+paired_control_contract    : None
+resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
+resource_boundary_tolerance : 0.02
+resource_budget_bank       : mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json
+resource_budget_count      : 16
+resource_budget_min_fraction : 0.05
+kernel_grouped_sampling    : True
+kernels_per_batch          : 16
+points_per_kernel          : 4
+warmup_epochs              : 0
+early_stopping_patience    : 8
+early_stopping_min_delta   : 0.0001
+plateau_patience           : 4
+plateau_factor             : 0.5
+evaluate_test              : False
+final_refit                : False
+final_refit_epochs         : None
+random_seed                : 123
+experiment_name            : gnn_final_absolute_direct_rank_s123
+allow_nondeterministic     : False
+batch_size                 : 64
+grad_accum_steps           : 1
+num_workers                : 2
+eval_num_workers           : 0
+prefetch_factor            : 1
+persistent_workers         : False
+loss                       : smooth_l1
+smooth_l1_beta             : 0.5
+epoch_num                  : 40
+sanity_print_n             : 0
+device                     : cuda:0
+tiny_overfit               : False
+tiny_overfit_kernel        : machsuite-gemm-blocked
+tiny_overfit_num_samples   : 64
+tiny_overfit_batch_size    : 16
+tiny_overfit_epochs        : 300
+tiny_overfit_workers       : 0
+resume_training            : False
+load_pretrained            : False
+explorer                   : exhaustive
+model_tag                  : test
+prune_util                 : True
+prune_class                : True
+print_every_iter           : 100
+plot_pred_points           : True
+user                       : elvouvali
+hostname                   : liono
+experiment_split_sha256    : d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c
+ts                         : 2026-08-25T08-08-57.604016
+Logging to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123
+Read compact dataset from /home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels with 24527 samples
+[0m] INFO: Starting training with resample -1
+[0m] INFO: Reading dataset from /home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels
+Development kernels excluded before splitting: rodinia_lud_1_tiling_0
+Training-only log2 target statistics: {'perf': {'mean': 4.254439712167248, 'std': 5.518232133284257, 'count': 21805, 'weighting': 'kernel_balanced'}, 'area': {'mean': 2.6539198388791405, 'std': 2.0959825109533976, 'count': 21805, 'weighting': 'kernel_balanced'}}
+Training-only raw resource diagnostics: {"bram": {"fraction_zero": 0.17069479477184132, "kernel_count": 49, "kernels_with_two_or_more_distinct_values": 30, "median_utilization": 0.17000000178813934, "p95_utilization": 0.6700000166893005, "train_mean_baseline": 0.23629993109634315, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.20524598471050773, "within_kernel_variance_mean": 0.009116444860814879, "within_kernel_variance_median": 0.0005308468347194192}, "dsp": {"fraction_zero": 0.3700986012382481, "kernel_count": 49, "kernels_with_two_or_more_distinct_values": 43, "median_utilization": 0.009999999776482582, "p95_utilization": 0.3400000035762787, "train_mean_baseline": 0.06157624389471414, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.0821222638108145, "within_kernel_variance_mean": 0.011877574450752383, "within_kernel_variance_median": 0.003625618935668812}, "ff": {"fraction_zero": 0.057418023389130934, "kernel_count": 49, "kernels_with_two_or_more_distinct_values": 47, "median_utilization": 0.05999999865889549, "p95_utilization": 0.36000001430511475, "train_mean_baseline": 0.1018248106639365, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.08518457122156581, "within_kernel_variance_mean": 0.010717783473322253, "within_kernel_variance_median": 0.00679270270413212}, "lut": {"fraction_zero": 0.0011465260261407934, "kernel_count": 49, "kernels_with_two_or_more_distinct_values": 47, "median_utilization": 0.17000000178813934, "p95_utilization": 0.6899999976158142, "train_mean_baseline": 0.23370259097646823, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.15754660515564342, "within_kernel_variance_mean": 0.027414675331606433, "within_kernel_variance_median": 0.024887532157975553}}
+Training-only resource statistics: {'names': ['bram', 'dsp', 'ff', 'lut'], 'transform': 'log1p', 'mean': [0.12774283913961543, 0.040184554186011606, 0.08271243068448943, 0.17074090799497885], 'std': [0.1721689580397501, 0.09680164383252285, 0.10168584771017716, 0.15256741250645012], 'count': 21805, 'weighting': 'kernel_balanced'}
+Deterministic validation baseline under the configured objective: total=0.5567, breakdown={'perf': 0.12978561499268274, 'area': 0.4269396047576835}
+Kernel-balanced split: 49 kernels, 21805 points, points/kernel=7..859
+Kernel-balanced split: 4 kernels, 2341 points, points/kernel=388..751
+Kernel-grouped sampling: 16 kernels x 4 points, 98 batches/epoch.
+[2m] INFO: num features for training: 403
+[2m] INFO: size of the edge attribute is 82
+task                       : regression
+subtask                    : train
+plot_dse                   : False
+vis_per_kernel             : True
+force_regen                : False
+allow_incomplete_dataset   : False
+min_allowed_latency        : 0.0
+epsilon                    : 1e-06
+normalizer                 : 10000000.0
+util_normalizer            : 1
+max_number                 : 10000000000.0
+norm_method                : log2
+new_speedup                : True
+invalid                    : False
+encode_log                 : False
+v_db                       : v21
+test_kernels               : serrano-kalman-filter
+val_kernels                : machsuite-sort-radix,
+                           : machsuite-viterbi,
+                           : rodinia_pathfinder_0_baseline_0,
+                           : rodinia_pathfinder_4_doublebuffer_0
+split_json                 : /home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json
+multi_target_qor           : False
+effective_area_floor       : 0.0625
+development_exclude_kernels : rodinia_lud_1_tiling_0
+target_kernel              : None
+all_kernels                : True
+dataset                    : mlir
+benchmarks                 : ['machsuite',
+                           :  'poly']
+tag                        : whole-machsuite-poly
+graph_type                 : extended-pseudo-block-connected-hierarchy
+mlir_graph_dir             : None
+encoder_path               : None
+pragma_dim_path            : None
+encode_edge                : True
+encode_edge_position       : True
+num_layers                 : 4
+num_features               : 403
+edge_dim                   : 82
+target                     : ['perf',
+                           :  'area']
+decompose_targets          : False
+target_mode                : absolute
+baseline_manifest          : None
+target_device              : xczu7ev-ffvc1156-2-e
+clock_period_ns            : 10.0
+vitis_hls_version          : 2021.1
+center_aux_weight          : 0.25
+qor_output_init_scale      : 1.0
+response_aux_weight        : 1.0
+checkpoint_objective       : qualified_lexicographic
+min_rank_tau               : 0.2
+max_kernel_zero_baseline_ratio : 1.25
+kernel_zero_baseline_additive_tolerance : 0.001
+MLP_common_lyr             : 0
+gnn_type                   : transformer
+dropout                    : 0.2
+graph_attention_heads      : 1
+graph_residual_beta        : False
+graph_layer_norm           : False
+jkn_mode                   : max
+jkn_enable                 : True
+node_attention             : True
+node_attention_MLP         : False
+separate_P                 : True
+separate_icmp              : False
+separate_T                 : False
+separate_pseudo            : True
+P_use_all_nodes            : True
+gae_T                      : False
+gae_P                      : False
+gnn_layer_after_MLP        : 1
+pragma_as_MLP              : True
+pragma_as_MLP_list         : ['pipeline',
+                           :  'unroll',
+                           :  'array_partition']
+pragma_scope               : block
+keep_pragma_attribute      : False
+pragma_order               : parallel_and_merge
+pragma_MLP_hidden_channels : [in_D // 2]
+merge_MLP_hidden_channels  : [in_D // 2]
+model_path                 : None
+ensemble                   : 0
+ensemble_weights           : None
+class_model_path           : None
+feature_extract            : False
+fix_gnn_layer              : 1
+FT_extra                   : False
+save_model                 : True
+resample                   : False
+val_ratio                  : 0.05
+activation                 : elu
+D                          : 64
+weight_decay               : 0.0001
+scheduler                  : plateau
+warmup                     : linear
+lr                         : 3e-05
+standardize_targets        : True
+kernel_balanced_loss       : True
+kernel_uniform_sampling    : False
+samples_per_kernel_per_epoch : 128
+rank_aux_weight            : 0.05
+rank_temperature           : 1.0
+pairwise_delta_weight      : 0.0
+pairwise_delta_start_epoch : 3
+pairwise_delta_ramp_epochs : 2
+pairwise_calibration_stable_epochs : 2
+pairwise_calibration_tolerance : 0.02
+rank_tie_relative          : 0.05
+rank_tie_epsilon           : None
+resource_aux_weight        : 0.1
+strict_paired_ablation     : False
+paired_control_contract    : None
+resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
+resource_boundary_tolerance : 0.02
+resource_budget_bank       : mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json
+resource_budget_count      : 16
+resource_budget_min_fraction : 0.05
+kernel_grouped_sampling    : True
+kernels_per_batch          : 16
+points_per_kernel          : 4
+warmup_epochs              : 0
+early_stopping_patience    : 8
+early_stopping_min_delta   : 0.0001
+plateau_patience           : 4
+plateau_factor             : 0.5
+evaluate_test              : False
+final_refit                : False
+final_refit_epochs         : None
+random_seed                : 123
+experiment_name            : gnn_final_absolute_direct_rank_s123
+allow_nondeterministic     : False
+batch_size                 : 64
+grad_accum_steps           : 1
+num_workers                : 2
+eval_num_workers           : 0
+prefetch_factor            : 1
+persistent_workers         : False
+loss                       : smooth_l1
+smooth_l1_beta             : 0.5
+epoch_num                  : 40
+sanity_print_n             : 0
+device                     : cuda:0
+tiny_overfit               : False
+tiny_overfit_kernel        : machsuite-gemm-blocked
+tiny_overfit_num_samples   : 64
+tiny_overfit_batch_size    : 16
+tiny_overfit_epochs        : 300
+tiny_overfit_workers       : 0
+resume_training            : False
+load_pretrained            : False
+explorer                   : exhaustive
+model_tag                  : test
+prune_util                 : True
+prune_class                : True
+print_every_iter           : 100
+plot_pred_points           : True
+user                       : elvouvali
+hostname                   : liono
+experiment_split_sha256    : d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c
+ts                         : 2026-08-25T08-08-57.604016
+Wrote captured GNN checkpoint contract -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/gnn_checkpoint_contract.json
+Model first param device: cuda:0
+NVIDIA A2
+Net(
+  (conv_first): TransformerConv(403, 64, heads=1)
+  (conv_layers): ModuleList(
+    (0-3): 4 x TransformerConv(64, 64, heads=1)
+  )
+  (graph_norms): ModuleList()
+  (jkn): JumpingKnowledge(max)
+  (loss_function): MSELoss()
+  (gate_nn_P): Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (glob_P): MyGlobalAttention(gate_nn=Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  ), nn=None)
+  (gate_nn_pseudo_B): Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (glob_pseudo_B): MyGlobalAttention(gate_nn=Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  ), nn=None)
+  (MLPs): MLP_multi_objective(
+    (activation): ELU(alpha=1.0)
+    (layers_common): ModuleList()
+    (MLP_heads): ModuleDict(
+      (perf): ModuleList(
+        (0): Linear(in_features=128, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=16, bias=True)
+        (2): Linear(in_features=16, out_features=8, bias=True)
+        (3): Linear(in_features=8, out_features=1, bias=True)
+      )
+      (area): ModuleList(
+        (0): Linear(in_features=128, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=16, bias=True)
+        (2): Linear(in_features=16, out_features=8, bias=True)
+        (3): Linear(in_features=8, out_features=1, bias=True)
+      )
+    )
+  )
+  (resource_heads): ModuleDict(
+    (bram): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=128, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+    (dsp): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=128, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+    (ff): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=128, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+    (lut): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=128, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+  )
+  (MLPs_per_pragma): ModuleDict(
+    (pipeline): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=65, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=64, bias=True)
+      )
+    )
+    (unroll): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=65, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=64, bias=True)
+      )
+    )
+    (array_partition): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=67, out_features=33, bias=True)
+        (1): Linear(in_features=33, out_features=64, bias=True)
+      )
+    )
+    (merge): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=192, out_features=33, bias=True)
+        (1): Linear(in_features=33, out_features=64, bias=True)
+      )
+    )
+  )
+)
+
+Optimization schedule: steps=3920, updates_per_epoch=98, grad_accum_steps=1, warmup_steps=0 (0 fixed epochs)
+  0%|          | 0/37 [00:00<?, ?it/s]  3%|▎         | 1/37 [00:00<00:24,  1.50it/s]  5%|▌         | 2/37 [00:01<00:17,  2.05it/s]  8%|▊         | 3/37 [00:01<00:14,  2.39it/s] 11%|█         | 4/37 [00:01<00:12,  2.60it/s] 14%|█▎        | 5/37 [00:02<00:11,  2.74it/s] 16%|█▌        | 6/37 [00:02<00:11,  2.81it/s] 19%|█▉        | 7/37 [00:02<00:10,  2.83it/s] 22%|██▏       | 8/37 [00:03<00:10,  2.82it/s] 24%|██▍       | 9/37 [00:03<00:09,  2.84it/s] 27%|██▋       | 10/37 [00:03<00:09,  2.90it/s] 30%|██▉       | 11/37 [00:04<00:08,  2.96it/s] 32%|███▏      | 12/37 [00:04<00:08,  3.07it/s] 35%|███▌      | 13/37 [00:04<00:07,  3.17it/s] 38%|███▊      | 14/37 [00:04<00:07,  3.24it/s] 41%|████      | 15/37 [00:05<00:06,  3.28it/s] 43%|████▎     | 16/37 [00:05<00:06,  3.32it/s] 46%|████▌     | 17/37 [00:05<00:06,  3.32it/s] 49%|████▊     | 18/37 [00:06<00:05,  3.35it/s] 51%|█████▏    | 19/37 [00:06<00:05,  3.38it/s] 54%|█████▍    | 20/37 [00:06<00:04,  3.53it/s] 57%|█████▋    | 21/37 [00:06<00:04,  3.65it/s] 59%|█████▉    | 22/37 [00:07<00:04,  3.64it/s] 62%|██████▏   | 23/37 [00:07<00:03,  3.64it/s] 65%|██████▍   | 24/37 [00:07<00:03,  3.66it/s] 68%|██████▊   | 25/37 [00:08<00:03,  3.59it/s] 70%|███████   | 26/37 [00:08<00:03,  3.00it/s] 73%|███████▎  | 27/37 [00:08<00:03,  2.71it/s] 76%|███████▌  | 28/37 [00:09<00:03,  2.53it/s] 78%|███████▊  | 29/37 [00:09<00:03,  2.42it/s] 81%|████████  | 30/37 [00:10<00:02,  2.35it/s] 84%|████████▍ | 31/37 [00:10<00:02,  2.28it/s] 86%|████████▋ | 32/37 [00:11<00:02,  2.25it/s] 89%|████████▉ | 33/37 [00:11<00:01,  2.22it/s] 92%|█████████▏| 34/37 [00:12<00:01,  2.20it/s] 95%|█████████▍| 35/37 [00:12<00:00,  2.18it/s] 97%|█████████▋| 36/37 [00:13<00:00,  2.03it/s]100%|██████████| 37/37 [00:13<00:00,  2.37it/s]100%|██████████| 37/37 [00:13<00:00,  2.74it/s]
+[initial_val] epoch -1
+        target   aggregation  samples  kernels          mape          rmse  \
+0   latency_ms   point_micro     2341        4  5.341397e+07  1.324503e+09   
+1   latency_ms        kernel      683        1  7.669287e+05  1.844417e+06   
+2   latency_ms        kernel      519        1  1.770015e+08  1.509300e+09   
+3   latency_ms        kernel      388        1  1.958755e+07  7.384226e+08   
+4   latency_ms        kernel      751        1  3.336156e+07  1.900661e+09   
+5   latency_ms  kernel_macro     2341        4  5.767940e+07  1.037557e+09   
+6   area_score   point_micro     2341        4  2.263430e+01  6.590060e+01   
+7   area_score        kernel      683        1  4.502840e+01  3.948120e+01   
+8   area_score        kernel      519        1  6.172600e+00  3.800770e+01   
+9   area_score        kernel      388        1  2.340940e+01  8.129900e+01   
+10  area_score        kernel      751        1  1.324390e+01  8.778860e+01   
+11  area_score  kernel_macro     2341        4  2.196350e+01  6.164410e+01   
+
+             mse           mae       max_err     tau  \
+0   1.754309e+18  6.040255e+08  5.592995e+09  0.4104   
+1   3.401875e+12  1.784063e+06  4.849816e+06  0.1944   
+2   2.277986e+18  8.712915e+08  5.592995e+09  0.0194   
+3   5.452679e+17  3.559273e+08  2.519975e+09  0.1423   
+4   3.612511e+18  1.095213e+09  4.817909e+09  0.2884   
+5   1.608942e+18  5.810540e+08  3.233932e+09  0.1611   
+6   4.342892e+03  6.113190e+01  1.223711e+02  0.3328   
+7   1.558767e+03  3.936390e+01  4.495950e+01 -0.4606   
+8   1.444588e+03  3.729360e+01  5.532080e+01  0.1255   
+9   6.609530e+03  8.078410e+01  9.911970e+01  0.2859   
+10  7.706836e+03  8.724980e+01  1.223711e+02 -0.1512   
+11  4.329931e+03  6.117290e+01  8.044280e+01 -0.0501   
+
+                                 kernel  
+0                                   NaN  
+1                  machsuite-sort-radix  
+2                     machsuite-viterbi  
+3       rodinia_pathfinder_0_baseline_0  
+4   rodinia_pathfinder_4_doublebuffer_0  
+5                                        
+6                                   NaN  
+7                  machsuite-sort-radix  
+8                     machsuite-viterbi  
+9       rodinia_pathfinder_0_baseline_0  
+10  rodinia_pathfinder_4_doublebuffer_0  
+11                                       
+[initial_val] epoch -1 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 6.622383743524551, 'bias_percentage_points': -6.622383743524551, 'kernel_macro_tau': 0.0, 'constant_train_mean_validation_mae_percentage_points': 17.30826050043106, 'mae_baseline_ratio': 0.3826140554886854, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 11.425882577896118, 'bias_percentage_points': 11.425882577896118, 'kernel_macro_tau': 0.004033469114690685, 'constant_train_mean_validation_mae_percentage_points': 6.145551800727844, 'mae_baseline_ratio': 1.8592118248100848, 'beats_constant_train_mean': False}, {'resource': 'ff', 'mae_percentage_points': 2.46175117790699, 'bias_percentage_points': -2.187306061387062, 'kernel_macro_tau': -0.03017912892939884, 'constant_train_mean_validation_mae_percentage_points': 7.861585170030594, 'mae_baseline_ratio': 0.3131367433747983, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 20.64782977104187, 'bias_percentage_points': 4.394127056002617, 'kernel_macro_tau': -0.2885100992508246, 'constant_train_mean_validation_mae_percentage_points': 18.62836182117462, 'mae_baseline_ratio': 1.1084082416507364, 'beats_constant_train_mean': False}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.5394399707174231, 'false_feasible_fdr': 0.009848484848484848, 'false_feasible_rate': 0.004758418740849195, 'boundary_accuracy': 0.37764932562620424, 'boundary_balanced_accuracy': 0.48391174623115574, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7021917148362236, 'false_feasible_fdr': 0.22511782644857223, 'false_feasible_rate': 0.09778420038535646, 'boundary_accuracy': 0.5738396624472574, 'boundary_balanced_accuracy': 0.546305445978956, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6759020618556701, 'false_feasible_fdr': 0.15081967213114755, 'false_feasible_rate': 0.059278350515463915, 'boundary_accuracy': 0.6862464183381088, 'boundary_balanced_accuracy': 0.6317599755255452, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6541278295605859, 'false_feasible_fdr': 0.1913377192982456, 'false_feasible_rate': 0.08713382157123835, 'boundary_accuracy': 0.48656351791530944, 'boundary_balanced_accuracy': 0.5358190594343262, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.6349316531396839, 'false_feasible_fdr': 0.13566283707363533, 'false_feasible_rate': 0.06084472447671935, 'boundary_accuracy': 0.5311546058538337, 'boundary_balanced_accuracy': 0.5423158613228465, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': False}
+[initial_val] latency_ms physical RMSE: 1324503242.5822 | MAE: 604025486.9411 | MAPE: 5341397441.26% | tau-b: 0.4104
+[initial_val] area_score physical RMSE: 65.9006 | MAE: 61.1319 | MAPE: 2263.43% | tau-b: 0.3328
+Untrained validation loss: 5.5784; breakdown={'perf': 3.9139875877825228, 'area': 1.566943143713632}; target-balanced selection=30.1573; relative target losses={'area': 3.670175186963449, 'perf': 30.157329747238876}
+Initial validation GAE loss: 0
+Initial validation loss breakdown {'perf': 3.9139875877825228, 'area': 1.566943143713632}
+Pairwise delta auxiliary weight at epoch 0: 0.000000
+Test batch ID (resample): -1 - Epoch 0 train
+  0%|          | 0/98 [00:00<?, ?it/s]epoch = 0, learning rate = 3e-05
+  1%|          | 1/98 [00:00<01:33,  1.04it/s]  2%|▏         | 2/98 [00:01<01:01,  1.56it/s]  3%|▎         | 3/98 [00:01<00:56,  1.69it/s]  4%|▍         | 4/98 [00:02<00:49,  1.90it/s]  5%|▌         | 5/98 [00:02<00:44,  2.10it/s]  6%|▌         | 6/98 [00:03<00:46,  1.99it/s]  7%|▋         | 7/98 [00:03<00:44,  2.07it/s]  8%|▊         | 8/98 [00:04<00:38,  2.31it/s]  9%|▉         | 9/98 [00:04<00:43,  2.06it/s] 10%|█         | 10/98 [00:05<00:42,  2.07it/s] 11%|█         | 11/98 [00:05<00:37,  2.31it/s] 12%|█▏        | 12/98 [00:06<00:40,  2.13it/s] 13%|█▎        | 13/98 [00:06<00:41,  2.06it/s] 14%|█▍        | 14/98 [00:06<00:36,  2.32it/s] 15%|█▌        | 15/98 [00:07<00:38,  2.14it/s] 16%|█▋        | 16/98 [00:07<00:39,  2.10it/s] 17%|█▋        | 17/98 [00:08<00:34,  2.35it/s] 18%|█▊        | 18/98 [00:08<00:37,  2.11it/s] 19%|█▉        | 19/98 [00:09<00:37,  2.09it/s] 20%|██        | 20/98 [00:09<00:33,  2.30it/s] 21%|██▏       | 21/98 [00:10<00:35,  2.16it/s] 22%|██▏       | 22/98 [00:10<00:36,  2.06it/s] 23%|██▎       | 23/98 [00:10<00:32,  2.28it/s] 24%|██▍       | 24/98 [00:11<00:33,  2.20it/s] 26%|██▌       | 25/98 [00:12<00:35,  2.06it/s] 27%|██▋       | 26/98 [00:12<00:31,  2.28it/s] 28%|██▊       | 27/98 [00:12<00:31,  2.23it/s] 29%|██▊       | 28/98 [00:13<00:32,  2.13it/s] 30%|██▉       | 29/98 [00:13<00:30,  2.25it/s] 31%|███       | 30/98 [00:14<00:31,  2.18it/s] 32%|███▏      | 31/98 [00:14<00:30,  2.17it/s] 33%|███▎      | 32/98 [00:15<00:29,  2.24it/s] 34%|███▎      | 33/98 [00:15<00:29,  2.20it/s] 35%|███▍      | 34/98 [00:16<00:29,  2.14it/s] 36%|███▌      | 35/98 [00:16<00:28,  2.24it/s] 37%|███▋      | 36/98 [00:16<00:28,  2.18it/s] 38%|███▊      | 37/98 [00:17<00:28,  2.12it/s] 39%|███▉      | 38/98 [00:17<00:27,  2.22it/s] 40%|███▉      | 39/98 [00:18<00:26,  2.19it/s] 41%|████      | 40/98 [00:18<00:27,  2.10it/s] 42%|████▏     | 41/98 [00:19<00:25,  2.20it/s] 43%|████▎     | 42/98 [00:19<00:25,  2.21it/s] 44%|████▍     | 43/98 [00:20<00:26,  2.10it/s] 45%|████▍     | 44/98 [00:20<00:24,  2.20it/s] 46%|████▌     | 45/98 [00:21<00:24,  2.19it/s] 47%|████▋     | 46/98 [00:21<00:24,  2.13it/s] 48%|████▊     | 47/98 [00:22<00:23,  2.18it/s] 49%|████▉     | 48/98 [00:22<00:22,  2.22it/s] 50%|█████     | 49/98 [00:23<00:23,  2.11it/s] 51%|█████     | 50/98 [00:23<00:22,  2.17it/s] 52%|█████▏    | 51/98 [00:23<00:21,  2.20it/s] 53%|█████▎    | 52/98 [00:24<00:21,  2.10it/s] 54%|█████▍    | 53/98 [00:24<00:20,  2.17it/s] 55%|█████▌    | 54/98 [00:25<00:19,  2.27it/s] 56%|█████▌    | 55/98 [00:25<00:20,  2.11it/s] 57%|█████▋    | 56/98 [00:26<00:19,  2.15it/s] 58%|█████▊    | 57/98 [00:26<00:17,  2.37it/s] 59%|█████▉    | 58/98 [00:27<00:18,  2.11it/s] 60%|██████    | 59/98 [00:27<00:18,  2.09it/s] 61%|██████    | 60/98 [00:27<00:16,  2.31it/s] 62%|██████▏   | 61/98 [00:28<00:17,  2.13it/s] 63%|██████▎   | 62/98 [00:29<00:17,  2.07it/s] 64%|██████▍   | 63/98 [00:29<00:15,  2.33it/s] 65%|██████▌   | 64/98 [00:29<00:15,  2.14it/s] 66%|██████▋   | 65/98 [00:30<00:15,  2.10it/s] 67%|██████▋   | 66/98 [00:30<00:13,  2.37it/s] 68%|██████▊   | 67/98 [00:31<00:14,  2.13it/s] 69%|██████▉   | 68/98 [00:31<00:14,  2.10it/s] 70%|███████   | 69/98 [00:32<00:12,  2.32it/s] 71%|███████▏  | 70/98 [00:32<00:12,  2.17it/s] 72%|███████▏  | 71/98 [00:33<00:13,  2.07it/s] 73%|███████▎  | 72/98 [00:33<00:11,  2.28it/s] 74%|███████▍  | 73/98 [00:33<00:11,  2.20it/s] 76%|███████▌  | 74/98 [00:34<00:11,  2.07it/s] 77%|███████▋  | 75/98 [00:34<00:10,  2.28it/s] 78%|███████▊  | 76/98 [00:35<00:09,  2.23it/s] 79%|███████▊  | 77/98 [00:35<00:09,  2.13it/s] 80%|███████▉  | 78/98 [00:36<00:08,  2.25it/s] 81%|████████  | 79/98 [00:36<00:08,  2.19it/s] 82%|████████▏ | 80/98 [00:37<00:08,  2.17it/s] 83%|████████▎ | 81/98 [00:37<00:07,  2.24it/s] 84%|████████▎ | 82/98 [00:38<00:07,  2.20it/s] 85%|████████▍ | 83/98 [00:38<00:07,  2.12it/s] 86%|████████▌ | 84/98 [00:38<00:06,  2.23it/s] 87%|████████▋ | 85/98 [00:39<00:05,  2.19it/s] 88%|████████▊ | 86/98 [00:39<00:05,  2.14it/s] 89%|████████▉ | 87/98 [00:40<00:04,  2.24it/s] 90%|████████▉ | 88/98 [00:40<00:04,  2.23it/s] 91%|█████████ | 89/98 [00:41<00:04,  2.13it/s] 92%|█████████▏| 90/98 [00:41<00:03,  2.24it/s] 93%|█████████▎| 91/98 [00:42<00:03,  2.23it/s] 94%|█████████▍| 92/98 [00:42<00:02,  2.12it/s] 95%|█████████▍| 93/98 [00:43<00:02,  2.21it/s] 96%|█████████▌| 94/98 [00:43<00:01,  2.22it/s] 97%|█████████▋| 95/98 [00:44<00:01,  2.15it/s] 98%|█████████▊| 96/98 [00:44<00:00,  2.21it/s] 99%|█████████▉| 97/98 [00:44<00:00,  2.25it/s]100%|██████████| 98/98 [00:45<00:00,  2.13it/s]100%|██████████| 98/98 [00:45<00:00,  2.16it/s]
+Saved train model at epoch 0
+Epoch 0 val
+  0%|          | 0/37 [00:00<?, ?it/s]  3%|▎         | 1/37 [00:00<00:14,  2.52it/s]  5%|▌         | 2/37 [00:00<00:12,  2.72it/s]  8%|▊         | 3/37 [00:01<00:12,  2.78it/s] 11%|█         | 4/37 [00:01<00:11,  2.82it/s] 14%|█▎        | 5/37 [00:01<00:11,  2.84it/s] 16%|█▌        | 6/37 [00:02<00:10,  2.85it/s] 19%|█▉        | 7/37 [00:02<00:10,  2.86it/s] 22%|██▏       | 8/37 [00:02<00:10,  2.87it/s] 24%|██▍       | 9/37 [00:03<00:09,  2.87it/s] 27%|██▋       | 10/37 [00:03<00:09,  2.88it/s] 30%|██▉       | 11/37 [00:03<00:08,  2.91it/s] 32%|███▏      | 12/37 [00:04<00:08,  3.05it/s] 35%|███▌      | 13/37 [00:04<00:07,  3.15it/s] 38%|███▊      | 14/37 [00:04<00:07,  3.22it/s] 41%|████      | 15/37 [00:05<00:06,  3.28it/s] 43%|████▎     | 16/37 [00:05<00:06,  3.32it/s] 46%|████▌     | 17/37 [00:05<00:05,  3.35it/s] 49%|████▊     | 18/37 [00:05<00:05,  3.37it/s] 51%|█████▏    | 19/37 [00:06<00:05,  3.41it/s] 54%|█████▍    | 20/37 [00:06<00:04,  3.56it/s] 57%|█████▋    | 21/37 [00:06<00:04,  3.67it/s] 59%|█████▉    | 22/37 [00:06<00:03,  3.75it/s] 62%|██████▏   | 23/37 [00:07<00:03,  3.81it/s] 65%|██████▍   | 24/37 [00:07<00:03,  3.86it/s] 68%|██████▊   | 25/37 [00:07<00:03,  3.76it/s] 70%|███████   | 26/37 [00:08<00:03,  3.10it/s] 73%|███████▎  | 27/37 [00:08<00:03,  2.79it/s] 76%|███████▌  | 28/37 [00:09<00:03,  2.61it/s] 78%|███████▊  | 29/37 [00:09<00:03,  2.51it/s] 81%|████████  | 30/37 [00:09<00:02,  2.44it/s] 84%|████████▍ | 31/37 [00:10<00:02,  2.39it/s] 86%|████████▋ | 32/37 [00:10<00:02,  2.36it/s] 89%|████████▉ | 33/37 [00:11<00:01,  2.33it/s] 92%|█████████▏| 34/37 [00:11<00:01,  2.32it/s] 95%|█████████▍| 35/37 [00:12<00:00,  2.30it/s] 97%|█████████▋| 36/37 [00:12<00:00,  2.30it/s]100%|██████████| 37/37 [00:12<00:00,  2.63it/s]100%|██████████| 37/37 [00:12<00:00,  2.88it/s]
+[val] epoch 0
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.8708  23.4810   551.3570   
+1   latency_ms        kernel      683        1  0.3565   1.2712     1.6159   
+2   latency_ms        kernel      519        1  1.6470  21.6095   466.9715   
+3   latency_ms        kernel      388        1  0.7954  34.4690  1188.1103   
+4   latency_ms        kernel      751        1  0.8410  27.9403   780.6631   
+5   latency_ms  kernel_macro     2341        4  0.9100  21.3225   609.3402   
+6   area_score   point_micro     2341        4  2.2977   6.6694    44.4814   
+7   area_score        kernel      683        1  5.2689   4.3670    19.0706   
+8   area_score        kernel      519        1  0.4376   6.2666    39.2707   
+9   area_score        kernel      388        1  2.3129   9.2521    85.6017   
+10  area_score        kernel      751        1  0.8733   7.0674    49.9479   
+11  area_score  kernel_macro     2341        4  2.2232   6.7383    48.4727   
+
+        mae   max_err     tau                               kernel  
+0   16.2304  156.7336  0.2691                                  NaN  
+1    0.8466   11.0610  0.1026                 machsuite-sort-radix  
+2   12.8293   74.4878  0.2465                    machsuite-viterbi  
+3   25.8499  156.7336  0.1686      rodinia_pathfinder_0_baseline_0  
+4   27.6017   54.2172  0.0236  rodinia_pathfinder_4_doublebuffer_0  
+5   16.7819   74.1249  0.1353                                       
+6    5.4011   36.0815  0.2663                                  NaN  
+7    4.1152   12.3819 -0.5204                 machsuite-sort-radix  
+8    3.9211   36.0815 -0.2022                    machsuite-viterbi  
+9    8.7317   21.4611  0.0097      rodinia_pathfinder_0_baseline_0  
+10   5.8727   27.3038 -0.1964  rodinia_pathfinder_4_doublebuffer_0  
+11   5.6602   24.3071 -0.2273                                       
+[val] epoch 0 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 6.622383743524551, 'bias_percentage_points': -6.622383743524551, 'kernel_macro_tau': 0.0, 'constant_train_mean_validation_mae_percentage_points': 17.30826050043106, 'mae_baseline_ratio': 0.3826140554886854, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 5.311179161071777, 'bias_percentage_points': 5.298473313450813, 'kernel_macro_tau': -0.000585126080467701, 'constant_train_mean_validation_mae_percentage_points': 6.145551800727844, 'mae_baseline_ratio': 0.8642314528115688, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 2.8688522055745125, 'bias_percentage_points': 0.6603773683309555, 'kernel_macro_tau': -0.17459728940448316, 'constant_train_mean_validation_mae_percentage_points': 7.861585170030594, 'mae_baseline_ratio': 0.36492032376764905, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 16.35049730539322, 'bias_percentage_points': -7.542767375707626, 'kernel_macro_tau': -0.2947429260268592, 'constant_train_mean_validation_mae_percentage_points': 18.62836182117462, 'mae_baseline_ratio': 0.877720620973113, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7417642752562226, 'false_feasible_fdr': 0.007861425716189207, 'false_feasible_rate': 0.005398975109809663, 'boundary_accuracy': 0.3834296724470135, 'boundary_balanced_accuracy': 0.48764918341708546, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7182080924855492, 'false_feasible_fdr': 0.24542829643888353, 'false_feasible_rate': 0.12283236994219653, 'boundary_accuracy': 0.5627637130801688, 'boundary_balanced_accuracy': 0.5353887556904229, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6163015463917526, 'false_feasible_fdr': 0.3574786324786325, 'false_feasible_rate': 0.2694909793814433, 'boundary_accuracy': 0.46275071633237824, 'boundary_balanced_accuracy': 0.5261177396092829, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.706225033288948, 'false_feasible_fdr': 0.20867287543655413, 'false_feasible_rate': 0.11934087882822902, 'boundary_accuracy': 0.48493485342019543, 'boundary_balanced_accuracy': 0.5238758978742923, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7043464331482272, 'false_feasible_fdr': 0.18032998750700038, 'false_feasible_rate': 0.1117577958137548, 'boundary_accuracy': 0.499191955467768, 'boundary_balanced_accuracy': 0.506539501402997, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 23.4810 | MAE: 16.2304 | MAPE: 87.08% | tau-b: 0.2691
+[val] area_score physical RMSE: 6.6694 | MAE: 5.4011 | MAPE: 229.77% | tau-b: 0.2663
+Validation target-balanced selection score: 1.286601; relative target losses={'area': 1.0172304632149927, 'perf': 1.2866009703188432}
+Validation worst-target kernel-macro tau-b: -0.227307; worst kernel/target baseline ratio=14.221934; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.286601; active_control_score=14.704359; lexicographic_qualification={'qualified': False, 'target_qualified': False, 'kernel_perf_qualified': False, 'resource_qualified': True, 'rank_qualified': False, 'worst_kernel_perf_ratio': 14.221934212631806, 'resource_mae_ratios': {'bram': 0.3826140554886854, 'dsp': 0.8642314528115688, 'ff': 0.36492032376764905, 'lut': 0.877720620973113}, 'boundary_balanced_accuracy': 0.506539501402997, 'false_feasible_fdr': 0.18032998750700038, 'ranking_score': -0.227306922685206}
+Saved val model at epoch 0
+Train GAE loss: 0
+Train loss breakdown {'perf': 1.0749844695840562, 'area': 0.6196812397363235, 'rank_aux/perf': 0.692898401800467, 'rank_aux/area': 0.7032045436148741}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1669822981830134, 'area': 0.43429597191248426}
+ 		 58.406 secs
+Epoch: 000, Train Loss: 1.8251, Val loss: 0.6589, Time: 58.406 secs
+Pairwise delta auxiliary weight at epoch 1: 0.000000
+Test batch ID (resample): -1 - Epoch 1 train
+  0%|          | 0/98 [00:00<?, ?it/s]epoch = 1, learning rate = 3e-05
+  1%|          | 1/98 [00:00<01:18,  1.24it/s]  2%|▏         | 2/98 [00:01<00:58,  1.64it/s]  3%|▎         | 3/98 [00:01<00:51,  1.84it/s]  4%|▍         | 4/98 [00:02<00:45,  2.05it/s]  5%|▌         | 5/98 [00:02<00:44,  2.11it/s]  6%|▌         | 6/98 [00:03<00:44,  2.05it/s]  7%|▋         | 7/98 [00:03<00:41,  2.19it/s]  8%|▊         | 8/98 [00:03<00:40,  2.22it/s]  9%|▉         | 9/98 [00:04<00:41,  2.13it/s] 10%|█         | 10/98 [00:04<00:39,  2.23it/s] 11%|█         | 11/98 [00:05<00:39,  2.22it/s] 12%|█▏        | 12/98 [00:05<00:40,  2.14it/s] 13%|█▎        | 13/98 [00:06<00:38,  2.22it/s] 14%|█▍        | 14/98 [00:06<00:37,  2.21it/s] 15%|█▌        | 15/98 [00:07<00:37,  2.19it/s] 16%|█▋        | 16/98 [00:07<00:36,  2.23it/s] 17%|█▋        | 17/98 [00:08<00:36,  2.22it/s] 18%|█▊        | 18/98 [00:08<00:36,  2.16it/s] 19%|█▉        | 19/98 [00:08<00:35,  2.21it/s] 20%|██        | 20/98 [00:09<00:35,  2.23it/s] 21%|██▏       | 21/98 [00:09<00:35,  2.16it/s] 22%|██▏       | 22/98 [00:10<00:34,  2.20it/s] 23%|██▎       | 23/98 [00:10<00:33,  2.24it/s] 24%|██▍       | 24/98 [00:11<00:33,  2.19it/s] 26%|██▌       | 25/98 [00:11<00:33,  2.19it/s] 27%|██▋       | 26/98 [00:12<00:30,  2.33it/s] 28%|██▊       | 27/98 [00:12<00:32,  2.17it/s] 29%|██▊       | 28/98 [00:13<00:32,  2.15it/s] 30%|██▉       | 29/98 [00:13<00:29,  2.32it/s] 31%|███       | 30/98 [00:13<00:31,  2.19it/s] 32%|███▏      | 31/98 [00:14<00:31,  2.14it/s] 33%|███▎      | 32/98 [00:14<00:29,  2.28it/s] 34%|███▎      | 33/98 [00:15<00:28,  2.27it/s] 35%|███▍      | 34/98 [00:15<00:29,  2.14it/s] 36%|███▌      | 35/98 [00:16<00:28,  2.23it/s] 37%|███▋      | 36/98 [00:16<00:27,  2.25it/s] 38%|███▊      | 37/98 [00:17<00:28,  2.14it/s] 39%|███▉      | 38/98 [00:17<00:26,  2.29it/s] 40%|███▉      | 39/98 [00:17<00:26,  2.22it/s] 41%|████      | 40/98 [00:18<00:26,  2.18it/s] 42%|████▏     | 41/98 [00:18<00:24,  2.30it/s] 43%|████▎     | 42/98 [00:19<00:25,  2.19it/s] 44%|████▍     | 43/98 [00:19<00:25,  2.15it/s] 45%|████▍     | 44/98 [00:20<00:23,  2.29it/s] 46%|████▌     | 45/98 [00:20<00:24,  2.18it/s] 47%|████▋     | 46/98 [00:21<00:23,  2.19it/s] 48%|████▊     | 47/98 [00:21<00:22,  2.31it/s] 49%|████▉     | 48/98 [00:22<00:22,  2.19it/s] 50%|█████     | 49/98 [00:22<00:22,  2.16it/s] 51%|█████     | 50/98 [00:22<00:21,  2.28it/s] 52%|█████▏    | 51/98 [00:23<00:21,  2.22it/s] 53%|█████▎    | 52/98 [00:23<00:21,  2.19it/s] 54%|█████▍    | 53/98 [00:24<00:19,  2.27it/s] 55%|█████▌    | 54/98 [00:24<00:19,  2.26it/s] 56%|█████▌    | 55/98 [00:25<00:20,  2.15it/s] 57%|█████▋    | 56/98 [00:25<00:18,  2.26it/s] 58%|█████▊    | 57/98 [00:26<00:18,  2.27it/s] 59%|█████▉    | 58/98 [00:26<00:18,  2.17it/s] 60%|██████    | 59/98 [00:26<00:17,  2.26it/s] 61%|██████    | 60/98 [00:27<00:16,  2.25it/s] 62%|██████▏   | 61/98 [00:27<00:17,  2.15it/s] 63%|██████▎   | 62/98 [00:28<00:16,  2.22it/s] 64%|██████▍   | 63/98 [00:28<00:15,  2.21it/s] 65%|██████▌   | 64/98 [00:29<00:15,  2.18it/s] 66%|██████▋   | 65/98 [00:29<00:14,  2.23it/s] 67%|██████▋   | 66/98 [00:30<00:14,  2.23it/s] 68%|██████▊   | 67/98 [00:30<00:14,  2.17it/s] 69%|██████▉   | 68/98 [00:31<00:13,  2.21it/s] 70%|███████   | 69/98 [00:31<00:13,  2.23it/s] 71%|███████▏  | 70/98 [00:32<00:13,  2.10it/s] 72%|███████▏  | 71/98 [00:32<00:12,  2.09it/s] 73%|███████▎  | 72/98 [00:32<00:12,  2.16it/s] 74%|███████▍  | 73/98 [00:33<00:11,  2.13it/s] 76%|███████▌  | 74/98 [00:33<00:11,  2.15it/s] 77%|███████▋  | 75/98 [00:34<00:09,  2.31it/s] 78%|███████▊  | 76/98 [00:34<00:10,  2.16it/s] 79%|███████▊  | 77/98 [00:35<00:09,  2.14it/s] 80%|███████▉  | 78/98 [00:35<00:08,  2.30it/s] 81%|████████  | 79/98 [00:36<00:08,  2.18it/s] 82%|████████▏ | 80/98 [00:36<00:08,  2.14it/s] 83%|████████▎ | 81/98 [00:37<00:07,  2.28it/s] 84%|████████▎ | 82/98 [00:37<00:07,  2.28it/s] 85%|████████▍ | 83/98 [00:37<00:06,  2.15it/s] 86%|████████▌ | 84/98 [00:38<00:06,  2.23it/s] 87%|████████▋ | 85/98 [00:38<00:05,  2.24it/s] 88%|████████▊ | 86/98 [00:39<00:05,  2.14it/s] 89%|████████▉ | 87/98 [00:39<00:04,  2.30it/s] 90%|████████▉ | 88/98 [00:40<00:04,  2.23it/s] 91%|█████████ | 89/98 [00:40<00:04,  2.19it/s] 92%|█████████▏| 90/98 [00:41<00:03,  2.31it/s] 93%|█████████▎| 91/98 [00:41<00:03,  2.19it/s] 94%|█████████▍| 92/98 [00:42<00:02,  2.17it/s] 95%|█████████▍| 93/98 [00:42<00:02,  2.29it/s] 96%|█████████▌| 94/98 [00:42<00:01,  2.18it/s] 97%|█████████▋| 95/98 [00:43<00:01,  2.19it/s] 98%|█████████▊| 96/98 [00:43<00:00,  2.32it/s] 99%|█████████▉| 97/98 [00:44<00:00,  2.20it/s]100%|██████████| 98/98 [00:44<00:00,  2.16it/s]100%|██████████| 98/98 [00:44<00:00,  2.19it/s]
+Saved train model at epoch 1
+Epoch 1 val
+  0%|          | 0/37 [00:00<?, ?it/s]  3%|▎         | 1/37 [00:00<00:17,  2.11it/s]  5%|▌         | 2/37 [00:00<00:13,  2.58it/s]  8%|▊         | 3/37 [00:01<00:12,  2.78it/s] 11%|█         | 4/37 [00:01<00:11,  2.88it/s] 14%|█▎        | 5/37 [00:01<00:10,  2.95it/s] 16%|█▌        | 6/37 [00:02<00:10,  2.96it/s] 19%|█▉        | 7/37 [00:02<00:10,  2.99it/s] 22%|██▏       | 8/37 [00:02<00:09,  3.03it/s] 24%|██▍       | 9/37 [00:03<00:09,  3.05it/s] 27%|██▋       | 10/37 [00:03<00:08,  3.07it/s] 30%|██▉       | 11/37 [00:03<00:08,  3.06it/s] 32%|███▏      | 12/37 [00:04<00:07,  3.13it/s] 35%|███▌      | 13/37 [00:04<00:07,  3.19it/s] 38%|███▊      | 14/37 [00:04<00:07,  3.23it/s] 41%|████      | 15/37 [00:04<00:06,  3.25it/s] 43%|████▎     | 16/37 [00:05<00:06,  3.28it/s] 46%|████▌     | 17/37 [00:05<00:06,  3.29it/s] 49%|████▊     | 18/37 [00:05<00:05,  3.29it/s] 51%|█████▏    | 19/37 [00:06<00:05,  3.33it/s] 54%|█████▍    | 20/37 [00:06<00:04,  3.50it/s] 57%|█████▋    | 21/37 [00:06<00:04,  3.63it/s] 59%|█████▉    | 22/37 [00:06<00:04,  3.72it/s] 62%|██████▏   | 23/37 [00:07<00:03,  3.79it/s] 65%|██████▍   | 24/37 [00:07<00:03,  3.84it/s] 68%|██████▊   | 25/37 [00:07<00:03,  3.74it/s] 70%|███████   | 26/37 [00:08<00:03,  3.09it/s] 73%|███████▎  | 27/37 [00:08<00:03,  2.76it/s] 76%|███████▌  | 28/37 [00:09<00:03,  2.57it/s] 78%|███████▊  | 29/37 [00:09<00:03,  2.45it/s] 81%|████████  | 30/37 [00:09<00:02,  2.37it/s] 84%|████████▍ | 31/37 [00:10<00:02,  2.32it/s] 86%|████████▋ | 32/37 [00:10<00:02,  2.29it/s] 89%|████████▉ | 33/37 [00:11<00:01,  2.26it/s] 92%|█████████▏| 34/37 [00:11<00:01,  2.25it/s] 95%|█████████▍| 35/37 [00:12<00:00,  2.24it/s] 97%|█████████▋| 36/37 [00:12<00:00,  2.23it/s]100%|██████████| 37/37 [00:12<00:00,  2.55it/s]100%|██████████| 37/37 [00:12<00:00,  2.86it/s]
+[val] epoch 1
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  2.0335  28.0058   784.3260   
+1   latency_ms        kernel      683        1  1.2294   3.6564    13.3689   
+2   latency_ms        kernel      519        1  5.6873  37.3862  1397.7252   
+3   latency_ms        kernel      388        1  0.7731  34.0926  1162.3052   
+4   latency_ms        kernel      751        1  0.8908  29.4328   866.2882   
+5   latency_ms  kernel_macro     2341        4  2.1451  26.1420   859.9219   
+6   area_score   point_micro     2341        4  2.0592   6.3497    40.3185   
+7   area_score        kernel      683        1  4.3663   3.6587    13.3861   
+8   area_score        kernel      519        1  0.5262   5.7857    33.4741   
+9   area_score        kernel      388        1  2.3478   9.1087    82.9692   
+10  area_score        kernel      751        1  0.8714   6.8925    47.5069   
+11  area_score  kernel_macro     2341        4  2.0279   6.3614    44.3341   
+
+        mae   max_err     tau                               kernel  
+0   20.7031  156.6697 -0.1257                                  NaN  
+1    2.8719   19.4671  0.0955                 machsuite-sort-radix  
+2   28.2912  156.6697  0.2127                    machsuite-viterbi  
+3   25.4332  155.5033  0.1980      rodinia_pathfinder_0_baseline_0  
+4   29.2320   55.0392  0.0673  rodinia_pathfinder_4_doublebuffer_0  
+5   21.4571   96.6698  0.1434                                       
+6    5.1474   34.7316  0.3578                                  NaN  
+7    3.4078   12.7285 -0.4992                 machsuite-sort-radix  
+8    3.8551   34.7316 -0.1740                    machsuite-viterbi  
+9    8.6851   20.2585  0.2129      rodinia_pathfinder_0_baseline_0  
+10   5.7950   26.6217  0.0889  rodinia_pathfinder_4_doublebuffer_0  
+11   5.4357   23.5851 -0.0928                                       
+[val] epoch 1 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 6.428106874227524, 'bias_percentage_points': -6.428106874227524, 'kernel_macro_tau': 0.07160470126260404, 'constant_train_mean_validation_mae_percentage_points': 17.30826050043106, 'mae_baseline_ratio': 0.37138953819578996, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 2.3888105526566505, 'bias_percentage_points': 2.3639805614948273, 'kernel_macro_tau': 0.00036667901042642596, 'constant_train_mean_validation_mae_percentage_points': 6.145551800727844, 'mae_baseline_ratio': 0.38870562483481685, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 3.0081789940595627, 'bias_percentage_points': 0.9424597956240177, 'kernel_macro_tau': -0.17254942559003, 'constant_train_mean_validation_mae_percentage_points': 7.861585170030594, 'mae_baseline_ratio': 0.38264280409085183, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 16.007891297340393, 'bias_percentage_points': -7.1084462106227875, 'kernel_macro_tau': -0.2880053919257277, 'constant_train_mean_validation_mae_percentage_points': 18.62836182117462, 'mae_baseline_ratio': 0.8593289872190708, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8083821376281113, 'false_feasible_fdr': 0.03324513976762913, 'false_feasible_rate': 0.026445827232796485, 'boundary_accuracy': 0.4142581888246628, 'boundary_balanced_accuracy': 0.4641959798994975, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6480009633911368, 'false_feasible_fdr': 0.3742824339839265, 'false_feasible_rate': 0.27480732177263967, 'boundary_accuracy': 0.4641350210970464, 'boundary_balanced_accuracy': 0.4896389411832466, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6509342783505154, 'false_feasible_fdr': 0.3507419541337445, 'false_feasible_rate': 0.2931701030927835, 'boundary_accuracy': 0.4713467048710602, 'boundary_balanced_accuracy': 0.5555657532450505, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6975699067909454, 'false_feasible_fdr': 0.31690140845070425, 'false_feasible_rate': 0.280875499334221, 'boundary_accuracy': 0.6351791530944625, 'boundary_balanced_accuracy': 0.5509228080051988, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7111811191798377, 'false_feasible_fdr': 0.253550556661987, 'false_feasible_rate': 0.2073366082870568, 'boundary_accuracy': 0.5358233075956186, 'boundary_balanced_accuracy': 0.5239608556459873, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 28.0058 | MAE: 20.7031 | MAPE: 203.35% | tau-b: -0.1257
+[val] area_score physical RMSE: 6.3497 | MAE: 5.1474 | MAPE: 205.92% | tau-b: 0.3578
+Validation target-balanced selection score: 1.680374; relative target losses={'area': 0.9519900623796481, 'perf': 1.6803735862054405}
+Validation worst-target kernel-macro tau-b: -0.092845; worst kernel/target baseline ratio=18.259609; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.680374; active_control_score=18.984508; lexicographic_qualification={'qualified': False, 'target_qualified': False, 'kernel_perf_qualified': False, 'resource_qualified': True, 'rank_qualified': False, 'worst_kernel_perf_ratio': 18.25960930486356, 'resource_mae_ratios': {'bram': 0.37138953819578996, 'dsp': 0.38870562483481685, 'ff': 0.38264280409085183, 'lut': 0.8593289872190708}, 'boundary_balanced_accuracy': 0.5239608556459873, 'false_feasible_fdr': 0.253550556661987, 'ranking_score': -0.09284514765485194}
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.5407077147036182, 'area': 0.47589216548569346, 'rank_aux/perf': 0.6895045729316011, 'rank_aux/area': 0.7037229215612217}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.21808831930313288, 'area': 0.4064422609656094}
+ 		 57.808 secs
+Epoch: 001, Train Loss: 1.1191, Val loss: 0.6596, Time: 57.808 secs
+Checkpoint saved at epoch 1 -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/last_ckpt.pt
+Pairwise delta auxiliary weight at epoch 2: 0.000000
+Test batch ID (resample): -1 - Epoch 2 train
+  0%|          | 0/98 [00:00<?, ?it/s]epoch = 2, learning rate = 3e-05
+  1%|          | 1/98 [00:00<01:14,  1.30it/s]  2%|▏         | 2/98 [00:01<00:52,  1.83it/s]  3%|▎         | 3/98 [00:01<00:52,  1.82it/s]  4%|▍         | 4/98 [00:02<00:46,  2.00it/s]  5%|▌         | 5/98 [00:02<00:41,  2.22it/s]  6%|▌         | 6/98 [00:03<00:45,  2.03it/s]  7%|▋         | 7/98 [00:03<00:42,  2.12it/s]  8%|▊         | 8/98 [00:03<00:39,  2.31it/s]  9%|▉         | 9/98 [00:04<00:43,  2.07it/s] 10%|█         | 10/98 [00:04<00:40,  2.18it/s] 11%|█         | 11/98 [00:05<00:37,  2.30it/s] 12%|█▏        | 12/98 [00:05<00:40,  2.11it/s] 13%|█▎        | 13/98 [00:06<00:38,  2.20it/s] 14%|█▍        | 14/98 [00:06<00:35,  2.34it/s] 15%|█▌        | 15/98 [00:07<00:38,  2.18it/s] 16%|█▋        | 16/98 [00:07<00:37,  2.18it/s] 17%|█▋        | 17/98 [00:07<00:35,  2.29it/s] 18%|█▊        | 18/98 [00:08<00:36,  2.21it/s] 19%|█▉        | 19/98 [00:08<00:36,  2.19it/s] 20%|██        | 20/98 [00:09<00:34,  2.29it/s] 21%|██▏       | 21/98 [00:09<00:35,  2.19it/s] 22%|██▏       | 22/98 [00:10<00:34,  2.18it/s] 23%|██▎       | 23/98 [00:10<00:33,  2.25it/s] 24%|██▍       | 24/98 [00:11<00:33,  2.24it/s] 26%|██▌       | 25/98 [00:11<00:32,  2.26it/s] 27%|██▋       | 26/98 [00:12<00:32,  2.23it/s] 28%|██▊       | 27/98 [00:12<00:31,  2.24it/s] 29%|██▊       | 28/98 [00:12<00:30,  2.26it/s] 30%|██▉       | 29/98 [00:13<00:31,  2.19it/s] 31%|███       | 30/98 [00:13<00:29,  2.29it/s] 32%|███▏      | 31/98 [00:14<00:29,  2.25it/s] 33%|███▎      | 32/98 [00:14<00:30,  2.15it/s] 34%|███▎      | 33/98 [00:15<00:29,  2.23it/s] 35%|███▍      | 34/98 [00:15<00:28,  2.21it/s] 36%|███▌      | 35/98 [00:16<00:29,  2.15it/s] 37%|███▋      | 36/98 [00:16<00:27,  2.24it/s] 38%|███▊      | 37/98 [00:16<00:27,  2.20it/s] 39%|███▉      | 38/98 [00:17<00:27,  2.15it/s] 40%|███▉      | 39/98 [00:17<00:25,  2.27it/s] 41%|████      | 40/98 [00:18<00:26,  2.22it/s] 42%|████▏     | 41/98 [00:18<00:26,  2.16it/s] 43%|████▎     | 42/98 [00:19<00:24,  2.32it/s] 44%|████▍     | 43/98 [00:19<00:25,  2.17it/s] 45%|████▍     | 44/98 [00:20<00:24,  2.18it/s] 46%|████▌     | 45/98 [00:20<00:22,  2.31it/s] 47%|████▋     | 46/98 [00:21<00:24,  2.16it/s] 48%|████▊     | 47/98 [00:21<00:23,  2.18it/s] 49%|████▉     | 48/98 [00:21<00:21,  2.31it/s] 50%|█████     | 49/98 [00:22<00:22,  2.14it/s] 51%|█████     | 50/98 [00:22<00:21,  2.21it/s] 52%|█████▏    | 51/98 [00:23<00:20,  2.30it/s] 53%|█████▎    | 52/98 [00:23<00:21,  2.14it/s] 54%|█████▍    | 53/98 [00:24<00:20,  2.20it/s] 55%|█████▌    | 54/98 [00:24<00:18,  2.35it/s] 56%|█████▌    | 55/98 [00:25<00:20,  2.12it/s] 57%|█████▋    | 56/98 [00:25<00:19,  2.18it/s] 58%|█████▊    | 57/98 [00:25<00:17,  2.34it/s] 59%|█████▉    | 58/98 [00:26<00:18,  2.11it/s] 60%|██████    | 59/98 [00:26<00:17,  2.21it/s] 61%|██████    | 60/98 [00:27<00:16,  2.32it/s] 62%|██████▏   | 61/98 [00:27<00:17,  2.12it/s] 63%|██████▎   | 62/98 [00:28<00:16,  2.21it/s] 64%|██████▍   | 63/98 [00:28<00:14,  2.35it/s] 65%|██████▌   | 64/98 [00:29<00:15,  2.19it/s] 66%|██████▋   | 65/98 [00:29<00:15,  2.18it/s] 67%|██████▋   | 66/98 [00:30<00:13,  2.29it/s] 68%|██████▊   | 67/98 [00:30<00:14,  2.21it/s] 69%|██████▉   | 68/98 [00:30<00:13,  2.19it/s] 70%|███████   | 69/98 [00:31<00:12,  2.29it/s] 71%|███████▏  | 70/98 [00:31<00:12,  2.19it/s] 72%|███████▏  | 71/98 [00:32<00:12,  2.18it/s] 73%|███████▎  | 72/98 [00:32<00:11,  2.26it/s] 74%|███████▍  | 73/98 [00:33<00:11,  2.24it/s] 76%|███████▌  | 74/98 [00:33<00:10,  2.26it/s] 77%|███████▋  | 75/98 [00:34<00:10,  2.23it/s] 78%|███████▊  | 76/98 [00:34<00:09,  2.25it/s] 79%|███████▊  | 77/98 [00:34<00:09,  2.26it/s] 80%|███████▉  | 78/98 [00:35<00:09,  2.19it/s] 81%|████████  | 79/98 [00:35<00:08,  2.26it/s] 82%|████████▏ | 80/98 [00:36<00:08,  2.23it/s] 83%|████████▎ | 81/98 [00:36<00:07,  2.17it/s] 84%|████████▎ | 82/98 [00:37<00:07,  2.23it/s] 85%|████████▍ | 83/98 [00:37<00:06,  2.20it/s] 86%|████████▌ | 84/98 [00:38<00:06,  2.14it/s] 87%|████████▋ | 85/98 [00:38<00:05,  2.21it/s] 88%|████████▊ | 86/98 [00:39<00:05,  2.15it/s] 89%|████████▉ | 87/98 [00:39<00:05,  2.09it/s] 90%|████████▉ | 88/98 [00:40<00:04,  2.18it/s] 91%|█████████ | 89/98 [00:40<00:04,  2.13it/s] 92%|█████████▏| 90/98 [00:41<00:03,  2.09it/s] 93%|█████████▎| 91/98 [00:41<00:03,  2.24it/s] 94%|█████████▍| 92/98 [00:41<00:02,  2.09it/s] 95%|█████████▍| 93/98 [00:42<00:02,  2.10it/s] 96%|█████████▌| 94/98 [00:42<00:01,  2.22it/s] 97%|█████████▋| 95/98 [00:43<00:01,  2.08it/s] 98%|█████████▊| 96/98 [00:43<00:00,  2.10it/s] 99%|█████████▉| 97/98 [00:44<00:00,  2.23it/s]100%|██████████| 98/98 [00:44<00:00,  2.07it/s]100%|██████████| 98/98 [00:44<00:00,  2.19it/s]
+Saved train model at epoch 2
+Epoch 2 val
+  0%|          | 0/37 [00:00<?, ?it/s]  3%|▎         | 1/37 [00:00<00:12,  2.83it/s]  5%|▌         | 2/37 [00:00<00:11,  2.92it/s]  8%|▊         | 3/37 [00:01<00:11,  2.98it/s] 11%|█         | 4/37 [00:01<00:10,  3.01it/s] 14%|█▎        | 5/37 [00:01<00:10,  3.03it/s] 16%|█▌        | 6/37 [00:02<00:10,  3.02it/s] 19%|█▉        | 7/37 [00:02<00:09,  3.03it/s] 22%|██▏       | 8/37 [00:02<00:09,  3.04it/s] 24%|██▍       | 9/37 [00:02<00:09,  3.04it/s] 27%|██▋       | 10/37 [00:03<00:08,  3.05it/s] 30%|██▉       | 11/37 [00:03<00:08,  3.08it/s] 32%|███▏      | 12/37 [00:03<00:07,  3.16it/s] 35%|███▌      | 13/37 [00:04<00:07,  3.22it/s] 38%|███▊      | 14/37 [00:04<00:07,  3.26it/s] 41%|████      | 15/37 [00:04<00:06,  3.29it/s] 43%|████▎     | 16/37 [00:05<00:06,  3.30it/s] 46%|████▌     | 17/37 [00:05<00:06,  3.31it/s] 49%|████▊     | 18/37 [00:05<00:05,  3.32it/s] 51%|█████▏    | 19/37 [00:06<00:05,  3.36it/s] 54%|█████▍    | 20/37 [00:06<00:04,  3.50it/s] 57%|█████▋    | 21/37 [00:06<00:04,  3.61it/s] 59%|█████▉    | 22/37 [00:06<00:04,  3.69it/s] 62%|██████▏   | 23/37 [00:07<00:03,  3.75it/s] 65%|██████▍   | 24/37 [00:07<00:03,  3.79it/s] 68%|██████▊   | 25/37 [00:07<00:03,  3.70it/s] 70%|███████   | 26/37 [00:08<00:03,  3.11it/s] 73%|███████▎  | 27/37 [00:08<00:03,  2.80it/s] 76%|███████▌  | 28/37 [00:08<00:03,  2.62it/s] 78%|███████▊  | 29/37 [00:09<00:03,  2.50it/s] 81%|████████  | 30/37 [00:09<00:02,  2.43it/s] 84%|████████▍ | 31/37 [00:10<00:02,  2.38it/s] 86%|████████▋ | 32/37 [00:10<00:02,  2.35it/s] 89%|████████▉ | 33/37 [00:11<00:01,  2.29it/s] 92%|█████████▏| 34/37 [00:11<00:01,  2.27it/s] 95%|█████████▍| 35/37 [00:12<00:00,  2.27it/s] 97%|█████████▋| 36/37 [00:12<00:00,  2.28it/s]100%|██████████| 37/37 [00:12<00:00,  2.61it/s]100%|██████████| 37/37 [00:12<00:00,  2.91it/s]
+[val] epoch 2
+        target   aggregation  samples  kernels     mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4   3.2636  41.4319  1716.6010   
+1   latency_ms        kernel      683        1   1.9674   5.5153    30.4183   
+2   latency_ms        kernel      519        1  10.3568  76.0854  5788.9950   
+3   latency_ms        kernel      388        1   0.6897  30.8923   954.3357   
+4   latency_ms        kernel      751        1   0.8702  28.8025   829.5828   
+5   latency_ms  kernel_macro     2341        4   3.4710  35.3239  1900.8329   
+6   area_score   point_micro     2341        4   1.8107   6.0966    37.1680   
+7   area_score        kernel      683        1   3.5540   3.0411     9.2483   
+8   area_score        kernel      519        1   0.5350   5.5970    31.3260   
+9   area_score        kernel      388        1   2.3268   8.9741    80.5336   
+10  area_score        kernel      751        1   0.8401   6.6477    44.1924   
+11  area_score  kernel_macro     2341        4   1.8140   6.0650    41.3251   
+
+        mae   max_err     tau                               kernel  
+0   25.8196  331.0898 -0.0994                                  NaN  
+1    4.5937   26.3140  0.0874                 machsuite-sort-radix  
+2   52.2330  331.0898  0.1819                    machsuite-viterbi  
+3   22.5581  149.2342  0.2025      rodinia_pathfinder_0_baseline_0  
+4   28.5547   54.2294  0.0951  rodinia_pathfinder_4_doublebuffer_0  
+5   26.9849  140.2168  0.1417                                       
+6    4.8529   34.5484  0.4205                                  NaN  
+7    2.7818   12.9983 -0.4109                 machsuite-sort-radix  
+8    3.7279   34.5484  0.0954                    machsuite-viterbi  
+9    8.5676   18.9185  0.3156      rodinia_pathfinder_0_baseline_0  
+10   5.5948   26.1286  0.3104  rodinia_pathfinder_4_doublebuffer_0  
+11   5.1680   23.1484  0.0776                                       
+[val] epoch 2 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 6.85310959815979, 'bias_percentage_points': -3.3612702041864395, 'kernel_macro_tau': 0.017748473302764148, 'constant_train_mean_validation_mae_percentage_points': 17.30826050043106, 'mae_baseline_ratio': 0.3959444450231792, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 2.4143200367689133, 'bias_percentage_points': 2.3900195956230164, 'kernel_macro_tau': 0.0014589143606328011, 'constant_train_mean_validation_mae_percentage_points': 6.145551800727844, 'mae_baseline_ratio': 0.39285651070144345, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 3.0004970729351044, 'bias_percentage_points': 0.9081405587494373, 'kernel_macro_tau': -0.17135579925108133, 'constant_train_mean_validation_mae_percentage_points': 7.861585170030594, 'mae_baseline_ratio': 0.38166565750294196, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 15.886005759239197, 'bias_percentage_points': -6.974515318870544, 'kernel_macro_tau': -0.2808783663132804, 'constant_train_mean_validation_mae_percentage_points': 18.62836182117462, 'mae_baseline_ratio': 0.8527859782700686, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7530197657393851, 'false_feasible_fdr': 0.030390195097548773, 'false_feasible_rate': 0.02223645680819912, 'boundary_accuracy': 0.4161849710982659, 'boundary_balanced_accuracy': 0.4790593592964824, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7869701348747592, 'false_feasible_fdr': 0.22132337689276083, 'false_feasible_rate': 0.12849229287090558, 'boundary_accuracy': 0.6598101265822784, 'boundary_balanced_accuracy': 0.6512876081759138, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6576997422680413, 'false_feasible_fdr': 0.34757616401609503, 'false_feasible_rate': 0.2922036082474227, 'boundary_accuracy': 0.47277936962750716, 'boundary_balanced_accuracy': 0.5574668939294611, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7003162450066578, 'false_feasible_fdr': 0.31446362864421173, 'false_feasible_rate': 0.27738015978695074, 'boundary_accuracy': 0.6384364820846905, 'boundary_balanced_accuracy': 0.555250675034664, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.727840666381888, 'false_feasible_fdr': 0.2254932774576567, 'false_feasible_rate': 0.17238893635198632, 'boundary_accuracy': 0.6042377446579278, 'boundary_balanced_accuracy': 0.5972965589678739, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 41.4319 | MAE: 25.8196 | MAPE: 326.36% | tau-b: -0.0994
+[val] area_score physical RMSE: 6.0966 | MAE: 4.8529 | MAPE: 181.07% | tau-b: 0.4205
+Validation target-balanced selection score: 1.631432; relative target losses={'area': 0.8840859424674724, 'perf': 1.6314322421876646}
+Validation worst-target kernel-macro tau-b: 0.077640; worst kernel/target baseline ratio=16.492601; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.631432; active_control_score=16.998025; lexicographic_qualification={'qualified': False, 'target_qualified': False, 'kernel_perf_qualified': False, 'resource_qualified': True, 'rank_qualified': False, 'worst_kernel_perf_ratio': 16.492600880435443, 'resource_mae_ratios': {'bram': 0.3959444450231792, 'dsp': 0.39285651070144345, 'ff': 0.38166565750294196, 'lut': 0.8527859782700686}, 'boundary_balanced_accuracy': 0.5972965589678739, 'false_feasible_fdr': 0.2254932774576567, 'ranking_score': 0.07763962303868202}
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.4559400601654637, 'area': 0.4479054131982278, 'rank_aux/perf': 0.6826007804092096, 'rank_aux/area': 0.6939748513455294}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.21173643687121738, 'area': 0.3774513028488868}
+ 		 57.669 secs
+Epoch: 002, Train Loss: 0.9942, Val loss: 0.6170, Time: 57.669 secs
+Pairwise delta auxiliary weight at epoch 3: 0.000000
+Test batch ID (resample): -1 - Epoch 3 train
+  0%|          | 0/98 [00:00<?, ?it/s]epoch = 3, learning rate = 3e-05
+  1%|          | 1/98 [00:00<01:22,  1.18it/s]  2%|▏         | 2/98 [00:01<01:01,  1.57it/s]  3%|▎         | 3/98 [00:01<00:50,  1.87it/s]  4%|▍         | 4/98 [00:02<00:47,  1.98it/s]  5%|▌         | 5/98 [00:02<00:46,  2.00it/s]  6%|▌         | 6/98 [00:03<00:41,  2.21it/s]  7%|▋         | 7/98 [00:03<00:42,  2.15it/s]  8%|▊         | 8/98 [00:04<00:43,  2.07it/s]  9%|▉         | 9/98 [00:04<00:39,  2.23it/s] 10%|█         | 10/98 [00:04<00:40,  2.19it/s] 11%|█         | 11/98 [00:05<00:41,  2.07it/s] 12%|█▏        | 12/98 [00:05<00:38,  2.25it/s] 13%|█▎        | 13/98 [00:06<00:38,  2.19it/s] 14%|█▍        | 14/98 [00:06<00:39,  2.11it/s] 15%|█▌        | 15/98 [00:07<00:37,  2.24it/s] 16%|█▋        | 16/98 [00:07<00:37,  2.17it/s] 17%|█▋        | 17/98 [00:08<00:37,  2.18it/s] 18%|█▊        | 18/98 [00:08<00:36,  2.21it/s] 19%|█▉        | 19/98 [00:09<00:36,  2.16it/s] 20%|██        | 20/98 [00:09<00:35,  2.19it/s] 21%|██▏       | 21/98 [00:09<00:34,  2.25it/s] 22%|██▏       | 22/98 [00:10<00:35,  2.14it/s] 23%|██▎       | 23/98 [00:10<00:33,  2.21it/s] 24%|██▍       | 24/98 [00:11<00:32,  2.26it/s] 26%|██▌       | 25/98 [00:11<00:33,  2.17it/s] 27%|██▋       | 26/98 [00:12<00:33,  2.14it/s] 28%|██▊       | 27/98 [00:12<00:32,  2.18it/s] 29%|██▊       | 28/98 [00:13<00:32,  2.17it/s] 30%|██▉       | 29/98 [00:13<00:33,  2.05it/s] 31%|███       | 30/98 [00:14<00:32,  2.12it/s] 32%|███▏      | 31/98 [00:14<00:30,  2.20it/s] 33%|███▎      | 32/98 [00:15<00:31,  2.13it/s] 34%|███▎      | 33/98 [00:15<00:29,  2.17it/s] 35%|███▍      | 34/98 [00:15<00:28,  2.23it/s] 36%|███▌      | 35/98 [00:16<00:29,  2.16it/s] 37%|███▋      | 36/98 [00:16<00:28,  2.18it/s] 38%|███▊      | 37/98 [00:17<00:27,  2.24it/s] 39%|███▉      | 38/98 [00:17<00:27,  2.17it/s] 40%|███▉      | 39/98 [00:18<00:26,  2.22it/s] 41%|████      | 40/98 [00:18<00:25,  2.24it/s] 42%|████▏     | 41/98 [00:19<00:26,  2.16it/s] 43%|████▎     | 42/98 [00:19<00:25,  2.21it/s] 44%|████▍     | 43/98 [00:20<00:24,  2.20it/s] 45%|████▍     | 44/98 [00:20<00:25,  2.16it/s] 46%|████▌     | 45/98 [00:20<00:24,  2.21it/s] 47%|████▋     | 46/98 [00:21<00:23,  2.23it/s] 48%|████▊     | 47/98 [00:21<00:23,  2.18it/s] 49%|████▉     | 48/98 [00:22<00:23,  2.17it/s] 50%|█████     | 49/98 [00:22<00:22,  2.21it/s] 51%|█████     | 50/98 [00:23<00:21,  2.22it/s] 52%|█████▏    | 51/98 [00:23<00:21,  2.16it/s] 53%|█████▎    | 52/98 [00:24<00:20,  2.23it/s] 54%|█████▍    | 53/98 [00:24<00:20,  2.22it/s] 55%|█████▌    | 54/98 [00:25<00:20,  2.15it/s] 56%|█████▌    | 55/98 [00:25<00:18,  2.30it/s] 57%|█████▋    | 56/98 [00:25<00:18,  2.21it/s] 58%|█████▊    | 57/98 [00:26<00:19,  2.11it/s] 59%|█████▉    | 58/98 [00:26<00:17,  2.26it/s] 60%|██████    | 59/98 [00:27<00:17,  2.21it/s] 61%|██████    | 60/98 [00:27<00:18,  2.09it/s] 62%|██████▏   | 61/98 [00:28<00:16,  2.26it/s] 63%|██████▎   | 62/98 [00:28<00:16,  2.19it/s] 64%|██████▍   | 63/98 [00:29<00:16,  2.12it/s] 65%|██████▌   | 64/98 [00:29<00:15,  2.23it/s] 66%|██████▋   | 65/98 [00:30<00:15,  2.17it/s] 67%|██████▋   | 66/98 [00:30<00:14,  2.18it/s] 68%|██████▊   | 67/98 [00:30<00:13,  2.22it/s] 69%|██████▉   | 68/98 [00:31<00:13,  2.17it/s] 70%|███████   | 69/98 [00:31<00:13,  2.20it/s] 71%|███████▏  | 70/98 [00:32<00:12,  2.27it/s] 72%|███████▏  | 71/98 [00:32<00:12,  2.16it/s] 73%|███████▎  | 72/98 [00:33<00:11,  2.21it/s] 74%|███████▍  | 73/98 [00:33<00:10,  2.28it/s] 76%|███████▌  | 74/98 [00:34<00:11,  2.18it/s] 77%|███████▋  | 75/98 [00:34<00:10,  2.17it/s] 78%|███████▊  | 76/98 [00:35<00:09,  2.23it/s] 79%|███████▊  | 77/98 [00:35<00:09,  2.26it/s] 80%|███████▉  | 78/98 [00:36<00:09,  2.14it/s] 81%|████████  | 79/98 [00:36<00:08,  2.19it/s] 82%|████████▏ | 80/98 [00:36<00:07,  2.25it/s] 83%|████████▎ | 81/98 [00:37<00:07,  2.15it/s] 84%|████████▎ | 82/98 [00:37<00:07,  2.18it/s] 85%|████████▍ | 83/98 [00:38<00:06,  2.23it/s] 86%|████████▌ | 84/98 [00:38<00:06,  2.14it/s] 87%|████████▋ | 85/98 [00:39<00:06,  2.16it/s] 88%|████████▊ | 86/98 [00:39<00:05,  2.21it/s] 89%|████████▉ | 87/98 [00:40<00:05,  2.14it/s] 90%|████████▉ | 88/98 [00:40<00:04,  2.18it/s] 91%|█████████ | 89/98 [00:41<00:04,  2.22it/s] 92%|█████████▏| 90/98 [00:41<00:03,  2.14it/s] 93%|█████████▎| 91/98 [00:41<00:03,  2.23it/s] 94%|█████████▍| 92/98 [00:42<00:02,  2.21it/s] 95%|█████████▍| 93/98 [00:42<00:02,  2.17it/s] 96%|█████████▌| 94/98 [00:43<00:01,  2.21it/s] 97%|█████████▋| 95/98 [00:43<00:01,  2.24it/s] 98%|█████████▊| 96/98 [00:44<00:00,  2.18it/s] 99%|█████████▉| 97/98 [00:44<00:00,  2.18it/s]100%|██████████| 98/98 [00:45<00:00,  2.22it/s]100%|██████████| 98/98 [00:45<00:00,  2.17it/s]
+Saved train model at epoch 3
+Epoch 3 val
+  0%|          | 0/37 [00:00<?, ?it/s]  3%|▎         | 1/37 [00:00<00:20,  1.79it/s]  5%|▌         | 2/37 [00:00<00:14,  2.38it/s]  8%|▊         | 3/37 [00:01<00:12,  2.65it/s] 11%|█         | 4/37 [00:01<00:11,  2.80it/s] 14%|█▎        | 5/37 [00:01<00:11,  2.89it/s] 16%|█▌        | 6/37 [00:02<00:10,  2.95it/s] 19%|█▉        | 7/37 [00:02<00:10,  2.98it/s] 22%|██▏       | 8/37 [00:02<00:09,  3.01it/s] 24%|██▍       | 9/37 [00:03<00:09,  3.03it/s] 27%|██▋       | 10/37 [00:03<00:08,  3.04it/s] 30%|██▉       | 11/37 [00:03<00:08,  3.08it/s] 32%|███▏      | 12/37 [00:04<00:07,  3.16it/s] 35%|███▌      | 13/37 [00:04<00:07,  3.22it/s] 38%|███▊      | 14/37 [00:04<00:07,  3.24it/s] 41%|████      | 15/37 [00:05<00:06,  3.28it/s] 43%|████▎     | 16/37 [00:05<00:06,  3.30it/s] 46%|████▌     | 17/37 [00:05<00:06,  3.31it/s] 49%|████▊     | 18/37 [00:05<00:05,  3.33it/s] 51%|█████▏    | 19/37 [00:06<00:05,  3.36it/s] 54%|█████▍    | 20/37 [00:06<00:04,  3.51it/s] 57%|█████▋    | 21/37 [00:06<00:04,  3.62it/s] 59%|█████▉    | 22/37 [00:06<00:04,  3.70it/s] 62%|██████▏   | 23/37 [00:07<00:03,  3.76it/s] 65%|██████▍   | 24/37 [00:07<00:03,  3.80it/s] 68%|██████▊   | 25/37 [00:07<00:03,  3.70it/s] 70%|███████   | 26/37 [00:08<00:03,  3.11it/s] 73%|███████▎  | 27/37 [00:08<00:03,  2.80it/s] 76%|███████▌  | 28/37 [00:09<00:03,  2.61it/s] 78%|███████▊  | 29/37 [00:09<00:03,  2.50it/s] 81%|████████  | 30/37 [00:09<00:02,  2.43it/s] 84%|████████▍ | 31/37 [00:10<00:02,  2.36it/s] 86%|████████▋ | 32/37 [00:10<00:02,  2.34it/s] 89%|████████▉ | 33/37 [00:11<00:01,  2.32it/s] 92%|█████████▏| 34/37 [00:11<00:01,  2.31it/s] 95%|█████████▍| 35/37 [00:12<00:00,  2.30it/s] 97%|█████████▋| 36/37 [00:12<00:00,  2.30it/s]100%|██████████| 37/37 [00:12<00:00,  2.62it/s]100%|██████████| 37/37 [00:12<00:00,  2.88it/s]
+[val] epoch 3
+        target   aggregation  samples  kernels     mape      rmse         mse  \
+0   latency_ms   point_micro     2341        4   5.5210   91.0042   8281.7663   
+1   latency_ms        kernel      683        1   2.1858    6.0419     36.5050   
+2   latency_ms        kernel      519        1  20.2257  188.7680  35633.3545   
+3   latency_ms        kernel      388        1   0.8537   28.9513    838.1777   
+4   latency_ms        kernel      751        1   0.8036   26.9081    724.0454   
+5   latency_ms  kernel_macro     2341        4   6.0172   62.6673   9308.0207   
+6   area_score   point_micro     2341        4   1.6149    5.9028     34.8432   
+7   area_score        kernel      683        1   2.9881    2.6282      6.9076   
+8   area_score        kernel      519        1   0.5410    5.5086     30.3445   
+9   area_score        kernel      388        1   2.2543    8.8640     78.5696   
+10  area_score        kernel      751        1   0.7779    6.3849     40.7673   
+11  area_score  kernel_macro     2341        4   1.6403    5.8464     39.1472   
+
+         mae    max_err     tau                               kernel  
+0    38.1241  1145.1478  0.0400                                  NaN  
+1     5.1077    26.8249  0.0995                 machsuite-sort-radix  
+2   111.5805  1145.1478  0.1909                    machsuite-viterbi  
+3    20.7506   123.2789  0.2273      rodinia_pathfinder_0_baseline_0  
+4    26.3628    52.1050  0.1305  rodinia_pathfinder_4_doublebuffer_0  
+5    40.9504   336.8391  0.1621                                       
+6     4.5917    34.4667  0.4704                                  NaN  
+7     2.3524    13.1679 -0.0484                 machsuite-sort-radix  
+8     3.6615    34.4667  0.2623                    machsuite-viterbi  
+9     8.4174    19.1789  0.3019      rodinia_pathfinder_0_baseline_0  
+10    5.2944    25.9665  0.3692  rodinia_pathfinder_4_doublebuffer_0  
+11    4.9315    23.1950  0.2212                                       
+[val] epoch 3 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 7.448996603488922, 'bias_percentage_points': -0.2828240394592285, 'kernel_macro_tau': 0.1413042941042641, 'constant_train_mean_validation_mae_percentage_points': 17.30826050043106, 'mae_baseline_ratio': 0.43037234176729694, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 2.5384632870554924, 'bias_percentage_points': 2.515530586242676, 'kernel_macro_tau': 0.002847613591609478, 'constant_train_mean_validation_mae_percentage_points': 6.145551800727844, 'mae_baseline_ratio': 0.4130570157678683, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 3.123451955616474, 'bias_percentage_points': 1.072778645902872, 'kernel_macro_tau': -0.16744390553552585, 'constant_train_mean_validation_mae_percentage_points': 7.861585170030594, 'mae_baseline_ratio': 0.39730561814982146, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 15.818309783935547, 'bias_percentage_points': -6.909302622079849, 'kernel_macro_tau': -0.2736216561211565, 'constant_train_mean_validation_mae_percentage_points': 18.62836182117462, 'mae_baseline_ratio': 0.8491519509759079, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6814604685212299, 'false_feasible_fdr': 0.00746705710102489, 'false_feasible_rate': 0.0046669106881405565, 'boundary_accuracy': 0.3872832369942196, 'boundary_balanced_accuracy': 0.49267430904522613, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7755298651252408, 'false_feasible_fdr': 0.14935064935064934, 'false_feasible_rate': 0.06647398843930635, 'boundary_accuracy': 0.6228902953586498, 'boundary_balanced_accuracy': 0.5816078077515108, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6440077319587629, 'false_feasible_fdr': 0.3409378960709759, 'false_feasible_rate': 0.2599871134020619, 'boundary_accuracy': 0.5300859598853869, 'boundary_balanced_accuracy': 0.5951750360561164, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7147969374167776, 'false_feasible_fdr': 0.29830075631077496, 'false_feasible_rate': 0.2527463382157124, 'boundary_accuracy': 0.634771986970684, 'boundary_balanced_accuracy': 0.5624687677011986, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7068026484408373, 'false_feasible_fdr': 0.20651703942455094, 'false_feasible_rate': 0.14027125160187953, 'boundary_accuracy': 0.5945412102711438, 'boundary_balanced_accuracy': 0.5936916306322442, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 91.0042 | MAE: 38.1241 | MAPE: 552.10% | tau-b: 0.0400
+[val] area_score physical RMSE: 5.9028 | MAE: 4.5917 | MAPE: 161.49% | tau-b: 0.4704
+Validation target-balanced selection score: 1.544500; relative target losses={'area': 0.8237994606611287, 'perf': 1.5444997839617776}
+Validation worst-target kernel-macro tau-b: 0.162060; worst kernel/target baseline ratio=12.513013; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.544500; active_control_score=12.846997; lexicographic_qualification={'qualified': False, 'target_qualified': False, 'kernel_perf_qualified': False, 'resource_qualified': True, 'rank_qualified': False, 'worst_kernel_perf_ratio': 12.513012786545547, 'resource_mae_ratios': {'bram': 0.43037234176729694, 'dsp': 0.4130570157678683, 'ff': 0.39730561814982146, 'lut': 0.8491519509759079}, 'boundary_balanced_accuracy': 0.5936916306322442, 'false_feasible_fdr': 0.20651703942455094, 'ranking_score': 0.1620601205559092}
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.38307686378153005, 'area': 0.42060715142561467, 'rank_aux/perf': 0.6829840413161686, 'rank_aux/area': 0.685432242495673}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.20045385431754492, 'area': 0.35171261613425514}
+ 		 58.137 secs
+Epoch: 003, Train Loss: 0.8893, Val loss: 0.5781, Time: 58.137 secs
+Checkpoint saved at epoch 3 -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_absolute_direct_rank_s123/run1/last_ckpt.pt
+Pairwise delta auxiliary weight at epoch 4: 0.000000
+Test batch ID (resample): -1 - Epoch 4 train
+  0%|          | 0/98 [00:00<?, ?it/s]epoch = 4, learning rate = 3e-05
+  1%|          | 1/98 [00:00<01:04,  1.50it/s]  2%|▏         | 2/98 [00:01<00:49,  1.94it/s]  3%|▎         | 3/98 [00:01<00:52,  1.83it/s]  4%|▍         | 4/98 [00:02<00:43,  2.14it/s]  5%|▌         | 5/98 [00:02<00:42,  2.19it/s]  6%|▌         | 6/98 [00:03<00:46,  2.00it/s]  7%|▋         | 7/98 [00:03<00:39,  2.29it/s]  8%|▊         | 8/98 [00:03<00:40,  2.25it/s]  9%|▉         | 9/98 [00:04<00:42,  2.07it/s] 10%|█         | 10/98 [00:04<00:38,  2.29it/s] 11%|█         | 11/98 [00:05<00:38,  2.27it/s] 12%|█▏        | 12/98 [00:05<00:40,  2.11it/s] 13%|█▎        | 13/98 [00:06<00:37,  2.29it/s] 14%|█▍        | 14/98 [00:06<00:37,  2.25it/s] 15%|█▌        | 15/98 [00:07<00:38,  2.15it/s] 16%|█▋        | 16/98 [00:07<00:36,  2.26it/s] 17%|█▋        | 17/98 [00:07<00:37,  2.19it/s] 18%|█▊        | 18/98 [00:08<00:36,  2.16it/s] 19%|█▉        | 19/98 [00:08<00:35,  2.23it/s] 20%|██        | 20/98 [00:09<00:36,  2.15it/s] 21%|██▏       | 21/98 [00:09<00:35,  2.15it/s] 22%|██▏       | 22/98 [00:10<00:34,  2.22it/s] 23%|██▎       | 23/98 [00:10<00:34,  2.19it/s] 24%|██▍       | 24/98 [00:11<00:33,  2.23it/s] 26%|██▌       | 25/98 [00:11<00:33,  2.21it/s] 27%|██▋       | 26/98 [00:12<00:33,  2.15it/s] 28%|██▊       | 27/98 [00:12<00:31,  2.23it/s] 29%|██▊       | 28/98 [00:12<00:32,  2.17it/s] 30%|██▉       | 29/98 [00:13<00:32,  2.14it/s] 31%|███       | 30/98 [00:13<00:30,  2.22it/s] 32%|███▏      | 31/98 [00:14<00:30,  2.19it/s] 33%|███▎      | 32/98 [00:14<00:30,  2.15it/s] 34%|███▎      | 33/98 [00:15<00:29,  2.21it/s] 35%|███▍      | 34/98 [00:15<00:29,  2.16it/s] 36%|███▌      | 35/98 [00:16<00:28,  2.24it/s] 37%|███▋      | 36/98 [00:16<00:28,  2.21it/s] 38%|███▊      | 37/98 [00:17<00:28,  2.11it/s] 39%|███▉      | 38/98 [00:17<00:27,  2.21it/s] 40%|███▉      | 39/98 [00:17<00:26,  2.24it/s] 41%|████      | 40/98 [00:18<00:27,  2.10it/s] 42%|████▏     | 41/98 [00:18<00:25,  2.19it/s] 43%|████▎     | 42/98 [00:19<00:25,  2.24it/s] 44%|████▍     | 43/98 [00:19<00:26,  2.07it/s] 45%|████▍     | 44/98 [00:20<00:23,  2.26it/s] 46%|████▌     | 45/98 [00:20<00:23,  2.26it/s] 47%|████▋     | 46/98 [00:21<00:25,  2.06it/s] 48%|████▊     | 47/98 [00:21<00:22,  2.23it/s] 49%|████▉     | 48/98 [00:22<00:22,  2.27it/s] 50%|█████     | 49/98 [00:22<00:24,  2.04it/s] 51%|█████     | 50/98 [00:23<00:21,  2.21it/s] 52%|█████▏    | 51/98 [00:23<00:20,  2.26it/s] 53%|█████▎    | 52/98 [00:24<00:22,  2.04it/s] 54%|█████▍    | 53/98 [00:24<00:20,  2.23it/s] 55%|█████▌    | 54/98 [00:24<00:19,  2.24it/s] 56%|█████▌    | 55/98 [00:25<00:21,  2.03it/s] 57%|█████▋    | 56/98 [00:25<00:18,  2.26it/s] 58%|█████▊    | 57/98 [00:26<00:18,  2.21it/s] 59%|█████▉    | 58/98 [00:26<00:19,  2.05it/s] 60%|██████    | 59/98 [00:27<00:17,  2.26it/s] 61%|██████    | 60/98 [00:27<00:17,  2.23it/s] 62%|██████▏   | 61/98 [00:28<00:17,  2.09it/s] 63%|██████▎   | 62/98 [00:28<00:15,  2.26it/s] 64%|██████▍   | 63/98 [00:28<00:15,  2.21it/s] 65%|██████▌   | 64/98 [00:29<00:16,  2.11it/s] 66%|██████▋   | 65/98 [00:29<00:14,  2.24it/s] 67%|██████▋   | 66/98 [00:30<00:14,  2.17it/s] 68%|██████▊   | 67/98 [00:30<00:14,  2.16it/s] 69%|██████▉   | 68/98 [00:31<00:13,  2.21it/s] 70%|███████   | 69/98 [00:31<00:13,  2.15it/s] 71%|███████▏  | 70/98 [00:32<00:13,  2.14it/s] 72%|███████▏  | 71/98 [00:32<00:12,  2.22it/s] 73%|███████▎  | 72/98 [00:33<00:11,  2.18it/s] 74%|███████▍  | 73/98 [00:33<00:11,  2.22it/s] 76%|███████▌  | 74/98 [00:34<00:10,  2.20it/s] 77%|███████▋  | 75/98 [00:34<00:10,  2.14it/s] 78%|███████▊  | 76/98 [00:34<00:09,  2.22it/s] 79%|███████▊  | 77/98 [00:35<00:09,  2.16it/s] 80%|███████▉  | 78/98 [00:35<00:09,  2.13it/s] 81%|████████  | 79/98 [00:36<00:08,  2.21it/s] 82%|████████▏ | 80/98 [00:36<00:08,  2.18it/s] 83%|████████▎ | 81/98 [00:37<00:07,  2.15it/s] 84%|████████▎ | 82/98 [00:37<00:07,  2.19it/s] 85%|████████▍ | 83/98 [00:38<00:06,  2.16it/s] 86%|████████▌ | 84/98 [00:38<00:06,  2.25it/s] 87%|████████▋ | 85/98 [00:39<00:05,  2.22it/s] 88%|████████▊ | 86/98 [00:39<00:05,  2.13it/s] 89%|████████▉ | 87/98 [00:39<00:04,  2.22it/s]
