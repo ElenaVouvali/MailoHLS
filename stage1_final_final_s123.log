@@ -437,3 +437,46 @@ trainable params: 8,962,048 || all params: 6,748,704,768 || trainable%: 0.1328
   0%|          | 0/354 [03:17<?, ?it/s]
 100%|██████████| 383/383 [03:16<00:00,  1.64it/s][A
                                                  [A
+====================================================================================================
+[VAL-SELECTION] step=0
+[VAL-SELECTION] mean_value_acc=0.456085
+[VAL-SELECTION] mean_decision_site_accuracy=0.391691
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.9047619047619048, 'ARRAY_F': 0.3333333333333333, 'ARRAY_T': 0.5873015873015873, 'PIPE': 0.5300546448087432, 'UNROLL': 0.20218579234972678}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.2878787878787879, 'machsuite-viterbi': 0.4248366013071896, 'rodinia_pathfinder_0_baseline_0': 0.48888888888888893, 'rodinia_pathfinder_4_doublebuffer_0': 0.5666666666666668}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.2878787878787879, 'machsuite-viterbi': 0.4248366013071896, 'rodinia_pathfinder_0_baseline_0': 0.3611111111111111, 'rodinia_pathfinder_4_doublebuffer_0': 0.4583333333333333}
+[VAL-SELECTION] decision_sites=501 forced_sites=54 budget_counterfactual_groups=8
+[VAL-SELECTION] minimum_kernel_accuracy=0.287879
+[VAL-SELECTION] selection_score=0.383040
+[VAL-SELECTION] joint_action_score=0.041667
+[VAL-SELECTION] checkpoint_key=(0.38303995840760546, 0.04166666666666667, 0.0, 0.0, -1.2349871397018433)
+====================================================================================================
+[VAL-LOCAL] count=501 top1=0.4590818363273453 mrr=0.6620132750372271 mean_margin=-0.014751146912775532 cascade=0/501 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 9, 'top1_accuracy': 0.6666666666666666, 'mrr': 0.8333333333333334, 'mean_margin': 0.19119040171305338}, 'ARRAY_F': {'count': 63, 'top1_accuracy': 0.4444444444444444, 'mrr': 0.557212144116906, 'mean_margin': -0.12925015265742937}, 'ARRAY_T': {'count': 63, 'top1_accuracy': 0.7142857142857143, 'mrr': 0.8240740740740742, 'mean_margin': 1.0782176509928254}, 'PIPE': {'count': 183, 'top1_accuracy': 0.43169398907103823, 'mrr': 0.7158469945355191, 'mean_margin': -0.12631065226439894}, 'UNROLL': {'count': 183, 'top1_accuracy': 0.39344262295081966, 'mrr': 0.5800416341399949, 'mean_margin': -0.2501701707620927}}
+[VAL-BUDGET] groups=8 cases=17 decision_accuracy=0.4371170343137255 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=3
+[VAL-MARGIN] count=501 mean=-0.6149324992715294 median=-1.0904533863067627 positive_fraction=0.38922155688622756 mean_gold_rank=3.1596806387225547
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 9, 'mean_margin': -0.04229630364312066, 'median_margin': -0.08676254749298096, 'positive_fraction': 0.3333333333333333, 'mean_gold_rank': 1.6666666666666667}, 'ARRAY_F': {'count': 63, 'mean_margin': -0.6885178991342111, 'median_margin': -0.30601298809051514, 'positive_fraction': 0.3333333333333333, 'mean_gold_rank': 5.095238095238095}, 'ARRAY_T': {'count': 63, 'mean_margin': 0.1629883591048715, 'median_margin': 3.112105369567871, 'positive_fraction': 0.5873015873015873, 'mean_gold_rank': 1.7301587301587302}, 'PIPE': {'count': 183, 'mean_margin': 0.29053796881484123, 'median_margin': 1.2504808604717255, 'positive_fraction': 0.5300546448087432, 'mean_gold_rank': 1.469945355191257}, 'UNROLL': {'count': 183, 'mean_margin': -1.79104154466402, 'median_margin': -2.4531134516000748, 'positive_fraction': 0.20218579234972678, 'mean_gold_rank': 4.748633879781421}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 132, 'mean_margin': -1.0444376860801694, 'median_margin': -2.441424864344299, 'positive_fraction': 0.2878787878787879, 'mean_gold_rank': 3.1515151515151514}, 'machsuite-viterbi': {'count': 153, 'mean_margin': -0.4698869805277806, 'median_margin': -0.422357439994812, 'positive_fraction': 0.42483660130718953, 'mean_gold_rank': 2.9281045751633985}, 'rodinia_pathfinder_0_baseline_0': {'count': 72, 'mean_margin': -0.22009611261698106, 'median_margin': -0.5091300010681152, 'positive_fraction': 0.3611111111111111, 'mean_gold_rank': 4.25}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 144, 'mean_margin': -0.5727484683561165, 'median_margin': -0.6554974317550659, 'positive_fraction': 0.4583333333333333, 'mean_gold_rank': 2.8680555555555554}}
+[VAL-SELECTION] New best checkpoint at step 0 -> mailohls_runs/stage1_final_final_adp_s123/best_custom_stage1
+[LOSS-COMP] step=0 ce=0.554812 candidate=0.000000 total=0.554812
+[LOSS-COMP] step=0 ce=1.303318 candidate=0.000000 total=1.303318
+[LOSS-COMP] step=0 ce=0.961572 candidate=0.000000 total=0.961572
+[LOSS-COMP] step=0 ce=1.243586 candidate=0.000000 total=1.243586
+[LOSS-COMP] step=0 ce=0.918585 candidate=0.000000 total=0.918585
+[LOSS-COMP] step=0 ce=0.954737 candidate=0.000000 total=0.954737
+[LOSS-COMP] step=0 ce=0.724704 candidate=0.000000 total=0.724704
+[LOSS-COMP] step=0 ce=1.291981 candidate=0.000000 total=1.291981
+[GATES] attn gates:
+[GATES] ff gates:
+  0%|          | 1/354 [46:35<274:05:25, 2795.26s/it]  1%|          | 2/354 [46:53<113:34:21, 1161.54s/it]  1%|          | 3/354 [47:18<62:40:18, 642.79s/it]    1%|          | 4/354 [47:49<39:00:47, 401.28s/it]  1%|▏         | 5/354 [48:12<25:39:30, 264.67s/it]  2%|▏         | 6/354 [48:36<17:41:17, 182.98s/it]  2%|▏         | 7/354 [48:52<12:21:28, 128.21s/it]  2%|▏         | 8/354 [49:10<8:56:59, 93.12s/it]    3%|▎         | 9/354 [49:23<6:32:21, 68.24s/it]  3%|▎         | 10/354 [49:55<5:27:55, 57.19s/it]                                                  {'loss': 1.2411, 'grad_norm': 108.32353973388672, 'learning_rate': 7.941176470588236e-06, 'epoch': 0.06}
+  3%|▎         | 10/354 [49:55<5:27:55, 57.19s/it][LOSS-COMP] step=10 ce=1.279964 candidate=0.000000 total=1.279964
+[LOSS-COMP] step=10 ce=1.071585 candidate=0.000000 total=1.071585
+[LOSS-COMP] step=10 ce=1.233173 candidate=0.000000 total=1.233173
+[LOSS-COMP] step=10 ce=1.759274 candidate=0.000000 total=1.759274
+[LOSS-COMP] step=10 ce=1.361271 candidate=0.000000 total=1.361271
+[LOSS-COMP] step=10 ce=1.245235 candidate=0.000000 total=1.245235
+[LOSS-COMP] step=10 ce=0.853501 candidate=0.000000 total=0.853501
+[LOSS-COMP] step=10 ce=1.598208 candidate=0.000000 total=1.598208
+  3%|▎         | 11/354 [50:28<4:44:01, 49.68s/it]  3%|▎         | 12/354 [50:47<3:49:25, 40.25s/it]  4%|▎         | 13/354 [51:13<3:24:28, 35.98s/it]  4%|▍         | 14/354 [51:47<3:19:54, 35.28s/it]  4%|▍         | 15/354 [52:07<2:54:37, 30.91s/it]  5%|▍         | 16/354 [52:25<2:31:17, 26.86s/it]  5%|▍         | 17/354 [52:56<2:38:08, 28.15s/it]
