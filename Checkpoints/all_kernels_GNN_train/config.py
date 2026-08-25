@@ -251,6 +251,17 @@ parser.add_argument(
     help="CSV produced by generate_neutral_baselines.py for reference_delta mode.",
 )
 parser.add_argument(
+    "--reference_delta_head",
+    choices=("anchored", "direct"),
+    default="anchored",
+    help=(
+        "QoR head used by reference_delta mode. anchored subtracts the head "
+        "evaluated at an artificial zero response and keeps zero-mean-free "
+        "delta scaling; direct evaluates the response head once and uses "
+        "centered training-delta standardization."
+    ),
+)
+parser.add_argument(
     "--target_device",
     default="xczu7ev-ffvc1156-2-e",
     help="FPGA part that every neutral baseline in the manifest must use.",
@@ -271,6 +282,16 @@ parser.add_argument(
     type=float,
     default=0.25,
     help="Auxiliary weight for the static kernel-center prediction.",
+)
+parser.add_argument(
+    '--qor_output_init_scale',
+    type=float,
+    default=0.1,
+    help=(
+        'Multiplier applied to newly initialized QoR output-layer weights. '
+        'Anchoring enforces neutral zero response; this only controls early '
+        'gradient strength into the structural encoder.'
+    ),
 )
 parser.add_argument(
     "--response_aux_weight",
@@ -785,6 +806,8 @@ if FLAGS.target_mode == 'reference_delta':
         parser.error('--target_mode reference_delta requires --baseline_manifest.')
     if FLAGS.multi_target_qor:
         parser.error('--multi_target_qor requires baseline-free --target_mode absolute or kernel_center.')
+elif FLAGS.reference_delta_head != 'anchored':
+    parser.error('--reference_delta_head is only meaningful with --target_mode reference_delta.')
 if FLAGS.smooth_l1_beta <= 0:
     parser.error('--smooth_l1_beta must be positive.')
 
@@ -815,6 +838,8 @@ if FLAGS.rank_aux_weight < 0:
     parser.error('--rank_aux_weight must be non-negative.')
 if FLAGS.pairwise_delta_weight < 0:
     parser.error('--pairwise_delta_weight must be non-negative.')
+if not 0.0 < FLAGS.qor_output_init_scale <= 1.0:
+    parser.error('--qor_output_init_scale must be in (0, 1].')
 if FLAGS.pairwise_delta_start_epoch < 0:
     parser.error('--pairwise_delta_start_epoch must be non-negative.')
 if FLAGS.pairwise_delta_ramp_epochs <= 0:

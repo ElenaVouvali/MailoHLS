@@ -38,12 +38,14 @@ edge_dim                   : None
 target                     : ['perf',
                            :  'area']
 decompose_targets          : False
-target_mode                : reference_delta
+target_mode                : absolute
 baseline_manifest          : None
+reference_delta_head       : anchored
 target_device              : xczu7ev-ffvc1156-2-e
 clock_period_ns            : 10.0
 vitis_hls_version          : 2021.1
 center_aux_weight          : 0.25
+qor_output_init_scale      : 1.0
 response_aux_weight        : 1.0
 checkpoint_objective       : absolute
 min_rank_tau               : 0.0
@@ -137,7 +139,7 @@ loss                       : mse
 smooth_l1_beta             : 0.5
 epoch_num                  : 200
 sanity_print_n             : 0
-device                     : cpu
+device                     : cuda:0
 tiny_overfit               : False
 tiny_overfit_kernel        : machsuite-gemm-blocked
 tiny_overfit_num_samples   : 64
@@ -155,5 +157,5 @@ plot_pred_points           : True
 user                       : elvouvali
 hostname                   : liono
 experiment_split_sha256    : None
-ts                         : 2026-08-25T06-00-09.699384
+ts                         : 2026-08-25T10-41-56.424490
 
