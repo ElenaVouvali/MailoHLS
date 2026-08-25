@@ -1,0 +1,440 @@
+task                       : regression
+subtask                    : train
+plot_dse                   : False
+vis_per_kernel             : True
+force_regen                : False
+allow_incomplete_dataset   : False
+min_allowed_latency        : 0.0
+epsilon                    : 1e-06
+normalizer                 : 10000000.0
+util_normalizer            : 1
+max_number                 : 10000000000.0
+norm_method                : log2
+new_speedup                : True
+invalid                    : False
+encode_log                 : False
+v_db                       : v21
+test_kernels               : serrano-kalman-filter
+val_kernels                : machsuite-sort-radix,
+                           : machsuite-viterbi,
+                           : rodinia_pathfinder_0_baseline_0,
+                           : rodinia_pathfinder_4_doublebuffer_0
+split_json                 : /home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json
+multi_target_qor           : False
+effective_area_floor       : 0.0625
+development_exclude_kernels : rodinia_lud_1_tiling_0,
+                           : spcl_example_01
+target_kernel              : None
+all_kernels                : True
+dataset                    : mlir
+benchmarks                 : ['machsuite',
+                           :  'poly']
+tag                        : whole-machsuite-poly
+graph_type                 : extended-pseudo-block-connected-hierarchy
+mlir_graph_dir             : None
+encoder_path               : None
+pragma_dim_path            : None
+encode_edge                : True
+encode_edge_position       : True
+num_layers                 : 4
+num_features               : 403
+edge_dim                   : 82
+target                     : ['perf',
+                           :  'area']
+decompose_targets          : False
+target_mode                : reference_delta
+baseline_manifest          : GNN_branch/baselines/neutral_vitis_2021_1.csv
+reference_delta_head       : direct
+target_device              : xczu7ev-ffvc1156-2-e
+clock_period_ns            : 10.0
+vitis_hls_version          : 2021.1
+center_aux_weight          : 0.25
+qor_output_init_scale      : 1.0
+response_aux_weight        : 1.0
+checkpoint_objective       : embedding_rank
+min_rank_tau               : 0.2
+max_kernel_zero_baseline_ratio : 1.1
+kernel_zero_baseline_additive_tolerance : 0.001
+MLP_common_lyr             : 0
+gnn_type                   : transformer
+dropout                    : 0.2
+graph_attention_heads      : 1
+graph_residual_beta        : False
+graph_layer_norm           : False
+jkn_mode                   : max
+jkn_enable                 : True
+node_attention             : True
+node_attention_MLP         : False
+separate_P                 : True
+separate_icmp              : False
+separate_T                 : False
+separate_pseudo            : True
+P_use_all_nodes            : True
+gae_T                      : False
+gae_P                      : False
+gnn_layer_after_MLP        : 1
+pragma_as_MLP              : True
+pragma_as_MLP_list         : ['pipeline',
+                           :  'unroll',
+                           :  'array_partition']
+pragma_scope               : block
+keep_pragma_attribute      : False
+pragma_order               : parallel_and_merge
+pragma_MLP_hidden_channels : [in_D // 2]
+merge_MLP_hidden_channels  : [in_D // 2]
+model_path                 : None
+ensemble                   : 0
+ensemble_weights           : None
+class_model_path           : None
+feature_extract            : False
+fix_gnn_layer              : 1
+FT_extra                   : False
+save_model                 : True
+resample                   : False
+val_ratio                  : 0.05
+activation                 : elu
+D                          : 64
+weight_decay               : 0.0001
+scheduler                  : plateau
+warmup                     : linear
+lr                         : 3e-05
+standardize_targets        : True
+kernel_balanced_loss       : True
+kernel_uniform_sampling    : False
+samples_per_kernel_per_epoch : 128
+rank_aux_weight            : 0.0
+rank_temperature           : 1.0
+pairwise_delta_weight      : 0.0
+pairwise_delta_start_epoch : 3
+pairwise_delta_ramp_epochs : 2
+pairwise_calibration_stable_epochs : 2
+pairwise_calibration_tolerance : 0.02
+rank_tie_relative          : None
+rank_tie_epsilon           : 0.05
+resource_aux_weight        : 0.1
+strict_paired_ablation     : False
+paired_control_contract    : None
+resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
+resource_boundary_tolerance : 0.02
+resource_budget_bank       : mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json
+resource_budget_count      : 16
+resource_budget_min_fraction : 0.05
+kernel_grouped_sampling    : True
+kernels_per_batch          : 16
+points_per_kernel          : 4
+warmup_epochs              : 0
+early_stopping_patience    : 8
+early_stopping_min_delta   : 0.0001
+plateau_patience           : 4
+plateau_factor             : 0.5
+evaluate_test              : False
+final_refit                : False
+final_refit_epochs         : None
+random_seed                : 123
+experiment_name            : gnn_final_reference_delta_direct_s123
+allow_nondeterministic     : False
+batch_size                 : 64
+grad_accum_steps           : 1
+num_workers                : 2
+eval_num_workers           : 0
+prefetch_factor            : 1
+persistent_workers         : False
+loss                       : smooth_l1
+smooth_l1_beta             : 0.5
+epoch_num                  : 40
+sanity_print_n             : 0
+device                     : cuda:0
+tiny_overfit               : False
+tiny_overfit_kernel        : machsuite-gemm-blocked
+tiny_overfit_num_samples   : 64
+tiny_overfit_batch_size    : 16
+tiny_overfit_epochs        : 300
+tiny_overfit_workers       : 0
+resume_training            : False
+load_pretrained            : False
+explorer                   : exhaustive
+model_tag                  : test
+prune_util                 : True
+prune_class                : True
+print_every_iter           : 100
+plot_pred_points           : True
+user                       : elvouvali
+hostname                   : liono
+experiment_split_sha256    : d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c
+ts                         : 2026-08-25T09-25-45.017434
+
+----- resolved runtime graph dimensions
+task                       : regression
+subtask                    : train
+plot_dse                   : False
+vis_per_kernel             : True
+force_regen                : False
+allow_incomplete_dataset   : False
+min_allowed_latency        : 0.0
+epsilon                    : 1e-06
+normalizer                 : 10000000.0
+util_normalizer            : 1
+max_number                 : 10000000000.0
+norm_method                : log2
+new_speedup                : True
+invalid                    : False
+encode_log                 : False
+v_db                       : v21
+test_kernels               : serrano-kalman-filter
+val_kernels                : machsuite-sort-radix,
+                           : machsuite-viterbi,
+                           : rodinia_pathfinder_0_baseline_0,
+                           : rodinia_pathfinder_4_doublebuffer_0
+split_json                 : /home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json
+multi_target_qor           : False
+effective_area_floor       : 0.0625
+development_exclude_kernels : rodinia_lud_1_tiling_0,
+                           : spcl_example_01
+target_kernel              : None
+all_kernels                : True
+dataset                    : mlir
+benchmarks                 : ['machsuite',
+                           :  'poly']
+tag                        : whole-machsuite-poly
+graph_type                 : extended-pseudo-block-connected-hierarchy
+mlir_graph_dir             : None
+encoder_path               : None
+pragma_dim_path            : None
+encode_edge                : True
+encode_edge_position       : True
+num_layers                 : 4
+num_features               : 403
+edge_dim                   : 82
+target                     : ['perf',
+                           :  'area']
+decompose_targets          : False
+target_mode                : reference_delta
+baseline_manifest          : GNN_branch/baselines/neutral_vitis_2021_1.csv
+reference_delta_head       : direct
+target_device              : xczu7ev-ffvc1156-2-e
+clock_period_ns            : 10.0
+vitis_hls_version          : 2021.1
+center_aux_weight          : 0.25
+qor_output_init_scale      : 1.0
+response_aux_weight        : 1.0
+checkpoint_objective       : embedding_rank
+min_rank_tau               : 0.2
+max_kernel_zero_baseline_ratio : 1.1
+kernel_zero_baseline_additive_tolerance : 0.001
+MLP_common_lyr             : 0
+gnn_type                   : transformer
+dropout                    : 0.2
+graph_attention_heads      : 1
+graph_residual_beta        : False
+graph_layer_norm           : False
+jkn_mode                   : max
+jkn_enable                 : True
+node_attention             : True
+node_attention_MLP         : False
+separate_P                 : True
+separate_icmp              : False
+separate_T                 : False
+separate_pseudo            : True
+P_use_all_nodes            : True
+gae_T                      : False
+gae_P                      : False
+gnn_layer_after_MLP        : 1
+pragma_as_MLP              : True
+pragma_as_MLP_list         : ['pipeline',
+                           :  'unroll',
+                           :  'array_partition']
+pragma_scope               : block
+keep_pragma_attribute      : False
+pragma_order               : parallel_and_merge
+pragma_MLP_hidden_channels : [in_D // 2]
+merge_MLP_hidden_channels  : [in_D // 2]
+model_path                 : None
+ensemble                   : 0
+ensemble_weights           : None
+class_model_path           : None
+feature_extract            : False
+fix_gnn_layer              : 1
+FT_extra                   : False
+save_model                 : True
+resample                   : False
+val_ratio                  : 0.05
+activation                 : elu
+D                          : 64
+weight_decay               : 0.0001
+scheduler                  : plateau
+warmup                     : linear
+lr                         : 3e-05
+standardize_targets        : True
+kernel_balanced_loss       : True
+kernel_uniform_sampling    : False
+samples_per_kernel_per_epoch : 128
+rank_aux_weight            : 0.0
+rank_temperature           : 1.0
+pairwise_delta_weight      : 0.0
+pairwise_delta_start_epoch : 3
+pairwise_delta_ramp_epochs : 2
+pairwise_calibration_stable_epochs : 2
+pairwise_calibration_tolerance : 0.02
+rank_tie_relative          : None
+rank_tie_epsilon           : 0.05
+resource_aux_weight        : 0.1
+strict_paired_ablation     : False
+paired_control_contract    : None
+resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
+resource_boundary_tolerance : 0.02
+resource_budget_bank       : mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json
+resource_budget_count      : 16
+resource_budget_min_fraction : 0.05
+kernel_grouped_sampling    : True
+kernels_per_batch          : 16
+points_per_kernel          : 4
+warmup_epochs              : 0
+early_stopping_patience    : 8
+early_stopping_min_delta   : 0.0001
+plateau_patience           : 4
+plateau_factor             : 0.5
+evaluate_test              : False
+final_refit                : False
+final_refit_epochs         : None
+random_seed                : 123
+experiment_name            : gnn_final_reference_delta_direct_s123
+allow_nondeterministic     : False
+batch_size                 : 64
+grad_accum_steps           : 1
+num_workers                : 2
+eval_num_workers           : 0
+prefetch_factor            : 1
+persistent_workers         : False
+loss                       : smooth_l1
+smooth_l1_beta             : 0.5
+epoch_num                  : 40
+sanity_print_n             : 0
+device                     : cuda:0
+tiny_overfit               : False
+tiny_overfit_kernel        : machsuite-gemm-blocked
+tiny_overfit_num_samples   : 64
+tiny_overfit_batch_size    : 16
+tiny_overfit_epochs        : 300
+tiny_overfit_workers       : 0
+resume_training            : False
+load_pretrained            : False
+explorer                   : exhaustive
+model_tag                  : test
+prune_util                 : True
+prune_class                : True
+print_every_iter           : 100
+plot_pred_points           : True
+user                       : elvouvali
+hostname                   : liono
+experiment_split_sha256    : d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c
+ts                         : 2026-08-25T09-25-45.017434
+
+
+##################################
+Net(
+  (conv_first): TransformerConv(403, 64, heads=1)
+  (conv_layers): ModuleList(
+    (0-3): 4 x TransformerConv(64, 64, heads=1)
+  )
+  (graph_norms): ModuleList()
+  (jkn): JumpingKnowledge(max)
+  (loss_function): MSELoss()
+  (gate_nn_P): Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (glob_P): MyGlobalAttention(gate_nn=Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  ), nn=None)
+  (gate_nn_pseudo_B): Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (glob_pseudo_B): MyGlobalAttention(gate_nn=Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  ), nn=None)
+  (MLPs): MLP_multi_objective(
+    (activation): ELU(alpha=1.0)
+    (layers_common): ModuleList()
+    (MLP_heads): ModuleDict(
+      (perf): ModuleList(
+        (0): Linear(in_features=256, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=16, bias=True)
+        (2): Linear(in_features=16, out_features=8, bias=True)
+        (3): Linear(in_features=8, out_features=1, bias=True)
+      )
+      (area): ModuleList(
+        (0): Linear(in_features=256, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=16, bias=True)
+        (2): Linear(in_features=16, out_features=8, bias=True)
+        (3): Linear(in_features=8, out_features=1, bias=True)
+      )
+    )
+  )
+  (resource_heads): ModuleDict(
+    (bram): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=256, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+    (dsp): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=256, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+    (ff): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=256, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+    (lut): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=256, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+  )
+  (MLPs_per_pragma): ModuleDict(
+    (pipeline): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=65, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=64, bias=True)
+      )
+    )
+    (unroll): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=65, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=64, bias=True)
+      )
+    )
+    (array_partition): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=67, out_features=33, bias=True)
+        (1): Linear(in_features=33, out_features=64, bias=True)
+      )
+    )
+    (merge): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=192, out_features=33, bias=True)
+        (1): Linear(in_features=33, out_features=64, bias=True)
+      )
+    )
+  )
+)

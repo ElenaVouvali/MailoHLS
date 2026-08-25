@@ -1,0 +1,479 @@
+Read compact dataset from /home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels with 24527 samples
+[0m] INFO: Starting training with resample -1
+[0m] INFO: Reading dataset from /home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/MLIR_dataset/all_kernels
+Development kernels excluded before splitting: rodinia_lud_1_tiling_0, spcl_example_01
+Reference-delta mode: loaded 53 neutral development baselines; held-out test rows are forbidden.
+Training-only log2 target statistics: {'perf': {'mean': -1.2667847486440846, 'std': 3.183603320290242, 'count': 21798, 'weighting': 'kernel_balanced'}, 'area': {'mean': 1.6532457354348675, 'std': 1.691518111541219, 'count': 21798, 'weighting': 'kernel_balanced'}}
+Training-only raw resource diagnostics: {"bram": {"fraction_zero": 0.17074961005596845, "kernel_count": 48, "kernels_with_two_or_more_distinct_values": 30, "median_utilization": 0.17000000178813934, "p95_utilization": 0.6700000166893005, "train_mean_baseline": 0.2363726028790406, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.20524887854739307, "within_kernel_variance_mean": 0.009306370795415188, "within_kernel_variance_median": 0.0005804427454047633}, "dsp": {"fraction_zero": 0.3698963207633728, "kernel_count": 48, "kernels_with_two_or_more_distinct_values": 43, "median_utilization": 0.009999999776482582, "p95_utilization": 0.3400000035762787, "train_mean_baseline": 0.061596017897249375, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.08214098488198128, "within_kernel_variance_mean": 0.01212502391847639, "within_kernel_variance_median": 0.0037123581984263966}, "ff": {"fraction_zero": 0.05711533168180567, "kernel_count": 48, "kernels_with_two_or_more_distinct_values": 47, "median_utilization": 0.05999999865889549, "p95_utilization": 0.36000001430511475, "train_mean_baseline": 0.10185750970396988, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.08519228734994609, "within_kernel_variance_mean": 0.010941070629016466, "within_kernel_variance_median": 0.006866181425107442}, "lut": {"fraction_zero": 0.0011468942104780255, "kernel_count": 48, "kernels_with_two_or_more_distinct_values": 47, "median_utilization": 0.17000000178813934, "p95_utilization": 0.6899999976158142, "train_mean_baseline": 0.23377442867434878, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.15754445522075075, "within_kernel_variance_mean": 0.0279858144010149, "within_kernel_variance_median": 0.02496649429598001}}
+Training-only resource statistics: {'names': ['bram', 'dsp', 'ff', 'lut'], 'transform': 'log1p', 'mean': [0.13019684973351578, 0.04102173239822108, 0.08443560632375045, 0.17409071169004942], 'std': [0.17310288465172194, 0.09762907206155946, 0.10202907013924886, 0.1523545567327917], 'count': 21798, 'weighting': 'kernel_balanced'}
+Deterministic validation baseline under the configured objective: total=0.9317, breakdown={'perf': 0.1583452103538467, 'area': 0.7733641213864968}
+Kernel-balanced split: 48 kernels, 21798 points, points/kernel=7..859
+Kernel-balanced split: 4 kernels, 2341 points, points/kernel=388..751
+Kernel-grouped sampling: 16 kernels x 4 points, 96 batches/epoch.
+[3m] INFO: num features for training: 403
+[3m] INFO: size of the edge attribute is 82
+Wrote captured GNN checkpoint contract -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_reference_delta_direct_s123/run1/gnn_checkpoint_contract.json
+Model first param device: cuda:0
+Optimization schedule: steps=3840, updates_per_epoch=96, grad_accum_steps=1, warmup_steps=0 (0 fixed epochs)
+[initial_val] epoch -1
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.9992  27.0615   732.3232   
+1   latency_ms        kernel      683        1  0.9990   2.3364     5.4589   
+2   latency_ms        kernel      519        1  0.9992  25.6396   657.3896   
+3   latency_ms        kernel      388        1  0.9988  37.8385  1431.7539   
+4   latency_ms        kernel      751        1  0.9996  32.9211  1083.8008   
+5   latency_ms  kernel_macro     2341        4  0.9992  24.6839   794.6008   
+6   area_score   point_micro     2341        4  2.8738   7.6966    59.2374   
+7   area_score        kernel      683        1  7.7924   6.4542    41.6567   
+8   area_score        kernel      519        1  0.8221   6.2766    39.3953   
+9   area_score        kernel      388        1  0.8583  11.3901   129.7348   
+10  area_score        kernel      751        1  0.8598   7.2468    52.5167   
+11  area_score  kernel_macro     2341        4  2.5831   7.8419    65.8259   
+
+        mae   max_err     tau                               kernel  
+0   19.0581  159.9719  0.5523                                  NaN  
+1    2.3249    3.5179 -0.0934                 machsuite-sort-radix  
+2   13.1753   83.1975 -0.1696                    machsuite-viterbi  
+3   29.7942  159.9719  0.0652      rodinia_pathfinder_0_baseline_0  
+4   32.7950   57.9840  0.1982  rodinia_pathfinder_4_doublebuffer_0  
+5   19.5223   76.1678  0.0001                                       
+6    6.1399   32.5740  0.0854                                  NaN  
+7    6.2528   10.3000 -0.5964                 machsuite-sort-radix  
+8    4.9811   32.5740 -0.3511                    machsuite-viterbi  
+9    7.9693   27.5624 -0.2829      rodinia_pathfinder_0_baseline_0  
+10   5.8929   28.1100 -0.4447  rodinia_pathfinder_4_doublebuffer_0  
+11   6.2740   24.6366 -0.4187                                       
+[initial_val] epoch -1 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 21.388360857963562, 'bias_percentage_points': 21.244043111801147, 'kernel_macro_tau': -0.006254451125654814, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 1.2352318926712516, 'beats_constant_train_mean': False}, {'resource': 'dsp', 'mae_percentage_points': 18.574778735637665, 'bias_percentage_points': 18.574778735637665, 'kernel_macro_tau': 0.011819546825447561, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 3.021506252737904, 'beats_constant_train_mean': False}, {'resource': 'ff', 'mae_percentage_points': 2.752889320254326, 'bias_percentage_points': -0.7408821489661932, 'kernel_macro_tau': 0.20363482554847864, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.3500446832435042, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 16.744928061962128, 'bias_percentage_points': -15.97997397184372, 'kernel_macro_tau': 0.11765092196189234, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.8987184462106022, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.4336566617862372, 'false_feasible_fdr': 0.00951683748169839, 'false_feasible_rate': 0.003568814055636896, 'boundary_accuracy': 0.3853564547206166, 'boundary_balanced_accuracy': 0.4920618718592965, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6629335260115607, 'false_feasible_fdr': 0.10110736639383726, 'false_feasible_rate': 0.025289017341040464, 'boundary_accuracy': 0.6091772151898734, 'boundary_balanced_accuracy': 0.5628846082176991, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6404639175257731, 'false_feasible_fdr': 0.2268041237113402, 'false_feasible_rate': 0.09922680412371133, 'boundary_accuracy': 0.6103151862464183, 'boundary_balanced_accuracy': 0.5370132424282156, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6207556591211718, 'false_feasible_fdr': 0.10359520639147803, 'false_feasible_rate': 0.032373501997336886, 'boundary_accuracy': 0.3957654723127036, 'boundary_balanced_accuracy': 0.49905721027373223, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.5787857753096967, 'false_feasible_fdr': 0.09916179028941959, 'false_feasible_rate': 0.03347928235796668, 'boundary_accuracy': 0.494343688274376, 'boundary_balanced_accuracy': 0.5131348926669143, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': False}
+[initial_val] latency_ms physical RMSE: 27.0615 | MAE: 19.0581 | MAPE: 99.92% | tau-b: 0.5523
+[initial_val] area_score physical RMSE: 7.6966 | MAE: 6.1399 | MAPE: 287.38% | tau-b: 0.0854
+Untrained validation loss: 3.8152; breakdown={'perf': 3.0750932975591425, 'area': 0.6576172467392767}; target-balanced selection=19.4202; relative target losses={'area': 0.8503332758187596, 'perf': 19.420185117613435}
+Initial validation GAE loss: 0
+Initial validation loss breakdown {'perf': 3.0750932975591425, 'area': 0.6576172467392767}
+Pairwise delta auxiliary weight at epoch 0: 0.000000
+Test batch ID (resample): -1 - Epoch 0 train
+epoch = 0, learning rate = 3e-05
+Saved train model at epoch 0
+Epoch 0 val
+[val] epoch 0
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.8297  24.4427   597.4453   
+1   latency_ms        kernel      683        1  0.5193   1.2396     1.5367   
+2   latency_ms        kernel      519        1  0.4504  24.4056   595.6353   
+3   latency_ms        kernel      388        1  1.5455  26.1138   681.9282   
+4   latency_ms        kernel      751        1  1.0044  33.1210  1096.9999   
+5   latency_ms  kernel_macro     2341        4  0.8799  21.2200   594.0250   
+6   area_score   point_micro     2341        4  1.5353   7.1826    51.5903   
+7   area_score        kernel      683        1  3.8553   3.2563    10.6034   
+8   area_score        kernel      519        1  0.4671   6.1498    37.8202   
+9   area_score        kernel      388        1  0.7012  11.9867   143.6815   
+10  area_score        kernel      751        1  0.5943   7.1277    50.8038   
+11  area_score  kernel_macro     2341        4  1.4045   7.1301    60.7272   
+
+        mae   max_err     tau                               kernel  
+0   16.7023  105.6050  0.6149                                  NaN  
+1    1.2181    2.3624  0.0765                 machsuite-sort-radix  
+2   10.6832   80.9088  0.2121                    machsuite-viterbi  
+3   21.1604  105.6050  0.2144      rodinia_pathfinder_0_baseline_0  
+4   32.6408   50.5831  0.0001  rodinia_pathfinder_4_doublebuffer_0  
+5   16.4256   59.8648  0.1258                                       
+6    4.7303   35.8624  0.1333                                  NaN  
+7    2.9851   13.0811 -0.5958                 machsuite-sort-radix  
+8    3.8983   35.8624 -0.3531                    machsuite-viterbi  
+9    8.2160   28.4362 -0.2645      rodinia_pathfinder_0_baseline_0  
+10   5.0916   30.3057 -0.4565  rodinia_pathfinder_4_doublebuffer_0  
+11   5.0477   26.9213 -0.4175                                       
+[val] epoch 0 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 6.704835593700409, 'bias_percentage_points': 5.52898608148098, 'kernel_macro_tau': 0.0031251473195373775, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.38722120014037775, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 3.8589026778936386, 'bias_percentage_points': 3.8499202579259872, 'kernel_macro_tau': 0.009354215606410313, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.6277166870145438, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 3.7687569856643677, 'bias_percentage_points': 2.166464179754257, 'kernel_macro_tau': 0.20691307142667728, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.47921772065531126, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.80319595336914, 'bias_percentage_points': -4.398564621806145, 'kernel_macro_tau': 0.20564931921179652, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.7408324941169545, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6400073206442167, 'false_feasible_fdr': 0.00799749098322095, 'false_feasible_rate': 0.0046669106881405565, 'boundary_accuracy': 0.3872832369942196, 'boundary_balanced_accuracy': 0.49267430904522613, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7769749518304432, 'false_feasible_fdr': 0.12714776632302405, 'false_feasible_rate': 0.05346820809248555, 'boundary_accuracy': 0.6376582278481012, 'boundary_balanced_accuracy': 0.5990638964899224, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6398195876288659, 'false_feasible_fdr': 0.0856662933930571, 'false_feasible_rate': 0.02464561855670103, 'boundary_accuracy': 0.6547277936962751, 'boundary_balanced_accuracy': 0.5538525414099034, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7109687083888149, 'false_feasible_fdr': 0.11375309111660643, 'false_feasible_rate': 0.04976697736351531, 'boundary_accuracy': 0.42630293159609123, 'boundary_balanced_accuracy': 0.5218318546859742, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.6931065783853054, 'false_feasible_fdr': 0.07367549668874172, 'false_feasible_rate': 0.03326569841947886, 'boundary_accuracy': 0.5232537259831208, 'boundary_balanced_accuracy': 0.5410324621234736, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 24.4427 | MAE: 16.7023 | MAPE: 82.97% | tau-b: 0.6149
+[val] area_score physical RMSE: 7.1826 | MAE: 4.7303 | MAPE: 153.53% | tau-b: 0.1333
+Validation target-balanced selection score: 1.044917; relative target losses={'area': 0.6884488647638889, 'perf': 1.044916585256513}
+Validation worst-target kernel-macro tau-b: -0.417495; worst kernel/target baseline ratio=2.940672; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.044917; active_control_score=1.044917; lexicographic_qualification=None
+Saved val model at epoch 0
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.7051700462276737, 'area': 0.5379203114037713}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1654575364946657, 'area': 0.5324216514176561}
+Epoch: 000, Train Loss: 1.3109, Val loss: 0.7261, Time: 57.400 secs
+Pairwise delta auxiliary weight at epoch 1: 0.000000
+Test batch ID (resample): -1 - Epoch 1 train
+epoch = 1, learning rate = 3e-05
+Saved train model at epoch 1
+Epoch 1 val
+[val] epoch 1
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.7997  24.4166   596.1702   
+1   latency_ms        kernel      683        1  0.5611   1.3330     1.7768   
+2   latency_ms        kernel      519        1  0.4934  24.4061   595.6600   
+3   latency_ms        kernel      388        1  1.1681  22.5457   508.3090   
+4   latency_ms        kernel      751        1  1.0379  34.3873  1182.4891   
+5   latency_ms  kernel_macro     2341        4  0.8151  20.6680   572.0587   
+6   area_score   point_micro     2341        4  1.4971   7.0039    49.0541   
+7   area_score        kernel      683        1  3.5946   3.0612     9.3712   
+8   area_score        kernel      519        1  0.5230   5.9176    35.0179   
+9   area_score        kernel      388        1  0.7217  11.7938   139.0938   
+10  area_score        kernel      751        1  0.6633   6.9517    48.3255   
+11  area_score  kernel_macro     2341        4  1.3756   6.9311    57.9521   
+
+        mae   max_err     tau                               kernel  
+0   16.5412  112.6654  0.6099                                  NaN  
+1    1.3134    2.3519  0.1185                 machsuite-sort-radix  
+2   10.8281   80.6766  0.2973                    machsuite-viterbi  
+3   17.7008  112.6654  0.2235      rodinia_pathfinder_0_baseline_0  
+4   33.7394   54.6873 -0.1269  rodinia_pathfinder_4_doublebuffer_0  
+5   15.8954   62.5953  0.1281                                       
+6    4.6815   34.8876  0.1360                                  NaN  
+7    2.7876   13.1379 -0.5901                 machsuite-sort-radix  
+8    3.8986   34.8876 -0.3560                    machsuite-viterbi  
+9    8.0810   28.1337 -0.2064      rodinia_pathfinder_0_baseline_0  
+10   5.1885   29.3051 -0.4603  rodinia_pathfinder_4_doublebuffer_0  
+11   4.9889   26.3661 -0.4032                                       
+[val] epoch 1 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 4.766645655035973, 'bias_percentage_points': 2.4956488981842995, 'kernel_macro_tau': -0.0072891905852173824, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.2752858329473633, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 1.5041444450616837, 'bias_percentage_points': 1.47909764200449, 'kernel_macro_tau': 0.006935694473810481, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.2446748847164042, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 4.219655692577362, 'bias_percentage_points': 2.951459214091301, 'kernel_macro_tau': 0.21866022829135034, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.5365519163583493, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.818274438381195, 'bias_percentage_points': -4.667952656745911, 'kernel_macro_tau': 0.20876702386482265, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.7416417727576927, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6881405563689604, 'false_feasible_fdr': 0.012053379250968575, 'false_feasible_rate': 0.0076866764275256225, 'boundary_accuracy': 0.3872832369942196, 'boundary_balanced_accuracy': 0.4888740577889447, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8090077071290944, 'false_feasible_fdr': 0.21651521137890162, 'false_feasible_rate': 0.13198458574181118, 'boundary_accuracy': 0.6207805907172996, 'boundary_balanced_accuracy': 0.61712982464858, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.639014175257732, 'false_feasible_fdr': 0.10624666310731447, 'false_feasible_rate': 0.03205541237113402, 'boundary_accuracy': 0.6532951289398281, 'boundary_balanced_accuracy': 0.5527031161225471, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7002330226364847, 'false_feasible_fdr': 0.13900110172603747, 'false_feasible_rate': 0.06299933422103862, 'boundary_accuracy': 0.40635179153094464, 'boundary_balanced_accuracy': 0.49095957437196586, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7106738573259291, 'false_feasible_fdr': 0.11038759689922481, 'false_feasible_rate': 0.057026911576249464, 'boundary_accuracy': 0.5085293589513378, 'boundary_balanced_accuracy': 0.5210556166790334, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 24.4166 | MAE: 16.5412 | MAPE: 79.97% | tau-b: 0.6099
+[val] area_score physical RMSE: 7.0039 | MAE: 4.6815 | MAPE: 149.71% | tau-b: 0.1360
+Validation target-balanced selection score: 1.051231; relative target losses={'area': 0.6634650811721943, 'perf': 1.0512307566951113}
+Validation worst-target kernel-macro tau-b: -0.403203; worst kernel/target baseline ratio=2.817919; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.051231; active_control_score=1.051231; lexicographic_qualification=None
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.39685519008586806, 'area': 0.5227483635147413}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.16645735529932085, 'area': 0.5131000895713548}
+Epoch: 001, Train Loss: 0.9667, Val loss: 0.7029, Time: 57.674 secs
+Checkpoint saved at epoch 1 -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_reference_delta_direct_s123/run1/last_ckpt.pt
+Pairwise delta auxiliary weight at epoch 2: 0.000000
+Test batch ID (resample): -1 - Epoch 2 train
+epoch = 2, learning rate = 3e-05
+Saved train model at epoch 2
+Epoch 2 val
+[val] epoch 2
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.8083  25.6628   658.5786   
+1   latency_ms        kernel      683        1  0.5696   1.3518     1.8274   
+2   latency_ms        kernel      519        1  0.5036  24.3469   592.7727   
+3   latency_ms        kernel      388        1  1.0395  21.6656   469.3986   
+4   latency_ms        kernel      751        1  1.1166  37.4043  1399.0796   
+5   latency_ms  kernel_macro     2341        4  0.8073  21.1922   615.7696   
+6   area_score   point_micro     2341        4  1.2569   6.9777    48.6877   
+7   area_score        kernel      683        1  2.8881   2.5590     6.5484   
+8   area_score        kernel      519        1  0.4839   5.9364    35.2403   
+9   area_score        kernel      388        1  0.6932  11.9023   141.6642   
+10  area_score        kernel      751        1  0.5987   6.9476    48.2689   
+11  area_score  kernel_macro     2341        4  1.1660   6.8363    57.9304   
+
+        mae   max_err     tau                               kernel  
+0   17.2682  112.7348  0.6102                                  NaN  
+1    1.3323    2.3030  0.1292                 machsuite-sort-radix  
+2   10.8285   80.3682  0.3539                    machsuite-viterbi  
+3   17.0564  112.7348  0.2398      rodinia_pathfinder_0_baseline_0  
+4   36.3211   62.0870 -0.1633  rodinia_pathfinder_4_doublebuffer_0  
+5   16.3846   64.3732  0.1399                                       
+6    4.4509   35.2317  0.1437                                  NaN  
+7    2.2517   13.5546 -0.5775                 machsuite-sort-radix  
+8    3.7856   35.2317 -0.3492                    machsuite-viterbi  
+9    8.1356   28.2592 -0.1493      rodinia_pathfinder_0_baseline_0  
+10   5.0070   29.7765 -0.4234  rodinia_pathfinder_4_doublebuffer_0  
+11   4.7950   26.7055 -0.3748                                       
+[val] epoch 2 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 4.9607522785663605, 'bias_percentage_points': 2.95835193246603, 'kernel_macro_tau': -0.014031588042938553, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.2864959810066614, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 1.3117337599396706, 'bias_percentage_points': 1.2859047390520573, 'kernel_macro_tau': 0.00751301887320528, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.21337598762244706, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 4.188047721982002, 'bias_percentage_points': 2.953607216477394, 'kernel_macro_tau': 0.2338636975906227, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.5325327928964585, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.801565766334534, 'bias_percentage_points': -4.729959741234779, 'kernel_macro_tau': 0.20315187879326643, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.740745000211137, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6879575402635432, 'false_feasible_fdr': 0.01163625915816693, 'false_feasible_rate': 0.007412152269399707, 'boundary_accuracy': 0.3892100192678227, 'boundary_balanced_accuracy': 0.49043655778894474, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8110549132947977, 'false_feasible_fdr': 0.205348030210247, 'false_feasible_rate': 0.12114643545279384, 'boundary_accuracy': 0.6160337552742616, 'boundary_balanced_accuracy': 0.6069223550191478, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6412693298969072, 'false_feasible_fdr': 0.11364815775817333, 'false_feasible_rate': 0.0352770618556701, 'boundary_accuracy': 0.6489971346704871, 'boundary_balanced_accuracy': 0.5492548402604781, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7088049267643143, 'false_feasible_fdr': 0.11840363154908265, 'false_feasible_rate': 0.052097203728362185, 'boundary_accuracy': 0.4258957654723127, 'boundary_balanced_accuracy': 0.5209481413524324, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7141979923109782, 'false_feasible_fdr': 0.10128971374646115, 'false_feasible_rate': 0.05158052114480991, 'boundary_accuracy': 0.5151732806608008, 'boundary_balanced_accuracy': 0.5291608741510233, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 25.6628 | MAE: 17.2682 | MAPE: 80.83% | tau-b: 0.6102
+[val] area_score physical RMSE: 6.9777 | MAE: 4.4509 | MAPE: 125.69% | tau-b: 0.1437
+Validation target-balanced selection score: 1.052848; relative target losses={'area': 0.6240848346766072, 'perf': 1.0528484502473225}
+Validation worst-target kernel-macro tau-b: -0.374821; worst kernel/target baseline ratio=2.448673; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.052848; active_control_score=1.052848; lexicographic_qualification=None
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.37076732112715644, 'area': 0.5077654036382834}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1667135093251338, 'area': 0.48264481984031143}
+Epoch: 002, Train Loss: 0.9244, Val loss: 0.6721, Time: 57.826 secs
+Pairwise delta auxiliary weight at epoch 3: 0.000000
+Test batch ID (resample): -1 - Epoch 3 train
+epoch = 3, learning rate = 3e-05
+Saved train model at epoch 3
+Epoch 3 val
+[val] epoch 3
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.8765  29.4054   864.6756   
+1   latency_ms        kernel      683        1  0.5955   1.4100     1.9882   
+2   latency_ms        kernel      519        1  0.4864  24.2517   588.1446   
+3   latency_ms        kernel      388        1  0.9840  21.1917   449.0900   
+4   latency_ms        kernel      751        1  1.3463  45.3328  2055.0648   
+5   latency_ms  kernel_macro     2341        4  0.8530  23.0466   773.5719   
+6   area_score   point_micro     2341        4  1.2487   6.9021    47.6390   
+7   area_score        kernel      683        1  2.8138   2.5042     6.2711   
+8   area_score        kernel      519        1  0.5359   5.7895    33.5188   
+9   area_score        kernel      388        1  0.6946  11.8364   140.0999   
+10  area_score        kernel      751        1  0.6041   6.8739    47.2500   
+11  area_score  kernel_macro     2341        4  1.1621   6.7510    56.7850   
+
+        mae   max_err     tau                               kernel  
+0   19.5960  111.4125  0.6139                                  NaN  
+1    1.3915    2.3274  0.1468                 machsuite-sort-radix  
+2   10.7159   80.0572  0.3938                    machsuite-viterbi  
+3   16.6017  111.4125  0.2566      rodinia_pathfinder_0_baseline_0  
+4   43.8359   77.0351 -0.1652  rodinia_pathfinder_4_doublebuffer_0  
+5   18.1362   67.7080  0.1580                                       
+6    4.4320   34.4898  0.1550                                  NaN  
+7    2.2017   13.4592 -0.5198                 machsuite-sort-radix  
+8    3.8406   34.4898 -0.3068                    machsuite-viterbi  
+9    8.0825   28.1354 -0.1035      rodinia_pathfinder_0_baseline_0  
+10   4.9830   29.5159 -0.2883  rodinia_pathfinder_4_doublebuffer_0  
+11   4.7770   26.4001 -0.3046                                       
+[val] epoch 3 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 5.030041933059692, 'bias_percentage_points': 3.131721168756485, 'kernel_macro_tau': -0.01610752973851362, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.29049763366395087, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 1.3423590920865536, 'bias_percentage_points': 1.3178731314837933, 'kernel_macro_tau': 0.008870511379890348, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.21835772301165227, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 4.633385315537453, 'bias_percentage_points': 3.596748411655426, 'kernel_macro_tau': 0.2422323249376646, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.5891598631261256, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.9328733086586, 'bias_percentage_points': -4.048755764961243, 'kernel_macro_tau': 0.1727352546022612, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.7477924183891396, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6907027818448024, 'false_feasible_fdr': 0.011586325275354026, 'false_feasible_rate': 0.007412152269399707, 'boundary_accuracy': 0.3911368015414258, 'boundary_balanced_accuracy': 0.49104899497487436, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8027456647398844, 'false_feasible_fdr': 0.1900571931368236, 'false_feasible_rate': 0.10404624277456648, 'boundary_accuracy': 0.5991561181434599, 'boundary_balanced_accuracy': 0.5804417721933552, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6393363402061856, 'false_feasible_fdr': 0.09710856519367157, 'false_feasible_rate': 0.028672680412371133, 'boundary_accuracy': 0.6532951289398281, 'boundary_balanced_accuracy': 0.5527031161225471, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7103861517976032, 'false_feasible_fdr': 0.11507785795670337, 'false_feasible_rate': 0.05043275632490013, 'boundary_accuracy': 0.42671009771986973, 'boundary_balanced_accuracy': 0.5221672000917421, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7133436565570269, 'false_feasible_fdr': 0.09277742004722044, 'false_feasible_rate': 0.046160828705681334, 'boundary_accuracy': 0.510504578919016, 'boundary_balanced_accuracy': 0.5256545445758147, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 29.4054 | MAE: 19.5960 | MAPE: 87.65% | tau-b: 0.6139
+[val] area_score physical RMSE: 6.9021 | MAE: 4.4320 | MAPE: 124.87% | tau-b: 0.1550
+Validation target-balanced selection score: 1.108420; relative target losses={'area': 0.6146623140175249, 'perf': 1.1084196003285527}
+Validation worst-target kernel-macro tau-b: -0.304604; worst kernel/target baseline ratio=2.631534; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.108420; active_control_score=1.108420; lexicographic_qualification=None
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.35173327444742125, 'area': 0.48569731259097654}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.17551293477435134, 'area': 0.4753577804295541}
+Epoch: 003, Train Loss: 0.8820, Val loss: 0.6743, Time: 57.705 secs
+Checkpoint saved at epoch 3 -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_reference_delta_direct_s123/run1/last_ckpt.pt
+Pairwise delta auxiliary weight at epoch 4: 0.000000
+Test batch ID (resample): -1 - Epoch 4 train
+epoch = 4, learning rate = 3e-05
+Saved train model at epoch 4
+Epoch 4 val
+[val] epoch 4
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.8463  27.7165   768.2054   
+1   latency_ms        kernel      683        1  0.6389   1.5087     2.2762   
+2   latency_ms        kernel      519        1  0.5346  24.3583   593.3248   
+3   latency_ms        kernel      388        1  0.8916  20.9965   440.8545   
+4   latency_ms        kernel      751        1  1.2269  41.8899  1754.7631   
+5   latency_ms  kernel_macro     2341        4  0.8230  22.1883   697.8046   
+6   area_score   point_micro     2341        4  1.0970   6.8862    47.4200   
+7   area_score        kernel      683        1  2.3648   2.2114     4.8905   
+8   area_score        kernel      519        1  0.5044   5.7634    33.2167   
+9   area_score        kernel      388        1  0.6779  11.9012   141.6391   
+10  area_score        kernel      751        1  0.5701   6.8729    47.2365   
+11  area_score  kernel_macro     2341        4  1.0293   6.6872    56.7457   
+
+        mae   max_err     tau                               kernel  
+0   18.3929  111.2611  0.6204                                  NaN  
+1    1.4920    2.4728  0.1636                 machsuite-sort-radix  
+2   10.9371   80.3570  0.4258                    machsuite-viterbi  
+3   16.3733  111.2611  0.2692      rodinia_pathfinder_0_baseline_0  
+4   39.9595   75.7658 -0.1354  rodinia_pathfinder_4_doublebuffer_0  
+5   17.1905   67.4642  0.1808                                       
+6    4.2835   34.7066  0.2748                                  NaN  
+7    1.8749   13.6588 -0.2166                 machsuite-sort-radix  
+8    3.7122   34.7066 -0.1953                    machsuite-viterbi  
+9    8.1177   28.1847 -0.0351      rodinia_pathfinder_0_baseline_0  
+10   4.8880   29.7314 -0.0825  rodinia_pathfinder_4_doublebuffer_0  
+11   4.6482   26.5704 -0.1324                                       
+[val] epoch 4 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 5.145930498838425, 'bias_percentage_points': 3.423609584569931, 'kernel_macro_tau': -0.019292072635900916, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.29719049121373925, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 1.2683874927461147, 'bias_percentage_points': 1.243207510560751, 'kernel_macro_tau': 0.011538729227016662, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.20632497402911176, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 4.707607626914978, 'bias_percentage_points': 3.7082605063915253, 'kernel_macro_tau': 0.2571518943427833, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.5985976292159538, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.838796317577362, 'bias_percentage_points': -4.294963926076889, 'kernel_macro_tau': 0.16414890241526456, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.7427432042667594, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6929904831625183, 'false_feasible_fdr': 0.012656427758816837, 'false_feasible_rate': 0.008144216691068814, 'boundary_accuracy': 0.3988439306358382, 'boundary_balanced_accuracy': 0.49729899497487434, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.799373795761079, 'false_feasible_fdr': 0.17497670083876982, 'false_feasible_rate': 0.0904383429672447, 'boundary_accuracy': 0.5970464135021097, 'boundary_balanced_accuracy': 0.571936770945443, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6401417525773195, 'false_feasible_fdr': 0.11204188481675392, 'false_feasible_rate': 0.034471649484536085, 'boundary_accuracy': 0.6504297994269341, 'boundary_balanced_accuracy': 0.5504042655478344, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7109687083888149, 'false_feasible_fdr': 0.11375309111660643, 'false_feasible_rate': 0.04976697736351531, 'boundary_accuracy': 0.42630293159609123, 'boundary_balanced_accuracy': 0.5218318546859742, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7135839384878258, 'false_feasible_fdr': 0.08934076036990969, 'false_feasible_rate': 0.04410508329773601, 'boundary_accuracy': 0.5099658825641946, 'boundary_balanced_accuracy': 0.5258509021334291, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 27.7165 | MAE: 18.3929 | MAPE: 84.63% | tau-b: 0.6204
+[val] area_score physical RMSE: 6.8862 | MAE: 4.2835 | MAPE: 109.70% | tau-b: 0.2748
+Validation target-balanced selection score: 1.172523; relative target losses={'area': 0.5857991161323187, 'perf': 1.172523065915261}
+Validation worst-target kernel-macro tau-b: -0.132370; worst kernel/target baseline ratio=3.295208; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.172523; active_control_score=1.172523; lexicographic_qualification=None
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.32899915069962543, 'area': 0.47529105298841995}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.18566341151708926, 'area': 0.45303601875665706}
+Epoch: 004, Train Loss: 0.8484, Val loss: 0.6620, Time: 58.717 secs
+Pairwise delta auxiliary weight at epoch 5: 0.000000
+Test batch ID (resample): -1 - Epoch 5 train
+epoch = 5, learning rate = 3e-05
+Saved train model at epoch 5
+Epoch 5 val
+[val] epoch 5
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.9409  33.7718  1140.5363   
+1   latency_ms        kernel      683        1  0.5509   1.3079     1.7106   
+2   latency_ms        kernel      519        1  0.4999  24.2120   586.2231   
+3   latency_ms        kernel      388        1  1.0051  20.9347   438.2597   
+4   latency_ms        kernel      751        1  1.5672  54.0569  2922.1472   
+5   latency_ms  kernel_macro     2341        4  0.9058  25.1279   987.0852   
+6   area_score   point_micro     2341        4  1.0006   6.8104    46.3817   
+7   area_score        kernel      683        1  2.0215   2.0066     4.0265   
+8   area_score        kernel      519        1  0.4870   5.7255    32.7818   
+9   area_score        kernel      388        1  0.6866  11.8156   139.6089   
+10  area_score        kernel      751        1  0.5895   6.7923    46.1349   
+11  area_score  kernel_macro     2341        4  0.9461   6.5850    55.6381   
+
+        mae   max_err     tau                               kernel  
+0   21.8932  101.3784  0.6234                                  NaN  
+1    1.2880    2.1734  0.1713                 machsuite-sort-radix  
+2   10.7370   79.9813  0.4413                    machsuite-viterbi  
+3   16.5398  100.3202  0.2866      rodinia_pathfinder_0_baseline_0  
+4   51.1083  101.3784 -0.1235  rodinia_pathfinder_4_doublebuffer_0  
+5   19.9183   70.9633  0.1939                                       
+6    4.1893   34.6937  0.4307                                  NaN  
+7    1.6342   13.7728  0.2570                 machsuite-sort-radix  
+8    3.6327   34.6937 -0.0771                    machsuite-viterbi  
+9    8.0583   28.0043  0.0242      rodinia_pathfinder_0_baseline_0  
+10   4.8990   29.3862  0.0522  rodinia_pathfinder_4_doublebuffer_0  
+11   4.5560   26.4642  0.0641                                       
+[val] epoch 5 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 5.124839395284653, 'bias_percentage_points': 3.4887701272964478, 'kernel_macro_tau': -0.020097937424973858, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.2959724266816201, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 1.254153624176979, 'bias_percentage_points': 1.2285522185266018, 'kernel_macro_tau': 0.014721772184567357, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.20400959124612453, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 4.394145309925079, 'bias_percentage_points': 3.2936900854110718, 'kernel_macro_tau': 0.26520451660254274, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.5587392096811767, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.744641840457916, 'bias_percentage_points': -4.605863988399506, 'kernel_macro_tau': 0.15459752354325074, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.7376898313846878, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7056185944363104, 'false_feasible_fdr': 0.01699364465321912, 'false_feasible_rate': 0.011255490483162519, 'boundary_accuracy': 0.4161849710982659, 'boundary_balanced_accuracy': 0.5056611180904522, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.803709055876686, 'false_feasible_fdr': 0.1794464609800363, 'false_feasible_rate': 0.09525529865125242, 'boundary_accuracy': 0.6033755274261603, 'boundary_balanced_accuracy': 0.5805682574064432, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6415914948453608, 'false_feasible_fdr': 0.11944869831546708, 'false_feasible_rate': 0.03769329896907216, 'boundary_accuracy': 0.6489971346704871, 'boundary_balanced_accuracy': 0.5507582710545867, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7109687083888149, 'false_feasible_fdr': 0.11375309111660643, 'false_feasible_rate': 0.04976697736351531, 'boundary_accuracy': 0.42630293159609123, 'boundary_balanced_accuracy': 0.5218318546859742, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7184696710807348, 'false_feasible_fdr': 0.09256706605874244, 'false_feasible_rate': 0.04661469457496796, 'boundary_accuracy': 0.5135571915963368, 'boundary_balanced_accuracy': 0.5289742730893615, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 33.7718 | MAE: 21.8932 | MAPE: 94.09% | tau-b: 0.6234
+[val] area_score physical RMSE: 6.8104 | MAE: 4.1893 | MAPE: 100.06% | tau-b: 0.4307
+Validation target-balanced selection score: 1.101561; relative target losses={'area': 0.5569095331946127, 'perf': 1.1015608942498103}
+Validation worst-target kernel-macro tau-b: 0.064084; worst kernel/target baseline ratio=2.073378; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.101561; active_control_score=1.101561; lexicographic_qualification=None
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.32040393895780045, 'area': 0.462719123189648}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.1744268915175577, 'area': 0.4306938518308157}
+Epoch: 005, Train Loss: 0.8269, Val loss: 0.6277, Time: 57.464 secs
+Checkpoint saved at epoch 5 -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_reference_delta_direct_s123/run1/last_ckpt.pt
+Pairwise delta auxiliary weight at epoch 6: 0.000000
+Test batch ID (resample): -1 - Epoch 6 train
+epoch = 6, learning rate = 1.5e-05
+Saved train model at epoch 6
+Epoch 6 val
+[val] epoch 6
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.9817  36.5725  1337.5496   
+1   latency_ms        kernel      683        1  0.5049   1.2034     1.4482   
+2   latency_ms        kernel      519        1  0.4895  24.1793   584.6388   
+3   latency_ms        kernel      388        1  1.0254  20.8568   435.0069   
+4   latency_ms        kernel      751        1  1.7329  59.4919  3539.2868   
+5   latency_ms  kernel_macro     2341        4  0.9382  26.4329  1140.0952   
+6   area_score   point_micro     2341        4  0.8978   6.8547    46.9866   
+7   area_score        kernel      683        1  1.7570   1.8653     3.4793   
+8   area_score        kernel      519        1  0.4535   5.7796    33.4040   
+9   area_score        kernel      388        1  0.6676  11.9203   142.0943   
+10  area_score        kernel      751        1  0.5423   6.8414    46.8043   
+11  area_score  kernel_macro     2341        4  0.8551   6.6016    56.4454   
+
+        mae   max_err     tau                               kernel  
+0   23.5937  109.2335  0.6262                                  NaN  
+1    1.1816    2.0366  0.1811                 machsuite-sort-radix  
+2   10.6832   79.9203  0.4431                    machsuite-viterbi  
+3   16.5538   98.7479  0.3150      rodinia_pathfinder_0_baseline_0  
+4   56.5357  109.2335 -0.1054  rodinia_pathfinder_4_doublebuffer_0  
+5   21.2386   72.4846  0.2084                                       
+6    4.1050   35.0879  0.4723                                  NaN  
+7    1.4585   13.8660  0.4671                 machsuite-sort-radix  
+8    3.5879   35.0879  0.0169                    machsuite-viterbi  
+9    8.1228   28.1094  0.0996      rodinia_pathfinder_0_baseline_0  
+10   4.7935   29.8034  0.2261  rodinia_pathfinder_4_doublebuffer_0  
+11   4.4907   26.7167  0.2024                                       
+[val] epoch 6 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 5.1530152559280396, 'bias_percentage_points': 3.5908937454223633, 'kernel_macro_tau': -0.02054833113026875, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.2975996538404144, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 1.2463674880564213, 'bias_percentage_points': 1.2208044528961182, 'kernel_macro_tau': 0.016640985728501416, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.20274304270157595, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 4.428763315081596, 'bias_percentage_points': 3.344590961933136, 'kernel_macro_tau': 0.26821662750641734, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.563141075226725, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.738822937011719, 'bias_percentage_points': -4.501323401927948, 'kernel_macro_tau': 0.15708295982673753, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.737377524527085, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7109260614934114, 'false_feasible_fdr': 0.018837018837018837, 'false_feasible_rate': 0.012628111273792094, 'boundary_accuracy': 0.4142581888246628, 'boundary_balanced_accuracy': 0.4974481783919598, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8051541425818882, 'false_feasible_fdr': 0.17258883248730963, 'false_feasible_rate': 0.09007707129094412, 'boundary_accuracy': 0.6060126582278481, 'boundary_balanced_accuracy': 0.5812317401090258, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6430412371134021, 'false_feasible_fdr': 0.11734693877551021, 'false_feasible_rate': 0.03704896907216495, 'boundary_accuracy': 0.6489971346704871, 'boundary_balanced_accuracy': 0.5507582710545867, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7105525965379494, 'false_feasible_fdr': 0.1141552511415525, 'false_feasible_rate': 0.049933422103861515, 'boundary_accuracy': 0.42630293159609123, 'boundary_balanced_accuracy': 0.5218318546859742, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7204453225117471, 'false_feasible_fdr': 0.09090909090909091, 'false_feasible_rate': 0.045813754805638617, 'boundary_accuracy': 0.5142754534027653, 'boundary_balanced_accuracy': 0.5298363984237637, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 36.5725 | MAE: 23.5937 | MAPE: 98.17% | tau-b: 0.6262
+[val] area_score physical RMSE: 6.8547 | MAE: 4.1050 | MAPE: 89.78% | tau-b: 0.4723
+Validation target-balanced selection score: 1.083415; relative target losses={'area': 0.5398029078666391, 'perf': 1.0834148179140959}
+Validation worst-target kernel-macro tau-b: 0.202417; worst kernel/target baseline ratio=1.740738; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.083415; active_control_score=1.083415; lexicographic_qualification=None
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.3085090162542959, 'area': 0.45676630549132824}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.17155354724308203, 'area': 0.4174642015641594}
+Epoch: 006, Train Loss: 0.8091, Val loss: 0.6116, Time: 57.624 secs
+Pairwise delta auxiliary weight at epoch 7: 0.000000
+Test batch ID (resample): -1 - Epoch 7 train
+epoch = 7, learning rate = 1.5e-05
+Saved train model at epoch 7
+Epoch 7 val
+[val] epoch 7
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  1.0524  39.9887  1599.0986   
+1   latency_ms        kernel      683        1  0.5002   1.1924     1.4219   
+2   latency_ms        kernel      519        1  0.5036  24.2130   586.2678   
+3   latency_ms        kernel      388        1  1.1089  21.6185   467.3617   
+4   latency_ms        kernel      751        1  1.9047  65.8541  4336.7633   
+5   latency_ms  kernel_macro     2341        4  1.0044  28.2195  1347.9537   
+6   area_score   point_micro     2341        4  1.0323   6.6771    44.5833   
+7   area_score        kernel      683        1  2.0265   1.9804     3.9218   
+8   area_score        kernel      519        1  0.5667   5.5421    30.7154   
+9   area_score        kernel      388        1  0.6937  11.6811   136.4488   
+10  area_score        kernel      751        1  0.6249   6.6095    43.6850   
+11  area_score  kernel_macro     2341        4  0.9780   6.4533    53.6928   
+
+        mae   max_err     tau                               kernel  
+0   25.5533  125.9156  0.6271                                  NaN  
+1    1.1708    2.0284  0.1921                 machsuite-sort-radix  
+2   10.7499   80.0286  0.4366                    machsuite-viterbi  
+3   17.4009   96.1353  0.3149      rodinia_pathfinder_0_baseline_0  
+4   62.1703  125.9156 -0.1013  rodinia_pathfinder_4_doublebuffer_0  
+5   22.8730   76.0270  0.2106                                       
+6    4.2075   33.4613  0.4958                                  NaN  
+7    1.6394   13.2762  0.5399                 machsuite-sort-radix  
+8    3.7583   33.4613  0.0631                    machsuite-viterbi  
+9    7.9600   27.7322  0.1941      rodinia_pathfinder_0_baseline_0  
+10   4.9147   28.5670  0.3117  rodinia_pathfinder_4_doublebuffer_0  
+11   4.5681   25.7592  0.2772                                       
+[val] epoch 7 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 5.215063691139221, 'bias_percentage_points': 3.7286270409822464, 'kernel_macro_tau': -0.020855864065788543, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.30118310778399515, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 1.6394637525081635, 'bias_percentage_points': 1.6169281676411629, 'kernel_macro_tau': 0.01857580263458128, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.2666868903173778, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 4.5616138726472855, 'bias_percentage_points': 3.5232778638601303, 'kernel_macro_tau': 0.2691712179484276, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.5800337381462456, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.871601223945618, 'bias_percentage_points': -3.860785812139511, 'kernel_macro_tau': 0.15713272100728493, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.7445038791630784, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7126647144948756, 'false_feasible_fdr': 0.01549006168608636, 'false_feasible_rate': 0.010340409956076135, 'boundary_accuracy': 0.40847784200385356, 'boundary_balanced_accuracy': 0.49751099246231156, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8013005780346821, 'false_feasible_fdr': 0.16483516483516483, 'false_feasible_rate': 0.08309248554913294, 'boundary_accuracy': 0.6028481012658228, 'boundary_balanced_accuracy': 0.5754224549650528, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6407860824742269, 'false_feasible_fdr': 0.10894736842105263, 'false_feasible_rate': 0.03334407216494845, 'boundary_accuracy': 0.6518624641833811, 'boundary_balanced_accuracy': 0.5523054062322451, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7088881491344874, 'false_feasible_fdr': 0.11400153022188217, 'false_feasible_rate': 0.04960053262316911, 'boundary_accuracy': 0.42630293159609123, 'boundary_balanced_accuracy': 0.5218318546859742, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7191905168731312, 'false_feasible_fdr': 0.08630232683110323, 'false_feasible_rate': 0.04287697565143101, 'boundary_accuracy': 0.5130184952415155, 'boundary_balanced_accuracy': 0.5290281599610464, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 39.9887 | MAE: 25.5533 | MAPE: 105.24% | tau-b: 0.6271
+[val] area_score physical RMSE: 6.6771 | MAE: 4.2075 | MAPE: 103.23% | tau-b: 0.4958
+Validation target-balanced selection score: 1.141866; relative target losses={'area': 0.5504282641560169, 'perf': 1.1418660111615875}
+Validation worst-target kernel-macro tau-b: 0.210590; worst kernel/target baseline ratio=1.926620; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.141866; active_control_score=1.141866; lexicographic_qualification=None
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.30564717296510935, 'area': 0.44863384356722236}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.18080901373328942, 'area': 0.42568147089531255}
+Epoch: 007, Train Loss: 0.7980, Val loss: 0.6297, Time: 57.747 secs
+Checkpoint saved at epoch 7 -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_reference_delta_direct_s123/run1/last_ckpt.pt
+Pairwise delta auxiliary weight at epoch 8: 0.000000
+Test batch ID (resample): -1 - Epoch 8 train
+epoch = 8, learning rate = 1.5e-05
+Saved train model at epoch 8
+Epoch 8 val
+[val] epoch 8
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  1.1570  45.8709  2104.1408   
+1   latency_ms        kernel      683        1  0.4738   1.1331     1.2840   
+2   latency_ms        kernel      519        1  0.4915  24.1398   582.7279   
+3   latency_ms        kernel      388        1  1.2047  22.6805   514.4072   
+4   latency_ms        kernel      751        1  2.2135  76.7420  5889.3354   
+5   latency_ms  kernel_macro     2341        4  1.0959  31.1739  1746.9386   
+6   area_score   point_micro     2341        4  0.8688   6.7152    45.0945   
+7   area_score        kernel      683        1  1.6077   1.7706     3.1350   
+8   area_score        kernel      519        1  0.4699   5.6201    31.5854   
+9   area_score        kernel      388        1  0.6713  11.7947   139.1158   
+10  area_score        kernel      751        1  0.5744   6.6344    44.0151   
+11  area_score  kernel_macro     2341        4  0.8308   6.4550    54.4628   
+
+        mae   max_err     tau                               kernel  
+0   28.9101  148.9028  0.6254                                  NaN  
+1    1.1092    1.8919  0.1892                 machsuite-sort-radix  
+2   10.6686   79.7509  0.4443                    machsuite-viterbi  
+3   18.3083   92.3205  0.3246      rodinia_pathfinder_0_baseline_0  
+4   72.2773  148.9028 -0.1100  rodinia_pathfinder_4_doublebuffer_0  
+5   25.5908   80.7165  0.2120                                       
+6    4.0388   34.4637  0.5050                                  NaN  
+7    1.3566   13.6125  0.5698                 machsuite-sort-radix  
+8    3.5208   34.4637  0.1041                    machsuite-viterbi  
+9    8.0236   27.9296  0.2389      rodinia_pathfinder_0_baseline_0  
+10   4.7774   29.0197  0.3558  rodinia_pathfinder_4_doublebuffer_0  
+11   4.4196   26.2564  0.3171                                       
+[val] epoch 8 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 5.265787243843079, 'bias_percentage_points': 3.8551799952983856, 'kernel_macro_tau': -0.020416743965855827, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.3041125211422922, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 1.4246059581637383, 'bias_percentage_points': 1.4008029364049435, 'kernel_macro_tau': 0.02063544643782759, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.23173658602031458, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 4.430776834487915, 'bias_percentage_points': 3.3524949103593826, 'kernel_macro_tau': 0.2741594423321755, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.5633971050487755, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.730955123901367, 'bias_percentage_points': -4.342758283019066, 'kernel_macro_tau': 0.16178401227013217, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.736955250466101, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7164165446559297, 'false_feasible_fdr': 0.0205017534394389, 'false_feasible_rate': 0.013909224011713031, 'boundary_accuracy': 0.4123314065510597, 'boundary_balanced_accuracy': 0.4911353643216081, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8051541425818882, 'false_feasible_fdr': 0.16149809160305342, 'false_feasible_rate': 0.08152697495183045, 'boundary_accuracy': 0.614451476793249, 'boundary_balanced_accuracy': 0.5861601460904211, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6430412371134021, 'false_feasible_fdr': 0.11695607763023494, 'false_feasible_rate': 0.036887886597938145, 'boundary_accuracy': 0.6504297994269341, 'boundary_balanced_accuracy': 0.5526594117389974, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.706225033288948, 'false_feasible_fdr': 0.1147036181678214, 'false_feasible_rate': 0.04960053262316911, 'boundary_accuracy': 0.42630293159609123, 'boundary_balanced_accuracy': 0.5218318546859742, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.7206589064502349, 'false_feasible_fdr': 0.08816631130063966, 'false_feasible_rate': 0.044158479282357964, 'boundary_accuracy': 0.5171485006284791, 'boundary_balanced_accuracy': 0.533079108770586, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 45.8709 | MAE: 28.9101 | MAPE: 115.70% | tau-b: 0.6254
+[val] area_score physical RMSE: 6.7152 | MAE: 4.0388 | MAPE: 86.88% | tau-b: 0.5050
+Validation target-balanced selection score: 1.188029; relative target losses={'area': 0.5174841917259334, 'perf': 1.1880290590410119}
+Validation worst-target kernel-macro tau-b: 0.212000; worst kernel/target baseline ratio=1.989315; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.188029; active_control_score=1.188029; lexicographic_qualification=None
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.2903211349621415, 'area': 0.42850716691464186}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.18811871126033158, 'area': 0.40020370726552795}
+Epoch: 008, Train Loss: 0.7605, Val loss: 0.6111, Time: 57.321 secs
+Early stopping after 8 epochs without a 0.0001 improvement.
+Final absolute validation report for epoch 0; target-balanced score=1.044917; relative target losses={'area': 0.6884488647638889, 'perf': 1.044916585256513}
+[best_val] epoch 0
+        target   aggregation  samples  kernels    mape     rmse        mse  \
+0   latency_ms   point_micro     2341        4  0.8297  24.4427   597.4453   
+1   latency_ms        kernel      683        1  0.5193   1.2396     1.5367   
+2   latency_ms        kernel      519        1  0.4504  24.4056   595.6353   
+3   latency_ms        kernel      388        1  1.5455  26.1138   681.9282   
+4   latency_ms        kernel      751        1  1.0044  33.1210  1096.9999   
+5   latency_ms  kernel_macro     2341        4  0.8799  21.2200   594.0250   
+6   area_score   point_micro     2341        4  1.5353   7.1826    51.5903   
+7   area_score        kernel      683        1  3.8553   3.2563    10.6034   
+8   area_score        kernel      519        1  0.4671   6.1498    37.8202   
+9   area_score        kernel      388        1  0.7012  11.9867   143.6815   
+10  area_score        kernel      751        1  0.5943   7.1277    50.8038   
+11  area_score  kernel_macro     2341        4  1.4045   7.1301    60.7272   
+
+        mae   max_err     tau                               kernel  
+0   16.7023  105.6050  0.6149                                  NaN  
+1    1.2181    2.3624  0.0765                 machsuite-sort-radix  
+2   10.6832   80.9088  0.2121                    machsuite-viterbi  
+3   21.1604  105.6050  0.2144      rodinia_pathfinder_0_baseline_0  
+4   32.6408   50.5831  0.0001  rodinia_pathfinder_4_doublebuffer_0  
+5   16.4256   59.8648  0.1258                                       
+6    4.7303   35.8624  0.1333                                  NaN  
+7    2.9851   13.0811 -0.5958                 machsuite-sort-radix  
+8    3.8983   35.8624 -0.3531                    machsuite-viterbi  
+9    8.2160   28.4362 -0.2645      rodinia_pathfinder_0_baseline_0  
+10   5.0916   30.3057 -0.4565  rodinia_pathfinder_4_doublebuffer_0  
+11   5.0477   26.9213 -0.4175                                       
+[best_val] epoch 0 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 6.704835593700409, 'bias_percentage_points': 5.52898608148098, 'kernel_macro_tau': 0.0031251473195373775, 'constant_train_mean_validation_mae_percentage_points': 17.31525957584381, 'mae_baseline_ratio': 0.38722120014037775, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 3.8589026778936386, 'bias_percentage_points': 3.8499202579259872, 'kernel_macro_tau': 0.009354215606410313, 'constant_train_mean_validation_mae_percentage_points': 6.14752285182476, 'mae_baseline_ratio': 0.6277166870145438, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 3.7687569856643677, 'bias_percentage_points': 2.166464179754257, 'kernel_macro_tau': 0.20691307142667728, 'constant_train_mean_validation_mae_percentage_points': 7.864394038915634, 'mae_baseline_ratio': 0.47921772065531126, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 13.80319595336914, 'bias_percentage_points': -4.398564621806145, 'kernel_macro_tau': 0.20564931921179652, 'constant_train_mean_validation_mae_percentage_points': 18.632006645202637, 'mae_baseline_ratio': 0.7408324941169545, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6400073206442167, 'false_feasible_fdr': 0.00799749098322095, 'false_feasible_rate': 0.0046669106881405565, 'boundary_accuracy': 0.3872832369942196, 'boundary_balanced_accuracy': 0.49267430904522613, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7769749518304432, 'false_feasible_fdr': 0.12714776632302405, 'false_feasible_rate': 0.05346820809248555, 'boundary_accuracy': 0.6376582278481012, 'boundary_balanced_accuracy': 0.5990638964899224, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6398195876288659, 'false_feasible_fdr': 0.0856662933930571, 'false_feasible_rate': 0.02464561855670103, 'boundary_accuracy': 0.6547277936962751, 'boundary_balanced_accuracy': 0.5538525414099034, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7109687083888149, 'false_feasible_fdr': 0.11375309111660643, 'false_feasible_rate': 0.04976697736351531, 'boundary_accuracy': 0.42630293159609123, 'boundary_balanced_accuracy': 0.5218318546859742, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.6931065783853054, 'false_feasible_fdr': 0.07367549668874172, 'false_feasible_rate': 0.03326569841947886, 'boundary_accuracy': 0.5232537259831208, 'boundary_balanced_accuracy': 0.5410324621234736, 'boundary_samples': 5569, 'sample_count': 37456}, 'all_resource_heads_beat_constant_baseline': True}
+[best_val] latency_ms physical RMSE: 24.4427 | MAE: 16.7023 | MAPE: 82.97% | tau-b: 0.6149
+[best_val] area_score physical RMSE: 7.1826 | MAE: 4.7303 | MAPE: 153.53% | tau-b: 0.1333
+Wrote physical-unit metrics to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_reference_delta_direct_s123/run1/best_val_physical_metrics.csv
+Wrote point predictions to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_reference_delta_direct_s123/run1/best_val_predictions.csv
+Wrote resource validation metrics to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_reference_delta_direct_s123/run1/best_val_resource_metrics.json

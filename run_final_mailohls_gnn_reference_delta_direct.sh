@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Controlled reproduction of the successful production-style direct
+# reference-delta regressor on the current v13 dataset and validation stack.
+
+MANIFEST="GNN_branch/baselines/neutral_vitis_2021_1.csv"
+SPLIT="mailohls_runs/mailohls_final_family_split_s123.json"
+EXPERIMENT="${EXPERIMENT:-gnn_final_reference_delta_direct_s123}"
+STAGE1_OUT="${STAGE1_OUT:-mailohls_runs/stage1_final_final_adp_s123}"
+BUDGET_BANK="${RESOURCE_BUDGET_BANK:-${STAGE1_OUT}/validation_resource_budget_bank.json}"
+
+[[ -f "${MANIFEST}" ]] || { echo "Missing ${MANIFEST}" >&2; exit 2; }
+[[ -f "${SPLIT}" ]] || { echo "Missing ${SPLIT}" >&2; exit 2; }
+[[ -f "${BUDGET_BANK}" ]] || {
+  echo "Missing exact Stage-1 validation budget bank: ${BUDGET_BANK}" >&2
+  echo "Start Stage 1 first, or set RESOURCE_BUDGET_BANK." >&2
+  exit 2
+}
+
+if [[ -d "Checkpoints/${EXPERIMENT}" ]]; then
+  echo "Refusing to reuse existing experiment directory: Checkpoints/${EXPERIMENT}" >&2
+  echo "Choose a fresh name with EXPERIMENT=<new-name>." >&2
+  exit 2
+fi
+
+export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
+export PYTHONHASHSEED=0
+
+python -u GNN_branch/main_GNN.py \
+  --dataset mlir \
+  --subtask train \
+  --target perf area \
+  --target_mode reference_delta \
+  --reference_delta_head direct \
+  --baseline_manifest "${MANIFEST}" \
+  --target_device xczu7ev-ffvc1156-2-e \
+  --clock_period_ns 10.0 \
+  --vitis_hls_version 2021.1 \
+  --loss smooth_l1 \
+  --smooth_l1_beta 0.5 \
+  --standardize_targets \
+  --qor_output_init_scale 1.0 \
+  --kernel_balanced_loss \
+  --kernel_grouped_sampling \
+  --kernels_per_batch 16 \
+  --development_exclude_kernels rodinia_lud_1_tiling_0,spcl_example_01 \
+  --points_per_kernel 4 \
+  --samples_per_kernel_per_epoch 128 \
+  --batch_size 64 \
+  --grad_accum_steps 1 \
+  --rank_aux_weight 0 \
+  --pairwise_delta_weight 0 \
+  --resource_aux_weight 0.10 \
+  --resource_budget_bank "${BUDGET_BANK}" \
+  --resource_budget_count 16 \
+  --resource_budget_min_fraction 0.05 \
+  --resource_boundary_tolerance 0.02 \
+  --checkpoint_objective embedding_rank \
+  --min_rank_tau 0.20 \
+  --epoch_num 40 \
+  --lr 3e-5 \
+  --scheduler plateau \
+  --warmup_epochs 0 \
+  --plateau_patience 4 \
+  --plateau_factor 0.5 \
+  --early_stopping_patience 8 \
+  --early_stopping_min_delta 1e-4 \
+  --split_json "${SPLIT}" \
+  --num_features 403 \
+  --edge_dim 82 \
+  --random_seed 123 \
+  --num_workers 2 \
+  --eval_num_workers 0 \
+  --experiment_name "${EXPERIMENT}"

@@ -382,6 +382,52 @@ class StageBHelperTests(unittest.TestCase):
         response = anchored(head, neutral, neutral)
         torch.testing.assert_close(response, torch.zeros_like(response))
 
+    def test_direct_reference_delta_uses_centered_standardization(self):
+        transform = _load_model_function(
+            "reference_delta_loss_target", {"torch": torch}
+        )
+        target = torch.tensor([[-2.0], [1.0], [4.0]])
+        mean = torch.tensor(1.0)
+        std = torch.tensor(3.0)
+        direct = transform(
+            target, mean, std, standardized=True, head_mode="direct"
+        )
+        anchored = transform(
+            target, mean, std, standardized=True, head_mode="anchored"
+        )
+        torch.testing.assert_close(direct, torch.tensor([[-1.0], [0.0], [1.0]]))
+        torch.testing.assert_close(anchored, target / std)
+
+    def test_direct_reference_delta_head_is_evaluated_once_without_subtraction(self):
+        response = _load_model_function(
+            "reference_delta_head_response",
+            {"anchored_head_response": lambda head, full, neutral: head(full) - head(neutral)},
+        )
+        head = torch.nn.Linear(2, 1)
+        full = torch.tensor([[2.0, 3.0]])
+        neutral = torch.tensor([[2.0, 0.0]])
+        torch.testing.assert_close(
+            response(head, full, neutral, "direct"), head(full)
+        )
+        torch.testing.assert_close(
+            response(head, full, neutral, "anchored"),
+            head(full) - head(neutral),
+        )
+
+    def test_direct_reference_delta_inverse_restores_training_mean(self):
+        inverse = _load_model_function(
+            "inverse_reference_delta", {"torch": torch}
+        )
+        output = torch.tensor([[-1.0], [0.0], [1.0]])
+        restored = inverse(
+            output,
+            torch.tensor(1.0),
+            torch.tensor(3.0),
+            standardized=True,
+            head_mode="direct",
+        )
+        torch.testing.assert_close(restored, torch.tensor([[-2.0], [1.0], [4.0]]))
+
     def test_qor_output_initialization_preserves_tenth_scale_signal(self):
         initialize = _load_model_function(
             "initialize_qor_heads_conservatively",
