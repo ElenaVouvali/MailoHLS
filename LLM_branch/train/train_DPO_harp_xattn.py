@@ -252,7 +252,11 @@ def build_stage3_contract(
         "beta": args.beta,
         "label_smoothing": args.label_smoothing,
         "sft_alpha": args.sft_alpha,
-        "logp_reduction": args.dpo_logp_reduction,
+        "logp_reduction": (
+            "site_weighted_mean"
+            if args.dpo_logp_reduction == "mean"
+            else args.dpo_logp_reduction
+        ),
         "candidate_top_k": args.top_k,
         "chosen_top_k": args.dpo_chosen_top_k,
         "hard_window": args.dpo_hard_window,
@@ -851,6 +855,7 @@ class DPOPreferenceDataset(Dataset):
         self.directive_domain_registry = directive_domain_registry
         self.samples: List[dict] = []
         self.kernel_names: List[str] = []
+        self.families: List[str] = []
         self.lengths: List[int] = []
         source_token_ids = set(
             tokenizer.convert_tokens_to_ids(mod.SOURCE_PLACEHOLDER_TOKENS)
@@ -916,6 +921,7 @@ class DPOPreferenceDataset(Dataset):
                 "rejected": rejected,
             })
             self.kernel_names.append(ex["kernel_name"])
+            self.families.append(ex.get("family") or ex["kernel_name"])
             self.lengths.append(max(chosen["length"], rejected["length"]))
 
     def _pack_prompt_and_completion(
@@ -957,9 +963,7 @@ class DPOPreferenceDataset(Dataset):
             int(label != -100) if score_clock else 0
             for label in clock.labels
         ]
-        target_score_mask = clock_score_mask + list(
-            det_pack.xattn_target_mask
-        )
+        target_score_weights = list(clock.token_weights) + list(det_pack.token_weights)
 
         prompt_budget = self.max_length - len(target_ids)
         fixed_prompt = len(header_ids) + len(suffix_ids)
@@ -997,7 +1001,7 @@ class DPOPreferenceDataset(Dataset):
 
         # Compare only directive RHS values and, for AUTO-frequency rows,
         # the selected clock RHS.  Fixed schema and prompt tokens are excluded.
-        score_mask = [0] * len(prompt_ids_kept) + target_score_mask
+        score_weights = [0.0] * len(prompt_ids_kept) + target_score_weights
 
         # Same next-token routing convention as SFT.
         full_xattn_target_mask = (
@@ -1008,7 +1012,7 @@ class DPOPreferenceDataset(Dataset):
         return {
             "input_ids": torch.tensor(input_ids, dtype=torch.long),
             "attention_mask": torch.tensor(attention_mask, dtype=torch.long),
-            "score_mask": torch.tensor(score_mask, dtype=torch.float32),
+            "score_weights": torch.tensor(score_weights, dtype=torch.float32),
             "xattn_apply_mask": torch.tensor(xattn_apply_mask, dtype=torch.float32),
             "routing_start_idx": torch.tensor(len(prompt_ids_kept), dtype=torch.long),
             "length": len(input_ids),
@@ -1052,8 +1056,8 @@ class DPOPairCollator:
             out[f"{side}_attention_mask"] = torch.stack([
                 self._pad_1d(ex[side]["attention_mask"], shared_max_len, 0) for ex in batch
             ])
-            out[f"{side}_score_mask"] = torch.stack([
-                self._pad_1d(ex[side]["score_mask"], shared_max_len, 0.0) for ex in batch
+            out[f"{side}_score_weights"] = torch.stack([
+                self._pad_1d(ex[side]["score_weights"], shared_max_len, 0.0) for ex in batch
             ])
             out[f"{side}_xattn_apply_mask"] = torch.stack([
                 self._pad_1d(ex[side]["xattn_apply_mask"], shared_max_len, 0.0) for ex in batch
@@ -1213,7 +1217,14 @@ class STRUCTURALDPOTrainer(Trainer):
         from torch.utils.data import WeightedRandomSampler
         names = list(getattr(self.train_dataset, "kernel_names", []))
         counts = Counter(names)
-        weights = torch.tensor([1.0 / counts[k] for k in names], dtype=torch.double)
+        family_kernels = defaultdict(set)
+        for family, kernel in zip(self.train_dataset.families, names):
+            family_kernels[family].add(kernel)
+        raw = torch.tensor([
+            counts[kernel] ** -0.5 * len(family_kernels[family]) ** -0.5
+            for family, kernel in zip(self.train_dataset.families, names)
+        ], dtype=torch.double)
+        weights = (raw / raw.median()).clamp_(0.25, 4.0)
         generator = torch.Generator().manual_seed(int(self.args.data_seed))
         return WeightedRandomSampler(weights, len(weights), replacement=True, generator=generator)
     
@@ -1263,7 +1274,7 @@ class STRUCTURALDPOTrainer(Trainer):
         model,
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
-        score_mask: torch.Tensor,
+        score_weights: torch.Tensor,
         routing_start_idx: torch.Tensor,
         xattn_apply_mask: torch.Tensor,
         kernel_names: List[str],
@@ -1288,7 +1299,7 @@ class STRUCTURALDPOTrainer(Trainer):
             )
             logits = outputs.logits[:, :-1, :]
             labels = input_ids[:, 1:]
-            mask = score_mask[:, 1:]
+            weights = score_weights[:, 1:]
 
             log_probs = F.log_softmax(logits, dim=-1)
             token_logps = torch.gather(
@@ -1297,8 +1308,8 @@ class STRUCTURALDPOTrainer(Trainer):
                 index=labels.unsqueeze(-1)
             ).squeeze(-1)
 
-            seq_logps = (token_logps * mask).sum(dim=-1)
-            token_counts = mask.sum(dim=-1).clamp(min=1.0)
+            seq_logps = (token_logps * weights).sum(dim=-1)
+            token_counts = weights.sum(dim=-1).clamp(min=1.0)
             return seq_logps, token_counts
 
         finally:
@@ -1309,7 +1320,7 @@ class STRUCTURALDPOTrainer(Trainer):
 
     def training_step(self, model, inputs, num_items_in_batch=None):
         model.train()
-        frozen_stage1.disable_frozen_lora_dropout(model)
+        disable_lora_dropout_for_dpo(model)
         inputs = self._prepare_inputs(inputs)
 
         with self.compute_loss_context_manager():
@@ -1335,13 +1346,13 @@ class STRUCTURALDPOTrainer(Trainer):
 
         chosen_input_ids = inputs["chosen_input_ids"]
         chosen_attention_mask = inputs["chosen_attention_mask"]
-        chosen_score_mask = inputs["chosen_score_mask"]
+        chosen_score_weights = inputs["chosen_score_weights"]
         chosen_routing_start_idx = inputs["chosen_routing_start_idx"]
         chosen_xattn_apply_mask = inputs["chosen_xattn_apply_mask"]
 
         rejected_input_ids = inputs["rejected_input_ids"]
         rejected_attention_mask = inputs["rejected_attention_mask"]
-        rejected_score_mask = inputs["rejected_score_mask"]
+        rejected_score_weights = inputs["rejected_score_weights"]
         rejected_routing_start_idx = inputs["rejected_routing_start_idx"]
         rejected_xattn_apply_mask = inputs["rejected_xattn_apply_mask"]
 
@@ -1349,7 +1360,7 @@ class STRUCTURALDPOTrainer(Trainer):
 
         cat_input_ids = torch.cat([chosen_input_ids, rejected_input_ids], dim=0)
         cat_attention_mask = torch.cat([chosen_attention_mask, rejected_attention_mask], dim=0)
-        cat_score_mask = torch.cat([chosen_score_mask, rejected_score_mask], dim=0)
+        cat_score_weights = torch.cat([chosen_score_weights, rejected_score_weights], dim=0)
         cat_routing_start_idx = torch.cat([chosen_routing_start_idx, rejected_routing_start_idx], dim=0)
         cat_xattn_apply_mask = torch.cat([chosen_xattn_apply_mask, rejected_xattn_apply_mask], dim=0)
         cat_kernel_names = list(kernel_names) + list(kernel_names)
@@ -1358,7 +1369,7 @@ class STRUCTURALDPOTrainer(Trainer):
             model=model,
             input_ids=cat_input_ids,
             attention_mask=cat_attention_mask,
-            score_mask=cat_score_mask,
+            score_weights=cat_score_weights,
             routing_start_idx=cat_routing_start_idx,
             xattn_apply_mask=cat_xattn_apply_mask,
             kernel_names=cat_kernel_names,
@@ -1369,7 +1380,7 @@ class STRUCTURALDPOTrainer(Trainer):
                 model=self.ref_model,
                 input_ids=cat_input_ids,
                 attention_mask=cat_attention_mask,
-                score_mask=cat_score_mask,
+                score_weights=cat_score_weights,
                 routing_start_idx=cat_routing_start_idx,
                 xattn_apply_mask=cat_xattn_apply_mask,
                 kernel_names=cat_kernel_names,
@@ -1549,8 +1560,8 @@ def configure_dpo_trainables(
     We want to preserve the stage-2 language prior and let DPO mainly refine
     memory-conditioned routing through STRUCTURAL xattn.
     """
-    if train_lora or train_ff_gate:
-        raise ValueError("Stage-3 production keeps Stage-1 LoRA and the structural FF branch frozen")
+    if train_ff_gate:
+        raise ValueError("The contracted Stage-2 structural FF branch is disabled")
     model.requires_grad_(False)
 
     for name, param in model.named_parameters():
@@ -1564,11 +1575,21 @@ def configure_dpo_trainables(
             param.requires_grad_(True)
 
     trainable = [(n, p.numel()) for n, p in model.named_parameters() if p.requires_grad]
-    frozen_stage1.assert_stage1_frozen(model)
+    if not train_lora:
+        frozen_stage1.assert_stage1_frozen(model)
     print(f"[DPO-TRAINABLE] groups enabled: "
           f"lora={train_lora} xattn={train_xattn} attn_gate={train_attn_gate} ff_gate={train_ff_gate}")
     print(f"[DPO-TRAINABLE] total trainable params: {sum(x[1] for x in trainable):,}")
     print(f"[DPO-TRAINABLE] first trainables: {[x[0] for x in trainable[:20]]}")
+
+
+def disable_lora_dropout_for_dpo(model):
+    count = 0
+    for name, module in model.named_modules():
+        if "lora_dropout" in name and isinstance(module, torch.nn.Dropout):
+            module.eval()
+            count += 1
+    return count
 
 
 
@@ -1668,7 +1689,7 @@ def build_structural_model(mod, args, tokenizer, trainable: bool):
         if args.train_special_token_embeddings:
             raise ValueError("Stage-3 production keeps special-token embeddings frozen")
         freeze_embeddings(model)
-        frozen_stage1.disable_frozen_lora_dropout(model)
+        disable_lora_dropout_for_dpo(model)
     else:
         model.requires_grad_(False)
         freeze_embeddings(model)
@@ -1814,8 +1835,8 @@ def main():
         raise ValueError("--label_smoothing must be in [0, 0.5)")
     if args.sft_alpha < 0.0:
         raise ValueError("--sft_alpha must be non-negative")
-    if args.train_lora_dpo or args.train_special_token_embeddings:
-        raise ValueError("Stage-3 production cannot unfreeze Stage-1 LoRA or special-token embeddings")
+    if args.train_special_token_embeddings:
+        raise ValueError("Stage-3 keeps special-token embeddings frozen")
     if args.top_k < 2:
         raise ValueError("Stage-3 preference construction requires --top_k >= 2")
     if not 0.0 <= args.dpo_min_edit_frac <= args.dpo_max_edit_frac <= 1.0:
@@ -2216,9 +2237,19 @@ def main():
     else:
         trainer.train()
 
-    frozen_stage1.assert_frozen_stage1_unchanged(policy_model, frozen_policy_stage1)
-    frozen_stage1.assert_frozen_stage1_unchanged(ref_model, frozen_reference_stage1)
-    print(f"[FROZEN-STAGE1] verified policy/reference sha256={frozen_policy_stage1['combined_sha256']}")
+    final_policy_stage1 = frozen_stage1.frozen_stage1_hashes(policy_model)
+    final_reference_stage1 = frozen_stage1.frozen_stage1_hashes(ref_model)
+    if final_reference_stage1 != frozen_reference_stage1:
+        raise RuntimeError("Reference Stage-1 state changed during DPO")
+    if final_policy_stage1["special_token_sha256"] != frozen_policy_stage1["special_token_sha256"]:
+        raise RuntimeError("Special-token embeddings changed during DPO")
+    if args.train_lora_dpo and final_policy_stage1["lora_sha256"] == frozen_policy_stage1["lora_sha256"]:
+        raise RuntimeError("LoRA training requested but policy LoRA hash did not change")
+    if not args.train_lora_dpo and final_policy_stage1 != frozen_policy_stage1:
+        raise RuntimeError("Frozen policy Stage-1 state changed during DPO")
+    training_contract.setdefault("stage3_runtime", {})["initial_lora_sha256"] = frozen_policy_stage1["lora_sha256"]
+    training_contract["stage3_runtime"]["final_lora_sha256"] = final_policy_stage1["lora_sha256"]
+    mod.dump_json(os.path.join(args.output_dir, "training_contract.json"), training_contract)
 
     mod.save_mailohls_adapter(
         policy_model,

@@ -66,7 +66,7 @@ ARGS=(
   --train_attn_gate_dpo
   --lr_xattn "${STAGE3_LR_XATTN:-5e-5}"
   --lr_gate "${STAGE3_LR_GATE:-2e-5}"
-  --lr_lora 0
+  --lr_lora "${STAGE3_LR_LORA:-5e-6}"
   --lr_embed 0
   --lr_ff 0
   --lr_gate_ff 0
@@ -78,11 +78,14 @@ ARGS=(
   --save_steps "${STAGE3_SAVE_STEPS:-20}"
   --logging_steps "${STAGE3_LOGGING_STEPS:-5}"
   --num_workers "${STAGE3_NUM_WORKERS:-0}"
-  --group_by_length
   --gradient_checkpointing
   --save_selection_debug
   --seed 123
 )
+
+if [[ "${STAGE3_TRAIN_LORA:-1}" == "1" ]]; then
+  ARGS+=(--train_lora_dpo)
+fi
 
 if [[ "${MODE}" == "preflight" ]]; then
   python -u -m LLM_branch.train.train_DPO_harp_xattn \
