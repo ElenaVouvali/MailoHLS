@@ -1,5 +1,7 @@
 """Versioned prompt and directive-serialization contract for MailoHLS."""
 
+from __future__ import annotations
+
 import random
 import re
 from collections import defaultdict
@@ -63,6 +65,10 @@ def resolve_objectives(objective: str):
 DEVICE_TOKEN_MAP = {
     "xczu7ev-ffvc1156-2-e": "<DEV=XCZU7EV_FFVC1156_2E>",
     "xcu200-fsgd2104-2-e": "<DEV=XCU200_FSGD2104_2E>",
+}
+DEVICE_CLOCK_PERIODS = {
+    "xczu7ev-ffvc1156-2-e": (3.33, 5.0, 10.0),
+    "xcu200-fsgd2104-2-e": (3.33, 5.0, 10.0),
 }
 UNKNOWN_DEVICE_TOKEN = "<DEV=UNKNOWN>"
 ADAPTED_DEVICE_TOKEN = "<DEV=ADAPTED>"
@@ -151,6 +157,13 @@ def _norm_device(value) -> str:
 
 def _norm_clock(value) -> float:
     return round(float(value), 2)
+
+
+def supported_clock_periods(device: str) -> tuple[float, ...]:
+    device = _norm_device(device)
+    if device not in DEVICE_CLOCK_PERIODS:
+        raise ValueError(f"No public supported-clock menu for device {device!r}")
+    return DEVICE_CLOCK_PERIODS[device]
 
 
 def family_id_from_kernel_name(name: str) -> str:
@@ -304,10 +317,9 @@ def target_prompt_fields(row: dict, device_mode: str = "standard", device_token_
     selected_clock = _norm_clock(clock_value)
     frequency_mode = str(row.get("frequency_mode", "specified")).lower()
     if frequency_mode == "auto":
-        raw_supported = row.get("available_clock_periods")
-        if not isinstance(raw_supported, (list, tuple)) or not raw_supported:
-            raise ValueError("Automatic-clock rows require available_clock_periods")
-        supported = sorted({_norm_clock(value) for value in raw_supported})
+        # The inference menu is public and device-defined.  Never derive it
+        # from measured candidates that survived a particular budget.
+        supported = list(supported_clock_periods(device))
         if selected_clock not in supported:
             raise ValueError("Selected clock is absent from available_clock_periods")
     else:

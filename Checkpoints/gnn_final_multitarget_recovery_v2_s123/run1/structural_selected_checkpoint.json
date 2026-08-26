@@ -1,0 +1,32 @@
+{
+  "checkpoint_epoch": 20,
+  "checkpoint_path": "/home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/gnn_final_multitarget_recovery_v2_s123/run1/val_structural_rank_model_state_dict.pth",
+  "checkpoint_sha256": "6ff232be2551d9f0d9dd4ac64746133f5af8e4f87a92420e40a901f38961d6c8",
+  "checkpoint_tag": "val_structural_rank",
+  "held_out_worst_target_kernel_macro_tau": 0.293778832511807,
+  "per_kernel_qor_ratios_diagnostic_only": {
+    "machsuite-sort-radix/area": 1.2191129015773141,
+    "machsuite-sort-radix/perf": 0.8353223788239967,
+    "machsuite-viterbi/area": 0.7247886781865146,
+    "machsuite-viterbi/perf": 8.657396468200737,
+    "rodinia_pathfinder_0_baseline_0/area": 1.7725478604861848,
+    "rodinia_pathfinder_0_baseline_0/perf": 0.6340879362493448,
+    "rodinia_pathfinder_4_doublebuffer_0/area": 2.02740180726837,
+    "rodinia_pathfinder_4_doublebuffer_0/perf": 9.93159836351513
+  },
+  "qor_ratios_diagnostic_only": {
+    "area": 1.4747563189013784,
+    "perf": 3.4595754442390794
+  },
+  "release_policy": {
+    "calibrated_qor_claims_use_separate_strict_gate": true,
+    "checkpoint_selection": "held_out_structural_ranking",
+    "required_comparisons": [
+      "real_aligned_vs_no_structural_memory",
+      "real_aligned_vs_misaligned_structural_memory"
+    ],
+    "requires_downstream_structural_ablations": true
+  },
+  "schema": "mailohls-structural-encoder-release-v1",
+  "surrogate_calibration_qualified": false
+}

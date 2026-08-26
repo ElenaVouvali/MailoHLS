@@ -89,13 +89,14 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --selection_num_val_kernels 0 \
   --selection_cases_per_kernel_device 4 \
   --selection_candidate_batch_size 4 \
-  --selection_eval_steps 50 \
-  --eval_steps 50 \
-  --save_steps 50 \
+  --selection_eval_steps 177 \
+  --eval_steps 177 \
+  --save_steps 177 \
   --early_stopping_patience 3 \
-  --eval_on_start \
+  --no-eval_on_start \
+  --early_stopping_min_step 177 \
   --best_dir_name best_custom_stage2 \
-  --epochs 4 \
+  --epochs 3 \
   --max_steps -1 \
   --seed 123 \
   --output_dir "$OUT" \

@@ -121,6 +121,95 @@ def test_specified_clock_is_context_but_automatic_clock_is_supervised():
     assert segmented != boundary_tokenizer(prefix)["input_ids"]
 
 
+def test_public_auto_clock_menu_is_independent_of_budget():
+    assert mailohls_contract.supported_clock_periods(
+        "xczu7ev-ffvc1156-2-e"
+    ) == (3.33, 5.0, 10.0)
+    with pytest.raises(ValueError):
+        mailohls_contract.supported_clock_periods("unknown-device")
+
+
+def test_auto_clock_weights_use_only_auto_rows_and_normalize():
+    rows = [
+        {"frequency_mode": "auto", "selected_clock_period": 3.33},
+        {"frequency_mode": "auto", "selected_clock_period": 5.0},
+        {"frequency_mode": "specified", "selected_clock_period": 10.0},
+    ]
+    weights = trainer.compute_auto_clock_class_weights(
+        rows, "inverse_sqrt_frequency"
+    )
+    assert set(weights) == {3.33, 5.0}
+    assert all(0.5 <= value <= 4.0 for value in weights.values())
+
+
+def test_auto_training_smoke_free_runs_clock(monkeypatch):
+    def score(**kwargs):
+        clock = kwargs["candidate_text"].strip()
+        value = {"3.33": -1.0, "5": 2.0, "10": 0.0}[clock]
+        return {"mean_logprob": value, "sum_logprob": value}
+    monkeypatch.setattr(trainer, "score_rhs_candidate_suffix", score)
+    chosen, scores = trainer.score_supported_clocks(
+        torch.nn.Linear(1, 1), CharacterTokenizer(), [1, 2], [3.33, 5.0, 10.0]
+    )
+    assert chosen == 5.0
+    assert [item["clock_period_ns"] for item in scores] == [5.0, 10.0, 3.33]
+
+
+def test_auto_menu_does_not_depend_on_budget_feasibility():
+    row = {
+        "device": "xczu7ev-ffvc1156-2-e", "clock_period": 5.0,
+        "frequency_mode": "auto", "available_clock_periods": [5.0],
+        "avail_bram": 1, "avail_dsp": 1, "avail_ff": 1, "avail_lut": 1,
+    }
+    fields = mailohls_contract.target_prompt_fields(row)
+    assert fields["supported_clock_periods"] == "3.33 ns, 5 ns, 10 ns"
+
+
+def test_auto_validation_never_uses_gold_clock_prefix():
+    row = {
+        "device": "xczu7ev-ffvc1156-2-e", "clock_period": 5.0,
+        "selected_clock_period": 10.0, "frequency_mode": "auto",
+        "available_clock_periods": [3.33, 5.0, 10.0],
+        "avail_bram": 1, "avail_dsp": 1, "avail_ff": 1, "avail_lut": 1,
+    }
+    fields = mailohls_contract.target_prompt_fields(row)
+    assert fields["period_token"] == mailohls_contract.AUTO_PERIOD_TOKEN
+
+
+def test_auto_clock_balanced_accuracy():
+    rows = [
+        {"frequency_mode": "auto", "reference_clock_period_ns": 3.33,
+         "predicted_clock_period_ns": 3.33},
+        {"frequency_mode": "auto", "reference_clock_period_ns": 3.33,
+         "predicted_clock_period_ns": 5.0},
+        {"frequency_mode": "auto", "reference_clock_period_ns": 5.0,
+         "predicted_clock_period_ns": 5.0},
+    ]
+    assert trainer.summarize_auto_clock_metrics(rows)["balanced_clock_accuracy"] == pytest.approx(.75)
+
+
+def test_auto_adp_regret():
+    rows = [
+        {"frequency_mode": "auto", "reference_clock_period_ns": 3.33,
+         "predicted_clock_period_ns": 3.33, "adp_regret": .1},
+        {"frequency_mode": "auto", "reference_clock_period_ns": 5.0,
+         "predicted_clock_period_ns": 3.33, "adp_regret": .3},
+    ]
+    metrics = trainer.summarize_auto_clock_metrics(rows)
+    assert metrics["mean_adp_regret"] == pytest.approx(.2)
+    assert metrics["worst_adp_regret"] == pytest.approx(.3)
+
+
+def test_specified_mode_is_unchanged():
+    fields = mailohls_contract.target_prompt_fields({
+        "device": "xczu7ev-ffvc1156-2-e", "clock_period": 5.0,
+        "frequency_mode": "specified", "avail_bram": 1, "avail_dsp": 1,
+        "avail_ff": 1, "avail_lut": 1,
+    })
+    assert fields["period_token"] == "<CLK=5NS>"
+    assert fields["supported_clock_periods"] == "5 ns"
+
+
 def test_single_choice_rhs_is_context_and_site_weights_are_normalized():
     source = "L1: auto{_PIPE_L1} = ? auto{_UNROLL_L1} = ?"
     target = "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 12"

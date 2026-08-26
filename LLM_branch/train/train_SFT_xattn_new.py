@@ -2054,6 +2054,27 @@ def score_rhs_candidate_suffix(
 
 
 @torch.no_grad()
+def score_supported_clocks(model, tok, base_prompt_ids, supported_clocks):
+    """Score the public clock menu without structural memory or gold labels."""
+    device = next(model.parameters()).device
+    fixed = tok(
+        f"{mailohls_contract.CLOCK_ANCHOR_TOKEN}\nselected_clock_period_ns = ",
+        add_special_tokens=False,
+    )["input_ids"]
+    base = torch.tensor([list(base_prompt_ids) + fixed], dtype=torch.long, device=device)
+    mask = torch.ones_like(base)
+    scored = []
+    for clock in supported_clocks:
+        stats = score_rhs_candidate_suffix(
+            model=model, tok=tok, base_input_ids=base,
+            base_attention_mask=mask, candidate_text=f"{float(clock):g}\n",
+        )
+        scored.append({"clock_period_ns": float(clock), **stats})
+    scored.sort(key=lambda item: (item["mean_logprob"], item["sum_logprob"]), reverse=True)
+    return float(scored[0]["clock_period_ns"]), scored
+
+
+@torch.no_grad()
 def score_rhs_candidate_batch(
     *,
     model,
@@ -2791,6 +2812,18 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
             / len(kernel_decision_acc)
         ),
     }
+    auto_rows = [row for row in rows if row.get("frequency_mode") == "auto"]
+    auto_metrics = summarize_auto_clock_metrics(auto_rows)
+    summary["auto_clock_count"] = auto_metrics["count"]
+    summary["auto_clock_accuracy"] = auto_metrics["clock_accuracy"]
+    summary["auto_clock_balanced_accuracy"] = auto_metrics["balanced_clock_accuracy"]
+    summary["auto_mean_adp_regret"] = auto_metrics["mean_adp_regret"]
+    summary["auto_worst_adp_regret"] = auto_metrics["worst_adp_regret"]
+    if auto_rows:
+        summary["specified_clock_retention"] = sum(
+            row.get("clock_correct", True) for row in rows
+            if row.get("frequency_mode") != "auto"
+        ) / max(1, sum(row.get("frequency_mode") != "auto" for row in rows))
 
     budget_groups = defaultdict(list)
     for row in rows:
@@ -2955,11 +2988,19 @@ class StageValSelectionCallback(TrainerCallback):
                 section, add_special_tokens=False
             )["input_ids"]
         ]
-        prompt_ids = (
-            base_prompt_ids
-            + mailohls_contract.selected_clock_response_token_ids(
-                case.row, self.tok
+        frequency_mode = str(case.row.get("frequency_mode", "specified")).lower()
+        if frequency_mode == "auto":
+            selected_clock, clock_scores = score_supported_clocks(
+                model, self.tok, base_prompt_ids,
+                mailohls_contract.supported_clock_periods(case.row["device"]),
             )
+            prompt_row = dict(case.row)
+            prompt_row["selected_clock_period"] = selected_clock
+        else:
+            selected_clock, clock_scores = float(case.row["selected_clock_period"]), None
+            prompt_row = case.row
+        prompt_ids = base_prompt_ids + mailohls_contract.selected_clock_response_token_ids(
+            prompt_row, self.tok
         )
         if len(prompt_ids) > self.max_prompt_tokens:
             raise ValueError(
@@ -3212,6 +3253,13 @@ class StageValSelectionCallback(TrainerCallback):
             "resource_budget_id": case.row.get("resource_budget_id"),
             "selected_clock_period": case.row.get(
                 "selected_clock_period"
+            ),
+            "frequency_mode": frequency_mode,
+            "predicted_clock_period": selected_clock,
+            "clock_scores": clock_scores,
+            "clock_correct": (
+                frequency_mode != "auto"
+                or abs(selected_clock - float(case.row["selected_clock_period"])) < 0.02
             ),
         }
 
@@ -5598,8 +5646,10 @@ def select_goal_rows(
 
     auto_rows = []
     for key, items in sorted((automatic or {}).items()):
-        clocks = sorted({_clock_of(row) for row in items})
-        if len(clocks) < TARGET_CFG.min_auto_clock_count:
+        device = _norm_device(key[1])
+        clocks = list(mailohls_contract.supported_clock_periods(device))
+        measured_clocks = {_clock_of(row) for row in items}
+        if len(measured_clocks) < TARGET_CFG.min_auto_clock_count:
             continue
         chosen, info = _rank_and_select_case(
             items, goal_mode, top_k, domination_penalty, max_dominated_gap,
@@ -5607,8 +5657,10 @@ def select_goal_rows(
             build_training_hard_negatives=build_training_hard_negatives,
         )
         for row in chosen:
-            # The model may select only among clocks represented by measured
-            # candidates for this exact kernel/device/resource-budget case.
+            # The public menu is fixed per device; measured feasibility is
+            # used only to select the gold target, never to define the prompt.
+            if _clock_of(row) not in clocks:
+                raise ValueError("Gold clock is absent from the public device menu")
             row["available_clock_periods"] = clocks
         auto_rows.extend(chosen)
         info["available_clocks"] = clocks
@@ -5628,6 +5680,53 @@ def select_goal_rows(
     return selected, metadata
 
 
+def compute_auto_clock_class_weights(
+    rows: Sequence[Mapping[str, Any]],
+    weighting: str,
+    minimum: float = 0.5,
+    maximum: float = 4.0,
+) -> Dict[float, float]:
+    """Compute capped inverse-frequency weights using AUTO training rows only."""
+    counts = Counter(
+        _norm_clock(row["selected_clock_period"])
+        for row in rows
+        if str(row.get("frequency_mode", "specified")).lower() == "auto"
+    )
+    if not counts:
+        return {}
+    if weighting == "uniform":
+        return {clock: 1.0 for clock in counts}
+    raw = {clock: count ** -0.5 for clock, count in counts.items()}
+    mean = sum(raw[clock] * counts[clock] for clock in raw) / sum(counts.values())
+    return {
+        clock: min(maximum, max(minimum, value / mean))
+        for clock, value in raw.items()
+    }
+
+
+def summarize_auto_clock_metrics(rows: Sequence[Mapping[str, Any]]) -> dict:
+    """Summarize oracle-free AUTO clock accuracy and ADP regret when available."""
+    auto = [row for row in rows if row.get("frequency_mode") == "auto"]
+    if not auto:
+        return {"count": 0, "clock_accuracy": 0.0,
+                "balanced_clock_accuracy": 0.0, "mean_adp_regret": None,
+                "worst_adp_regret": None}
+    labels = [_norm_clock(row["reference_clock_period_ns"]) for row in auto]
+    preds = [_norm_clock(row["predicted_clock_period_ns"]) for row in auto]
+    per_class = []
+    for clock in sorted(set(labels)):
+        indices = [i for i, label in enumerate(labels) if label == clock]
+        per_class.append(sum(preds[i] == clock for i in indices) / len(indices))
+    regrets = [float(row["adp_regret"]) for row in auto if row.get("adp_regret") is not None]
+    return {
+        "count": len(auto),
+        "clock_accuracy": sum(p == y for p, y in zip(preds, labels)) / len(auto),
+        "balanced_clock_accuracy": sum(per_class) / len(per_class),
+        "mean_adp_regret": sum(regrets) / len(regrets) if regrets else None,
+        "worst_adp_regret": max(regrets) if regrets else None,
+    }
+
+
 class SFTDataset(Dataset):
     """Build supervised clock/directive samples while preserving target context."""
 
@@ -5643,6 +5742,8 @@ class SFTDataset(Dataset):
         supervise_eos: bool = False,
         input_only_special_ids: Optional[Iterable[int]] = None,
         kind_loss_weights: Optional[Dict[str, float]] = None,
+        clock_loss_weight: float = 1.0,
+        clock_class_weights: Optional[Dict[float, float]] = None,
         candidate_kind_priority: Optional[Dict[str, float]] = None,
         directive_domain_registry: Optional[Dict[str, Dict[str, List[str]]]] = None,
     ):
@@ -5675,7 +5776,12 @@ class SFTDataset(Dataset):
                 directive_domain_registry=directive_domain_registry,
                 kernel_name=example["kernel_name"],
             )
-            clock = build_clock_pack(example, tok, value_w=value_loss_weight)
+            clock_weight = value_loss_weight * clock_loss_weight
+            if str(example.get("frequency_mode", "specified")).lower() == "auto":
+                clock_weight *= (clock_class_weights or {}).get(
+                    _norm_clock(example["selected_clock_period"]), 1.0
+                )
+            clock = build_clock_pack(example, tok, value_w=clock_weight)
             target_ids = clock.input_ids + directives.input_ids
             target_labels = clock.labels + directives.labels
             target_weights = clock.token_weights + directives.token_weights
@@ -5845,12 +5951,12 @@ def build_selection_cases(
     min_coverage: float = 0.85,
     min_supervised_sites: int = 4,
 ) -> List[SelectionCase]:
-    """Use specified-clock validation until clock decoding is evaluated jointly."""
+    """Build validation cases for specified and (when enabled) AUTO modes."""
     by_case = defaultdict(list)
     for row in val_rows:
-        if (
-            row["obj_mode"] == goal_mode
-            and row.get("frequency_mode", "specified") == "specified"
+        if row["obj_mode"] == goal_mode and (
+            row.get("frequency_mode", "specified") == "specified"
+            or TARGET_CFG.auto_frequency_fraction > 0.0
         ):
             by_case[target_bucket_key(row)].append(row)
     candidates_by_kernel_device_clock = defaultdict(list)
@@ -6769,6 +6875,8 @@ def run_single_training(args):
         "test_access_policy": "split_membership_only_no_target_selection_or_export",
         "auto_frequency_fraction": args.auto_frequency_fraction,
         "min_auto_clock_count": args.min_auto_clock_count,
+        "clock_loss_weight": args.clock_loss_weight,
+        "clock_class_weighting": args.clock_class_weighting,
         "goal_domination_penalty": args.goal_domination_penalty,
         "goal_max_dominated_gap": args.goal_max_dominated_gap,
         "min_supervised_sites": args.min_supervised_sites,
@@ -7169,6 +7277,13 @@ def run_single_training(args):
 
     else:
 
+        auto_clock_weights = compute_auto_clock_class_weights(
+            train_rows,
+            args.clock_class_weighting,
+        )
+        if auto_clock_weights:
+            print(f"[CLOCK-LOSS] weights={auto_clock_weights}")
+
         train_ds = SFTDataset(
             train_rows,
             tok,
@@ -7190,6 +7305,8 @@ def run_single_training(args):
             kind_loss_weights=(
                 directive_loss_weights
             ),
+            clock_loss_weight=args.clock_loss_weight,
+            clock_class_weights=auto_clock_weights,
             candidate_kind_priority=(
                 candidate_kind_priority
             ),
@@ -7268,6 +7385,8 @@ def run_single_training(args):
         supervise_eos=args.supervise_eos,
         input_only_special_ids=special_ids,
         kind_loss_weights=directive_loss_weights,
+        clock_loss_weight=args.clock_loss_weight,
+        clock_class_weights=auto_clock_weights if not args.selection_eval_only else {},
         directive_domain_registry=directive_domain_registry,
     ) if val_rows else None
 
@@ -7308,7 +7427,7 @@ def run_single_training(args):
     stage1_early_stopping_min_step = (
         effective_updates_per_epoch
         if args.disable_structural_memory and not args.selection_eval_only
-        else 0
+        else max(0, int(args.early_stopping_min_step))
     )
     training_contract["effective_updates_per_epoch"] = (
         effective_updates_per_epoch
@@ -7738,6 +7857,12 @@ def main():
         default=2,
         help="Minimum measured clocks required to construct an automatic-clock prompt.",
     )
+    ap.add_argument("--clock_loss_weight", type=float, default=4.0)
+    ap.add_argument(
+        "--clock_class_weighting",
+        choices=("uniform", "inverse_sqrt_frequency"),
+        default="inverse_sqrt_frequency",
+    )
 
     # Training Params
     ap.add_argument("--max_length", type=int, default=7168)
@@ -7889,6 +8014,12 @@ def main():
     ap.add_argument("--selection_candidate_batch_size", type=int, default=4)
     ap.add_argument("--best_dir_name", type=str, default="best_custom_stage1")
     ap.add_argument("--early_stopping_patience", type=int, default=3)
+    ap.add_argument(
+        "--early_stopping_min_step",
+        type=int,
+        default=0,
+        help="Do not count validation non-improvements before this optimizer step.",
+    )
     ap.add_argument(
         "--eval_on_start", action=argparse.BooleanOptionalAction, default=True,
         help="Evaluate the immutable initialization before the first update.",
