@@ -1094,6 +1094,7 @@ class KernelGroupedBatchSampler(Sampler):
         points_per_kernel,
         samples_per_kernel_per_epoch,
         seed,
+        log_info=None,
     ):
         self.dataset = dataset
         self.kernels_per_batch = int(kernels_per_batch)
@@ -1133,6 +1134,21 @@ class KernelGroupedBatchSampler(Sampler):
         draws_per_batch = self.kernels_per_batch * self.points_per_kernel
         target_draws = len(self.kernels) * self.samples_per_kernel_per_epoch
         self.num_batches = max(1, int(np.ceil(target_draws / draws_per_batch)))
+        self.nominal_rank_pairs_per_batch = (
+            self.kernels_per_batch * self.points_per_kernel
+            * (self.points_per_kernel - 1) // 2
+        )
+        self.nominal_rank_pairs_per_epoch = (
+            self.num_batches * self.nominal_rank_pairs_per_batch
+        )
+        if log_info is not None:
+            log_info(
+                'Rank-pair exposure: '
+                f'{self.nominal_rank_pairs_per_batch} nominal same-target-group '
+                'pairs/batch, '
+                f'{self.nominal_rank_pairs_per_epoch} nominal pairs/epoch '
+                'before tie filtering.'
+            )
 
     def __len__(self):
         return self.num_batches
@@ -1181,6 +1197,7 @@ def gen_dataset(li):
                 points_per_kernel=FLAGS.points_per_kernel,
                 samples_per_kernel_per_epoch=FLAGS.samples_per_kernel_per_epoch,
                 seed=FLAGS.random_seed,
+                log_info=saver.log_info,
             )
             saver.log_info(
                 'Kernel-grouped sampling: '

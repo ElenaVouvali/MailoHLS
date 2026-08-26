@@ -28,6 +28,8 @@ benchmarks                 : ['machsuite',
 tag                        : whole-machsuite-poly
 graph_type                 : extended-pseudo-block-connected-hierarchy
 mlir_graph_dir             : None
+preprocessed_csv_dir       : None
+mlir_dataset_cache_dir     : None
 encoder_path               : None
 pragma_dim_path            : None
 encode_edge                : True
@@ -45,7 +47,7 @@ target_device              : xczu7ev-ffvc1156-2-e
 clock_period_ns            : 10.0
 vitis_hls_version          : 2021.1
 center_aux_weight          : 0.25
-qor_output_init_scale      : 1.0
+qor_output_init_scale      : 0.1
 response_aux_weight        : 1.0
 checkpoint_objective       : absolute
 min_rank_tau               : 0.0
@@ -94,7 +96,7 @@ weight_decay               : 0.0001
 scheduler                  : cosine
 warmup                     : linear
 lr                         : 0.001
-standardize_targets        : True
+standardize_targets        : False
 kernel_balanced_loss       : False
 kernel_uniform_sampling    : False
 samples_per_kernel_per_epoch : None
@@ -107,7 +109,7 @@ pairwise_calibration_stable_epochs : 2
 pairwise_calibration_tolerance : 0.02
 rank_tie_relative          : None
 rank_tie_epsilon           : 0.05
-resource_aux_weight        : 0.1
+resource_aux_weight        : 0.0
 strict_paired_ablation     : False
 paired_control_contract    : None
 resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
@@ -139,7 +141,7 @@ loss                       : mse
 smooth_l1_beta             : 0.5
 epoch_num                  : 200
 sanity_print_n             : 0
-device                     : cuda:0
+device                     : cpu
 tiny_overfit               : False
 tiny_overfit_kernel        : machsuite-gemm-blocked
 tiny_overfit_num_samples   : 64
@@ -157,5 +159,5 @@ plot_pred_points           : True
 user                       : elvouvali
 hostname                   : liono
 experiment_split_sha256    : None
-ts                         : 2026-08-25T10-41-56.424490
+ts                         : 2026-08-26T05-51-50.662754
 

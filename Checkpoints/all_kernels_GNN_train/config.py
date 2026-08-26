@@ -164,6 +164,23 @@ parser.add_argument(
     default=None,
     help="Explicit versioned MLIR GEXF dataset directory.",
 )
+parser.add_argument(
+    "--preprocessed_csv_dir",
+    default=None,
+    help=(
+        "Explicit GNN preprocessing-table directory. Use a versioned path "
+        "to keep single-target and multi-target datasets from overwriting "
+        "one another."
+    ),
+)
+parser.add_argument(
+    "--mlir_dataset_cache_dir",
+    default=None,
+    help=(
+        "Explicit processed MLIR tensor cache. The default remains "
+        "GNN_branch/MLIR_dataset/all_kernels for backward compatibility."
+    ),
+)
 
 ################## model architecture ##################
 pragma_as_MLP, type_parallel, type_merge = True, '2l', '2l'
