@@ -27,7 +27,12 @@ def make_features(cases, memory_dir, default_scores=None):
         features = torch.stack([torch.cat((vec, torch.tensor(
             vals + caps + [__import__('math').log2(float(clock) / 5.0)], dtype=torch.float32
         ))) for clock in case["available_clock_periods"]])
-        scores = torch.tensor(case.get("frozen_lm_scores", default_scores or [0.0] * len(case["available_clock_periods"])), dtype=torch.float32)
+        raw_scores = case.get("frozen_lm_scores", default_scores)
+        if raw_scores is None:
+            raise ValueError("Missing real frozen_lm_scores; refusing zero-score AUTO features")
+        if len(raw_scores) != len(case["available_clock_periods"]):
+            raise ValueError("frozen_lm_scores must contain one score per public clock")
+        scores = torch.tensor(raw_scores, dtype=torch.float32)
         examples.append({"features": features, "scores": scores,
                          "label": case["available_clock_periods"].index(case["gold_clock_period"]),
                          "clocks": case["available_clock_periods"], "case": case})

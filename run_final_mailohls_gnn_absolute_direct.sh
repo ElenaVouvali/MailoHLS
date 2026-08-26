@@ -27,6 +27,7 @@ fi
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
 export PYTHONHASHSEED=0
+SEED="${SEED:-123}"
 
 python -u GNN_branch/main_GNN.py \
   --dataset mlir \
@@ -74,4 +75,5 @@ python -u GNN_branch/main_GNN.py \
   --random_seed 123 \
   --num_workers 2 \
   --eval_num_workers 0 \
-  --experiment_name "${EXPERIMENT}"
+  --experiment_name "${EXPERIMENT}" \
+  --random_seed "${SEED}" 

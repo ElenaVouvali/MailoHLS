@@ -12,7 +12,7 @@ def evaluate(features, model):
     return rows
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); m=ClockResidualSelector(ck['feature_dim']); m.load_state_dict(ck['model']); rows=evaluate(f,m)
+    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); m=ClockResidualSelector(ck['feature_dim'],ck['hidden_dim'],ck['dropout']); m.load_state_dict(ck['model']); rows=evaluate(f,m)
     by={}
     for x in rows: by.setdefault(x['gold_clock'], []).append(x['correct'])
     balanced=sum(sum(v)/len(v) for v in by.values())/max(1,len(by))

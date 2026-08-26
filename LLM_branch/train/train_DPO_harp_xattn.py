@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import argparse
 import copy
 import re
@@ -8,6 +10,7 @@ import json
 import math
 import os
 import random
+import sys
 import numpy as np
 
 from collections import defaultdict, Counter
@@ -302,7 +305,19 @@ def import_module_from_path(module_path: str, module_name: str = "sft_mod"):
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Could not import module from: {module_path}")
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    # Register before execution.  Dataclasses (Python 3.10+) resolve
+    # postponed/forward annotations through sys.modules; dynamic execution
+    # without this registration raises ``NoneType has no attribute __dict__``.
+    previous = sys.modules.get(module_name)
+    sys.modules[module_name] = module
+    try:
+        spec.loader.exec_module(module)
+    except Exception:
+        if previous is None:
+            sys.modules.pop(module_name, None)
+        else:
+            sys.modules[module_name] = previous
+        raise
     return module
 
 def build_selected_splits(mod, args, rows, parent_contract: dict):
@@ -337,7 +352,17 @@ def build_selected_splits(mod, args, rows, parent_contract: dict):
         print(f"[INFO] Saved split spec -> {args.save_split_json}")
 
     if args.split_mode == "family":
-        mod.assert_family_split_contract(raw_train_rows, raw_val_rows, raw_test_rows)
+        # Stage 3 may consume the locked Stage-1/Stage-2 family split, whose
+        # sealed test set intentionally contains one family.  Preserve all
+        # leakage/disjointness checks, but do not apply Stage-1's minimum-size
+        # qualification to this downstream DPO preflight.
+        mod.assert_family_split_contract(
+            raw_train_rows,
+            raw_val_rows,
+            raw_test_rows,
+            minimum_validation_families=1,
+            minimum_test_families=1,
+        )
 
     split_payload = {
         name: sorted(int(row["_jsonl_idx"]) for row in split_rows)

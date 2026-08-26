@@ -7607,10 +7607,7 @@ def run_single_training(args):
                     if args.disable_structural_memory else 1
                 ),
                 structural_routing=args.structural_routing,
-                early_stopping_patience=(
-                    args.early_stopping_patience
-                    if args.disable_structural_memory else 0
-                ),
+                early_stopping_patience=args.early_stopping_patience,
                 early_stopping_min_step=(
                     stage1_early_stopping_min_step
                 ),
