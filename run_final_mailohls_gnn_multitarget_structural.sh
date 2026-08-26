@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Final low-cost GNN challenger: absolute QoR across every measured
+# Final recovery GNN challenger: absolute QoR across every measured
 # device/clock target, selected solely for held-out structural ranking.
 # All generated data lives in isolated versioned directories so the existing
 # single-target epoch-9 checkpoint remains reproducible and exportable.
@@ -56,13 +56,14 @@ python -u GNN_branch/main_GNN.py \
   --loss smooth_l1 \
   --smooth_l1_beta 0.5 \
   --standardize_targets \
-  --qor_output_init_scale 1.0 \
+  --dropout 0.10 \
+  --qor_output_init_scale 0.10 \
   --kernel_balanced_loss \
   --kernel_grouped_sampling \
   --kernels_per_batch 4 \
-  --points_per_kernel 4 \
-  --samples_per_kernel_per_epoch 128 \
-  --batch_size 16 \
+  --points_per_kernel 2 \
+  --samples_per_kernel_per_epoch 64 \
+  --batch_size 8 \
   --grad_accum_steps 1 \
   --rank_aux_weight 0.05 \
   --rank_tie_relative 0.05 \
@@ -75,12 +76,12 @@ python -u GNN_branch/main_GNN.py \
   --checkpoint_objective structural_rank \
   --min_rank_tau 0.20 \
   --epoch_num 45 \
-  --lr 1e-4 \
+  --lr 5e-4 \
   --scheduler plateau \
-  --warmup_epochs 0 \
-  --plateau_patience 4 \
+  --warmup_epochs 5 \
+  --plateau_patience 5 \
   --plateau_factor 0.5 \
-  --early_stopping_patience 12 \
+  --early_stopping_patience 20 \
   --early_stopping_min_delta 1e-4 \
   --split_json "${SPLIT}" \
   --num_features 403 \
