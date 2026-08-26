@@ -1,12 +1,8 @@
-"""Materialize tiny-selector features from structural memory packs.
-
-The optional ``frozen_lm_scores`` field is produced by the expensive decoder
-front-end; keeping it in this cache means selector training never updates or
-re-runs the 6.7B model.
-"""
+"""Materialize one-pass clock-selector features from structural memory packs."""
 import argparse, json
 from pathlib import Path
 import torch
+from LLM_branch.common.mailohls_contract import DEVICE_RESOURCES
 
 
 def pooled_structural_memory(pack):
@@ -15,25 +11,22 @@ def pooled_structural_memory(pack):
     return (kv * w).sum(0) / w.sum().clamp_min(1.0)
 
 
-def make_features(cases, memory_dir, default_scores=None):
+def make_features(cases, memory_dir):
     examples = []
     for case in cases:
         path = Path(memory_dir) / f"{case['kernel']}.memory.pt"
-        if not path.exists(): continue
+        if not path.exists():
+            raise FileNotFoundError(f"Missing required structural memory: {path}")
         vec = pooled_structural_memory(torch.load(path, map_location="cpu", weights_only=False))
         budget = case.get("resource_budget", {})
-        vals = [float(budget.get(k, 0.0)) for k in ("lut", "ff", "dsp", "bram")]
-        caps = [1.0, 1.0, 1.0, 1.0]
+        vals = [float(budget.get(k, 0.0)) for k in ("bram", "dsp", "ff", "lut")]
+        capacities = DEVICE_RESOURCES.get(case['device'])
+        if capacities is None: raise ValueError(f"Unknown device capacity: {case['device']}")
+        caps = [__import__('math').log1p(float(capacities[k])) for k in ('BRAM_18K','DSP','FF','LUT')]
         features = torch.stack([torch.cat((vec, torch.tensor(
             vals + caps + [__import__('math').log2(float(clock) / 5.0)], dtype=torch.float32
         ))) for clock in case["available_clock_periods"]])
-        raw_scores = case.get("frozen_lm_scores", default_scores)
-        if raw_scores is None:
-            raise ValueError("Missing real frozen_lm_scores; refusing zero-score AUTO features")
-        if len(raw_scores) != len(case["available_clock_periods"]):
-            raise ValueError("frozen_lm_scores must contain one score per public clock")
-        scores = torch.tensor(raw_scores, dtype=torch.float32)
-        examples.append({"features": features, "scores": scores,
+        examples.append({"features": features,
                          "label": case["available_clock_periods"].index(case["gold_clock_period"]),
                          "clocks": case["available_clock_periods"], "case": case})
     if not examples: raise ValueError("No cases matched memory packs")

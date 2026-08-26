@@ -14,5 +14,5 @@ class ClockResidualSelector(nn.Module):
         nn.init.zeros_(self.residual[-1].weight)
         nn.init.zeros_(self.residual[-1].bias)
 
-    def forward(self, candidate_features, frozen_lm_scores):
-        return frozen_lm_scores + self.residual(candidate_features).squeeze(-1)
+    def forward(self, candidate_features):
+        return self.residual(candidate_features).squeeze(-1)

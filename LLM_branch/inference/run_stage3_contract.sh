@@ -10,6 +10,20 @@ set -euo pipefail
 : "${MAILOHLS_STAGE2:?set MAILOHLS_STAGE2 to the winning Stage-2 adapter}"
 : "${MAILOHLS_STAGE3_OUT:?set MAILOHLS_STAGE3_OUT}"
 
+# Stage-2 saves the shared directive registry beside checkpoint directories,
+# while users commonly point MAILOHLS_STAGE2 at best_custom_stage2/. Resolve
+# that layout automatically, without bypassing the hash validation in DPO.
+if [[ ! -f "${MAILOHLS_DOMAINS}" ]]; then
+  PARENT_DOMAINS="$(dirname "${MAILOHLS_STAGE2}")/directive_domain_registry.json"
+  if [[ -f "${PARENT_DOMAINS}" ]]; then
+    export MAILOHLS_DOMAINS="${PARENT_DOMAINS}"
+  else
+    echo "Missing directive domain registry: ${MAILOHLS_DOMAINS}" >&2
+    echo "Also checked: ${PARENT_DOMAINS}" >&2
+    exit 2
+  fi
+fi
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${REPO_ROOT}"
 MODE="${STAGE3_MODE:-preflight}"
@@ -44,9 +58,9 @@ ARGS=(
   --dpo_medium_gap_max 0.35
   --dpo_min_primary_rel_gain 0.02
   --require_same_supervised_schema
-  --beta 0.1
+  --beta "${STAGE3_BETA:-0.5}"
   --label_smoothing 0
-  --sft_alpha 0
+  --sft_alpha "${STAGE3_SFT_ALPHA:-0.02}"
   --dpo_logp_reduction mean
   --train_xattn_dpo
   --train_attn_gate_dpo
@@ -60,6 +74,7 @@ ARGS=(
   --grad_accum "${STAGE3_GRAD_ACCUM:-8}"
   --max_steps "${MAX_STEPS}"
   --eval_steps "${STAGE3_EVAL_STEPS:-20}"
+  --selection_eval_steps "${STAGE3_SELECTION_EVAL_STEPS:-${STAGE3_EVAL_STEPS:-20}}"
   --save_steps "${STAGE3_SAVE_STEPS:-20}"
   --logging_steps "${STAGE3_LOGGING_STEPS:-5}"
   --num_workers "${STAGE3_NUM_WORKERS:-0}"

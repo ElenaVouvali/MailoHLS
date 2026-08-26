@@ -281,6 +281,21 @@ def build_stage3_contract(
             pair["context_id"] for pair in train_pairs
         }),
     }
+    contract["stage3_runtime"] = {
+        "argv": list(sys.argv),
+        "hostname": os.uname().nodename,
+        "gpu": os.environ.get("CUDA_VISIBLE_DEVICES", ""),
+        "batch_size": args.batch_size,
+        "gradient_accumulation_steps": args.grad_accum,
+        "max_steps": args.max_steps,
+        "eval_steps": args.eval_steps,
+        "selection_eval_steps": args.selection_eval_steps,
+        "save_steps": args.save_steps,
+        "pair_file_hashes": {
+            "train": file_sha256(Path(args.output_dir) / "pair_debug" / "train_pairs.jsonl"),
+            "val": file_sha256(Path(args.output_dir) / "pair_debug" / "val_pairs.jsonl") if val_pairs else None,
+        },
+    }
     contract["stage3_trainables"] = {
         "lora": bool(args.train_lora_dpo),
         "xattn": bool(args.train_xattn_dpo),
@@ -719,12 +734,13 @@ class GoalPreferencePairBuilder:
                         "chosen_rank": int(chosen["rank"]),
                         "rejected_rank": int(rejected["rank"]),
                         "num_sites": int(chosen["num_sites"]),
-                        "pair_tier": "hard" if (rejected["rank"] - chosen["rank"]) <= self.hard_window else "medium",
                     }
 
-                    if rec["pair_tier"] == "hard" and gap <= self.hard_gap_max:
+                    if (rejected["rank"] - chosen["rank"]) <= self.hard_window and gap <= self.hard_gap_max:
+                        rec["pair_tier"] = "hard"
                         hard_pool.append(rec)
                     else:
+                        rec["pair_tier"] = "medium"
                         medium_pool.append(rec)
 
                 selected = (
@@ -758,6 +774,14 @@ def _q(vals, q):
     if not vals:
         return None
     return float(np.quantile(np.array(vals, dtype=np.float64), q))
+
+def compute_dpo_metrics(eval_pred):
+    margin = np.asarray(eval_pred.predictions).reshape(-1)
+    return {
+        "preference_accuracy": float((margin > 0).mean()),
+        "preference_margin_mean": float(margin.mean()),
+        "preference_margin_p10": float(np.quantile(margin, 0.10)),
+    }
 
 
 def audit_preference_pairs(name: str, rows: List[dict]) -> None:
@@ -826,6 +850,7 @@ class DPOPreferenceDataset(Dataset):
         self.value_weight = float(value_weight)
         self.directive_domain_registry = directive_domain_registry
         self.samples: List[dict] = []
+        self.kernel_names: List[str] = []
         self.lengths: List[int] = []
         source_token_ids = set(
             tokenizer.convert_tokens_to_ids(mod.SOURCE_PLACEHOLDER_TOKENS)
@@ -890,6 +915,7 @@ class DPOPreferenceDataset(Dataset):
                 "chosen": chosen,
                 "rejected": rejected,
             })
+            self.kernel_names.append(ex["kernel_name"])
             self.lengths.append(max(chosen["length"], rejected["length"]))
 
     def _pack_prompt_and_completion(
@@ -1169,13 +1195,10 @@ class STRUCTURALDPOTrainer(Trainer):
         return self.optimizer
 
     def get_train_dataloader(self):
-        if not self._group_by_length:
-            return super().get_train_dataloader()
-        sampler = LengthGroupedSampler(
-            self.args.train_batch_size,
-            dataset=self.train_dataset,
-            lengths=getattr(self.train_dataset, "lengths", None),
-        )
+        # Kernel balancing is more important than length sorting for the
+        # short, partial Stage-3 runs; length grouping otherwise reintroduces
+        # pair-rich-kernel bias.
+        sampler = self._kernel_weighted_sampler()
         return DataLoader(
             self.train_dataset,
             batch_size=self.args.train_batch_size,
@@ -1185,6 +1208,14 @@ class STRUCTURALDPOTrainer(Trainer):
             pin_memory=True,
             persistent_workers=(self.args.dataloader_num_workers > 0),
         )
+
+    def _kernel_weighted_sampler(self):
+        from torch.utils.data import WeightedRandomSampler
+        names = list(getattr(self.train_dataset, "kernel_names", []))
+        counts = Counter(names)
+        weights = torch.tensor([1.0 / counts[k] for k in names], dtype=torch.double)
+        generator = torch.Generator().manual_seed(int(self.args.data_seed))
+        return WeightedRandomSampler(weights, len(weights), replacement=True, generator=generator)
     
     def _condition_structural_memory_from_kernel_names(self, model, kernel_names: List[str]):
         kvs, masks, relations = [], [], []
@@ -1424,7 +1455,9 @@ class STRUCTURALDPOTrainer(Trainer):
             if prediction_loss_only:
                 return loss, None, None
 
-            return loss, None, None
+            logits = outputs["preference_logits"].detach().float()
+            labels = torch.ones_like(logits, dtype=torch.long)
+            return loss, logits, labels
 
         finally:
             self._clear_structural_memory_if_present(model)
@@ -2114,6 +2147,7 @@ def main():
         sft_mod=mod,
         args=training_args,
         data_collator=collator,
+        compute_metrics=compute_dpo_metrics,
         train_dataset=train_ds,
         eval_dataset=val_ds,
         mem_bank=mem_bank,

@@ -2,409 +2,3 @@
 [INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
 [INFO] Loaded split from mailohls_runs/mailohls_final_family_split_s123.json
 [FAMILY-SPLIT] {"test": {"families": ["serrano_kalman_filter"], "kernel_count": 1, "row_count": 6705}, "train": {"families": ["machsuite_gemm", "machsuite_md_knn", "machsuite_spmv_ellpack", "machsuite_stencil2d", "machsuite_stencil3d", "rodinia_backprop", "rodinia_cfd_flux", "rodinia_cfd_step_factor", "rodinia_dilate", "rodinia_hotspot", "rodinia_kmeans", "rodinia_knn", "rodinia_lavamd", "rodinia_lc_gicov", "rodinia_lc_mgvf", "rodinia_lud", "rodinia_streamcluster", "spcl_example"], "kernel_count": 50, "row_count": 130310}, "val": {"families": ["machsuite_sort_radix", "machsuite_viterbi", "rodinia_pathfinder"], "kernel_count": 4, "row_count": 13011}}
-[RANDOM-BUDGET] case=1/100 key=('machsuite-gemm-blocked', 'xcu200-fsgd2104-2-e')
-[RANDOM-BUDGET] case=10/100 key=('machsuite-stencil2d', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] case=20/100 key=('rodinia-hotspot-0-baseline', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] case=30/100 key=('rodinia-kmeans-1-tiling', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] case=40/100 key=('rodinia-knn-2-pipeline', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] case=50/100 key=('rodinia_cfd_step_factor_0_baseline_0', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] case=60/100 key=('rodinia_cfd_step_factor_5_coalescing_0', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] case=70/100 key=('rodinia_lavaMD_0_baseline', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] case=80/100 key=('rodinia_lc_mgvf_0_baseline_0', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] case=90/100 key=('rodinia_streamcluster_3_doublebuffer_0', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] case=100/100 key=('spcl_example_05', 'xczu7ev-ffvc1156-2-e')
-[RANDOM-BUDGET] input=130310 output=208615 stats={'kept_clock_budgets': 4608, 'candidate_rows': 208615, 'kept_budgets': 1565, 'rejected_small_clock_candidate_sets': 13, 'rejected_small_candidate_sets': 35}
-[RANDOM-BUDGET] case=1/8 key=('machsuite-sort-radix', 'xcu200-fsgd2104-2-e')
-[RANDOM-BUDGET] input=13011 output=20865 stats={'kept_clock_budgets': 383, 'candidate_rows': 20865, 'kept_budgets': 128}
-[CLOCK-MODE] Counter({'specified': 27589})
-[CLOCK-MODE] Counter({'specified': 2298})
-[INFO] Selected split sizes: train=27589 val=2298; held-out test rows not selected=6705
-[INFO] Final selected split sizes: train=27589 val=2298 test=0
-[INFO] Preference pairs: train=4738 val=588 test=0
-[INFO] Unique train kernels with pairs: 39
-[INFO] Avg pairs per kernel-objective bucket: 121.49
-
-[PAIR-AUDIT] train
-  total pairs                 : 4738
-  kernel-objective buckets    : 39
-  pairs by objective          : {'PARETO_ADP': 4738}
-  pairs by tier               : {'hard': 4738}
-  score_gap q10/q50/q90       : 0.0503 / 0.1222 / 0.2844
-  diff_count q10/q50/q90      : 1.0 / 6.0 / 13.0
-  diff_frac q10/q50/q90       : 0.083 / 0.200 / 0.364
-
-[PAIR-AUDIT] val
-  total pairs                 : 588
-  kernel-objective buckets    : 3
-  pairs by objective          : {'PARETO_ADP': 588}
-  pairs by tier               : {'hard': 588}
-  score_gap q10/q50/q90       : 0.0482 / 0.1034 / 0.2874
-  diff_count q10/q50/q90      : 1.0 / 3.0 / 5.0
-  diff_frac q10/q50/q90       : 0.059 / 0.176 / 0.300
-
-[PAIR-PREVIEW] showing 3 pairs
-
-----------------------------------------------------------------------------------------------------
-[0] kernel=rodinia_dilate_1_tiling_0 obj=PARETO_ADP
-score_gap=0.2272  diff_count=8  diff_frac=0.296
-latency_rel_gain=-0.017  area_rel_gain=0.160
-changed directives:
-  auto{_ARRAY_F_L10}: chosen=2 | rejected=8
-  auto{_ARRAY_T_L10}: chosen=block | rejected=cyclic
-  auto{_PIPE_L3}: chosen=1 | rejected=0
-  auto{_PIPE_L4}: chosen=1 | rejected=0
-  auto{_PIPE_L6}: chosen=1 | rejected=0
-  auto{_UNROLL_L3}: chosen=0 | rejected=8
-  auto{_UNROLL_L4}: chosen=0 | rejected=5
-  auto{_UNROLL_L6}: chosen=0 | rejected=2
-
-----------------------------------------------------------------------------------------------------
-[1] kernel=rodinia_dilate_1_tiling_0 obj=PARETO_ADP
-score_gap=0.2700  diff_count=11  diff_frac=0.407
-latency_rel_gain=0.309  area_rel_gain=-0.200
-changed directives:
-  auto{_ARRAY_F_L11}: chosen=2 | rejected=4
-  auto{_ARRAY_F_L1}: chosen=8 | rejected=0
-  auto{_ARRAY_T_L1}: chosen=cyclic | rejected=complete
-  auto{_PIPE_L6}: chosen=0 | rejected=1
-  auto{_PIPE_L7}: chosen=0 | rejected=1
-  auto{_UNROLL_L12}: chosen=17 | rejected=4
-  auto{_UNROLL_L3}: chosen=16 | rejected=8
-  auto{_UNROLL_L6}: chosen=2 | rejected=0
-  auto{_UNROLL_L7}: chosen=16 | rejected=0
-  auto{_UNROLL_L8}: chosen=2 | rejected=4
-  auto{_UNROLL_L9}: chosen=32 | rejected=16
-
-----------------------------------------------------------------------------------------------------
-[2] kernel=rodinia_dilate_1_tiling_0 obj=PARETO_ADP
-score_gap=0.2391  diff_count=11  diff_frac=0.407
-latency_rel_gain=-0.017  area_rel_gain=0.167
-changed directives:
-  auto{_ARRAY_F_L11}: chosen=2 | rejected=4
-  auto{_ARRAY_F_L1}: chosen=8 | rejected=0
-  auto{_ARRAY_T_L1}: chosen=cyclic | rejected=complete
-  auto{_PIPE_L6}: chosen=0 | rejected=1
-  auto{_PIPE_L7}: chosen=0 | rejected=1
-  auto{_PIPE_L9}: chosen=1 | rejected=0
-  auto{_UNROLL_L12}: chosen=17 | rejected=4
-  auto{_UNROLL_L6}: chosen=2 | rejected=0
-  auto{_UNROLL_L7}: chosen=16 | rejected=0
-  auto{_UNROLL_L8}: chosen=2 | rejected=4
-  auto{_UNROLL_L9}: chosen=0 | rejected=16
-[INFO] Memory files: 55
-[INFO] Unique memory records: 55
-[INFO] Lookup aliases: 85
-[INFO] Required split kernels covered: 54/54
-[INFO] Building policy model...
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:18<00:18, 18.42s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:25<00:00, 11.59s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:25<00:00, 12.62s/it]
-[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
-[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
-[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
-[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
-[DPO-TRAINABLE] groups enabled: lora=False xattn=True attn_gate=True ff_gate=False
-[DPO-TRAINABLE] total trainable params: 8,683,524
-[DPO-TRAINABLE] first trainables: ['base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight']
-[INFO] Building frozen reference model...
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:13<00:13, 13.43s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:17<00:00,  8.13s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:17<00:00,  8.93s/it]
-[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
-[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
-[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
-[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
-trainable params: 8,683,524 || all params: 6,757,388,292 || trainable%: 0.1285
-[RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
-No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` hides base models input arguments, if label_names is not given, label_names can't be set automatically within `Trainer`. Note that empty label_names list will be used instead.
-[OPT-DPO] lora=0 embed=0 attn_gate=4 ff_gate=0 xattn_attn=8,683,520 xattn_ff=0
-  0%|          | 0/60 [00:00<?, ?it/s]Could not estimate the number of tokens of the input, floating-point operations will not be computed
-  2%|▏         | 1/60 [02:28<2:26:14, 148.73s/it]  3%|▎         | 2/60 [04:04<1:53:30, 117.42s/it]  5%|▌         | 3/60 [05:31<1:38:33, 103.74s/it]  7%|▋         | 4/60 [06:28<1:19:28, 85.16s/it]   8%|▊         | 5/60 [06:56<59:07, 64.50s/it]                                                {'loss': 0.6931, 'grad_norm': 0.031272899359464645, 'learning_rate': 1.9872683547213446e-05, 'epoch': 0.01}
-  8%|▊         | 5/60 [06:56<59:07, 64.50s/it] 10%|█         | 6/60 [07:12<43:13, 48.03s/it] 12%|█▏        | 7/60 [09:13<1:03:26, 71.83s/it] 13%|█▎        | 8/60 [10:55<1:10:35, 81.45s/it] 15%|█▌        | 9/60 [12:24<1:11:23, 83.99s/it] 17%|█▋        | 10/60 [13:32<1:05:48, 78.97s/it]                                                 {'loss': 0.6932, 'grad_norm': 0.01063424814492464, 'learning_rate': 1.9106347728549134e-05, 'epoch': 0.02}
- 17%|█▋        | 10/60 [13:32<1:05:48, 78.97s/it] 18%|█▊        | 11/60 [14:24<57:52, 70.87s/it]   20%|██        | 12/60 [14:58<47:40, 59.59s/it] 22%|██▏       | 13/60 [16:26<53:18, 68.05s/it] 23%|██▎       | 14/60 [18:12<1:01:02, 79.61s/it] 25%|██▌       | 15/60 [19:40<1:01:36, 82.14s/it]                                                 {'loss': 0.6929, 'grad_norm': 0.008542676456272602, 'learning_rate': 1.7698339834299064e-05, 'epoch': 0.03}
- 25%|██▌       | 15/60 [19:40<1:01:36, 82.14s/it] 27%|██▋       | 16/60 [20:40<55:16, 75.37s/it]   28%|██▊       | 17/60 [21:20<46:32, 64.94s/it] 30%|███       | 18/60 [21:49<37:45, 53.93s/it] 32%|███▏      | 19/60 [22:38<35:58, 52.66s/it] 33%|███▎      | 20/60 [24:38<48:24, 72.62s/it]                                               {'loss': 0.693, 'grad_norm': 0.0030635595321655273, 'learning_rate': 1.5747874102144073e-05, 'epoch': 0.03}
- 33%|███▎      | 20/60 [24:38<48:24, 72.62s/it]
-  0%|          | 0/588 [00:00<?, ?it/s][A
-  0%|          | 2/588 [00:02<10:13,  1.05s/it][A
-  1%|          | 3/588 [00:04<15:28,  1.59s/it][A
-  1%|          | 4/588 [00:06<17:17,  1.78s/it][A
-  1%|          | 5/588 [00:08<19:12,  1.98s/it][A
-  1%|          | 6/588 [00:10<18:50,  1.94s/it][A
-  1%|          | 7/588 [00:12<18:34,  1.92s/it][A
-  1%|▏         | 8/588 [00:14<18:23,  1.90s/it][A
-  2%|▏         | 9/588 [00:16<18:16,  1.89s/it][A
-  2%|▏         | 10/588 [00:18<18:10,  1.89s/it][A
-  2%|▏         | 11/588 [00:20<18:05,  1.88s/it][A
-  2%|▏         | 12/588 [00:22<18:37,  1.94s/it][A
-  2%|▏         | 13/588 [00:24<18:58,  1.98s/it][A
-  2%|▏         | 14/588 [00:26<18:37,  1.95s/it][A
-  3%|▎         | 15/588 [00:28<18:55,  1.98s/it][A
-  3%|▎         | 16/588 [00:30<18:34,  1.95s/it][A
-  3%|▎         | 17/588 [00:31<18:18,  1.92s/it][A
-  3%|▎         | 18/588 [00:33<18:06,  1.91s/it][A
-  3%|▎         | 19/588 [00:35<17:58,  1.90s/it][A
-  3%|▎         | 20/588 [00:37<17:52,  1.89s/it][A
-  4%|▎         | 21/588 [00:39<19:05,  2.02s/it][A
-  4%|▎         | 22/588 [00:42<19:59,  2.12s/it][A
-  4%|▍         | 23/588 [00:44<20:34,  2.18s/it][A
-  4%|▍         | 24/588 [00:46<20:58,  2.23s/it][A
-  4%|▍         | 25/588 [00:49<21:14,  2.26s/it][A
-  4%|▍         | 26/588 [00:51<21:23,  2.28s/it][A
-  5%|▍         | 27/588 [00:53<21:29,  2.30s/it][A
-  5%|▍         | 28/588 [00:56<21:34,  2.31s/it][A
-  5%|▍         | 29/588 [00:58<20:57,  2.25s/it][A
-  5%|▌         | 30/588 [01:00<20:29,  2.20s/it][A
-  5%|▌         | 31/588 [01:02<18:45,  2.02s/it][A
-  5%|▌         | 32/588 [01:03<17:27,  1.88s/it][A
-  6%|▌         | 33/588 [01:05<16:12,  1.75s/it][A
-  6%|▌         | 34/588 [01:06<15:40,  1.70s/it][A
-  6%|▌         | 35/588 [01:08<16:40,  1.81s/it][A
-  6%|▌         | 36/588 [01:10<17:22,  1.89s/it][A
-  6%|▋         | 37/588 [01:12<17:49,  1.94s/it][A
-  6%|▋         | 38/588 [01:14<17:32,  1.91s/it][A
-  7%|▋         | 39/588 [01:16<17:19,  1.89s/it][A
-  7%|▋         | 40/588 [01:18<17:45,  1.95s/it][A
-  7%|▋         | 41/588 [01:20<17:29,  1.92s/it][A
-  7%|▋         | 42/588 [01:22<17:51,  1.96s/it][A
-  7%|▋         | 43/588 [01:24<17:31,  1.93s/it][A
-  7%|▋         | 44/588 [01:26<17:16,  1.91s/it][A
-  8%|▊         | 45/588 [01:28<17:08,  1.89s/it][A
-  8%|▊         | 46/588 [01:30<18:14,  2.02s/it][A
-  8%|▊         | 47/588 [01:32<19:03,  2.11s/it][A
-  8%|▊         | 48/588 [01:35<19:35,  2.18s/it][A
-  8%|▊         | 49/588 [01:37<19:56,  2.22s/it][A
-  9%|▊         | 50/588 [01:39<20:11,  2.25s/it][A
-  9%|▊         | 51/588 [01:42<20:22,  2.28s/it][A
-  9%|▉         | 52/588 [01:44<20:28,  2.29s/it][A
-  9%|▉         | 53/588 [01:46<20:31,  2.30s/it][A
-  9%|▉         | 54/588 [01:48<19:18,  2.17s/it][A
-  9%|▉         | 55/588 [01:50<18:25,  2.07s/it][A
- 10%|▉         | 56/588 [01:52<17:48,  2.01s/it][A
- 10%|▉         | 57/588 [01:54<17:20,  1.96s/it][A
- 10%|▉         | 58/588 [01:55<17:01,  1.93s/it][A
- 10%|█         | 59/588 [01:57<17:20,  1.97s/it][A
- 10%|█         | 60/588 [01:59<17:00,  1.93s/it][A
- 10%|█         | 61/588 [02:01<17:17,  1.97s/it][A
- 11%|█         | 62/588 [02:03<16:56,  1.93s/it][A
- 11%|█         | 63/588 [02:05<16:41,  1.91s/it][A
- 11%|█         | 64/588 [02:07<16:32,  1.89s/it][A
- 11%|█         | 65/588 [02:09<17:37,  2.02s/it][A
- 11%|█         | 66/588 [02:11<17:46,  2.04s/it][A
- 11%|█▏        | 67/588 [02:14<18:30,  2.13s/it][A
- 12%|█▏        | 68/588 [02:16<18:22,  2.12s/it][A
- 12%|█▏        | 69/588 [02:18<18:52,  2.18s/it][A
- 12%|█▏        | 70/588 [02:20<18:00,  2.09s/it][A
- 12%|█▏        | 71/588 [02:22<17:20,  2.01s/it][A
- 12%|█▏        | 72/588 [02:24<16:52,  1.96s/it][A
- 12%|█▏        | 73/588 [02:26<16:32,  1.93s/it][A
- 13%|█▎        | 74/588 [02:27<16:18,  1.90s/it][A
- 13%|█▎        | 75/588 [02:29<15:26,  1.81s/it][A
- 13%|█▎        | 76/588 [02:31<14:46,  1.73s/it][A
- 13%|█▎        | 77/588 [02:32<14:00,  1.64s/it][A
- 13%|█▎        | 78/588 [02:34<13:45,  1.62s/it][A
- 13%|█▎        | 79/588 [02:35<14:16,  1.68s/it][A
- 14%|█▎        | 80/588 [02:37<14:39,  1.73s/it][A
- 14%|█▍        | 81/588 [02:39<14:56,  1.77s/it][A
- 14%|█▍        | 82/588 [02:41<15:06,  1.79s/it][A
- 14%|█▍        | 83/588 [02:43<15:13,  1.81s/it][A
- 14%|█▍        | 84/588 [02:45<15:18,  1.82s/it][A
- 14%|█▍        | 85/588 [02:46<15:20,  1.83s/it][A
- 15%|█▍        | 86/588 [02:48<15:21,  1.84s/it][A
- 15%|█▍        | 87/588 [02:50<15:21,  1.84s/it][A
- 15%|█▍        | 88/588 [02:52<15:21,  1.84s/it][A
- 15%|█▌        | 89/588 [02:54<15:20,  1.84s/it][A
- 15%|█▌        | 90/588 [02:56<15:18,  1.84s/it][A
- 15%|█▌        | 91/588 [02:58<15:47,  1.91s/it][A
- 16%|█▌        | 92/588 [03:00<15:36,  1.89s/it][A
- 16%|█▌        | 93/588 [03:01<15:28,  1.88s/it][A
- 16%|█▌        | 94/588 [03:03<15:54,  1.93s/it][A
- 16%|█▌        | 95/588 [03:05<15:41,  1.91s/it][A
- 16%|█▋        | 96/588 [03:07<15:30,  1.89s/it][A
- 16%|█▋        | 97/588 [03:09<15:51,  1.94s/it][A
- 17%|█▋        | 98/588 [03:12<16:44,  2.05s/it][A
- 17%|█▋        | 99/588 [03:14<17:24,  2.14s/it][A
- 17%|█▋        | 100/588 [03:16<17:16,  2.12s/it][A
- 17%|█▋        | 101/588 [03:18<16:37,  2.05s/it][A
- 17%|█▋        | 102/588 [03:20<16:07,  1.99s/it][A
- 18%|█▊        | 103/588 [03:22<15:47,  1.95s/it][A
- 18%|█▊        | 104/588 [03:23<15:32,  1.93s/it][A
- 18%|█▊        | 105/588 [03:25<15:21,  1.91s/it][A
- 18%|█▊        | 106/588 [03:27<15:13,  1.89s/it][A
- 18%|█▊        | 107/588 [03:30<16:15,  2.03s/it][A
- 18%|█▊        | 108/588 [03:32<16:59,  2.12s/it][A
- 19%|█▊        | 109/588 [03:34<17:29,  2.19s/it][A
- 19%|█▊        | 110/588 [03:37<17:51,  2.24s/it][A
- 19%|█▉        | 111/588 [03:39<18:06,  2.28s/it][A
- 19%|█▉        | 112/588 [03:41<18:23,  2.32s/it][A
- 19%|█▉        | 113/588 [03:44<18:44,  2.37s/it][A
- 19%|█▉        | 114/588 [03:46<19:09,  2.42s/it][A
- 20%|█▉        | 115/588 [03:49<19:43,  2.50s/it][A
- 20%|█▉        | 116/588 [03:52<19:57,  2.54s/it][A
- 20%|█▉        | 117/588 [03:54<19:18,  2.46s/it][A
- 20%|██        | 118/588 [03:56<19:13,  2.45s/it][A
- 20%|██        | 119/588 [03:59<18:27,  2.36s/it][A
- 20%|██        | 120/588 [04:01<18:24,  2.36s/it][A
- 21%|██        | 121/588 [04:03<17:47,  2.28s/it][A
- 21%|██        | 122/588 [04:05<17:54,  2.31s/it][A
- 21%|██        | 123/588 [04:07<16:51,  2.18s/it][A
- 21%|██        | 124/588 [04:09<16:06,  2.08s/it][A
- 21%|██▏       | 125/588 [04:11<15:33,  2.02s/it][A
- 21%|██▏       | 126/588 [04:13<15:10,  1.97s/it][A
- 22%|██▏       | 127/588 [04:15<14:54,  1.94s/it][A
- 22%|██▏       | 128/588 [04:17<15:47,  2.06s/it][A
- 22%|██▏       | 129/588 [04:19<15:54,  2.08s/it][A
- 22%|██▏       | 130/588 [04:21<16:27,  2.16s/it][A
- 22%|██▏       | 131/588 [04:24<16:19,  2.14s/it][A
- 22%|██▏       | 132/588 [04:26<16:46,  2.21s/it][A
- 23%|██▎       | 133/588 [04:28<16:32,  2.18s/it][A
- 23%|██▎       | 134/588 [04:30<16:57,  2.24s/it][A
- 23%|██▎       | 135/588 [04:33<17:25,  2.31s/it][A
- 23%|██▎       | 136/588 [04:35<17:22,  2.31s/it][A
- 23%|██▎       | 137/588 [04:37<16:05,  2.14s/it][A
- 23%|██▎       | 138/588 [04:39<15:05,  2.01s/it][A
- 24%|██▎       | 139/588 [04:40<13:57,  1.87s/it][A
- 24%|██▍       | 140/588 [04:42<13:26,  1.80s/it][A
- 24%|██▍       | 141/588 [04:43<12:59,  1.74s/it][A
- 24%|██▍       | 142/588 [04:45<12:37,  1.70s/it][A
- 24%|██▍       | 143/588 [04:47<12:02,  1.62s/it][A
- 24%|██▍       | 144/588 [04:48<11:55,  1.61s/it][A
- 25%|██▍       | 145/588 [04:50<12:25,  1.68s/it][A
- 25%|██▍       | 146/588 [04:52<12:48,  1.74s/it][A
- 25%|██▌       | 147/588 [04:54<13:03,  1.78s/it][A
- 25%|██▌       | 148/588 [04:56<13:13,  1.80s/it][A
- 25%|██▌       | 149/588 [04:57<13:20,  1.82s/it][A
- 26%|██▌       | 150/588 [05:00<14:26,  1.98s/it][A
- 26%|██▌       | 151/588 [05:02<15:12,  2.09s/it][A
- 26%|██▌       | 152/588 [05:04<15:12,  2.09s/it][A
- 26%|██▌       | 153/588 [05:06<15:07,  2.09s/it][A
- 26%|██▌       | 154/588 [05:08<14:36,  2.02s/it][A
- 26%|██▋       | 155/588 [05:10<14:14,  1.97s/it][A
- 27%|██▋       | 156/588 [05:12<14:23,  2.00s/it][A
- 27%|██▋       | 157/588 [05:14<14:03,  1.96s/it][A
- 27%|██▋       | 158/588 [05:16<13:49,  1.93s/it][A
- 27%|██▋       | 159/588 [05:18<14:04,  1.97s/it][A
- 27%|██▋       | 160/588 [05:20<14:13,  1.99s/it][A
- 27%|██▋       | 161/588 [05:22<14:19,  2.01s/it][A
- 28%|██▊       | 162/588 [05:24<14:58,  2.11s/it][A
- 28%|██▊       | 163/588 [05:27<15:25,  2.18s/it][A
- 28%|██▊       | 164/588 [05:29<15:13,  2.15s/it][A
- 28%|██▊       | 165/588 [05:31<15:33,  2.21s/it][A
- 28%|██▊       | 166/588 [05:33<15:17,  2.17s/it][A
- 28%|██▊       | 167/588 [05:35<15:35,  2.22s/it][A
- 29%|██▊       | 168/588 [05:38<15:17,  2.19s/it][A
- 29%|██▊       | 169/588 [05:40<15:34,  2.23s/it][A
- 29%|██▉       | 170/588 [05:42<14:46,  2.12s/it][A
- 29%|██▉       | 171/588 [05:44<14:10,  2.04s/it][A
- 29%|██▉       | 172/588 [05:46<13:45,  1.98s/it][A
- 29%|██▉       | 173/588 [05:47<13:28,  1.95s/it][A
- 30%|██▉       | 174/588 [05:49<13:17,  1.93s/it][A
- 30%|██▉       | 175/588 [05:51<13:07,  1.91s/it][A
- 30%|██▉       | 176/588 [05:53<13:00,  1.89s/it][A
- 30%|███       | 177/588 [05:55<12:52,  1.88s/it][A
- 30%|███       | 178/588 [05:57<12:47,  1.87s/it][A
- 30%|███       | 179/588 [05:59<12:43,  1.87s/it][A
- 31%|███       | 180/588 [06:00<12:40,  1.86s/it][A
- 31%|███       | 181/588 [06:03<13:33,  2.00s/it][A
- 31%|███       | 182/588 [06:05<14:12,  2.10s/it][A
- 31%|███       | 183/588 [06:07<14:38,  2.17s/it][A
- 31%|███▏      | 184/588 [06:10<14:54,  2.21s/it][A
- 31%|███▏      | 185/588 [06:12<15:06,  2.25s/it][A
- 32%|███▏      | 186/588 [06:14<15:12,  2.27s/it][A
- 32%|███▏      | 187/588 [06:17<15:18,  2.29s/it][A
- 32%|███▏      | 188/588 [06:19<15:21,  2.30s/it][A
- 32%|███▏      | 189/588 [06:21<14:25,  2.17s/it][A
- 32%|███▏      | 190/588 [06:23<13:46,  2.08s/it][A
- 32%|███▏      | 191/588 [06:25<13:18,  2.01s/it][A
- 33%|███▎      | 192/588 [06:26<12:56,  1.96s/it][A
- 33%|███▎      | 193/588 [06:28<12:41,  1.93s/it][A
- 33%|███▎      | 194/588 [06:30<12:30,  1.90s/it][A
- 33%|███▎      | 195/588 [06:32<13:16,  2.03s/it][A
- 33%|███▎      | 196/588 [06:35<13:50,  2.12s/it][A
- 34%|███▎      | 197/588 [06:37<14:12,  2.18s/it][A
- 34%|███▎      | 198/588 [06:39<14:26,  2.22s/it][A
- 34%|███▍      | 199/588 [06:42<14:37,  2.26s/it][A
- 34%|███▍      | 200/588 [06:44<14:42,  2.27s/it][A
- 34%|███▍      | 201/588 [06:46<14:46,  2.29s/it][A
- 34%|███▍      | 202/588 [06:49<14:48,  2.30s/it][A
- 35%|███▍      | 203/588 [06:51<14:49,  2.31s/it][A
- 35%|███▍      | 204/588 [06:53<14:21,  2.24s/it][A
- 35%|███▍      | 205/588 [06:55<14:29,  2.27s/it][A
- 35%|███▌      | 206/588 [06:58<14:05,  2.21s/it][A
- 35%|███▌      | 207/588 [07:00<14:16,  2.25s/it][A
- 35%|███▌      | 208/588 [07:01<12:59,  2.05s/it][A
- 36%|███▌      | 209/588 [07:03<12:01,  1.90s/it][A
- 36%|███▌      | 210/588 [07:04<11:06,  1.76s/it][A
- 36%|███▌      | 211/588 [07:06<10:42,  1.70s/it][A
- 36%|███▌      | 212/588 [07:08<11:46,  1.88s/it][A
- 36%|███▌      | 213/588 [07:11<12:34,  2.01s/it][A
- 36%|███▋      | 214/588 [07:13<12:41,  2.04s/it][A
- 37%|███▋      | 215/588 [07:15<13:11,  2.12s/it][A
- 37%|███▋      | 216/588 [07:17<13:32,  2.18s/it][A
- 37%|███▋      | 217/588 [07:20<13:45,  2.23s/it][A
- 37%|███▋      | 218/588 [07:22<13:53,  2.25s/it][A
- 37%|███▋      | 219/588 [07:24<14:00,  2.28s/it][A
- 37%|███▋      | 220/588 [07:27<14:02,  2.29s/it][A
- 38%|███▊      | 221/588 [07:29<14:04,  2.30s/it][A
- 38%|███▊      | 222/588 [07:31<14:04,  2.31s/it][A
- 38%|███▊      | 223/588 [07:34<14:04,  2.31s/it][A
- 38%|███▊      | 224/588 [07:36<14:03,  2.32s/it][A
- 38%|███▊      | 225/588 [07:38<13:36,  2.25s/it][A
- 38%|███▊      | 226/588 [07:40<13:43,  2.27s/it][A
- 39%|███▊      | 227/588 [07:43<13:47,  2.29s/it][A
- 39%|███▉      | 228/588 [07:45<13:48,  2.30s/it][A
- 39%|███▉      | 229/588 [07:47<13:51,  2.31s/it][A
- 39%|███▉      | 230/588 [07:50<13:51,  2.32s/it][A
- 39%|███▉      | 231/588 [07:52<13:50,  2.33s/it][A
- 39%|███▉      | 232/588 [07:54<13:50,  2.33s/it][A
- 40%|███▉      | 233/588 [07:57<13:49,  2.34s/it][A
- 40%|███▉      | 234/588 [07:59<13:23,  2.27s/it][A
- 40%|███▉      | 235/588 [08:01<13:30,  2.30s/it][A
- 40%|████      | 236/588 [08:04<13:37,  2.32s/it][A
- 40%|████      | 237/588 [08:06<13:21,  2.28s/it][A
- 40%|████      | 238/588 [08:08<13:19,  2.29s/it][A
- 41%|████      | 239/588 [08:11<13:41,  2.35s/it][A
- 41%|████      | 240/588 [08:13<13:39,  2.36s/it][A
- 41%|████      | 241/588 [08:16<14:10,  2.45s/it][A
- 41%|████      | 242/588 [08:18<14:23,  2.49s/it][A
- 41%|████▏     | 243/588 [08:21<13:59,  2.43s/it][A
- 41%|████▏     | 244/588 [08:23<13:56,  2.43s/it][A
- 42%|████▏     | 245/588 [08:25<13:26,  2.35s/it][A
- 42%|████▏     | 246/588 [08:28<13:26,  2.36s/it][A
- 42%|████▏     | 247/588 [08:30<12:55,  2.27s/it][A
- 42%|████▏     | 248/588 [08:31<12:11,  2.15s/it][A
- 42%|████▏     | 249/588 [08:33<11:41,  2.07s/it][A
- 43%|████▎     | 250/588 [08:35<11:40,  2.07s/it][A
- 43%|████▎     | 251/588 [08:37<11:17,  2.01s/it][A
- 43%|████▎     | 252/588 [08:39<11:01,  1.97s/it][A
- 43%|████▎     | 253/588 [08:41<11:09,  2.00s/it][A
- 43%|████▎     | 254/588 [08:43<10:54,  1.96s/it][A
- 43%|████▎     | 255/588 [08:45<10:43,  1.93s/it][A
- 44%|████▎     | 256/588 [08:47<10:34,  1.91s/it][A
- 44%|████▎     | 257/588 [08:49<10:28,  1.90s/it][A
- 44%|████▍     | 258/588 [08:51<10:25,  1.90s/it][A
- 44%|████▍     | 259/588 [08:53<10:29,  1.91s/it][A
- 44%|████▍     | 260/588 [08:55<10:53,  1.99s/it][A
- 44%|████▍     | 261/588 [08:57<11:44,  2.15s/it][A
- 45%|████▍     | 262/588 [09:00<12:27,  2.29s/it][A
- 45%|████▍     | 263/588 [09:02<12:46,  2.36s/it][A
- 45%|████▍     | 264/588 [09:05<12:54,  2.39s/it][A
- 45%|████▌     | 265/588 [09:07<12:51,  2.39s/it][A
- 45%|████▌     | 266/588 [09:10<12:46,  2.38s/it][A
- 45%|████▌     | 267/588 [09:12<12:41,  2.37s/it][A
- 46%|████▌     | 268/588 [09:14<12:37,  2.37s/it][A
- 46%|████▌     | 269/588 [09:17<12:33,  2.36s/it][A
- 46%|████▌     | 270/588 [09:19<12:06,  2.28s/it][A
- 46%|████▌     | 271/588 [09:21<12:10,  2.30s/it][A
- 46%|████▋     | 272/588 [09:23<11:49,  2.24s/it][A
- 46%|████▋     | 273/588 [09:26<11:56,  2.27s/it][A
- 47%|████▋     | 274/588 [09:27<10:50,  2.07s/it][A
- 47%|████▋     | 275/588 [09:29<10:00,  1.92s/it][A
- 47%|████▋     | 276/588 [09:30<09:14,  1.78s/it][A
- 47%|████▋     | 277/588 [09:32<08:53,  1.72s/it][A
- 47%|████▋     | 278/588 [09:34<09:03,  1.75s/it][A
- 47%|████▋     | 279/588 [09:35<09:10,  1.78s/it][A
- 48%|████▊     | 280/588 [09:37<09:15,  1.80s/it][A
- 48%|████▊     | 281/588 [09:40<10:00,  1.96s/it][A
- 48%|████▊     | 282/588 [09:42<10:11,  2.00s/it][A
- 48%|████▊     | 283/588 [09:44<10:39,  2.10s/it][A
- 48%|████▊     | 284/588 [09:46<10:37,  2.10s/it][A
- 48%|████▊     | 285/588 [09:48<10:55,  2.16s/it][A
- 49%|████▊     | 286/588 [09:51<11:08,  2.21s/it][A
- 49%|████▉     | 287/588 [09:53<10:54,  2.18s/it][A
- 49%|████▉     | 288/588 [09:55<11:05,  2.22s/it][A

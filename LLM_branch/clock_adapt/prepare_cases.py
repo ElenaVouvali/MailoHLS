@@ -10,24 +10,29 @@ def num(r,*ns):
   except (TypeError,ValueError):pass
  return None
 def build_cases(rows,budget_bank,split):
+ idx_split={i:n for n in ('train','val','test') for i in split.get(f'{n}_jsonl_idx',[])}
  g=defaultdict(list)
- for r in rows:
+ for i,r in enumerate(rows):
   k=r.get('kernel_name',r.get('kernel'));d=r.get('device');c=num(r,'clock_period','selected_clock_period','clock_period_ns');l=num(r,'latency','latency_ms');a=num(r,'area','area_mm2')
-  if k and d and c is not None and l is not None and a is not None and c in supported_clock_periods(d):g[(k,d)].append((r,c,max(l,0)*max(a,.0625)))
+  if k and d and c is not None and l is not None and a is not None and any(abs(c-x)<1e-5 for x in supported_clock_periods(d)):g[(k,d)].append((r,c,max(l,0)*max(a,.0625),idx_split.get(i)))
  out=[]
  for (k,d),items in g.items():
-  bs=[b for b in budget_bank.get('cases',[]) if b.get('kernel')==k and b.get('device')==d] or [{'resource_budget_id':'full','fractions':[1,1,1,1]}]
+  bs=[b for b in budget_bank.get('cases',[]) if b.get('kernel')==k and b.get('device')==d]
+  if not bs: raise ValueError(f'Missing AUTO budget bank for {k}/{d}')
+  seen=set()
   for b in bs:
-   fr=b.get('fractions',[1,1,1,1]);adp={};feas={};dirs={}
+   fr=b.get('fractions',[1,1,1,1]); fr=list(fr) if isinstance(fr,list) else [fr.get(n,1.0) for n in ('bram','dsp','ff','lut')]; key=(b.get('resource_budget_id'),tuple(fr))
+   if key in seen: continue
+   seen.add(key); adp={};feas={};dirs={}
    for c in supported_clock_periods(d):
     ok=[]
-    for r,cc,x in items:
+    for r,cc,x,_sp in items:
      util=[num(r,f'{n}_util_%',f'{n}_util',n) for n in ('bram','dsp','ff','lut')]
      if cc==c and all(v is not None and v/100<=f for v,f in zip(util,fr)):ok.append((x,r))
     feas[str(c)]=bool(ok)
     if ok:x,r=min(ok);adp[str(c)]=x;dirs[str(c)]=r.get('preprocessed_row',r.get('source_key'))
    if not adp:continue
-   gold=min(adp,key=adp.get); sp=next((n for n in ('train','val','test') if k in split.get(f'{n}_kernels',[])),None)
+   gold=min(adp,key=adp.get); sp=next((s for _r,_c,_x,s in items if s),None)
    out.append({'kernel':k,'device':d,'frequency_mode':'auto','available_clock_periods':list(supported_clock_periods(d)),'gold_clock_period':float(gold),'gold_adp':adp[gold],'adp_by_clock':adp,'clock_feasible':feas,'best_directives_by_clock':dirs,'resource_budget':dict(zip(('bram','dsp','ff','lut'),fr)),'resource_budget_id':b.get('resource_budget_id'),'split':sp})
  return out
 def main():
