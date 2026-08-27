@@ -1825,6 +1825,8 @@ def main():
             "loading the policy/reference models."
         ),
     )
+    ap.add_argument("--reuse_pair_cache", action="store_true")
+    ap.add_argument("--reuse_selection_cache", action="store_true")
     ap.add_argument("--seed", type=int, default=123)
 
     args = ap.parse_args()
@@ -1951,12 +1953,20 @@ def main():
     fam_counts = Counter(r["_family"] for r in rows)
     print("[INFO] Raw rows per family (top 15):", fam_counts.most_common(15))
 
-    train_rows, val_rows, test_rows = build_selected_splits(
-        mod=mod,
-        args=args,
-        rows=rows,
-        parent_contract=parent_contract,
-    )
+    selected_train_cache = os.path.join(args.output_dir, "selected_debug", "train_selected.jsonl")
+    selected_val_cache = os.path.join(args.output_dir, "selected_debug", "val_selected.jsonl")
+    if args.reuse_selection_cache and os.path.isfile(selected_train_cache):
+        def load_selected(path):
+            with open(path, encoding="utf-8") as handle:
+                return [json.loads(line) for line in handle if line.strip()]
+        train_rows = load_selected(selected_train_cache)
+        val_rows = load_selected(selected_val_cache) if os.path.isfile(selected_val_cache) else []
+        test_rows = []
+        print(f"[SELECTION-CACHE] Reused train={len(train_rows)} val={len(val_rows)}")
+    else:
+        train_rows, val_rows, test_rows = build_selected_splits(
+            mod=mod, args=args, rows=rows, parent_contract=parent_contract,
+        )
 
     if args.save_selection_debug:
         selected_debug_dir = os.path.join(args.output_dir, "selected_debug")
@@ -1992,8 +2002,20 @@ def main():
         require_same_supervised_schema=args.require_same_supervised_schema,
     )
     
-    train_pairs = pair_builder.build(train_rows)
-    val_pairs = pair_builder.build(val_rows) if val_rows else []
+    cache_train = os.path.join(args.output_dir, "pair_debug", "train_pairs.jsonl")
+    cache_val = os.path.join(args.output_dir, "pair_debug", "val_pairs.jsonl")
+    if args.reuse_pair_cache:
+        if not os.path.isfile(cache_train):
+            raise FileNotFoundError(f"Missing cached pair file: {cache_train}")
+        def load_jsonl(path):
+            with open(path, encoding="utf-8") as handle:
+                return [json.loads(line) for line in handle if line.strip()]
+        train_pairs = load_jsonl(cache_train)
+        val_pairs = load_jsonl(cache_val) if os.path.isfile(cache_val) else []
+        print(f"[PAIR-CACHE] Reused train={len(train_pairs)} val={len(val_pairs)}")
+    else:
+        train_pairs = pair_builder.build(train_rows)
+        val_pairs = pair_builder.build(val_rows) if val_rows else []
     test_pairs = []
 
     print(f"[INFO] Preference pairs: train={len(train_pairs)} val={len(val_pairs)} test={len(test_pairs)}")

@@ -1,7 +1,7 @@
 {
   "schema": "mailohls-training-contract-v1",
   "stage": "stage3",
-  "git_commit": "0e454b1036bd8d320f4b3dde38de47f16b2db5d9",
+  "git_commit": "7776fdc2aec6c6bafd849a635e8ddd6a47f1f1ac",
   "model": "deepseek-ai/deepseek-coder-6.7b-base",
   "model_revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
   "tokenizer": "deepseek-ai/deepseek-coder-6.7b-base",
@@ -780,7 +780,9 @@
       "--save_selection_debug",
       "--seed",
       "123",
-      "--train_lora_dpo"
+      "--train_lora_dpo",
+      "--reuse_pair_cache",
+      "--reuse_selection_cache"
     ],
     "hostname": "liono",
     "gpu": "0",

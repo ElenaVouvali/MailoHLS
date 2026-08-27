@@ -86,6 +86,12 @@ ARGS=(
 if [[ "${STAGE3_TRAIN_LORA:-1}" == "1" ]]; then
   ARGS+=(--train_lora_dpo)
 fi
+if [[ "${STAGE3_REUSE_PAIR_CACHE:-0}" == "1" ]]; then
+  ARGS+=(--reuse_pair_cache)
+fi
+if [[ "${STAGE3_REUSE_SELECTION_CACHE:-0}" == "1" ]]; then
+  ARGS+=(--reuse_selection_cache)
+fi
 
 if [[ "${MODE}" == "preflight" ]]; then
   python -u -m LLM_branch.train.train_DPO_harp_xattn \
