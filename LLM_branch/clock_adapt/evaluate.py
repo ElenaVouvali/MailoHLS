@@ -1,4 +1,5 @@
 import argparse, json, torch
+from collections import Counter, defaultdict
 from .model import ClockResidualSelector
 
 def evaluate(features, model):
@@ -18,7 +19,8 @@ def evaluate(features, model):
                      'adp_regret':10.0 if pa is None else max(0.0,float(pa)/max(ga,1e-9)-1.0),
                      'feasible_adp_regret':None if pa is None else max(0.0,float(pa)/max(ga,1e-9)-1.0),
                      'predicted_infeasible':not e['case'].get('clock_feasible',{}).get(str(pc),False),
-                     'device':e['case'].get('device'),'family':e['case'].get('family')})
+                     'device':e['case'].get('device'),'family':e['case'].get('family'),
+                     'kernel':e['case'].get('kernel'),'adp_by_clock':adps,'gold_adp':ga})
     return rows
 
 def main():
@@ -27,11 +29,32 @@ def main():
     for x in rows: by.setdefault(x['reference_clock_period_ns'], []).append(x['correct'])
     balanced=sum(sum(v)/len(v) for v in by.values())/max(1,len(by))
     regs=[x['adp_regret'] for x in rows if x['adp_regret'] is not None]
+    def grouped(key):
+        g=defaultdict(list)
+        for x in rows:g[x.get(key)].append(x)
+        return {str(k):{'count':len(v),'accuracy':sum(x['correct'] for x in v)/len(v),'mean_adp_regret':sum(x['adp_regret'] for x in v)/len(v)} for k,v in g.items()}
+    golds=[x['reference_clock_period_ns'] for x in rows]
+    majority=Counter(golds).most_common(1)[0][0] if golds else None
+    fastest=min(golds) if golds else None
+    def baseline(c):
+        regrets=[]
+        for x in rows:
+            value=x['adp_by_clock'].get(str(c)); regrets.append(10.0 if value is None else max(0.,float(value)/max(x['gold_adp'],1e-9)-1.))
+        return {'clock_accuracy':sum(x['reference_clock_period_ns']==c for x in rows)/max(1,len(rows)), 'mean_adp_regret':sum(regrets)/max(1,len(regrets))}
+    feasible_regs=[x['feasible_adp_regret'] for x in rows if x['feasible_adp_regret'] is not None]
+    kd=defaultdict(list)
+    for x in rows: kd[(x.get('kernel'),x.get('device'))].append(x)
+    kd_metrics={f'{k[0]}::{k[1]}':{'count':len(v),'accuracy':sum(x['correct'] for x in v)/len(v),'mean_adp_regret':sum(x['adp_regret'] for x in v)/len(v)} for k,v in kd.items()}
     out={'clock_accuracy':sum(x['correct'] for x in rows)/max(1,len(rows)), 'balanced_clock_accuracy':balanced,
          'clock_mrr':sum(1/x['rank'] for x in rows)/max(1,len(rows)), 'mean_adp_regret':sum(regs)/max(1,len(regs)),
          'median_adp_regret':float(torch.tensor(regs).median()) if regs else None,
          'p90_adp_regret':float(torch.tensor(regs).quantile(.9)) if regs else None,
          'worst_adp_regret':max(regs) if regs else None,
+         'mean_feasible_only_adp_regret':sum(feasible_regs)/max(1,len(feasible_regs)),
+         'majority_clock_baseline':baseline(majority) if majority is not None else None,
+         'fastest_clock_baseline':baseline(fastest) if fastest is not None else None,
+         'per_family':grouped('family'),'per_device':grouped('device'),
+         'kernel_device_macro':kd_metrics,
          'predicted_infeasible_rate':sum(x['predicted_infeasible'] for x in rows)/max(1,len(rows)),
          'rows':rows}; json.dump(out,open(a.output_json,'w'),indent=2); print(json.dumps({k:out[k] for k in ('clock_accuracy','balanced_clock_accuracy','mean_adp_regret','worst_adp_regret')}))
 if __name__=='__main__': main()

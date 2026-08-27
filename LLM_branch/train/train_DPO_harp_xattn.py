@@ -253,7 +253,7 @@ def build_stage3_contract(
         "label_smoothing": args.label_smoothing,
         "sft_alpha": args.sft_alpha,
         "logp_reduction": (
-            "site_weighted_mean"
+            "changed_site_mean"
             if args.dpo_logp_reduction == "mean"
             else args.dpo_logp_reduction
         ),
@@ -939,9 +939,17 @@ class DPOPreferenceDataset(Dataset):
             for pack in (chosen, rejected):
                 sites = pack.get("site_keys", [None] * pack["score_weights"].numel())
                 pack["anchor_score_weights"] = pack["score_weights"].clone()
+                base = pack["score_weights"].tolist()
+                site_mass = defaultdict(float)
+                for weight, site in zip(base, sites):
+                    if site in changed_lhs and weight > 0:
+                        site_mass[site] += float(weight)
+                if not any(site_mass.values()):
+                    raise RuntimeError("DPO pair has no scored changed sites")
                 pack["dpo_score_weights"] = torch.tensor(
-                    [w if site in changed_lhs else 0.0
-                     for w, site in zip(pack["score_weights"].tolist(), sites)],
+                    [float(weight) / site_mass[site]
+                     if site in changed_lhs and site_mass[site] > 0 else 0.0
+                     for weight, site in zip(base, sites)],
                     dtype=torch.float32,
                 )
 
@@ -949,6 +957,7 @@ class DPOPreferenceDataset(Dataset):
                 "kernel_name": ex["kernel_name"],
                 "chosen": chosen,
                 "rejected": rejected,
+                "pair_weight": float(ex.get("pair_weight", 1.0)),
             })
             self.kernel_names.append(ex["kernel_name"])
             self.families.append(ex.get("family") or ex["kernel_name"])
