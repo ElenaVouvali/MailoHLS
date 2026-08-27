@@ -1,0 +1,104 @@
+[INFO] Loaded 150026 raw rows from artifacts/llm/mailohls_sft.jsonl
+[INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
+[INFO] Loaded split from mailohls_runs/mailohls_final_family_split_s123.json
+[FAMILY-SPLIT] {"test": {"families": ["serrano_kalman_filter"], "kernel_count": 1, "row_count": 6705}, "train": {"families": ["machsuite_gemm", "machsuite_md_knn", "machsuite_spmv_ellpack", "machsuite_stencil2d", "machsuite_stencil3d", "rodinia_backprop", "rodinia_cfd_flux", "rodinia_cfd_step_factor", "rodinia_dilate", "rodinia_hotspot", "rodinia_kmeans", "rodinia_knn", "rodinia_lavamd", "rodinia_lc_gicov", "rodinia_lc_mgvf", "rodinia_lud", "rodinia_streamcluster", "spcl_example"], "kernel_count": 50, "row_count": 130310}, "val": {"families": ["machsuite_sort_radix", "machsuite_viterbi", "rodinia_pathfinder"], "kernel_count": 4, "row_count": 13011}}
+[RANDOM-BUDGET] case=1/100 key=('machsuite-gemm-blocked', 'xcu200-fsgd2104-2-e')
+[RANDOM-BUDGET] case=10/100 key=('machsuite-stencil2d', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=20/100 key=('rodinia-hotspot-0-baseline', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=30/100 key=('rodinia-kmeans-1-tiling', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=40/100 key=('rodinia-knn-2-pipeline', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=50/100 key=('rodinia_cfd_step_factor_0_baseline_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=60/100 key=('rodinia_cfd_step_factor_5_coalescing_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=70/100 key=('rodinia_lavaMD_0_baseline', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=80/100 key=('rodinia_lc_mgvf_0_baseline_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=90/100 key=('rodinia_streamcluster_3_doublebuffer_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=100/100 key=('spcl_example_05', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] input=130310 output=208615 stats={'kept_clock_budgets': 4608, 'candidate_rows': 208615, 'kept_budgets': 1565, 'rejected_small_clock_candidate_sets': 13, 'rejected_small_candidate_sets': 35}
+[RANDOM-BUDGET] case=1/8 key=('machsuite-sort-radix', 'xcu200-fsgd2104-2-e')
+[RANDOM-BUDGET] input=13011 output=20865 stats={'kept_clock_budgets': 383, 'candidate_rows': 20865, 'kept_budgets': 128}
+[CLOCK-MODE] Counter({'specified': 27589})
+[CLOCK-MODE] Counter({'specified': 2298})
+[INFO] Selected split sizes: train=27589 val=2298; held-out test rows not selected=6705
+[INFO] Final selected split sizes: train=27589 val=2298 test=0
+[INFO] Preference pairs: train=1207 val=208 test=0
+[INFO] Unique train kernels with pairs: 34
+[INFO] Avg pairs per kernel-objective bucket: 35.50
+
+[PAIR-AUDIT] train
+  total pairs                 : 1207
+  kernel-objective buckets    : 34
+  pairs by objective          : {'PARETO_ADP': 1207}
+  pairs by tier               : {'medium': 494, 'hard': 713}
+  score_gap q10/q50/q90       : 0.0570 / 0.1375 / 0.2630
+  diff_count q10/q50/q90      : 1.0 / 4.0 / 8.0
+  diff_frac q10/q50/q90       : 0.061 / 0.158 / 0.273
+
+[PAIR-AUDIT] val
+  total pairs                 : 208
+  kernel-objective buckets    : 3
+  pairs by objective          : {'PARETO_ADP': 208}
+  pairs by tier               : {'hard': 154, 'medium': 54}
+  score_gap q10/q50/q90       : 0.0573 / 0.1034 / 0.2407
+  diff_count q10/q50/q90      : 1.0 / 3.0 / 4.0
+  diff_frac q10/q50/q90       : 0.059 / 0.163 / 0.235
+
+[PAIR-PREVIEW] showing 3 pairs
+
+----------------------------------------------------------------------------------------------------
+[0] kernel=rodinia_dilate_1_tiling_0 obj=PARETO_ADP
+score_gap=0.2272  diff_count=8  diff_frac=0.296
+latency_rel_gain=-0.017  area_rel_gain=0.160
+changed directives:
+  auto{_ARRAY_F_L10}: chosen=2 | rejected=8
+  auto{_ARRAY_T_L10}: chosen=block | rejected=cyclic
+  auto{_PIPE_L3}: chosen=1 | rejected=0
+  auto{_PIPE_L4}: chosen=1 | rejected=0
+  auto{_PIPE_L6}: chosen=1 | rejected=0
+  auto{_UNROLL_L3}: chosen=0 | rejected=8
+  auto{_UNROLL_L4}: chosen=0 | rejected=5
+  auto{_UNROLL_L6}: chosen=0 | rejected=2
+
+----------------------------------------------------------------------------------------------------
+[1] kernel=rodinia-hotspot-1-tiling obj=PARETO_ADP
+score_gap=0.1578  diff_count=4  diff_frac=0.211
+latency_rel_gain=-0.038  area_rel_gain=0.136
+changed directives:
+  auto{_ARRAY_F_L3}: chosen=2 | rejected=4
+  auto{_ARRAY_F_L4}: chosen=2 | rejected=4
+  auto{_ARRAY_T_L5}: chosen=block | rejected=cyclic
+  auto{_UNROLL_L7}: chosen=2 | rejected=8
+
+----------------------------------------------------------------------------------------------------
+[2] kernel=rodinia_lavaMD_1_tiling_0 obj=PARETO_ADP
+score_gap=0.0767  diff_count=3  diff_frac=0.091
+latency_rel_gain=-0.001  area_rel_gain=0.053
+changed directives:
+  auto{_ARRAY_F_L3}: chosen=32 | rejected=16
+  auto{_ARRAY_F_L5}: chosen=2 | rejected=32
+  auto{_ARRAY_T_L3}: chosen=block | rejected=cyclic
+[INFO] Memory files: 55
+[INFO] Unique memory records: 55
+[INFO] Lookup aliases: 85
+[INFO] Required split kernels covered: 54/54
+[INFO] Building policy model...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:17<00:17, 17.89s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:25<00:00, 11.87s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:25<00:00, 12.78s/it]
+[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[DPO-TRAINABLE] groups enabled: lora=False xattn=True attn_gate=True ff_gate=False
+[DPO-TRAINABLE] total trainable params: 8,683,524
+[DPO-TRAINABLE] first trainables: ['base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight']
+[INFO] Building frozen reference model...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:12<00:12, 12.91s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:17<00:00,  7.84s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:17<00:00,  8.60s/it]
+[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+trainable params: 8,683,524 || all params: 6,757,388,292 || trainable%: 0.1285
+[RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` hides base models input arguments, if label_names is not given, label_names can't be set automatically within `Trainer`. Note that empty label_names list will be used instead.
+[OPT-DPO] lora=0 embed=0 attn_gate=4 ff_gate=0 xattn_attn=8,683,520 xattn_ff=0
+  0%|          | 0/60 [00:00<?, ?it/s]Could not estimate the number of tokens of the input, floating-point operations will not be computed
+  2%|▏         | 1/60 [01:15<1:13:59, 75.24s/it]  3%|▎         | 2/60 [02:24<1:09:20, 71.73s/it]  5%|▌         | 3/60 [03:26<1:04:02, 67.41s/it]  7%|▋         | 4/60 [04:22<58:40, 62.86s/it]    8%|▊         | 5/60 [05:08<51:57, 56.68s/it]                                              {'loss': 0.7146, 'grad_norm': 0.27096885442733765, 'learning_rate': 4.968170886803361e-06, 'epoch': 0.03}
+  8%|▊         | 5/60 [05:08<51:57, 56.68s/it]
