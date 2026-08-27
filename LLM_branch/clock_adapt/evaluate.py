@@ -10,15 +10,16 @@ def evaluate(features, model):
         pc=e['clocks'][pred]; gc=e['clocks'][gold]; adps=e['case'].get('adp_by_clock',{}); ga=float(e['case'].get('gold_adp',1.0)); pa=adps.get(str(pc));
         rows.append({'predicted_clock_period_ns':pc,'reference_clock_period_ns':gc,
                      'correct':pred==gold,'rank':order.index(gold)+1,
-                     'adp_regret':None if pa is None else max(0.0,float(pa)/max(ga,1e-9)-1.0),
+                     'adp_regret':10.0 if pa is None else max(0.0,float(pa)/max(ga,1e-9)-1.0),
+                     'feasible_adp_regret':None if pa is None else max(0.0,float(pa)/max(ga,1e-9)-1.0),
                      'predicted_infeasible':not e['case'].get('clock_feasible',{}).get(str(pc),False),
                      'device':e['case'].get('device'),'family':e['case'].get('family')})
     return rows
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); m=ClockResidualSelector(ck['feature_dim'],ck['hidden_dim'],ck['dropout']); m.load_state_dict(ck['model']); rows=evaluate(f,m)
+    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); m=ClockResidualSelector(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout']); m.load_state_dict(ck['model']); rows=evaluate(f,m)
     by={}
-    for x in rows: by.setdefault(x['gold_clock'], []).append(x['correct'])
+    for x in rows: by.setdefault(x['reference_clock_period_ns'], []).append(x['correct'])
     balanced=sum(sum(v)/len(v) for v in by.values())/max(1,len(by))
     regs=[x['adp_regret'] for x in rows if x['adp_regret'] is not None]
     out={'clock_accuracy':sum(x['correct'] for x in rows)/max(1,len(rows)), 'balanced_clock_accuracy':balanced,
