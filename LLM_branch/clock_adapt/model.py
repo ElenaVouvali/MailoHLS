@@ -10,14 +10,15 @@ class ClockSelector(nn.Module):
         self.key=nn.Linear(mem_dim,hidden_dim,bias=False); self.value=nn.Linear(mem_dim,hidden_dim,bias=False)
         self.head=nn.Sequential(nn.LayerNorm(hidden_dim+context_dim),nn.Linear(hidden_dim+context_dim,hidden_dim),nn.GELU(),nn.Dropout(dropout),nn.Linear(hidden_dim,1))
     def forward(self, memory, memory_mask=None, candidate_context=None):
-        # Also accept the cached [C, 137] representation used by extract_features.
-        if candidate_context is None:
-            candidate_context=memory[..., self.mem_dim:self.mem_dim+self.context_dim]
-            memory=memory[..., :self.mem_dim].unsqueeze(-2)
-        if memory.dim()==2: memory=memory.unsqueeze(0)
-        if candidate_context.dim()==1: candidate_context=candidate_context.unsqueeze(0)
-        q=self.query(candidate_context); k=self.key(memory); v=self.value(memory); score=q.unsqueeze(1).matmul(k.transpose(-1,-2))/math.sqrt(k.shape[-1])
-        if memory_mask is not None: score=score.masked_fill(~memory_mask.bool().view(1,1,-1),-torch.inf)
-        pooled=torch.softmax(score,dim=-1).matmul(v).squeeze(1); return self.head(torch.cat([pooled,candidate_context],dim=-1)).squeeze(-1)
+        if memory.ndim != 2 or candidate_context is None or candidate_context.ndim != 2:
+            raise ValueError("memory must be [S,D] and candidate_context must be [C,K]")
+        valid = memory_mask.bool().reshape(-1)
+        if valid.numel() != memory.shape[0] or not valid.any():
+            raise ValueError("Invalid or empty structural memory mask")
+        memory = memory[valid]
+        q=self.query(candidate_context); k=self.key(memory); v=self.value(memory)
+        score=q.matmul(k.transpose(0,1))/math.sqrt(k.shape[-1])
+        pooled=torch.softmax(score,dim=-1).matmul(v)
+        return self.head(torch.cat([pooled,candidate_context],dim=-1)).squeeze(-1)
 
 ClockResidualSelector = ClockSelector

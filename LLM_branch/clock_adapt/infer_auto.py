@@ -5,12 +5,12 @@ from .extract_features import pooled_structural_memory
 from LLM_branch.common.mailohls_contract import supported_clock_periods, DEVICE_RESOURCES
 
 def select_clock(selector, memory_pack, device, fractions):
-    memory=pooled_structural_memory(memory_pack); caps=DEVICE_RESOURCES[device]
+    memory=memory_pack['node_embs'].float(); mask=memory_pack['node_embs_mask'].bool(); caps=DEVICE_RESOURCES[device]
     rows=[]
     for clock in supported_clock_periods(device):
         ctx=torch.tensor(list(fractions)+[__import__('math').log1p(caps[k]) for k in ('BRAM_18K','DSP','FF','LUT')]+[__import__('math').log2(clock/5)],dtype=torch.float32)
         rows.append(ctx)
-    context=torch.stack(rows); logits=selector(memory.unsqueeze(0),torch.ones(1,memory.shape[0],dtype=torch.bool),context); return float(supported_clock_periods(device)[int(logits.argmax())]), logits
+    context=torch.stack(rows); selector.eval(); logits=selector(memory,mask,context); return float(supported_clock_periods(device)[int(logits.argmax())]), logits
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--selector',required=True);p.add_argument('--memory_pack',required=True);p.add_argument('--device',required=True);p.add_argument('--budget_fractions',required=True);a=p.parse_args(); ck=torch.load(a.selector,weights_only=False); m=ClockSelector(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout']);m.load_state_dict(ck['model']); pack=torch.load(a.memory_pack,weights_only=False); fr=[float(x) for x in a.budget_fractions.split(',')]; c,_=select_clock(m,pack,a.device,fr); print(json.dumps({'selected_clock_period_ns':c,'frequency_mode':'specified'}))

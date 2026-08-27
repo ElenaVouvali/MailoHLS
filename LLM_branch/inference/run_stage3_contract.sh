@@ -49,7 +49,7 @@ ARGS=(
   --sft_script "${REPO_ROOT}/LLM_branch/train/train_SFT_xattn_new.py"
   --output_dir "${MAILOHLS_STAGE3_OUT}"
   --top_k 6
-  --dpo_chosen_top_k 3
+  --dpo_chosen_top_k "${STAGE3_CHOSEN_TOP_K:-1}"
   --dpo_hard_window 8
   --dpo_hard_negatives_per_chosen 2
   --dpo_medium_negatives_per_chosen 1
@@ -57,6 +57,7 @@ ARGS=(
   --dpo_hard_gap_max 0.15
   --dpo_medium_gap_max 0.35
   --dpo_min_primary_rel_gain 0.02
+  --dpo_max_edit_distance "${STAGE3_MAX_EDIT_DISTANCE:-8}"
   --require_same_supervised_schema
   --beta "${STAGE3_BETA:-0.5}"
   --label_smoothing 0
@@ -75,6 +76,8 @@ ARGS=(
   --max_steps "${MAX_STEPS}"
   --eval_steps "${STAGE3_EVAL_STEPS:-20}"
   --selection_eval_steps "${STAGE3_SELECTION_EVAL_STEPS:-${STAGE3_EVAL_STEPS:-20}}"
+  --selection_early_stopping_patience "${STAGE3_SELECTION_EARLY_STOPPING_PATIENCE:-1}"
+  --selection_early_stopping_min_step "${STAGE3_SELECTION_EARLY_STOPPING_MIN_STEP:-20}"
   --save_steps "${STAGE3_SAVE_STEPS:-20}"
   --logging_steps "${STAGE3_LOGGING_STEPS:-5}"
   --num_workers "${STAGE3_NUM_WORKERS:-0}"
@@ -83,8 +86,11 @@ ARGS=(
   --seed 123
 )
 
-if [[ "${STAGE3_TRAIN_LORA:-1}" == "1" ]]; then
+if [[ "${STAGE3_TRAIN_LORA:-0}" == "1" ]]; then
   ARGS+=(--train_lora_dpo)
+fi
+if [[ "${STAGE3_REQUIRE_CHOSEN_RANK0:-1}" == "1" ]]; then
+  ARGS+=(--dpo_require_chosen_rank0)
 fi
 if [[ "${STAGE3_REUSE_PAIR_CACHE:-0}" == "1" ]]; then
   ARGS+=(--reuse_pair_cache)

@@ -2,10 +2,15 @@ import argparse, json, torch
 from .model import ClockResidualSelector
 
 def evaluate(features, model):
+    model.eval()
     rows=[]
     for e in features:
         with torch.no_grad():
-            logits=model(e['features'])
+            # Feature extraction stores the complete structural memory and
+            # candidate-conditioned context.  Keep evaluation's call
+            # signature identical to training and inference; the old
+            # pre-attention ``features`` vector is no longer produced.
+            logits=model(e['memory'], e['memory_mask'], e['candidate_context'])
         order=torch.argsort(logits, descending=True).tolist(); pred=order[0]; gold=e['label']
         pc=e['clocks'][pred]; gc=e['clocks'][gold]; adps=e['case'].get('adp_by_clock',{}); ga=float(e['case'].get('gold_adp',1.0)); pa=adps.get(str(pc));
         rows.append({'predicted_clock_period_ns':pc,'reference_clock_period_ns':gc,

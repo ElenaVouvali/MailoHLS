@@ -31,14 +31,14 @@ def build_cases(rows,budget_bank,split):
      util=[num(r,f'{n}_util_%',f'{n}_util',n) for n in ('bram','dsp','ff','lut')]
      if abs(cc-c)<=0.02 and all(v is not None and v/100<=f for v,f in zip(util,fr)):ok.append((x,r))
     feas[str(c)]=bool(ok)
-    if ok:x,r=min(ok);adp[str(c)]=x;dirs[str(c)]=r.get('preprocessed_row',r.get('source_key'))
+    if ok:x,r=min(ok,key=lambda item:item[0]);adp[str(c)]=x;dirs[str(c)]=r.get('preprocessed_row',r.get('source_key'))
    if not adp:continue
    gold=min(adp,key=adp.get); sp=next((s for _r,_c,_x,s in items if s),None)
    family=re.split(r'[-_](?:\d+|baseline|tiling|pipeline|unroll|doublebuffer|coalescing).*',k,1)[0]
    out.append({'kernel':k,'device':d,'family':family,'frequency_mode':'auto','available_clock_periods':list(supported_clock_periods(d)),'gold_clock_period':float(gold),'gold_adp':adp[gold],'adp_by_clock':adp,'clock_feasible':feas,'best_directives_by_clock':dirs,'resource_budget':dict(zip(('bram','dsp','ff','lut'),fr)),'resource_budget_id':b.get('resource_budget_id'),'split':sp})
  return out
 def main():
- p=argparse.ArgumentParser();p.add_argument('--dataset',required=True);p.add_argument('--split_json',required=True);p.add_argument('--budget_bank',required=True);p.add_argument('--output_dir',required=True);a=p.parse_args();rows=[json.loads(x) for x in open(a.dataset) if x.strip()];cases=build_cases(rows,json.load(open(a.budget_bank)),json.load(open(a.split_json)));Path(a.output_dir).mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser();p.add_argument('--dataset',required=True);p.add_argument('--split_json',required=True);p.add_argument('--budget_bank',required=True);p.add_argument('--include_splits',default='train,val');p.add_argument('--output_dir',required=True);a=p.parse_args();rows=[json.loads(x) for x in open(a.dataset) if x.strip()];cases=build_cases(rows,json.load(open(a.budget_bank)),json.load(open(a.split_json)));included={x.strip() for x in a.include_splits.split(',') if x.strip()};cases=[x for x in cases if x.get('split') in included];Path(a.output_dir).mkdir(parents=True,exist_ok=True)
  for n in ('train','val','test'):
   with open(Path(a.output_dir)/f'{n}.jsonl','w') as f:
    for x in cases:

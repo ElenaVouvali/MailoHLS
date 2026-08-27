@@ -17,16 +17,19 @@ def make_features(cases, memory_dir):
         path = Path(memory_dir) / f"{case['kernel']}.memory.pt"
         if not path.exists():
             raise FileNotFoundError(f"Missing required structural memory: {path}")
-        vec = pooled_structural_memory(torch.load(path, map_location="cpu", weights_only=False))
+        pack = torch.load(path, map_location="cpu", weights_only=False)
+        memory = pack["node_embs"].float()
+        memory_mask = pack["node_embs_mask"].bool()
         budget = case.get("resource_budget", {})
         vals = [float(budget.get(k, 0.0)) for k in ("bram", "dsp", "ff", "lut")]
         capacities = DEVICE_RESOURCES.get(case['device'])
         if capacities is None: raise ValueError(f"Unknown device capacity: {case['device']}")
         caps = [__import__('math').log1p(float(capacities[k])) for k in ('BRAM_18K','DSP','FF','LUT')]
-        features = torch.stack([torch.cat((vec, torch.tensor(
+        features = torch.stack([torch.tensor(
             vals + caps + [__import__('math').log2(float(clock) / 5.0)], dtype=torch.float32
-        ))) for clock in case["available_clock_periods"]])
-        examples.append({"features": features,
+        ) for clock in case["available_clock_periods"]])
+        examples.append({"memory": memory, "memory_mask": memory_mask,
+                         "candidate_context": features,
                          "label": case["available_clock_periods"].index(case["gold_clock_period"]),
                          "clocks": case["available_clock_periods"], "case": case})
     if not examples: raise ValueError("No cases matched memory packs")

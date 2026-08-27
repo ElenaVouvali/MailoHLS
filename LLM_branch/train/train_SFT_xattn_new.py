@@ -449,6 +449,7 @@ class DeterministicRHSPack:
     labels: List[int]             # -100 for fixed tokens, token id for RHS tokens
     token_weights: List[float]    # 0 for fixed tokens, value weight for RHS tokens
     xattn_target_mask: List[int]  # 1 only on RHS tokens
+    site_keys: Optional[List[Optional[str]]] = None
 
 
 
@@ -472,7 +473,7 @@ def build_deterministic_rhs_pack(
     full_plan = extract_ordered_lhs_plan(source_text)
     plan = [(label, lhs) for (label, lhs) in full_plan if lhs in rhs_map]
 
-    input_ids, labels, token_weights, xattn_target_mask = [], [], [], []
+    input_ids, labels, token_weights, xattn_target_mask, site_keys = [], [], [], [], []
 
     def add_fixed(text: str):
         ids = tok(text, add_special_tokens=False)["input_ids"]
@@ -480,8 +481,9 @@ def build_deterministic_rhs_pack(
         labels.extend([-100] * len(ids))
         token_weights.extend([0.0] * len(ids))
         xattn_target_mask.extend([0] * len(ids))
+        site_keys.extend([None] * len(ids))
 
-    def add_rhs(text: str, weight: float, supervise: bool):
+    def add_rhs(text: str, weight: float, supervise: bool, lhs: str):
         ids = tok(text, add_special_tokens=False)["input_ids"]
         if not ids:
             raise ValueError("Directive RHS tokenized to an empty sequence")
@@ -491,6 +493,7 @@ def build_deterministic_rhs_pack(
             [weight / len(ids)] * len(ids) if supervise else [0.0] * len(ids)
         )
         xattn_target_mask.extend([int(supervise)] * len(ids))
+        site_keys.extend([lhs.strip().upper()] * len(ids))
 
     current_label = None
     kind_loss_weights = kind_loss_weights or {}
@@ -528,7 +531,7 @@ def build_deterministic_rhs_pack(
             supervise = len(candidates) > 1
 
         add_fixed(f"{lhs} = ")
-        add_rhs(rhs + "\n", weight, supervise)
+        add_rhs(rhs + "\n", weight, supervise, lhs)
         chosen_assignments[lhs.strip().upper()] = rhs
 
     if supervise_eos:
@@ -537,12 +540,14 @@ def build_deterministic_rhs_pack(
         labels.extend(eos_ids)
         token_weights.extend([value_w] * len(eos_ids))
         xattn_target_mask.extend([0] * len(eos_ids))
+        site_keys.extend([None] * len(eos_ids))
 
     return DeterministicRHSPack(
         input_ids=input_ids,
         labels=labels,
         token_weights=token_weights,
         xattn_target_mask=xattn_target_mask,
+        site_keys=site_keys,
     )
 
 
@@ -573,6 +578,7 @@ def build_clock_pack(
             if supervise_clock else [0.0] * len(value_ids)
         ),
         xattn_target_mask=[0] * (len(fixed_ids) + len(value_ids)),
+        site_keys=[None] * (len(fixed_ids) + len(value_ids)),
     )
 
 

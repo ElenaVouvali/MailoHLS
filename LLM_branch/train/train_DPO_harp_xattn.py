@@ -273,6 +273,12 @@ def build_stage3_contract(
         "min_edit_distance": args.dpo_min_edit_distance,
         "min_edit_frac": args.dpo_min_edit_frac,
         "max_edit_frac": args.dpo_max_edit_frac,
+        "require_chosen_rank0": args.dpo_require_chosen_rank0,
+        "max_edit_distance": args.dpo_max_edit_distance,
+        "pair_weighting": "clip(sqrt(adp_rel_gain / median_gain), 0.5, 2.0)",
+        "pair_weight_median_adp_gain": float(np.median([
+            max(float(p.get("adp_rel_gain", 0.0)), 1e-8) for p in train_pairs
+        ])) if train_pairs else None,
         "require_same_supervised_schema": (
             args.require_same_supervised_schema
         ),
@@ -519,6 +525,8 @@ class GoalPreferencePairBuilder:
         balanced_min_sum_gain: float = 0.02,
         balanced_max_axis_loss: float = 0.25,
         balanced_min_better_axis_gain: float = 0.03,
+        require_chosen_rank0: bool = False,
+        max_edit_distance: int = 0,
     ):
         self.mod = mod
         self.objective = objective
@@ -539,6 +547,8 @@ class GoalPreferencePairBuilder:
         self.balanced_min_sum_gain = float(balanced_min_sum_gain)
         self.balanced_max_axis_loss = float(balanced_max_axis_loss)
         self.balanced_min_better_axis_gain = float(balanced_min_better_axis_gain)
+        self.require_chosen_rank0 = bool(require_chosen_rank0)
+        self.max_edit_distance = int(max_edit_distance)
 
     def _canonical_row(self, row: dict):
         try:
@@ -659,7 +669,10 @@ class GoalPreferencePairBuilder:
             if len(uniq) < 2:
                 continue
 
-            chosen_pool = uniq[: min(self.chosen_top_k, len(uniq))]
+            if self.require_chosen_rank0:
+                chosen_pool = [rec for rec in uniq if rec["rank"] == 0][:1]
+            else:
+                chosen_pool = uniq[: min(self.chosen_top_k, len(uniq))]
 
             for chosen_idx, chosen in enumerate(chosen_pool):
                 hard_pool = []
@@ -685,6 +698,8 @@ class GoalPreferencePairBuilder:
 
                     diff_count, diff_frac = self._directive_diff(chosen, rejected)
                     if diff_count < self.min_edit_distance:
+                        continue
+                    if self.max_edit_distance > 0 and diff_count > self.max_edit_distance:
                         continue
                     if diff_frac < self.min_edit_frac or diff_frac > self.max_edit_frac:
                         continue
@@ -915,6 +930,21 @@ class DPOPreferenceDataset(Dataset):
                 ),
             )
 
+            # Preference credit is restricted to RHS sites whose assignment
+            # actually changed.  Keep the complete RHS weighting separately
+            # for the chosen-response SFT anchor.
+            chosen_map = {k.strip().upper(): v.strip() for k, v in parse_target_map(ex["chosen"]).items()}
+            rejected_map = {k.strip().upper(): v.strip() for k, v in parse_target_map(ex["rejected"]).items()}
+            changed_lhs = {k for k, value in chosen_map.items() if rejected_map.get(k) != value}
+            for pack in (chosen, rejected):
+                sites = pack.get("site_keys", [None] * pack["score_weights"].numel())
+                pack["anchor_score_weights"] = pack["score_weights"].clone()
+                pack["dpo_score_weights"] = torch.tensor(
+                    [w if site in changed_lhs else 0.0
+                     for w, site in zip(pack["score_weights"].tolist(), sites)],
+                    dtype=torch.float32,
+                )
+
             self.samples.append({
                 "kernel_name": ex["kernel_name"],
                 "chosen": chosen,
@@ -1013,6 +1043,7 @@ class DPOPreferenceDataset(Dataset):
             "input_ids": torch.tensor(input_ids, dtype=torch.long),
             "attention_mask": torch.tensor(attention_mask, dtype=torch.long),
             "score_weights": torch.tensor(score_weights, dtype=torch.float32),
+            "site_keys": [None] * len(prompt_ids_kept) + list(clock.site_keys or []) + list(det_pack.site_keys or []),
             "xattn_apply_mask": torch.tensor(xattn_apply_mask, dtype=torch.float32),
             "routing_start_idx": torch.tensor(len(prompt_ids_kept), dtype=torch.long),
             "length": len(input_ids),
@@ -1057,7 +1088,10 @@ class DPOPairCollator:
                 self._pad_1d(ex[side]["attention_mask"], shared_max_len, 0) for ex in batch
             ])
             out[f"{side}_score_weights"] = torch.stack([
-                self._pad_1d(ex[side]["score_weights"], shared_max_len, 0.0) for ex in batch
+                self._pad_1d(ex[side]["dpo_score_weights"], shared_max_len, 0.0) for ex in batch
+            ])
+            out[f"{side}_anchor_score_weights"] = torch.stack([
+                self._pad_1d(ex[side]["anchor_score_weights"], shared_max_len, 0.0) for ex in batch
             ])
             out[f"{side}_xattn_apply_mask"] = torch.stack([
                 self._pad_1d(ex[side]["xattn_apply_mask"], shared_max_len, 0.0) for ex in batch
@@ -1065,6 +1099,10 @@ class DPOPairCollator:
             out[f"{side}_routing_start_idx"] = torch.stack([
                 ex[side]["routing_start_idx"] for ex in batch
             ])
+
+        out["pair_weight"] = torch.tensor(
+            [float(ex.get("pair_weight", 1.0)) for ex in batch], dtype=torch.float32
+        )
 
         return out
     
@@ -1275,6 +1313,7 @@ class STRUCTURALDPOTrainer(Trainer):
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
         score_weights: torch.Tensor,
+        anchor_weights: Optional[torch.Tensor],
         routing_start_idx: torch.Tensor,
         xattn_apply_mask: torch.Tensor,
         kernel_names: List[str],
@@ -1300,6 +1339,7 @@ class STRUCTURALDPOTrainer(Trainer):
             logits = outputs.logits[:, :-1, :]
             labels = input_ids[:, 1:]
             weights = score_weights[:, 1:]
+            anchor = anchor_weights[:, 1:] if anchor_weights is not None else weights
 
             log_probs = F.log_softmax(logits, dim=-1)
             token_logps = torch.gather(
@@ -1310,7 +1350,9 @@ class STRUCTURALDPOTrainer(Trainer):
 
             seq_logps = (token_logps * weights).sum(dim=-1)
             token_counts = weights.sum(dim=-1).clamp(min=1.0)
-            return seq_logps, token_counts
+            anchor_logps = (token_logps * anchor).sum(dim=-1)
+            anchor_counts = anchor.sum(dim=-1).clamp(min=1.0)
+            return seq_logps, token_counts, anchor_logps, anchor_counts
 
         finally:
             # DO NOT clear the trainable policy model before backward checkpoint
@@ -1355,6 +1397,7 @@ class STRUCTURALDPOTrainer(Trainer):
         rejected_score_weights = inputs["rejected_score_weights"]
         rejected_routing_start_idx = inputs["rejected_routing_start_idx"]
         rejected_xattn_apply_mask = inputs["rejected_xattn_apply_mask"]
+        cat_anchor_weights = torch.cat([inputs["chosen_anchor_score_weights"], inputs["rejected_anchor_score_weights"]], dim=0)
 
         batch_size = chosen_input_ids.shape[0]
 
@@ -1365,22 +1408,24 @@ class STRUCTURALDPOTrainer(Trainer):
         cat_xattn_apply_mask = torch.cat([chosen_xattn_apply_mask, rejected_xattn_apply_mask], dim=0)
         cat_kernel_names = list(kernel_names) + list(kernel_names)
 
-        pi_logps, pi_token_counts = self._sequence_logps(
+        pi_logps, pi_token_counts, pi_anchor_logps, pi_anchor_token_counts = self._sequence_logps(
             model=model,
             input_ids=cat_input_ids,
             attention_mask=cat_attention_mask,
             score_weights=cat_score_weights,
+            anchor_weights=cat_anchor_weights,
             routing_start_idx=cat_routing_start_idx,
             xattn_apply_mask=cat_xattn_apply_mask,
             kernel_names=cat_kernel_names,
         )
 
         with torch.no_grad():
-            ref_logps, ref_token_counts = self._sequence_logps(
+            ref_logps, ref_token_counts, _, _ = self._sequence_logps(
                 model=self.ref_model,
                 input_ids=cat_input_ids,
                 attention_mask=cat_attention_mask,
                 score_weights=cat_score_weights,
+                anchor_weights=None,
                 routing_start_idx=cat_routing_start_idx,
                 xattn_apply_mask=cat_xattn_apply_mask,
                 kernel_names=cat_kernel_names,
@@ -1410,10 +1455,11 @@ class STRUCTURALDPOTrainer(Trainer):
         else:
             losses = -F.logsigmoid(self.beta * preference_logits)
 
-        loss = losses.mean()
+        pair_weights = inputs.get("pair_weight", torch.ones_like(losses)).to(losses.device)
+        loss = (pair_weights * losses).sum() / pair_weights.sum().clamp_min(1e-8)
 
         if self.sft_alpha > 0.0:
-            chosen_nll = -pi_chosen
+            chosen_nll = -(pi_anchor_logps[:batch_size] / pi_anchor_token_counts[:batch_size].clamp_min(1.0))
             loss = loss + self.sft_alpha * chosen_nll.mean()
 
         if return_outputs:
@@ -1755,6 +1801,8 @@ def main():
     ap.add_argument("--dpo_min_edit_distance", type=int, default=1)
     ap.add_argument("--dpo_min_edit_frac", type=float, default=0.0)
     ap.add_argument("--dpo_max_edit_frac", type=float, default=1.0)
+    ap.add_argument("--dpo_require_chosen_rank0", action="store_true")
+    ap.add_argument("--dpo_max_edit_distance", type=int, default=0)
 
     ap.add_argument("--min_supervised_sites", type=int, default=2)
     ap.add_argument("--min_site_coverage", type=float, default=0.85)
@@ -1765,6 +1813,8 @@ def main():
         default=None,
     )
     ap.add_argument("--selection_eval_steps", type=int, default=None)
+    ap.add_argument("--selection_early_stopping_patience", type=int, default=1)
+    ap.add_argument("--selection_early_stopping_min_step", type=int, default=20)
     ap.add_argument(
         "--selection_candidate_batch_size",
         type=int,
@@ -2000,6 +2050,8 @@ def main():
         min_supervised_sites=args.min_supervised_sites,
         min_site_coverage=args.min_site_coverage,
         require_same_supervised_schema=args.require_same_supervised_schema,
+        require_chosen_rank0=args.dpo_require_chosen_rank0,
+        max_edit_distance=args.dpo_max_edit_distance,
     )
     
     cache_train = os.path.join(args.output_dir, "pair_debug", "train_pairs.jsonl")
@@ -2022,6 +2074,16 @@ def main():
 
     if len(train_pairs) == 0:
         raise ValueError("No training pairs were constructed. Relax the pair filters.")
+
+    # Bounded square-root weighting preserves coverage while emphasizing
+    # materially better ADP choices.
+    gains = [max(float(p.get("adp_rel_gain", 0.0)), 1e-8) for p in train_pairs]
+    median_gain = float(np.median(gains))
+    for pair in train_pairs + val_pairs:
+        pair["pair_weight"] = float(np.clip(
+            np.sqrt(max(float(pair.get("adp_rel_gain", 0.0)), 1e-8) / median_gain),
+            0.5, 2.0,
+        ))
 
     print(f"[INFO] Unique train kernels with pairs: {len(set(r['kernel_name'] for r in train_pairs))}")
     print(f"[INFO] Avg pairs per kernel-objective bucket: {len(train_pairs)/max(1, len(Counter((r['kernel_name'], r['obj_mode']) for r in train_pairs))):.2f}")
@@ -2236,6 +2298,8 @@ def main():
                     args.selection_candidate_batch_size
                 ),
                 structural_routing=args.structural_routing,
+                early_stopping_patience=args.selection_early_stopping_patience,
+                early_stopping_min_step=args.selection_early_stopping_min_step,
             )
         )
 
