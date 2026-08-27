@@ -90,6 +90,24 @@ def current_git_commit() -> str:
         return "unknown"
 
 
+def git_is_dirty() -> bool:
+    """Return whether tracked source differs from HEAD.
+
+    Generated, untracked experiment outputs intentionally do not make a run
+    dirty; publishable runs care about whether their recorded source is exact.
+    """
+    try:
+        status = subprocess.check_output(
+            ["git", "status", "--porcelain", "--untracked-files=no"],
+            cwd=REPOSITORY_ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return True
+    return bool(status)
+
+
 DEVICE_RESOURCES = mailohls_contract.DEVICE_RESOURCES
 RESOURCE_KEYS = mailohls_contract.RESOURCE_KEYS
 UTIL_FIELD_BY_RESOURCE = mailohls_contract.UTIL_FIELD_BY_RESOURCE
@@ -3327,10 +3345,10 @@ class StageValSelectionCallback(TrainerCallback):
             joint_action_score = summary["joint_action_score"]
             checkpoint_key = (
                 selection_score,
+                float(summary["minimum_kernel_decision_accuracy"]),
                 joint_action_score,
-                float(summary["budget_counterfactual_transition_accuracy"] or 0.0),
-                float(summary["budget_counterfactual_exact_design_accuracy"] or 0.0),
-                -eval_loss,
+                float(summary["budget_counterfactual_decision_accuracy"] or 0.0),
+                float(summary["candidate_margin_mean"] or float("-inf")),
             )
 
             print("\n" + "=" * 100)

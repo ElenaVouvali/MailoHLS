@@ -249,6 +249,8 @@ def build_stage3_contract(
     contract["stage3_preference"] = {
         "schema": "mailohls-stage3-preference-v1",
         "algorithm": "reference_dpo",
+        "deployment_role": "final_focused_dpo_ablation",
+        "production_model_stage": "stage2",
         "beta": args.beta,
         "label_smoothing": args.label_smoothing,
         "sft_alpha": args.sft_alpha,
@@ -292,6 +294,8 @@ def build_stage3_contract(
         }),
     }
     contract["stage3_runtime"] = {
+        "train_script_sha256": file_sha256(__file__),
+        "git_dirty": mod.git_is_dirty(),
         "argv": list(sys.argv),
         "hostname": os.uname().nodename,
         "gpu": os.environ.get("CUDA_VISIBLE_DEVICES", ""),
@@ -795,11 +799,30 @@ def _q(vals, q):
     return float(np.quantile(np.array(vals, dtype=np.float64), q))
 
 def compute_dpo_metrics(eval_pred):
-    margin = np.asarray(eval_pred.predictions).reshape(-1)
+    predictions = np.asarray(eval_pred.predictions)
+    if predictions.ndim == 1:
+        # Backward compatibility with cached evaluations produced before the
+        # absolute-margin diagnostics were added.
+        dpo_margin = predictions.reshape(-1)
+        return {
+            "preference_accuracy": float((dpo_margin > 0).mean()),
+            "preference_margin_mean": float(dpo_margin.mean()),
+            "preference_margin_p10": float(np.quantile(dpo_margin, 0.10)),
+        }
+    dpo_margin = predictions[..., 0].reshape(-1)
+    policy_margin = predictions[..., 1].reshape(-1)
+    reference_margin = predictions[..., 2].reshape(-1)
+    negative_reference = reference_margin < 0
     return {
-        "preference_accuracy": float((margin > 0).mean()),
-        "preference_margin_mean": float(margin.mean()),
-        "preference_margin_p10": float(np.quantile(margin, 0.10)),
+        "preference_accuracy": float((dpo_margin > 0).mean()),
+        "preference_margin_mean": float(dpo_margin.mean()),
+        "preference_margin_p10": float(np.quantile(dpo_margin, 0.10)),
+        "policy_pair_accuracy": float((policy_margin > 0).mean()),
+        "reference_pair_accuracy": float((reference_margin > 0).mean()),
+        "negative_reference_margin_count": int(negative_reference.sum()),
+        "negative_reference_margins_crossed_zero": int(
+            (negative_reference & (policy_margin > 0)).sum()
+        ),
     }
 
 
@@ -1455,6 +1478,8 @@ class STRUCTURALDPOTrainer(Trainer):
         chosen_token_counts = pi_token_counts[:batch_size]
 
         preference_logits = (pi_chosen - pi_rejected) - (ref_chosen - ref_rejected)
+        policy_margin = pi_chosen - pi_rejected
+        reference_margin = ref_chosen - ref_rejected
 
         if self.label_smoothing > 0.0:
             losses = (
@@ -1475,6 +1500,9 @@ class STRUCTURALDPOTrainer(Trainer):
             outputs = {
                 "losses": losses.detach(),
                 "preference_logits": preference_logits.detach(),
+                "dpo_margin": preference_logits.detach(),
+                "policy_margin": policy_margin.detach(),
+                "reference_margin": reference_margin.detach(),
                 "pi_chosen": pi_chosen.detach(),
                 "pi_rejected": pi_rejected.detach(),
                 "ref_chosen": ref_chosen.detach(),
@@ -1521,8 +1549,15 @@ class STRUCTURALDPOTrainer(Trainer):
             if prediction_loss_only:
                 return loss, None, None
 
-            logits = outputs["preference_logits"].detach().float()
-            labels = torch.ones_like(logits, dtype=torch.long)
+            logits = torch.stack(
+                (
+                    outputs["dpo_margin"],
+                    outputs["policy_margin"],
+                    outputs["reference_margin"],
+                ),
+                dim=-1,
+            ).detach().float()
+            labels = torch.ones(logits.shape[0], device=logits.device, dtype=torch.long)
             return loss, logits, labels
 
         finally:
@@ -1868,7 +1903,7 @@ def main():
     ap.add_argument("--group_by_length", action="store_true")
     ap.add_argument("--gradient_checkpointing", action="store_true")
 
-    ap.add_argument("--lr_lora", type=float, default=2e-5)
+    ap.add_argument("--lr_lora", type=float, default=0.0)
     ap.add_argument("--lr_xattn", type=float, default=5e-5)
     ap.add_argument("--lr_gate", type=float, default=2e-5)
     ap.add_argument("--lr_ff", type=float, default=0.0)
@@ -1898,6 +1933,11 @@ def main():
         raise ValueError("--sft_alpha must be non-negative")
     if args.train_special_token_embeddings:
         raise ValueError("Stage-3 keeps special-token embeddings frozen")
+    if args.train_lora_dpo or args.lr_lora != 0.0:
+        raise ValueError(
+            "The final focused-DPO ablation keeps the Stage-1 LoRA frozen; "
+            "do not pass --train_lora_dpo and keep --lr_lora=0"
+        )
     if args.top_k < 2:
         raise ValueError("Stage-3 preference construction requires --top_k >= 2")
     if not 0.0 <= args.dpo_min_edit_frac <= args.dpo_max_edit_frac <= 1.0:

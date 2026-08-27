@@ -19,6 +19,7 @@ def evaluate(features, model):
                      'adp_regret':10.0 if pa is None else max(0.0,float(pa)/max(ga,1e-9)-1.0),
                      'feasible_adp_regret':None if pa is None else max(0.0,float(pa)/max(ga,1e-9)-1.0),
                      'predicted_infeasible':not e['case'].get('clock_feasible',{}).get(str(pc),False),
+                     'candidate_clock_periods_ns':list(e['clocks']),
                      'device':e['case'].get('device'),'family':e['case'].get('family'),
                      'kernel':e['case'].get('kernel'),'adp_by_clock':adps,'gold_adp':ga})
     return rows
@@ -35,12 +36,17 @@ def main():
         return {str(k):{'count':len(v),'accuracy':sum(x['correct'] for x in v)/len(v),'mean_adp_regret':sum(x['adp_regret'] for x in v)/len(v)} for k,v in g.items()}
     golds=[x['reference_clock_period_ns'] for x in rows]
     majority=Counter(golds).most_common(1)[0][0] if golds else None
-    fastest=min(golds) if golds else None
+    fastest_by_example=[min(x['candidate_clock_periods_ns']) for x in rows]
     def baseline(c):
         regrets=[]
         for x in rows:
             value=x['adp_by_clock'].get(str(c)); regrets.append(10.0 if value is None else max(0.,float(value)/max(x['gold_adp'],1e-9)-1.))
         return {'clock_accuracy':sum(x['reference_clock_period_ns']==c for x in rows)/max(1,len(rows)), 'mean_adp_regret':sum(regrets)/max(1,len(regrets))}
+    def fastest_baseline():
+        regrets=[]; correct=0
+        for x,c in zip(rows,fastest_by_example):
+            value=x['adp_by_clock'].get(str(c)); regrets.append(10.0 if value is None else max(0.,float(value)/max(x['gold_adp'],1e-9)-1.)); correct += x['reference_clock_period_ns']==c
+        return {'clock_accuracy':correct/max(1,len(rows)), 'mean_adp_regret':sum(regrets)/max(1,len(regrets))}
     feasible_regs=[x['feasible_adp_regret'] for x in rows if x['feasible_adp_regret'] is not None]
     kd=defaultdict(list)
     for x in rows: kd[(x.get('kernel'),x.get('device'))].append(x)
@@ -52,7 +58,7 @@ def main():
          'worst_adp_regret':max(regs) if regs else None,
          'mean_feasible_only_adp_regret':sum(feasible_regs)/max(1,len(feasible_regs)),
          'majority_clock_baseline':baseline(majority) if majority is not None else None,
-         'fastest_clock_baseline':baseline(fastest) if fastest is not None else None,
+         'fastest_clock_baseline':fastest_baseline() if rows else None,
          'per_family':grouped('family'),'per_device':grouped('device'),
          'kernel_device_macro':kd_metrics,
          'predicted_infeasible_rate':sum(x['predicted_infeasible'] for x in rows)/max(1,len(rows)),

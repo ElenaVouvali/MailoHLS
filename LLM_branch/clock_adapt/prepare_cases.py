@@ -15,7 +15,7 @@ def build_cases(rows,budget_bank,split):
  g=defaultdict(list)
  for i,r in enumerate(rows):
   k=r.get('kernel_name',r.get('kernel'));d=r.get('device');c=num(r,'clock_period','selected_clock_period','clock_period_ns');l=num(r,'latency','latency_ms');a=num(r,'area','area_mm2')
-  if k and d and c is not None and l is not None and a is not None and any(abs(c-x)<1e-5 for x in supported_clock_periods(d)):g[(k,d)].append((r,c,max(l,0)*max(a,.0625),idx_split.get(i)))
+  if k and d and c is not None and l is not None and a is not None and any(abs(c-x)<=0.02 for x in supported_clock_periods(d)):g[(k,d)].append((r,c,max(l,0)*max(a,.0625),idx_split.get(i)))
  out=[]
  for (k,d),items in g.items():
   bs=[b for b in budget_bank.get('cases',[]) if b.get('kernel')==k and b.get('device')==d]
@@ -39,9 +39,12 @@ def build_cases(rows,budget_bank,split):
  return out
 def main():
  p=argparse.ArgumentParser();p.add_argument('--dataset',required=True);p.add_argument('--split_json',required=True);p.add_argument('--budget_bank',required=True);p.add_argument('--include_splits',default='train,val,test');p.add_argument('--output_dir',required=True);a=p.parse_args();rows=[json.loads(x) for x in open(a.dataset) if x.strip()];cases=build_cases(rows,json.load(open(a.budget_bank)),json.load(open(a.split_json)));included={x.strip() for x in a.include_splits.split(',') if x.strip()};cases=[x for x in cases if x.get('split') in included];Path(a.output_dir).mkdir(parents=True,exist_ok=True)
+ counts={n:sum(x['split']==n for x in cases) for n in ('train','val','test')}
+ empty=sorted(n for n in included if counts.get(n,0)==0)
+ if empty: raise ValueError(f'Requested AUTO splits produced no cases: {empty}')
  for n in ('train','val','test'):
   with open(Path(a.output_dir)/f'{n}.jsonl','w') as f:
    for x in cases:
     if x['split']==n:f.write(json.dumps(x,sort_keys=True)+'\n')
- print(json.dumps({'cases':len(cases),'train':sum(x['split']=='train' for x in cases),'val':sum(x['split']=='val' for x in cases),'test':sum(x['split']=='test' for x in cases)}))
+ print(json.dumps({'cases':len(cases),**counts}))
 if __name__=='__main__':main()

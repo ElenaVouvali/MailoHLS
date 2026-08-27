@@ -24,6 +24,13 @@ def auto_to_specified_request(base_request, selector, memory_pack):
     request.update({'selected_clock_period':c,'selected_clock_period_ns':c,'frequency_mode':'specified'})
     return request
 
+def auto_select_then_decode(base_request, selector, memory_pack, build_prompt, constrained_decode):
+    """Convert AUTO, then use the exact specified-clock Stage-2 path once."""
+    specified_request=auto_to_specified_request(base_request,selector,memory_pack)
+    prompt=build_prompt(specified_request)
+    decoded=constrained_decode(prompt,specified_request)
+    return specified_request,prompt,decoded
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--selector',required=True);p.add_argument('--memory_pack',required=True);p.add_argument('--device',required=True);p.add_argument('--budget_fractions',required=True);a=p.parse_args(); ck=torch.load(a.selector,map_location='cpu',weights_only=False); m=ClockSelector(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout']);m.load_state_dict(ck['model']); pack=torch.load(a.memory_pack,map_location='cpu',weights_only=False); fr=[float(x) for x in a.budget_fractions.split(',')]; c,_=select_clock(m,pack,a.device,fr); print(json.dumps({'selected_clock_period':c,'selected_clock_period_ns':c,'frequency_mode':'specified'}))
 if __name__=='__main__':main()

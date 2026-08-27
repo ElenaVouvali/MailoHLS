@@ -35,6 +35,11 @@ case "${MODE}" in
   *) echo "STAGE3_MODE must be preflight or train" >&2; exit 2 ;;
 esac
 
+if [[ "${MODE}" == "train" ]] && [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+  echo "Refusing publishable Stage-3 training from a dirty tracked tree." >&2
+  exit 2
+fi
+
 test -f "${MAILOHLS_STAGE2}/training_contract.json"
 test -f "${MAILOHLS_STAGE2}/structural_xattn.pt"
 test -f "${MAILOHLS_MEMORY}/memory_manifest.json"
@@ -67,7 +72,7 @@ ARGS=(
   --train_attn_gate_dpo
   --lr_xattn "${STAGE3_LR_XATTN:-5e-5}"
   --lr_gate "${STAGE3_LR_GATE:-2e-5}"
-  --lr_lora "${STAGE3_LR_LORA:-5e-6}"
+  --lr_lora 0
   --lr_embed 0
   --lr_ff 0
   --lr_gate_ff 0
@@ -87,7 +92,8 @@ ARGS=(
 )
 
 if [[ "${STAGE3_TRAIN_LORA:-0}" == "1" ]]; then
-  ARGS+=(--train_lora_dpo)
+  echo "LoRA is locked frozen for the final focused-DPO ablation." >&2
+  exit 2
 fi
 if [[ "${STAGE3_REQUIRE_CHOSEN_RANK0:-1}" == "1" ]]; then
   ARGS+=(--dpo_require_chosen_rank0)
