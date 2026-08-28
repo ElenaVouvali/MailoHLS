@@ -4,15 +4,19 @@ from .model import ClockSelector
 from .extract_features import pooled_structural_memory
 from LLM_branch.common.mailohls_contract import supported_clock_periods, DEVICE_RESOURCES
 
-def select_clock(selector, memory_pack, device, fractions):
+def select_clock(selector, memory_pack, device, fractions, objective="PARETO_ADP", switch_threshold=0.05):
     memory=memory_pack['node_embs'].float(); mask=memory_pack['node_embs_mask'].bool(); caps=DEVICE_RESOURCES[device]
     rows=[]
     for clock in supported_clock_periods(device):
-        ctx=torch.tensor(list(fractions)+[__import__('math').log1p(caps[k]) for k in ('BRAM_18K','DSP','FF','LUT')]+[__import__('math').log2(clock/5)],dtype=torch.float32)
+        onehot=[float(objective.upper()==name) for name in ('PARETO_LATENCY','PARETO_AREA','PARETO_ADP')]
+        ctx=torch.tensor(list(fractions)+[__import__('math').log1p(caps[k]) for k in ('BRAM_18K','DSP','FF','LUT')]+[__import__('math').log2(clock/5)]+onehot,dtype=torch.float32)
         rows.append(ctx)
     context=torch.stack(rows); selector.eval()
-    with torch.inference_mode(): logits=selector(memory,mask,context)
-    return float(supported_clock_periods(device)[int(logits.argmax())]), logits
+    with torch.inference_mode(): raw=selector(memory,mask,context); predicted=raw-raw[0]
+    fast_idx=int(torch.tensor(supported_clock_periods(device)).argmin())
+    candidate=int(predicted.argmin())
+    selected=candidate if float(predicted[candidate]) < -float(switch_threshold) else fast_idx
+    return float(supported_clock_periods(device)[selected]), predicted
 
 def auto_to_specified_request(base_request, selector, memory_pack):
     request=dict(base_request)
@@ -20,7 +24,11 @@ def auto_to_specified_request(base_request, selector, memory_pack):
         return request
     budget=request['resource_budget']; caps=DEVICE_RESOURCES[request['device']]
     fractions=[budget['BRAM_18K']/caps['BRAM_18K'],budget['DSP']/caps['DSP'],budget['FF']/caps['FF'],budget['LUT']/caps['LUT']]
-    c,_=select_clock(selector,memory_pack,request['device'],fractions)
+    try:
+        c,_=select_clock(selector,memory_pack,request['device'],fractions,
+                         request.get('objective','PARETO_ADP'), request.get('switch_threshold',0.05))
+    except TypeError:  # compatibility with old test/adapters exposing 4 args
+        c,_=select_clock(selector,memory_pack,request['device'],fractions)
     request.update({'clock_period':c,'selected_clock_period':c,'selected_clock_period_ns':c,'frequency_mode':'specified'})
     return request
 

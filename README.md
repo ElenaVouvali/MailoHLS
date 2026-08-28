@@ -247,3 +247,34 @@ Stage 2 should begin only after the current GNN checkpoint can be exported as
 one deterministic, zero-pragma, action-aligned memory pack per kernel. The
 export must record graph/feature/checkpoint hashes and reject missing action
 slots. 
+
+## Additive Stage-3 complete-design reranking
+
+The existing DPO Stage-3 remains available. The alternative path streams
+Stage-2 candidates to a resumable bank (one JSON object per candidate):
+
+```bash
+PYTHONPATH=. CUDA_VISIBLE_DEVICES=0 python -u LLM_branch/inference/eval_stage1_stage2_stage3.py \
+  --stage stage2 --adapter_dir "$STAGE2_CHECKPOINT" --memory_dir "$MEMORY_BANK" \
+  --input_jsonl "$CASES_JSONL" --num_samples 32 --sample_temperature 0.8 \
+  --candidate_bank_jsonl runs/stage3/candidates.jsonl \
+  --output_jsonl runs/stage3/predictions.jsonl
+```
+
+Re-running the command resumes the append-only bank and skips records already
+written. Join that bank to measured configurations with
+`exact_join_candidates`; unmatched promising rows are intentionally returned
+as a synthesis queue, never assigned nearest-neighbour QoR. Tensorize the
+labelled pairs and train the independent ranker:
+
+```bash
+PYTHONPATH=. CUDA_VISIBLE_DEVICES=0 python -m LLM_branch.train.train_whole_design_reranker \
+  --pairs runs/stage3/pairs.jsonl --output_dir runs/stage3/ranker \
+  --epochs 10 --batch_size 64
+```
+
+On an NVIDIA A2 (16 GB), keep Stage-2 generation batch size at one, use
+`--num_samples 16–32`, and use gradient accumulation when tensorizing/training
+the small ranker. Select the highest ranker score within each exact context,
+then synthesize the emitted queue; the resulting QoR is the acceptance test
+for claiming improvement over Stage-2.

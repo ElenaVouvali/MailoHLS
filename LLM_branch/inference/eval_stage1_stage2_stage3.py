@@ -22,6 +22,8 @@ from LLM_branch.common import (
     structural_memory as structural_memory_utils,
     structural_xattn,
 )
+from LLM_branch.train.whole_design_reranker import CandidateBankWriter
+from LLM_branch.clock_adapt import infer_auto
 
 
 TARGET_PLACEHOLDER_TOKENS = mailohls_contract.TARGET_PLACEHOLDER_TOKENS
@@ -145,6 +147,23 @@ def dump_jsonl(path: str, rows: List[dict]):
     with open(path, "w", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+def append_jsonl_resume(path: str, rows: List[dict]):
+    """Append case results, skipping an already completed context/kernel/objective."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    seen = set()
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    try:
+                        r = json.loads(line); seen.add((r.get("kernel_name"), r.get("obj_mode"), r.get("context_id")))
+                    except json.JSONDecodeError: pass
+    with open(path, "a", encoding="utf-8") as f:
+        for r in rows:
+            key = (r.get("kernel_name"), r.get("obj_mode"), r.get("context_id"))
+            if key in seen: continue
+            f.write(json.dumps(r, ensure_ascii=False) + "\n"); seen.add(key)
 
 
 # ============================================================
@@ -1271,6 +1290,8 @@ def predict_case(
     sample_top_p: float,              # NEW
     sample_top_k: int,                # NEW
     sample_seed: int,                 # NEW
+    candidate_writer=None,
+    clock_selector=None,
 ) -> Dict[str, Any]:
     frequency_mode = str(
         case.platform_row.get("frequency_mode", "specified")
@@ -1298,6 +1319,21 @@ def predict_case(
             case.platform_row, tok
         )
     else:
+        if clock_selector is None or mem_bank is None:
+            raise ValueError("AUTO inference requires --clock_selector_dir")
+        pack = get_real_memory_pack_for_kernel(mem_bank, case.kernel_name, max_slots, mem_dim, structural_routing)
+        platform = dict(case.platform_row)
+        platform.setdefault("objective", case.obj_mode)
+        platform.setdefault("resource_budget", {"BRAM_18K": platform.get("avail_bram", 0), "DSP": platform.get("avail_dsp", 0), "FF": platform.get("avail_ff", 0), "LUT": platform.get("avail_lut", 0)})
+        platform = infer_auto.auto_to_specified_request(platform, clock_selector, {"node_embs": pack[0], "node_embs_mask": pack[1]})
+        selected_clock = float(platform["clock_period"])
+        predicted_row = dict(case.platform_row); predicted_row["selected_clock_period"] = selected_clock
+        clock_prefix_ids = mailohls_contract.selected_clock_response_token_ids(predicted_row, tok)
+        frequency_mode = "specified"
+        clock_debug = None
+        """AUTO is selector regression -> specified-clock decode; no LLM clock scoring."""
+
+        '''
         raw_supported = case.platform_row.get("available_clock_periods")
         if not isinstance(raw_supported, (list, tuple)) or len(raw_supported) < 2:
             raise ValueError(
@@ -1338,6 +1374,7 @@ def predict_case(
             predicted_row, tok
         )
         clock_debug = scored_clocks
+        '''
     prompt_ids = base_prompt_ids + clock_prefix_ids
     if len(prompt_ids) > max_prompt_tokens:
         raise ValueError("Inference prompt and selected-clock prefix exceed --max_length")
@@ -1419,6 +1456,23 @@ def predict_case(
             cand.update(metrics)
 
         candidates.append(cand)
+
+        if candidate_writer is not None:
+            platform = case.platform_row
+            candidate_writer.write({
+                "context_id": platform.get("context_id", case.kernel_name),
+                "kernel_name": case.kernel_name,
+                "device": platform.get("device", ""),
+                "clock_period_ns": selected_clock,
+                "resource_budget_id": platform.get("resource_budget_id", ""),
+                "objective": case.obj_mode,
+                "candidate": cand["canonical_prediction"],
+                "stage2_mean_site_logprob": cand["sequence_mean_site_score"],
+                "stage2_sum_logprob": cand["sequence_sum_logprob"],
+                "sample_temperature": float(sample_temperature),
+                "origin": "stage2_sample",
+                "sample_id": cand["sample_id"],
+            })
 
         if print_xattn_debug_flag and stage in {"stage2", "stage3"} and sample_id == 0:
             print_xattn_forward_stats(model)
@@ -1559,6 +1613,8 @@ def main():
 
     # stage2 memory
     ap.add_argument("--memory_dir", type=str, default="")
+    ap.add_argument("--clock_selector_dir", type=str, default="",
+                    help="AUTO clock-regression selector directory containing selector.pt")
     ap.add_argument("--mem_dim", type=int)
     ap.add_argument("--max_slots", type=int)
     ap.add_argument("--every_n_layers", type=int)
@@ -1612,7 +1668,10 @@ def main():
 
     # output
     ap.add_argument("--output_jsonl", type=str, default="")
+    ap.add_argument("--resume_output_jsonl", action="store_true",
+                    help="append output JSONL and skip completed cases")
     ap.add_argument("--output_json", type=str, default="")
+    ap.add_argument("--candidate_bank_jsonl", type=str, default="")
     ap.add_argument("--print_predictions", action="store_true")
 
     # samples
@@ -1828,6 +1887,17 @@ def main():
     if expected_registry_hash:
         if not args.directive_domain_registry_json:
             raise ValueError("This historical checkpoint requires its original directive-domain registry")
+        if not os.path.isfile(args.directive_domain_registry_json):
+            # Checkpoint bundles commonly live in best_custom_stage{1,2,3}/,
+            # while the shared registry is stored beside that directory.
+            parent_registry = os.path.join(
+                os.path.dirname(os.path.dirname(args.directive_domain_registry_json)),
+                "directive_domain_registry.json",
+            )
+            if os.path.isfile(parent_registry):
+                args.directive_domain_registry_json = parent_registry
+            else:
+                raise FileNotFoundError(args.directive_domain_registry_json)
         domain_digest = hashlib.sha256()
         with open(args.directive_domain_registry_json, "rb") as handle:
             for chunk in iter(lambda: handle.read(1024 * 1024), b""):
@@ -1861,6 +1931,14 @@ def main():
     if len(tok) != training_contract.get("tokenizer_size") or actual_ids != expected_ids:
         raise ValueError("Tokenizer does not match the checkpoint training contract")
     model = load_stage_model(args, tok)
+    clock_selector = None
+    if args.frequency_mode == "auto" or any(str(c.platform_row.get("frequency_mode", "specified")).lower() == "auto" for c in cases):
+        if not args.clock_selector_dir:
+            raise ValueError("AUTO inference requires --clock_selector_dir")
+        ck = torch.load(os.path.join(args.clock_selector_dir, "selector.pt"), map_location="cpu", weights_only=False)
+        from LLM_branch.clock_adapt.model import ClockResidualSelector
+        clock_selector = ClockResidualSelector(ck["mem_dim"], ck["context_dim"], ck["hidden_dim"], ck["dropout"])
+        clock_selector.load_state_dict(ck["model"])
     if args.stage in {"stage2", "stage3"}:
         actual_layers = tuple(model.structural_xattn_layer_indices)
         if actual_layers != args.selected_xattn_layers_1based:
@@ -1884,6 +1962,7 @@ def main():
             print(n, float(p.item()), float(p.tanh().item()))
 
     outputs = []
+    candidate_writer = CandidateBankWriter(args.candidate_bank_jsonl) if args.candidate_bank_jsonl else None
     for idx, case in enumerate(cases, start=1):
         print(f"[CASE {idx}/{len(cases)}] kernel={case.kernel_name} obj={case.obj_mode}")
         row = predict_case(
@@ -1908,6 +1987,10 @@ def main():
             sample_top_p=args.sample_top_p,
             sample_top_k=args.sample_top_k,
             sample_seed=args.sample_seed,
+            # The generator is the frozen Stage-2 checkpoint for the
+            # complete-design path; --stage3 remains available for DPO.
+            candidate_writer=candidate_writer,
+            clock_selector=clock_selector,
         )
         outputs.append(row)
 
@@ -1933,8 +2016,14 @@ def main():
                 print("-" * 60)
             print("-" * 100)
 
+    if candidate_writer is not None:
+        candidate_writer.close()
+
     if args.output_jsonl:
-        dump_jsonl(args.output_jsonl, outputs)
+        if args.resume_output_jsonl:
+            append_jsonl_resume(args.output_jsonl, outputs)
+        else:
+            dump_jsonl(args.output_jsonl, outputs)
         print(f"[DONE] wrote JSONL -> {args.output_jsonl}")
 
     if args.output_json:

@@ -10,12 +10,14 @@ def num(r,*ns):
    if n in r:return float(r[n])
   except (TypeError,ValueError):pass
  return None
-def build_cases(rows,budget_bank,split):
+def build_cases(rows,budget_bank,split,objective='PARETO_ADP'):
  idx_split={i:n for n in ('train','val','test') for i in split.get(f'{n}_jsonl_idx',[])}
  g=defaultdict(list)
  for i,r in enumerate(rows):
   k=r.get('kernel_name',r.get('kernel'));d=r.get('device');c=num(r,'clock_period','selected_clock_period','clock_period_ns');l=num(r,'latency','latency_ms');a=num(r,'area','area_mm2')
-  if k and d and c is not None and l is not None and a is not None and any(abs(c-x)<=0.02 for x in supported_clock_periods(d)):g[(k,d)].append((r,c,max(l,0)*max(a,.0625),idx_split.get(i)))
+  if k and d and c is not None and l is not None and a is not None and any(abs(c-x)<=0.02 for x in supported_clock_periods(d)):
+   score = max(l,0) if objective=='PARETO_LATENCY' else max(a,.0625) if objective=='PARETO_AREA' else max(l,0)*max(a,.0625)
+   g[(k,d)].append((r,c,score,idx_split.get(i)))
  out=[]
  for (k,d),items in g.items():
   bs=[b for b in budget_bank.get('cases',[]) if b.get('kernel')==k and b.get('device')==d]
@@ -35,10 +37,10 @@ def build_cases(rows,budget_bank,split):
    if not adp:continue
    gold=min(adp,key=adp.get); sp=next((s for _r,_c,_x,s in items if s),None)
    family=re.split(r'[-_](?:\d+|baseline|tiling|pipeline|unroll|doublebuffer|coalescing).*',k,1)[0]
-   out.append({'kernel':k,'device':d,'family':family,'frequency_mode':'auto','available_clock_periods':list(supported_clock_periods(d)),'gold_clock_period':float(gold),'gold_adp':adp[gold],'adp_by_clock':adp,'clock_feasible':feas,'best_directives_by_clock':dirs,'resource_budget':dict(zip(('bram','dsp','ff','lut'),fr)),'resource_budget_id':b.get('resource_budget_id'),'split':sp})
+   out.append({'kernel':k,'device':d,'family':family,'objective':objective,'frequency_mode':'auto','available_clock_periods':list(supported_clock_periods(d)),'gold_clock_period':float(gold),'gold_adp':adp[gold],'qor_by_clock':adp,'adp_by_clock':adp,'clock_feasible':feas,'best_directives_by_clock':dirs,'resource_budget':dict(zip(('bram','dsp','ff','lut'),fr)),'resource_budget_id':b.get('resource_budget_id'),'split':sp})
  return out
 def main():
- p=argparse.ArgumentParser();p.add_argument('--dataset',required=True);p.add_argument('--split_json',required=True);p.add_argument('--budget_bank',required=True);p.add_argument('--include_splits',default='train,val,test');p.add_argument('--output_dir',required=True);a=p.parse_args();rows=[json.loads(x) for x in open(a.dataset) if x.strip()];cases=build_cases(rows,json.load(open(a.budget_bank)),json.load(open(a.split_json)));included={x.strip() for x in a.include_splits.split(',') if x.strip()};cases=[x for x in cases if x.get('split') in included];Path(a.output_dir).mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser();p.add_argument('--dataset',required=True);p.add_argument('--split_json',required=True);p.add_argument('--budget_bank',required=True);p.add_argument('--include_splits',default='train,val,test');p.add_argument('--objective',choices=('PARETO_LATENCY','PARETO_AREA','PARETO_ADP'),default='PARETO_ADP');p.add_argument('--output_dir',required=True);a=p.parse_args();rows=[json.loads(x) for x in open(a.dataset) if x.strip()];cases=build_cases(rows,json.load(open(a.budget_bank)),json.load(open(a.split_json)),a.objective);included={x.strip() for x in a.include_splits.split(',') if x.strip()};cases=[x for x in cases if x.get('split') in included];Path(a.output_dir).mkdir(parents=True,exist_ok=True)
  counts={n:sum(x['split']==n for x in cases) for n in ('train','val','test')}
  empty=sorted(n for n in included if counts.get(n,0)==0)
  if empty: raise ValueError(f'Requested AUTO splits produced no cases: {empty}')

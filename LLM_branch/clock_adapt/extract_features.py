@@ -25,8 +25,10 @@ def make_features(cases, memory_dir):
         capacities = DEVICE_RESOURCES.get(case['device'])
         if capacities is None: raise ValueError(f"Unknown device capacity: {case['device']}")
         caps = [__import__('math').log1p(float(capacities[k])) for k in ('BRAM_18K','DSP','FF','LUT')]
+        objective = str(case.get("objective", "PARETO_ADP")).upper()
+        objective_onehot = [float(objective == name) for name in ("PARETO_LATENCY", "PARETO_AREA", "PARETO_ADP")]
         features = torch.stack([torch.tensor(
-            vals + caps + [__import__('math').log2(float(clock) / 5.0)], dtype=torch.float32
+            vals + caps + [__import__('math').log2(float(clock) / 5.0)] + objective_onehot, dtype=torch.float32
         ) for clock in case["available_clock_periods"]])
         examples.append({"memory": memory, "memory_mask": memory_mask,
                          "candidate_context": features,

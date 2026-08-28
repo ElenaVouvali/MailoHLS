@@ -4,7 +4,7 @@ from torch import nn
 
 class ClockSelector(nn.Module):
     """One-pass candidate-conditioned selector over frozen structural memory."""
-    def __init__(self, mem_dim=128, context_dim=9, hidden_dim=64, dropout=.1):
+    def __init__(self, mem_dim=128, context_dim=12, hidden_dim=64, dropout=.1):
         super().__init__(); self.mem_dim=mem_dim; self.context_dim=context_dim
         self.query=nn.Sequential(nn.LayerNorm(context_dim),nn.Linear(context_dim,hidden_dim),nn.GELU())
         self.key=nn.Linear(mem_dim,hidden_dim,bias=False); self.value=nn.Linear(mem_dim,hidden_dim,bias=False)
