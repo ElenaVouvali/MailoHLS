@@ -21,6 +21,7 @@ MEMORY="${MEMORY:-artifacts/gnn/absolute_direct_rank_epoch9_s123/multiscale_alig
 OUT="${OUT:-mailohls_runs/stage2_specified_${OBJECTIVE_TAG}_epoch9_s123}"
 
 INIT_REF="${INIT_REF:-mailohls_runs/stage2_initial_states/post_self_attention_residual_s123.json}"
+REQUIRE_CLEAN_GIT="${REQUIRE_CLEAN_GIT:-1}"
 
 for required in \
   "$STAGE1/adapter_model.safetensors" \
@@ -35,6 +36,9 @@ if [[ -e "$OUT" ]]; then
   echo "Refusing to overwrite existing Stage-2 output: $OUT" >&2
   exit 2
 fi
+
+EXTRA_CLEAN=()
+if [[ "$REQUIRE_CLEAN_GIT" == "1" ]]; then EXTRA_CLEAN+=(--require_clean_git); fi
 
 CUDA_VISIBLE_DEVICES="$GPU" \
 python -u -m LLM_branch.train.train_SFT_xattn_new \
@@ -110,6 +114,6 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --epochs 3 \
   --max_steps -1 \
   --seed 123 \
-  --require_clean_git \
+  "${EXTRA_CLEAN[@]}" \
   --output_dir "$OUT" \
   --initial_state_reference "$INIT_REF" 
