@@ -1,0 +1,68 @@
+[INFO] Loaded 150026 raw rows from artifacts/llm/mailohls_sft.jsonl
+[INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
+[INFO] Loaded split from mailohls_runs/mailohls_final_family_split_s123.json
+[FAMILY-SPLIT] {"test": {"families": ["serrano_kalman_filter"], "kernel_count": 1, "row_count": 6705}, "train": {"families": ["machsuite_gemm", "machsuite_md_knn", "machsuite_spmv_ellpack", "machsuite_stencil2d", "machsuite_stencil3d", "rodinia_backprop", "rodinia_cfd_flux", "rodinia_cfd_step_factor", "rodinia_dilate", "rodinia_hotspot", "rodinia_kmeans", "rodinia_knn", "rodinia_lavamd", "rodinia_lc_gicov", "rodinia_lc_mgvf", "rodinia_lud", "rodinia_streamcluster", "spcl_example"], "kernel_count": 50, "row_count": 130310}, "val": {"families": ["machsuite_sort_radix", "machsuite_viterbi", "rodinia_pathfinder"], "kernel_count": 4, "row_count": 13011}}
+[RANDOM-BUDGET] case=1/100 key=('machsuite-gemm-blocked', 'xcu200-fsgd2104-2-e')
+[RANDOM-BUDGET] case=10/100 key=('machsuite-stencil2d', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=20/100 key=('rodinia-hotspot-0-baseline', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=30/100 key=('rodinia-kmeans-1-tiling', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=40/100 key=('rodinia-knn-2-pipeline', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=50/100 key=('rodinia_cfd_step_factor_0_baseline_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=60/100 key=('rodinia_cfd_step_factor_5_coalescing_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=70/100 key=('rodinia_lavaMD_0_baseline', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=80/100 key=('rodinia_lc_mgvf_0_baseline_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=90/100 key=('rodinia_streamcluster_3_doublebuffer_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=100/100 key=('spcl_example_05', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] input=130310 output=208615 stats={'kept_clock_budgets': 4608, 'candidate_rows': 208615, 'kept_budgets': 1565, 'rejected_small_clock_candidate_sets': 13, 'rejected_small_candidate_sets': 35}
+[RANDOM-BUDGET] case=1/8 key=('machsuite-sort-radix', 'xcu200-fsgd2104-2-e')
+[RANDOM-BUDGET] input=13011 output=20865 stats={'kept_clock_budgets': 383, 'candidate_rows': 20865, 'kept_budgets': 128}
+[CLOCK-MODE] Counter({'specified': 27589})
+[CLOCK-MODE] Counter({'specified': 2298})
+[INFO] Selected split sizes: train=27589 val=2298; held-out test rows not selected=6705
+[INFO] Final selected split sizes: train=27589 val=2298 test=0
+[INFO] Preference pairs: train=259 val=34 test=0
+[INFO] Unique train kernels with pairs: 19
+[INFO] Avg pairs per kernel-objective bucket: 13.63
+
+[PAIR-AUDIT] train
+  total pairs                 : 259
+  kernel-objective buckets    : 19
+  pairs by objective          : {'PARETO_ADP': 259}
+  pairs by tier               : {'medium': 125, 'hard': 134}
+  score_gap q10/q50/q90       : 0.0471 / 0.1375 / 0.3159
+  diff_count q10/q50/q90      : 1.0 / 1.0 / 2.0
+  diff_frac q10/q50/q90       : 0.032 / 0.167 / 0.500
+
+[PAIR-AUDIT] val
+  total pairs                 : 34
+  kernel-objective buckets    : 3
+  pairs by objective          : {'PARETO_ADP': 34}
+  pairs by tier               : {'hard': 33, 'medium': 1}
+  score_gap q10/q50/q90       : 0.0640 / 0.0702 / 0.0719
+  diff_count q10/q50/q90      : 1.0 / 1.0 / 1.0
+  diff_frac q10/q50/q90       : 0.059 / 0.059 / 0.059
+
+[PAIR-PREVIEW] showing 3 pairs
+
+----------------------------------------------------------------------------------------------------
+[0] kernel=rodinia_lc_mgvf_0_baseline_0 obj=PARETO_ADP
+score_gap=0.1926  diff_count=1  diff_frac=0.167
+latency_rel_gain=-0.000  area_rel_gain=0.125
+changed directives:
+  auto{_UNROLL_L3}: chosen=16 | rejected=32
+
+----------------------------------------------------------------------------------------------------
+[1] kernel=rodinia_lc_mgvf_0_baseline_0 obj=PARETO_ADP
+score_gap=0.1926  diff_count=1  diff_frac=0.167
+latency_rel_gain=-0.000  area_rel_gain=0.125
+changed directives:
+  auto{_UNROLL_L3}: chosen=16 | rejected=32
+
+----------------------------------------------------------------------------------------------------
+[2] kernel=rodinia_lavaMD_0_baseline obj=PARETO_ADP
+score_gap=0.0740  diff_count=2  diff_frac=0.182
+latency_rel_gain=-0.000  area_rel_gain=0.050
+changed directives:
+  auto{_ARRAY_F_L2}: chosen=8 | rejected=0
+  auto{_ARRAY_T_L2}: chosen=block | rejected=complete
+[PAIR-BUILD-ONLY] Contract and pair audits validated; skipping model construction.

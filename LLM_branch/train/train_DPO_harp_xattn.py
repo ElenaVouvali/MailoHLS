@@ -255,7 +255,9 @@ def build_stage3_contract(
         "label_smoothing": args.label_smoothing,
         "sft_alpha": args.sft_alpha,
         "logp_reduction": (
-            "changed_site_mean"
+            "semantic_action_member_mean"
+            if args.dpo_logp_reduction == "mean" and (args.dpo_pair_unit == "semantic_action" or args.dpo_semantic_action_only)
+            else "changed_site_mean"
             if args.dpo_logp_reduction == "mean"
             else args.dpo_logp_reduction
         ),
@@ -277,6 +279,10 @@ def build_stage3_contract(
         "max_edit_frac": args.dpo_max_edit_frac,
         "require_chosen_rank0": args.dpo_require_chosen_rank0,
         "max_edit_distance": args.dpo_max_edit_distance,
+        "pair_unit": args.dpo_pair_unit,
+        "min_action_distance": args.dpo_min_action_distance,
+        "max_action_distance": args.dpo_max_action_distance,
+        "semantic_action_scoring": (args.dpo_pair_unit == "semantic_action" or args.dpo_semantic_action_only),
         "pair_weighting": "clip(sqrt(adp_rel_gain / median_gain), 0.5, 2.0)",
         "pair_weight_median_adp_gain": float(np.median([
             max(float(p.get("adp_rel_gain", 0.0)), 1e-8) for p in train_pairs
@@ -730,11 +736,17 @@ class GoalPreferencePairBuilder:
                     ):
                         continue
                     changed_action = next(iter(changed_actions), None)
-                    action_members = sorted(
-                        lhs for lhs in chosen["schema_key"]
-                        if changed_action is not None and
-                        mailohls_contract.directive_preference_action_key(lhs) == changed_action
-                    )
+                    if changed_action is not None:
+                        representative_lhs = next(iter(changed_lhs))
+                        expected_members = {
+                            x.upper() for x in mailohls_contract.directive_preference_action_members(representative_lhs)
+                        }
+                        schema_members = {str(x).strip().upper() for x in chosen["schema_key"]}
+                        if not expected_members.issubset(schema_members):
+                            continue
+                        action_members = sorted(expected_members)
+                    else:
+                        action_members = []
 
                     rec = {
                         "kernel_name": kernel_name,
@@ -993,8 +1005,9 @@ class DPOPreferenceDataset(Dataset):
             chosen_map = {k.strip().upper(): v.strip() for k, v in parse_target_map(ex["chosen"]).items()}
             rejected_map = {k.strip().upper(): v.strip() for k, v in parse_target_map(ex["rejected"]).items()}
             changed_lhs = {k for k, value in chosen_map.items() if rejected_map.get(k) != value}
-            if ex.get("semantic_action_only", False):
-                scored_lhs = set(ex.get("preference_action_members", []))
+            semantic_scoring = (ex.get("pair_unit") == "semantic_action" or ex.get("semantic_action_only", False))
+            if semantic_scoring:
+                scored_lhs = {str(x).strip().upper() for x in ex["preference_action_members"]}
             else:
                 scored_lhs = changed_lhs
             for pack in (chosen, rejected):
@@ -1003,13 +1016,14 @@ class DPOPreferenceDataset(Dataset):
                 base = pack["score_weights"].tolist()
                 site_mass = defaultdict(float)
                 for weight, site in zip(base, sites):
-                    if site in scored_lhs and weight > 0:
-                        site_mass[site] += float(weight)
+                    site_key = str(site).strip().upper() if site is not None else None
+                    if site_key in scored_lhs and weight > 0:
+                        site_mass[site_key] += float(weight)
                 if not any(site_mass.values()):
                     raise RuntimeError("DPO pair has no scored changed sites")
                 pack["dpo_score_weights"] = torch.tensor(
-                    [float(weight) / site_mass[site]
-                     if site in scored_lhs and site_mass[site] > 0 else 0.0
+                    [float(weight) / site_mass[(str(site).strip().upper() if site is not None else None)]
+                     if (str(site).strip().upper() if site is not None else None) in scored_lhs and site_mass[(str(site).strip().upper() if site is not None else None)] > 0 else 0.0
                      for weight, site in zip(base, sites)],
                     dtype=torch.float32,
                 )
