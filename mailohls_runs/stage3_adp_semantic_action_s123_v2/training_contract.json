@@ -1,7 +1,7 @@
 {
   "schema": "mailohls-training-contract-v1",
   "stage": "stage3",
-  "git_commit": "9f488d06b5c54d851eb17ac11aac2af1c0c0fb8d",
+  "git_commit": "511badf685be16e71b26218867ac8962a246ecb4",
   "model": "deepseek-ai/deepseek-coder-6.7b-base",
   "model_revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
   "tokenizer": "deepseek-ai/deepseek-coder-6.7b-base",
@@ -714,7 +714,7 @@
   },
   "stage3_runtime": {
     "train_script_sha256": "203de76cda93241e08ec2b1052dedf5b1af3d642c703682e219b5c74c674d77c",
-    "git_dirty": true,
+    "git_dirty": false,
     "argv": [
       "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py",
       "--dataset",
@@ -813,8 +813,7 @@
       "--seed",
       "123",
       "--dpo_semantic_action_only",
-      "--dpo_require_chosen_rank0",
-      "--pair_build_only"
+      "--dpo_require_chosen_rank0"
     ],
     "hostname": "liono",
     "gpu": "0",
