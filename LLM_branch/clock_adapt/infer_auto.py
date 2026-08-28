@@ -21,7 +21,7 @@ def auto_to_specified_request(base_request, selector, memory_pack):
     budget=request['resource_budget']; caps=DEVICE_RESOURCES[request['device']]
     fractions=[budget['BRAM_18K']/caps['BRAM_18K'],budget['DSP']/caps['DSP'],budget['FF']/caps['FF'],budget['LUT']/caps['LUT']]
     c,_=select_clock(selector,memory_pack,request['device'],fractions)
-    request.update({'selected_clock_period':c,'selected_clock_period_ns':c,'frequency_mode':'specified'})
+    request.update({'clock_period':c,'selected_clock_period':c,'selected_clock_period_ns':c,'frequency_mode':'specified'})
     return request
 
 def auto_select_then_decode(base_request, selector, memory_pack, build_prompt, constrained_decode):

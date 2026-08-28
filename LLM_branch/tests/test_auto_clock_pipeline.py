@@ -15,7 +15,7 @@ def _bytes(value):
 def test_specified_clock_request_remains_byte_identical():
     request = {
         "frequency_mode": "specified",
-        "device": "xczu7ev",
+        "device": "xczu7ev-ffvc1156-2-e",
         "selected_clock_period": 5.0,
         "selected_clock_period_ns": 5.0,
         "resource_budget": {"BRAM_18K": 100, "DSP": 200, "FF": 300, "LUT": 400},
@@ -33,7 +33,7 @@ def test_specified_clock_request_remains_byte_identical():
 def test_auto_request_uses_unchanged_stage2_prompt_and_one_constrained_decode(monkeypatch):
     request = {
         "frequency_mode": "auto",
-        "device": "xczu7ev",
+        "device": "xczu7ev-ffvc1156-2-e",
         "resource_budget": {"BRAM_18K": 100, "DSP": 200, "FF": 300, "LUT": 400},
         "avail_bram": 100,
         "avail_dsp": 200,
@@ -60,10 +60,12 @@ def test_auto_request_uses_unchanged_stage2_prompt_and_one_constrained_decode(mo
         constrained_decode=constrained_directive_decode,
     )
     assert specified["frequency_mode"] == "specified"
+    assert specified["clock_period"] == 5.0
     assert specified["selected_clock_period_ns"] == 5.0
     expected_request = dict(request)
     expected_request.update({
         "frequency_mode": "specified",
+        "clock_period": 5.0,
         "selected_clock_period": 5.0,
         "selected_clock_period_ns": 5.0,
     })
