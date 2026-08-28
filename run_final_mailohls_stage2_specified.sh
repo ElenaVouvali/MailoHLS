@@ -4,10 +4,21 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
+OBJECTIVE="${OBJECTIVE:-PARETO_ADP}"
+case "$OBJECTIVE" in
+  PARETO_ADP|PARETO_AREA|PARETO_LATENCY) ;;
+  *)
+    echo "Unsupported objective: $OBJECTIVE" >&2
+    exit 2
+    ;;
+esac
+OBJECTIVE_TAG="${OBJECTIVE#PARETO_}"
+OBJECTIVE_TAG="${OBJECTIVE_TAG,,}"
+
 GPU="${CUDA_VISIBLE_DEVICES:-0}"
-STAGE1="${STAGE1:-mailohls_runs/stage1_final_final_adp_s123/best_custom_stage1}"
+STAGE1="${STAGE1:-mailohls_runs/stage1_final_final_${OBJECTIVE_TAG}_s123/best_custom_stage1}"
 MEMORY="${MEMORY:-artifacts/gnn/absolute_direct_rank_epoch9_s123/multiscale_aligned}"
-OUT="${OUT:-mailohls_runs/stage2_specified_adp_epoch9_s123}"
+OUT="${OUT:-mailohls_runs/stage2_specified_${OBJECTIVE_TAG}_epoch9_s123}"
 
 INIT_REF="${INIT_REF:-mailohls_runs/stage2_initial_states/post_self_attention_residual_s123.json}"
 
@@ -28,7 +39,7 @@ fi
 CUDA_VISIBLE_DEVICES="$GPU" \
 python -u -m LLM_branch.train.train_SFT_xattn_new \
   --run_mode single \
-  --objective PARETO_ADP \
+  --objective "$OBJECTIVE" \
   --dataset artifacts/llm/mailohls_sft.jsonl \
   --split_json mailohls_runs/mailohls_final_family_split_s123.json \
   --minimum_validation_families 3 \
@@ -99,5 +110,6 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --epochs 3 \
   --max_steps -1 \
   --seed 123 \
+  --require_clean_git \
   --output_dir "$OUT" \
   --initial_state_reference "$INIT_REF" 
