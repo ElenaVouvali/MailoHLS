@@ -1160,6 +1160,7 @@ class STRUCTURALDPOTrainer(Trainer):
         lr_ff: float = 0.0,
         lr_gate_ff: float = 0.0,
         lr_embed: float = 0.0,
+        max_reference_margin: float | None = None,
         **kwargs,
     ):
         self.ref_model = ref_model
@@ -1185,6 +1186,7 @@ class STRUCTURALDPOTrainer(Trainer):
         self.lr_ff = lr_ff
         self.lr_gate_ff = lr_gate_ff
         self.lr_embed = lr_embed
+        self.max_reference_margin = max_reference_margin
         super().__init__(*args, **kwargs)
 
     def create_optimizer(self):
@@ -1480,7 +1482,6 @@ class STRUCTURALDPOTrainer(Trainer):
         preference_logits = (pi_chosen - pi_rejected) - (ref_chosen - ref_rejected)
         policy_margin = pi_chosen - pi_rejected
         reference_margin = ref_chosen - ref_rejected
-
         if self.label_smoothing > 0.0:
             losses = (
                 -(1.0 - self.label_smoothing) * F.logsigmoid(self.beta * preference_logits)
@@ -1490,6 +1491,9 @@ class STRUCTURALDPOTrainer(Trainer):
             losses = -F.logsigmoid(self.beta * preference_logits)
 
         pair_weights = inputs.get("pair_weight", torch.ones_like(losses)).to(losses.device)
+        if self.max_reference_margin is not None:
+            keep = reference_margin <= float(self.max_reference_margin)
+            pair_weights = pair_weights * keep.to(pair_weights.dtype)
         loss = (pair_weights * losses).sum() / pair_weights.sum().clamp_min(1e-8)
 
         if self.sft_alpha > 0.0:
@@ -1847,6 +1851,8 @@ def main():
     ap.add_argument("--dpo_max_edit_frac", type=float, default=1.0)
     ap.add_argument("--dpo_require_chosen_rank0", action="store_true")
     ap.add_argument("--dpo_max_edit_distance", type=int, default=0)
+    ap.add_argument("--dpo_max_reference_margin", type=float, default=None,
+                    help="Train only pairs whose frozen Stage-2 margin is <= epsilon")
 
     ap.add_argument("--min_supervised_sites", type=int, default=2)
     ap.add_argument("--min_site_coverage", type=float, default=0.85)
@@ -2319,6 +2325,7 @@ def main():
         lr_ff=args.lr_ff,
         lr_gate_ff=args.lr_gate_ff,
         lr_embed=args.lr_embed,
+        max_reference_margin=args.dpo_max_reference_margin,
     )
 
     trainer.add_callback(

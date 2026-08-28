@@ -63,6 +63,10 @@ ARGS=(
   --dpo_medium_gap_max 0.35
   --dpo_min_primary_rel_gain 0.02
   --dpo_max_edit_distance "${STAGE3_MAX_EDIT_DISTANCE:-8}"
+  --dpo_min_edit_distance "${STAGE3_MIN_EDIT_DISTANCE:-1}"
+  --dpo_min_edit_frac "${STAGE3_MIN_EDIT_FRAC:-0}"
+  --dpo_max_edit_frac "${STAGE3_MAX_EDIT_FRAC:-1}"
+  --dpo_max_reference_margin "${STAGE3_MAX_REFERENCE_MARGIN:-0.05}"
   --require_same_supervised_schema
   --beta "${STAGE3_BETA:-0.5}"
   --label_smoothing 0
