@@ -30,16 +30,16 @@ def main():
             regrets=_regrets(e).to(logits.device)
             loss=ce + a.regret_weight*torch.softmax(logits,dim=-1).dot(regrets)
             opt.zero_grad(); loss.backward(); opt.step(); total += float(loss)
-        model.eval(); losses=[]
+        model.eval(); hard_regrets=[]
         with torch.no_grad():
             for e in val:
                 logits=model(e['memory'],e['memory_mask'],e['candidate_context']).reshape(-1)
-                label=torch.tensor(e['label'])
-                base_ce=nn.functional.cross_entropy(logits.unsqueeze(0),label.view(1),reduction='none')[0]
-                ce=base_ce*class_weights[label]
-                losses.append(float(ce + a.regret_weight*torch.softmax(logits,dim=-1).dot(_regrets(e).to(logits.device))))
-        score=sum(losses)/max(1,len(losses))
-        if score < best: best=score; bad=0; Path(a.output_dir).mkdir(parents=True,exist_ok=True); schema='memory_attention+budget_bram_dsp_ff_lut+capacity_log+clock_log2_v3'; clock_menus={device:list(supported_clock_periods(device)) for device in sorted(DEVICE_RESOURCES)}; torch.save({'model':model.state_dict(),'feature_dim':dim,'mem_dim':mem_dim,'context_dim':dim,'hidden_dim':a.hidden_dim,'dropout':a.dropout,'clock_menu':train[0]['clocks'],'clock_menus_by_device':clock_menus,'class_weights':class_weights.tolist(),'feature_schema':schema,'feature_schema_sha256':hashlib.sha256(schema.encode()).hexdigest(),'best_val_loss':best,'selection_metric':'mean_class_weighted_ce_plus_regret','regret_weight':a.regret_weight,'seed':a.seed,'optimizer':{'name':'AdamW','learning_rate':a.lr,'weight_decay':a.weight_decay,'betas':[0.9,0.999],'epsilon':1e-8},'training':{'epochs_requested':a.epochs,'patience':a.patience,'clock_class_weighting':a.clock_class_weighting},'provenance':{'train_features_sha256':_sha256(a.train_features),'val_features_sha256':_sha256(a.val_features),'split_sha256':_sha256(a.split_json),'budget_bank_sha256':_sha256(a.budget_bank),'memory_manifest_sha256':_sha256(a.memory_manifest),'cases':{n:_sha256(str(Path(a.cases_dir)/n)) if (Path(a.cases_dir)/n).is_file() else None for n in ('train.jsonl','val.jsonl','test.jsonl')}}},Path(a.output_dir)/'selector.pt')
+                regrets=_regrets(e).to(logits.device)
+                predicted=int(logits.argmax())
+                hard_regrets.append(float(regrets[predicted]))
+        hard_regrets=torch.tensor(hard_regrets)
+        score=hard_regrets.mean().item() + 0.10*hard_regrets.quantile(0.90).item()
+        if score < best: best=score; bad=0; Path(a.output_dir).mkdir(parents=True,exist_ok=True); schema='memory_attention+budget_bram_dsp_ff_lut+capacity_log+clock_log2_v3'; clock_menus={device:list(supported_clock_periods(device)) for device in sorted(DEVICE_RESOURCES)}; torch.save({'model':model.state_dict(),'feature_dim':dim,'mem_dim':mem_dim,'context_dim':dim,'hidden_dim':a.hidden_dim,'dropout':a.dropout,'clock_menu':train[0]['clocks'],'clock_menus_by_device':clock_menus,'class_weights':class_weights.tolist(),'feature_schema':schema,'feature_schema_sha256':hashlib.sha256(schema.encode()).hexdigest(),'best_val_loss':best,'selection_metric':'mean_hard_argmax_regret_plus_0.10_p90_hard_argmax_regret','regret_weight':a.regret_weight,'seed':a.seed,'optimizer':{'name':'AdamW','learning_rate':a.lr,'weight_decay':a.weight_decay,'betas':[0.9,0.999],'epsilon':1e-8},'training':{'epochs_requested':a.epochs,'patience':a.patience,'clock_class_weighting':a.clock_class_weighting},'provenance':{'train_features_sha256':_sha256(a.train_features),'val_features_sha256':_sha256(a.val_features),'split_sha256':_sha256(a.split_json),'budget_bank_sha256':_sha256(a.budget_bank),'memory_manifest_sha256':_sha256(a.memory_manifest),'cases':{n:_sha256(str(Path(a.cases_dir)/n)) if (Path(a.cases_dir)/n).is_file() else None for n in ('train.jsonl','val.jsonl','test.jsonl')}}},Path(a.output_dir)/'selector.pt')
         else: bad += 1
         if bad >= a.patience: break
     print(json.dumps({'best_val_loss':best,'epochs':epoch+1}))
