@@ -22,3 +22,30 @@
 [RANDOM-BUDGET] input=130310 output=208615 stats={'kept_clock_budgets': 4608, 'candidate_rows': 208615, 'kept_budgets': 1565, 'rejected_small_clock_candidate_sets': 13, 'rejected_small_candidate_sets': 35}
 [RANDOM-BUDGET] case=1/8 key=('machsuite-sort-radix', 'xcu200-fsgd2104-2-e')
 [RANDOM-BUDGET] input=13011 output=20865 stats={'kept_clock_budgets': 383, 'candidate_rows': 20865, 'kept_budgets': 128}
+[CLOCK-MODE] Counter({'specified': 4608})
+[BUDGET-COMPACT] input=4608 output=1245 target_groups=332 repeated_groups=299 max_duplicates=4
+[CLOCK-MODE] Counter({'specified': 383})
+[BUDGET-BANK] exact validation resource budgets -> mailohls_runs/stage2_specified_area_epoch9_s123/validation_resource_budget_bank.json
+[INFO] Selected split sizes: train=1245 val=383; held-out test rows not selected=6705
+[BUDGET-AUDIT] train={"budget_sensitive_fraction": 0.08695652173913043, "budget_sensitive_groups": 26, "condition_groups": 299, "distinct_targets_by_group": {"('rodinia-hotspot-2-pipeline', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia-hotspot-2-pipeline', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_AREA')": 2, "('rodinia-hotspot-3-unroll', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia-kmeans-2-pipeline', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia-knn-5-coalescing', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia-knn-5-coalescing', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_AREA')": 4, "('rodinia-knn-5-coalescing', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_AREA')": 3, "('rodinia_cfd_step_factor_5_coalescing_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_AREA')": 2, "('rodinia_dilate_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia_dilate_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_AREA')": 2, "('rodinia_dilate_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_AREA')": 2, "('rodinia_dilate_3_pipeline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_AREA')": 2, "('rodinia_lavaMD_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia_lud_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia_lud_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_AREA')": 2, "('rodinia_lud_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_AREA')": 2, "('rodinia_streamcluster_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia_streamcluster_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_AREA')": 2, "('rodinia_streamcluster_2_pipeline_1', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia_streamcluster_2_pipeline_1', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_AREA')": 3, "('rodinia_streamcluster_2_pipeline_1', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_AREA')": 4, "('rodinia_streamcluster_3_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia_streamcluster_3_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_AREA')": 3, "('rodinia_streamcluster_4_coalescing_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 2, "('rodinia_streamcluster_4_coalescing_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_AREA')": 2, "('rodinia_streamcluster_4_coalescing_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_AREA')": 2}}
+[BUDGET-AUDIT] val={"budget_sensitive_fraction": 0.08333333333333333, "budget_sensitive_groups": 2, "condition_groups": 24, "distinct_targets_by_group": {"('rodinia_pathfinder_4_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_AREA')": 3, "('rodinia_pathfinder_4_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_AREA')": 2}}
+[LOSS] directive weighting=inverse_sqrt_frequency weights={'ARRAY_D': 2.0, 'ARRAY_F': 1.0706608386707466, 'ARRAY_T': 1.0, 'PIPE': 0.8313631969179929, 'UNROLL': 0.8313631969179929}
+[INFO] Built 27 validation selection cases from 4 distinct kernels and 8 kernel/device groups
+[DOMAINS] validated 54 kernel registries
+[INFO] Overriding --mem_dim -1 -> 128 from memory bank
+[INFO] Memory files: 55
+[INFO] Unique memory records: 55
+[INFO] Lookup aliases: 85
+[INFO] Required split kernels covered: 54/54
+Traceback (most recent call last):
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_SFT_xattn_new.py", line 8143, in <module>
+    main()
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_SFT_xattn_new.py", line 8106, in main
+    run_single_training(args)
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_SFT_xattn_new.py", line 6989, in run_single_training
+    raise RuntimeError(
+RuntimeError: Final Stage-1 requires a clean tracked git tree. Commit or restore tracked changes before training. Dirty entries: ['M mailohls_runs/objective_adapter_queue_s123.log', ' M mailohls_runs/stage2_specified_area_epoch9_s123.log', ' M mailohls_runs/stage3_specified_adp_epoch9_s123/preflight.log']

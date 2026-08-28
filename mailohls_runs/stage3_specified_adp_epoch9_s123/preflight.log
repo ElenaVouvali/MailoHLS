@@ -16,3 +16,52 @@
 [RANDOM-BUDGET] input=130310 output=208615 stats={'kept_clock_budgets': 4608, 'candidate_rows': 208615, 'kept_budgets': 1565, 'rejected_small_clock_candidate_sets': 13, 'rejected_small_candidate_sets': 35}
 [RANDOM-BUDGET] case=1/8 key=('machsuite-sort-radix', 'xcu200-fsgd2104-2-e')
 [RANDOM-BUDGET] input=13011 output=20865 stats={'kept_clock_budgets': 383, 'candidate_rows': 20865, 'kept_budgets': 128}
+[CLOCK-MODE] Counter({'specified': 27589})
+[CLOCK-MODE] Counter({'specified': 2298})
+[INFO] Selected split sizes: train=27589 val=2298; held-out test rows not selected=6705
+[INFO] Final selected split sizes: train=27589 val=2298 test=0
+[INFO] Preference pairs: train=164 val=32 test=0
+[INFO] Unique train kernels with pairs: 13
+[INFO] Avg pairs per kernel-objective bucket: 12.62
+
+[PAIR-AUDIT] train
+  total pairs                 : 164
+  kernel-objective buckets    : 13
+  pairs by objective          : {'PARETO_ADP': 164}
+  pairs by tier               : {'medium': 98, 'hard': 66}
+  score_gap q10/q50/q90       : 0.0546 / 0.1699 / 0.3159
+  diff_count q10/q50/q90      : 1.0 / 1.0 / 1.0
+  diff_frac q10/q50/q90       : 0.032 / 0.091 / 0.167
+
+[PAIR-AUDIT] val
+  total pairs                 : 32
+  kernel-objective buckets    : 3
+  pairs by objective          : {'PARETO_ADP': 32}
+  pairs by tier               : {'hard': 31, 'medium': 1}
+  score_gap q10/q50/q90       : 0.0640 / 0.0702 / 0.0724
+  diff_count q10/q50/q90      : 1.0 / 1.0 / 1.0
+  diff_frac q10/q50/q90       : 0.059 / 0.059 / 0.059
+
+[PAIR-PREVIEW] showing 3 pairs
+
+----------------------------------------------------------------------------------------------------
+[0] kernel=rodinia_lc_mgvf_0_baseline_0 obj=PARETO_ADP
+score_gap=0.1926  diff_count=1  diff_frac=0.167
+latency_rel_gain=-0.000  area_rel_gain=0.125
+changed directives:
+  auto{_UNROLL_L3}: chosen=16 | rejected=32
+
+----------------------------------------------------------------------------------------------------
+[1] kernel=rodinia_lc_mgvf_0_baseline_0 obj=PARETO_ADP
+score_gap=0.1926  diff_count=1  diff_frac=0.167
+latency_rel_gain=-0.000  area_rel_gain=0.125
+changed directives:
+  auto{_UNROLL_L3}: chosen=16 | rejected=32
+
+----------------------------------------------------------------------------------------------------
+[2] kernel=rodinia-knn-5-coalescing obj=PARETO_ADP
+score_gap=0.0506  diff_count=1  diff_frac=0.032
+latency_rel_gain=0.000  area_rel_gain=0.034
+changed directives:
+  auto{_UNROLL_L1}: chosen=32 | rejected=64
+[PAIR-BUILD-ONLY] Contract and pair audits validated; skipping model construction.
