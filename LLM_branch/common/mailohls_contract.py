@@ -220,6 +220,22 @@ def _directive_site(lhs: str) -> tuple[str, str]:
     return match.group(1).upper(), match.group(2).upper()
 
 
+def directive_preference_action_key(lhs: str) -> tuple[str, str]:
+    """Map directive fields to the joint local action used by opt-in DPO."""
+    kind, label = _directive_site(lhs)
+    if kind in {"PIPE", "UNROLL"}:
+        return ("LOOP", label)
+    if kind in {"ARRAY_T", "ARRAY_F", "ARRAY_D"}:
+        return ("ARRAY", label)
+    raise ValueError(lhs)
+
+
+def directive_preference_action_members(lhs: str) -> set[str]:
+    action_type, label = directive_preference_action_key(lhs)
+    kinds = ("PIPE", "UNROLL") if action_type == "LOOP" else ("ARRAY_T", "ARRAY_F", "ARRAY_D")
+    return {f"AUTO{{_{kind}_{label}}}" for kind in kinds}
+
+
 def _valid_action_values(values: dict[str, str]) -> bool:
     if "PIPE" in values and "UNROLL" in values:
         try:

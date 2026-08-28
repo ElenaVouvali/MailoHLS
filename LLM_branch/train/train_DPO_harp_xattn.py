@@ -33,7 +33,7 @@ from transformers import (
 from transformers.trainer_pt_utils import LengthGroupedSampler
 from peft import PeftModel, prepare_model_for_kbit_training
 
-from LLM_branch.common import frozen_stage1
+from LLM_branch.common import frozen_stage1, mailohls_contract
 
 
 
@@ -531,6 +531,10 @@ class GoalPreferencePairBuilder:
         balanced_min_better_axis_gain: float = 0.03,
         require_chosen_rank0: bool = False,
         max_edit_distance: int = 0,
+        semantic_action_only: bool = False,
+        pair_unit: str = "field",
+        min_action_distance: int = 1,
+        max_action_distance: int = 1,
     ):
         self.mod = mod
         self.objective = objective
@@ -553,6 +557,12 @@ class GoalPreferencePairBuilder:
         self.balanced_min_better_axis_gain = float(balanced_min_better_axis_gain)
         self.require_chosen_rank0 = bool(require_chosen_rank0)
         self.max_edit_distance = int(max_edit_distance)
+        self.semantic_action_only = bool(semantic_action_only)
+        if pair_unit not in {"field", "semantic_action"}:
+            raise ValueError("pair_unit must be field or semantic_action")
+        self.pair_unit = pair_unit
+        self.min_action_distance = int(min_action_distance)
+        self.max_action_distance = int(max_action_distance)
 
     def _canonical_row(self, row: dict):
         try:
@@ -707,6 +717,24 @@ class GoalPreferencePairBuilder:
                         continue
                     if diff_frac < self.min_edit_frac or diff_frac > self.max_edit_frac:
                         continue
+                    changed_lhs = {
+                        lhs for lhs in chosen["schema_key"]
+                        if chosen["rhs_map"].get(lhs) != rejected["rhs_map"].get(lhs)
+                    }
+                    changed_actions = {
+                        mailohls_contract.directive_preference_action_key(lhs)
+                        for lhs in changed_lhs
+                    }
+                    if (self.semantic_action_only or self.pair_unit == "semantic_action") and not (
+                        self.min_action_distance <= len(changed_actions) <= self.max_action_distance
+                    ):
+                        continue
+                    changed_action = next(iter(changed_actions), None)
+                    action_members = sorted(
+                        lhs for lhs in chosen["schema_key"]
+                        if changed_action is not None and
+                        mailohls_contract.directive_preference_action_key(lhs) == changed_action
+                    )
 
                     rec = {
                         "kernel_name": kernel_name,
@@ -751,6 +779,12 @@ class GoalPreferencePairBuilder:
                         "score_gap": float(gap),
                         "directive_diff_count": int(diff_count),
                         "directive_diff_frac": float(diff_frac),
+                        "semantic_action_diff_count": int(len(changed_actions)),
+                        "changed_lhs": sorted(changed_lhs),
+                        "preference_action_type": changed_action[0] if changed_action else None,
+                        "preference_action_label": changed_action[1] if changed_action else None,
+                        "preference_action_members": action_members,
+                        "semantic_action_only": self.semantic_action_only,
                         "latency_rel_gain": float(lat_gain),
                         "area_rel_gain": float(area_gain),
                         "adp_rel_gain": float(adp_gain),
@@ -959,19 +993,23 @@ class DPOPreferenceDataset(Dataset):
             chosen_map = {k.strip().upper(): v.strip() for k, v in parse_target_map(ex["chosen"]).items()}
             rejected_map = {k.strip().upper(): v.strip() for k, v in parse_target_map(ex["rejected"]).items()}
             changed_lhs = {k for k, value in chosen_map.items() if rejected_map.get(k) != value}
+            if ex.get("semantic_action_only", False):
+                scored_lhs = set(ex.get("preference_action_members", []))
+            else:
+                scored_lhs = changed_lhs
             for pack in (chosen, rejected):
                 sites = pack.get("site_keys", [None] * pack["score_weights"].numel())
                 pack["anchor_score_weights"] = pack["score_weights"].clone()
                 base = pack["score_weights"].tolist()
                 site_mass = defaultdict(float)
                 for weight, site in zip(base, sites):
-                    if site in changed_lhs and weight > 0:
+                    if site in scored_lhs and weight > 0:
                         site_mass[site] += float(weight)
                 if not any(site_mass.values()):
                     raise RuntimeError("DPO pair has no scored changed sites")
                 pack["dpo_score_weights"] = torch.tensor(
                     [float(weight) / site_mass[site]
-                     if site in changed_lhs and site_mass[site] > 0 else 0.0
+                     if site in scored_lhs and site_mass[site] > 0 else 0.0
                      for weight, site in zip(base, sites)],
                     dtype=torch.float32,
                 )
@@ -1851,6 +1889,11 @@ def main():
     ap.add_argument("--dpo_max_edit_frac", type=float, default=1.0)
     ap.add_argument("--dpo_require_chosen_rank0", action="store_true")
     ap.add_argument("--dpo_max_edit_distance", type=int, default=0)
+    ap.add_argument("--dpo_semantic_action_only", action="store_true",
+                    help="Keep one semantic action per pair and score all its member fields")
+    ap.add_argument("--dpo_pair_unit", choices=("field", "semantic_action"), default="field")
+    ap.add_argument("--dpo_min_action_distance", type=int, default=1)
+    ap.add_argument("--dpo_max_action_distance", type=int, default=1)
     ap.add_argument("--dpo_max_reference_margin", type=float, default=None,
                     help="Train only pairs whose frozen Stage-2 margin is <= epsilon")
 
@@ -2107,6 +2150,10 @@ def main():
         require_same_supervised_schema=args.require_same_supervised_schema,
         require_chosen_rank0=args.dpo_require_chosen_rank0,
         max_edit_distance=args.dpo_max_edit_distance,
+        semantic_action_only=args.dpo_semantic_action_only,
+        pair_unit=args.dpo_pair_unit,
+        min_action_distance=args.dpo_min_action_distance,
+        max_action_distance=args.dpo_max_action_distance,
     )
     
     cache_train = os.path.join(args.output_dir, "pair_debug", "train_pairs.jsonl")

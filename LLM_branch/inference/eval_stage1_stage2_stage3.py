@@ -1939,6 +1939,7 @@ def main():
         from LLM_branch.clock_adapt.model import ClockResidualSelector
         clock_selector = ClockResidualSelector(ck["mem_dim"], ck["context_dim"], ck["hidden_dim"], ck["dropout"])
         clock_selector.load_state_dict(ck["model"])
+        clock_selector.switch_threshold = float(ck.get("switch_threshold", 0.05))
     if args.stage in {"stage2", "stage3"}:
         actual_layers = tuple(model.structural_xattn_layer_indices)
         if actual_layers != args.selected_xattn_layers_1based:

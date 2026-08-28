@@ -67,6 +67,9 @@ ARGS=(
   --dpo_min_edit_frac "${STAGE3_MIN_EDIT_FRAC:-0}"
   --dpo_max_edit_frac "${STAGE3_MAX_EDIT_FRAC:-1}"
   --dpo_max_reference_margin "${STAGE3_MAX_REFERENCE_MARGIN:-0.05}"
+  --dpo_pair_unit "${STAGE3_PAIR_UNIT:-field}"
+  --dpo_min_action_distance "${STAGE3_MIN_ACTION_DISTANCE:-1}"
+  --dpo_max_action_distance "${STAGE3_MAX_ACTION_DISTANCE:-1}"
   --require_same_supervised_schema
   --beta "${STAGE3_BETA:-0.5}"
   --label_smoothing 0
@@ -98,6 +101,9 @@ ARGS=(
 if [[ "${STAGE3_TRAIN_LORA:-0}" == "1" ]]; then
   echo "LoRA is locked frozen for the final focused-DPO ablation." >&2
   exit 2
+fi
+if [[ "${STAGE3_SEMANTIC_ACTION_ONLY:-0}" == "1" ]]; then
+  ARGS+=(--dpo_semantic_action_only)
 fi
 if [[ "${STAGE3_REQUIRE_CHOSEN_RANK0:-1}" == "1" ]]; then
   ARGS+=(--dpo_require_chosen_rank0)
