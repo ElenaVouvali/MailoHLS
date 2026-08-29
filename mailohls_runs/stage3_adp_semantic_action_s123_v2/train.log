@@ -95,3 +95,211 @@ No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel
  25%|██▌       | 15/60 [21:09<1:00:39, 80.89s/it] 27%|██▋       | 16/60 [22:44<1:02:20, 85.02s/it] 28%|██▊       | 17/60 [24:28<1:05:00, 90.71s/it] 30%|███       | 18/60 [26:08<1:05:23, 93.42s/it] 32%|███▏      | 19/60 [27:23<1:00:00, 87.82s/it] 33%|███▎      | 20/60 [29:09<1:02:22, 93.55s/it]                                                 {'loss': 0.1764, 'grad_norm': 0.041880615055561066, 'learning_rate': 1.5747874102144073e-05, 'epoch': 0.62}
  33%|███▎      | 20/60 [29:09<1:02:22, 93.55s/it]
   0%|          | 0/34 [00:00<?, ?it/s][A
+  6%|▌         | 2/34 [00:03<01:01,  1.92s/it][A
+  9%|▉         | 3/34 [00:07<01:23,  2.71s/it][A
+ 12%|█▏        | 4/34 [00:11<01:33,  3.13s/it][A
+ 15%|█▍        | 5/34 [00:15<01:37,  3.37s/it][A
+ 18%|█▊        | 6/34 [00:19<01:38,  3.52s/it][A
+ 21%|██        | 7/34 [00:22<01:37,  3.61s/it][A
+ 24%|██▎       | 8/34 [00:26<01:35,  3.67s/it][A
+ 26%|██▋       | 9/34 [00:30<01:32,  3.72s/it][A
+ 29%|██▉       | 10/34 [00:34<01:29,  3.74s/it][A
+ 32%|███▏      | 11/34 [00:38<01:26,  3.76s/it][A
+ 35%|███▌      | 12/34 [00:41<01:23,  3.77s/it][A
+ 38%|███▊      | 13/34 [00:46<01:26,  4.10s/it][A
+ 41%|████      | 14/34 [00:50<01:20,  4.02s/it][A
+ 44%|████▍     | 15/34 [00:54<01:15,  3.96s/it][A
+ 47%|████▋     | 16/34 [00:57<01:07,  3.74s/it][A
+ 50%|█████     | 17/34 [01:01<01:03,  3.76s/it][A
+ 53%|█████▎    | 18/34 [01:05<01:00,  3.77s/it][A
+ 56%|█████▌    | 19/34 [01:09<00:56,  3.77s/it][A
+ 59%|█████▉    | 20/34 [01:12<00:52,  3.77s/it][A
+ 62%|██████▏   | 21/34 [01:16<00:49,  3.78s/it][A
+ 65%|██████▍   | 22/34 [01:20<00:45,  3.78s/it][A
+ 68%|██████▊   | 23/34 [01:24<00:41,  3.79s/it][A
+ 71%|███████   | 24/34 [01:28<00:37,  3.79s/it][A
+ 74%|███████▎  | 25/34 [01:31<00:34,  3.79s/it][A
+ 76%|███████▋  | 26/34 [01:35<00:30,  3.79s/it][A
+ 79%|███████▉  | 27/34 [01:39<00:26,  3.80s/it][A
+ 82%|████████▏ | 28/34 [01:43<00:22,  3.80s/it][A
+ 85%|████████▌ | 29/34 [01:46<00:18,  3.79s/it][A
+ 88%|████████▊ | 30/34 [01:50<00:15,  3.79s/it][A
+ 91%|█████████ | 31/34 [01:54<00:11,  3.79s/it][A
+ 94%|█████████▍| 32/34 [01:58<00:07,  3.72s/it][A
+ 97%|█████████▋| 33/34 [02:01<00:03,  3.74s/it][A
+100%|██████████| 34/34 [02:04<00:00,  3.51s/it][A                                                 
+                                               [A{'eval_loss': 0.046086933463811874, 'eval_preference_accuracy': 0.08823529411764706, 'eval_preference_margin_mean': -0.021159859374165535, 'eval_preference_margin_p10': -0.028934214264154434, 'eval_policy_pair_accuracy': 0.9411764705882353, 'eval_reference_pair_accuracy': 0.9411764705882353, 'eval_negative_reference_margin_count': 2, 'eval_negative_reference_margins_crossed_zero': 0, 'eval_runtime': 128.7119, 'eval_samples_per_second': 0.264, 'eval_steps_per_second': 0.264, 'epoch': 0.62}
+ 33%|███▎      | 20/60 [31:18<1:02:22, 93.55s/it]
+100%|██████████| 34/34 [02:04<00:00,  3.51s/it][A
+                                               [A
+====================================================================================================
+[VAL-SELECTION] step=20
+[VAL-SELECTION] mean_value_acc=0.615605
+[VAL-SELECTION] mean_decision_site_accuracy=0.571666
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.9682539682539683, 'ARRAY_F': 0.5714285714285714, 'ARRAY_T': 0.5873015873015873, 'PIPE': 0.5355191256830601, 'UNROLL': 0.5846994535519126}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.5681818181818181, 'machsuite-viterbi': 0.5228758169934641, 'rodinia_pathfinder_0_baseline_0': 0.6666666666666666, 'rodinia_pathfinder_4_doublebuffer_0': 0.6888888888888888}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.5681818181818181, 'machsuite-viterbi': 0.5228758169934641, 'rodinia_pathfinder_0_baseline_0': 0.5833333333333334, 'rodinia_pathfinder_4_doublebuffer_0': 0.6111111111111112}
+[VAL-SELECTION] decision_sites=501 forced_sites=54 budget_counterfactual_groups=8
+[VAL-SELECTION] minimum_kernel_accuracy=0.522876
+[VAL-SELECTION] selection_score=0.571376
+[VAL-SELECTION] joint_action_score=0.212121
+[VAL-SELECTION] checkpoint_key=(0.5713755199049317, 0.5228758169934641, 0.2121212121212121, 0.5618106617647058, 0.0075103227911654585)
+====================================================================================================
+[VAL-LOCAL] count=501 top1=0.6347305389221557 mrr=0.7885047365586288 mean_margin=0.19976521335438102 cascade=0/501 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 9, 'top1_accuracy': 0.7777777777777778, 'mrr': 0.8888888888888888, 'mean_margin': 0.1674874077240626}, 'ARRAY_F': {'count': 63, 'top1_accuracy': 0.6031746031746031, 'mrr': 0.7230599647266314, 'mean_margin': 0.025016102525922988}, 'ARRAY_T': {'count': 63, 'top1_accuracy': 0.6825396825396826, 'mrr': 0.8412698412698413, 'mean_margin': 0.10336336256965759}, 'PIPE': {'count': 183, 'top1_accuracy': 0.5519125683060109, 'mrr': 0.7759562841530054, 'mean_margin': -0.0013417960271809271}, 'UNROLL': {'count': 183, 'top1_accuracy': 0.7049180327868853, 'mrr': 0.8004813947436898, 'mean_margin': 0.49580670815836536}}
+[VAL-BUDGET] groups=8 cases=17 decision_accuracy=0.5618106617647058 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=0
+[VAL-MARGIN] count=501 mean=0.0075103227911654585 median=0.13473215699195862 positive_fraction=0.5688622754491018 mean_gold_rank=1.748502994011976
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 9, 'mean_margin': 0.15504544642236498, 'median_margin': 0.25702551007270813, 'positive_fraction': 0.7777777777777778, 'mean_gold_rank': 1.2222222222222223}, 'ARRAY_F': {'count': 63, 'mean_margin': -0.08902355425414585, 'median_margin': 0.48346519470214844, 'positive_fraction': 0.5714285714285714, 'mean_gold_rank': 2.365079365079365}, 'ARRAY_T': {'count': 63, 'mean_margin': 0.007084576738259149, 'median_margin': 0.13473215699195862, 'positive_fraction': 0.5873015873015873, 'mean_gold_rank': 1.4126984126984128}, 'PIPE': {'count': 183, 'mean_margin': -0.033542345008237766, 'median_margin': 0.024130791425704956, 'positive_fraction': 0.5355191256830601, 'mean_gold_rank': 1.46448087431694}, 'UNROLL': {'count': 183, 'mean_margin': 0.07468670721628952, 'median_margin': 0.5334510505199432, 'positive_fraction': 0.5846994535519126, 'mean_gold_rank': 1.9617486338797814}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 132, 'mean_margin': 0.10923838179389184, 'median_margin': 0.37010618299245834, 'positive_fraction': 0.5681818181818182, 'mean_gold_rank': 1.6515151515151516}, 'machsuite-viterbi': {'count': 153, 'mean_margin': -0.03870477130502657, 'median_margin': 0.008426487445831299, 'positive_fraction': 0.5228758169934641, 'mean_gold_rank': 1.7712418300653594}, 'rodinia_pathfinder_0_baseline_0': {'count': 72, 'mean_margin': 0.06880384207599693, 'median_margin': 0.20760340988636017, 'positive_fraction': 0.5833333333333334, 'mean_gold_rank': 1.6527777777777777}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 144, 'mean_margin': -0.06728362012654543, 'median_margin': 0.11665615439414978, 'positive_fraction': 0.6111111111111112, 'mean_gold_rank': 1.8611111111111112}}
+[VAL-SELECTION] Saved best STRUCTURAL xattn weights -> mailohls_runs/stage3_adp_semantic_action_s123_v2/best_custom_stage3/structural_xattn.pt
+[VAL-SELECTION] New best checkpoint at step 20 -> mailohls_runs/stage3_adp_semantic_action_s123_v2/best_custom_stage3
+/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/peft/utils/save_and_load.py:309: UserWarning: Setting `save_embedding_layers` to `True` as the embedding layer has been resized during finetuning.
+  warnings.warn(
+[STRUCTURAL-SAVE] saved xattn weights to mailohls_runs/stage3_adp_semantic_action_s123_v2/checkpoint-20/structural_xattn.pt
+ 35%|███▌      | 21/60 [1:50:43<16:37:24, 1534.48s/it] 37%|███▋      | 22/60 [1:52:08<11:36:16, 1099.39s/it] 38%|███▊      | 23/60 [1:53:25<8:08:48, 792.66s/it]   40%|████      | 24/60 [1:55:07<5:51:10, 585.30s/it] 42%|████▏     | 25/60 [1:56:25<4:12:34, 433.00s/it]                                                    {'loss': 0.0919, 'grad_norm': 0.042427100241184235, 'learning_rate': 1.3392388661180303e-05, 'epoch': 0.77}
+ 42%|████▏     | 25/60 [1:56:25<4:12:34, 433.00s/it] 43%|████▎     | 26/60 [1:57:34<3:03:28, 323.79s/it] 45%|████▌     | 27/60 [1:59:17<2:21:45, 257.75s/it] 47%|████▋     | 28/60 [2:00:47<1:50:30, 207.21s/it] 48%|████▊     | 29/60 [2:01:54<1:25:27, 165.40s/it] 50%|█████     | 30/60 [2:03:39<1:13:35, 147.19s/it]                                                    {'loss': 0.1929, 'grad_norm': 0.08944715559482574, 'learning_rate': 1.0797861055530832e-05, 'epoch': 0.93}
+ 50%|█████     | 30/60 [2:03:39<1:13:35, 147.19s/it] 52%|█████▏    | 31/60 [2:05:22<1:04:43, 133.91s/it] 53%|█████▎    | 32/60 [2:07:13<59:15, 127.00s/it]   55%|█████▌    | 33/60 [2:07:35<43:00, 95.58s/it]  57%|█████▋    | 34/60 [2:08:46<38:14, 88.25s/it] 58%|█████▊    | 35/60 [2:10:02<35:12, 84.49s/it]                                                 {'loss': 0.1924, 'grad_norm': 0.02011331543326378, 'learning_rate': 8.147112759128859e-06, 'epoch': 1.06}
+ 58%|█████▊    | 35/60 [2:10:02<35:12, 84.49s/it] 60%|██████    | 36/60 [2:11:37<35:04, 87.68s/it] 62%|██████▏   | 37/60 [2:13:21<35:30, 92.64s/it] 63%|██████▎   | 38/60 [2:14:35<31:51, 86.88s/it] 65%|██████▌   | 39/60 [2:16:12<31:26, 89.85s/it] 67%|██████▋   | 40/60 [2:17:55<31:19, 93.96s/it]                                                 {'loss': 0.1918, 'grad_norm': 0.0839574858546257, 'learning_rate': 5.626926795411447e-06, 'epoch': 1.22}
+ 67%|██████▋   | 40/60 [2:17:55<31:19, 93.96s/it]
+  0%|          | 0/34 [00:00<?, ?it/s][A
+  6%|▌         | 2/34 [00:03<01:00,  1.90s/it][A
+  9%|▉         | 3/34 [00:07<01:23,  2.69s/it][A
+ 12%|█▏        | 4/34 [00:11<01:32,  3.10s/it][A
+ 15%|█▍        | 5/34 [00:15<01:36,  3.34s/it][A
+ 18%|█▊        | 6/34 [00:18<01:37,  3.49s/it][A
+ 21%|██        | 7/34 [00:22<01:36,  3.58s/it][A
+ 24%|██▎       | 8/34 [00:26<01:34,  3.64s/it][A
+ 26%|██▋       | 9/34 [00:30<01:32,  3.70s/it][A
+ 29%|██▉       | 10/34 [00:34<01:29,  3.73s/it][A
+ 32%|███▏      | 11/34 [00:37<01:26,  3.75s/it][A
+ 35%|███▌      | 12/34 [00:41<01:22,  3.77s/it][A
+ 38%|███▊      | 13/34 [00:46<01:25,  4.08s/it][A
+ 41%|████      | 14/34 [00:50<01:19,  3.99s/it][A
+ 44%|████▍     | 15/34 [00:54<01:14,  3.93s/it][A
+ 47%|████▋     | 16/34 [00:57<01:10,  3.90s/it][A
+ 50%|█████     | 17/34 [01:01<01:05,  3.86s/it][A
+ 53%|█████▎    | 18/34 [01:05<01:01,  3.84s/it][A
+ 56%|█████▌    | 19/34 [01:09<00:57,  3.83s/it][A
+ 59%|█████▉    | 20/34 [01:13<00:53,  3.82s/it][A
+ 62%|██████▏   | 21/34 [01:16<00:49,  3.82s/it][A
+ 65%|██████▍   | 22/34 [01:20<00:45,  3.82s/it][A
+ 68%|██████▊   | 23/34 [01:24<00:42,  3.82s/it][A
+ 71%|███████   | 24/34 [01:28<00:38,  3.83s/it][A
+ 74%|███████▎  | 25/34 [01:32<00:34,  3.83s/it][A
+ 76%|███████▋  | 26/34 [01:36<00:30,  3.83s/it][A
+ 79%|███████▉  | 27/34 [01:39<00:26,  3.85s/it][A
+ 82%|████████▏ | 28/34 [01:43<00:23,  3.86s/it][A
+ 85%|████████▌ | 29/34 [01:47<00:19,  3.88s/it][A
+ 88%|████████▊ | 30/34 [01:51<00:15,  3.89s/it][A
+ 91%|█████████ | 31/34 [01:55<00:11,  3.89s/it][A
+ 94%|█████████▍| 32/34 [01:59<00:07,  3.88s/it][A
+ 97%|█████████▋| 33/34 [02:03<00:03,  3.87s/it][A
+100%|██████████| 34/34 [02:06<00:00,  3.61s/it][A                                                 
+                                               [A{'eval_loss': 0.046045783907175064, 'eval_preference_accuracy': 0.08823529411764706, 'eval_preference_margin_mean': -0.0282664243131876, 'eval_preference_margin_p10': -0.03729719668626785, 'eval_policy_pair_accuracy': 0.9411764705882353, 'eval_reference_pair_accuracy': 0.9411764705882353, 'eval_negative_reference_margin_count': 2, 'eval_negative_reference_margins_crossed_zero': 0, 'eval_runtime': 130.1062, 'eval_samples_per_second': 0.261, 'eval_steps_per_second': 0.261, 'epoch': 1.22}
+ 67%|██████▋   | 40/60 [2:20:05<31:19, 93.96s/it]
+100%|██████████| 34/34 [02:06<00:00,  3.61s/it][A
+                                               [A
+====================================================================================================
+[VAL-SELECTION] step=40
+[VAL-SELECTION] mean_value_acc=0.618636
+[VAL-SELECTION] mean_decision_site_accuracy=0.575454
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.9682539682539683, 'ARRAY_F': 0.5714285714285714, 'ARRAY_T': 0.6031746031746031, 'PIPE': 0.5355191256830601, 'UNROLL': 0.5846994535519126}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.5681818181818181, 'machsuite-viterbi': 0.5228758169934641, 'rodinia_pathfinder_0_baseline_0': 0.6777777777777777, 'rodinia_pathfinder_4_doublebuffer_0': 0.6888888888888888}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.5681818181818181, 'machsuite-viterbi': 0.5228758169934641, 'rodinia_pathfinder_0_baseline_0': 0.5972222222222222, 'rodinia_pathfinder_4_doublebuffer_0': 0.6111111111111112}
+[VAL-SELECTION] decision_sites=501 forced_sites=54 budget_counterfactual_groups=8
+[VAL-SELECTION] minimum_kernel_accuracy=0.522876
+[VAL-SELECTION] selection_score=0.574848
+[VAL-SELECTION] joint_action_score=0.226010
+[VAL-SELECTION] checkpoint_key=(0.574847742127154, 0.5228758169934641, 0.226010101010101, 0.5696231617647058, 0.0075318384413679915)
+====================================================================================================
+[VAL-LOCAL] count=501 top1=0.6367265469061876 mrr=0.7892698729525076 mean_margin=0.1982213441996339 cascade=0/501 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 9, 'top1_accuracy': 0.7777777777777778, 'mrr': 0.8888888888888888, 'mean_margin': 0.17028620839118958}, 'ARRAY_F': {'count': 63, 'top1_accuracy': 0.6031746031746031, 'mrr': 0.7225308641975309, 'mean_margin': 0.016303808443130008}, 'ARRAY_T': {'count': 63, 'top1_accuracy': 0.6984126984126984, 'mrr': 0.8492063492063492, 'mean_margin': 0.09111315449551931}, 'PIPE': {'count': 183, 'top1_accuracy': 0.5519125683060109, 'mrr': 0.7759562841530054, 'mean_margin': -0.0014212984449225045}, 'UNROLL': {'count': 183, 'top1_accuracy': 0.7049180327868853, 'mrr': 0.8000260213374969, 'mean_margin': 0.4987385055671136}}
+[VAL-BUDGET] groups=8 cases=17 decision_accuracy=0.5696231617647058 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=3
+[VAL-MARGIN] count=501 mean=0.0075318384413679915 median=0.11649161577224731 positive_fraction=0.5708582834331337 mean_gold_rank=1.746506986027944
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 9, 'mean_margin': 0.15445275770293343, 'median_margin': 0.2576560080051422, 'positive_fraction': 0.7777777777777778, 'mean_gold_rank': 1.2222222222222223}, 'ARRAY_F': {'count': 63, 'mean_margin': -0.09890479103676857, 'median_margin': 0.4509885609149933, 'positive_fraction': 0.5714285714285714, 'mean_gold_rank': 2.380952380952381}, 'ARRAY_T': {'count': 63, 'mean_margin': -0.00013696272221822586, 'median_margin': 0.09242299199104309, 'positive_fraction': 0.6031746031746031, 'mean_gold_rank': 1.3968253968253967}, 'PIPE': {'count': 183, 'mean_margin': -0.031240487440687713, 'median_margin': 0.03193965554237366, 'positive_fraction': 0.5355191256830601, 'mean_gold_rank': 1.46448087431694}, 'UNROLL': {'count': 183, 'mean_margin': 0.07836074277738242, 'median_margin': 0.5335679650306702, 'positive_fraction': 0.5846994535519126, 'mean_gold_rank': 1.9562841530054644}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 132, 'mean_margin': 0.10894295140733999, 'median_margin': 0.374004989862442, 'positive_fraction': 0.5681818181818182, 'mean_gold_rank': 1.6515151515151516}, 'machsuite-viterbi': {'count': 153, 'mean_margin': -0.03949067283884373, 'median_margin': 0.008414894342422485, 'positive_fraction': 0.5228758169934641, 'mean_gold_rank': 1.7647058823529411}, 'rodinia_pathfinder_0_baseline_0': {'count': 72, 'mean_margin': 0.07507468501312865, 'median_margin': 0.15198437869548798, 'positive_fraction': 0.5972222222222222, 'mean_gold_rank': 1.6527777777777777}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 144, 'mean_margin': -0.06923835349476172, 'median_margin': 0.11671145260334015, 'positive_fraction': 0.6111111111111112, 'mean_gold_rank': 1.8611111111111112}}
+[VAL-SELECTION] Saved best STRUCTURAL xattn weights -> mailohls_runs/stage3_adp_semantic_action_s123_v2/best_custom_stage3/structural_xattn.pt
+[VAL-SELECTION] New best checkpoint at step 40 -> mailohls_runs/stage3_adp_semantic_action_s123_v2/best_custom_stage3
+/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/peft/utils/save_and_load.py:309: UserWarning: Setting `save_embedding_layers` to `True` as the embedding layer has been resized during finetuning.
+  warnings.warn(
+[STRUCTURAL-SAVE] saved xattn weights to mailohls_runs/stage3_adp_semantic_action_s123_v2/checkpoint-40/structural_xattn.pt
+ 68%|██████▊   | 41/60 [3:22:12<6:27:14, 1222.85s/it] 70%|███████   | 42/60 [3:22:53<4:20:29, 868.33s/it]  72%|███████▏  | 43/60 [3:23:25<2:54:55, 617.40s/it] 73%|███████▎  | 44/60 [3:24:16<1:59:21, 447.57s/it] 75%|███████▌  | 45/60 [3:25:11<1:22:24, 329.61s/it]                                                    {'loss': 0.3108, 'grad_norm': 0.2979326844215393, 'learning_rate': 3.414886209349615e-06, 'epoch': 1.37}
+ 75%|███████▌  | 45/60 [3:25:11<1:22:24, 329.61s/it] 77%|███████▋  | 46/60 [3:25:58<57:10, 245.03s/it]   78%|███████▊  | 47/60 [3:26:43<40:02, 184.80s/it] 80%|████████  | 48/60 [3:27:26<28:27, 142.27s/it] 82%|████████▏ | 49/60 [3:28:10<20:42, 112.94s/it] 83%|████████▎ | 50/60 [3:29:00<15:39, 93.99s/it]                                                  {'loss': 0.1752, 'grad_norm': 0.185099795460701, 'learning_rate': 1.6668608091748495e-06, 'epoch': 1.53}
+ 83%|████████▎ | 50/60 [3:29:00<15:39, 93.99s/it] 85%|████████▌ | 51/60 [3:29:39<11:36, 77.43s/it] 87%|████████▋ | 52/60 [3:30:24<09:01, 67.71s/it] 88%|████████▊ | 53/60 [3:31:09<07:06, 60.93s/it] 90%|█████████ | 54/60 [3:31:36<05:04, 50.79s/it] 92%|█████████▏| 55/60 [3:32:28<04:15, 51.16s/it]                                                 {'loss': 0.14, 'grad_norm': 0.04844151437282562, 'learning_rate': 5.060239153161872e-07, 'epoch': 1.68}
+ 92%|█████████▏| 55/60 [3:32:28<04:15, 51.16s/it] 93%|█████████▎| 56/60 [3:33:05<03:07, 46.97s/it] 95%|█████████▌| 57/60 [3:33:52<02:20, 46.81s/it] 97%|█████████▋| 58/60 [3:34:39<01:33, 46.99s/it] 98%|█████████▊| 59/60 [3:35:14<00:43, 43.22s/it]100%|██████████| 60/60 [3:36:06<00:00, 46.07s/it]                                                 {'loss': 0.2063, 'grad_norm': 0.1379881650209427, 'learning_rate': 1.4173043232380557e-08, 'epoch': 1.83}
+100%|██████████| 60/60 [3:36:06<00:00, 46.07s/it]
+  0%|          | 0/34 [00:00<?, ?it/s][A
+  6%|▌         | 2/34 [00:01<00:29,  1.09it/s][A
+  9%|▉         | 3/34 [00:03<00:40,  1.30s/it][A
+ 12%|█▏        | 4/34 [00:05<00:45,  1.51s/it][A
+ 15%|█▍        | 5/34 [00:07<00:47,  1.62s/it][A
+ 18%|█▊        | 6/34 [00:09<00:47,  1.70s/it][A
+ 21%|██        | 7/34 [00:11<00:47,  1.74s/it][A
+ 24%|██▎       | 8/34 [00:12<00:46,  1.77s/it][A
+ 26%|██▋       | 9/34 [00:14<00:44,  1.79s/it][A
+ 29%|██▉       | 10/34 [00:16<00:43,  1.81s/it][A
+ 32%|███▏      | 11/34 [00:18<00:41,  1.82s/it][A
+ 35%|███▌      | 12/34 [00:20<00:40,  1.83s/it][A
+ 38%|███▊      | 13/34 [00:22<00:41,  1.98s/it][A
+ 41%|████      | 14/34 [00:24<00:38,  1.93s/it][A
+ 44%|████▍     | 15/34 [00:26<00:36,  1.91s/it][A
+ 47%|████▋     | 16/34 [00:28<00:33,  1.89s/it][A
+ 50%|█████     | 17/34 [00:29<00:31,  1.87s/it][A
+ 53%|█████▎    | 18/34 [00:31<00:29,  1.86s/it][A
+ 56%|█████▌    | 19/34 [00:33<00:27,  1.86s/it][A
+ 59%|█████▉    | 20/34 [00:35<00:25,  1.85s/it][A
+ 62%|██████▏   | 21/34 [00:37<00:24,  1.85s/it][A
+ 65%|██████▍   | 22/34 [00:39<00:22,  1.85s/it][A
+ 68%|██████▊   | 23/34 [00:40<00:20,  1.84s/it][A
+ 71%|███████   | 24/34 [00:42<00:18,  1.84s/it][A
+ 74%|███████▎  | 25/34 [00:44<00:16,  1.84s/it][A
+ 76%|███████▋  | 26/34 [00:46<00:14,  1.84s/it][A
+ 79%|███████▉  | 27/34 [00:48<00:12,  1.84s/it][A
+ 82%|████████▏ | 28/34 [00:50<00:11,  1.84s/it][A
+ 85%|████████▌ | 29/34 [00:52<00:09,  1.84s/it][A
+ 88%|████████▊ | 30/34 [00:53<00:07,  1.84s/it][A
+ 91%|█████████ | 31/34 [00:55<00:05,  1.84s/it][A
+ 94%|█████████▍| 32/34 [00:57<00:03,  1.84s/it][A
+ 97%|█████████▋| 33/34 [00:59<00:01,  1.84s/it][A
+100%|██████████| 34/34 [01:00<00:00,  1.72s/it][A                                                 
+                                               [A{'eval_loss': 0.04607509449124336, 'eval_preference_accuracy': 0.08823529411764706, 'eval_preference_margin_mean': -0.030283169820904732, 'eval_preference_margin_p10': -0.03890419006347656, 'eval_policy_pair_accuracy': 0.9411764705882353, 'eval_reference_pair_accuracy': 0.9411764705882353, 'eval_negative_reference_margin_count': 2, 'eval_negative_reference_margins_crossed_zero': 0, 'eval_runtime': 62.6924, 'eval_samples_per_second': 0.542, 'eval_steps_per_second': 0.542, 'epoch': 1.83}
+100%|██████████| 60/60 [3:37:09<00:00, 46.07s/it]
+100%|██████████| 34/34 [01:00<00:00,  1.72s/it][A
+                                               [A
+====================================================================================================
+[VAL-SELECTION] step=60
+[VAL-SELECTION] mean_value_acc=0.617534
+[VAL-SELECTION] mean_decision_site_accuracy=0.575109
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.9682539682539683, 'ARRAY_F': 0.5714285714285714, 'ARRAY_T': 0.6190476190476191, 'PIPE': 0.5191256830601093, 'UNROLL': 0.5846994535519126}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.5454545454545454, 'machsuite-viterbi': 0.5228758169934641, 'rodinia_pathfinder_0_baseline_0': 0.6888888888888888, 'rodinia_pathfinder_4_doublebuffer_0': 0.6888888888888888}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.5454545454545454, 'machsuite-viterbi': 0.5228758169934641, 'rodinia_pathfinder_0_baseline_0': 0.6111111111111112, 'rodinia_pathfinder_4_doublebuffer_0': 0.6111111111111112}
+[VAL-SELECTION] decision_sites=501 forced_sites=54 budget_counterfactual_groups=8
+[VAL-SELECTION] minimum_kernel_accuracy=0.522876
+[VAL-SELECTION] selection_score=0.572638
+[VAL-SELECTION] joint_action_score=0.210227
+[VAL-SELECTION] checkpoint_key=(0.5726381461675579, 0.5228758169934641, 0.21022727272727273, 0.5774356617647058, -0.0012849646521929257)
+====================================================================================================
+[VAL-LOCAL] count=501 top1=0.6407185628742516 mrr=0.7912658809365396 mean_margin=0.19805718451262472 cascade=0/501 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 9, 'top1_accuracy': 0.7777777777777778, 'mrr': 0.8888888888888888, 'mean_margin': 0.1694974551598231}, 'ARRAY_F': {'count': 63, 'top1_accuracy': 0.6031746031746031, 'mrr': 0.7225308641975309, 'mean_margin': 0.01554292014666966}, 'ARRAY_T': {'count': 63, 'top1_accuracy': 0.7142857142857143, 'mrr': 0.8571428571428571, 'mean_margin': 0.08799716747469372}, 'PIPE': {'count': 183, 'top1_accuracy': 0.5573770491803278, 'mrr': 0.7786885245901639, 'mean_margin': -0.0012480295746704268}, 'UNROLL': {'count': 183, 'top1_accuracy': 0.7049180327868853, 'mrr': 0.8000260213374969, 'mean_margin': 0.49948926905139546}}
+[VAL-BUDGET] groups=8 cases=17 decision_accuracy=0.5774356617647058 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=2
+[VAL-MARGIN] count=501 mean=-0.0012849646521929257 median=0.10610118508338928 positive_fraction=0.5668662674650699 mean_gold_rank=1.750499001996008
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 9, 'mean_margin': 0.15364125702116224, 'median_margin': 0.2577143609523773, 'positive_fraction': 0.7777777777777778, 'mean_gold_rank': 1.2222222222222223}, 'ARRAY_F': {'count': 63, 'mean_margin': -0.10400783572168577, 'median_margin': 0.444698691368103, 'positive_fraction': 0.5714285714285714, 'mean_gold_rank': 2.380952380952381}, 'ARRAY_T': {'count': 63, 'mean_margin': -0.0026712662407330106, 'median_margin': 0.08177101612091064, 'positive_fraction': 0.6190476190476191, 'mean_gold_rank': 1.380952380952381}, 'PIPE': {'count': 183, 'mean_margin': -0.04908325168930116, 'median_margin': 0.008406728506088257, 'positive_fraction': 0.5191256830601093, 'mean_gold_rank': 1.4808743169398908}, 'UNROLL': {'count': 183, 'mean_margin': 0.0747348627258764, 'median_margin': 0.5335744321346283, 'positive_fraction': 0.5846994535519126, 'mean_gold_rank': 1.9562841530054644}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 132, 'mean_margin': 0.07811598021847506, 'median_margin': 0.1518273949623108, 'positive_fraction': 0.5454545454545454, 'mean_gold_rank': 1.6742424242424243}, 'machsuite-viterbi': {'count': 153, 'mean_margin': -0.040406283965102985, 'median_margin': 0.008413225412368774, 'positive_fraction': 0.5228758169934641, 'mean_gold_rank': 1.7647058823529411}, 'rodinia_pathfinder_0_baseline_0': {'count': 72, 'mean_margin': 0.07300560579945643, 'median_margin': 0.13978895545005798, 'positive_fraction': 0.6111111111111112, 'mean_gold_rank': 1.6388888888888888}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 144, 'mean_margin': -0.06964804757282966, 'median_margin': 0.116713747382164, 'positive_fraction': 0.6111111111111112, 'mean_gold_rank': 1.8611111111111112}}
+[EARLY-STOP] no improvement for 1/1 validation evaluations
+[EARLY-STOP] retaining best checkpoint from step 40
+/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/peft/utils/save_and_load.py:309: UserWarning: Setting `save_embedding_layers` to `True` as the embedding layer has been resized during finetuning.
+  warnings.warn(
+[STRUCTURAL-SAVE] saved xattn weights to mailohls_runs/stage3_adp_semantic_action_s123_v2/checkpoint-60/structural_xattn.pt
+                                                 {'train_runtime': 15311.1322, 'train_samples_per_second': 0.031, 'train_steps_per_second': 0.004, 'train_loss': 0.18484604756037396, 'epoch': 1.83}
+100%|██████████| 60/60 [4:15:11<00:00, 46.07s/it]100%|██████████| 60/60 [4:15:11<00:00, 255.19s/it]
+[DPO-STRUCTURAL-CONFIG] mem_dim=128 max_slots=64 every_n_layers=8 xattn_heads=4 xattn_dim_head=64 xattn_ff_mult=1
+[DONE] Saved DPO LoRA + STRUCTURAL xattn adapters to: mailohls_runs/stage3_adp_semantic_action_s123_v2

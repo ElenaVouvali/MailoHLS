@@ -3,13 +3,25 @@
 from __future__ import annotations
 
 import json
+import pytest
 
 from LLM_branch.clock_adapt import infer_auto
+from LLM_branch.clock_adapt.train import baseline_target, has_complete_qor
 from LLM_branch.train import train_SFT_xattn_new as stage2
 
 
 def _bytes(value):
     return json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode()
+
+
+def test_incomplete_clock_qor_is_rejected_before_residual_training():
+    case = {
+        "case": {"qor_by_clock": {"3.33": 1.2, "5.0": 1.1}},
+        "clocks": [3.33, 5.0, 10.0],
+    }
+    assert not has_complete_qor(case)
+    with pytest.raises(ValueError, match="Incomplete AUTO QoR vector"):
+        baseline_target(case)
 
 
 def test_specified_clock_request_remains_byte_identical():
