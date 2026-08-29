@@ -96,6 +96,7 @@ ARGS=(
   --gradient_checkpointing
   --save_selection_debug
   --seed "${STAGE3_SEED:-123}"
+  --stage2_seed "${STAGE2_SEED:-123}"
 )
 
 if [[ "${STAGE3_TRAIN_LORA:-0}" == "1" ]]; then

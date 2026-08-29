@@ -198,7 +198,9 @@ def apply_parent_contract(mod, args, contract: dict) -> None:
         contract.get("effective_area_floor", 1e-12)
     )
     mod.TARGET_CFG.strict_source_markers = True
-    mod.TARGET_CFG.seed = args.seed
+    # Random-budget case construction must remain tied to the Stage-2 seed;
+    # the ordinary seed may vary for replication training runs.
+    mod.TARGET_CFG.seed = int(getattr(args, "stage2_seed", args.seed))
 
     structural = contract["structural"]
     args.mem_dim = int(structural["mem_dim"])
@@ -306,6 +308,8 @@ def build_stage3_contract(
         "argv": list(sys.argv),
         "hostname": os.uname().nodename,
         "gpu": os.environ.get("CUDA_VISIBLE_DEVICES", ""),
+        "seed": args.seed,
+        "stage2_seed": args.stage2_seed,
         "batch_size": args.batch_size,
         "gradient_accumulation_steps": args.grad_accum,
         "max_steps": args.max_steps,
@@ -415,7 +419,8 @@ def build_selected_splits(mod, args, rows, parent_contract: dict):
             f"{split_digest} != {parent_contract.get('split_sha256')}"
         )
 
-    eval_seed = args.seed + 10_000
+    budget_seed = int(getattr(args, "stage2_seed", args.seed))
+    eval_seed = budget_seed + 10_000
     if args.resource_budget_mode == "fixed":
         fractions = mod.parse_resource_budget_fracs(
             args.resource_budget_fracs
@@ -430,7 +435,7 @@ def build_selected_splits(mod, args, rows, parent_contract: dict):
         raw_train_rows = mod.augment_rows_with_random_resource_budgets(
             raw_train_rows,
             num_budgets_per_case=args.random_budgets_per_case,
-            seed=args.seed,
+            seed=budget_seed,
             min_feasible_candidates=(
                 args.min_feasible_candidates_per_budget
             ),
@@ -2031,6 +2036,10 @@ def main():
     ap.add_argument("--reuse_pair_cache", action="store_true")
     ap.add_argument("--reuse_selection_cache", action="store_true")
     ap.add_argument("--seed", type=int, default=123)
+    ap.add_argument(
+        "--stage2_seed", type=int, default=None,
+        help="Seed used for reproducing Stage-2 random-budget conditioning; defaults to the parent contract seed.",
+    )
 
     args = ap.parse_args()
 
@@ -2095,12 +2104,14 @@ def main():
     mod = import_module_from_path(args.sft_script)
     parent_contract = load_stage2_contract(args.stage2_adapter_dir)
     args.parent_contract = parent_contract
+    if args.stage2_seed is None:
+        args.stage2_seed = int(parent_contract["seed"])
     apply_parent_contract(mod, args, parent_contract)
     if args.max_length is None:
         args.max_length = int(parent_contract["max_length"])
-    if int(args.seed) != int(parent_contract["seed"]):
+    if int(args.stage2_seed) != int(parent_contract["seed"]):
         raise ValueError(
-            "Stage-3 currently requires the Stage-2 seed so random-budget "
+            "--stage2_seed must match the Stage-2 contract seed so random-budget "
             "conditioning is reproduced exactly"
         )
     if args.selection_cases_per_kernel_device is None:

@@ -35,9 +35,20 @@ def build_cases(rows,budget_bank,split,objective='PARETO_ADP', policy_labels=Non
     feas[str(c)]=bool(ok)
     if ok:x,r=min(ok,key=lambda item:item[0]);adp[str(c)]=x;dirs[str(c)]=r.get('preprocessed_row',r.get('source_key'))
    if policy_labels:
+    policy_values = {}
     for c in supported_clock_periods(d):
      key=(k,d,round(float(c),2),str(b.get('resource_budget_id','')),objective)
-     if key in policy_labels: adp[str(c)]=policy_labels[key]; feas[str(c)]=True
+     if key not in policy_labels:
+      raise ValueError(
+       f'Missing complete policy label for kernel={k} device={d} '
+       f'clock={float(c):g} budget={b.get("resource_budget_id", "")} objective={objective}'
+      )
+     value = float(policy_labels[key])
+     if not (value > 0.0):
+      raise ValueError(f'Non-positive policy QoR for {key}: {value}')
+     policy_values[str(c)] = value
+    adp = policy_values
+    feas = {str(c): True for c in supported_clock_periods(d)}
    if not adp:continue
    gold=min(adp,key=adp.get); sp=next((s for _r,_c,_x,s in items if s),None)
    family=re.split(r'[-_](?:\d+|baseline|tiling|pipeline|unroll|doublebuffer|coalescing).*',k,1)[0]

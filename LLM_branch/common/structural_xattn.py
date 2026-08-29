@@ -162,6 +162,12 @@ class MaskedCrossAttention(nn.Module):
                 "placeholder_slot_ids is required unless use_cached_memory=True"
             )
 
+        # Quantized/PEFT backbones can materialize hidden states in fp32 while
+        # the structural branch is fp16.  LayerNorm requires matching dtypes;
+        # follow the branch parameters explicitly to avoid a deployment-only
+        # ``expected scalar type Half but found Float`` failure.
+        if x.dtype != self.norm.weight.dtype:
+            x = x.to(dtype=self.norm.weight.dtype)
         x = self.norm(x)
         memory = (
             memory.to(dtype=x.dtype)
@@ -586,7 +592,11 @@ class GatedCrossAttentionBlock(nn.Module):
         use_cached_memory=False,
         xattn_apply_mask=None,
     ):
-        input_hidden = x
+        # Keep the residual stream in the structural branch parameter dtype.
+        # This also prevents a fp32 hidden state from propagating into a
+        # fp16/bf16 LM head after the gated residual is added.
+        branch_dtype = self.attn.norm.weight.dtype
+        input_hidden = x.to(dtype=branch_dtype) if x.dtype != branch_dtype else x
 
         attention_output = self.attn(
             input_hidden,

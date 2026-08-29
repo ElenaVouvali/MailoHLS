@@ -859,6 +859,9 @@ def constrained_decode_rhs_by_candidate_scoring(
     if routing_start_idx is None:
         routing_start_idx = torch.tensor([len(prompt_ids)], dtype=torch.long, device=device)
 
+    ordered_plan = extract_ordered_lhs_plan(source_text)
+    if not ordered_plan:
+        raise ValueError("Constrained decode received no directive sites")
     parts = []
     current_label = None
     site_debug = []
@@ -884,7 +887,7 @@ def constrained_decode_rhs_by_candidate_scoring(
         )
 
     try:
-        for label, lhs in extract_ordered_lhs_plan(source_text):
+        for label, lhs in ordered_plan:
             if label != current_label:
                 anchor_text = f"{target_placeholder_token(label)}\n"
                 anchor_ids = tok(anchor_text, add_special_tokens=False)["input_ids"]
@@ -1165,6 +1168,19 @@ def attach_structural_modules(
     print(f"[STRUCTURAL-XATTN] decoder_layers_attr_name={decoder_layers_attr_name}")
     print(f"[STRUCTURAL-XATTN] inserted gated xattn every {every_n_layers} decoder layers")
     move_structural_modules_to_model_device(model)
+    # Some quantized Llama paths promote the final residual stream to fp32,
+    # while the tied lm_head remains fp16.  Cast only at this runtime boundary
+    # so structural inference cannot fail with a mat1/mat2 dtype mismatch.
+    lm_head = model.get_output_embeddings()
+    if lm_head is None and hasattr(model, "base_model"):
+        lm_head = model.base_model.get_output_embeddings()
+    if lm_head is not None and not getattr(lm_head, "_mailohls_dtype_bridge", False):
+        def _cast_lm_head_input(module, inputs):
+            if inputs and torch.is_tensor(inputs[0]) and inputs[0].dtype != module.weight.dtype:
+                return (inputs[0].to(dtype=module.weight.dtype), *inputs[1:])
+            return inputs
+        lm_head.register_forward_pre_hook(_cast_lm_head_input)
+        lm_head._mailohls_dtype_bridge = True
 
 
 def load_stage_model(args, tok):
@@ -1298,37 +1314,27 @@ def predict_case(
     ).strip().lower()
     if frequency_mode not in {"specified", "auto"}:
         raise ValueError(f"Unsupported frequency_mode: {frequency_mode!r}")
-    sections = mailohls_contract.build_prompt_sections(
-        case.source_text,
-        case.obj_mode,
-        mailohls_contract.target_prompt_fields(case.platform_row),
-    )
-    base_prompt_ids = [
-        token_id for section in sections
-        for token_id in tok(section, add_special_tokens=False)["input_ids"]
-    ]
     clock_debug = None
+    platform = dict(case.platform_row)
     if frequency_mode == "specified":
         selected_clock = float(
-            case.platform_row.get(
+            platform.get(
                 "selected_clock_period",
                 case.platform_row.get("clock_period"),
             )
         )
         clock_prefix_ids = mailohls_contract.selected_clock_response_token_ids(
-            case.platform_row, tok
+            platform, tok
         )
     else:
         if clock_selector is None or mem_bank is None:
             raise ValueError("AUTO inference requires --clock_selector_dir")
         pack = get_real_memory_pack_for_kernel(mem_bank, case.kernel_name, max_slots, mem_dim, structural_routing)
-        platform = dict(case.platform_row)
-        platform.setdefault("objective", case.obj_mode)
+        platform["objective"] = case.obj_mode
         platform.setdefault("resource_budget", {"BRAM_18K": platform.get("avail_bram", 0), "DSP": platform.get("avail_dsp", 0), "FF": platform.get("avail_ff", 0), "LUT": platform.get("avail_lut", 0)})
         platform = infer_auto.auto_to_specified_request(platform, clock_selector, {"node_embs": pack[0], "node_embs_mask": pack[1]})
         selected_clock = float(platform["clock_period"])
-        predicted_row = dict(case.platform_row); predicted_row["selected_clock_period"] = selected_clock
-        clock_prefix_ids = mailohls_contract.selected_clock_response_token_ids(predicted_row, tok)
+        clock_prefix_ids = mailohls_contract.selected_clock_response_token_ids(platform, tok)
         frequency_mode = "specified"
         clock_debug = None
         """AUTO is selector regression -> specified-clock decode; no LLM clock scoring."""
@@ -1375,6 +1381,15 @@ def predict_case(
         )
         clock_debug = scored_clocks
         '''
+    sections = mailohls_contract.build_prompt_sections(
+        case.source_text,
+        case.obj_mode,
+        mailohls_contract.target_prompt_fields(platform),
+    )
+    base_prompt_ids = [
+        token_id for section in sections
+        for token_id in tok(section, add_special_tokens=False)["input_ids"]
+    ]
     prompt_ids = base_prompt_ids + clock_prefix_ids
     if len(prompt_ids) > max_prompt_tokens:
         raise ValueError("Inference prompt and selected-clock prefix exceed --max_length")
@@ -1940,6 +1955,7 @@ def main():
         clock_selector = ClockResidualSelector(ck["mem_dim"], ck["context_dim"], ck["hidden_dim"], ck["dropout"])
         clock_selector.load_state_dict(ck["model"])
         clock_selector.switch_threshold = float(ck.get("switch_threshold", 0.05))
+        clock_selector.force_fastest = bool(ck.get("force_fastest", False))
     if args.stage in {"stage2", "stage3"}:
         actual_layers = tuple(model.structural_xattn_layer_indices)
         if actual_layers != args.selected_xattn_layers_1based:
