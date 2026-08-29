@@ -282,6 +282,7 @@ def build_stage3_contract(
         "pair_unit": args.dpo_pair_unit,
         "min_action_distance": args.dpo_min_action_distance,
         "max_action_distance": args.dpo_max_action_distance,
+        "max_reference_margin": args.dpo_max_reference_margin,
         "semantic_action_scoring": (args.dpo_pair_unit == "semantic_action" or args.dpo_semantic_action_only),
         "pair_weighting": "clip(sqrt(adp_rel_gain / median_gain), 0.5, 2.0)",
         "pair_weight_median_adp_gain": float(np.median([
@@ -1621,6 +1622,51 @@ class STRUCTURALDPOTrainer(Trainer):
             self._clear_structural_memory_if_present(self.ref_model)
 
 
+def precompute_reference_margins(trainer, dataset, collator, cache_path=None):
+    """Score every pair with the frozen Stage-2 reference before training.
+
+    The returned margins are cached with a pair fingerprint so a resumed run
+    cannot accidentally apply margins computed for a different pair bank.
+    """
+    pair_rows = getattr(dataset, "rows", None)
+    pair_hash = canonical_json_sha256(pair_rows) if pair_rows is not None else None
+    if cache_path and os.path.isfile(cache_path):
+        cached = json.loads(Path(cache_path).read_text(encoding="utf-8"))
+        if cached.get("pair_hash") == pair_hash and len(cached.get("margins", [])) == len(dataset):
+            return [float(x) for x in cached["margins"]]
+
+    loader = DataLoader(
+        dataset,
+        batch_size=max(1, int(trainer.args.per_device_eval_batch_size)),
+        shuffle=False,
+        collate_fn=collator,
+    )
+    margins = []
+    trainer.model.eval()
+    with torch.no_grad():
+        for batch in loader:
+            batch = trainer._prepare_inputs(batch)
+            _, outputs = trainer.compute_loss(
+                trainer.model, batch, return_outputs=True
+            )
+            values = outputs["reference_margin"].detach().float().cpu().tolist()
+            if not np.isfinite(values).all():
+                raise RuntimeError("Non-finite frozen-reference margin")
+            margins.extend(float(x) for x in values)
+    if cache_path:
+        payload = {
+            "schema": "stage3-reference-margins-v1",
+            "pair_hash": pair_hash,
+            "margins": margins,
+            "count": len(margins),
+            "margin_hash": hashlib.sha256(
+                json.dumps(margins, separators=(",", ":")).encode()
+            ).hexdigest(),
+        }
+        Path(cache_path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return margins
+
+
 def build_tokenizer(mod, args, parent_contract: dict):
     tok = AutoTokenizer.from_pretrained(
         args.stage2_adapter_dir,
@@ -2350,6 +2396,7 @@ def main():
         optim="paged_adamw_8bit",
         logging_steps=args.logging_steps,
         eval_strategy="steps" if val_ds is not None else "no",
+        eval_on_start=True,
         eval_steps=args.eval_steps,
         save_steps=args.save_steps,
         load_best_model_at_end=False,
@@ -2388,6 +2435,42 @@ def main():
         lr_embed=args.lr_embed,
         max_reference_margin=args.dpo_max_reference_margin,
     )
+
+    # Freeze the Stage-2 reference filter before any optimizer/scheduler work.
+    # Inactive pairs are removed entirely so they do not consume accumulation
+    # or learning-rate schedule steps.
+    if args.dpo_max_reference_margin is not None:
+        margin_cache = os.path.join(args.output_dir, "reference_margins.json")
+        reference_margins = precompute_reference_margins(
+            trainer, train_ds, collator, cache_path=margin_cache
+        )
+        epsilon = float(args.dpo_max_reference_margin)
+        active = [i for i, margin in enumerate(reference_margins) if margin <= epsilon]
+        active_accuracy = float(np.mean(np.asarray(reference_margins)[active] > 0.0)) if active else 0.0
+        negative_count = int(np.sum(np.asarray(reference_margins) < 0.0))
+        active_negative_count = int(np.sum(np.asarray(reference_margins)[active] < 0.0)) if active else 0
+        print(
+            f"[REFERENCE-FILTER] total={len(reference_margins)} active={len(active)} "
+            f"epsilon={epsilon:g} active_reference_accuracy={active_accuracy:.4f} "
+            f"negative_margin_count={negative_count} active_negative_margin_count={active_negative_count}",
+            flush=True,
+        )
+        train_ds = torch.utils.data.Subset(train_ds, active)
+        trainer.train_dataset = train_ds
+        pref = training_contract["stage3_preference"]
+        pref.update({
+            "active_pair_count": len(active),
+            "reference_pair_count": len(reference_margins),
+            "active_reference_pair_accuracy": active_accuracy,
+            "reference_negative_margin_count": negative_count,
+            "active_negative_reference_margin_count": active_negative_count,
+            "reference_margin_cache": os.path.abspath(margin_cache),
+            "reference_margin_cache_sha256": file_sha256(margin_cache),
+        })
+        training_contract["stage3_preference"]["pair_counts"]["train_active"] = len(active)
+        mod.dump_json(os.path.join(args.output_dir, "training_contract.json"), training_contract)
+        if not active:
+            raise ValueError("No active training pairs remain after reference-margin filtering")
 
     trainer.add_callback(
         mod.SaveMailoHLSCheckpointCallback(

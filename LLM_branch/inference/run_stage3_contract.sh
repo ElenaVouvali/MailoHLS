@@ -95,7 +95,7 @@ ARGS=(
   --num_workers "${STAGE3_NUM_WORKERS:-0}"
   --gradient_checkpointing
   --save_selection_debug
-  --seed 123
+  --seed "${STAGE3_SEED:-123}"
 )
 
 if [[ "${STAGE3_TRAIN_LORA:-0}" == "1" ]]; then
