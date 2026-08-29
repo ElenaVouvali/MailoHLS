@@ -1345,14 +1345,22 @@ class STRUCTURALDPOTrainer(Trainer):
 
     def _kernel_weighted_sampler(self):
         from torch.utils.data import WeightedRandomSampler
-        names = list(getattr(self.train_dataset, "kernel_names", []))
+        dataset = self.train_dataset
+        if isinstance(dataset, torch.utils.data.Subset):
+            base = dataset.dataset
+            indices = list(dataset.indices)
+            names = [base.kernel_names[i] for i in indices]
+            families = [base.families[i] for i in indices]
+        else:
+            names = list(getattr(dataset, "kernel_names", []))
+            families = list(getattr(dataset, "families", []))
         counts = Counter(names)
         family_kernels = defaultdict(set)
-        for family, kernel in zip(self.train_dataset.families, names):
+        for family, kernel in zip(families, names):
             family_kernels[family].add(kernel)
         raw = torch.tensor([
             counts[kernel] ** -0.5 * len(family_kernels[family]) ** -0.5
-            for family, kernel in zip(self.train_dataset.families, names)
+            for family, kernel in zip(families, names)
         ], dtype=torch.double)
         weights = (raw / raw.median()).clamp_(0.25, 4.0)
         generator = torch.Generator().manual_seed(int(self.args.data_seed))

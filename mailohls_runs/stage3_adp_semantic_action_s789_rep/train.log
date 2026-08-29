@@ -1,10 +1,102 @@
-Traceback (most recent call last):
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 196, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 86, in _run_code
-    exec(code, run_globals)
-  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2567, in <module>
-    main()
-  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2102, in main
-    raise ValueError(
-ValueError: Stage-3 currently requires the Stage-2 seed so random-budget conditioning is reproduced exactly
+[INFO] Loaded 150026 raw rows from artifacts/llm/mailohls_sft.jsonl
+[INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
+[SELECTION-CACHE] Reused train=27589 val=2298
+[INFO] Final selected split sizes: train=27589 val=2298 test=0
+[PAIR-CACHE] Reused train=259 val=34
+[INFO] Preference pairs: train=259 val=34 test=0
+[INFO] Unique train kernels with pairs: 19
+[INFO] Avg pairs per kernel-objective bucket: 13.63
+
+[PAIR-AUDIT] train
+  total pairs                 : 259
+  kernel-objective buckets    : 19
+  pairs by objective          : {'PARETO_ADP': 259}
+  pairs by tier               : {'medium': 125, 'hard': 134}
+  score_gap q10/q50/q90       : 0.0471 / 0.1375 / 0.3159
+  diff_count q10/q50/q90      : 1.0 / 1.0 / 2.0
+  diff_frac q10/q50/q90       : 0.032 / 0.167 / 0.500
+
+[PAIR-AUDIT] val
+  total pairs                 : 34
+  kernel-objective buckets    : 3
+  pairs by objective          : {'PARETO_ADP': 34}
+  pairs by tier               : {'hard': 33, 'medium': 1}
+  score_gap q10/q50/q90       : 0.0640 / 0.0702 / 0.0719
+  diff_count q10/q50/q90      : 1.0 / 1.0 / 1.0
+  diff_frac q10/q50/q90       : 0.059 / 0.059 / 0.059
+
+[PAIR-PREVIEW] showing 3 pairs
+
+----------------------------------------------------------------------------------------------------
+[0] kernel=rodinia_lc_mgvf_0_baseline_0 obj=PARETO_ADP
+score_gap=0.1926  diff_count=1  diff_frac=0.167
+latency_rel_gain=-0.000  area_rel_gain=0.125
+changed directives:
+  auto{_UNROLL_L3}: chosen=16 | rejected=32
+
+----------------------------------------------------------------------------------------------------
+[1] kernel=rodinia_lc_mgvf_0_baseline_0 obj=PARETO_ADP
+score_gap=0.1926  diff_count=1  diff_frac=0.167
+latency_rel_gain=-0.000  area_rel_gain=0.125
+changed directives:
+  auto{_UNROLL_L3}: chosen=16 | rejected=32
+
+----------------------------------------------------------------------------------------------------
+[2] kernel=rodinia_lavaMD_0_baseline obj=PARETO_ADP
+score_gap=0.0740  diff_count=2  diff_frac=0.182
+latency_rel_gain=-0.000  area_rel_gain=0.050
+changed directives:
+  auto{_ARRAY_F_L2}: chosen=8 | rejected=0
+  auto{_ARRAY_T_L2}: chosen=block | rejected=complete
+[INFO] Memory files: 55
+[INFO] Unique memory records: 55
+[INFO] Lookup aliases: 85
+[INFO] Required split kernels covered: 54/54
+[INFO] Building policy model...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:34<00:34, 34.57s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:41<00:00, 18.27s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:41<00:00, 20.72s/it]
+[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[DPO-TRAINABLE] groups enabled: lora=False xattn=True attn_gate=True ff_gate=False
+[DPO-TRAINABLE] total trainable params: 8,683,524
+[DPO-TRAINABLE] first trainables: ['base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight']
+[INFO] Building frozen reference model...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:17<00:17, 17.46s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 10.65s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 11.68s/it]
+[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+trainable params: 8,683,524 || all params: 6,757,388,292 || trainable%: 0.1285
+[RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` hides base models input arguments, if label_names is not given, label_names can't be set automatically within `Trainer`. Note that empty label_names list will be used instead.
+[REFERENCE-FILTER] total=259 active=76 epsilon=0.05 active_reference_accuracy=0.0526 negative_margin_count=72 active_negative_margin_count=72
+[OPT-DPO] lora=0 embed=0 attn_gate=4 ff_gate=0 xattn_attn=8,683,520 xattn_ff=0
+  0%|          | 0/40 [00:00<?, ?it/s]
+  0%|          | 0/34 [00:00<?, ?it/s][A
+  6%|▌         | 2/34 [00:03<01:02,  1.94s/it][A
+  9%|▉         | 3/34 [00:07<01:22,  2.67s/it][A
+ 12%|█▏        | 4/34 [00:10<01:25,  2.86s/it][A
+ 15%|█▍        | 5/34 [00:14<01:30,  3.14s/it][A
+ 18%|█▊        | 6/34 [00:18<01:35,  3.40s/it][A
+ 21%|██        | 7/34 [00:22<01:36,  3.59s/it][A
+ 24%|██▎       | 8/34 [00:26<01:36,  3.70s/it][A
+ 26%|██▋       | 9/34 [00:30<01:34,  3.78s/it][A
+ 29%|██▉       | 10/34 [00:33<01:30,  3.78s/it][A
+ 32%|███▏      | 11/34 [00:37<01:28,  3.84s/it][A
+ 35%|███▌      | 12/34 [00:42<01:26,  3.93s/it][A
+ 38%|███▊      | 13/34 [00:47<01:31,  4.34s/it][A
+ 41%|████      | 14/34 [00:50<01:22,  4.11s/it][A
+ 44%|████▍     | 15/34 [00:54<01:16,  4.05s/it][A
+ 47%|████▋     | 16/34 [00:58<01:12,  4.04s/it][A
+ 50%|█████     | 17/34 [01:02<01:07,  3.96s/it][A
+ 53%|█████▎    | 18/34 [01:06<01:03,  3.94s/it][A
+ 56%|█████▌    | 19/34 [01:10<00:59,  3.99s/it][A
+ 59%|█████▉    | 20/34 [01:14<00:56,  4.02s/it][A
+ 62%|██████▏   | 21/34 [01:18<00:51,  3.94s/it][A
+ 65%|██████▍   | 22/34 [01:22<00:46,  3.85s/it][A
+ 68%|██████▊   | 23/34 [01:25<00:41,  3.76s/it][A
+ 71%|███████   | 24/34 [01:29<00:37,  3.73s/it][A
+ 74%|███████▎  | 25/34 [01:33<00:34,  3.79s/it][A
+ 76%|███████▋  | 26/34 [01:37<00:30,  3.81s/it][A
+ 79%|███████▉  | 27/34 [01:40<00:26,  3.77s/it][A

@@ -53,7 +53,7 @@ changed directives:
 [INFO] Lookup aliases: 85
 [INFO] Required split kernels covered: 54/54
 [INFO] Building policy model...
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:22<00:22, 22.41s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:28<00:00, 13.10s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:28<00:00, 14.50s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:18<00:18, 18.57s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:24<00:00, 11.12s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:24<00:00, 12.24s/it]
 [STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
 [STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
 [STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
@@ -62,28 +62,151 @@ changed directives:
 [DPO-TRAINABLE] total trainable params: 8,683,524
 [DPO-TRAINABLE] first trainables: ['base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight']
 [INFO] Building frozen reference model...
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:15<00:15, 15.72s/it]Loading checkpoint shards:  50%|█████     | 1/2 [00:17<00:17, 17.14s/it]
-Traceback (most recent call last):
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 196, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 86, in _run_code
-    exec(code, run_globals)
-  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2578, in <module>
-    main()
-  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2366, in main
-    ref_model = build_structural_model(mod, args, tokenizer, trainable=False)
-  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 1807, in build_structural_model
-    base = AutoModelForCausalLM.from_pretrained(
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/models/auto/auto_factory.py", line 571, in from_pretrained
-    return model_class.from_pretrained(
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/modeling_utils.py", line 279, in _wrapper
-    return func(*args, **kwargs)
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/modeling_utils.py", line 4400, in from_pretrained
-    ) = cls._load_pretrained_model(
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/modeling_utils.py", line 4829, in _load_pretrained_model
-    disk_offload_index, cpu_offload_index = _load_state_dict_into_meta_model(
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
-    return func(*args, **kwargs)
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/modeling_utils.py", line 789, in _load_state_dict_into_meta_model
-    param = param.to(casting_dtype)
-torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 86.00 MiB. GPU 0 has a total capacity of 14.53 GiB of which 4.88 MiB is free. Process 3920 has 6.54 GiB memory in use. Including non-PyTorch memory, this process has 7.97 GiB memory in use. Of the allocated memory 7.28 GiB is allocated by PyTorch, and 642.40 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:17<00:17, 17.41s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 10.69s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 11.69s/it]
+[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+trainable params: 8,683,524 || all params: 6,757,388,292 || trainable%: 0.1285
+[RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` hides base models input arguments, if label_names is not given, label_names can't be set automatically within `Trainer`. Note that empty label_names list will be used instead.
+[REFERENCE-FILTER] total=259 active=76 epsilon=0.05 active_reference_accuracy=0.0526 negative_margin_count=72 active_negative_margin_count=72
+[OPT-DPO] lora=0 embed=0 attn_gate=4 ff_gate=0 xattn_attn=8,683,520 xattn_ff=0
+  0%|          | 0/40 [00:00<?, ?it/s]
+  0%|          | 0/34 [00:00<?, ?it/s][A
+  6%|▌         | 2/34 [00:01<00:29,  1.10it/s][A
+  9%|▉         | 3/34 [00:03<00:39,  1.29s/it][A
+ 12%|█▏        | 4/34 [00:05<00:44,  1.48s/it][A
+ 15%|█▍        | 5/34 [00:07<00:46,  1.60s/it][A
+ 18%|█▊        | 6/34 [00:09<00:47,  1.68s/it][A
+ 21%|██        | 7/34 [00:10<00:46,  1.72s/it][A
+ 24%|██▎       | 8/34 [00:12<00:45,  1.75s/it][A
+ 26%|██▋       | 9/34 [00:14<00:44,  1.77s/it][A
+ 29%|██▉       | 10/34 [00:16<00:42,  1.79s/it][A
+ 32%|███▏      | 11/34 [00:18<00:41,  1.80s/it][A
+ 35%|███▌      | 12/34 [00:20<00:39,  1.81s/it][A
+ 38%|███▊      | 13/34 [00:22<00:41,  1.96s/it][A
+ 41%|████      | 14/34 [00:24<00:38,  1.92s/it][A
+ 44%|████▍     | 15/34 [00:26<00:35,  1.89s/it][A
+ 47%|████▋     | 16/34 [00:27<00:33,  1.87s/it][A
+ 50%|█████     | 17/34 [00:29<00:31,  1.86s/it][A
+ 53%|█████▎    | 18/34 [00:31<00:29,  1.84s/it][A
+ 56%|█████▌    | 19/34 [00:33<00:27,  1.84s/it][A
+ 59%|█████▉    | 20/34 [00:35<00:25,  1.83s/it][A
+ 62%|██████▏   | 21/34 [00:36<00:23,  1.83s/it][A
+ 65%|██████▍   | 22/34 [00:38<00:21,  1.83s/it][A
+ 68%|██████▊   | 23/34 [00:40<00:20,  1.83s/it][A
+ 71%|███████   | 24/34 [00:42<00:18,  1.83s/it][A
+ 74%|███████▎  | 25/34 [00:44<00:16,  1.83s/it][A
+ 76%|███████▋  | 26/34 [00:46<00:14,  1.83s/it][A
+ 79%|███████▉  | 27/34 [00:47<00:12,  1.83s/it][A
+ 82%|████████▏ | 28/34 [00:49<00:10,  1.83s/it][A
+ 85%|████████▌ | 29/34 [00:51<00:09,  1.83s/it][A
+ 88%|████████▊ | 30/34 [00:53<00:07,  1.83s/it][A
+ 91%|█████████ | 31/34 [00:55<00:05,  1.83s/it][A
+ 94%|█████████▍| 32/34 [00:57<00:03,  1.83s/it][A
+ 97%|█████████▋| 33/34 [00:58<00:01,  1.83s/it][A
+100%|██████████| 34/34 [01:00<00:00,  1.71s/it][A                                      
+                                               [A{'eval_loss': 0.04609205946326256, 'eval_preference_accuracy': 0.5588235294117647, 'eval_preference_margin_mean': 0.0003479912120383233, 'eval_preference_margin_p10': -0.004085749387741089, 'eval_policy_pair_accuracy': 0.9411764705882353, 'eval_reference_pair_accuracy': 0.9411764705882353, 'eval_negative_reference_margin_count': 2, 'eval_negative_reference_margins_crossed_zero': 0, 'eval_runtime': 62.6839, 'eval_samples_per_second': 0.542, 'eval_steps_per_second': 0.542, 'epoch': 0}
+  0%|          | 0/40 [01:02<?, ?it/s]
+100%|██████████| 34/34 [01:00<00:00,  1.71s/it][A
+                                               [A
+====================================================================================================
+[VAL-SELECTION] step=0
+[VAL-SELECTION] mean_value_acc=0.613823
+[VAL-SELECTION] mean_decision_site_accuracy=0.569883
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.9682539682539683, 'ARRAY_F': 0.5714285714285714, 'ARRAY_T': 0.5873015873015873, 'PIPE': 0.5300546448087432, 'UNROLL': 0.5846994535519126}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.5681818181818181, 'machsuite-viterbi': 0.5163398692810458, 'rodinia_pathfinder_0_baseline_0': 0.6666666666666666, 'rodinia_pathfinder_4_doublebuffer_0': 0.6888888888888888}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.5681818181818181, 'machsuite-viterbi': 0.5163398692810458, 'rodinia_pathfinder_0_baseline_0': 0.5833333333333334, 'rodinia_pathfinder_4_doublebuffer_0': 0.6111111111111112}
+[VAL-SELECTION] decision_sites=501 forced_sites=54 budget_counterfactual_groups=8
+[VAL-SELECTION] minimum_kernel_accuracy=0.516340
+[VAL-SELECTION] selection_score=0.569742
+[VAL-SELECTION] joint_action_score=0.212121
+[VAL-SELECTION] checkpoint_key=(0.5697415329768272, 0.5163398692810458, 0.2121212121212121, 0.5581341911764706, 0.00970587630508962)
+====================================================================================================
+[VAL-LOCAL] count=501 top1=0.6307385229540918 mrr=0.7865087285745969 mean_margin=0.20930082271779013 cascade=0/501 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 9, 'top1_accuracy': 0.7777777777777778, 'mrr': 0.8888888888888888, 'mean_margin': 0.16908071438471475}, 'ARRAY_F': {'count': 63, 'top1_accuracy': 0.6031746031746031, 'mrr': 0.7238536155202823, 'mean_margin': 0.04049143609073427}, 'ARRAY_T': {'count': 63, 'top1_accuracy': 0.6507936507936508, 'mrr': 0.8253968253968254, 'mean_margin': 0.11147826354181956}, 'PIPE': {'count': 183, 'top1_accuracy': 0.5519125683060109, 'mrr': 0.7759562841530054, 'mean_margin': -0.0008445358097227544}, 'UNROLL': {'count': 183, 'top1_accuracy': 0.7049180327868853, 'mrr': 0.8002081706999741, 'mean_margin': 0.513215544964365}}
+[VAL-BUDGET] groups=8 cases=17 decision_accuracy=0.5581341911764706 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=1
+[VAL-MARGIN] count=501 mean=0.00970587630508962 median=0.13229525089263916 positive_fraction=0.5668662674650699 mean_gold_rank=1.748502994011976
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 9, 'mean_margin': 0.1556255982981788, 'median_margin': 0.26503995060920715, 'positive_fraction': 0.7777777777777778, 'mean_gold_rank': 1.2222222222222223}, 'ARRAY_F': {'count': 63, 'mean_margin': -0.07894638571001235, 'median_margin': 0.5217099487781525, 'positive_fraction': 0.5714285714285714, 'mean_gold_rank': 2.3333333333333335}, 'ARRAY_T': {'count': 63, 'mean_margin': 0.01229146264848255, 'median_margin': 0.19078406691551208, 'positive_fraction': 0.5873015873015873, 'mean_gold_rank': 1.4126984126984128}, 'PIPE': {'count': 183, 'mean_margin': -0.032567549781884, 'median_margin': 0.024105936288833618, 'positive_fraction': 0.5300546448087432, 'mean_gold_rank': 1.469945355191257}, 'UNROLL': {'count': 183, 'mean_margin': 0.07443243391872918, 'median_margin': 0.5414581894874573, 'positive_fraction': 0.5846994535519126, 'mean_gold_rank': 1.9672131147540983}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 132, 'mean_margin': 0.10823791505853561, 'median_margin': 0.36605553328990936, 'positive_fraction': 0.5681818181818182, 'mean_gold_rank': 1.6515151515151516}, 'machsuite-viterbi': {'count': 153, 'mean_margin': -0.044726176930019276, 'median_margin': 0.008388757705688477, 'positive_fraction': 0.5163398692810458, 'mean_gold_rank': 1.7843137254901962}, 'rodinia_pathfinder_0_baseline_0': {'count': 72, 'mean_margin': 0.06878428533673286, 'median_margin': 0.12050361931324005, 'positive_fraction': 0.5833333333333334, 'mean_gold_rank': 1.6527777777777777}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 144, 'mean_margin': -0.05232030717242095, 'median_margin': 0.12434342503547668, 'positive_fraction': 0.6111111111111112, 'mean_gold_rank': 1.8472222222222223}}
+[VAL-SELECTION] Saved best STRUCTURAL xattn weights -> mailohls_runs/stage3_adp_semantic_action_s456_rep/best_custom_stage3/structural_xattn.pt
+[VAL-SELECTION] New best checkpoint at step 0 -> mailohls_runs/stage3_adp_semantic_action_s456_rep/best_custom_stage3
+Could not estimate the number of tokens of the input, floating-point operations will not be computed
+  2%|▎         | 1/40 [39:54<25:56:07, 2394.05s/it]  5%|▌         | 2/40 [40:43<10:42:41, 1014.79s/it]  8%|▊         | 3/40 [41:41<5:56:18, 577.80s/it]   10%|█         | 4/40 [42:35<3:42:46, 371.30s/it] 12%|█▎        | 5/40 [43:35<2:31:00, 258.87s/it]                                                 {'loss': 0.6992, 'grad_norm': 0.6295266151428223, 'learning_rate': 1.9709418174260523e-05, 'epoch': 0.53}
+ 12%|█▎        | 5/40 [43:35<2:31:00, 258.87s/it] 15%|█▌        | 6/40 [44:34<1:48:17, 191.11s/it] 18%|█▊        | 7/40 [45:40<1:22:32, 150.07s/it] 20%|██        | 8/40 [47:04<1:08:47, 128.97s/it] 22%|██▎       | 9/40 [49:04<1:05:12, 126.21s/it] 25%|██▌       | 10/40 [49:58<52:00, 104.00s/it]                                                 {'loss': 0.622, 'grad_norm': 0.1277056336402893, 'learning_rate': 1.7994427634035016e-05, 'epoch': 1.0}
+ 25%|██▌       | 10/40 [49:58<52:00, 104.00s/it] 28%|██▊       | 11/40 [51:45<50:39, 104.82s/it] 30%|███       | 12/40 [53:42<50:40, 108.58s/it] 32%|███▎      | 13/40 [55:31<48:57, 108.81s/it] 35%|███▌      | 14/40 [57:30<48:26, 111.79s/it] 38%|███▊      | 15/40 [59:10<45:07, 108.31s/it]                                                {'loss': 0.6792, 'grad_norm': 0.4865192472934723, 'learning_rate': 1.5000000000000002e-05, 'epoch': 1.53}
+ 38%|███▊      | 15/40 [59:10<45:07, 108.31s/it] 40%|████      | 16/40 [1:01:08<44:26, 111.12s/it] 42%|████▎     | 17/40 [1:02:44<40:48, 106.48s/it] 45%|████▌     | 18/40 [1:04:52<41:27, 113.07s/it] 48%|████▊     | 19/40 [1:06:55<40:34, 115.93s/it] 50%|█████     | 20/40 [1:08:02<33:48, 101.43s/it]                                                  {'loss': 0.6047, 'grad_norm': 0.08689835667610168, 'learning_rate': 1.1205366802553231e-05, 'epoch': 2.0}
+ 50%|█████     | 20/40 [1:08:02<33:48, 101.43s/it]
+  0%|          | 0/34 [00:00<?, ?it/s][A
+  6%|▌         | 2/34 [00:03<00:57,  1.80s/it][A
+  9%|▉         | 3/34 [00:07<01:18,  2.55s/it][A
+ 12%|█▏        | 4/34 [00:10<01:27,  2.92s/it][A
+ 15%|█▍        | 5/34 [00:14<01:30,  3.13s/it][A
+ 18%|█▊        | 6/34 [00:17<01:31,  3.27s/it][A
+ 21%|██        | 7/34 [00:21<01:30,  3.36s/it][A
+ 24%|██▎       | 8/34 [00:24<01:29,  3.43s/it][A
+ 26%|██▋       | 9/34 [00:28<01:27,  3.49s/it][A
+ 29%|██▉       | 10/34 [00:32<01:24,  3.51s/it][A
+ 32%|███▏      | 11/34 [00:35<01:21,  3.55s/it][A
+ 35%|███▌      | 12/34 [00:39<01:18,  3.58s/it][A
+ 38%|███▊      | 13/34 [00:43<01:20,  3.85s/it][A
+ 41%|████      | 14/34 [00:47<01:15,  3.78s/it][A
+ 44%|████▍     | 15/34 [00:51<01:10,  3.71s/it][A
+ 47%|████▋     | 16/34 [00:54<01:06,  3.68s/it][A
+ 50%|█████     | 17/34 [00:58<01:02,  3.65s/it][A
+ 53%|█████▎    | 18/34 [01:01<00:58,  3.64s/it][A
+ 56%|█████▌    | 19/34 [01:05<00:54,  3.64s/it][A
+ 59%|█████▉    | 20/34 [01:09<00:50,  3.62s/it][A
+ 62%|██████▏   | 21/34 [01:12<00:47,  3.63s/it][A
+ 65%|██████▍   | 22/34 [01:16<00:43,  3.62s/it][A
+ 68%|██████▊   | 23/34 [01:19<00:39,  3.63s/it][A
+ 71%|███████   | 24/34 [01:23<00:36,  3.61s/it][A
+ 74%|███████▎  | 25/34 [01:27<00:32,  3.62s/it][A
+ 76%|███████▋  | 26/34 [01:30<00:28,  3.60s/it][A
+ 79%|███████▉  | 27/34 [01:34<00:25,  3.61s/it][A
+ 82%|████████▏ | 28/34 [01:37<00:21,  3.60s/it][A
+ 85%|████████▌ | 29/34 [01:41<00:17,  3.59s/it][A
+ 88%|████████▊ | 30/34 [01:45<00:14,  3.60s/it][A
+ 91%|█████████ | 31/34 [01:48<00:10,  3.60s/it][A
+ 94%|█████████▍| 32/34 [01:52<00:07,  3.59s/it][A
+ 97%|█████████▋| 33/34 [01:55<00:03,  3.59s/it][A
+100%|██████████| 34/34 [01:58<00:00,  3.36s/it][A                                                  
+                                               [A{'eval_loss': 0.046110693365335464, 'eval_preference_accuracy': 0.08823529411764706, 'eval_preference_margin_mean': -0.05224169045686722, 'eval_preference_margin_p10': -0.06729499995708466, 'eval_policy_pair_accuracy': 0.9411764705882353, 'eval_reference_pair_accuracy': 0.9411764705882353, 'eval_negative_reference_margin_count': 2, 'eval_negative_reference_margins_crossed_zero': 0, 'eval_runtime': 122.3097, 'eval_samples_per_second': 0.278, 'eval_steps_per_second': 0.278, 'epoch': 2.0}
+ 50%|█████     | 20/40 [1:10:05<33:48, 101.43s/it]
+100%|██████████| 34/34 [01:58<00:00,  3.36s/it][A
+                                               [A
+====================================================================================================
+[VAL-SELECTION] step=20
+[VAL-SELECTION] mean_value_acc=0.611473
+[VAL-SELECTION] mean_decision_site_accuracy=0.567534
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.9682539682539683, 'ARRAY_F': 0.5714285714285714, 'ARRAY_T': 0.5873015873015873, 'PIPE': 0.5191256830601093, 'UNROLL': 0.5846994535519126}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.5454545454545454, 'machsuite-viterbi': 0.5228758169934641, 'rodinia_pathfinder_0_baseline_0': 0.6666666666666666, 'rodinia_pathfinder_4_doublebuffer_0': 0.6888888888888888}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.5454545454545454, 'machsuite-viterbi': 0.5228758169934641, 'rodinia_pathfinder_0_baseline_0': 0.5833333333333334, 'rodinia_pathfinder_4_doublebuffer_0': 0.6111111111111112}
+[VAL-SELECTION] decision_sites=501 forced_sites=54 budget_counterfactual_groups=8
+[VAL-SELECTION] minimum_kernel_accuracy=0.522876
+[VAL-SELECTION] selection_score=0.565694
+[VAL-SELECTION] joint_action_score=0.189394
+[VAL-SELECTION] checkpoint_key=(0.5656937017231135, 0.5228758169934641, 0.1893939393939394, 0.5618106617647058, -0.0013034812633892494)
+====================================================================================================
+[VAL-LOCAL] count=501 top1=0.6327345309381237 mrr=0.7874401989671451 mean_margin=0.19690862324408548 cascade=0/501 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 9, 'top1_accuracy': 0.7777777777777778, 'mrr': 0.8888888888888888, 'mean_margin': 0.1594614651468065}, 'ARRAY_F': {'count': 63, 'top1_accuracy': 0.6031746031746031, 'mrr': 0.7225308641975309, 'mean_margin': 0.0216945471271636}, 'ARRAY_T': {'count': 63, 'top1_accuracy': 0.6507936507936508, 'mrr': 0.8253968253968254, 'mean_margin': 0.09622514425289064}, 'PIPE': {'count': 183, 'top1_accuracy': 0.5573770491803278, 'mrr': 0.7786885245901639, 'mean_margin': -0.0011580193954738762}, 'UNROLL': {'count': 183, 'top1_accuracy': 0.7049180327868853, 'mrr': 0.8004813947436898, 'mean_margin': 0.49179805492564954}}
+[VAL-BUDGET] groups=8 cases=17 decision_accuracy=0.5618106617647058 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=0
+[VAL-MARGIN] count=501 mean=-0.0013034812633892494 median=0.1164596676826477 positive_fraction=0.562874251497006 mean_gold_rank=1.7524950099800398
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 9, 'mean_margin': 0.14705417884720695, 'median_margin': 0.23364323377609253, 'positive_fraction': 0.7777777777777778, 'mean_gold_rank': 1.2222222222222223}, 'ARRAY_F': {'count': 63, 'mean_margin': -0.09034378359478618, 'median_margin': 0.4681791663169861, 'positive_fraction': 0.5714285714285714, 'mean_gold_rank': 2.365079365079365}, 'ARRAY_T': {'count': 63, 'mean_margin': 0.0038296677290447175, 'median_margin': 0.1223612129688263, 'positive_fraction': 0.5873015873015873, 'mean_gold_rank': 1.4126984126984128}, 'PIPE': {'count': 183, 'mean_margin': -0.05221779546776756, 'median_margin': 0.008413970470428467, 'positive_fraction': 0.5191256830601093, 'mean_gold_rank': 1.4808743169398908}, 'UNROLL': {'count': 183, 'mean_margin': 0.0712006237571601, 'median_margin': 0.5256105363368988, 'positive_fraction': 0.5846994535519126, 'mean_gold_rank': 1.9562841530054644}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 132, 'mean_margin': 0.07867015477015891, 'median_margin': 0.15970580279827118, 'positive_fraction': 0.5454545454545454, 'mean_gold_rank': 1.6742424242424243}, 'machsuite-viterbi': {'count': 153, 'mean_margin': -0.04011995856668435, 'median_margin': 0.008426070213317871, 'positive_fraction': 0.5228758169934641, 'mean_gold_rank': 1.7647058823529411}, 'rodinia_pathfinder_0_baseline_0': {'count': 72, 'mean_margin': 0.07121908871663941, 'median_margin': 0.18265746533870697, 'positive_fraction': 0.5833333333333334, 'mean_gold_rank': 1.6527777777777777}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 144, 'mean_margin': -0.06963142548273835, 'median_margin': 0.1165781021118164, 'positive_fraction': 0.6111111111111112, 'mean_gold_rank': 1.8611111111111112}}
+[EARLY-STOP] no improvement for 1/1 validation evaluations
+[EARLY-STOP] retaining best checkpoint from step 0
+/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/peft/utils/save_and_load.py:309: UserWarning: Setting `save_embedding_layers` to `True` as the embedding layer has been resized during finetuning.
+  warnings.warn(
+[STRUCTURAL-SAVE] saved xattn weights to mailohls_runs/stage3_adp_semantic_action_s456_rep/checkpoint-20/structural_xattn.pt
+                                                  {'train_runtime': 8483.9617, 'train_samples_per_second': 0.038, 'train_steps_per_second': 0.005, 'train_loss': 0.6512708902359009, 'epoch': 2.0}
+ 50%|█████     | 20/40 [2:21:23<33:48, 101.43s/it] 50%|█████     | 20/40 [2:21:23<2:21:23, 424.20s/it]
+[DPO-STRUCTURAL-CONFIG] mem_dim=128 max_slots=64 every_n_layers=8 xattn_heads=4 xattn_dim_head=64 xattn_ff_mult=1
+[DONE] Saved DPO LoRA + STRUCTURAL xattn adapters to: mailohls_runs/stage3_adp_semantic_action_s456_rep

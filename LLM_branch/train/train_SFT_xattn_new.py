@@ -6329,10 +6329,33 @@ def run_single_training(args):
         save_split_spec(args.save_split_json, raw_train_rows, raw_val_rows, raw_test_rows)
         print(f"[INFO] Saved split spec -> {args.save_split_json}")
 
+    data_cache_path = Path(args.data_cache_path or (Path(args.output_dir) / "stage2_data_cache.pt"))
+    data_cache_path.parent.mkdir(parents=True, exist_ok=True)
+    data_cache_key = {
+        "dataset_sha256": _file_sha256(Path(args.dataset)),
+        "split_sha256": split_sha256,
+        "objective": args.objective,
+        "seed": int(args.seed),
+        "resource_budget_mode": args.resource_budget_mode,
+        "random_budgets_per_case": int(args.random_budgets_per_case),
+        "random_budget_min_frac": float(args.random_budget_min_frac),
+        "min_feasible_candidates_per_budget": int(args.min_feasible_candidates_per_budget),
+    }
+    if args.reuse_data_cache and data_cache_path.is_file():
+        cached = torch.load(data_cache_path, map_location="cpu", weights_only=False)
+        if cached.get("key") == data_cache_key:
+            raw_train_rows = cached["raw_train_rows"]
+            raw_val_rows = cached["raw_val_rows"]
+            raw_test_rows = cached["raw_test_rows"]
+            print(f"[DATA-CACHE] Reused {data_cache_path}", flush=True)
+        else:
+            raise ValueError("Stage-2 data cache key mismatch; rebuild without --reuse_data_cache")
+
     eval_only = bool(
         args.selection_eval_only
     )
 
+    cache_loaded = args.reuse_data_cache and data_cache_path.is_file() and 'cached' in locals() and cached.get("key") == data_cache_key
     if eval_only:
         print(
             "[EVAL-ONLY] Fast path: "
@@ -6341,7 +6364,9 @@ def run_single_training(args):
         )
 
 
-    if args.resource_budget_mode == "fixed":
+    if cache_loaded:
+        print("[DATA-CACHE] Skipping resource-budget augmentation", flush=True)
+    elif args.resource_budget_mode == "fixed":
 
         fractions = (
             parse_resource_budget_fracs(
@@ -6394,6 +6419,11 @@ def run_single_training(args):
                 min_feasible_candidates=args.min_feasible_candidates_per_budget,
             )
         )
+
+    if args.reuse_data_cache and not cache_loaded:
+        torch.save({"key": data_cache_key, "raw_train_rows": raw_train_rows,
+                    "raw_val_rows": raw_val_rows, "raw_test_rows": raw_test_rows}, data_cache_path)
+        print(f"[DATA-CACHE] Saved {data_cache_path}", flush=True)
 
     objectives = mailohls_contract.resolve_objectives(args.objective)
     goal_key = "all_objectives" if args.objective == "ALL" else GOALS[args.objective]["tag"]
@@ -7917,6 +7947,11 @@ def main():
     )
     ap.add_argument("--gradient_checkpointing", action="store_true")
     ap.add_argument("--resume_from_checkpoint", type=str, default="")
+    ap.add_argument(
+        "--reuse_data_cache", action="store_true",
+        help="Reuse or create the objective/seed/split-keyed CPU budget-preprocessing cache.",
+    )
+    ap.add_argument("--data_cache_path", type=str, default="")
     ap.add_argument(
         "--require_clean_git",
         action="store_true",

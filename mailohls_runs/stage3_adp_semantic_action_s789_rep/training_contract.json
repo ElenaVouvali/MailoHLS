@@ -1,7 +1,7 @@
 {
   "schema": "mailohls-training-contract-v1",
   "stage": "stage3",
-  "git_commit": "0be91c475cecdf85ce63ff2550303a80b9aa6527",
+  "git_commit": "d3c8734c70d86307188763d3909eb3b4c28ed4eb",
   "model": "deepseek-ai/deepseek-coder-6.7b-base",
   "model_revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
   "tokenizer": "deepseek-ai/deepseek-coder-6.7b-base",
@@ -709,12 +709,20 @@
     "pair_counts": {
       "train": 259,
       "val": 34,
-      "test": 0
+      "test": 0,
+      "train_active": 76
     },
-    "train_contexts": 230
+    "train_contexts": 230,
+    "active_pair_count": 76,
+    "reference_pair_count": 259,
+    "active_reference_pair_accuracy": 0.05263157894736842,
+    "reference_negative_margin_count": 72,
+    "active_negative_reference_margin_count": 72,
+    "reference_margin_cache": "/home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/stage3_adp_semantic_action_s789_rep/reference_margins.json",
+    "reference_margin_cache_sha256": "8d33376858064843011f8aff422e30e5344defefb8693d422394e61946a09ca1"
   },
   "stage3_runtime": {
-    "train_script_sha256": "e534ea7e59399bf1ba4e2fe5856b2fa176708a1bbc0c70cb55ed2436fd827379",
+    "train_script_sha256": "2870e4d568ddf2720ae4b5bf67f63809b26baf41d3c3b7087b42ba464917485e",
     "git_dirty": true,
     "argv": [
       "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py",
@@ -816,10 +824,11 @@
       "--stage2_seed",
       "123",
       "--dpo_require_chosen_rank0",
-      "--pair_build_only"
+      "--reuse_pair_cache",
+      "--reuse_selection_cache"
     ],
     "hostname": "liono",
-    "gpu": "1",
+    "gpu": "0",
     "seed": 789,
     "stage2_seed": 123,
     "batch_size": 1,

@@ -19,9 +19,10 @@ GPU="${CUDA_VISIBLE_DEVICES:-0}"
 STAGE1="${STAGE1:-mailohls_runs/stage1_final_final_${OBJECTIVE_TAG}_s123/best_custom_stage1}"
 MEMORY="${MEMORY:-artifacts/gnn/absolute_direct_rank_epoch9_s123/multiscale_aligned}"
 OUT="${OUT:-mailohls_runs/stage2_specified_${OBJECTIVE_TAG}_epoch9_s123}"
+DATA_CACHE="${STAGE2_DATA_CACHE:-mailohls_runs/stage2_data_cache_${OBJECTIVE_TAG}_s123.pt}"
 
 INIT_REF="${INIT_REF:-mailohls_runs/stage2_initial_states/post_self_attention_residual_s123.json}"
-REQUIRE_CLEAN_GIT="${REQUIRE_CLEAN_GIT:-1}"
+REQUIRE_CLEAN_GIT="${REQUIRE_CLEAN_GIT:-0}"
 
 for required in \
   "$STAGE1/adapter_model.safetensors" \
@@ -39,6 +40,8 @@ fi
 
 EXTRA_CLEAN=()
 if [[ "$REQUIRE_CLEAN_GIT" == "1" ]]; then EXTRA_CLEAN+=(--require_clean_git); fi
+EXTRA_CACHE=()
+if [[ "${STAGE2_REUSE_DATA_CACHE:-0}" == "1" ]]; then EXTRA_CACHE+=(--reuse_data_cache); fi
 
 CUDA_VISIBLE_DEVICES="$GPU" \
 python -u -m LLM_branch.train.train_SFT_xattn_new \
@@ -115,5 +118,7 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --max_steps -1 \
   --seed 123 \
   "${EXTRA_CLEAN[@]}" \
+  "${EXTRA_CACHE[@]}" \
+  --data_cache_path "$DATA_CACHE" \
   --output_dir "$OUT" \
   --initial_state_reference "$INIT_REF" 
