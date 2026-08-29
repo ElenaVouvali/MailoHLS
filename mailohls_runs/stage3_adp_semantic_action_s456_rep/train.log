@@ -1,4 +1,89 @@
 [INFO] Loaded 150026 raw rows from artifacts/llm/mailohls_sft.jsonl
 [INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
-[INFO] Loaded split from mailohls_runs/mailohls_final_family_split_s123.json
-[FAMILY-SPLIT] {"test": {"families": ["serrano_kalman_filter"], "kernel_count": 1, "row_count": 6705}, "train": {"families": ["machsuite_gemm", "machsuite_md_knn", "machsuite_spmv_ellpack", "machsuite_stencil2d", "machsuite_stencil3d", "rodinia_backprop", "rodinia_cfd_flux", "rodinia_cfd_step_factor", "rodinia_dilate", "rodinia_hotspot", "rodinia_kmeans", "rodinia_knn", "rodinia_lavamd", "rodinia_lc_gicov", "rodinia_lc_mgvf", "rodinia_lud", "rodinia_streamcluster", "spcl_example"], "kernel_count": 50, "row_count": 130310}, "val": {"families": ["machsuite_sort_radix", "machsuite_viterbi", "rodinia_pathfinder"], "kernel_count": 4, "row_count": 13011}}
+[SELECTION-CACHE] Reused train=27589 val=2298
+[INFO] Final selected split sizes: train=27589 val=2298 test=0
+[PAIR-CACHE] Reused train=259 val=34
+[INFO] Preference pairs: train=259 val=34 test=0
+[INFO] Unique train kernels with pairs: 19
+[INFO] Avg pairs per kernel-objective bucket: 13.63
+
+[PAIR-AUDIT] train
+  total pairs                 : 259
+  kernel-objective buckets    : 19
+  pairs by objective          : {'PARETO_ADP': 259}
+  pairs by tier               : {'medium': 125, 'hard': 134}
+  score_gap q10/q50/q90       : 0.0471 / 0.1375 / 0.3159
+  diff_count q10/q50/q90      : 1.0 / 1.0 / 2.0
+  diff_frac q10/q50/q90       : 0.032 / 0.167 / 0.500
+
+[PAIR-AUDIT] val
+  total pairs                 : 34
+  kernel-objective buckets    : 3
+  pairs by objective          : {'PARETO_ADP': 34}
+  pairs by tier               : {'hard': 33, 'medium': 1}
+  score_gap q10/q50/q90       : 0.0640 / 0.0702 / 0.0719
+  diff_count q10/q50/q90      : 1.0 / 1.0 / 1.0
+  diff_frac q10/q50/q90       : 0.059 / 0.059 / 0.059
+
+[PAIR-PREVIEW] showing 3 pairs
+
+----------------------------------------------------------------------------------------------------
+[0] kernel=rodinia_lc_mgvf_0_baseline_0 obj=PARETO_ADP
+score_gap=0.1926  diff_count=1  diff_frac=0.167
+latency_rel_gain=-0.000  area_rel_gain=0.125
+changed directives:
+  auto{_UNROLL_L3}: chosen=16 | rejected=32
+
+----------------------------------------------------------------------------------------------------
+[1] kernel=rodinia_lc_mgvf_0_baseline_0 obj=PARETO_ADP
+score_gap=0.1926  diff_count=1  diff_frac=0.167
+latency_rel_gain=-0.000  area_rel_gain=0.125
+changed directives:
+  auto{_UNROLL_L3}: chosen=16 | rejected=32
+
+----------------------------------------------------------------------------------------------------
+[2] kernel=rodinia_lavaMD_0_baseline obj=PARETO_ADP
+score_gap=0.0740  diff_count=2  diff_frac=0.182
+latency_rel_gain=-0.000  area_rel_gain=0.050
+changed directives:
+  auto{_ARRAY_F_L2}: chosen=8 | rejected=0
+  auto{_ARRAY_T_L2}: chosen=block | rejected=complete
+[INFO] Memory files: 55
+[INFO] Unique memory records: 55
+[INFO] Lookup aliases: 85
+[INFO] Required split kernels covered: 54/54
+[INFO] Building policy model...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:22<00:22, 22.41s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:28<00:00, 13.10s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:28<00:00, 14.50s/it]
+[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[DPO-TRAINABLE] groups enabled: lora=False xattn=True attn_gate=True ff_gate=False
+[DPO-TRAINABLE] total trainable params: 8,683,524
+[DPO-TRAINABLE] first trainables: ['base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight']
+[INFO] Building frozen reference model...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:15<00:15, 15.72s/it]Loading checkpoint shards:  50%|█████     | 1/2 [00:17<00:17, 17.14s/it]
+Traceback (most recent call last):
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2578, in <module>
+    main()
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2366, in main
+    ref_model = build_structural_model(mod, args, tokenizer, trainable=False)
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 1807, in build_structural_model
+    base = AutoModelForCausalLM.from_pretrained(
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/models/auto/auto_factory.py", line 571, in from_pretrained
+    return model_class.from_pretrained(
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/modeling_utils.py", line 279, in _wrapper
+    return func(*args, **kwargs)
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/modeling_utils.py", line 4400, in from_pretrained
+    ) = cls._load_pretrained_model(
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/modeling_utils.py", line 4829, in _load_pretrained_model
+    disk_offload_index, cpu_offload_index = _load_state_dict_into_meta_model(
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/transformers/modeling_utils.py", line 789, in _load_state_dict_into_meta_model
+    param = param.to(casting_dtype)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 86.00 MiB. GPU 0 has a total capacity of 14.53 GiB of which 4.88 MiB is free. Process 3920 has 6.54 GiB memory in use. Including non-PyTorch memory, this process has 7.97 GiB memory in use. Of the allocated memory 7.28 GiB is allocated by PyTorch, and 642.40 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
