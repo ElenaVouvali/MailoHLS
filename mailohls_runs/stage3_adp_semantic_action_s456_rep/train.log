@@ -1,10 +1,4 @@
-Traceback (most recent call last):
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 196, in _run_module_as_main
-    return _run_code(code, main_globals, None,
-  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 86, in _run_code
-    exec(code, run_globals)
-  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2567, in <module>
-    main()
-  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2102, in main
-    raise ValueError(
-ValueError: Stage-3 currently requires the Stage-2 seed so random-budget conditioning is reproduced exactly
+[INFO] Loaded 150026 raw rows from artifacts/llm/mailohls_sft.jsonl
+[INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
+[INFO] Loaded split from mailohls_runs/mailohls_final_family_split_s123.json
+[FAMILY-SPLIT] {"test": {"families": ["serrano_kalman_filter"], "kernel_count": 1, "row_count": 6705}, "train": {"families": ["machsuite_gemm", "machsuite_md_knn", "machsuite_spmv_ellpack", "machsuite_stencil2d", "machsuite_stencil3d", "rodinia_backprop", "rodinia_cfd_flux", "rodinia_cfd_step_factor", "rodinia_dilate", "rodinia_hotspot", "rodinia_kmeans", "rodinia_knn", "rodinia_lavamd", "rodinia_lc_gicov", "rodinia_lc_mgvf", "rodinia_lud", "rodinia_streamcluster", "spcl_example"], "kernel_count": 50, "row_count": 130310}, "val": {"families": ["machsuite_sort_radix", "machsuite_viterbi", "rodinia_pathfinder"], "kernel_count": 4, "row_count": 13011}}
