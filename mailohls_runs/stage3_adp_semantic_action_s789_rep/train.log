@@ -53,7 +53,7 @@ changed directives:
 [INFO] Lookup aliases: 85
 [INFO] Required split kernels covered: 54/54
 [INFO] Building policy model...
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:34<00:34, 34.57s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:41<00:00, 18.27s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:41<00:00, 20.72s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:36<00:36, 36.81s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:48<00:00, 22.05s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:48<00:00, 24.27s/it]
 [STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
 [STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
 [STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
@@ -62,7 +62,7 @@ changed directives:
 [DPO-TRAINABLE] total trainable params: 8,683,524
 [DPO-TRAINABLE] first trainables: ['base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight']
 [INFO] Building frozen reference model...
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:17<00:17, 17.46s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 10.65s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 11.68s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:16<00:16, 16.17s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:21<00:00,  9.68s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:21<00:00, 10.66s/it]
 [STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
 [STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
 [STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
@@ -71,32 +71,15 @@ trainable params: 8,683,524 || all params: 6,757,388,292 || trainable%: 0.1285
 [RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
 No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` hides base models input arguments, if label_names is not given, label_names can't be set automatically within `Trainer`. Note that empty label_names list will be used instead.
 [REFERENCE-FILTER] total=259 active=76 epsilon=0.05 active_reference_accuracy=0.0526 negative_margin_count=72 active_negative_margin_count=72
-[OPT-DPO] lora=0 embed=0 attn_gate=4 ff_gate=0 xattn_attn=8,683,520 xattn_ff=0
-  0%|          | 0/40 [00:00<?, ?it/s]
-  0%|          | 0/34 [00:00<?, ?it/s][A
-  6%|▌         | 2/34 [00:03<01:02,  1.94s/it][A
-  9%|▉         | 3/34 [00:07<01:22,  2.67s/it][A
- 12%|█▏        | 4/34 [00:10<01:25,  2.86s/it][A
- 15%|█▍        | 5/34 [00:14<01:30,  3.14s/it][A
- 18%|█▊        | 6/34 [00:18<01:35,  3.40s/it][A
- 21%|██        | 7/34 [00:22<01:36,  3.59s/it][A
- 24%|██▎       | 8/34 [00:26<01:36,  3.70s/it][A
- 26%|██▋       | 9/34 [00:30<01:34,  3.78s/it][A
- 29%|██▉       | 10/34 [00:33<01:30,  3.78s/it][A
- 32%|███▏      | 11/34 [00:37<01:28,  3.84s/it][A
- 35%|███▌      | 12/34 [00:42<01:26,  3.93s/it][A
- 38%|███▊      | 13/34 [00:47<01:31,  4.34s/it][A
- 41%|████      | 14/34 [00:50<01:22,  4.11s/it][A
- 44%|████▍     | 15/34 [00:54<01:16,  4.05s/it][A
- 47%|████▋     | 16/34 [00:58<01:12,  4.04s/it][A
- 50%|█████     | 17/34 [01:02<01:07,  3.96s/it][A
- 53%|█████▎    | 18/34 [01:06<01:03,  3.94s/it][A
- 56%|█████▌    | 19/34 [01:10<00:59,  3.99s/it][A
- 59%|█████▉    | 20/34 [01:14<00:56,  4.02s/it][A
- 62%|██████▏   | 21/34 [01:18<00:51,  3.94s/it][A
- 65%|██████▍   | 22/34 [01:22<00:46,  3.85s/it][A
- 68%|██████▊   | 23/34 [01:25<00:41,  3.76s/it][A
- 71%|███████   | 24/34 [01:29<00:37,  3.73s/it][A
- 74%|███████▎  | 25/34 [01:33<00:34,  3.79s/it][A
- 76%|███████▋  | 26/34 [01:37<00:30,  3.81s/it][A
- 79%|███████▉  | 27/34 [01:40<00:26,  3.77s/it][A
+Traceback (most recent call last):
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2586, in <module>
+    main()
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_DPO_harp_xattn.py", line 2503, in main
+    mod.StageValSelectionCallback(
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/LLM_branch/train/train_SFT_xattn_new.py", line 2990, in __init__
+    raise RuntimeError(
+RuntimeError: Scratch training output already contains a stale best checkpoint: mailohls_runs/stage3_adp_semantic_action_s789_rep/best_custom_stage3/best_selection_metrics.json. Use a new --output_dir or explicitly --resume_from_checkpoint.
