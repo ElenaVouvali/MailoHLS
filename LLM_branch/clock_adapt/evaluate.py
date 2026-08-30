@@ -1,6 +1,6 @@
 import argparse, json, torch
 from collections import Counter, defaultdict
-from .model import ClockResidualSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5
+from .model import ClockResidualSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6, AutoClockOverrideSelectorV7
 
 def evaluate(features, model, switch_threshold=0.05):
     model.eval()
@@ -14,7 +14,10 @@ def evaluate(features, model, switch_threshold=0.05):
             raw=model(e['memory'], e['memory_mask'], e['candidate_context'])
         fast_idx=int(torch.tensor(e['clocks']).argmin())
         if isinstance(raw, tuple):
-            override_logits, clock_logits = raw
+            override_logits, clock_logits = raw[:2]
+            if len(raw) == 3:
+                pfeas = torch.sigmoid(raw[2])
+                clock_logits = clock_logits + 2.0 * torch.log(pfeas.clamp_min(1e-6))
             slow = clock_logits.clone()
             slow[fast_idx] = float('-inf')
             candidate = int(slow.argmax())
@@ -25,7 +28,9 @@ def evaluate(features, model, switch_threshold=0.05):
             slow_mask = torch.ones_like(clock_logits, dtype=torch.bool)
             slow_mask[fast_idx] = False
             decision_prob[slow_mask] = override_prob * torch.softmax(clock_logits[slow_mask], dim=0)
-            if not torch.isfinite(override_logits).all() or not torch.isfinite(clock_logits).all():
+            if (not torch.isfinite(override_logits).all()
+                    or not torch.isfinite(clock_logits).all()
+                    or (len(raw) == 3 and not torch.isfinite(raw[2]).all())):
                 raise RuntimeError("Non-finite AUTO override output")
             order=torch.argsort(decision_prob, descending=True).tolist()
             pred_delta = decision_prob
@@ -45,7 +50,7 @@ def evaluate(features, model, switch_threshold=0.05):
     return rows
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); cls=AutoClockOverrideSelectorV5 if ck.get('architecture') == 'override_v5' else AutoClockOverrideSelector if ck.get('architecture') == 'override_v4' else ClockResidualSelector; m=(cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck.get('n_clocks',len(ck['clock_menu'])),ck['dropout']) if cls in (AutoClockOverrideSelector,AutoClockOverrideSelectorV5) else cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout'])); m.load_state_dict(ck['model']); threshold=float(ck.get('switch_threshold',0.05)); m.switch_threshold=threshold; rows=evaluate(f,m,threshold)
+    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); cls=AutoClockOverrideSelectorV7 if ck.get('architecture') == 'override_v7' else AutoClockOverrideSelectorV6 if ck.get('architecture') == 'override_v6' else AutoClockOverrideSelectorV5 if ck.get('architecture') == 'override_v5' else AutoClockOverrideSelector if ck.get('architecture') == 'override_v4' else ClockResidualSelector; m=(cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck.get('n_clocks',len(ck['clock_menu'])),ck['dropout']) if cls in (AutoClockOverrideSelector,AutoClockOverrideSelectorV5,AutoClockOverrideSelectorV6,AutoClockOverrideSelectorV7) else cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout'])); m.load_state_dict(ck['model']); threshold=float(ck.get('switch_threshold',0.05)); m.switch_threshold=threshold; rows=evaluate(f,m,threshold)
     by={}
     for x in rows: by.setdefault(x['reference_clock_period_ns'], []).append(x['correct'])
     balanced=sum(sum(v)/len(v) for v in by.values())/max(1,len(by))

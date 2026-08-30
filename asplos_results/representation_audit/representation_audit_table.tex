@@ -1,0 +1,20 @@
+\begin{table}[t]
+  \centering
+  \caption{Paired graph audit over 55 GN$\Omega$SIS kernels. Values are median [IQR]; R/M/C/D/U are region, memory-access, loop-carried, proven-dependence, and uncertainty edges (medians). Zero means not encoded as a distinct edge relation.}
+  \label{tab:representation-audit}
+  \small
+  \begin{tabularx}{\columnwidth}{@{}Xrr@{}}
+    \toprule
+    Metric & HARP-style & Structured MLIR \\
+    \midrule
+    Nodes/kernel & 645 [360.5--1007.5] & 328 [159--542] \\
+    Edges/kernel & 2283 [1269--3684] & 1267 [623.5--2646] \\
+    Non-pragma relation types/kernel & 7 [6--7] & 12 [11--12] \\
+    R/M/C/D/U edges & 0/0/0/0/0 & 24/66/3/5/12 \\
+    \midrule
+    Exact active-contract match & 45/55 & 55/55 \\ 
+    Active action coverage & 544/544 & 544/544 \\ 
+    Extra/inactive action IDs & 13 & 0 \\ 
+    \bottomrule
+  \end{tabularx}
+\end{table}

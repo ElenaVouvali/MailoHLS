@@ -1,6 +1,6 @@
 """Deployment boundary for AUTO: select a clock, then call specified decode once."""
 import argparse, json, torch
-from .model import ClockSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5
+from .model import ClockSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6, AutoClockOverrideSelectorV7
 from .extract_features import pooled_structural_memory
 from LLM_branch.common.mailohls_contract import supported_clock_periods, DEVICE_RESOURCES
 
@@ -16,7 +16,10 @@ def select_clock(selector, memory_pack, device, fractions, objective="PARETO_ADP
     with torch.inference_mode():
         raw=selector(memory,mask,context)
         if isinstance(raw, tuple):
-            override_logits, clock_logits = raw
+            override_logits, clock_logits = raw[:2]
+            if len(raw) == 3:
+                pfeas = torch.sigmoid(raw[2])
+                clock_logits = clock_logits + 2.0 * torch.log(pfeas.clamp_min(1e-6))
             clocks = torch.tensor(supported_clock_periods(device), device=clock_logits.device)
             slow_logits = clock_logits.masked_fill(
                 ~(clocks > clocks[fast_idx]), float('-inf')
@@ -62,5 +65,5 @@ def auto_select_then_decode(base_request, selector, memory_pack, build_prompt, c
     return specified_request,prompt,decoded
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--selector',required=True);p.add_argument('--memory_pack',required=True);p.add_argument('--device',required=True);p.add_argument('--budget_fractions',required=True);a=p.parse_args(); ck=torch.load(a.selector,map_location='cpu',weights_only=False); cls=AutoClockOverrideSelectorV5 if ck.get('architecture') == 'override_v5' else AutoClockOverrideSelector if ck.get('architecture') == 'override_v4' else ClockSelector; m=(cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck.get('n_clocks',len(ck['clock_menu'])),ck['dropout']) if cls in (AutoClockOverrideSelector,AutoClockOverrideSelectorV5) else cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout']));m.load_state_dict(ck['model']); m.switch_threshold=float(ck.get('switch_threshold',0.05)); m.force_fastest=bool(ck.get('force_fastest',False)); pack=torch.load(a.memory_pack,map_location='cpu',weights_only=False); fr=[float(x) for x in a.budget_fractions.split(',')]; c,_=select_clock(m,pack,a.device,fr,switch_threshold=m.switch_threshold); print(json.dumps({'selected_clock_period':c,'selected_clock_period_ns':c,'frequency_mode':'specified'}))
+    p=argparse.ArgumentParser();p.add_argument('--selector',required=True);p.add_argument('--memory_pack',required=True);p.add_argument('--device',required=True);p.add_argument('--budget_fractions',required=True);a=p.parse_args(); ck=torch.load(a.selector,map_location='cpu',weights_only=False); cls=AutoClockOverrideSelectorV7 if ck.get('architecture') == 'override_v7' else AutoClockOverrideSelectorV6 if ck.get('architecture') == 'override_v6' else AutoClockOverrideSelectorV5 if ck.get('architecture') == 'override_v5' else AutoClockOverrideSelector if ck.get('architecture') == 'override_v4' else ClockSelector; m=(cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck.get('n_clocks',len(ck['clock_menu'])),ck['dropout']) if cls in (AutoClockOverrideSelector,AutoClockOverrideSelectorV5,AutoClockOverrideSelectorV6,AutoClockOverrideSelectorV7) else cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout']));m.load_state_dict(ck['model']); m.switch_threshold=float(ck.get('switch_threshold',0.05)); m.force_fastest=bool(ck.get('force_fastest',False)); pack=torch.load(a.memory_pack,map_location='cpu',weights_only=False); fr=[float(x) for x in a.budget_fractions.split(',')]; c,_=select_clock(m,pack,a.device,fr,switch_threshold=m.switch_threshold); print(json.dumps({'selected_clock_period':c,'selected_clock_period_ns':c,'frequency_mode':'specified'}))
 if __name__=='__main__':main()

@@ -2,7 +2,7 @@ import argparse, json, hashlib
 from pathlib import Path
 import torch
 from torch import nn
-from .model import ClockResidualSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5
+from .model import ClockResidualSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6, AutoClockOverrideSelectorV7
 from LLM_branch.common.mailohls_contract import DEVICE_RESOURCES, supported_clock_periods
 
 INFEASIBLE_REGRET = 10.0
@@ -141,6 +141,23 @@ def auto_clock_override_v5_loss(override_logits, clock_logits, adp, available,
             "value_loss": value_loss.detach(), "override_fraction": y_override.float().mean().detach()}
 
 
+def build_feasibility_targets(e):
+    return torch.tensor([float(e["case"].get("clock_feasible", {}).get(str(c), True)) for c in e["clocks"]], dtype=torch.float32)
+
+
+def auto_clock_override_v6_loss(override_logits, clock_logits, feasibility_logits,
+                               adp, available, clock_values,
+                               min_override_regret=0.02, slow_loss_weight=0.20,
+                               feasibility_loss_weight=0.25, feasibility_target=None):
+    base = auto_clock_override_v5_loss(override_logits, clock_logits, adp, available, clock_values, min_override_regret, slow_loss_weight)
+    target = (available.float() if feasibility_target is None else feasibility_target.float())
+    raw = torch.nn.functional.binary_cross_entropy_with_logits(feasibility_logits, target, reduction="none")
+    weight = torch.where(target < 0.5, torch.full_like(target, 10.0), torch.ones_like(target))
+    feas_loss = (raw * weight).sum() / weight.sum().clamp_min(1e-12)
+    base.update(feasibility_loss=feas_loss.detach(), loss=base["loss"] + feasibility_loss_weight * feas_loss)
+    return base
+
+
 def select_override_threshold(oof_rows, max_false_override_rate=0.05):
     """Select a conservative gate threshold from group-aware OOF rows.
 
@@ -166,32 +183,44 @@ def select_override_threshold(oof_rows, max_false_override_rate=0.05):
     return float(best[1])
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--train_features',required=True); ap.add_argument('--val_features',required=True); ap.add_argument('--hidden_dim',type=int,default=64); ap.add_argument('--dropout',type=float,default=.1); ap.add_argument('--lr',type=float,default=1e-3); ap.add_argument('--weight_decay',type=float,default=1e-4); ap.add_argument('--epochs',type=int,default=100); ap.add_argument('--patience',type=int,default=12); ap.add_argument('--seed',type=int,default=123); ap.add_argument('--output_dir',required=True); ap.add_argument('--switch_threshold',type=float,default=None); ap.add_argument('--regret_weight',type=float,default=.1); ap.add_argument('--temperature',type=float,default=1.0); ap.add_argument('--slow_loss_weight',type=float,default=.35); ap.add_argument('--min_override_regret',type=float,default=.02); ap.add_argument('--architecture',choices=('residual','override_v4','override_v5'),default='residual'); ap.add_argument('--split_json',required=True); ap.add_argument('--budget_bank',required=True); ap.add_argument('--memory_manifest',required=True); ap.add_argument('--cases_dir',required=True)
-    a=ap.parse_args(); a.switch_threshold = (0.5 if a.architecture in ('override_v4','override_v5') else 0.05) if a.switch_threshold is None else a.switch_threshold; torch.manual_seed(a.seed); train=torch.load(a.train_features,weights_only=False); val=torch.load(a.val_features,weights_only=False)
+    ap=argparse.ArgumentParser(); ap.add_argument('--train_features',required=True); ap.add_argument('--val_features',required=True); ap.add_argument('--hidden_dim',type=int,default=64); ap.add_argument('--dropout',type=float,default=.1); ap.add_argument('--lr',type=float,default=1e-3); ap.add_argument('--weight_decay',type=float,default=1e-4); ap.add_argument('--epochs',type=int,default=100); ap.add_argument('--patience',type=int,default=12); ap.add_argument('--seed',type=int,default=123); ap.add_argument('--output_dir',required=True); ap.add_argument('--switch_threshold',type=float,default=None); ap.add_argument('--regret_weight',type=float,default=.1); ap.add_argument('--temperature',type=float,default=1.0); ap.add_argument('--slow_loss_weight',type=float,default=.35); ap.add_argument('--min_override_regret',type=float,default=.02); ap.add_argument('--architecture',choices=('residual','override_v4','override_v5','override_v6','override_v7'),default='residual'); ap.add_argument('--split_json',required=True); ap.add_argument('--budget_bank',required=True); ap.add_argument('--memory_manifest',required=True); ap.add_argument('--cases_dir',required=True)
+    a=ap.parse_args(); a.switch_threshold = (0.5 if a.architecture in ('override_v4','override_v5','override_v6','override_v7') else 0.05) if a.switch_threshold is None else a.switch_threshold; torch.manual_seed(a.seed); train=torch.load(a.train_features,weights_only=False); val=torch.load(a.val_features,weights_only=False)
     if not train or not val: raise ValueError('Training and validation feature sets must both be non-empty')
-    dim=int(train[0]['candidate_context'].shape[-1]); mem_dim=int(train[0]['memory'].shape[-1]); n_clocks=len(train[0]['clocks']); model=(AutoClockOverrideSelector(mem_dim,dim,a.hidden_dim,n_clocks,a.dropout) if a.architecture == 'override_v4' else AutoClockOverrideSelectorV5(mem_dim,dim,a.hidden_dim,n_clocks,a.dropout) if a.architecture == 'override_v5' else ClockResidualSelector(mem_dim,dim,a.hidden_dim,a.dropout)); opt=torch.optim.AdamW(model.parameters(),lr=a.lr,weight_decay=a.weight_decay); best=float('inf'); bad=0; generator=torch.Generator().manual_seed(a.seed)
+    dim=int(train[0]['candidate_context'].shape[-1]); mem_dim=int(train[0]['memory'].shape[-1]); n_clocks=len(train[0]['clocks']); model=(AutoClockOverrideSelectorV7(mem_dim,dim,a.hidden_dim,n_clocks,a.dropout) if a.architecture == 'override_v7' else AutoClockOverrideSelectorV6(mem_dim,dim,a.hidden_dim,n_clocks,a.dropout) if a.architecture == 'override_v6' else AutoClockOverrideSelector(mem_dim,dim,a.hidden_dim,n_clocks,a.dropout) if a.architecture == 'override_v4' else AutoClockOverrideSelectorV5(mem_dim,dim,a.hidden_dim,n_clocks,a.dropout) if a.architecture == 'override_v5' else ClockResidualSelector(mem_dim,dim,a.hidden_dim,a.dropout)); opt=torch.optim.AdamW(model.parameters(),lr=a.lr,weight_decay=a.weight_decay); best=float('inf'); bad=0; generator=torch.Generator().manual_seed(a.seed)
     for epoch in range(a.epochs):
         model.train(); total=0
         for index in torch.randperm(len(train),generator=generator).tolist():
             e=train[index]
-            if a.architecture in ('override_v4','override_v5'):
-                override, clock_logits = model(e['memory'],e['memory_mask'],e['candidate_context'])
+            if a.architecture in ('override_v4','override_v5','override_v6','override_v7'):
+                outputs = model(e['memory'],e['memory_mask'],e['candidate_context'])
+                override, clock_logits = outputs[:2]
                 qor=_override_qor(e).to(override.device).unsqueeze(0); available=e.get('available', torch.ones(n_clocks,dtype=torch.bool)).to(override.device).unsqueeze(0)
                 clocks=torch.tensor(e['clocks'],dtype=qor.dtype,device=override.device)
-                losses=(auto_clock_override_v5_loss(override.unsqueeze(0),clock_logits.unsqueeze(0),qor,available,clocks,a.min_override_regret,a.slow_loss_weight) if a.architecture == 'override_v5' else auto_clock_override_loss(override.unsqueeze(0),clock_logits.unsqueeze(0),qor,available,clocks,a.slow_loss_weight)); loss=losses['loss']
+                if a.architecture in ('override_v6','override_v7'):
+                    feas = build_feasibility_targets(e).to(override.device).unsqueeze(0)
+                    losses=auto_clock_override_v6_loss(override.unsqueeze(0),clock_logits.unsqueeze(0),outputs[2].unsqueeze(0),qor,available,clocks,a.min_override_regret,a.slow_loss_weight,feasibility_target=feas if a.architecture == 'override_v7' else None)
+                else:
+                    losses=(auto_clock_override_v5_loss(override.unsqueeze(0),clock_logits.unsqueeze(0),qor,available,clocks,a.min_override_regret,a.slow_loss_weight) if a.architecture == 'override_v5' else auto_clock_override_loss(override.unsqueeze(0),clock_logits.unsqueeze(0),qor,available,clocks,a.slow_loss_weight))
+                loss=losses['loss']
             else:
                 raw=model(e['memory'],e['memory_mask'],e['candidate_context']); target, fast_idx=baseline_target(e); target=target.to(raw.device); pred=raw-raw[fast_idx]
                 qor=_qor(e); regret=qor/qor.min()-1.0; probability=torch.softmax(-pred/max(float(a.temperature),1e-6),dim=-1)
                 loss=nn.functional.smooth_l1_loss(pred,target)+float(a.regret_weight)*(probability*regret.to(pred.device)).sum()
             if not torch.isfinite(override).all(): raise RuntimeError(f"Non-finite override logits at train index {index}")
             if not torch.isfinite(clock_logits).all(): raise RuntimeError(f"Non-finite clock logits at train index {index}")
+            if a.architecture in ('override_v6','override_v7') and not torch.isfinite(outputs[2]).all(): raise RuntimeError(f"Non-finite feasibility logits at train index {index}")
             if not torch.isfinite(loss): raise RuntimeError(f"Non-finite AUTO loss at train index {index}; qor={qor.detach().cpu().tolist()}")
             opt.zero_grad(); loss.backward(); torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0); opt.step(); total += float(loss)
         model.eval(); hard_regrets=[]
         with torch.no_grad():
             for e in val:
-                if a.architecture in ('override_v4','override_v5'):
-                    override, clock_logits=model(e['memory'],e['memory_mask'],e['candidate_context']); clocks=torch.tensor(e['clocks']); fast=int(clocks.argmin()); available=e.get('available',torch.ones(len(e['clocks']),dtype=torch.bool)); slow=clock_logits.masked_fill(~available,float('-inf')); slow[fast]=float('-inf'); candidate=int(slow.argmax()); selected=candidate if float(torch.sigmoid(override)) >= a.switch_threshold else fast
+                if a.architecture in ('override_v4','override_v5','override_v6','override_v7'):
+                    outputs=model(e['memory'],e['memory_mask'],e['candidate_context']); override, clock_logits=outputs[:2]; clocks=torch.tensor(e['clocks']); fast=int(clocks.argmin()); available=e.get('available',torch.ones(len(e['clocks']),dtype=torch.bool));
+                    if a.architecture in ('override_v6', 'override_v7'):
+                        pfeas=torch.sigmoid(outputs[2]); safe=clock_logits + 2.0*torch.log(pfeas.clamp_min(1e-6)); slow=safe.masked_fill(~available,float('-inf')); slow[fast]=float('-inf'); candidate=int(slow.argmax()); risky=float(pfeas[fast]) < 0.5
+                    else:
+                        slow=clock_logits.masked_fill(~available,float('-inf')); slow[fast]=float('-inf'); candidate=int(slow.argmax()); risky=False
+                    selected=candidate if (risky or float(torch.sigmoid(override)) >= a.switch_threshold) else fast
                 else:
                     raw=model(e['memory'],e['memory_mask'],e['candidate_context']).reshape(-1); target, fast_idx=baseline_target(e); pred=raw-raw[fast_idx]; candidate=int(pred.argmin()); selected=candidate if float(pred[candidate]) < -a.switch_threshold else fast_idx
                 hard_regrets.append(selected_regret(e, selected))
