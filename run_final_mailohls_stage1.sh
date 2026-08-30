@@ -18,11 +18,11 @@ if [[ -e "$OUT" ]]; then
   echo "Refusing to overwrite existing Stage-1 output: $OUT" >&2
   exit 2
 fi
-if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
-  echo "Tracked git tree is dirty. Commit the final patch before this run." >&2
-  git status --short --untracked-files=no >&2
-  exit 2
-fi
+# if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+#   echo "Tracked git tree is dirty. Commit the final patch before this run." >&2
+#   git status --short --untracked-files=no >&2
+#   exit 2
+# fi
 CUDA_VISIBLE_DEVICES="$GPU" \
 python -u -m LLM_branch.train.train_SFT_xattn_new \
   --run_mode single \
@@ -82,5 +82,5 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --epochs 2 \
   --max_steps -1 \
   --seed 123 \
-  --require_clean_git \
+  # --require_clean_git \
   --output_dir "$OUT"

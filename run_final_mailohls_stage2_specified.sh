@@ -24,6 +24,9 @@ LR_XATTN="${STAGE2_LR_XATTN:-3e-5}"
 LR_GATE="${STAGE2_LR_GATE:-5e-5}"
 MAX_STEPS="${STAGE2_MAX_STEPS:--1}"
 EVAL_STEPS="${STAGE2_EVAL_STEPS:-50}"
+EARLY_PATIENCE="${STAGE2_EARLY_STOPPING_PATIENCE:-2}"
+EARLY_MIN_STEP="${STAGE2_EARLY_STOPPING_MIN_STEP:-50}"
+SELECTION_BATCH="${STAGE2_SELECTION_CANDIDATE_BATCH_SIZE:-4}"
 
 INIT_REF="${INIT_REF:-mailohls_runs/stage2_initial_states/post_self_attention_residual_s123.json}"
 REQUIRE_CLEAN_GIT="${REQUIRE_CLEAN_GIT:-0}"
@@ -110,13 +113,13 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --family_sampling_power 0.5 \
   --selection_num_val_kernels 0 \
   --selection_cases_per_kernel_device 4 \
-  --selection_candidate_batch_size 4 \
+  --selection_candidate_batch_size "$SELECTION_BATCH" \
+  --early_stopping_patience "$EARLY_PATIENCE" \
+  --early_stopping_min_step "$EARLY_MIN_STEP" \
   --selection_eval_steps "$EVAL_STEPS" \
   --eval_steps "$EVAL_STEPS" \
   --save_steps "$EVAL_STEPS" \
-  --early_stopping_patience 3 \
   --eval_on_start \
-  --early_stopping_min_step 177 \
   --best_dir_name best_custom_stage2 \
   --epochs 3 \
   --max_steps "$MAX_STEPS" \
