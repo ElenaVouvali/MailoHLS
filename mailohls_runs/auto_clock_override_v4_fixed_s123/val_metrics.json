@@ -1,0 +1,4442 @@
+{
+  "clock_accuracy": 0.875,
+  "balanced_clock_accuracy": 0.5,
+  "clock_mrr": 0.9375,
+  "mean_adp_regret": 0.02538753944251275,
+  "median_adp_regret": 0.0,
+  "p90_adp_regret": 0.11391203850507736,
+  "worst_adp_regret": 0.41318697076286215,
+  "mean_feasible_only_adp_regret": 0.02538753944251275,
+  "majority_clock_baseline": {
+    "clock_accuracy": 0.875,
+    "mean_adp_regret": 0.02538753944251275
+  },
+  "fastest_clock_baseline": {
+    "clock_accuracy": 0.875,
+    "mean_adp_regret": 0.02538753944251275
+  },
+  "per_family": {
+    "machsuite-sort-radix": {
+      "count": 32,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    },
+    "machsuite-viterbi": {
+      "count": 32,
+      "accuracy": 0.5,
+      "mean_adp_regret": 0.101550157770051
+    },
+    "rodinia_pathfinder": {
+      "count": 64,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    }
+  },
+  "per_device": {
+    "xcu200-fsgd2104-2-e": {
+      "count": 64,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    },
+    "xczu7ev-ffvc1156-2-e": {
+      "count": 64,
+      "accuracy": 0.75,
+      "mean_adp_regret": 0.0507750788850255
+    }
+  },
+  "kernel_device_macro": {
+    "machsuite-sort-radix::xcu200-fsgd2104-2-e": {
+      "count": 16,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    },
+    "machsuite-sort-radix::xczu7ev-ffvc1156-2-e": {
+      "count": 16,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    },
+    "machsuite-viterbi::xcu200-fsgd2104-2-e": {
+      "count": 16,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    },
+    "machsuite-viterbi::xczu7ev-ffvc1156-2-e": {
+      "count": 16,
+      "accuracy": 0.0,
+      "mean_adp_regret": 0.203100315540102
+    },
+    "rodinia_pathfinder_0_baseline_0::xcu200-fsgd2104-2-e": {
+      "count": 16,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    },
+    "rodinia_pathfinder_0_baseline_0::xczu7ev-ffvc1156-2-e": {
+      "count": 16,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    },
+    "rodinia_pathfinder_4_doublebuffer_0::xcu200-fsgd2104-2-e": {
+      "count": 16,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    },
+    "rodinia_pathfinder_4_doublebuffer_0::xczu7ev-ffvc1156-2-e": {
+      "count": 16,
+      "accuracy": 1.0,
+      "mean_adp_regret": 0.0
+    }
+  },
+  "predicted_infeasible_rate": 0.0,
+  "rows": [
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9908965229988098,
+        0.0067240227945148945,
+        0.0023794828448444605
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9908778667449951,
+        0.006715942174196243,
+        0.002406199462711811
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9907054901123047,
+        0.0068827783688902855,
+        0.0024117312859743834
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9906467795372009,
+        0.006928627844899893,
+        0.0024246107786893845
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9909002184867859,
+        0.006734325084835291,
+        0.0023654780816286802
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9908689856529236,
+        0.006760213524103165,
+        0.0023708113003522158
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9906363487243652,
+        0.006953655742108822,
+        0.0024100032169371843
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9909448623657227,
+        0.00670529855415225,
+        0.002349819988012314
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.990838885307312,
+        0.006795031949877739,
+        0.002366106491535902
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9909364581108093,
+        0.006698857061564922,
+        0.0023646641056984663
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9907798767089844,
+        0.006855619139969349,
+        0.0023644990287721157
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9906227588653564,
+        0.006976856850087643,
+        0.0024004033766686916
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.99070805311203,
+        0.006920758634805679,
+        0.0023712131660431623
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9910492300987244,
+        0.006626286078244448,
+        0.0023244889453053474
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.9906488060951233,
+        0.006959864404052496,
+        0.002391342306509614
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "adp_by_clock": {
+        "10.0": 0.133971875,
+        "3.33": 0.044438225625,
+        "5.0": 0.0666728125
+      },
+      "gold_adp": 0.044438225625,
+      "predicted_delta": [
+        0.990759015083313,
+        0.006866035517305136,
+        0.00237496686168015
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9933618903160095,
+        0.004939678590744734,
+        0.0016984017565846443
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9933667182922363,
+        0.004935638979077339,
+        0.0016976703191176057
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9933690428733826,
+        0.004933629650622606,
+        0.0016973086167126894
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9933784604072571,
+        0.0049256435595452785,
+        0.0016958817141130567
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9933854341506958,
+        0.004919722210615873,
+        0.00169483688659966
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9934108853340149,
+        0.004901125095784664,
+        0.0016879726899787784
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9932852983474731,
+        0.005014418158680201,
+        0.0017002900131046772
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9933061599731445,
+        0.004978644661605358,
+        0.0017152202781289816
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.993277370929718,
+        0.0050165471620857716,
+        0.0017060538521036506
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9932945370674133,
+        0.0049914042465388775,
+        0.0017140526324510574
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9933339953422546,
+        0.004967581946402788,
+        0.001698399893939495
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9933596253395081,
+        0.004954914562404156,
+        0.0016854368150234222
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.993132472038269,
+        0.005166021175682545,
+        0.0017014790792018175
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9934730529785156,
+        0.004856818821281195,
+        0.0016701495042070746
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9931802749633789,
+        0.005131443031132221,
+        0.001688305172137916
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-sort-radix",
+      "kernel": "machsuite-sort-radix",
+      "qor_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "adp_by_clock": {
+        "10.0": 0.6355225,
+        "3.33": 0.1847891925,
+        "5.0": 0.34891125
+      },
+      "gold_adp": 0.1847891925,
+      "predicted_delta": [
+        0.9932256937026978,
+        0.0050726705230772495,
+        0.0017016417114064097
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9936792254447937,
+        0.0058245304971933365,
+        0.0004962276434525847
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9936798810958862,
+        0.005823852960020304,
+        0.0004962527309544384
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9935099482536316,
+        0.0059885671362280846,
+        0.0005014853086322546
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9935546517372131,
+        0.005941737908869982,
+        0.0005036126240156591
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.993553102016449,
+        0.0059462906792759895,
+        0.0005006298888474703
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9936112761497498,
+        0.005888662301003933,
+        0.0005000729579478502
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9936253428459167,
+        0.005877857096493244,
+        0.0004968154826201499
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9937048554420471,
+        0.005798637866973877,
+        0.000496481719892472
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9936006665229797,
+        0.005902817938476801,
+        0.0004965016851201653
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9937109351158142,
+        0.00579278077930212,
+        0.0004962659440934658
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9937211275100708,
+        0.005785081535577774,
+        0.0004937694757245481
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9936003088951111,
+        0.005908598192036152,
+        0.0004910915740765631
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9936275482177734,
+        0.005880764219909906,
+        0.0004916769685223699
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.993645191192627,
+        0.005859571974724531,
+        0.0004952132003381848
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.993573784828186,
+        0.005936963018029928,
+        0.0004892307333648205
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "adp_by_clock": {
+        "10.0": 0.461918125,
+        "3.33": 0.189505096875,
+        "5.0": 0.2503390625
+      },
+      "gold_adp": 0.189505096875,
+      "predicted_delta": [
+        0.9935452938079834,
+        0.00595711637288332,
+        0.0004975695628672838
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.3785058594114299,
+      "feasible_adp_regret": 0.3785058594114299,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 17.6392575,
+        "3.33": 12.26388384,
+        "5.0": 8.896504687499998
+      },
+      "adp_by_clock": {
+        "10.0": 17.6392575,
+        "3.33": 12.26388384,
+        "5.0": 8.896504687499998
+      },
+      "gold_adp": 8.896504687499998,
+      "predicted_delta": [
+        0.9945970177650452,
+        0.005016776733100414,
+        0.00038619356928393245
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.994601309299469,
+        0.005011914297938347,
+        0.0003867868799716234
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9945468306541443,
+        0.0050625489093363285,
+        0.0003906167112290859
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9946078062057495,
+        0.005005276296287775,
+        0.00038694284739904106
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9946096539497375,
+        0.005000654608011246,
+        0.0003896924026776105
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.41318697076286215,
+      "feasible_adp_regret": 0.41318697076286215,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 12.26388384,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 12.26388384,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9946020841598511,
+        0.005011799279600382,
+        0.0003860975266434252
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.41318697076286215,
+      "feasible_adp_regret": 0.41318697076286215,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 12.26388384,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 12.26388384,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9946069121360779,
+        0.005006879102438688,
+        0.00038621225394308567
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9946069717407227,
+        0.005005572456866503,
+        0.0003874547255691141
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9945662021636963,
+        0.005040655843913555,
+        0.00039314539753831923
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.3785058594114299,
+      "feasible_adp_regret": 0.3785058594114299,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 12.26388384,
+        "5.0": 8.896504687499998
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 12.26388384,
+        "5.0": 8.896504687499998
+      },
+      "gold_adp": 8.896504687499998,
+      "predicted_delta": [
+        0.9945670962333679,
+        0.005043769720941782,
+        0.0003891096275765449
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9944902658462524,
+        0.005122839007526636,
+        0.0003868975327350199
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9945979714393616,
+        0.005015586037188768,
+        0.00038643894367851317
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9944878816604614,
+        0.005123445298522711,
+        0.00038869521813467145
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9944955110549927,
+        0.0051198601722717285,
+        0.0003846505132969469
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.41318697076286215,
+      "feasible_adp_regret": 0.41318697076286215,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 12.26388384,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 12.26388384,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9945973753929138,
+        0.005020367447286844,
+        0.00038224412128329277
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 5.0,
+      "correct": false,
+      "rank": 2,
+      "adp_regret": 0.11391203795728955,
+      "feasible_adp_regret": 0.11391203795728955,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "machsuite-viterbi",
+      "kernel": "machsuite-viterbi",
+      "qor_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "adp_by_clock": {
+        "10.0": 15.239149999999999,
+        "3.33": 9.666723600000001,
+        "5.0": 8.678175
+      },
+      "gold_adp": 8.678175,
+      "predicted_delta": [
+        0.9944568872451782,
+        0.005153974983841181,
+        0.0003891166707035154
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9920217394828796,
+        0.006920964457094669,
+        0.0010572712635621428
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9920293092727661,
+        0.0069127511233091354,
+        0.0010579220252111554
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9920302629470825,
+        0.006911742500960827,
+        0.001058007124811411
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9920311570167542,
+        0.0069107310846447945,
+        0.001058091758750379
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9920321106910706,
+        0.006909728981554508,
+        0.0010581782553344965
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9920338988304138,
+        0.006907733157277107,
+        0.0010583531111478806
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9920375347137451,
+        0.006903777830302715,
+        0.001058710622601211
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9917981028556824,
+        0.007137535605579615,
+        0.0010643459390848875
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9919952750205994,
+        0.00694164028391242,
+        0.0010630610631778836
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.992003321647644,
+        0.006938639562577009,
+        0.0010580206289887428
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9918465614318848,
+        0.007098668720573187,
+        0.0010547679848968983
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9918135404586792,
+        0.007134008686989546,
+        0.0010524755343794823
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9920439124107361,
+        0.006916767917573452,
+        0.001039330498315394
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9921018481254578,
+        0.006854582112282515,
+        0.001043542637489736
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9920154809951782,
+        0.006949207745492458,
+        0.0010352813405916095
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "adp_by_clock": {
+        "10.0": 1.97837375,
+        "3.33": 0.65929213125,
+        "5.0": 0.989506875
+      },
+      "gold_adp": 0.65929213125,
+      "predicted_delta": [
+        0.9918747544288635,
+        0.007070926483720541,
+        0.0010543011594563723
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.742915,
+        "3.33": 9.021666802499999,
+        "5.0": 11.8791375
+      },
+      "adp_by_clock": {
+        "10.0": 23.742915,
+        "3.33": 9.021666802499999,
+        "5.0": 11.8791375
+      },
+      "gold_adp": 9.021666802499999,
+      "predicted_delta": [
+        0.9936465620994568,
+        0.00558368070051074,
+        0.0007697795517742634
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9936543703079224,
+        0.005575182382017374,
+        0.000770476704929024
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9936915636062622,
+        0.00553260138258338,
+        0.0007758212159387767
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9936604499816895,
+        0.005568173713982105,
+        0.000771370017901063
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9936903119087219,
+        0.005532784853130579,
+        0.0007769020739942789
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9936860799789429,
+        0.005536994431167841,
+        0.000776903994847089
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.993691086769104,
+        0.005529950838536024,
+        0.0007789562805555761
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9936105012893677,
+        0.005607932806015015,
+        0.0007815475692041218
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9936086535453796,
+        0.00561108160763979,
+        0.0007802362670190632
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9935959577560425,
+        0.005627050064504147,
+        0.0007770082447677851
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9934940338134766,
+        0.005740222055464983,
+        0.0007657735841348767
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9936491250991821,
+        0.005581387784332037,
+        0.000769475067500025
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.993538498878479,
+        0.005699897184967995,
+        0.0007616246002726257
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9934685826301575,
+        0.005768975708633661,
+        0.00076245644595474
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9936514496803284,
+        0.005584913305938244,
+        0.0007636506343260407
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "qor_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "adp_by_clock": {
+        "10.0": 23.2915375,
+        "3.33": 7.7799281175,
+        "5.0": 11.66367125
+      },
+      "gold_adp": 7.7799281175,
+      "predicted_delta": [
+        0.9934993982315063,
+        0.005730335600674152,
+        0.0007702957955189049
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.985767662525177,
+        0.012409315444529057,
+        0.0018230221467092633
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9857729077339172,
+        0.012403735890984535,
+        0.001823370112106204
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9857763648033142,
+        0.012400034815073013,
+        0.0018236074829474092
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9857797622680664,
+        0.0123963737860322,
+        0.0018238533521071076
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9857848286628723,
+        0.012390917167067528,
+        0.0018242294900119305
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9857865571975708,
+        0.012389112263917923,
+        0.001824358245357871
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9857881665229797,
+        0.012387317605316639,
+        0.00182448944542557
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9856979846954346,
+        0.01243971474468708,
+        0.00186230952385813
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9855533242225647,
+        0.012602431699633598,
+        0.0018442260334268212
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9855605363845825,
+        0.012611869722604752,
+        0.0018275993643328547
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9855785965919495,
+        0.012602011673152447,
+        0.0018193988362327218
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9858555197715759,
+        0.012318110093474388,
+        0.0018263623351231217
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9859146475791931,
+        0.01228525210171938,
+        0.0018000988056883216
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9858733415603638,
+        0.01232505589723587,
+        0.0018015882233157754
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9858832359313965,
+        0.012324195355176926,
+        0.0017925635911524296
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xcu200-fsgd2104-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "adp_by_clock": {
+        "10.0": 1.98349375,
+        "3.33": 0.660883246875,
+        "5.0": 0.991751875
+      },
+      "gold_adp": 0.660883246875,
+      "predicted_delta": [
+        0.9855402708053589,
+        0.01264986116439104,
+        0.0018098907312378287
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 145.968615,
+        "3.33": 39.893541524999996
+      },
+      "adp_by_clock": {
+        "10.0": 145.968615,
+        "3.33": 39.893541524999996
+      },
+      "gold_adp": 39.893541524999996,
+      "predicted_delta": [
+        0.988982081413269,
+        0.009752522222697735,
+        0.0012653815792873502
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 119.14462499999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 119.14462499999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9889169931411743,
+        0.009826562367379665,
+        0.0012564747594296932
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9888237714767456,
+        0.009907174855470657,
+        0.0012690695002675056
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9889312982559204,
+        0.009812511503696442,
+        0.001256209216080606
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9890101552009583,
+        0.009723184630274773,
+        0.0012666707625612617
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9889448881149292,
+        0.009798461571335793,
+        0.0012566596269607544
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9889718294143677,
+        0.009768694639205933,
+        0.0012594647705554962
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9886937737464905,
+        0.010032828897237778,
+        0.001273385132662952
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9890174269676208,
+        0.009719423949718475,
+        0.001263156533241272
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9890137314796448,
+        0.00973406434059143,
+        0.0012522140750661492
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9886648058891296,
+        0.010077190585434437,
+        0.0012579984031617641
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9889270663261414,
+        0.009822293184697628,
+        0.001250650268048048
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9888229370117188,
+        0.009940163232386112,
+        0.0012369033647701144
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9889513850212097,
+        0.009822512045502663,
+        0.0012261249357834458
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9888624548912048,
+        0.009903207421302795,
+        0.0012343237176537514
+      ],
+      "switch_threshold": 0.65
+    },
+    {
+      "predicted_clock_period_ns": 3.33,
+      "reference_clock_period_ns": 3.33,
+      "correct": true,
+      "rank": 1,
+      "adp_regret": 0.0,
+      "feasible_adp_regret": 0.0,
+      "predicted_infeasible": false,
+      "candidate_clock_periods_ns": [
+        3.33,
+        5.0,
+        10.0
+      ],
+      "device": "xczu7ev-ffvc1156-2-e",
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "qor_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "adp_by_clock": {
+        "10.0": 96.79052999999999,
+        "3.33": 29.096289584999997,
+        "5.0": 44.36287625000001
+      },
+      "gold_adp": 29.096289584999997,
+      "predicted_delta": [
+        0.9886844754219055,
+        0.010062173008918762,
+        0.001253351103514433
+      ],
+      "switch_threshold": 0.65
+    }
+  ]
+}

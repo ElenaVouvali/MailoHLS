@@ -1,6 +1,6 @@
 import argparse, json, torch
 from collections import Counter, defaultdict
-from .model import ClockResidualSelector, AutoClockOverrideSelector
+from .model import ClockResidualSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5
 
 def evaluate(features, model, switch_threshold=0.05):
     model.eval()
@@ -18,11 +18,21 @@ def evaluate(features, model, switch_threshold=0.05):
             slow = clock_logits.clone()
             slow[fast_idx] = float('-inf')
             candidate = int(slow.argmax())
-            pred = candidate if float(torch.sigmoid(override_logits)) >= switch_threshold else fast_idx
-            pred_delta = clock_logits - clock_logits[fast_idx]
+            override_prob = torch.sigmoid(override_logits)
+            pred = candidate if float(override_prob) >= switch_threshold else fast_idx
+            decision_prob = torch.zeros_like(clock_logits)
+            decision_prob[fast_idx] = 1.0 - override_prob
+            slow_mask = torch.ones_like(clock_logits, dtype=torch.bool)
+            slow_mask[fast_idx] = False
+            decision_prob[slow_mask] = override_prob * torch.softmax(clock_logits[slow_mask], dim=0)
+            if not torch.isfinite(override_logits).all() or not torch.isfinite(clock_logits).all():
+                raise RuntimeError("Non-finite AUTO override output")
+            order=torch.argsort(decision_prob, descending=True).tolist()
+            pred_delta = decision_prob
         else:
             pred_delta=raw-raw[fast_idx]; candidate=int(pred_delta.argmin()); pred=candidate if float(pred_delta[candidate]) < -switch_threshold else fast_idx
-        order=torch.argsort(pred_delta, descending=False).tolist(); gold=e['label']
+            order=torch.argsort(pred_delta, descending=False).tolist()
+        gold=e['label']
         pc=e['clocks'][pred]; gc=e['clocks'][gold]; adps=e['case'].get('qor_by_clock',e['case'].get('adp_by_clock',{})); ga=float(e['case'].get('gold_adp',1.0)); pa=adps.get(str(pc));
         rows.append({'predicted_clock_period_ns':pc,'reference_clock_period_ns':gc,
                      'correct':pred==gold,'rank':order.index(gold)+1,
@@ -35,7 +45,7 @@ def evaluate(features, model, switch_threshold=0.05):
     return rows
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); cls=AutoClockOverrideSelector if ck.get('architecture') == 'override_v4' else ClockResidualSelector; m=(cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck.get('n_clocks',len(ck['clock_menu'])),ck['dropout']) if cls is AutoClockOverrideSelector else cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout'])); m.load_state_dict(ck['model']); threshold=float(ck.get('switch_threshold',0.05)); m.switch_threshold=threshold; rows=evaluate(f,m,threshold)
+    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); cls=AutoClockOverrideSelectorV5 if ck.get('architecture') == 'override_v5' else AutoClockOverrideSelector if ck.get('architecture') == 'override_v4' else ClockResidualSelector; m=(cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck.get('n_clocks',len(ck['clock_menu'])),ck['dropout']) if cls in (AutoClockOverrideSelector,AutoClockOverrideSelectorV5) else cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout'])); m.load_state_dict(ck['model']); threshold=float(ck.get('switch_threshold',0.05)); m.switch_threshold=threshold; rows=evaluate(f,m,threshold)
     by={}
     for x in rows: by.setdefault(x['reference_clock_period_ns'], []).append(x['correct'])
     balanced=sum(sum(v)/len(v) for v in by.values())/max(1,len(by))
@@ -72,5 +82,7 @@ def main():
          'per_family':grouped('family'),'per_device':grouped('device'),
          'kernel_device_macro':kd_metrics,
          'predicted_infeasible_rate':sum(x['predicted_infeasible'] for x in rows)/max(1,len(rows)),
-         'rows':rows}; json.dump(out,open(a.output_json,'w'),indent=2); print(json.dumps({k:out[k] for k in ('clock_accuracy','balanced_clock_accuracy','mean_adp_regret','worst_adp_regret')}))
+         'rows':rows};
+    with open(a.output_json, 'w') as handle: json.dump(out, handle, indent=2, allow_nan=False)
+    print(json.dumps({k:out[k] for k in ('clock_accuracy','balanced_clock_accuracy','mean_adp_regret','worst_adp_regret')}))
 if __name__=='__main__': main()

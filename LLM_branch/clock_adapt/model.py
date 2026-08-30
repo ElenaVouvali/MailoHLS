@@ -84,4 +84,40 @@ class AutoClockOverrideSelector(nn.Module):
             return override.squeeze(0), clocks.squeeze(0)
         return override, clocks
 
+
+class AutoClockOverrideSelectorV5(nn.Module):
+    """Candidate-preserving AUTO selector with explicit fast/slow comparison."""
+    def __init__(self, mem_dim=128, context_dim=12, hidden_dim=64,
+                 n_clocks=3, dropout=.1):
+        super().__init__()
+        self.mem_dim, self.context_dim, self.hidden_dim, self.n_clocks = mem_dim, context_dim, hidden_dim, n_clocks
+        self.query = nn.Sequential(nn.LayerNorm(context_dim), nn.Linear(context_dim, hidden_dim), nn.GELU())
+        self.key = nn.Linear(mem_dim, hidden_dim, bias=False)
+        self.value = nn.Linear(mem_dim, hidden_dim, bias=False)
+        zdim, mid = hidden_dim + context_dim, max(64, (hidden_dim + context_dim) // 2)
+        self.clock_score = nn.Sequential(nn.LayerNorm(zdim), nn.Linear(zdim, mid), nn.GELU(), nn.Dropout(dropout), nn.Linear(mid, 1))
+        self.override_gate = nn.Sequential(nn.LayerNorm(3 * zdim), nn.Linear(3 * zdim, mid), nn.GELU(), nn.Dropout(dropout), nn.Linear(mid, 1))
+
+    def forward(self, memory, memory_mask=None, candidate_context=None):
+        if memory_mask is None or candidate_context is None:
+            raise ValueError("memory_mask and candidate_context required")
+        squeeze = memory.ndim == 2
+        if squeeze:
+            memory = memory.unsqueeze(0); memory_mask = memory_mask.unsqueeze(0); candidate_context = candidate_context.unsqueeze(0)
+        valid = memory_mask.bool()
+        if not valid.any(dim=1).all(): raise ValueError("Invalid or empty structural memory mask")
+        q, k, v = self.query(candidate_context), self.key(memory), self.value(memory)
+        scores = torch.einsum("bch,bsh->bcs", q, k) / math.sqrt(k.shape[-1])
+        scores = scores.masked_fill(~valid[:, None, :], -torch.inf)
+        pooled = torch.softmax(scores, dim=-1) @ v
+        zc = torch.cat([pooled, candidate_context], dim=-1)
+        clock_logits = self.clock_score(zc).squeeze(-1)
+        fast_idx = candidate_context[..., 8].argmin(dim=-1)
+        batch = torch.arange(zc.shape[0], device=zc.device)
+        z_fast = zc[batch, fast_idx]
+        slow_mask = torch.ones_like(clock_logits, dtype=torch.bool); slow_mask[batch, fast_idx] = False
+        z_slow = (zc * slow_mask[..., None]).sum(dim=1) / slow_mask.sum(dim=1, keepdim=True).clamp_min(1)
+        override = self.override_gate(torch.cat([z_fast, z_slow, z_slow - z_fast], dim=-1)).squeeze(-1)
+        return (override.squeeze(0), clock_logits.squeeze(0)) if squeeze else (override, clock_logits)
+
 ClockResidualSelector = ClockSelector
