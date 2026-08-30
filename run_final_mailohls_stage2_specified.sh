@@ -27,6 +27,7 @@ EVAL_STEPS="${STAGE2_EVAL_STEPS:-50}"
 EARLY_PATIENCE="${STAGE2_EARLY_STOPPING_PATIENCE:-2}"
 EARLY_MIN_STEP="${STAGE2_EARLY_STOPPING_MIN_STEP:-50}"
 SELECTION_BATCH="${STAGE2_SELECTION_CANDIDATE_BATCH_SIZE:-4}"
+INVARIANT_DUPLICATES="${STAGE2_BUDGET_INVARIANT_MAX_DUPLICATES:--1}"
 
 INIT_REF="${INIT_REF:-mailohls_runs/stage2_initial_states/post_self_attention_residual_s123.json}"
 REQUIRE_CLEAN_GIT="${REQUIRE_CLEAN_GIT:-0}"
@@ -81,6 +82,7 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --min_feasible_candidates_per_budget 3 \
   --candidate_pool_per_objective 24 \
   --budget_target_max_duplicates 4 \
+  --budget_invariant_max_duplicates "$INVARIANT_DUPLICATES" \
   --auto_frequency_fraction 0 \
   --goal_domination_penalty 0.25 \
   --goal_max_dominated_gap 0.12 \

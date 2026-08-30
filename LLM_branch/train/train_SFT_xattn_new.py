@@ -1243,10 +1243,23 @@ def require_compatible_stage1_contract(adapter_dir, expected_contract):
         for key in STAGE1_COMPATIBILITY_FIELDS
         if contract[key] != expected_contract[key]
     }
+    # Stage-2 may intentionally compact the training budget contexts. This
+    # changes empirical directive frequencies (and therefore the derived
+    # inverse-frequency loss weights) without changing the directive domain,
+    # model architecture, or target contract inherited from Stage-1.
+    mismatches.pop("directive_loss_weights", None)
     if mismatches:
         raise ValueError(
             "Stage-1 adapter contract is incompatible with Stage 2: "
             + json.dumps(mismatches, sort_keys=True)
+        )
+    if contract.get("directive_loss_weights") != expected_contract.get(
+        "directive_loss_weights"
+    ):
+        print(
+            "[CONTRACT] allowing Stage-2 directive_loss_weights to differ "
+            "because training-row compaction changes empirical frequencies",
+            flush=True,
         )
     return contract
 
@@ -5367,9 +5380,21 @@ def augment_rows_with_random_resource_budgets(
 
 
 
+def budget_condition_key(row: Mapping[str, Any]) -> tuple:
+    """Identify a budget condition independently of its resource budget."""
+    return (
+        row["kernel_name"],
+        _norm_device(row.get("device", "")),
+        str(row.get("frequency_mode", "specified")).strip().lower(),
+        _clock_of(row),
+        row.get("obj_mode"),
+    )
+
+
 def compact_duplicate_budget_targets(
     rows: Sequence[Mapping[str, Any]],
     max_duplicates: int,
+    invariant_max_duplicates: Optional[int] = None,
 ) -> List[dict]:
     """Compact duplicate training budgets only after objective selection.
 
@@ -5378,19 +5403,23 @@ def compact_duplicate_budget_targets(
     specified-clock prompts that happen to select the same measured clock.
     The tightest and full/loosest budgets are retained first;
     remaining representatives maximize their distance from budgets kept so far.
-    max_duplicates=0 disables compaction. Validation is never compacted.
+    If invariant_max_duplicates is set, conditions whose target never varies
+    across budgets use that smaller cap. max_duplicates=0 disables compaction.
+    Validation is never compacted.
     """
     if max_duplicates <= 0:
         return [dict(row) for row in rows]
 
+    condition_targets = defaultdict(set)
+    for row in rows:
+        condition_targets[budget_condition_key(row)].add(
+            canonical_completion_key(row["input"], row["target"])
+        )
+
     groups = defaultdict(list)
     for row in rows:
         key = (
-            row["kernel_name"],
-            _norm_device(row.get("device", "")),
-            str(row.get("frequency_mode", "specified")).strip().lower(),
-            _clock_of(row),
-            row.get("obj_mode"),
+            *budget_condition_key(row),
             canonical_completion_key(row["input"], row["target"]),
         )
         groups[key].append(dict(row))
@@ -5417,11 +5446,20 @@ def compact_duplicate_budget_targets(
     compacted = []
     repeated_groups = 0
     for _, group in sorted(groups.items(), key=lambda item: repr(item[0])):
+        condition_key = budget_condition_key(group[0])
+        group_max_duplicates = max_duplicates
+        if (
+            invariant_max_duplicates is not None
+            and len(condition_targets[condition_key]) == 1
+        ):
+            group_max_duplicates = invariant_max_duplicates
+        if group_max_duplicates <= 0:
+            continue
         ordered = sorted(group, key=tightness_key)
-        if len(ordered) > max_duplicates:
+        if len(ordered) > group_max_duplicates:
             repeated_groups += 1
         chosen = [ordered[0]]
-        if max_duplicates > 1 and len(ordered) > 1:
+        if group_max_duplicates > 1 and len(ordered) > 1:
             full = [
                 row for row in ordered
                 if all(abs(value - 1.0) <= 1e-9 for value in budget_vector(row))
@@ -5429,9 +5467,9 @@ def compact_duplicate_budget_targets(
             second = full[-1] if full else ordered[-1]
             if second is not chosen[0]:
                 chosen.append(second)
-        if len(chosen) < min(max_duplicates, len(ordered)):
+        if len(chosen) < min(group_max_duplicates, len(ordered)):
             remaining = [row for row in ordered if all(row is not keep for keep in chosen)]
-            while remaining and len(chosen) < max_duplicates:
+            while remaining and len(chosen) < group_max_duplicates:
                 selected = max(
                     remaining,
                     key=lambda row: (
@@ -5450,13 +5488,14 @@ def compact_duplicate_budget_targets(
                 )
                 chosen.append(selected)
                 remaining.remove(selected)
-        compacted.extend(chosen[:max_duplicates])
+        compacted.extend(chosen[:group_max_duplicates])
 
     print(
         "[BUDGET-COMPACT] "
         f"input={len(rows)} output={len(compacted)} "
         f"target_groups={len(groups)} repeated_groups={repeated_groups} "
-        f"max_duplicates={max_duplicates}"
+        f"max_duplicates={max_duplicates} "
+        f"invariant_max_duplicates={invariant_max_duplicates}"
     )
     return compacted
 
@@ -6099,6 +6138,17 @@ def configure_target_policy(args) -> None:
         raise ValueError("--selection_eval_steps must be >= 1")
     if args.selection_candidate_batch_size < 1:
         raise ValueError("--selection_candidate_batch_size must be >= 1")
+    if args.budget_invariant_max_duplicates < -1:
+        raise ValueError("--budget_invariant_max_duplicates must be >= -1")
+    if (
+        args.budget_invariant_max_duplicates >= 0
+        and args.budget_target_max_duplicates > 0
+        and args.budget_invariant_max_duplicates > args.budget_target_max_duplicates
+    ):
+        raise ValueError(
+            "--budget_invariant_max_duplicates cannot exceed "
+            "--budget_target_max_duplicates"
+        )
     if args.eval_steps < 1 or args.selection_eval_steps % args.eval_steps != 0:
         raise ValueError("--selection_eval_steps must be a positive multiple of --eval_steps")
     if args.early_stopping_patience < 0:
@@ -6516,6 +6566,11 @@ def run_single_training(args):
         train_rows = compact_duplicate_budget_targets(
             train_rows,
             args.budget_target_max_duplicates,
+            invariant_max_duplicates=(
+                None
+                if args.budget_invariant_max_duplicates < 0
+                else args.budget_invariant_max_duplicates
+            ),
         )
 
         val_rows, val_goal_info = (
@@ -6917,6 +6972,9 @@ def run_single_training(args):
         ),
         "candidate_pool_per_objective": args.candidate_pool_per_objective,
         "budget_target_max_duplicates": args.budget_target_max_duplicates,
+        "budget_invariant_max_duplicates": (
+            args.budget_invariant_max_duplicates
+        ),
         "budget_target_compaction_policy": (
             "post_objective_target_tightest_full_or_loosest_and_maximin_diversity"
         ),
@@ -7907,6 +7965,16 @@ def main():
             "After objective selection, retain at most this many training "
             "budget contexts for an identical canonical target. 0 disables "
             "compaction; final MailoHLS retains four diverse representatives."
+        ),
+    )
+    ap.add_argument(
+        "--budget_invariant_max_duplicates",
+        type=int,
+        default=-1,
+        help=(
+            "Training-only cap for budget contexts whose canonical target "
+            "never changes across a condition. -1 uses "
+            "--budget_target_max_duplicates."
         ),
     )
     ap.add_argument(

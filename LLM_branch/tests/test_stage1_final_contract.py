@@ -399,6 +399,17 @@ def test_budget_deduplication_preserves_targets_and_diverse_representatives():
     assert {"budget-0", "budget-5", "budget-6"}.issubset(ids)
     assert "budget-2" in ids or "budget-3" in ids
 
+    invariant_rows = [
+        make_row(index, (0.1 + 0.1 * index,) * 4, 0)
+        for index in range(4)
+    ]
+    invariant_selected = trainer.compact_duplicate_budget_targets(
+        invariant_rows,
+        4,
+        invariant_max_duplicates=1,
+    )
+    assert len(invariant_selected) == 1
+
 
 def test_budget_deduplication_separates_auto_and_specified_prompts():
     device = "xczu7ev-ffvc1156-2-e"
