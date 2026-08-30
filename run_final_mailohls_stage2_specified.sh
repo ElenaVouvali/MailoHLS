@@ -20,6 +20,10 @@ STAGE1="${STAGE1:-mailohls_runs/stage1_final_final_${OBJECTIVE_TAG}_s123/best_cu
 MEMORY="${MEMORY:-artifacts/gnn/absolute_direct_rank_epoch9_s123/multiscale_aligned}"
 OUT="${OUT:-mailohls_runs/stage2_specified_${OBJECTIVE_TAG}_epoch9_s123}"
 DATA_CACHE="${STAGE2_DATA_CACHE:-mailohls_runs/stage2_data_cache_${OBJECTIVE_TAG}_s123.pt}"
+LR_XATTN="${STAGE2_LR_XATTN:-3e-5}"
+LR_GATE="${STAGE2_LR_GATE:-5e-5}"
+MAX_STEPS="${STAGE2_MAX_STEPS:--1}"
+EVAL_STEPS="${STAGE2_EVAL_STEPS:-50}"
 
 INIT_REF="${INIT_REF:-mailohls_runs/stage2_initial_states/post_self_attention_residual_s123.json}"
 REQUIRE_CLEAN_GIT="${REQUIRE_CLEAN_GIT:-0}"
@@ -90,8 +94,8 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --lora_weight_decay 0.01 \
   --lr_lora 0 \
   --lr_embed 0 \
-  --lr_xattn 3e-5 \
-  --lr_gate 5e-5 \
+  --lr_xattn "$LR_XATTN" \
+  --lr_gate "$LR_GATE" \
   --lr_ff 0 \
   --lr_gate_ff 0 \
   --lr_scheduler_type cosine \
@@ -107,15 +111,15 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --selection_num_val_kernels 0 \
   --selection_cases_per_kernel_device 4 \
   --selection_candidate_batch_size 4 \
-  --selection_eval_steps 50 \
-  --eval_steps 50 \
-  --save_steps 50 \
+  --selection_eval_steps "$EVAL_STEPS" \
+  --eval_steps "$EVAL_STEPS" \
+  --save_steps "$EVAL_STEPS" \
   --early_stopping_patience 3 \
   --eval_on_start \
   --early_stopping_min_step 177 \
   --best_dir_name best_custom_stage2 \
   --epochs 3 \
-  --max_steps -1 \
+  --max_steps "$MAX_STEPS" \
   --seed 123 \
   "${EXTRA_CLEAN[@]}" \
   "${EXTRA_CACHE[@]}" \

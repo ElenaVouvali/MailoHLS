@@ -2976,14 +2976,14 @@ class StageValSelectionCallback(TrainerCallback):
                         "the current Stage-1 contract. Resume only the exact "
                         "same experiment, or use a new --output_dir."
                     )
-                self.best_key = tuple(previous["checkpoint_key"])
+                self.best_key = tuple(previous["decision_key"] if "decision_key" in previous else previous["checkpoint_key"][:4])
                 self.best_step = int(previous["step"])
                 print(
                     "[VAL-SELECTION] Restored compatible previous best: "
                     f"step={self.best_step}, key={self.best_key}"
                 )
             else:
-                self.best_key = (float("-inf"),) * 5
+                self.best_key = (float("-inf"),) * 4
                 self.best_step = -1
         else:
             if best_path.is_file():
@@ -2992,7 +2992,7 @@ class StageValSelectionCallback(TrainerCallback):
                     f"checkpoint: {best_path}. Use a new --output_dir or "
                     "explicitly --resume_from_checkpoint."
                 )
-            self.best_key = (float("-inf"),) * 5
+            self.best_key = (float("-inf"),) * 4
             self.best_step = -1
         self.last_selection_step = None
 
@@ -3343,11 +3343,16 @@ class StageValSelectionCallback(TrainerCallback):
                 )
             )
             joint_action_score = summary["joint_action_score"]
-            checkpoint_key = (
+            # Early stopping must reflect discrete deployment decisions. A
+            # tiny continuous candidate-margin improvement must not reset
+            # patience when selection/joint/budget decisions are unchanged.
+            decision_key = (
                 selection_score,
                 float(summary["minimum_kernel_decision_accuracy"]),
                 joint_action_score,
                 float(summary["budget_counterfactual_decision_accuracy"] or 0.0),
+            )
+            checkpoint_key = decision_key + (
                 float(summary["candidate_margin_mean"] or float("-inf")),
             )
 
@@ -3372,6 +3377,7 @@ class StageValSelectionCallback(TrainerCallback):
                 f"[VAL-SELECTION] joint_action_score="
                 f"{summary['joint_action_score']:.6f}"
             )
+            print(f"[VAL-SELECTION] decision_key={decision_key}")
             print(f"[VAL-SELECTION] checkpoint_key={checkpoint_key}")
             print("=" * 100)
 
@@ -3432,6 +3438,7 @@ class StageValSelectionCallback(TrainerCallback):
                 "step": int(state.global_step),
                 "eval_loss": eval_loss,
                 "checkpoint_key": list(checkpoint_key),
+                "decision_key": list(decision_key),
                 "selection_contract_sha256": (
                     self.selection_contract_sha256
                 ),
@@ -3444,8 +3451,8 @@ class StageValSelectionCallback(TrainerCallback):
                 metrics_obj,
             )
 
-            if checkpoint_key > self.best_key:
-                self.best_key = checkpoint_key
+            if decision_key > self.best_key:
+                self.best_key = decision_key
                 self.best_step = int(state.global_step)
                 self.evaluations_without_improvement = 0
 
