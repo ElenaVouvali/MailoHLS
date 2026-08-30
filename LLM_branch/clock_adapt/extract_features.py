@@ -32,6 +32,7 @@ def make_features(cases, memory_dir):
         ) for clock in case["available_clock_periods"]])
         examples.append({"memory": memory, "memory_mask": memory_mask,
                          "candidate_context": features,
+                         "available": torch.ones(len(case["available_clock_periods"]), dtype=torch.bool),
                          "label": case["available_clock_periods"].index(case["gold_clock_period"]),
                          "clocks": case["available_clock_periods"], "case": case})
     if not examples: raise ValueError("No cases matched memory packs")

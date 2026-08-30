@@ -1,6 +1,6 @@
 import argparse, json, torch
 from collections import Counter, defaultdict
-from .model import ClockResidualSelector
+from .model import ClockResidualSelector, AutoClockOverrideSelector
 
 def evaluate(features, model, switch_threshold=0.05):
     model.eval()
@@ -12,7 +12,16 @@ def evaluate(features, model, switch_threshold=0.05):
             # signature identical to training and inference; the old
             # pre-attention ``features`` vector is no longer produced.
             raw=model(e['memory'], e['memory_mask'], e['candidate_context'])
-        fast_idx=int(torch.tensor(e['clocks']).argmin()); pred_delta=raw-raw[fast_idx]; candidate=int(pred_delta.argmin()); pred=candidate if float(pred_delta[candidate]) < -switch_threshold else fast_idx
+        fast_idx=int(torch.tensor(e['clocks']).argmin())
+        if isinstance(raw, tuple):
+            override_logits, clock_logits = raw
+            slow = clock_logits.clone()
+            slow[fast_idx] = float('-inf')
+            candidate = int(slow.argmax())
+            pred = candidate if float(torch.sigmoid(override_logits)) >= switch_threshold else fast_idx
+            pred_delta = clock_logits - clock_logits[fast_idx]
+        else:
+            pred_delta=raw-raw[fast_idx]; candidate=int(pred_delta.argmin()); pred=candidate if float(pred_delta[candidate]) < -switch_threshold else fast_idx
         order=torch.argsort(pred_delta, descending=False).tolist(); gold=e['label']
         pc=e['clocks'][pred]; gc=e['clocks'][gold]; adps=e['case'].get('qor_by_clock',e['case'].get('adp_by_clock',{})); ga=float(e['case'].get('gold_adp',1.0)); pa=adps.get(str(pc));
         rows.append({'predicted_clock_period_ns':pc,'reference_clock_period_ns':gc,
@@ -26,7 +35,7 @@ def evaluate(features, model, switch_threshold=0.05):
     return rows
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); m=ClockResidualSelector(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout']); m.load_state_dict(ck['model']); threshold=float(ck.get('switch_threshold',0.05)); m.switch_threshold=threshold; rows=evaluate(f,m,threshold)
+    ap=argparse.ArgumentParser(); ap.add_argument('--features',required=True); ap.add_argument('--clock_adapter_dir',required=True); ap.add_argument('--output_json',required=True); a=ap.parse_args(); f=torch.load(a.features,weights_only=False); ck=torch.load(a.clock_adapter_dir+'/selector.pt',weights_only=False); cls=AutoClockOverrideSelector if ck.get('architecture') == 'override_v4' else ClockResidualSelector; m=(cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck.get('n_clocks',len(ck['clock_menu'])),ck['dropout']) if cls is AutoClockOverrideSelector else cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout'])); m.load_state_dict(ck['model']); threshold=float(ck.get('switch_threshold',0.05)); m.switch_threshold=threshold; rows=evaluate(f,m,threshold)
     by={}
     for x in rows: by.setdefault(x['reference_clock_period_ns'], []).append(x['correct'])
     balanced=sum(sum(v)/len(v) for v in by.values())/max(1,len(by))

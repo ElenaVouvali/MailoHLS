@@ -1,6 +1,6 @@
 """Deployment boundary for AUTO: select a clock, then call specified decode once."""
 import argparse, json, torch
-from .model import ClockSelector
+from .model import ClockSelector, AutoClockOverrideSelector
 from .extract_features import pooled_structural_memory
 from LLM_branch.common.mailohls_contract import supported_clock_periods, DEVICE_RESOURCES
 
@@ -15,9 +15,21 @@ def select_clock(selector, memory_pack, device, fractions, objective="PARETO_ADP
     fast_idx=int(torch.tensor(supported_clock_periods(device)).argmin())
     with torch.inference_mode():
         raw=selector(memory,mask,context)
-        predicted=raw-raw[fast_idx]
+        if isinstance(raw, tuple):
+            override_logits, clock_logits = raw
+            clocks = torch.tensor(supported_clock_periods(device), device=clock_logits.device)
+            slow_logits = clock_logits.masked_fill(
+                ~(clocks > clocks[fast_idx]), float('-inf')
+            )
+            candidate = int(slow_logits.argmax())
+            selected = (candidate if float(torch.sigmoid(override_logits)) >= float(switch_threshold) else fast_idx)
+            predicted = clock_logits - clock_logits[fast_idx]
+        else:
+            predicted=raw-raw[fast_idx]
     if getattr(selector, "force_fastest", False):
         return float(supported_clock_periods(device)[fast_idx]), predicted
+    if isinstance(raw, tuple):
+        return float(supported_clock_periods(device)[selected]), predicted
     candidate=int(predicted.argmin())
     selected=candidate if float(predicted[candidate]) < -float(switch_threshold) else fast_idx
     return float(supported_clock_periods(device)[selected]), predicted
@@ -50,5 +62,5 @@ def auto_select_then_decode(base_request, selector, memory_pack, build_prompt, c
     return specified_request,prompt,decoded
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--selector',required=True);p.add_argument('--memory_pack',required=True);p.add_argument('--device',required=True);p.add_argument('--budget_fractions',required=True);a=p.parse_args(); ck=torch.load(a.selector,map_location='cpu',weights_only=False); m=ClockSelector(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout']);m.load_state_dict(ck['model']); m.switch_threshold=float(ck.get('switch_threshold',0.05)); m.force_fastest=bool(ck.get('force_fastest',False)); pack=torch.load(a.memory_pack,map_location='cpu',weights_only=False); fr=[float(x) for x in a.budget_fractions.split(',')]; c,_=select_clock(m,pack,a.device,fr,switch_threshold=m.switch_threshold); print(json.dumps({'selected_clock_period':c,'selected_clock_period_ns':c,'frequency_mode':'specified'}))
+    p=argparse.ArgumentParser();p.add_argument('--selector',required=True);p.add_argument('--memory_pack',required=True);p.add_argument('--device',required=True);p.add_argument('--budget_fractions',required=True);a=p.parse_args(); ck=torch.load(a.selector,map_location='cpu',weights_only=False); cls=AutoClockOverrideSelector if ck.get('architecture') == 'override_v4' else ClockSelector; m=(cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck.get('n_clocks',len(ck['clock_menu'])),ck['dropout']) if cls is AutoClockOverrideSelector else cls(ck['mem_dim'],ck['context_dim'],ck['hidden_dim'],ck['dropout']));m.load_state_dict(ck['model']); m.switch_threshold=float(ck.get('switch_threshold',0.05)); m.force_fastest=bool(ck.get('force_fastest',False)); pack=torch.load(a.memory_pack,map_location='cpu',weights_only=False); fr=[float(x) for x in a.budget_fractions.split(',')]; c,_=select_clock(m,pack,a.device,fr,switch_threshold=m.switch_threshold); print(json.dumps({'selected_clock_period':c,'selected_clock_period_ns':c,'frequency_mode':'specified'}))
 if __name__=='__main__':main()
