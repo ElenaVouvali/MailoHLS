@@ -1,6 +1,8 @@
 import argparse, json, torch
 from collections import Counter, defaultdict
-from .model import ClockResidualSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6, AutoClockOverrideSelectorV7
+from .model import (ClockResidualSelector, AutoClockOverrideSelector,
+                    AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6,
+                    AutoClockOverrideSelectorV7, select_auto_clock_decision)
 
 def evaluate(features, model, switch_threshold=0.05):
     model.eval()
@@ -15,18 +17,19 @@ def evaluate(features, model, switch_threshold=0.05):
         fast_idx=int(torch.tensor(e['clocks']).argmin())
         if isinstance(raw, tuple):
             override_logits, clock_logits = raw[:2]
-            if len(raw) == 3:
-                pfeas = torch.sigmoid(raw[2])
-                clock_logits = clock_logits + 2.0 * torch.log(pfeas.clamp_min(1e-6))
-            slow = clock_logits.clone()
-            slow[fast_idx] = float('-inf')
-            candidate = int(slow.argmax())
-            override_prob = torch.sigmoid(override_logits)
-            pred = candidate if float(override_prob) >= switch_threshold else fast_idx
+            decision = select_auto_clock_decision(
+                override_logits,
+                clock_logits,
+                e['clocks'],
+                switch_threshold,
+                feasibility_logits=(raw[2] if len(raw) == 3 else None),
+            )
+            pred = decision['selected_idx']
+            override_prob = decision['override_probability']
+            clock_logits = decision['adjusted_logits']
             decision_prob = torch.zeros_like(clock_logits)
-            decision_prob[fast_idx] = 1.0 - override_prob
-            slow_mask = torch.ones_like(clock_logits, dtype=torch.bool)
-            slow_mask[fast_idx] = False
+            decision_prob[decision['fast_idx']] = 1.0 - override_prob
+            slow_mask = torch.as_tensor(e['clocks'], device=clock_logits.device) > e['clocks'][decision['fast_idx']]
             decision_prob[slow_mask] = override_prob * torch.softmax(clock_logits[slow_mask], dim=0)
             if (not torch.isfinite(override_logits).all()
                     or not torch.isfinite(clock_logits).all()

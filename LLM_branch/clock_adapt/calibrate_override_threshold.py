@@ -2,7 +2,9 @@
 import argparse, json
 from pathlib import Path
 import torch
-from .model import AutoClockOverrideSelector, AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6, AutoClockOverrideSelectorV7
+from .model import (AutoClockOverrideSelector, AutoClockOverrideSelectorV5,
+                    AutoClockOverrideSelectorV6, AutoClockOverrideSelectorV7,
+                    select_auto_clock_decision)
 from .train import auto_clock_override_loss, auto_clock_override_v5_loss, auto_clock_override_v6_loss, _override_qor, build_feasibility_targets
 
 
@@ -82,27 +84,22 @@ def fit_fold(rows, train_idx, args, fold_id):
     return model.eval()
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--train_features',required=True); p.add_argument('--folds',type=int,default=5); p.add_argument('--epochs',type=int,default=20); p.add_argument('--hidden_dim',type=int,default=64); p.add_argument('--dropout',type=float,default=.1); p.add_argument('--lr',type=float,default=1e-3); p.add_argument('--weight_decay',type=float,default=1e-4); p.add_argument('--slow_loss_weight',type=float,default=.35); p.add_argument('--min_override_regret',type=float,default=.02); p.add_argument('--architecture',choices=('override_v4','override_v5','override_v6','override_v7'),default='override_v7'); p.add_argument('--fold_strategy',choices=('legacy_round_robin','stratified_group'),default='stratified_group'); p.add_argument('--max_false_override_rate',type=float,default=.05); p.add_argument('--seed',type=int,default=123); p.add_argument('--output_json',required=True); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--train_features',required=True); p.add_argument('--folds',type=int,default=5); p.add_argument('--epochs',type=int,default=20); p.add_argument('--hidden_dim',type=int,default=64); p.add_argument('--dropout',type=float,default=.1); p.add_argument('--lr',type=float,default=1e-3); p.add_argument('--weight_decay',type=float,default=1e-4); p.add_argument('--slow_loss_weight',type=float,default=.35); p.add_argument('--min_override_regret',type=float,default=.02); p.add_argument('--architecture',choices=('override_v4','override_v5','override_v6','override_v7'),default='override_v7'); p.add_argument('--fold_strategy',choices=('legacy_round_robin','stratified_group'),default='stratified_group'); p.add_argument('--max_false_override_rate',type=float,default=1.0); p.add_argument('--seed',type=int,default=123); p.add_argument('--output_json',required=True); a=p.parse_args()
     rows=torch.load(a.train_features,weights_only=False); groups=[e.get('case',{}).get('family') or e.get('case',{}).get('kernel') or 'unknown' for e in rows]
     folds = _group_folds(rows, a.folds, a.min_override_regret, a.fold_strategy); oof=[]
     for fold,(tr,te) in enumerate(folds,1):
         print(f'[AUTO-CV] fold={fold}/{a.folds} train={len(tr)} heldout={len(te)}',flush=True); m=fit_fold(rows,tr,a,fold)
         with torch.no_grad():
             for i in te:
-                e=rows[i]; outputs=m(e['memory'],e['memory_mask'],e['candidate_context']); gate, logits=outputs[:2]; prob=float(torch.sigmoid(gate)); clocks=torch.tensor(e['clocks']); fast=int(clocks.argmin());
-                if a.architecture in ('override_v6', 'override_v7'):
-                    pfeas=torch.sigmoid(outputs[2]); safe=logits+2.0*torch.log(pfeas.clamp_min(1e-6)); slow=safe.clone()
-                else: slow=logits.clone()
-                slow[fast]=-float('inf'); cand=int(slow.argmax()); qor=_override_qor(e); gold=int(qor.argmin()); meaningful_override=bool(_meaningful_override(e, a.min_override_regret)); oof.append({'prob':prob,'y':meaningful_override,'regret_fast':max(0.,float(qor[fast]/qor[gold]-1.)),'regret_override':max(0.,float(qor[cand]/qor[gold]-1.)),'kernel':e.get('case',{}).get('kernel',e.get('case',{}).get('family','unknown')),'family':e.get('case',{}).get('family','unknown'),'device':e.get('case',{}).get('device','unknown')})
+                e=rows[i]; outputs=m(e['memory'],e['memory_mask'],e['candidate_context']); gate, logits=outputs[:2]; decision=select_auto_clock_decision(gate, logits, e['clocks'], switch_threshold=1.01, feasibility_logits=(outputs[2] if len(outputs) == 3 else None)); qor=_override_qor(e); fast=decision['fast_idx']; gold=int(qor.argmin()); cand=decision['candidate_idx']; meaningful_override=bool(_meaningful_override(e, a.min_override_regret)); oof.append({'prob':decision['override_probability'],'force_override':decision['risky_fast'],'y':meaningful_override,'regret_fast':max(0.,float(qor[fast]/qor[gold]-1.)),'regret_override':max(0.,float(qor[cand]/qor[gold]-1.)),'kernel':e.get('case',{}).get('kernel',e.get('case',{}).get('family','unknown')),'family':e.get('case',{}).get('family','unknown'),'device':e.get('case',{}).get('device','unknown')})
     best=None
-    def score_for(t):
-        do=[r['prob']>=t for r in oof]; regrets=[r['regret_override'] if pred else r['regret_fast'] for pred,r in zip(do,oof)]; grouped={}
+    def score_for(t, allow_force=True):
+        do=[(bool(r['force_override']) if allow_force else False) or r['prob']>=t for r in oof]; regrets=[r['regret_override'] if pred else r['regret_fast'] for pred,r in zip(do,oof)]; grouped={}
         for r,reg in zip(oof,regrets): grouped.setdefault((r['kernel'],r['device']),[]).append(reg)
         macro=sum(sum(v)/len(v) for v in grouped.values())/max(1,len(grouped)); p90=float(torch.tensor(regrets).quantile(.9)); return do,regrets,macro+0.10*p90,macro,p90
-    _,_,fast_score,_,_=score_for(1.01)
+    _,_,fast_score,_,_=score_for(1.01, allow_force=False)
     sweep=[]
-    candidate_thresholds=sorted({float(r['prob']) for r in oof if 0.5<=float(r['prob'])<=1.0})
-    candidate_thresholds=sorted(set(candidate_thresholds+[min(1.0,t+1e-7) for t in candidate_thresholds]+[1.01]))
+    candidate_thresholds=sorted(set([0.0,1.01]+[float(r['prob']) for r in oof]+[min(1.0,max(0.0,float(r['prob'])+1e-7)) for r in oof]))
     for t in candidate_thresholds:
         do,regrets,score,macro,p90=score_for(t); negatives=[r for r in oof if not r['y']]
         raw_fp=sum(int(pred and not r['y']) for pred,r in zip(do,oof))/max(1,len(negatives))

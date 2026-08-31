@@ -1,6 +1,8 @@
 """Deployment boundary for AUTO: select a clock, then call specified decode once."""
 import argparse, json, torch
-from .model import ClockSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6, AutoClockOverrideSelectorV7
+from .model import (ClockSelector, AutoClockOverrideSelector,
+                    AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6,
+                    AutoClockOverrideSelectorV7, select_auto_clock_decision)
 from .extract_features import pooled_structural_memory
 from LLM_branch.common.mailohls_contract import supported_clock_periods, DEVICE_RESOURCES
 
@@ -17,16 +19,16 @@ def select_clock(selector, memory_pack, device, fractions, objective="PARETO_ADP
         raw=selector(memory,mask,context)
         if isinstance(raw, tuple):
             override_logits, clock_logits = raw[:2]
-            if len(raw) == 3:
-                pfeas = torch.sigmoid(raw[2])
-                clock_logits = clock_logits + 2.0 * torch.log(pfeas.clamp_min(1e-6))
             clocks = torch.tensor(supported_clock_periods(device), device=clock_logits.device)
-            slow_logits = clock_logits.masked_fill(
-                ~(clocks > clocks[fast_idx]), float('-inf')
+            decision = select_auto_clock_decision(
+                override_logits,
+                clock_logits,
+                clocks,
+                switch_threshold,
+                feasibility_logits=(raw[2] if len(raw) == 3 else None),
             )
-            candidate = int(slow_logits.argmax())
-            selected = (candidate if float(torch.sigmoid(override_logits)) >= float(switch_threshold) else fast_idx)
-            predicted = clock_logits - clock_logits[fast_idx]
+            selected = decision['selected_idx']
+            predicted = decision['adjusted_logits'] - decision['adjusted_logits'][decision['fast_idx']]
         else:
             predicted=raw-raw[fast_idx]
     if getattr(selector, "force_fastest", False):

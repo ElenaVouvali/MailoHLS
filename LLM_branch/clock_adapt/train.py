@@ -2,7 +2,9 @@ import argparse, json, hashlib
 from pathlib import Path
 import torch
 from torch import nn
-from .model import ClockResidualSelector, AutoClockOverrideSelector, AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6, AutoClockOverrideSelectorV7
+from .model import (ClockResidualSelector, AutoClockOverrideSelector,
+                    AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6,
+                    AutoClockOverrideSelectorV7, select_auto_clock_decision)
 from LLM_branch.common.mailohls_contract import DEVICE_RESOURCES, supported_clock_periods
 
 INFEASIBLE_REGRET = 10.0
@@ -202,13 +204,15 @@ def main():
                 else:
                     losses=(auto_clock_override_v5_loss(override.unsqueeze(0),clock_logits.unsqueeze(0),qor,available,clocks,a.min_override_regret,a.slow_loss_weight) if a.architecture == 'override_v5' else auto_clock_override_loss(override.unsqueeze(0),clock_logits.unsqueeze(0),qor,available,clocks,a.slow_loss_weight))
                 loss=losses['loss']
+                if (not torch.isfinite(override).all()
+                        or not torch.isfinite(clock_logits).all()
+                        or (a.architecture in ('override_v6','override_v7')
+                            and not torch.isfinite(outputs[2]).all())):
+                    raise RuntimeError(f"Non-finite AUTO outputs at train index {index}")
             else:
                 raw=model(e['memory'],e['memory_mask'],e['candidate_context']); target, fast_idx=baseline_target(e); target=target.to(raw.device); pred=raw-raw[fast_idx]
                 qor=_qor(e); regret=qor/qor.min()-1.0; probability=torch.softmax(-pred/max(float(a.temperature),1e-6),dim=-1)
                 loss=nn.functional.smooth_l1_loss(pred,target)+float(a.regret_weight)*(probability*regret.to(pred.device)).sum()
-            if not torch.isfinite(override).all(): raise RuntimeError(f"Non-finite override logits at train index {index}")
-            if not torch.isfinite(clock_logits).all(): raise RuntimeError(f"Non-finite clock logits at train index {index}")
-            if a.architecture in ('override_v6','override_v7') and not torch.isfinite(outputs[2]).all(): raise RuntimeError(f"Non-finite feasibility logits at train index {index}")
             if not torch.isfinite(loss): raise RuntimeError(f"Non-finite AUTO loss at train index {index}; qor={qor.detach().cpu().tolist()}")
             opt.zero_grad(); loss.backward(); torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0); opt.step(); total += float(loss)
         model.eval(); hard_regrets=[]
@@ -216,11 +220,11 @@ def main():
             for e in val:
                 if a.architecture in ('override_v4','override_v5','override_v6','override_v7'):
                     outputs=model(e['memory'],e['memory_mask'],e['candidate_context']); override, clock_logits=outputs[:2]; clocks=torch.tensor(e['clocks']); fast=int(clocks.argmin()); available=e.get('available',torch.ones(len(e['clocks']),dtype=torch.bool));
-                    if a.architecture in ('override_v6', 'override_v7'):
-                        pfeas=torch.sigmoid(outputs[2]); safe=clock_logits + 2.0*torch.log(pfeas.clamp_min(1e-6)); slow=safe.masked_fill(~available,float('-inf')); slow[fast]=float('-inf'); candidate=int(slow.argmax()); risky=float(pfeas[fast]) < 0.5
-                    else:
-                        slow=clock_logits.masked_fill(~available,float('-inf')); slow[fast]=float('-inf'); candidate=int(slow.argmax()); risky=False
-                    selected=candidate if (risky or float(torch.sigmoid(override)) >= a.switch_threshold) else fast
+                    decision=select_auto_clock_decision(
+                        override, clock_logits, clocks, a.switch_threshold,
+                        feasibility_logits=(outputs[2] if a.architecture in ('override_v6', 'override_v7') else None),
+                    )
+                    selected=decision['selected_idx']
                 else:
                     raw=model(e['memory'],e['memory_mask'],e['candidate_context']).reshape(-1); target, fast_idx=baseline_target(e); pred=raw-raw[fast_idx]; candidate=int(pred.argmin()); selected=candidate if float(pred[candidate]) < -a.switch_threshold else fast_idx
                 hard_regrets.append(selected_regret(e, selected))

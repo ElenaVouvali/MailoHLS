@@ -3,6 +3,56 @@ import torch
 from torch import nn
 
 
+def select_auto_clock_decision(
+    override_logits,
+    clock_logits,
+    clocks,
+    switch_threshold,
+    feasibility_logits=None,
+    feasibility_threshold=0.5,
+    feasibility_log_weight=2.0,
+):
+    """Apply the single AUTO-clock selection contract."""
+    periods = torch.as_tensor(
+        clocks, dtype=clock_logits.dtype, device=clock_logits.device
+    )
+    fast_idx = int(periods.argmin())
+    adjusted_logits = clock_logits
+    risky_fast = False
+    pfeas = None
+    if feasibility_logits is not None:
+        pfeas = torch.sigmoid(feasibility_logits)
+        adjusted_logits = (
+            clock_logits
+            + float(feasibility_log_weight)
+            * torch.log(pfeas.clamp_min(1e-6))
+        )
+        risky_fast = bool(
+            float(pfeas[fast_idx]) < float(feasibility_threshold)
+        )
+    slow_mask = periods > periods[fast_idx]
+    if bool(slow_mask.any()):
+        slow_scores = adjusted_logits.masked_fill(~slow_mask, -torch.inf)
+        candidate_idx = int(slow_scores.argmax())
+    else:
+        candidate_idx = fast_idx
+    override_probability = float(torch.sigmoid(override_logits))
+    selected_idx = (
+        candidate_idx
+        if risky_fast or override_probability >= float(switch_threshold)
+        else fast_idx
+    )
+    return {
+        "selected_idx": selected_idx,
+        "candidate_idx": candidate_idx,
+        "fast_idx": fast_idx,
+        "override_probability": override_probability,
+        "risky_fast": risky_fast,
+        "adjusted_logits": adjusted_logits,
+        "feasibility_probability": pfeas,
+    }
+
+
 class AutoClockOverrideHead(nn.Module):
     """Binary override gate plus a conditional slower-clock head."""
     def __init__(self, hidden_dim: int, n_clocks: int, dropout: float = 0.10):
