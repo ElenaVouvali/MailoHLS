@@ -1,0 +1,182 @@
+nohup: ignoring input
+[RANK] top_k=1 gives every selected example unit ranking weight
+[TARGET-CONDITIONING] TargetAwareConfig(device_mode='known', adapt_device='', budget_mode='random', random_budgets_per_case=16, min_budget_frac=0.05, min_feasible_candidates=3, candidate_pool_per_objective=24, auto_frequency_fraction=0.0, min_auto_clock_count=2, strict_source_markers=True, effective_area_floor=0.0625, seed=123)
+[CUDA] using: Tesla V100S-PCIE-32GB
+[INFO] Loaded 150026 raw rows from artifacts/llm/mailohls_sft.jsonl
+[INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
+[INFO] Loaded split from mailohls_runs/mailohls_final_family_split_s123.json
+[FAMILY-SPLIT] {"test": {"families": ["serrano_kalman_filter"], "kernel_count": 1, "row_count": 6705}, "train": {"families": ["machsuite_gemm", "machsuite_md_knn", "machsuite_spmv_ellpack", "machsuite_stencil2d", "machsuite_stencil3d", "rodinia_backprop", "rodinia_cfd_flux", "rodinia_cfd_step_factor", "rodinia_dilate", "rodinia_hotspot", "rodinia_kmeans", "rodinia_knn", "rodinia_lavamd", "rodinia_lc_gicov", "rodinia_lc_mgvf", "rodinia_lud", "rodinia_streamcluster", "spcl_example"], "kernel_count": 50, "row_count": 130310}, "val": {"families": ["machsuite_sort_radix", "machsuite_viterbi", "rodinia_pathfinder"], "kernel_count": 4, "row_count": 13011}}
+[INFO] Raw split sizes: train=130310 val=13011 test=6705
+[DOMAINS] registry_policy='source_action_metadata_proposal_domains_v2'
+[DOMAINS] effective_registry_sha256=41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c artifact=mailohls_runs/stage2_latency_adp_schedule_s123/directive_domain_registry.json
+[RANDOM-BUDGET] case=1/100 key=('machsuite-gemm-blocked', 'xcu200-fsgd2104-2-e')
+[RANDOM-BUDGET] case=10/100 key=('machsuite-stencil2d', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=20/100 key=('rodinia-hotspot-0-baseline', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=30/100 key=('rodinia-kmeans-1-tiling', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=40/100 key=('rodinia-knn-2-pipeline', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=50/100 key=('rodinia_cfd_step_factor_0_baseline_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=60/100 key=('rodinia_cfd_step_factor_5_coalescing_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=70/100 key=('rodinia_lavaMD_0_baseline', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=80/100 key=('rodinia_lc_mgvf_0_baseline_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=90/100 key=('rodinia_streamcluster_3_doublebuffer_0', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] case=100/100 key=('spcl_example_05', 'xczu7ev-ffvc1156-2-e')
+[RANDOM-BUDGET] input=130310 output=208615 stats={'kept_clock_budgets': 4608, 'candidate_rows': 208615, 'kept_budgets': 1565, 'rejected_small_clock_candidate_sets': 13, 'rejected_small_candidate_sets': 35}
+[RANDOM-BUDGET] case=1/8 key=('machsuite-sort-radix', 'xcu200-fsgd2104-2-e')
+[RANDOM-BUDGET] input=13011 output=20865 stats={'kept_clock_budgets': 383, 'candidate_rows': 20865, 'kept_budgets': 128}
+[CLOCK-MODE] Counter({'specified': 4608})
+[BUDGET-COMPACT] input=4608 output=2187 target_groups=905 repeated_groups=300 max_duplicates=4 invariant_max_duplicates=None
+[CLOCK-MODE] Counter({'specified': 383})
+[BUDGET-BANK] exact validation resource budgets -> mailohls_runs/stage2_latency_adp_schedule_s123/validation_resource_budget_bank.json
+[INFO] Selected split sizes: train=2187 val=383; held-out test rows not selected=6705
+[BUDGET-AUDIT] train={"budget_sensitive_fraction": 0.5886287625418061, "budget_sensitive_groups": 176, "condition_groups": 299, "distinct_targets_by_group": {"('machsuite-gemm-blocked', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 5, "('machsuite-gemm-blocked', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 4, "('machsuite-gemm-blocked', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 5, "('machsuite-gemm-blocked', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('machsuite-gemm-blocked', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 7, "('machsuite-gemm-blocked', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 6, "('machsuite-gemm-ncubed', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 4, "('machsuite-gemm-ncubed', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 4, "('machsuite-gemm-ncubed', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 5, "('machsuite-gemm-ncubed', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 5, "('machsuite-gemm-ncubed', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 5, "('machsuite-gemm-ncubed', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 5, "('machsuite-md-knn', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 2, "('machsuite-md-knn', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 3, "('machsuite-md-knn', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('machsuite-md-knn', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 3, "('machsuite-stencil2d', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 4, "('machsuite-stencil2d', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 4, "('machsuite-stencil2d', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 2, "('machsuite-stencil2d', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('machsuite-stencil3d', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 4, "('machsuite-stencil3d', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 6, "('machsuite-stencil3d', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 4, "('machsuite-stencil3d', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('machsuite-stencil3d', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 4, "('machsuite-stencil3d', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 6, "('rodinia-backprop-0-baseline-back', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia-backprop-0-baseline-back', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia-backprop-0-baseline-forward', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 4, "('rodinia-backprop-0-baseline-forward', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia-backprop-0-baseline-forward', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 5, "('rodinia-backprop-0-baseline-forward', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 5, "('rodinia-backprop-0-baseline-forward', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 5, "('rodinia-backprop-0-baseline-forward', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 5, "('rodinia-backprop-1-tiling-back', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia-backprop-1-tiling-back', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 3, "('rodinia-backprop-1-tiling-back', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 3, "('rodinia-backprop-1-tiling-back', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 6, "('rodinia-backprop-1-tiling-back', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia-hotspot-0-baseline', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 6, "('rodinia-hotspot-1-tiling', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia-hotspot-1-tiling', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia-hotspot-1-tiling', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 6, "('rodinia-hotspot-2-pipeline', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia-hotspot-2-pipeline', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia-hotspot-2-pipeline', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia-hotspot-2-pipeline', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia-hotspot-2-pipeline', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia-hotspot-2-pipeline', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 7, "('rodinia-hotspot-3-unroll', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia-hotspot-3-unroll', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia-hotspot-3-unroll', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 3, "('rodinia-hotspot-3-unroll', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 3, "('rodinia-hotspot-3-unroll', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 7, "('rodinia-kmeans-0-baseline', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 3, "('rodinia-kmeans-0-baseline', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 3, "('rodinia-kmeans-0-baseline', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia-kmeans-1-tiling', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 5, "('rodinia-kmeans-1-tiling', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 6, "('rodinia-kmeans-1-tiling', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 4, "('rodinia-kmeans-1-tiling', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia-kmeans-1-tiling', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 9, "('rodinia-kmeans-1-tiling', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 8, "('rodinia-kmeans-2-pipeline', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 5, "('rodinia-kmeans-2-pipeline', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 7, "('rodinia-kmeans-2-pipeline', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 4, "('rodinia-kmeans-2-pipeline', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 10, "('rodinia-kmeans-2-pipeline', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 10, "('rodinia-kmeans-2-pipeline', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 7, "('rodinia-kmeans-3-unroll', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 7, "('rodinia-kmeans-3-unroll', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 8, "('rodinia-kmeans-3-unroll', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 7, "('rodinia-kmeans-3-unroll', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia-kmeans-3-unroll', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 7, "('rodinia-kmeans-3-unroll', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 8, "('rodinia-knn-1-tiling', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 4, "('rodinia-knn-1-tiling', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia-knn-2-pipeline', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 8, "('rodinia-knn-2-pipeline', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia-knn-2-pipeline', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia-knn-3-unroll', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia-knn-3-unroll', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 4, "('rodinia-knn-5-coalescing', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia-knn-5-coalescing', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia-knn-5-coalescing', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia_cfd_flux_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_cfd_flux_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_cfd_flux_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_cfd_step_factor_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 3, "('rodinia_cfd_step_factor_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_cfd_step_factor_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_cfd_step_factor_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 3, "('rodinia_cfd_step_factor_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 3, "('rodinia_cfd_step_factor_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia_cfd_step_factor_3_unroll_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia_cfd_step_factor_3_unroll_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 7, "('rodinia_cfd_step_factor_3_unroll_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 6, "('rodinia_cfd_step_factor_4_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 3, "('rodinia_cfd_step_factor_4_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 5, "('rodinia_cfd_step_factor_4_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_cfd_step_factor_5_coalescing_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_cfd_step_factor_5_coalescing_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 8, "('rodinia_dilate_0_baseline_0', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_dilate_0_baseline_0', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 3, "('rodinia_dilate_0_baseline_0', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 4, "('rodinia_dilate_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_dilate_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 5, "('rodinia_dilate_1_tiling_0', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_dilate_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 5, "('rodinia_dilate_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 7, "('rodinia_dilate_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 6, "('rodinia_dilate_2_pipeline_0', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_dilate_2_pipeline_0', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_dilate_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 9, "('rodinia_dilate_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 10, "('rodinia_dilate_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 9, "('rodinia_dilate_3_pipeline_0', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 3, "('rodinia_dilate_3_pipeline_0', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_dilate_3_pipeline_0', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_dilate_3_pipeline_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 4, "('rodinia_dilate_3_pipeline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_dilate_3_pipeline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_lavaMD_0_baseline', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 4, "('rodinia_lavaMD_0_baseline', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_lavaMD_0_baseline', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia_lavaMD_0_baseline', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_lavaMD_1_tiling_0', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_lavaMD_1_tiling_0', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia_lavaMD_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 3, "('rodinia_lavaMD_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia_lavaMD_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 5, "('rodinia_lavaMD_1_tiling_1', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_lavaMD_1_tiling_1', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia_lavaMD_1_tiling_1', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 4, "('rodinia_lavaMD_1_tiling_1', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 5, "('rodinia_lavaMD_1_tiling_1', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 5, "('rodinia_lavaMD_2_pipeline_0', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia_lavaMD_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 5, "('rodinia_lavaMD_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 3, "('rodinia_lavaMD_2_pipeline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 5, "('rodinia_lc_gicov_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 6, "('rodinia_lc_gicov_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_lc_mgvf_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_lud_1_tiling_0', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 8, "('rodinia_lud_1_tiling_0', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 6, "('rodinia_lud_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 9, "('rodinia_lud_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 6, "('rodinia_lud_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 12, "('rodinia_streamcluster_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_streamcluster_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_streamcluster_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_streamcluster_1_tiling_0', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_streamcluster_1_tiling_0', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_streamcluster_1_tiling_0', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 3, "('rodinia_streamcluster_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia_streamcluster_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia_streamcluster_1_tiling_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 6, "('rodinia_streamcluster_2_pipeline_1', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia_streamcluster_2_pipeline_1', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 6, "('rodinia_streamcluster_2_pipeline_1', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 10, "('rodinia_streamcluster_3_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_streamcluster_3_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 4, "('rodinia_streamcluster_4_coalescing_0', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 4, "('rodinia_streamcluster_4_coalescing_0', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 6, "('rodinia_streamcluster_4_coalescing_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia_streamcluster_4_coalescing_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 6, "('rodinia_streamcluster_4_coalescing_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 6, "('spcl_example_03', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 3, "('spcl_example_03', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 4, "('spcl_example_03', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 3, "('spcl_example_03', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('spcl_example_03', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 6, "('spcl_example_03', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 7, "('spcl_example_05', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 2, "('spcl_example_05', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('spcl_example_05', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2}}
+[BUDGET-AUDIT] val={"budget_sensitive_fraction": 0.75, "budget_sensitive_groups": 18, "condition_groups": 24, "distinct_targets_by_group": {"('machsuite-sort-radix', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 3, "('machsuite-sort-radix', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 2, "('machsuite-sort-radix', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 3, "('machsuite-viterbi', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 7, "('machsuite-viterbi', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 11, "('machsuite-viterbi', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 8, "('rodinia_pathfinder_0_baseline_0', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_pathfinder_0_baseline_0', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_pathfinder_0_baseline_0', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 2, "('rodinia_pathfinder_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 6, "('rodinia_pathfinder_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 8, "('rodinia_pathfinder_0_baseline_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 6, "('rodinia_pathfinder_4_doublebuffer_0', 'xcu200-fsgd2104-2-e', 10.0, 'PARETO_LATENCY')": 2, "('rodinia_pathfinder_4_doublebuffer_0', 'xcu200-fsgd2104-2-e', 3.33, 'PARETO_LATENCY')": 2, "('rodinia_pathfinder_4_doublebuffer_0', 'xcu200-fsgd2104-2-e', 5.0, 'PARETO_LATENCY')": 4, "('rodinia_pathfinder_4_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 10.0, 'PARETO_LATENCY')": 7, "('rodinia_pathfinder_4_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 3.33, 'PARETO_LATENCY')": 4, "('rodinia_pathfinder_4_doublebuffer_0', 'xczu7ev-ffvc1156-2-e', 5.0, 'PARETO_LATENCY')": 2}}
+[LOSS] directive weighting=inverse_sqrt_frequency weights={'ARRAY_D': 2.0, 'ARRAY_F': 1.0734551241808026, 'ARRAY_T': 1.0, 'PIPE': 0.7766542197893352, 'UNROLL': 0.7766542197893352}
+[INFO] Built 62 validation selection cases from 4 distinct kernels and 8 kernel/device groups
+[DOMAINS] validated 54 kernel registries
+[INFO] Overriding --mem_dim -1 -> 128 from memory bank
+[INFO] Memory files: 55
+[INFO] Unique memory records: 55
+[INFO] Lookup aliases: 85
+[INFO] Required split kernels covered: 54/54
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:17<00:17, 17.14s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:22<00:00,  9.96s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:22<00:00, 11.03s/it]
+[MODEL] weights_tied=False
+[INIT] Loaded adapter from: /home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1
+[MODEL] special_token_trainable_params=573440
+[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-XATTN] decoder_layers_attr_name=base_model.model.model.layers
+[STRUCTURAL-XATTN] inserted gated xattn every 8 decoder layers
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+tied = False
+[OPT] froze 8,962,048 parameters assigned to zero-LR groups
+trainable params: 8,683,524 || all params: 6,757,388,292 || trainable%: 0.1285
+[DATASET] candidate loss disabled; skipping local hard negatives
+[DATASET] samples=2187 code_truncated=0
+[DATASET] samples=383 code_truncated=0
+[EARLY-STOP] effective_updates_per_epoch=274 minimum_counted_step=274
+[INIT-STATE] combined_sha256=e5af679ca9afb97af02ee78dae1e354fb7d07a850f6d597efaa5703b314855ab
+[RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+[INFO] No checkpoint found. Starting from scratch.
+[SAMPLER] family-aware weighted order: families=18 replacement=False samples=2187
+[OPT] param groups: lora=0 embed=0 attn_gate=4 ff_gate=0 xattn_attn=8,683,520 xattn_ff=0 lr_lora=0 lora_weight_decay=0.01 lr_embed=0 lr_gate=0.0002 lr_gate_ff=0 lr_xattn=0.0001 lr_ff=0
+  0%|          | 0/548 [00:00<?, ?it/s]
+  0%|          | 0/383 [00:00<?, ?it/s][A
+  1%|          | 2/383 [00:01<03:24,  1.86it/s][A
+  1%|          | 3/383 [00:02<05:42,  1.11it/s][A
+  1%|          | 4/383 [00:03<05:32,  1.14it/s][A
+  1%|▏         | 5/383 [00:04<05:41,  1.11it/s][A
+  2%|▏         | 6/383 [00:05<06:02,  1.04it/s][A
+  2%|▏         | 7/383 [00:06<06:03,  1.04it/s][A
+  2%|▏         | 8/383 [00:07<06:19,  1.01s/it][A
+  2%|▏         | 9/383 [00:08<06:36,  1.06s/it][A
+  3%|▎         | 10/383 [00:09<06:39,  1.07s/it][A
+  3%|▎         | 11/383 [00:10<06:35,  1.06s/it][A
+  3%|▎         | 12/383 [00:11<06:48,  1.10s/it][A
+  3%|▎         | 13/383 [00:13<07:25,  1.20s/it][A
+  4%|▎         | 14/383 [00:14<07:47,  1.27s/it][A
+  4%|▍         | 15/383 [00:15<07:07,  1.16s/it][A
+  4%|▍         | 16/383 [00:17<07:27,  1.22s/it][A
+  4%|▍         | 17/383 [00:18<07:05,  1.16s/it][A
+  5%|▍         | 18/383 [00:19<06:57,  1.14s/it][A
+  5%|▍         | 19/383 [00:20<06:39,  1.10s/it][A
+  5%|▌         | 20/383 [00:21<06:41,  1.11s/it][A
+  5%|▌         | 21/383 [00:22<06:40,  1.10s/it][A
+  6%|▌         | 22/383 [00:23<06:41,  1.11s/it][A
+  6%|▌         | 23/383 [00:24<06:36,  1.10s/it][A
+  6%|▋         | 24/383 [00:25<07:04,  1.18s/it][A
+  7%|▋         | 25/383 [00:27<07:16,  1.22s/it][A
+  7%|▋         | 26/383 [00:28<06:43,  1.13s/it][A
+  7%|▋         | 27/383 [00:29<07:13,  1.22s/it][A
+  7%|▋         | 28/383 [00:30<07:05,  1.20s/it][A
+  8%|▊         | 29/383 [00:31<06:43,  1.14s/it][A
+  8%|▊         | 30/383 [00:32<06:21,  1.08s/it][A
+  8%|▊         | 31/383 [00:34<06:45,  1.15s/it][A
+  8%|▊         | 32/383 [00:35<06:43,  1.15s/it][A
+  9%|▊         | 33/383 [00:36<06:38,  1.14s/it][A
+  9%|▉         | 34/383 [00:37<06:31,  1.12s/it][A
+  9%|▉         | 35/383 [00:38<07:00,  1.21s/it][A
+  9%|▉         | 36/383 [00:39<06:57,  1.20s/it][A
+ 10%|▉         | 37/383 [00:41<06:39,  1.15s/it][A
+ 10%|▉         | 38/383 [00:42<06:30,  1.13s/it][A
+ 10%|█         | 39/383 [00:43<06:27,  1.13s/it][A
+ 10%|█         | 40/383 [00:44<06:31,  1.14s/it][A
+ 11%|█         | 41/383 [00:45<06:17,  1.10s/it][A
+ 11%|█         | 42/383 [00:46<05:56,  1.05s/it][A
+ 11%|█         | 43/383 [00:47<06:05,  1.07s/it][A
+ 11%|█▏        | 44/383 [00:48<06:03,  1.07s/it][A
+ 12%|█▏        | 45/383 [00:49<06:28,  1.15s/it][A
+ 12%|█▏        | 46/383 [00:51<06:51,  1.22s/it][A
+ 12%|█▏        | 47/383 [00:52<07:12,  1.29s/it][A
+ 13%|█▎        | 48/383 [00:54<07:16,  1.30s/it][A
+ 13%|█▎        | 49/383 [00:54<06:30,  1.17s/it][A
+ 13%|█▎        | 50/383 [00:56<06:37,  1.19s/it][A
+ 13%|█▎        | 51/383 [00:57<06:52,  1.24s/it][A
+ 14%|█▎        | 52/383 [00:58<06:50,  1.24s/it][A
+ 14%|█▍        | 53/383 [01:00<06:59,  1.27s/it][A
+ 14%|█▍        | 54/383 [01:01<06:28,  1.18s/it][A
+ 14%|█▍        | 55/383 [01:02<06:12,  1.13s/it][A
+ 15%|█▍        | 56/383 [01:02<05:43,  1.05s/it][A
+ 15%|█▍        | 57/383 [01:04<06:14,  1.15s/it][A
+ 15%|█▌        | 58/383 [01:05<05:44,  1.06s/it][A
+ 15%|█▌        | 59/383 [01:06<06:07,  1.13s/it][A
+ 16%|█▌        | 60/383 [01:07<05:47,  1.08s/it][A
+ 16%|█▌        | 61/383 [01:08<05:24,  1.01s/it][A
+ 16%|█▌        | 62/383 [01:09<05:10,  1.03it/s][A
+ 16%|█▋        | 63/383 [01:10<05:26,  1.02s/it][A
+ 17%|█▋        | 64/383 [01:11<05:31,  1.04s/it][A
+ 17%|█▋        | 65/383 [01:12<05:41,  1.07s/it][A
+ 17%|█▋        | 66/383 [01:13<05:49,  1.10s/it][A
+ 17%|█▋        | 67/383 [01:15<06:10,  1.17s/it][A
+ 18%|█▊        | 68/383 [01:16<06:24,  1.22s/it][A
+ 18%|█▊        | 69/383 [01:17<06:18,  1.21s/it][A
+ 18%|█▊        | 70/383 [01:18<06:06,  1.17s/it][A
+ 19%|█▊        | 71/383 [01:20<06:30,  1.25s/it][A
+ 19%|█▉        | 72/383 [01:21<06:44,  1.30s/it][A
+ 19%|█▉        | 73/383 [01:22<06:34,  1.27s/it][A
+ 19%|█▉        | 74/383 [01:23<06:22,  1.24s/it][A
+ 20%|█▉        | 75/383 [01:24<05:53,  1.15s/it][A
+ 20%|█▉        | 76/383 [01:25<05:47,  1.13s/it][A
+ 20%|██        | 77/383 [01:26<05:42,  1.12s/it][A
+ 20%|██        | 78/383 [01:28<05:41,  1.12s/it][A
+ 21%|██        | 79/383 [01:29<05:46,  1.14s/it][A
+ 21%|██        | 80/383 [01:30<05:26,  1.08s/it][A
+ 21%|██        | 81/383 [01:31<05:08,  1.02s/it][A
+ 21%|██▏       | 82/383 [01:32<05:38,  1.12s/it][A
+ 22%|██▏       | 83/383 [01:33<05:30,  1.10s/it][A
+ 22%|██▏       | 84/383 [01:34<06:01,  1.21s/it][A
+ 22%|██▏       | 85/383 [01:35<05:44,  1.16s/it][A
+ 22%|██▏       | 86/383 [01:37<05:43,  1.16s/it][A
+ 23%|██▎       | 87/383 [01:38<06:02,  1.22s/it][A
+ 23%|██▎       | 88/383 [01:39<06:11,  1.26s/it][A
+ 23%|██▎       | 89/383 [01:40<05:57,  1.22s/it][A
+ 23%|██▎       | 90/383 [01:42<06:03,  1.24s/it][A
+ 24%|██▍       | 91/383 [01:43<06:10,  1.27s/it][A
+ 24%|██▍       | 92/383 [01:45<06:23,  1.32s/it][A
+ 24%|██▍       | 93/383 [01:45<05:43,  1.19s/it][A
+ 25%|██▍       | 94/383 [01:46<05:27,  1.13s/it][A
+ 25%|██▍       | 95/383 [01:48<05:23,  1.12s/it][A
+ 25%|██▌       | 96/383 [01:49<05:15,  1.10s/it][A
+ 25%|██▌       | 97/383 [01:50<05:40,  1.19s/it][A
+ 26%|██▌       | 98/383 [01:51<05:50,  1.23s/it][A
+ 26%|██▌       | 99/383 [01:52<05:36,  1.18s/it][A
+ 26%|██▌       | 100/383 [01:54<05:29,  1.16s/it][A
+ 26%|██▋       | 101/383 [01:54<05:12,  1.11s/it][A
+ 27%|██▋       | 102/383 [01:56<05:32,  1.18s/it][A
+ 27%|██▋       | 103/383 [01:57<05:23,  1.16s/it][A
+ 27%|██▋       | 104/383 [01:58<05:38,  1.21s/it][A
+ 27%|██▋       | 105/383 [02:00<05:47,  1.25s/it][A
+ 28%|██▊       | 106/383 [02:01<05:40,  1.23s/it][A
+ 28%|██▊       | 107/383 [02:02<05:10,  1.12s/it][A
+ 28%|██▊       | 108/383 [02:03<05:29,  1.20s/it][A
+ 28%|██▊       | 109/383 [02:04<05:43,  1.25s/it][A
+ 29%|██▊       | 110/383 [02:06<05:37,  1.24s/it][A
+ 29%|██▉       | 111/383 [02:07<05:27,  1.20s/it][A
+ 29%|██▉       | 112/383 [02:08<05:15,  1.16s/it][A
+ 30%|██▉       | 113/383 [02:09<05:09,  1.14s/it][A
+ 30%|██▉       | 114/383 [02:10<05:09,  1.15s/it][A
+ 30%|███       | 115/383 [02:11<04:47,  1.07s/it][A
+ 30%|███       | 116/383 [02:12<04:48,  1.08s/it][A
+ 31%|███       | 117/383 [02:13<05:06,  1.15s/it][A
+ 31%|███       | 118/383 [02:14<04:40,  1.06s/it][A
+ 31%|███       | 119/383 [02:15<04:39,  1.06s/it][A
+ 31%|███▏      | 120/383 [02:16<04:37,  1.06s/it][A
+ 32%|███▏      | 121/383 [02:17<04:41,  1.07s/it][A
