@@ -15,7 +15,7 @@ def _meaningful_override(e, min_regret):
     return int(gold != fast and regret >= float(min_regret))
 
 
-def _group_folds(rows, n_folds, min_regret):
+def _group_folds(rows, n_folds, min_regret, strategy='stratified_group'):
     """Return family-disjoint, approximately override-stratified folds.
 
     Prefer sklearn's StratifiedGroupKFold when installed.  The fallback keeps
@@ -23,6 +23,16 @@ def _group_folds(rows, n_folds, min_regret):
     """
     groups = [e.get('case', {}).get('family') or e.get('case', {}).get('kernel') or 'unknown' for e in rows]
     y = [_meaningful_override(e, min_regret) for e in rows]
+    if strategy == 'legacy_round_robin':
+        unique = sorted(set(groups))
+        if len(unique) < n_folds:
+            raise ValueError(f'Need at least {n_folds} groups, found {len(unique)}')
+        heldout = [unique[i::n_folds] for i in range(n_folds)]
+        return [([i for i, g in enumerate(groups) if g not in held],
+                  [i for i, g in enumerate(groups) if g in held])
+                for held in heldout]
+    if strategy != 'stratified_group':
+        raise ValueError(f'Unknown fold strategy: {strategy}')
     try:
         import numpy as np
         from sklearn.model_selection import StratifiedGroupKFold
@@ -67,9 +77,9 @@ def fit_fold(rows, train_idx, args):
     return model.eval()
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--train_features',required=True); p.add_argument('--folds',type=int,default=5); p.add_argument('--epochs',type=int,default=20); p.add_argument('--hidden_dim',type=int,default=64); p.add_argument('--dropout',type=float,default=.1); p.add_argument('--lr',type=float,default=1e-3); p.add_argument('--weight_decay',type=float,default=1e-4); p.add_argument('--slow_loss_weight',type=float,default=.35); p.add_argument('--min_override_regret',type=float,default=.02); p.add_argument('--architecture',choices=('override_v4','override_v5','override_v6','override_v7'),default='override_v7'); p.add_argument('--max_false_override_rate',type=float,default=.05); p.add_argument('--output_json',required=True); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--train_features',required=True); p.add_argument('--folds',type=int,default=5); p.add_argument('--epochs',type=int,default=20); p.add_argument('--hidden_dim',type=int,default=64); p.add_argument('--dropout',type=float,default=.1); p.add_argument('--lr',type=float,default=1e-3); p.add_argument('--weight_decay',type=float,default=1e-4); p.add_argument('--slow_loss_weight',type=float,default=.35); p.add_argument('--min_override_regret',type=float,default=.02); p.add_argument('--architecture',choices=('override_v4','override_v5','override_v6','override_v7'),default='override_v7'); p.add_argument('--fold_strategy',choices=('legacy_round_robin','stratified_group'),default='stratified_group'); p.add_argument('--max_false_override_rate',type=float,default=.05); p.add_argument('--output_json',required=True); a=p.parse_args()
     rows=torch.load(a.train_features,weights_only=False); groups=[e.get('case',{}).get('family') or e.get('case',{}).get('kernel') or 'unknown' for e in rows]
-    folds = _group_folds(rows, a.folds, a.min_override_regret); oof=[]
+    folds = _group_folds(rows, a.folds, a.min_override_regret, a.fold_strategy); oof=[]
     for fold,(tr,te) in enumerate(folds,1):
         print(f'[AUTO-CV] fold={fold}/{a.folds} train={len(tr)} heldout={len(te)}',flush=True); m=fit_fold(rows,tr,a)
         with torch.no_grad():
@@ -78,7 +88,7 @@ def main():
                 if a.architecture in ('override_v6', 'override_v7'):
                     pfeas=torch.sigmoid(outputs[2]); safe=logits+2.0*torch.log(pfeas.clamp_min(1e-6)); slow=safe.clone()
                 else: slow=logits.clone()
-                slow[fast]=-float('inf'); cand=int(slow.argmax()); qor=_override_qor(e); gold=int(qor.argmin()); override=(gold!=fast); oof.append({'prob':prob,'y':override,'regret_fast':max(0.,float(qor[fast]/qor[gold]-1.)),'regret_override':max(0.,float(qor[cand]/qor[gold]-1.)),'kernel':e.get('case',{}).get('kernel',e.get('case',{}).get('family','unknown')),'device':e.get('case',{}).get('device','unknown')})
+                slow[fast]=-float('inf'); cand=int(slow.argmax()); qor=_override_qor(e); gold=int(qor.argmin()); meaningful_override=bool(_meaningful_override(e, a.min_override_regret)); oof.append({'prob':prob,'y':meaningful_override,'regret_fast':max(0.,float(qor[fast]/qor[gold]-1.)),'regret_override':max(0.,float(qor[cand]/qor[gold]-1.)),'kernel':e.get('case',{}).get('kernel',e.get('case',{}).get('family','unknown')),'family':e.get('case',{}).get('family','unknown'),'device':e.get('case',{}).get('device','unknown')})
     best=None
     def score_for(t):
         do=[r['prob']>=t for r in oof]; regrets=[r['regret_override'] if pred else r['regret_fast'] for pred,r in zip(do,oof)]; grouped={}
@@ -90,7 +100,7 @@ def main():
         if fp<=a.max_false_override_rate:
             key=(score,-t)
             if best is None or key<best[0]: best=(key,t,fp,score,macro,p90)
-    result={'threshold':float(best[1] if best else 1.01),'false_override_rate':float(best[2] if best else 0.0),'score':float(best[3] if best else fast_score),'fastest_score':float(fast_score),'improvement_vs_fastest':float(fast_score-(best[3] if best else fast_score)),'macro_regret':float(best[4] if best else fast_score),'p90_regret':float(best[5] if best else 0.0),'folds':a.folds,'oof_cases':len(oof)}
+    result={'threshold':float(best[1] if best else 1.01),'false_override_rate':float(best[2] if best else 0.0),'score':float(best[3] if best else fast_score),'fastest_score':float(fast_score),'improvement_vs_fastest':float(fast_score-(best[3] if best else fast_score)),'macro_regret':float(best[4] if best else fast_score),'p90_regret':float(best[5] if best else 0.0),'folds':a.folds,'fold_strategy':a.fold_strategy,'min_override_regret':a.min_override_regret,'oof_cases':len(oof)}
     Path(a.output_json).parent.mkdir(parents=True, exist_ok=True)
     with open(a.output_json,'w') as f: json.dump(result,f,indent=2)
     print(json.dumps(result))

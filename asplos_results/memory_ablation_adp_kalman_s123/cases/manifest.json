@@ -1,0 +1,151 @@
+{
+  "eligible_context_count": 57,
+  "groups": [
+    {
+      "clock_period_ns": 3.33,
+      "device": "xcu200-fsgd2104-2-e",
+      "eligible_contexts": 16,
+      "selected_budget_tightness": [
+        0.16,
+        0.63,
+        1.0
+      ],
+      "selected_context_ids": [
+        "kalman::xcu200-fsgd2104-2-e::3.33ns::B0.16_D0.16_F0.16_L0.16",
+        "kalman::xcu200-fsgd2104-2-e::3.33ns::B0.17_D0.77_F0.98_L0.60",
+        "kalman::xcu200-fsgd2104-2-e::3.33ns::B1.00_D1.00_F1.00_L1.00"
+      ],
+      "selected_indices": [
+        0,
+        8,
+        15
+      ]
+    },
+    {
+      "clock_period_ns": 5.0,
+      "device": "xcu200-fsgd2104-2-e",
+      "eligible_contexts": 16,
+      "selected_budget_tightness": [
+        0.16,
+        0.63,
+        1.0
+      ],
+      "selected_context_ids": [
+        "kalman::xcu200-fsgd2104-2-e::5ns::B0.16_D0.16_F0.16_L0.16",
+        "kalman::xcu200-fsgd2104-2-e::5ns::B0.17_D0.77_F0.98_L0.60",
+        "kalman::xcu200-fsgd2104-2-e::5ns::B1.00_D1.00_F1.00_L1.00"
+      ],
+      "selected_indices": [
+        0,
+        8,
+        15
+      ]
+    },
+    {
+      "clock_period_ns": 10.0,
+      "device": "xcu200-fsgd2104-2-e",
+      "eligible_contexts": 16,
+      "selected_budget_tightness": [
+        0.16,
+        0.63,
+        1.0
+      ],
+      "selected_context_ids": [
+        "kalman::xcu200-fsgd2104-2-e::10ns::B0.16_D0.16_F0.16_L0.16",
+        "kalman::xcu200-fsgd2104-2-e::10ns::B0.17_D0.77_F0.98_L0.60",
+        "kalman::xcu200-fsgd2104-2-e::10ns::B1.00_D1.00_F1.00_L1.00"
+      ],
+      "selected_indices": [
+        0,
+        8,
+        15
+      ]
+    },
+    {
+      "clock_period_ns": 3.33,
+      "device": "xczu7ev-ffvc1156-2-e",
+      "eligible_contexts": 3,
+      "selected_budget_tightness": [
+        0.39249999999999996,
+        0.5025000000000001,
+        1.0
+      ],
+      "selected_context_ids": [
+        "kalman::xczu7ev-ffvc1156-2-e::3.33ns::B1.00_D0.13_F0.18_L0.26",
+        "kalman::xczu7ev-ffvc1156-2-e::3.33ns::B0.99_D0.10_F0.33_L0.59",
+        "kalman::xczu7ev-ffvc1156-2-e::3.33ns::B1.00_D1.00_F1.00_L1.00"
+      ],
+      "selected_indices": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "clock_period_ns": 5.0,
+      "device": "xczu7ev-ffvc1156-2-e",
+      "eligible_contexts": 3,
+      "selected_budget_tightness": [
+        0.39249999999999996,
+        0.5025000000000001,
+        1.0
+      ],
+      "selected_context_ids": [
+        "kalman::xczu7ev-ffvc1156-2-e::5ns::B1.00_D0.13_F0.18_L0.26",
+        "kalman::xczu7ev-ffvc1156-2-e::5ns::B0.99_D0.10_F0.33_L0.59",
+        "kalman::xczu7ev-ffvc1156-2-e::5ns::B1.00_D1.00_F1.00_L1.00"
+      ],
+      "selected_indices": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "clock_period_ns": 10.0,
+      "device": "xczu7ev-ffvc1156-2-e",
+      "eligible_contexts": 3,
+      "selected_budget_tightness": [
+        0.39249999999999996,
+        0.5025000000000001,
+        1.0
+      ],
+      "selected_context_ids": [
+        "kalman::xczu7ev-ffvc1156-2-e::10ns::B1.00_D0.13_F0.18_L0.26",
+        "kalman::xczu7ev-ffvc1156-2-e::10ns::B0.99_D0.10_F0.33_L0.59",
+        "kalman::xczu7ev-ffvc1156-2-e::10ns::B1.00_D1.00_F1.00_L1.00"
+      ],
+      "selected_indices": [
+        0,
+        1,
+        2
+      ]
+    }
+  ],
+  "input_jsonl": "mailohls_runs/stage1_pareto_adp_s123_inference_fix_full/selected_debug/test_selected_pareto_adp.jsonl",
+  "input_sha256": "7b2d98fa002eae2499d31f9ff07f274897115ab6e166505e1111d8dcfd6daf75",
+  "kernel": "serrano-kalman-filter",
+  "objective": "PARETO_ADP",
+  "output_jsonl": "asplos_results/memory_ablation_adp_kalman_s123/cases/kalman_adp_18.jsonl",
+  "output_sha256": "4bfb95887aa37468a21ab1edc1e3fc23f529f2d7dde149a00bed7b625bd50d4b",
+  "schema": "mailohls-asplos-memory-ablation-cases-v1",
+  "selected_context_count": 18,
+  "selection_excluded_fields": [
+    "_family",
+    "_jsonl_idx",
+    "_local_hard_negatives",
+    "_rank_within_kernel",
+    "_sample_weight",
+    "_score",
+    "area",
+    "bram_util_%",
+    "dsp_util_%",
+    "ff_util_%",
+    "is_pareto",
+    "latency",
+    "lut_util_%",
+    "preprocessed_row",
+    "weight"
+  ],
+  "selection_policy": "specified-clock only; group by device/clock; select evenly spaced quantiles of the arithmetic mean of four requested budget fractions; no QoR field participates in selection"
+}

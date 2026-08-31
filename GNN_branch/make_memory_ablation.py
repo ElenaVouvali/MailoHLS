@@ -266,11 +266,21 @@ def copy_manifest_if_present(
         return
 
     try:
+        source_bytes = source_manifest.read_bytes()
+
         manifest = json.loads(
-            source_manifest.read_text(
-                encoding="utf-8"
-            )
+            source_bytes.decode("utf-8")
         )
+
+        # The production evaluator pins the exact memory manifest used to
+        # train Stage 2.  Derived diagnostic banks must therefore identify
+        # that immutable parent instead of weakening the compatibility
+        # check or pretending to be the original bank.
+        manifest[
+            "base_memory_manifest_sha256"
+        ] = hashlib.sha256(
+            source_bytes
+        ).hexdigest()
 
         manifest[
             "memory_ablation"

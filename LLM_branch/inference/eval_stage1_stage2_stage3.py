@@ -8,7 +8,7 @@ import math
 import copy
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -347,6 +347,35 @@ def load_rows(jsonl_path: str) -> List[dict]:
 def load_directive_domain_registry(path: str) -> Dict[str, Dict[str, List[str]]]:
     from LLM_branch.train.train_SFT_xattn_new import load_directive_domain_registry as load
     return load(path)
+
+
+def add_missing_source_directive_domains(
+    registry: Dict[str, Dict[str, List[str]]],
+    cases: Iterable[Any],
+    application_dataset_dir: str,
+) -> List[str]:
+    """Add source-derived domains for evaluation kernels absent from an old registry.
+
+    Historical checkpoint registries contain only the training split.  Their bytes
+    must still be hash-checked against the training contract, but a held-out kernel
+    needs legal candidate domains at inference time.  Deriving only those missing
+    domains from public source/action metadata avoids measured holdout leakage.
+    """
+    missing_rows = []
+    seen = set()
+    for case in cases:
+        kernel = normalize_kname(case.kernel_name)
+        if kernel in registry or kernel in seen:
+            continue
+        missing_rows.append({"kernel_name": case.kernel_name, "input": case.source_text})
+        seen.add(kernel)
+    if not missing_rows:
+        return []
+    derived = directive_domains.build_source_domain_registry(
+        missing_rows, application_dataset_dir
+    )
+    registry.update(derived)
+    return sorted(derived)
 
 
 def get_rhs_candidates_for_lhs(kernel_name, lhs, directive_domain_registry):
@@ -1494,11 +1523,22 @@ def predict_case(
 
     unique_candidates_sorted = annotate_candidate_uniqueness(candidates)
 
+    platform = case.platform_row
     row = {
+        "context_id": platform.get("context_id", case.kernel_name),
         "kernel_name": case.kernel_name,
         "obj_mode": case.obj_mode,
         "w_lat": case.w_lat,
         "w_area": case.w_area,
+        "device": platform.get("device"),
+        "clock_period_ns": selected_clock,
+        "resource_budget_id": platform.get("resource_budget_id"),
+        "resource_budget": {
+            "BRAM_18K": platform.get("avail_bram"),
+            "DSP": platform.get("avail_dsp"),
+            "FF": platform.get("avail_ff"),
+            "LUT": platform.get("avail_lut"),
+        },
         "prompt_token_count": len(prompt_ids),
         "n_generated": len(candidates),
         "n_unique": len(unique_candidates_sorted),
@@ -1628,6 +1668,15 @@ def main():
 
     # stage2 memory
     ap.add_argument("--memory_dir", type=str, default="")
+    ap.add_argument(
+        "--allow_memory_ablation",
+        action="store_true",
+        help=(
+            "Allow a deterministic diagnostic memory bank only when its "
+            "manifest declares the exact frozen Stage-2 parent-manifest "
+            "SHA-256. Normal inference must leave this disabled."
+        ),
+    )
     ap.add_argument("--clock_selector_dir", type=str, default="",
                     help="AUTO clock-regression selector directory containing selector.pt")
     ap.add_argument("--mem_dim", type=int)
@@ -1839,9 +1888,48 @@ def main():
         with open(manifest_path, "rb") as handle:
             for chunk in iter(lambda: handle.read(1024 * 1024), b""):
                 digest.update(chunk)
-        if digest.hexdigest() != structural_config["memory_manifest_sha256"]:
-            raise ValueError(
-                f"Memory manifest does not match the {args.stage} checkpoint"
+        actual_manifest_sha256 = digest.hexdigest()
+        expected_manifest_sha256 = structural_config[
+            "memory_manifest_sha256"
+        ]
+        if actual_manifest_sha256 != expected_manifest_sha256:
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as handle:
+                    memory_manifest = json.load(handle)
+            except (OSError, json.JSONDecodeError) as exc:
+                raise ValueError(
+                    f"Memory manifest does not match the {args.stage} "
+                    "checkpoint and is not valid JSON"
+                ) from exc
+
+            ablation_name = memory_manifest.get("memory_ablation")
+            base_manifest_sha256 = memory_manifest.get(
+                "base_memory_manifest_sha256"
+            )
+            allowed_ablations = {
+                "zero_information",
+                "within_kernel_deranged_slots",
+                "kernel_global_only",
+                "action_local_centered_rms_matched",
+                "action_local_centered_rms_matched_deranged",
+            }
+            valid_derived_bank = (
+                args.allow_memory_ablation
+                and ablation_name in allowed_ablations
+                and base_manifest_sha256 == expected_manifest_sha256
+            )
+            if not valid_derived_bank:
+                raise ValueError(
+                    f"Memory manifest does not match the {args.stage} "
+                    "checkpoint. Derived diagnostic banks additionally "
+                    "require --allow_memory_ablation, an approved "
+                    "memory_ablation value, and the exact frozen "
+                    "base_memory_manifest_sha256."
+                )
+            print(
+                "[MEMORY-ABLATION] validated "
+                f"{ablation_name!r} against frozen parent "
+                f"{expected_manifest_sha256}"
             )
     else:
         contract_path = os.path.join(args.adapter_dir, "training_contract.json")
@@ -1922,6 +2010,14 @@ def main():
         directive_domain_registry = load_directive_domain_registry(
             args.directive_domain_registry_json
         )
+        added_domains = add_missing_source_directive_domains(
+            directive_domain_registry, cases, args.application_dataset_dir
+        )
+        if added_domains:
+            print(
+                "[DOMAINS] source-derived missing evaluation registries: "
+                + ", ".join(added_domains)
+            )
     else:
         if args.directive_domain_registry_json:
             raise ValueError("Source-domain checkpoints must not receive a measured directive registry")
