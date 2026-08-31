@@ -5,6 +5,47 @@ import torch
 from .model import AutoClockOverrideSelector, AutoClockOverrideSelectorV5, AutoClockOverrideSelectorV6, AutoClockOverrideSelectorV7
 from .train import auto_clock_override_loss, auto_clock_override_v5_loss, auto_clock_override_v6_loss, _override_qor, build_feasibility_targets
 
+
+def _meaningful_override(e, min_regret):
+    qor = _override_qor(e)
+    clocks = torch.tensor(e['clocks'])
+    fast = int(clocks.argmin())
+    gold = int(qor.argmin())
+    regret = max(0.0, float(qor[fast] / qor[gold] - 1.0))
+    return int(gold != fast and regret >= float(min_regret))
+
+
+def _group_folds(rows, n_folds, min_regret):
+    """Return family-disjoint, approximately override-stratified folds.
+
+    Prefer sklearn's StratifiedGroupKFold when installed.  The fallback keeps
+    the same family isolation without requiring an extra CPU dependency.
+    """
+    groups = [e.get('case', {}).get('family') or e.get('case', {}).get('kernel') or 'unknown' for e in rows]
+    y = [_meaningful_override(e, min_regret) for e in rows]
+    try:
+        import numpy as np
+        from sklearn.model_selection import StratifiedGroupKFold
+        cv = StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=123)
+        return [(tr.tolist(), te.tolist()) for tr, te in cv.split(np.zeros(len(rows)), y, groups)]
+    except ImportError:
+        unique = sorted(set(groups))
+        if len(unique) < n_folds:
+            raise ValueError(f'Need at least {n_folds} distinct groups, found {len(unique)}')
+        stats = []
+        for g in unique:
+            idx = [i for i, x in enumerate(groups) if x == g]
+            stats.append((g, len(idx), sum(y[i] for i in idx)))
+        stats.sort(key=lambda x: (x[2], x[1]), reverse=True)
+        fold_groups = [[] for _ in range(n_folds)]
+        fold_stats = [[0, 0] for _ in range(n_folds)]
+        for g, n, pos in stats:
+            j = min(range(n_folds), key=lambda k: (fold_stats[k][1], fold_stats[k][0]))
+            fold_groups[j].append(g); fold_stats[j][0] += pos; fold_stats[j][1] += n
+        return [([i for i, g in enumerate(groups) if g not in held],
+                 [i for i, g in enumerate(groups) if g in held])
+                for held in fold_groups]
+
 def fit_fold(rows, train_idx, args):
     e0 = rows[train_idx[0]]
     cls = AutoClockOverrideSelectorV7 if args.architecture == 'override_v7' else AutoClockOverrideSelectorV6 if args.architecture == 'override_v6' else AutoClockOverrideSelectorV5 if args.architecture == 'override_v5' else AutoClockOverrideSelector
@@ -28,11 +69,8 @@ def fit_fold(rows, train_idx, args):
 def main():
     p=argparse.ArgumentParser(); p.add_argument('--train_features',required=True); p.add_argument('--folds',type=int,default=5); p.add_argument('--epochs',type=int,default=20); p.add_argument('--hidden_dim',type=int,default=64); p.add_argument('--dropout',type=float,default=.1); p.add_argument('--lr',type=float,default=1e-3); p.add_argument('--weight_decay',type=float,default=1e-4); p.add_argument('--slow_loss_weight',type=float,default=.35); p.add_argument('--min_override_regret',type=float,default=.02); p.add_argument('--architecture',choices=('override_v4','override_v5','override_v6','override_v7'),default='override_v7'); p.add_argument('--max_false_override_rate',type=float,default=.05); p.add_argument('--output_json',required=True); a=p.parse_args()
     rows=torch.load(a.train_features,weights_only=False); groups=[e.get('case',{}).get('family') or e.get('case',{}).get('kernel') or 'unknown' for e in rows]
-    unique_groups=sorted(set(groups));
-    if len(unique_groups) < a.folds: raise ValueError(f'Need at least {a.folds} distinct kernel groups, found {len(unique_groups)}')
-    group_folds=[unique_groups[i::a.folds] for i in range(a.folds)]; oof=[]
-    for fold,heldout_groups in enumerate(group_folds,1):
-        te=[i for i,g in enumerate(groups) if g in heldout_groups]; tr=[i for i,g in enumerate(groups) if g not in heldout_groups]
+    folds = _group_folds(rows, a.folds, a.min_override_regret); oof=[]
+    for fold,(tr,te) in enumerate(folds,1):
         print(f'[AUTO-CV] fold={fold}/{a.folds} train={len(tr)} heldout={len(te)}',flush=True); m=fit_fold(rows,tr,a)
         with torch.no_grad():
             for i in te:

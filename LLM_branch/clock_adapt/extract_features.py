@@ -2,7 +2,7 @@
 import argparse, json
 from pathlib import Path
 import torch
-from LLM_branch.common.mailohls_contract import DEVICE_RESOURCES
+from LLM_branch.common.mailohls_contract import DEVICE_RESOURCES, supported_clock_periods
 
 
 def pooled_structural_memory(pack):
@@ -27,14 +27,21 @@ def make_features(cases, memory_dir):
         caps = [__import__('math').log1p(float(capacities[k])) for k in ('BRAM_18K','DSP','FF','LUT')]
         objective = str(case.get("objective", "PARETO_ADP")).upper()
         objective_onehot = [float(objective == name) for name in ("PARETO_LATENCY", "PARETO_AREA", "PARETO_ADP")]
+        clock_menu = [float(c) for c in supported_clock_periods(case['device'])]
         features = torch.stack([torch.tensor(
             vals + caps + [__import__('math').log2(float(clock) / 5.0)] + objective_onehot, dtype=torch.float32
-        ) for clock in case["available_clock_periods"]])
+        ) for clock in clock_menu])
+        gold_clock = float(case['gold_clock_period'])
+        label = min(range(len(clock_menu)), key=lambda i: abs(clock_menu[i] - gold_clock))
+        if abs(clock_menu[label] - gold_clock) > 1e-6:
+            raise ValueError(f"Gold clock {gold_clock} not in supported menu {clock_menu}")
         examples.append({"memory": memory, "memory_mask": memory_mask,
                          "candidate_context": features,
-                         "available": torch.ones(len(case["available_clock_periods"]), dtype=torch.bool),
-                         "label": case["available_clock_periods"].index(case["gold_clock_period"]),
-                         "clocks": case["available_clock_periods"], "case": case})
+                         # All hardware-supported clocks are model candidates.
+                         # Feasibility is represented by QoR/clock_feasible metadata.
+                         "available": torch.ones(len(clock_menu), dtype=torch.bool),
+                         "label": label,
+                         "clocks": clock_menu, "case": case})
     if not examples: raise ValueError("No cases matched memory packs")
     return examples
 
