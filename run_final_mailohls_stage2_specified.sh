@@ -56,6 +56,23 @@ CANDIDATE_SITES_PER_SAMPLE="${STAGE2_CANDIDATE_SITES_PER_SAMPLE:-0}"
 CANDIDATE_NEGATIVES_PER_SITE="${STAGE2_CANDIDATE_NEGATIVES_PER_SITE:-0}"
 CANDIDATE_KIND_PRIORITY="${STAGE2_CANDIDATE_KIND_PRIORITY:-}"
 
+CANDIDATE_REQUIRED_KINDS="${STAGE2_CANDIDATE_REQUIRED_KINDS:-}"
+CANDIDATE_MAX_KIND_FRACTION="${STAGE2_CANDIDATE_MAX_KIND_FRACTION:-1.0}"
+CANDIDATE_MIN_SAMPLE_FRACTION="${STAGE2_CANDIDATE_MIN_SAMPLE_FRACTION:-0.0}"
+
+EXTRA_CKPT_AUDIT=()
+if [[ "${STAGE2_CHECKPOINT_EQUIV_AUDIT:-0}" == "1" ]]; then
+  EXTRA_CKPT_AUDIT+=(--checkpoint_equivalence_audit)
+fi
+
+CANDIDATE_REQUIRED_KINDS="${STAGE2_CANDIDATE_REQUIRED_KINDS:-}"
+CANDIDATE_MAX_KIND_FRACTION="${STAGE2_CANDIDATE_MAX_KIND_FRACTION:-1.0}"
+CANDIDATE_MIN_SAMPLE_FRACTION="${STAGE2_CANDIDATE_MIN_SAMPLE_FRACTION:-0.0}"
+EXTRA_AUDIT=()
+if [[ "${STAGE2_CHECKPOINT_EQUIVALENCE_AUDIT:-0}" == "1" ]]; then
+  EXTRA_AUDIT+=(--checkpoint_equivalence_audit)
+fi
+
 CUDA_VISIBLE_DEVICES="$GPU" \
 python -u -m LLM_branch.train.train_SFT_xattn_new \
   --run_mode single \
@@ -100,6 +117,12 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --candidate_sites_per_sample "$CANDIDATE_SITES_PER_SAMPLE" \
   --candidate_negatives_per_site "$CANDIDATE_NEGATIVES_PER_SITE" \
   --candidate_kind_priority "$CANDIDATE_KIND_PRIORITY" \
+  --candidate_required_kinds "$CANDIDATE_REQUIRED_KINDS" \
+  --candidate_max_kind_fraction "$CANDIDATE_MAX_KIND_FRACTION" \
+  --candidate_min_sample_fraction "$CANDIDATE_MIN_SAMPLE_FRACTION" \
+  --candidate_required_kinds "$CANDIDATE_REQUIRED_KINDS" \
+  --candidate_max_kind_fraction "$CANDIDATE_MAX_KIND_FRACTION" \
+  --candidate_min_sample_fraction "$CANDIDATE_MIN_SAMPLE_FRACTION" \
   --lora_r 8 \
   --lora_alpha 16 \
   --lora_target_modules attention \
@@ -136,6 +159,8 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --seed 123 \
   "${EXTRA_CLEAN[@]}" \
   "${EXTRA_CACHE[@]}" \
+  "${EXTRA_AUDIT[@]}" \
+  "${EXTRA_CKPT_AUDIT[@]}" \
   --data_cache_path "$DATA_CACHE" \
   --output_dir "$OUT" \
   --initial_state_reference "$INIT_REF" 

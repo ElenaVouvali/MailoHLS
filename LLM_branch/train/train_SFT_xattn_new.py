@@ -1690,6 +1690,10 @@ def build_contrastive_sites_from_sample(
     candidate_sites_per_sample: int = 0,
     candidate_negatives_per_site: int = 0,
     kind_priority: Optional[Dict[str, float]] = None,
+    kernel_name: Optional[str] = None,
+    directive_domain_registry: Optional[
+        Dict[str, Dict[str, List[str]]]
+    ] = None,
 ):
     """
     For selected directive sites, keep:
@@ -1710,6 +1714,7 @@ def build_contrastive_sites_from_sample(
     prefix_ids = list(prompt_ids)
     current_label = None
     sites = []
+    chosen_assignments = {}
 
     for label, lhs in plan:
         if label != current_label:
@@ -1733,10 +1738,32 @@ def build_contrastive_sites_from_sample(
         if len(prefix_for_site) + len(gold_ids) > max_length:
             break
 
+        legal_candidates = None
+        if kernel_name is not None and directive_domain_registry is not None:
+            _, legal_values = constrained_rhs_candidates(
+                kernel_name,
+                lhs,
+                directive_domain_registry,
+                chosen_assignments,
+            )
+            legal_candidates = {
+                str(value).strip() for value in legal_values
+            }
+            if gold_rhs not in legal_candidates:
+                raise RuntimeError(
+                    "Gold RHS is illegal under its own teacher-forced "
+                    f"prefix: {kernel_name}/{lhs}={gold_rhs}; "
+                    f"legal={sorted(legal_candidates)}"
+                )
+
         neg_texts = []
         for neg in local_hard_negatives.get(lhs.upper(), []):
             neg = neg.strip()
-            if neg and neg != gold_rhs and neg not in neg_texts:
+            if not neg or neg == gold_rhs:
+                continue
+            if legal_candidates is not None and neg not in legal_candidates:
+                continue
+            if neg not in neg_texts:
                 neg_texts.append(neg)
             if len(neg_texts) >= candidate_negatives_per_site:
                 break
@@ -1756,6 +1783,7 @@ def build_contrastive_sites_from_sample(
                 ],
             })
 
+        chosen_assignments[lhs.strip().upper()] = gold_rhs
         prefix_ids = prefix_for_site + gold_ids
 
     # Balance directive kinds within each sample.  A strict global sort can
@@ -3978,6 +4006,48 @@ extend_instance = structural_xattn.extend_instance
 infer_decoder_layers_attr_name = structural_xattn.infer_decoder_layers_attr_name
 
 
+def get_checkpointed_structural_backbone(model):
+    if not hasattr(model, "get_base_model"):
+        raise TypeError("Expected a PEFT model exposing get_base_model()")
+    backbone = model.get_base_model()
+    if not isinstance(backbone, nn.Module):
+        raise TypeError("model.get_base_model() did not return an nn.Module")
+    return backbone
+
+
+def install_structural_checkpoint_context(model):
+    backbone = get_checkpointed_structural_backbone(model)
+    wrappers = tuple(
+        structural_xattn.iter_structural_runtime_wrappers(backbone)
+    )
+    expected = len(getattr(model, "structural_xattn_layer_indices", ()))
+    if expected and len(wrappers) != expected:
+        raise RuntimeError(
+            "Structural checkpoint wrapper count mismatch: "
+            f"found={len(wrappers)} expected={expected}"
+        )
+    context_fn = structural_xattn.make_structural_checkpoint_context_fn(backbone)
+    backbone.gradient_checkpointing_enable(
+        gradient_checkpointing_kwargs={
+            "use_reentrant": False,
+            "context_fn": context_fn,
+        }
+    )
+    if not backbone.is_gradient_checkpointing:
+        raise RuntimeError(
+            "Gradient checkpointing did not become active on the actual "
+            "structural backbone"
+        )
+    backbone._mailohls_structural_checkpoint_context_installed = True
+    backbone._mailohls_structural_checkpoint_wrapper_count = len(wrappers)
+    print(
+        "[STRUCTURAL-GC] installed state-preserving non-reentrant "
+        f"checkpoint context on {type(backbone).__name__}; "
+        f"wrappers={len(wrappers)}"
+    )
+    return backbone
+
+
 class SaveMailoHLSCheckpointCallback(TrainerCallback):
     def __init__(self, tokenizer, training_contract):
         self.tokenizer = tokenizer
@@ -4824,6 +4894,195 @@ class LengthGroupedTrainer(Trainer):
         finally:
             if hasattr(model, "clear_structural_memory") and not model.training:
                 model.clear_structural_memory()
+
+
+def _clone_nested(value):
+    if torch.is_tensor(value):
+        return value.clone()
+    if isinstance(value, dict):
+        return {key: _clone_nested(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_clone_nested(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_clone_nested(item) for item in value)
+    return value
+
+
+def run_checkpoint_equivalence_audit(trainer, model, train_ds, collator):
+    """Compare structural CE+candidate gradients with checkpointing off/on."""
+    candidate_indices = [
+        index
+        for index, sample in enumerate(train_ds.samples)
+        if sample.get("contrastive_sites")
+    ]
+    if not candidate_indices:
+        raise RuntimeError(
+            "Checkpoint audit requires at least one candidate-supervised sample"
+        )
+    sample_index = min(candidate_indices, key=lambda index: train_ds.lengths[index])
+    sample = train_ds.samples[sample_index]
+    print(
+        "[CKPT-AUDIT] "
+        f"sample_index={sample_index} kernel={sample['kernel_name']} "
+        f"tokens={train_ds.lengths[sample_index]} "
+        "candidate_kinds="
+        f"{[site['kind'] for site in sample['contrastive_sites']]}"
+    )
+    batch = collator([train_ds[sample_index]])
+    trainable = [
+        (name, parameter)
+        for name, parameter in model.named_parameters()
+        if parameter.requires_grad
+    ]
+    if not trainable:
+        raise RuntimeError("Checkpoint audit found no trainable parameters")
+
+    backbone = get_checkpointed_structural_backbone(model)
+    blocks = [
+        module
+        for module in model.modules()
+        if isinstance(module, GatedCrossAttentionBlock)
+    ]
+    if not blocks:
+        raise RuntimeError("Checkpoint audit found no structural blocks")
+    gate_backup = [block.attn_gate.detach().clone() for block in blocks]
+    with torch.no_grad():
+        for block in blocks:
+            block.attn_gate.fill_(0.05)
+
+    cpu_rng = torch.get_rng_state()
+    cuda_rng = torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None
+
+    def restore_rng():
+        torch.set_rng_state(cpu_rng)
+        if cuda_rng is not None:
+            torch.cuda.set_rng_state_all(cuda_rng)
+
+    def run_once(*, checkpointing):
+        restore_rng()
+        model.zero_grad(set_to_none=True)
+        if hasattr(model, "clear_structural_memory"):
+            model.clear_structural_memory()
+        if checkpointing:
+            install_structural_checkpoint_context(model)
+        else:
+            backbone.gradient_checkpointing_disable()
+            backbone._mailohls_structural_checkpoint_context_installed = False
+        model.train()
+        frozen_stage1.disable_frozen_lora_dropout(model)
+        inputs = trainer._prepare_inputs(_clone_nested(batch))
+        with trainer.compute_loss_context_manager():
+            loss = trainer.compute_loss(model, inputs)
+        audit_scale = 4096.0
+        gradients = torch.autograd.grad(
+            loss * audit_scale,
+            [parameter for _, parameter in trainable],
+            allow_unused=True,
+        )
+        result = [
+            (
+                name,
+                None
+                if gradient is None
+                else gradient.detach().float().div(audit_scale).cpu(),
+            )
+            for (name, _), gradient in zip(trainable, gradients)
+        ]
+        if hasattr(model, "clear_structural_memory"):
+            model.clear_structural_memory()
+        return float(loss.detach().float().cpu()), result
+
+    try:
+        loss_off, grads_off = run_once(checkpointing=False)
+        loss_on, grads_on = run_once(checkpointing=True)
+        loss_rel = abs(loss_off - loss_on) / max(
+            abs(loss_off), abs(loss_on), 1e-8
+        )
+        print(
+            "[CKPT-AUDIT] "
+            f"loss_off={loss_off:.8f} loss_on={loss_on:.8f} "
+            f"relative_loss_error={loss_rel:.3e}"
+        )
+        failures = []
+        for (name_off, grad_off), (name_on, grad_on) in zip(
+            grads_off, grads_on
+        ):
+            if name_off != name_on:
+                raise RuntimeError("Gradient audit parameter order changed")
+            if grad_off is None and grad_on is None:
+                print(f"[CKPT-AUDIT-PARAM] {name_off} both_unused=true")
+                continue
+            if grad_off is None or grad_on is None:
+                failures.append((name_off, "one gradient is None"))
+                continue
+            n_off = float(grad_off.norm())
+            n_on = float(grad_on.norm())
+            diff = float((grad_off - grad_on).norm())
+            rel_l2 = diff / max(n_off, n_on, 1e-12)
+            if max(n_off, n_on) < 1e-8:
+                cosine = 1.0
+                ok = diff <= 1e-8
+            else:
+                cosine = float(
+                    F.cosine_similarity(
+                        grad_off.reshape(-1),
+                        grad_on.reshape(-1),
+                        dim=0,
+                        eps=1e-12,
+                    )
+                )
+                ok = cosine >= 0.999 and rel_l2 <= 5e-3
+            print(
+                "[CKPT-AUDIT-PARAM] "
+                f"{name_off} cos={cosine:.8f} rel_l2={rel_l2:.3e} "
+                f"norm_off={n_off:.3e} norm_on={n_on:.3e}"
+            )
+            if not ok:
+                failures.append(
+                    (name_off, f"cos={cosine:.8f}, rel_l2={rel_l2:.3e}")
+                )
+        if loss_rel > 5e-4:
+            failures.append(("loss", f"relative error={loss_rel:.3e}"))
+        if failures:
+            raise RuntimeError(
+                "Structural checkpoint equivalence audit FAILED: "
+                + repr(failures[:12])
+            )
+
+        restore_rng()
+        model.zero_grad(set_to_none=True)
+        if hasattr(model, "clear_structural_memory"):
+            model.clear_structural_memory()
+        install_structural_checkpoint_context(model)
+        inputs = trainer._prepare_inputs(_clone_nested(batch))
+        with trainer.compute_loss_context_manager():
+            backward_loss = trainer.compute_loss(model, inputs)
+        trainer.accelerator.backward(backward_loss)
+        finite_gradients = 0
+        for name, parameter in trainable:
+            if parameter.grad is None:
+                continue
+            if not torch.isfinite(parameter.grad).all():
+                raise FloatingPointError(
+                    f"Non-finite checkpointed audit gradient: {name}"
+                )
+            finite_gradients += 1
+        if finite_gradients == 0:
+            raise RuntimeError(
+                "Checkpointed audit backward produced no gradients"
+            )
+        print(
+            "[CKPT-AUDIT] PASS: "
+            f"finite_backward_gradients={finite_gradients}"
+        )
+    finally:
+        model.zero_grad(set_to_none=True)
+        if hasattr(model, "clear_structural_memory"):
+            model.clear_structural_memory()
+        with torch.no_grad():
+            for block, saved_gate in zip(blocks, gate_backup):
+                block.attn_gate.copy_(saved_gate)
+        install_structural_checkpoint_context(model)
 
 
 
@@ -5913,12 +6172,19 @@ class SFTDataset(Dataset):
             token_weights = [0.0] * len(prompt_ids) + target_weights
             full_xmask = [0] * len(prompt_ids) + target_xmask
             contrastive_sites = build_contrastive_sites_from_sample(
-                example["input"], target_core, prompt_ids + clock.input_ids, tok,
-                max_length,
-                example.get("_local_hard_negatives", {}),
-                candidate_sites_per_sample,
-                candidate_negatives_per_site,
-                candidate_priority,
+                source_text=example["input"],
+                target_text=target_core,
+                prompt_ids=prompt_ids + clock.input_ids,
+                tok=tok,
+                max_length=max_length,
+                local_hard_negatives=example.get(
+                    "_local_hard_negatives", {}
+                ),
+                candidate_sites_per_sample=candidate_sites_per_sample,
+                candidate_negatives_per_site=candidate_negatives_per_site,
+                kind_priority=candidate_priority,
+                kernel_name=example["kernel_name"],
+                directive_domain_registry=directive_domain_registry,
             )
             if contrastive_sites:
                 candidate_samples += 1
@@ -6246,6 +6512,10 @@ def run_single_training(args):
         raise ValueError(
             "--candidate_max_kind_fraction must be in (0, 1]"
         )
+    if not 0.0 <= args.candidate_min_sample_fraction <= 1.0:
+        raise ValueError(
+            "--candidate_min_sample_fraction must be in [0, 1]"
+        )
     if not 0.0 <= args.warmup_ratio <= 1.0:
         raise ValueError("--warmup_ratio must be in [0, 1]")
     if not math.isfinite(args.max_grad_norm) or args.max_grad_norm < 0.0:
@@ -6258,6 +6528,19 @@ def run_single_training(args):
         if args.candidate_negatives_per_site < 1:
             raise ValueError(
                 "Candidate loss requires --candidate_negatives_per_site >= 1"
+            )
+    if args.checkpoint_equivalence_audit:
+        if args.disable_structural_memory:
+            raise ValueError(
+                "Checkpoint equivalence audit requires structural memory"
+            )
+        if not args.gradient_checkpointing:
+            raise ValueError(
+                "Checkpoint equivalence audit requires --gradient_checkpointing"
+            )
+        if args.candidate_loss_weight <= 0.0:
+            raise ValueError(
+                "Checkpoint equivalence audit requires candidate ranking"
             )
 
     diagnostic_scales = {
@@ -7043,6 +7326,9 @@ def run_single_training(args):
         "candidate_keep_head_tokens": args.candidate_keep_head_tokens,
         "candidate_kind_priority": args.candidate_kind_priority,
         "candidate_kind_priority_weights": candidate_kind_priority,
+        "candidate_required_kinds": args.candidate_required_kinds,
+        "candidate_max_kind_fraction": args.candidate_max_kind_fraction,
+        "candidate_min_sample_fraction": args.candidate_min_sample_fraction,
     }
 
     training_contract["stage2_learning_rates"] = {
@@ -7318,6 +7604,22 @@ def run_single_training(args):
     elif args.init_structural_xattn_from:
         load_partial_structural_xattn(model, args.init_structural_xattn_from, tag="STRUCTURAL-INIT")
 
+    if (
+        args.gradient_checkpointing
+        and not args.disable_structural_memory
+        and not args.selection_eval_only
+    ):
+        checkpointed_backbone = install_structural_checkpoint_context(model)
+        structural_config["gradient_checkpointing_context"] = {
+            "enabled": True,
+            "use_reentrant": False,
+            "policy": "structural_runtime_state_restore_v1",
+            "wrapper_count": int(
+                checkpointed_backbone
+                ._mailohls_structural_checkpoint_wrapper_count
+            ),
+        }
+
     inp = model.get_input_embeddings().weight
     out = model.get_output_embeddings().weight
     print("tied =", inp.data_ptr() == out.data_ptr())
@@ -7373,12 +7675,19 @@ def run_single_training(args):
         and args.gradient_checkpointing
         and not args.disable_structural_memory
     ):
-        raise ValueError(
-            "Structural candidate-ranking loss is currently incompatible "
-            "with gradient checkpointing: structural memory is stored as "
-            "mutable decoder-wrapper state and may differ during backward "
-            "recomputation. Disable gradient checkpointing or refactor "
-            "memory/masks into explicit forward inputs."
+        checkpointed_backbone = get_checkpointed_structural_backbone(model)
+        if not getattr(
+            checkpointed_backbone,
+            "_mailohls_structural_checkpoint_context_installed",
+            False,
+        ):
+            raise ValueError(
+                "Structural candidate-ranking with gradient checkpointing "
+                "requires the MailoHLS state-preserving checkpoint context"
+            )
+        print(
+            "[STRUCTURAL-GC] candidate-ranking checkpoint compatibility "
+            "verified"
         )
 
     effective_candidate_sites = (
@@ -7448,8 +7757,30 @@ def run_single_training(args):
                     f"remaining_samples={len(train_ds.samples)}"
                 )
 
-            counts = train_ds.candidate_coverage["per_kind"]
+        if args.candidate_loss_weight > 0.0:
+            coverage = train_ds.candidate_coverage
+            counts = coverage["per_kind"]
             total_sites = sum(counts.values())
+            if total_sites <= 0:
+                raise ValueError(
+                    "Candidate-ranking enabled but no usable candidate "
+                    "sites were constructed"
+                )
+            sample_fraction = (
+                coverage["samples_with_sites"]
+                / max(1, coverage["samples"])
+            )
+            print(
+                "[CANDIDATE-AUDIT] "
+                f"sample_fraction={sample_fraction:.6f} "
+                f"sites={total_sites} per_kind={counts}"
+            )
+            if sample_fraction < args.candidate_min_sample_fraction:
+                raise ValueError(
+                    "Candidate-ranking coverage is too sparse: "
+                    f"sample_fraction={sample_fraction:.6f}, "
+                    f"minimum={args.candidate_min_sample_fraction:.6f}"
+                )
             required_kinds = {
                 value.strip().upper()
                 for value in args.candidate_required_kinds.split(",")
@@ -7458,13 +7789,13 @@ def run_single_training(args):
             missing_kinds = sorted(required_kinds - set(counts))
             if missing_kinds:
                 raise ValueError(
-                    "Candidate-only training is missing required kinds: "
+                    "Candidate training is missing required kinds: "
                     f"{missing_kinds}; observed={counts}"
                 )
             dominant_fraction = max(counts.values()) / total_sites
             if dominant_fraction > args.candidate_max_kind_fraction:
                 raise ValueError(
-                    "Candidate-only kind distribution is too concentrated: "
+                    "Candidate kind distribution is too concentrated: "
                     f"dominant_fraction={dominant_fraction:.6f}, "
                     f"maximum={args.candidate_max_kind_fraction:.6f}, "
                     f"counts={counts}"
@@ -7757,6 +8088,15 @@ def run_single_training(args):
         )
 
         return
+
+    if args.checkpoint_equivalence_audit:
+        run_checkpoint_equivalence_audit(
+            trainer=trainer,
+            model=model,
+            train_ds=train_ds,
+            collator=collator,
+        )
+        return
     
     if args.resume_from_checkpoint and os.path.isdir(args.resume_from_checkpoint):
         print(f"[INFO] Resuming from checkpoint: {args.resume_from_checkpoint}")
@@ -7895,6 +8235,15 @@ def main():
         default=1.0,
         help="Fail if one candidate kind exceeds this fraction.",
     )
+    ap.add_argument(
+        "--candidate_min_sample_fraction",
+        type=float,
+        default=0.0,
+        help=(
+            "Minimum fraction of training samples that must expose at least "
+            "one usable candidate-ranking site."
+        ),
+    )
     ap.add_argument("--val_families", type=str, default="rodinia_pathfinder;machsuite_sort_radix")
     ap.add_argument("--test_families", type=str, default="serrano-kalman-filter")
     ap.add_argument("--min_supervised_sites", type=int, default=2)
@@ -8028,6 +8377,14 @@ def main():
         help="Legacy ablation: allow duplicate examples instead of one complete epoch.",
     )
     ap.add_argument("--gradient_checkpointing", action="store_true")
+    ap.add_argument(
+        "--checkpoint_equivalence_audit",
+        action="store_true",
+        help=(
+            "Compare one identical structural CE+candidate batch with "
+            "gradient checkpointing disabled versus enabled."
+        ),
+    )
     ap.add_argument("--resume_from_checkpoint", type=str, default="")
     ap.add_argument(
         "--reuse_data_cache", action="store_true",

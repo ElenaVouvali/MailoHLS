@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager, nullcontext
+
 import torch
 import os
 import torch.nn as nn
@@ -1025,6 +1027,86 @@ class StructuralPostSelfAttentionResidual(nn.Module):
                 "return a tensor"
             )
         return output + residual
+
+
+STRUCTURAL_CHECKPOINT_STATE_FIELDS = (
+    "structural_memory",
+    "structural_memory_mask",
+    "placeholder_slot_ids",
+    "use_cached_memory",
+    "xattn_apply_mask",
+    "action_relation_mask",
+)
+
+
+def iter_structural_runtime_wrappers(backbone):
+    wrapper_types = (
+        StructuralMemoryPreMLP,
+        StructuralPostDecoderResidual,
+        StructuralPostSelfAttentionResidual,
+    )
+    for module in backbone.modules():
+        if isinstance(module, wrapper_types):
+            yield module
+
+
+def _snapshot_structural_wrapper_state(wrapper):
+    return {
+        field: getattr(wrapper, field)
+        for field in STRUCTURAL_CHECKPOINT_STATE_FIELDS
+    }
+
+
+@contextmanager
+def _restore_structural_runtime_state(snapshot):
+    """Temporarily restore one checkpoint's structural conditioning."""
+    previous = tuple(
+        (wrapper, _snapshot_structural_wrapper_state(wrapper))
+        for wrapper, _ in snapshot
+    )
+    try:
+        for wrapper, state in snapshot:
+            for field, value in state.items():
+                setattr(wrapper, field, value)
+            reset_runtime_state = getattr(wrapper, "reset_runtime_state", None)
+            if reset_runtime_state is not None:
+                reset_runtime_state()
+        yield
+    finally:
+        for wrapper, state in previous:
+            for field, value in state.items():
+                setattr(wrapper, field, value)
+            reset_runtime_state = getattr(wrapper, "reset_runtime_state", None)
+            if reset_runtime_state is not None:
+                reset_runtime_state()
+
+
+def make_structural_checkpoint_context_fn(backbone):
+    """Capture per-forward wrapper state for non-reentrant recomputation."""
+    wrappers = tuple(iter_structural_runtime_wrappers(backbone))
+    if not wrappers:
+        raise RuntimeError(
+            "No structural runtime wrappers found on the checkpointed backbone"
+        )
+
+    def context_fn():
+        snapshot = tuple(
+            (wrapper, _snapshot_structural_wrapper_state(wrapper))
+            for wrapper in wrappers
+        )
+        for _wrapper, state in snapshot:
+            if (
+                state["structural_memory"] is None
+                or state["structural_memory_mask"] is None
+                or state["placeholder_slot_ids"] is None
+            ):
+                raise RuntimeError(
+                    "Structural checkpoint snapshot occurred before the "
+                    "wrapper was fully conditioned"
+                )
+        return nullcontext(), _restore_structural_runtime_state(snapshot)
+
+    return context_fn
 
 
 def _apply_post_decoder_structural_residual(
