@@ -420,6 +420,45 @@ def test_candidate_kind_priority_is_validated_and_balanced():
     ]
 
 
+def test_candidate_negatives_respect_teacher_forced_array_prefix():
+    source = "\n".join([
+        "L1:",
+        "auto{_ARRAY_T_L1} = ?",
+        "auto{_ARRAY_F_L1} = ?",
+        "auto{_ARRAY_D_L1} = ?",
+    ])
+    target = "\n".join([
+        "auto{_ARRAY_T_L1} = none",
+        "auto{_ARRAY_F_L1} = 0",
+        "auto{_ARRAY_D_L1} = 0",
+    ])
+    domains = {
+        "example_kernel": {
+            "AUTO{_ARRAY_T_L1}": ["none", "block"],
+            "AUTO{_ARRAY_F_L1}": ["0", "2"],
+            "AUTO{_ARRAY_D_L1}": ["0", "1"],
+        }
+    }
+    sites = trainer.build_contrastive_sites_from_sample(
+        source_text=source,
+        target_text=target,
+        prompt_ids=[],
+        tok=_CharacterTokenizer(),
+        max_length=4096,
+        local_hard_negatives={
+            "AUTO{_ARRAY_T_L1}": ["block"],
+            "AUTO{_ARRAY_F_L1}": ["2"],
+            "AUTO{_ARRAY_D_L1}": ["1"],
+        },
+        candidate_sites_per_sample=3,
+        candidate_negatives_per_site=1,
+        kernel_name="example-kernel",
+        directive_domain_registry=domains,
+    )
+    assert [site["kind"] for site in sites] == ["ARRAY_T"]
+    assert sites[0]["negative_rhs"] == ["block"]
+
+
 def test_candidate_only_compute_loss_has_a_defined_device():
     trainer_instance = object.__new__(trainer.LengthGroupedTrainer)
     trainer_instance.ce_loss_weight = 0.0

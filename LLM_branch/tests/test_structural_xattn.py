@@ -21,6 +21,8 @@ from LLM_branch.common.structural_xattn import (
     StructuralPostSelfAttentionResidual,
     extend_instance,
     infer_decoder_layers_attr_name,
+    iter_structural_runtime_wrappers,
+    make_structural_checkpoint_context_fn,
 )
 
 HIDDEN_SIZE = 32
@@ -29,6 +31,40 @@ PLACEHOLDER_TOKEN_IDS = (101, 102, 103)
 LEGACY_PLACEMENT = "legacy_norm_wrapper"
 DIRECT_PLACEMENT = "post_decoder_residual"
 THESIS_PLACEMENT = "post_self_attention_residual"
+
+
+def test_checkpoint_context_restores_per_forward_structural_state():
+    block = GatedCrossAttentionBlock(
+        dim=HIDDEN_SIZE,
+        dim_memory=MEMORY_SIZE,
+        dim_head=8,
+        heads=2,
+    )
+    wrapper = StructuralPostSelfAttentionResidual(block)
+    backbone = torch.nn.Sequential(wrapper)
+    original_memory = torch.randn(1, 2, MEMORY_SIZE)
+    original_mask = torch.ones(1, 2, dtype=torch.bool)
+    original_slots = torch.ones(1, 3, dtype=torch.long)
+    wrapper.structural_memory = original_memory
+    wrapper.structural_memory_mask = original_mask
+    wrapper.placeholder_slot_ids = original_slots
+    context_fn = make_structural_checkpoint_context_fn(backbone)
+    _forward_context, recompute_context = context_fn()
+
+    later_memory = torch.randn(1, 2, MEMORY_SIZE)
+    wrapper.structural_memory = later_memory
+    wrapper.placeholder_slot_ids = torch.zeros_like(original_slots)
+    wrapper._pending_structural_residual = torch.ones(1)
+    with recompute_context:
+        assert wrapper.structural_memory is original_memory
+        assert wrapper.structural_memory_mask is original_mask
+        assert wrapper.placeholder_slot_ids is original_slots
+        assert wrapper._pending_structural_residual is None
+
+    assert wrapper.structural_memory is later_memory
+    assert torch.equal(wrapper.placeholder_slot_ids, torch.zeros_like(original_slots))
+    assert wrapper._pending_structural_residual is None
+    assert tuple(iter_structural_runtime_wrappers(backbone)) == (wrapper,)
 
 
 def _base_model() -> LlamaForCausalLM:
