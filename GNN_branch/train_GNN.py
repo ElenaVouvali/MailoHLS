@@ -9,16 +9,28 @@ from utils import (
     _get_y_with_target, create_dir_if_not_exists, plot_lr_trend,
     hash_state_dict, set_reproducible_seed,
 )
-# from data import MyOwnDataset, get_kernel_samples, split_dataset, split_dataset_resample, split_train_test_kernel
-# import data
-from mlir_data import (
-    MyOwnDataset,
-    get_kernel_samples,
-    split_dataset,
-    split_dataset_resample,
-    split_train_val_test_kernel,
-)
-import mlir_data as data
+# Paired representation backend selection.  Keep every downstream optimizer,
+# sampler, loss, metric, and checkpoint rule shared.
+if FLAGS.dataset == "harp":
+    from harp_data import (
+        MyOwnDataset,
+        get_kernel_samples,
+        split_dataset,
+        split_dataset_resample,
+        split_train_val_test_kernel,
+    )
+    import harp_data as data
+elif FLAGS.dataset == "mlir":
+    from mlir_data import (
+        MyOwnDataset,
+        get_kernel_samples,
+        split_dataset,
+        split_dataset_resample,
+        split_train_val_test_kernel,
+    )
+    import mlir_data as data
+else:
+    raise ValueError(f"Unsupported --dataset={FLAGS.dataset!r}; expected harp or mlir")
 SAVE_DIR = data.SAVE_DIR
 
 from model import Net
@@ -94,8 +106,7 @@ def snapshot_gnn_training_artifacts():
         'config.py': Path(__file__).with_name('config.py').resolve(),
         'model.py': Path(__file__).with_name('model.py').resolve(),
         'train_GNN.py': Path(__file__).resolve(),
-        'mlir_data.py': Path(__file__).with_name('mlir_data.py').resolve(),
-        'mlir_graph_gen.py': Path(__file__).with_name('mlir_graph_gen.py').resolve(),
+        f'{FLAGS.dataset}_data.py': Path(data.__file__).resolve(),
         'utils.py': Path(__file__).with_name('utils.py').resolve(),
         'nn_att.py': Path(__file__).with_name('nn_att.py').resolve(),
         'saver.py': Path(__file__).with_name('saver.py').resolve(),

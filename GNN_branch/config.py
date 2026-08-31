@@ -182,6 +182,21 @@ parser.add_argument(
     ),
 )
 
+
+# HARP/GNOSIS reproduction paths.  These are separate from the MLIR cache so a
+# paired experiment can guarantee that only the static graph representation
+# changes.
+parser.add_argument(
+    "--harp_graph_dir",
+    default=None,
+    help="Directory containing deterministic GNOSIS HARP GEXF graphs.",
+)
+parser.add_argument(
+    "--harp_dataset_cache_dir",
+    default=None,
+    help="Explicit processed HARP tensor cache used by --dataset harp.",
+)
+
 ################## model architecture ##################
 pragma_as_MLP, type_parallel, type_merge = True, '2l', '2l'
 gnn_layer_after_MLP = 1

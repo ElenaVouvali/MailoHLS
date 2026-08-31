@@ -19,11 +19,18 @@ import torch
 import config
 TARGETS = config.TARGETS
 
-# from data import get_data_list, MyOwnDataset
-# import data
-
-from mlir_data import get_data_list, MyOwnDataset
-import mlir_data as data
+# Paired representation backend selection.  The model/training stack stays
+# identical; only the static graph tensor backend changes.
+if FLAGS.dataset == "harp":
+    from harp_data import get_data_list, MyOwnDataset
+    import harp_data as data
+elif FLAGS.dataset == "mlir":
+    from mlir_data import get_data_list, MyOwnDataset
+    import mlir_data as data
+else:
+    raise ValueError(
+        f"Unsupported --dataset={FLAGS.dataset!r}; expected harp or mlir"
+    )
 
 SAVE_DIR = data.SAVE_DIR
 
@@ -60,7 +67,10 @@ if __name__ == '__main__':
     else:
         dataset = MyOwnDataset()
         pragma_dim = maybe_load_pragma_dim()
-        saver.log_info(f'Read compact dataset from {SAVE_DIR} with {len(dataset)} samples')
+        saver.log_info(
+            f'Read compact {FLAGS.dataset} dataset from {SAVE_DIR} '
+            f'with {len(dataset)} samples'
+        )
 
     # Dataset loading/regeneration may consume RNG. Reset before any split.
     set_reproducible_seed(
@@ -75,7 +85,11 @@ if __name__ == '__main__':
             saver.error('model_path must be set for running inference.')
             raise RuntimeError()
 
-        model_paths = FLAGS.model_path if isinstance(FLAGS.model_path, list) else [FLAGS.model_path]
+        model_paths = (
+            FLAGS.model_path
+            if isinstance(FLAGS.model_path, list)
+            else [FLAGS.model_path]
+        )
 
         for ind, model_path in enumerate(model_paths):
             if FLAGS.val_ratio > 0.0:
