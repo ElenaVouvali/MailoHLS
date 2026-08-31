@@ -52,6 +52,9 @@ EXTRA_CACHE=()
 if [[ "${STAGE2_REUSE_DATA_CACHE:-0}" == "1" ]]; then EXTRA_CACHE+=(--reuse_data_cache); fi
 
 CANDIDATE_LOSS_WEIGHT="${STAGE2_CANDIDATE_LOSS_WEIGHT:-0}"
+CANDIDATE_SITES_PER_SAMPLE="${STAGE2_CANDIDATE_SITES_PER_SAMPLE:-0}"
+CANDIDATE_NEGATIVES_PER_SITE="${STAGE2_CANDIDATE_NEGATIVES_PER_SITE:-0}"
+CANDIDATE_KIND_PRIORITY="${STAGE2_CANDIDATE_KIND_PRIORITY:-}"
 
 CUDA_VISIBLE_DEVICES="$GPU" \
 python -u -m LLM_branch.train.train_SFT_xattn_new \
@@ -94,6 +97,9 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --value_loss_weight 1 \
   --ce_loss_weight 1 \
   --candidate_loss_weight "$CANDIDATE_LOSS_WEIGHT" \
+  --candidate_sites_per_sample "$CANDIDATE_SITES_PER_SAMPLE" \
+  --candidate_negatives_per_site "$CANDIDATE_NEGATIVES_PER_SITE" \
+  --candidate_kind_priority "$CANDIDATE_KIND_PRIORITY" \
   --lora_r 8 \
   --lora_alpha 16 \
   --lora_target_modules attention \

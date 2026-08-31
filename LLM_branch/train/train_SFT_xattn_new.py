@@ -1661,7 +1661,7 @@ def build_local_hard_negative_bank(unique_ranked, hard_neg_top_k=6):
     best_target = reorder_target_by_source_order(best_row["input"], best_row["target"].strip())
     best_rhs = build_rhs_map_from_target(best_target)
 
-    bank = defaultdict(set)
+    bank = defaultdict(list)
 
     for rec in unique_ranked[1:hard_neg_top_k]:
         row = rec["row"]
@@ -1671,8 +1671,11 @@ def build_local_hard_negative_bank(unique_ranked, hard_neg_top_k=6):
         for lhs, rhs in rhs_map.items():
             lhs = lhs.upper()
             rhs = rhs.strip()
-            if best_rhs.get(lhs, None) != rhs:
-                bank[lhs].add(rhs)
+            if (
+                best_rhs.get(lhs, None) != rhs
+                and rhs not in bank[lhs]
+            ):
+                bank[lhs].append(rhs)
 
     return bank
 
@@ -5648,9 +5651,10 @@ def _rank_and_select_case(
             hard_neg_top_k=max(6, top_k),
         )
         hard_negatives = {
-            lhs: sorted(values, key=_rhs_sort_key)
+            lhs: list(values)
             for lhs, values in hard_negatives.items()
         }
+        
     for rank, record in enumerate(chosen):
         out = dict(record["row"])
         out.update({
@@ -6199,9 +6203,11 @@ def run_single_training(args):
     if args.disable_structural_memory and args.device_mode != "device_adapt":
         if args.objective == "ALL" or args.top_k != 1:
             raise ValueError("Locked Stage 1 requires one objective and --top_k 1")
-        # if args.ce_loss_weight != 1.0 or args.candidate_loss_weight != 0.0:
-        #     raise ValueError("Locked Stage 1 requires --ce_loss_weight 1 and "
-        #                      "--candidate_loss_weight 0")
+        if args.ce_loss_weight != 1.0 or args.candidate_loss_weight != 0.0:
+            raise ValueError(
+                "Locked Stage 1 requires --ce_loss_weight 1 and "
+                "--candidate_loss_weight 0"
+            )
         if args.supervise_eos:
             raise ValueError("Locked Stage 1 never supervises EOS")
         if args.lr_lora <= 0.0 or args.lr_embed <= 0.0:
@@ -6211,8 +6217,11 @@ def run_single_training(args):
     if not args.disable_structural_memory and not args.selection_eval_only:
         if not args.init_adapter_dir and not args.resume_from_checkpoint:
             raise ValueError("Production Stage 2 requires --init_adapter_dir with the frozen Stage-1 adapter")
-        # if args.ce_loss_weight != 1.0 or args.candidate_loss_weight != 0.0:
-        #     raise ValueError("Production Stage 2 requires --ce_loss_weight 1 and --candidate_loss_weight 0")
+        if args.ce_loss_weight != 1.0:
+            raise ValueError(
+                "Production Stage 2 requires --ce_loss_weight 1; "
+                "candidate ranking may only be additive"
+            )
         if args.device_mode == "device_adapt":
             raise ValueError("Production Stage 2 cannot train a device-adaptation LoRA")
         if args.lr_lora != 0.0 or args.lr_embed != 0.0:
@@ -7010,9 +7019,7 @@ def run_single_training(args):
         "selection_metric": (
             "kernel_macro_decision_accuracy_joint_actions_and_correct_budget_transitions"
         ),
-        "early_stopping_patience": (
-            args.early_stopping_patience if args.disable_structural_memory else 0
-        ),
+        "early_stopping_patience": args.early_stopping_patience,
         "evaluation_on_start": bool(args.eval_on_start),
         "selection_candidate_batch_size": (
             args.selection_candidate_batch_size if args.disable_structural_memory else 1
