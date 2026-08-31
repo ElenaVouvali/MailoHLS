@@ -51,6 +51,8 @@ if [[ "$REQUIRE_CLEAN_GIT" == "1" ]]; then EXTRA_CLEAN+=(--require_clean_git); f
 EXTRA_CACHE=()
 if [[ "${STAGE2_REUSE_DATA_CACHE:-0}" == "1" ]]; then EXTRA_CACHE+=(--reuse_data_cache); fi
 
+CANDIDATE_LOSS_WEIGHT="${STAGE2_CANDIDATE_LOSS_WEIGHT:-0}"
+
 CUDA_VISIBLE_DEVICES="$GPU" \
 python -u -m LLM_branch.train.train_SFT_xattn_new \
   --run_mode single \
@@ -91,7 +93,7 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --directive_loss_weighting inverse_sqrt_frequency \
   --value_loss_weight 1 \
   --ce_loss_weight 1 \
-  --candidate_loss_weight 0 \
+  --candidate_loss_weight "$CANDIDATE_LOSS_WEIGHT" \
   --lora_r 8 \
   --lora_alpha 16 \
   --lora_target_modules attention \

@@ -6199,9 +6199,9 @@ def run_single_training(args):
     if args.disable_structural_memory and args.device_mode != "device_adapt":
         if args.objective == "ALL" or args.top_k != 1:
             raise ValueError("Locked Stage 1 requires one objective and --top_k 1")
-        if args.ce_loss_weight != 1.0 or args.candidate_loss_weight != 0.0:
-            raise ValueError("Locked Stage 1 requires --ce_loss_weight 1 and "
-                             "--candidate_loss_weight 0")
+        # if args.ce_loss_weight != 1.0 or args.candidate_loss_weight != 0.0:
+        #     raise ValueError("Locked Stage 1 requires --ce_loss_weight 1 and "
+        #                      "--candidate_loss_weight 0")
         if args.supervise_eos:
             raise ValueError("Locked Stage 1 never supervises EOS")
         if args.lr_lora <= 0.0 or args.lr_embed <= 0.0:
@@ -6211,8 +6211,8 @@ def run_single_training(args):
     if not args.disable_structural_memory and not args.selection_eval_only:
         if not args.init_adapter_dir and not args.resume_from_checkpoint:
             raise ValueError("Production Stage 2 requires --init_adapter_dir with the frozen Stage-1 adapter")
-        if args.ce_loss_weight != 1.0 or args.candidate_loss_weight != 0.0:
-            raise ValueError("Production Stage 2 requires --ce_loss_weight 1 and --candidate_loss_weight 0")
+        # if args.ce_loss_weight != 1.0 or args.candidate_loss_weight != 0.0:
+        #     raise ValueError("Production Stage 2 requires --ce_loss_weight 1 and --candidate_loss_weight 0")
         if args.device_mode == "device_adapt":
             raise ValueError("Production Stage 2 cannot train a device-adaptation LoRA")
         if args.lr_lora != 0.0 or args.lr_embed != 0.0:

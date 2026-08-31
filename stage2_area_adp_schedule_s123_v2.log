@@ -435,3 +435,252 @@ trainable params: 8,683,524 || all params: 6,757,388,292 || trainable%: 0.1285
   0%|          | 0/312 [17:37<?, ?it/s]
 100%|██████████| 383/383 [17:34<00:00,  3.05s/it][A
                                                  [A
+====================================================================================================
+[VAL-SELECTION] step=0
+[VAL-SELECTION] mean_value_acc=0.557417
+[VAL-SELECTION] mean_decision_site_accuracy=0.503714
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.9629629629629629, 'ARRAY_F': 0.5370370370370371, 'ARRAY_T': 0.5370370370370371, 'PIPE': 0.5384615384615384, 'UNROLL': 0.4166666666666667}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.48484848484848486, 'machsuite-viterbi': 0.49019607843137253, 'rodinia_pathfinder_0_baseline_0': 0.65, 'rodinia_pathfinder_4_doublebuffer_0': 0.588888888888889}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.48484848484848486, 'machsuite-viterbi': 0.49019607843137253, 'rodinia_pathfinder_0_baseline_0': 0.5625, 'rodinia_pathfinder_4_doublebuffer_0': 0.4861111111111111}
+[VAL-SELECTION] decision_sites=426 forced_sites=48 budget_counterfactual_groups=2
+[VAL-SELECTION] minimum_kernel_accuracy=0.484848
+[VAL-SELECTION] selection_score=0.505914
+[VAL-SELECTION] joint_action_score=0.172822
+[VAL-SELECTION] decision_key=(0.5059139185977422, 0.48484848484848486, 0.17282196969696972, 0.421875)
+[VAL-SELECTION] checkpoint_key=(0.5059139185977422, 0.48484848484848486, 0.17282196969696972, 0.421875, -0.13625091714390986)
+====================================================================================================
+[VAL-LOCAL] count=426 top1=0.5516431924882629 mrr=0.7366886504210447 mean_margin=0.06349360340322967 cascade=0/426 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 6, 'top1_accuracy': 0.6666666666666666, 'mrr': 0.8333333333333334, 'mean_margin': 0.06562606493631999}, 'ARRAY_F': {'count': 54, 'top1_accuracy': 0.5740740740740741, 'mrr': 0.6905790711346266, 'mean_margin': -0.026675509633841337}, 'ARRAY_T': {'count': 54, 'top1_accuracy': 0.5370370370370371, 'mrr': 0.7222222222222222, 'mean_margin': -0.010962677912579643}, 'PIPE': {'count': 156, 'top1_accuracy': 0.5705128205128205, 'mrr': 0.7852564102564102, 'mean_margin': 0.0077217830679355524}, 'UNROLL': {'count': 156, 'top1_accuracy': 0.5256410256410257, 'mrr': 0.7053724053724054, 'mean_margin': 0.17616911941709426}}
+[VAL-BUDGET] groups=2 cases=5 decision_accuracy=0.421875 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=0
+[VAL-MARGIN] count=426 mean=-0.13625091714390986 median=-0.10062149167060852 positive_fraction=0.4953051643192488 mean_gold_rank=1.9225352112676057
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 6, 'mean_margin': 0.10422697166601817, 'median_margin': 0.19513899087905884, 'positive_fraction': 0.6666666666666666, 'mean_gold_rank': 1.3333333333333333}, 'ARRAY_F': {'count': 54, 'mean_margin': -0.1724359376562966, 'median_margin': 0.30739134550094604, 'positive_fraction': 0.5370370370370371, 'mean_gold_rank': 2.5185185185185186}, 'ARRAY_T': {'count': 54, 'mean_margin': -0.13571014151804978, 'median_margin': 0.09629969298839569, 'positive_fraction': 0.5370370370370371, 'mean_gold_rank': 1.8148148148148149}, 'PIPE': {'count': 156, 'mean_margin': -0.007310512308508922, 'median_margin': 0.1872940957546234, 'positive_fraction': 0.5384615384615384, 'mean_gold_rank': 1.4615384615384615}, 'UNROLL': {'count': 156, 'mean_margin': -0.26210207908820266, 'median_margin': -0.5626769363880157, 'positive_fraction': 0.4166666666666667, 'mean_gold_rank': 2.2371794871794872}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 132, 'mean_margin': -0.09954790947394389, 'median_margin': -0.13073822855949402, 'positive_fraction': 0.48484848484848486, 'mean_gold_rank': 1.8484848484848484}, 'machsuite-viterbi': {'count': 102, 'mean_margin': -0.10049640686780799, 'median_margin': -0.13309501111507416, 'positive_fraction': 0.49019607843137253, 'mean_gold_rank': 1.8235294117647058}, 'rodinia_pathfinder_0_baseline_0': {'count': 48, 'mean_margin': -0.035321058395008244, 'median_margin': 0.16685263812541962, 'positive_fraction': 0.5625, 'mean_gold_rank': 1.8958333333333333}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 144, 'mean_margin': -0.2288647385365847, 'median_margin': -0.18840041756629944, 'positive_fraction': 0.4861111111111111, 'mean_gold_rank': 2.0694444444444446}}
+[VAL-SELECTION] Saved best STRUCTURAL xattn weights -> mailohls_runs/stage2_area_adp_schedule_s123_v2/best_custom_stage2/structural_xattn.pt
+[VAL-SELECTION] New best checkpoint at step 0 -> mailohls_runs/stage2_area_adp_schedule_s123_v2/best_custom_stage2
+[LOSS-COMP] step=0 ce=0.344518 candidate=0.000000 total=0.344518
+[LOSS-COMP] step=0 ce=0.484982 candidate=0.000000 total=0.484982
+[LOSS-COMP] step=0 ce=0.595354 candidate=0.000000 total=0.595354
+[LOSS-COMP] step=0 ce=0.544765 candidate=0.000000 total=0.544765
+[LOSS-COMP] step=0 ce=0.538318 candidate=0.000000 total=0.538318
+[LOSS-COMP] step=0 ce=0.331026 candidate=0.000000 total=0.331026
+[LOSS-COMP] step=0 ce=0.496960 candidate=0.000000 total=0.496960
+[LOSS-COMP] step=0 ce=0.407748 candidate=0.000000 total=0.407748
+[GATES] attn gates:
+  base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=0.00000000 tanh=0.00000000 grad=3.15458467e-03 |grad|=3.15458467e-03
+  base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=0.00000000 tanh=0.00000000 grad=-5.25958487e-04 |grad|=5.25958487e-04
+  base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=0.00000000 tanh=0.00000000 grad=9.94817237e-04 |grad|=9.94817237e-04
+  base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=0.00000000 tanh=0.00000000 grad=3.26835463e-04 |grad|=3.26835463e-04
+[GATES] ff gates:
+[XATTN-DBG] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 633, 'S': 64, 'memory_mask_true': 3, 'out_abs_mean': 0.02685546875, 'out_l2_mean': 0.5423939824104309, 'attn_mean': 0.0019994075410068035, 'attn_max': 0.5539879202842712, 'memory_value_scale': 1.0, 'placeholder_tokens': 3, 'active_tokens_after_fill': 81, 'valid_edges': 189, 'tokens_with_route': 81, 'keys_per_routed_token_mean': 2.3333332538604736, 'keys_per_routed_token_max': 3, 'multi_key_token_fraction': 1.0, 'multi_key_attention_entropy_mean': 0.8276416063308716}
+[XATTN-DBG] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 633, 'S': 64, 'memory_mask_true': 3, 'out_abs_mean': 0.02734375, 'out_l2_mean': 0.5515859723091125, 'attn_mean': 0.0019994075410068035, 'attn_max': 0.550365686416626, 'memory_value_scale': 1.0, 'placeholder_tokens': 3, 'active_tokens_after_fill': 81, 'valid_edges': 189, 'tokens_with_route': 81, 'keys_per_routed_token_mean': 2.3333332538604736, 'keys_per_routed_token_max': 3, 'multi_key_token_fraction': 1.0, 'multi_key_attention_entropy_mean': 0.8272221684455872}
+[XATTN-DBG] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 633, 'S': 64, 'memory_mask_true': 3, 'out_abs_mean': 0.03173828125, 'out_l2_mean': 0.6321773529052734, 'attn_mean': 0.0019994075410068035, 'attn_max': 0.5660185217857361, 'memory_value_scale': 1.0, 'placeholder_tokens': 3, 'active_tokens_after_fill': 81, 'valid_edges': 189, 'tokens_with_route': 81, 'keys_per_routed_token_mean': 2.3333332538604736, 'keys_per_routed_token_max': 3, 'multi_key_token_fraction': 1.0, 'multi_key_attention_entropy_mean': 0.8271322250366211}
+[XATTN-DBG] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 633, 'S': 64, 'memory_mask_true': 3, 'out_abs_mean': 0.029052734375, 'out_l2_mean': 0.5717388987541199, 'attn_mean': 0.0019994075410068035, 'attn_max': 0.5583269596099854, 'memory_value_scale': 1.0, 'placeholder_tokens': 3, 'active_tokens_after_fill': 81, 'valid_edges': 189, 'tokens_with_route': 81, 'keys_per_routed_token_mean': 2.3333332538604736, 'keys_per_routed_token_max': 3, 'multi_key_token_fraction': 1.0, 'multi_key_attention_entropy_mean': 0.8275672793388367}
+[XATTN-RESID] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer: gate=0.0 active=12 hidden_l2=41.7156982421875 projected_l2=9.801881790161133 residual_l2=0.0 projected/hidden=0.23559843003749847 gated/hidden=0.0 gated/hidden_max=0.0
+[XATTN-RESID] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer: gate=0.0 active=12 hidden_l2=115.24767303466797 projected_l2=9.889814376831055 residual_l2=0.0 projected/hidden=0.08603726327419281 gated/hidden=0.0 gated/hidden_max=0.0
+[XATTN-RESID] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer: gate=0.0 active=12 hidden_l2=251.72445678710938 projected_l2=11.43702507019043 residual_l2=0.0 projected/hidden=0.04558229446411133 gated/hidden=0.0 gated/hidden_max=0.0
+[XATTN-RESID] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer: gate=0.0 active=12 hidden_l2=621.8915405273438 projected_l2=10.40334415435791 residual_l2=0.0 projected/hidden=0.01677701249718666 gated/hidden=0.0 gated/hidden_max=0.0
+[XATTN-GRAD] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  K   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  V   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  OUT L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+[XATTN-GRAD] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  K   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  V   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  OUT L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+[XATTN-GRAD] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  K   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  V   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  OUT L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+[XATTN-GRAD] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  K   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  V   L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+  OUT L2=0.000e+00 RMS=0.000e+00 G/P=0.000e+00
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 12, "amp_scale": 1.0, "attention_entropy": 0.8276416063308716, "effective_gate": 0.0, "gated_residual_hidden_rms_ratio": 0.0, "gradient_rms": {"k": 0.0, "out": 0.0, "q": 0.0, "v": 0.0}, "layer": "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 2.3333332538604736, "multi_key_fraction": 1.0, "projected_hidden_rms_ratio": 0.23466775092767056, "raw_gate": 0.0, "step": 0, "tanh_gate": 0.0}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 12, "amp_scale": 1.0, "attention_entropy": 0.8272221684455872, "effective_gate": 0.0, "gated_residual_hidden_rms_ratio": 0.0, "gradient_rms": {"k": 0.0, "out": 0.0, "q": 0.0, "v": 0.0}, "layer": "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 2.3333332538604736, "multi_key_fraction": 1.0, "projected_hidden_rms_ratio": 0.08570168155447995, "raw_gate": 0.0, "step": 0, "tanh_gate": 0.0}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 12, "amp_scale": 1.0, "attention_entropy": 0.8271322250366211, "effective_gate": 0.0, "gated_residual_hidden_rms_ratio": 0.0, "gradient_rms": {"k": 0.0, "out": 0.0, "q": 0.0, "v": 0.0}, "layer": "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 2.3333332538604736, "multi_key_fraction": 1.0, "projected_hidden_rms_ratio": 0.04537387875764192, "raw_gate": 0.0, "step": 0, "tanh_gate": 0.0}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 12, "amp_scale": 1.0, "attention_entropy": 0.8275672793388367, "effective_gate": 0.0, "gated_residual_hidden_rms_ratio": 0.0, "gradient_rms": {"k": 0.0, "out": 0.0, "q": 0.0, "v": 0.0}, "layer": "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 2.3333332538604736, "multi_key_fraction": 1.0, "projected_hidden_rms_ratio": 0.016706575622036347, "raw_gate": 0.0, "step": 0, "tanh_gate": 0.0}
+  0%|          | 1/312 [3:23:27<1054:37:35, 12207.89s/it]  1%|          | 2/312 [3:24:54<437:14:27, 5077.64s/it]    1%|          | 3/312 [3:26:36<240:48:35, 2805.55s/it]  1%|▏         | 4/312 [3:27:58<148:02:14, 1730.31s/it]  2%|▏         | 5/312 [3:28:59<96:14:10, 1128.50s/it]   2%|▏         | 6/312 [3:30:51<66:33:25, 783.03s/it]   2%|▏         | 7/312 [3:32:28<47:19:08, 558.52s/it]  3%|▎         | 8/312 [3:33:56<34:31:45, 408.90s/it]  3%|▎         | 9/312 [3:35:03<25:24:16, 301.84s/it]  3%|▎         | 10/312 [3:36:48<20:13:09, 241.03s/it]                                                      {'loss': 0.5605, 'grad_norm': 0.0016689235344529152, 'learning_rate': 0.00012, 'epoch': 0.19}
+  3%|▎         | 10/312 [3:36:48<20:13:09, 241.03s/it][LOSS-COMP] step=10 ce=0.359155 candidate=0.000000 total=0.359155
+[LOSS-COMP] step=10 ce=0.722292 candidate=0.000000 total=0.722292
+[LOSS-COMP] step=10 ce=0.572659 candidate=0.000000 total=0.572659
+[LOSS-COMP] step=10 ce=0.584405 candidate=0.000000 total=0.584405
+[LOSS-COMP] step=10 ce=0.355934 candidate=0.000000 total=0.355934
+[LOSS-COMP] step=10 ce=0.659255 candidate=0.000000 total=0.659255
+[LOSS-COMP] step=10 ce=0.659573 candidate=0.000000 total=0.659573
+[LOSS-COMP] step=10 ce=0.505417 candidate=0.000000 total=0.505417
+  4%|▎         | 11/312 [3:38:04<15:56:22, 190.64s/it]  4%|▍         | 12/312 [3:39:41<13:30:51, 162.17s/it]  4%|▍         | 13/312 [3:40:57<11:17:23, 135.93s/it]  4%|▍         | 14/312 [3:42:38<10:22:59, 125.44s/it]  5%|▍         | 15/312 [3:44:21<9:47:28, 118.68s/it]   5%|▌         | 16/312 [3:45:58<9:13:32, 112.20s/it]  5%|▌         | 17/312 [3:47:37<8:51:57, 108.19s/it]  6%|▌         | 18/312 [3:48:59<8:11:27, 100.30s/it]  6%|▌         | 19/312 [3:50:02<7:16:09, 89.31s/it]   6%|▋         | 20/312 [3:51:31<7:13:26, 89.06s/it]                                                    {'loss': 0.5593, 'grad_norm': 0.013557559810578823, 'learning_rate': 0.0001999105022653872, 'epoch': 0.38}
+  6%|▋         | 20/312 [3:51:31<7:13:26, 89.06s/it][LOSS-COMP] step=20 ce=0.455541 candidate=0.000000 total=0.455541
+[LOSS-COMP] step=20 ce=0.672909 candidate=0.000000 total=0.672909
+[LOSS-COMP] step=20 ce=0.444790 candidate=0.000000 total=0.444790
+[LOSS-COMP] step=20 ce=0.439303 candidate=0.000000 total=0.439303
+[LOSS-COMP] step=20 ce=0.799881 candidate=0.000000 total=0.799881
+[LOSS-COMP] step=20 ce=0.616064 candidate=0.000000 total=0.616064
+[LOSS-COMP] step=20 ce=0.530393 candidate=0.000000 total=0.530393
+[LOSS-COMP] step=20 ce=0.520319 candidate=0.000000 total=0.520319
+[GATES] attn gates:
+  base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.00112208 tanh=-0.00112208 grad=9.50924866e-03 |grad|=9.50924866e-03
+  base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.00078353 tanh=-0.00078353 grad=4.40679071e-03 |grad|=4.40679071e-03
+  base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.00237513 tanh=-0.00237513 grad=6.06033998e-03 |grad|=6.06033998e-03
+  base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.00154998 tanh=-0.00154998 grad=1.81607320e-03 |grad|=1.81607320e-03
+[GATES] ff gates:
+[XATTN-DBG] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 6224, 'S': 64, 'memory_mask_true': 35, 'out_abs_mean': 0.039306640625, 'out_l2_mean': 0.7937195301055908, 'attn_mean': 0.0028468428645282984, 'attn_max': 0.8259012699127197, 'memory_value_scale': 1.0, 'placeholder_tokens': 35, 'active_tokens_after_fill': 1134, 'valid_edges': 7404, 'tokens_with_route': 1134, 'keys_per_routed_token_mean': 6.52910041809082, 'keys_per_routed_token_max': 18, 'multi_key_token_fraction': 0.9999999403953552, 'multi_key_attention_entropy_mean': 1.713697075843811}
+[XATTN-DBG] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 6224, 'S': 64, 'memory_mask_true': 35, 'out_abs_mean': 0.04150390625, 'out_l2_mean': 0.8394215106964111, 'attn_mean': 0.0028468428645282984, 'attn_max': 0.66849285364151, 'memory_value_scale': 1.0, 'placeholder_tokens': 35, 'active_tokens_after_fill': 1134, 'valid_edges': 7404, 'tokens_with_route': 1134, 'keys_per_routed_token_mean': 6.52910041809082, 'keys_per_routed_token_max': 18, 'multi_key_token_fraction': 0.9999999403953552, 'multi_key_attention_entropy_mean': 1.7209886312484741}
+[XATTN-DBG] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 6224, 'S': 64, 'memory_mask_true': 35, 'out_abs_mean': 0.04833984375, 'out_l2_mean': 0.9639037251472473, 'attn_mean': 0.0028468428645282984, 'attn_max': 0.939565896987915, 'memory_value_scale': 1.0, 'placeholder_tokens': 35, 'active_tokens_after_fill': 1134, 'valid_edges': 7404, 'tokens_with_route': 1134, 'keys_per_routed_token_mean': 6.52910041809082, 'keys_per_routed_token_max': 18, 'multi_key_token_fraction': 0.9999999403953552, 'multi_key_attention_entropy_mean': 1.697082281112671}
+[XATTN-DBG] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 6224, 'S': 64, 'memory_mask_true': 35, 'out_abs_mean': 0.044189453125, 'out_l2_mean': 0.8595643043518066, 'attn_mean': 0.0028468428645282984, 'attn_max': 0.8551530241966248, 'memory_value_scale': 1.0, 'placeholder_tokens': 35, 'active_tokens_after_fill': 1134, 'valid_edges': 7404, 'tokens_with_route': 1134, 'keys_per_routed_token_mean': 6.52910041809082, 'keys_per_routed_token_max': 18, 'multi_key_token_fraction': 0.9999999403953552, 'multi_key_attention_entropy_mean': 1.7165782451629639}
+[XATTN-RESID] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.001122083980590105 active=154 hidden_l2=43.09180450439453 projected_l2=10.345610618591309 residual_l2=0.011608644388616085 projected/hidden=0.24106627702713013 gated/hidden=0.00027049658820033073 gated/hidden_max=0.00036749878199771047
+[XATTN-RESID] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.000783528492320329 active=154 hidden_l2=111.69328308105469 projected_l2=10.717974662780762 residual_l2=0.008397838100790977 projected/hidden=0.09618282318115234 gated/hidden=7.536198245361447e-05 gated/hidden_max=0.0001149912568507716
+[XATTN-RESID] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.002375127514824271 active=154 hidden_l2=245.01654052734375 projected_l2=12.871905326843262 residual_l2=0.030572418123483658 projected/hidden=0.0529133677482605 gated/hidden=0.00012567598605528474 gated/hidden_max=0.0001709291391307488
+[XATTN-RESID] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.0015499801374971867 active=154 hidden_l2=607.4509887695312 projected_l2=11.3379487991333 residual_l2=0.01757359504699707 projected/hidden=0.0187559574842453 gated/hidden=2.9071363314869814e-05 gated/hidden_max=4.0624661778565496e-05
+[XATTN-GRAD] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=2.580e-05 RMS=2.520e-08 G/P=2.792e-06
+  K   L2=4.743e-06 RMS=2.620e-08 G/P=5.127e-07
+  V   L2=4.440e-05 RMS=2.453e-07 G/P=4.807e-06
+  OUT L2=6.055e-05 RMS=5.913e-08 G/P=1.637e-06
+[XATTN-GRAD] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=1.801e-05 RMS=1.759e-08 G/P=1.951e-06
+  K   L2=3.424e-06 RMS=1.891e-08 G/P=3.704e-07
+  V   L2=2.142e-05 RMS=1.183e-07 G/P=2.329e-06
+  OUT L2=3.016e-05 RMS=2.945e-08 G/P=8.158e-07
+[XATTN-GRAD] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=1.614e-05 RMS=1.576e-08 G/P=1.747e-06
+  K   L2=3.236e-06 RMS=1.788e-08 G/P=3.491e-07
+  V   L2=4.111e-05 RMS=2.271e-07 G/P=4.438e-06
+  OUT L2=6.508e-05 RMS=6.356e-08 G/P=1.762e-06
+[XATTN-GRAD] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=7.200e-06 RMS=7.031e-09 G/P=7.798e-07
+  K   L2=1.384e-06 RMS=7.648e-09 G/P=1.500e-07
+  V   L2=1.073e-05 RMS=5.929e-08 G/P=1.162e-06
+  OUT L2=1.512e-05 RMS=1.477e-08 G/P=4.092e-07
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 154, "amp_scale": 1.0, "attention_entropy": 1.713697075843811, "effective_gate": -0.001122083980590105, "gated_residual_hidden_rms_ratio": 0.0002698995365337779, "gradient_rms": {"k": 2.6203402114788332e-08, "out": 5.91349085254933e-08, "q": 2.5199183184554386e-08, "v": 2.4530174869141774e-07}, "layer": "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 6.52910041809082, "multi_key_fraction": 0.9999999403953552, "projected_hidden_rms_ratio": 0.2405341664360035, "raw_gate": -0.0011220844462513924, "step": 20, "tanh_gate": -0.001122083980590105}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 154, "amp_scale": 1.0, "attention_entropy": 1.7209886312484741, "effective_gate": -0.000783528492320329, "gated_residual_hidden_rms_ratio": 7.555815435104178e-05, "gradient_rms": {"k": 1.8913342003656908e-08, "out": 2.944862309561813e-08, "q": 1.759200607409639e-08, "v": 1.1830354651465314e-07}, "layer": "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 6.52910041809082, "multi_key_fraction": 0.9999999403953552, "projected_hidden_rms_ratio": 0.09643319426905374, "raw_gate": -0.0007835286669433117, "step": 20, "tanh_gate": -0.000783528492320329}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 154, "amp_scale": 1.0, "attention_entropy": 1.697082281112671, "effective_gate": -0.002375127514824271, "gated_residual_hidden_rms_ratio": 0.00012509524712034126, "gradient_rms": {"k": 1.7879074221127667e-08, "out": 6.355949722092191e-08, "q": 1.57600172911998e-08, "v": 2.270868293408057e-07}, "layer": "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 6.52910041809082, "multi_key_fraction": 0.9999999403953552, "projected_hidden_rms_ratio": 0.0526688546825108, "raw_gate": -0.0023751319386065006, "step": 20, "tanh_gate": -0.002375127514824271}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 154, "amp_scale": 1.0, "attention_entropy": 1.7165782451629639, "effective_gate": -0.0015499801374971867, "gated_residual_hidden_rms_ratio": 2.8982220077716333e-05, "gradient_rms": {"k": 7.647552813239145e-09, "out": 1.4767535638782192e-08, "q": 7.030992232870403e-09, "v": 5.928575674829517e-08}, "layer": "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 6.52910041809082, "multi_key_fraction": 0.9999999403953552, "projected_hidden_rms_ratio": 0.01869844559825448, "raw_gate": -0.0015499814180657268, "step": 20, "tanh_gate": -0.0015499801374971867}
+  7%|▋         | 21/312 [3:53:08<7:24:20, 91.62s/it]  7%|▋         | 22/312 [3:54:35<7:15:36, 90.13s/it]  7%|▋         | 23/312 [3:56:19<7:33:31, 94.16s/it]  8%|▊         | 24/312 [3:58:43<8:44:43, 109.32s/it]  8%|▊         | 25/312 [4:00:03<8:00:23, 100.43s/it]  8%|▊         | 26/312 [4:01:29<7:38:23, 96.17s/it]   9%|▊         | 27/312 [4:03:03<7:32:43, 95.31s/it]  9%|▉         | 28/312 [4:04:29<7:18:56, 92.74s/it]  9%|▉         | 29/312 [4:06:10<7:28:24, 95.07s/it] 10%|▉         | 30/312 [4:07:43<7:24:02, 94.48s/it]                                                    {'loss': 0.5466, 'grad_norm': 0.036764729768037796, 'learning_rate': 0.00019890549160664632, 'epoch': 0.56}
+ 10%|▉         | 30/312 [4:07:43<7:24:02, 94.48s/it][LOSS-COMP] step=30 ce=0.492601 candidate=0.000000 total=0.492601
+[LOSS-COMP] step=30 ce=0.632453 candidate=0.000000 total=0.632453
+[LOSS-COMP] step=30 ce=0.549877 candidate=0.000000 total=0.549877
+[LOSS-COMP] step=30 ce=0.560269 candidate=0.000000 total=0.560269
+[LOSS-COMP] step=30 ce=0.683930 candidate=0.000000 total=0.683930
+[LOSS-COMP] step=30 ce=0.649493 candidate=0.000000 total=0.649493
+[LOSS-COMP] step=30 ce=0.616677 candidate=0.000000 total=0.616677
+[LOSS-COMP] step=30 ce=0.817260 candidate=0.000000 total=0.817260
+ 10%|▉         | 31/312 [4:08:35<6:23:00, 81.78s/it] 10%|█         | 32/312 [4:10:16<6:48:45, 87.59s/it] 11%|█         | 33/312 [4:11:55<7:02:34, 90.88s/it] 11%|█         | 34/312 [4:13:33<7:10:56, 93.01s/it] 11%|█         | 35/312 [4:14:59<7:00:37, 91.11s/it] 12%|█▏        | 36/312 [4:16:26<6:52:22, 89.65s/it] 12%|█▏        | 37/312 [4:17:53<6:47:30, 88.91s/it] 12%|█▏        | 38/312 [4:19:15<6:36:53, 86.91s/it] 12%|█▎        | 39/312 [4:20:29<6:17:12, 82.90s/it] 13%|█▎        | 40/312 [4:22:19<6:52:28, 90.99s/it]                                                    {'loss': 0.5822, 'grad_norm': 0.06408669799566269, 'learning_rate': 0.00019679487013963564, 'epoch': 0.75}
+ 13%|█▎        | 40/312 [4:22:19<6:52:28, 90.99s/it][LOSS-COMP] step=40 ce=0.583228 candidate=0.000000 total=0.583228
+[LOSS-COMP] step=40 ce=0.533015 candidate=0.000000 total=0.533015
+[LOSS-COMP] step=40 ce=0.517783 candidate=0.000000 total=0.517783
+[LOSS-COMP] step=40 ce=0.518115 candidate=0.000000 total=0.518115
+[LOSS-COMP] step=40 ce=0.626328 candidate=0.000000 total=0.626328
+[LOSS-COMP] step=40 ce=0.491878 candidate=0.000000 total=0.491878
+[LOSS-COMP] step=40 ce=0.624802 candidate=0.000000 total=0.624802
+[LOSS-COMP] step=40 ce=0.596766 candidate=0.000000 total=0.596766
+[GATES] attn gates:
+  base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.00591724 tanh=-0.00591717 grad=5.24908639e-02 |grad|=5.24908639e-02
+  base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.00542781 tanh=-0.00542775 grad=4.08656970e-02 |grad|=4.08656970e-02
+  base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.00724605 tanh=-0.00724593 grad=3.39413323e-02 |grad|=3.39413323e-02
+  base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.00650032 tanh=-0.00650023 grad=1.42435674e-02 |grad|=1.42435674e-02
+[GATES] ff gates:
+[XATTN-DBG] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 4642, 'S': 64, 'memory_mask_true': 18, 'out_abs_mean': 0.07470703125, 'out_l2_mean': 1.5452316999435425, 'attn_mean': 0.0026120205875486135, 'attn_max': 0.9907910823822021, 'memory_value_scale': 1.0, 'placeholder_tokens': 18, 'active_tokens_after_fill': 776, 'valid_edges': 3309, 'tokens_with_route': 776, 'keys_per_routed_token_mean': 4.264174938201904, 'keys_per_routed_token_max': 15, 'multi_key_token_fraction': 0.9999999403953552, 'multi_key_attention_entropy_mean': 0.9377812147140503}
+[XATTN-DBG] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 4642, 'S': 64, 'memory_mask_true': 18, 'out_abs_mean': 0.06884765625, 'out_l2_mean': 1.3661848306655884, 'attn_mean': 0.0026120205875486135, 'attn_max': 0.9433388710021973, 'memory_value_scale': 1.0, 'placeholder_tokens': 18, 'active_tokens_after_fill': 776, 'valid_edges': 3309, 'tokens_with_route': 776, 'keys_per_routed_token_mean': 4.264174938201904, 'keys_per_routed_token_max': 15, 'multi_key_token_fraction': 0.9999999403953552, 'multi_key_attention_entropy_mean': 1.205740213394165}
+[XATTN-DBG] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 4642, 'S': 64, 'memory_mask_true': 18, 'out_abs_mean': 0.06787109375, 'out_l2_mean': 1.3849389553070068, 'attn_mean': 0.0026120205875486135, 'attn_max': 0.9965717792510986, 'memory_value_scale': 1.0, 'placeholder_tokens': 18, 'active_tokens_after_fill': 776, 'valid_edges': 3309, 'tokens_with_route': 776, 'keys_per_routed_token_mean': 4.264174938201904, 'keys_per_routed_token_max': 15, 'multi_key_token_fraction': 0.9999999403953552, 'multi_key_attention_entropy_mean': 1.1576534509658813}
+[XATTN-DBG] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 4642, 'S': 64, 'memory_mask_true': 18, 'out_abs_mean': 0.06884765625, 'out_l2_mean': 1.4514554738998413, 'attn_mean': 0.0026120205875486135, 'attn_max': 0.9899865984916687, 'memory_value_scale': 1.0, 'placeholder_tokens': 18, 'active_tokens_after_fill': 776, 'valid_edges': 3309, 'tokens_with_route': 776, 'keys_per_routed_token_mean': 4.264174938201904, 'keys_per_routed_token_max': 15, 'multi_key_token_fraction': 0.9999999403953552, 'multi_key_attention_entropy_mean': 1.0424222946166992}
+[XATTN-RESID] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.005917172413319349 active=96 hidden_l2=44.46769332885742 projected_l2=23.862150192260742 residual_l2=0.14119645953178406 projected/hidden=0.5386358499526978 gated/hidden=0.003187201451510191 gated/hidden_max=0.0035781129263341427
+[XATTN-RESID] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.005427754949778318 active=96 hidden_l2=112.87431335449219 projected_l2=21.346725463867188 residual_l2=0.11586480587720871 projected/hidden=0.19092008471488953 gated/hidden=0.0010362673783674836 gated/hidden_max=0.0014422998065128922
+[XATTN-RESID] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.007245927583426237 active=96 hidden_l2=259.9581298828125 projected_l2=23.716283798217773 residual_l2=0.17184647917747498 projected/hidden=0.09149041771888733 gated/hidden=0.0006629329873248935 gated/hidden_max=0.0008817878551781178
+[XATTN-RESID] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.00650022691115737 active=96 hidden_l2=586.84814453125 projected_l2=23.176513671875 residual_l2=0.15065260231494904 projected/hidden=0.03987311199307442 gated/hidden=0.0002591842785477638 gated/hidden_max=0.0003612698055803776
+[XATTN-GRAD] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=1.087e-04 RMS=1.062e-07 G/P=1.173e-05
+  K   L2=3.826e-05 RMS=2.114e-07 G/P=4.132e-06
+  V   L2=5.093e-04 RMS=2.813e-06 G/P=5.505e-05
+  OUT L2=5.588e-04 RMS=5.457e-07 G/P=1.510e-05
+[XATTN-GRAD] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=7.644e-05 RMS=7.465e-08 G/P=8.258e-06
+  K   L2=2.354e-05 RMS=1.300e-07 G/P=2.545e-06
+  V   L2=3.010e-04 RMS=1.663e-06 G/P=3.268e-05
+  OUT L2=3.427e-04 RMS=3.346e-07 G/P=9.267e-06
+[XATTN-GRAD] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=6.341e-05 RMS=6.192e-08 G/P=6.842e-06
+  K   L2=2.487e-05 RMS=1.374e-07 G/P=2.680e-06
+  V   L2=2.990e-04 RMS=1.652e-06 G/P=3.221e-05
+  OUT L2=3.134e-04 RMS=3.061e-07 G/P=8.479e-06
+[XATTN-GRAD] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=4.344e-05 RMS=4.242e-08 G/P=4.696e-06
+  K   L2=1.473e-05 RMS=8.137e-08 G/P=1.595e-06
+  V   L2=1.233e-04 RMS=6.812e-07 G/P=1.333e-05
+  OUT L2=1.297e-04 RMS=1.267e-07 G/P=3.508e-06
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 96, "amp_scale": 1.0, "attention_entropy": 0.9377812147140503, "effective_gate": -0.005917172413319349, "gated_residual_hidden_rms_ratio": 0.003175586242997927, "gradient_rms": {"k": 2.1136007433142368e-07, "out": 5.457079055304348e-07, "q": 1.0618057899591804e-07, "v": 2.8132685656601097e-06}, "layer": "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 4.264174938201904, "multi_key_fraction": 0.9999999403953552, "projected_hidden_rms_ratio": 0.5366729249764778, "raw_gate": -0.005917241331189871, "step": 40, "tanh_gate": -0.005917172413319349}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 96, "amp_scale": 1.0, "attention_entropy": 1.205740213394165, "effective_gate": -0.005427754949778318, "gated_residual_hidden_rms_ratio": 0.0010330886280480224, "gradient_rms": {"k": 1.3002926380067947e-07, "out": 3.346457333464059e-07, "q": 7.464723950079133e-08, "v": 1.6625575653961278e-06}, "layer": "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 4.264174938201904, "multi_key_fraction": 0.9999999403953552, "projected_hidden_rms_ratio": 0.19033441909751914, "raw_gate": -0.0054278080351650715, "step": 40, "tanh_gate": -0.005427754949778318}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 96, "amp_scale": 1.0, "attention_entropy": 1.1576534509658813, "effective_gate": -0.007245927583426237, "gated_residual_hidden_rms_ratio": 0.0006618794320637258, "gradient_rms": {"k": 1.3740296367359406e-07, "out": 3.0606423706558417e-07, "q": 6.192210122435426e-08, "v": 1.6517200265298015e-06}, "layer": "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 4.264174938201904, "multi_key_fraction": 0.9999999403953552, "projected_hidden_rms_ratio": 0.09134502434178159, "raw_gate": -0.007246054243296385, "step": 40, "tanh_gate": -0.007245927583426237}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 96, "amp_scale": 1.0, "attention_entropy": 1.0424222946166992, "effective_gate": -0.00650022691115737, "gated_residual_hidden_rms_ratio": 0.00025603396254340156, "gradient_rms": {"k": 8.137137541552875e-08, "out": 1.2665732640471106e-07, "q": 4.241779549829516e-08, "v": 6.812321657889697e-07}, "layer": "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 4.264174938201904, "multi_key_fraction": 0.9999999403953552, "projected_hidden_rms_ratio": 0.039388464551862706, "raw_gate": -0.006500318646430969, "step": 40, "tanh_gate": -0.00650022691115737}
+ 13%|█▎        | 41/312 [4:24:36<7:54:31, 105.06s/it] 13%|█▎        | 42/312 [4:26:36<8:11:45, 109.28s/it] 14%|█▍        | 43/312 [4:28:20<8:03:03, 107.75s/it] 14%|█▍        | 44/312 [4:29:47<7:33:13, 101.47s/it] 14%|█▍        | 45/312 [4:31:50<8:01:03, 108.10s/it] 15%|█▍        | 46/312 [4:33:23<7:38:56, 103.52s/it] 15%|█▌        | 47/312 [4:34:41<7:04:03, 96.01s/it]  15%|█▌        | 48/312 [4:36:16<7:00:34, 95.59s/it] 16%|█▌        | 49/312 [4:38:00<7:10:21, 98.18s/it] 16%|█▌        | 50/312 [4:39:52<7:26:36, 102.28s/it]                                                     {'loss': 0.5487, 'grad_norm': 0.1288631111383438, 'learning_rate': 0.00019360223135616426, 'epoch': 0.94}
+ 16%|█▌        | 50/312 [4:39:52<7:26:36, 102.28s/it][LOSS-COMP] step=50 ce=0.523510 candidate=0.000000 total=0.523510
+[LOSS-COMP] step=50 ce=0.572534 candidate=0.000000 total=0.572534
+[LOSS-COMP] step=50 ce=0.594334 candidate=0.000000 total=0.594334
+[LOSS-COMP] step=50 ce=0.635949 candidate=0.000000 total=0.635949
+[LOSS-COMP] step=50 ce=0.546055 candidate=0.000000 total=0.546055
+[LOSS-COMP] step=50 ce=0.540336 candidate=0.000000 total=0.540336
+[LOSS-COMP] step=50 ce=0.581212 candidate=0.000000 total=0.581212
+[LOSS-COMP] step=50 ce=0.477666 candidate=0.000000 total=0.477666
+ 16%|█▋        | 51/312 [4:41:43<7:36:25, 104.92s/it] 17%|█▋        | 52/312 [4:43:06<7:06:25, 98.41s/it]  17%|█▋        | 53/312 [4:45:25<7:56:22, 110.36s/it] 17%|█▋        | 54/312 [4:45:54<6:09:29, 85.93s/it]  18%|█▊        | 55/312 [4:47:10<5:56:19, 83.19s/it] 18%|█▊        | 56/312 [4:48:26<5:44:55, 80.84s/it] 18%|█▊        | 57/312 [4:50:15<6:19:48, 89.37s/it] 19%|█▊        | 58/312 [4:52:03<6:41:50, 94.92s/it] 19%|█▉        | 59/312 [4:53:29<6:29:19, 92.33s/it] 19%|█▉        | 60/312 [4:55:39<7:15:36, 103.72s/it]                                                     {'loss': 0.4938, 'grad_norm': 0.15316277742385864, 'learning_rate': 0.00018936326403234125, 'epoch': 1.11}
+ 19%|█▉        | 60/312 [4:55:39<7:15:36, 103.72s/it][LOSS-COMP] step=60 ce=0.614186 candidate=0.000000 total=0.614186
+[LOSS-COMP] step=60 ce=0.433024 candidate=0.000000 total=0.433024
+[LOSS-COMP] step=60 ce=0.623575 candidate=0.000000 total=0.623575
+[LOSS-COMP] step=60 ce=0.561846 candidate=0.000000 total=0.561846
+[LOSS-COMP] step=60 ce=0.542830 candidate=0.000000 total=0.542830
+[LOSS-COMP] step=60 ce=0.544604 candidate=0.000000 total=0.544604
+[LOSS-COMP] step=60 ce=0.456934 candidate=0.000000 total=0.456934
+[LOSS-COMP] step=60 ce=0.388623 candidate=0.000000 total=0.388623
+[GATES] attn gates:
+  base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.01174451 tanh=-0.01174397 grad=1.55802220e-01 |grad|=1.55802220e-01
+  base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.01124783 tanh=-0.01124735 grad=1.78377658e-01 |grad|=1.78377658e-01
+  base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.01298650 tanh=-0.01298577 grad=1.27144083e-01 |grad|=1.27144083e-01
+  base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate: raw=-0.01239483 tanh=-0.01239420 grad=6.05611317e-02 |grad|=6.05611317e-02
+[GATES] ff gates:
+[XATTN-DBG] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 631, 'S': 64, 'memory_mask_true': 3, 'out_abs_mean': 0.038330078125, 'out_l2_mean': 0.7381969690322876, 'attn_mean': 0.002005744958296418, 'attn_max': 0.7549149990081787, 'memory_value_scale': 1.0, 'placeholder_tokens': 3, 'active_tokens_after_fill': 81, 'valid_edges': 189, 'tokens_with_route': 81, 'keys_per_routed_token_mean': 2.3333332538604736, 'keys_per_routed_token_max': 3, 'multi_key_token_fraction': 1.0, 'multi_key_attention_entropy_mean': 0.8106467127799988}
+[XATTN-DBG] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 631, 'S': 64, 'memory_mask_true': 3, 'out_abs_mean': 0.0380859375, 'out_l2_mean': 0.7386406064033508, 'attn_mean': 0.002005744958296418, 'attn_max': 0.7772998809814453, 'memory_value_scale': 1.0, 'placeholder_tokens': 3, 'active_tokens_after_fill': 81, 'valid_edges': 189, 'tokens_with_route': 81, 'keys_per_routed_token_mean': 2.3333332538604736, 'keys_per_routed_token_max': 3, 'multi_key_token_fraction': 1.0, 'multi_key_attention_entropy_mean': 0.8156890869140625}
+[XATTN-DBG] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 631, 'S': 64, 'memory_mask_true': 3, 'out_abs_mean': 0.043212890625, 'out_l2_mean': 0.8446117043495178, 'attn_mean': 0.002005744958296418, 'attn_max': 0.8068526387214661, 'memory_value_scale': 1.0, 'placeholder_tokens': 3, 'active_tokens_after_fill': 81, 'valid_edges': 189, 'tokens_with_route': 81, 'keys_per_routed_token_mean': 2.3333332538604736, 'keys_per_routed_token_max': 3, 'multi_key_token_fraction': 1.0, 'multi_key_attention_entropy_mean': 0.8169193267822266}
+[XATTN-DBG] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn: {'B': 1, 'T_txt': 631, 'S': 64, 'memory_mask_true': 3, 'out_abs_mean': 0.040283203125, 'out_l2_mean': 0.7727144360542297, 'attn_mean': 0.002005744958296418, 'attn_max': 0.8438951373100281, 'memory_value_scale': 1.0, 'placeholder_tokens': 3, 'active_tokens_after_fill': 81, 'valid_edges': 189, 'tokens_with_route': 81, 'keys_per_routed_token_mean': 2.3333332538604736, 'keys_per_routed_token_max': 3, 'multi_key_token_fraction': 1.0, 'multi_key_attention_entropy_mean': 0.809814453125}
+[XATTN-RESID] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.011743967421352863 active=12 hidden_l2=41.762821197509766 projected_l2=17.234216690063477 residual_l2=0.20239809155464172 projected/hidden=0.4138067662715912 gated/hidden=0.004859733395278454 gated/hidden_max=0.0052217100746929646
+[XATTN-RESID] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.011247354559600353 active=12 hidden_l2=115.62712860107422 projected_l2=17.118179321289062 residual_l2=0.19253423810005188 projected/hidden=0.1484147012233734 gated/hidden=0.0016692726640030742 gated/hidden_max=0.001786529435776174
+[XATTN-RESID] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.012985765002667904 active=12 hidden_l2=251.00218200683594 projected_l2=20.381553649902344 residual_l2=0.2646700441837311 projected/hidden=0.08146868646144867 gated/hidden=0.001057933084666729 gated/hidden_max=0.001215399825014174
+[XATTN-RESID] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer: gate=-0.012394197285175323 active=12 hidden_l2=622.7865600585938 projected_l2=17.965003967285156 residual_l2=0.22266177833080292 projected/hidden=0.02891560271382332 gated/hidden=0.00035838570329360664 gated/hidden_max=0.00039956264663487673
+[XATTN-GRAD] base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=1.325e-04 RMS=1.294e-07 G/P=1.420e-05
+  K   L2=7.520e-05 RMS=4.154e-07 G/P=8.105e-06
+  V   L2=1.666e-03 RMS=9.203e-06 G/P=1.794e-04
+  OUT L2=1.490e-03 RMS=1.455e-06 G/P=4.018e-05
+[XATTN-GRAD] base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=1.121e-04 RMS=1.095e-07 G/P=1.202e-05
+  K   L2=7.098e-05 RMS=3.921e-07 G/P=7.656e-06
+  V   L2=1.806e-03 RMS=9.975e-06 G/P=1.952e-04
+  OUT L2=1.296e-03 RMS=1.266e-06 G/P=3.498e-05
+[XATTN-GRAD] base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=3.188e-04 RMS=3.113e-07 G/P=3.414e-05
+  K   L2=2.495e-04 RMS=1.378e-06 G/P=2.684e-05
+  V   L2=1.332e-03 RMS=7.357e-06 G/P=1.428e-04
+  OUT L2=9.084e-04 RMS=8.871e-07 G/P=2.452e-05
+[XATTN-GRAD] base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn
+  Q   L2=2.327e-04 RMS=2.273e-07 G/P=2.503e-05
+  K   L2=1.517e-04 RMS=8.378e-07 G/P=1.640e-05
+  V   L2=6.339e-04 RMS=3.502e-06 G/P=6.821e-05
+  OUT L2=4.485e-04 RMS=4.380e-07 G/P=1.211e-05
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 12, "amp_scale": 1.0, "attention_entropy": 0.8106467127799988, "effective_gate": -0.011743967421352863, "gated_residual_hidden_rms_ratio": 0.004840321679994702, "gradient_rms": {"k": 4.154252621901833e-07, "out": 1.4546965303452453e-06, "q": 1.294034461807314e-07, "v": 9.202867659041658e-06}, "layer": "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 2.3333332538604736, "multi_key_fraction": 1.0, "projected_hidden_rms_ratio": 0.4121538693232553, "raw_gate": -0.01174450758844614, "step": 60, "tanh_gate": -0.011743967421352863}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 12, "amp_scale": 1.0, "attention_entropy": 0.8156890869140625, "effective_gate": -0.011247354559600353, "gated_residual_hidden_rms_ratio": 0.0016629079311951593, "gradient_rms": {"k": 3.921262816675153e-07, "out": 1.2656324770432548e-06, "q": 1.0951183782026419e-07, "v": 9.97522693069186e-06}, "layer": "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 2.3333332538604736, "multi_key_fraction": 1.0, "projected_hidden_rms_ratio": 0.14784880556152435, "raw_gate": -0.011247828602790833, "step": 60, "tanh_gate": -0.011247354559600353}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 12, "amp_scale": 1.0, "attention_entropy": 0.8169193267822266, "effective_gate": -0.012985765002667904, "gated_residual_hidden_rms_ratio": 0.001053119259044886, "gradient_rms": {"k": 1.3782114365312736e-06, "out": 8.870892429513333e-07, "q": 3.112839408458967e-07, "v": 7.357254162343452e-06}, "layer": "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 2.3333332538604736, "multi_key_fraction": 1.0, "projected_hidden_rms_ratio": 0.08109797415121585, "raw_gate": -0.012986495159566402, "step": 60, "tanh_gate": -0.012985765002667904}
+[XATTN-DIAGNOSTIC] {"active_rhs_tokens": 12, "amp_scale": 1.0, "attention_entropy": 0.809814453125, "effective_gate": -0.012394197285175323, "gated_residual_hidden_rms_ratio": 0.00035708645644394536, "gradient_rms": {"k": 8.377784865842841e-07, "out": 4.380142968329892e-07, "q": 2.2727739690253657e-07, "v": 3.5016723813896533e-06}, "layer": "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer", "legal_keys_per_query": 2.3333332538604736, "multi_key_fraction": 1.0, "projected_hidden_rms_ratio": 0.028810777790893683, "raw_gate": -0.012394832447171211, "step": 60, "tanh_gate": -0.012394197285175323}
+ 20%|█▉        | 61/312 [4:56:53<6:36:30, 94.78s/it]  20%|█▉        | 62/312 [4:58:06<6:07:45, 88.26s/it] 20%|██        | 63/312 [4:59:52<6:28:13, 93.55s/it] 21%|██        | 64/312 [5:01:17<6:15:43, 90.90s/it] 21%|██        | 65/312 [5:02:48<6:14:39, 91.01s/it] 21%|██        | 66/312 [5:04:14<6:06:23, 89.36s/it] 21%|██▏       | 67/312 [5:06:12<6:40:33, 98.09s/it] 22%|██▏       | 68/312 [5:07:37<6:22:21, 94.02s/it] 22%|██▏       | 69/312 [5:09:20<6:32:17, 96.86s/it] 22%|██▏       | 70/312 [5:10:42<6:12:37, 92.39s/it]                                                    {'loss': 0.5602, 'grad_norm': 0.2284388691186905, 'learning_rate': 0.00018412535328311814, 'epoch': 1.3}
+ 22%|██▏       | 70/312 [5:10:42<6:12:37, 92.39s/it][LOSS-COMP] step=70 ce=0.678314 candidate=0.000000 total=0.678314
+[LOSS-COMP] step=70 ce=0.602326 candidate=0.000000 total=0.602326
+[LOSS-COMP] step=70 ce=0.616119 candidate=0.000000 total=0.616119
+[LOSS-COMP] step=70 ce=0.621475 candidate=0.000000 total=0.621475
+[LOSS-COMP] step=70 ce=0.528222 candidate=0.000000 total=0.528222
+[LOSS-COMP] step=70 ce=0.544344 candidate=0.000000 total=0.544344
+[LOSS-COMP] step=70 ce=0.458025 candidate=0.000000 total=0.458025
+[LOSS-COMP] step=70 ce=0.511242 candidate=0.000000 total=0.511242
+ 23%|██▎       | 71/312 [5:12:22<6:19:32, 94.49s/it] 23%|██▎       | 72/312 [5:14:02<6:24:36, 96.15s/it] 23%|██▎       | 73/312 [5:15:54<6:42:09, 100.96s/it] 24%|██▎       | 74/312 [5:17:30<6:35:10, 99.62s/it]  24%|██▍       | 75/312 [5:19:06<6:28:25, 98.33s/it] 24%|██▍       | 76/312 [5:20:29<6:08:51, 93.78s/it]
