@@ -1,0 +1,639 @@
+[PAIRED] representation=harp seed=123 epochs=2 experiment=paired_harp_smoke_s123
+[PAIRED] MLIR cache=artifacts/gnn_datasets/paired_representation_s123/development_locked/mlir_dataset/all_kernels
+[PAIRED] HARP cache=artifacts/gnn_datasets/paired_representation_s123/development_locked/harp_dataset/all_kernels
+task                       : regression
+subtask                    : train
+plot_dse                   : False
+vis_per_kernel             : True
+force_regen                : False
+allow_incomplete_dataset   : False
+min_allowed_latency        : 0.0
+epsilon                    : 1e-06
+normalizer                 : 10000000.0
+util_normalizer            : 1
+max_number                 : 10000000000.0
+norm_method                : log2
+new_speedup                : True
+invalid                    : False
+encode_log                 : False
+v_db                       : v21
+test_kernels               : serrano-kalman-filter
+val_kernels                : machsuite-sort-radix,
+                           : machsuite-viterbi,
+                           : rodinia_pathfinder_0_baseline_0,
+                           : rodinia_pathfinder_4_doublebuffer_0
+split_json                 : /home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json
+multi_target_qor           : True
+effective_area_floor       : 0.0625
+development_exclude_kernels : None
+target_kernel              : None
+all_kernels                : True
+dataset                    : harp
+benchmarks                 : ['machsuite',
+                           :  'poly']
+tag                        : whole-machsuite-poly
+graph_type                 : extended-pseudo-block-connected-hierarchy
+mlir_graph_dir             : GNN_branch/MLIR_graphs
+preprocessed_csv_dir       : artifacts/gnn_datasets/v13_all_targets_s123/preprocessed_CSVS
+mlir_dataset_cache_dir     : artifacts/gnn_datasets/paired_representation_s123/development_locked/mlir_dataset/all_kernels
+harp_graph_dir             : GNN_branch/HARP_graphs
+harp_dataset_cache_dir     : artifacts/gnn_datasets/paired_representation_s123/development_locked/harp_dataset/all_kernels
+encoder_path               : None
+pragma_dim_path            : None
+encode_edge                : True
+encode_edge_position       : True
+num_layers                 : 4
+num_features               : None
+edge_dim                   : None
+target                     : ['perf',
+                           :  'area']
+decompose_targets          : False
+target_mode                : absolute
+baseline_manifest          : None
+reference_delta_head       : anchored
+target_device              : xczu7ev-ffvc1156-2-e
+clock_period_ns            : 10.0
+vitis_hls_version          : 2021.1
+center_aux_weight          : 0.25
+qor_output_init_scale      : 0.1
+response_aux_weight        : 1.0
+checkpoint_objective       : qualified_lexicographic
+min_rank_tau               : 0.2
+max_kernel_zero_baseline_ratio : 1.25
+kernel_zero_baseline_additive_tolerance : 0.001
+MLP_common_lyr             : 0
+gnn_type                   : transformer
+dropout                    : 0.2
+graph_attention_heads      : 1
+graph_residual_beta        : False
+graph_layer_norm           : False
+jkn_mode                   : max
+jkn_enable                 : True
+node_attention             : True
+node_attention_MLP         : False
+separate_P                 : True
+separate_icmp              : False
+separate_T                 : False
+separate_pseudo            : True
+P_use_all_nodes            : True
+gae_T                      : False
+gae_P                      : False
+gnn_layer_after_MLP        : 1
+pragma_as_MLP              : True
+pragma_as_MLP_list         : ['pipeline',
+                           :  'unroll',
+                           :  'array_partition']
+pragma_scope               : block
+keep_pragma_attribute      : False
+pragma_order               : parallel_and_merge
+pragma_MLP_hidden_channels : [in_D // 2]
+merge_MLP_hidden_channels  : [in_D // 2]
+model_path                 : None
+ensemble                   : 0
+ensemble_weights           : None
+class_model_path           : None
+feature_extract            : False
+fix_gnn_layer              : 1
+FT_extra                   : False
+save_model                 : True
+resample                   : False
+val_ratio                  : 0.05
+activation                 : elu
+D                          : 64
+weight_decay               : 0.0001
+scheduler                  : plateau
+warmup                     : linear
+lr                         : 3e-05
+standardize_targets        : True
+kernel_balanced_loss       : True
+kernel_uniform_sampling    : False
+samples_per_kernel_per_epoch : 128
+rank_aux_weight            : 0.05
+rank_temperature           : 1.0
+pairwise_delta_weight      : 0.0
+pairwise_delta_start_epoch : 3
+pairwise_delta_ramp_epochs : 2
+pairwise_calibration_stable_epochs : 2
+pairwise_calibration_tolerance : 0.02
+rank_tie_relative          : 0.05
+rank_tie_epsilon           : None
+resource_aux_weight        : 0.1
+strict_paired_ablation     : False
+paired_control_contract    : None
+resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
+resource_boundary_tolerance : 0.02
+resource_budget_bank       : mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json
+resource_budget_count      : 16
+resource_budget_min_fraction : 0.05
+kernel_grouped_sampling    : True
+kernels_per_batch          : 16
+points_per_kernel          : 4
+warmup_epochs              : 3
+early_stopping_patience    : 8
+early_stopping_min_delta   : 0.0001
+plateau_patience           : 4
+plateau_factor             : 0.5
+evaluate_test              : False
+final_refit                : False
+final_refit_epochs         : None
+random_seed                : 123
+experiment_name            : paired_harp_smoke_s123
+allow_nondeterministic     : False
+batch_size                 : 64
+grad_accum_steps           : 1
+num_workers                : 2
+eval_num_workers           : 0
+prefetch_factor            : 1
+persistent_workers         : False
+loss                       : smooth_l1
+smooth_l1_beta             : 0.5
+epoch_num                  : 2
+sanity_print_n             : 0
+device                     : cuda:0
+tiny_overfit               : False
+tiny_overfit_kernel        : machsuite-gemm-blocked
+tiny_overfit_num_samples   : 64
+tiny_overfit_batch_size    : 16
+tiny_overfit_epochs        : 300
+tiny_overfit_workers       : 0
+resume_training            : False
+load_pretrained            : False
+explorer                   : exhaustive
+model_tag                  : test
+prune_util                 : True
+prune_class                : True
+print_every_iter           : 100
+plot_pred_points           : True
+user                       : elvouvali
+hostname                   : liono
+experiment_split_sha256    : d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c
+ts                         : 2026-08-31T11-56-48.313203
+Logging to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/paired_harp_smoke_s123
+Processing...
+Done!
+Read compact harp dataset from /home/elvouvali/MailoHLS/MailoHLS-next/artifacts/gnn_datasets/paired_representation_s123/development_locked/harp_dataset/all_kernels with 143321 samples
+[0m] INFO: Starting training with resample -1
+[0m] INFO: Reading dataset from /home/elvouvali/MailoHLS/MailoHLS-next/artifacts/gnn_datasets/paired_representation_s123/development_locked/harp_dataset/all_kernels
+Processing...
+Done!
+Training-only log2 target statistics: {'perf': {'mean': 3.37735940082625, 'std': 5.705605618731455, 'count': 130310, 'weighting': 'kernel_balanced'}, 'area': {'mean': 1.2500982018163675, 'std': 2.6363770588741953, 'count': 130310, 'weighting': 'kernel_balanced'}}
+Training-only raw resource diagnostics: {"bram": {"fraction_zero": 0.3934387230450464, "kernel_count": 50, "kernels_with_two_or_more_distinct_values": 37, "median_utilization": 0.019999999552965164, "p95_utilization": 0.5799999833106995, "train_mean_baseline": 0.12151903139811669, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.15362170544106366, "within_kernel_variance_mean": 0.017623856435568547, "within_kernel_variance_median": 0.0005965348261975675}, "dsp": {"fraction_zero": 0.5276341032921494, "kernel_count": 50, "kernels_with_two_or_more_distinct_values": 46, "median_utilization": 0.0, "p95_utilization": 0.2199999988079071, "train_mean_baseline": 0.03921122701411795, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.055305230523533415, "within_kernel_variance_mean": 0.007287331361889046, "within_kernel_variance_median": 0.0022539433009384196}, "ff": {"fraction_zero": 0.2016882817895787, "kernel_count": 50, "kernels_with_two_or_more_distinct_values": 49, "median_utilization": 0.029999999329447746, "p95_utilization": 0.30000001192092896, "train_mean_baseline": 0.0698031614612316, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.0717551098631549, "within_kernel_variance_mean": 0.009906669373931242, "within_kernel_variance_median": 0.007910375462193024}, "lut": {"fraction_zero": 0.037740772005218325, "kernel_count": 50, "kernels_with_two_or_more_distinct_values": 49, "median_utilization": 0.07999999821186066, "p95_utilization": 0.5799999833106995, "train_mean_baseline": 0.15149305482820882, "train_mean_baseline_macro_kendall_tau": 0.0, "train_mean_baseline_mae": 0.13342884362730875, "within_kernel_variance_mean": 0.025407363434205993, "within_kernel_variance_median": 0.022703110119869876}}
+Training-only resource statistics: {'names': ['bram', 'dsp', 'ff', 'lut'], 'transform': 'log1p', 'mean': [0.06416731457206976, 0.026851513424167712, 0.05754749197575783, 0.11144770539848171], 'std': [0.13132321954917744, 0.07544382461806877, 0.09012429451115099, 0.13686556348896986], 'count': 130310, 'weighting': 'kernel_balanced'}
+Deterministic validation baseline under the configured objective: total=0.6436, breakdown={'perf': 0.1261428901588476, 'area': 0.5174735157965046}
+Kernel-balanced split: 50 kernels, 130310 points, points/kernel=42..4923
+Kernel-balanced split: 4 kernels, 13011 points, points/kernel=1735..4035
+Rank-pair exposure: 96 nominal same-target-group pairs/batch, 9600 nominal pairs/epoch before tie filtering.
+Kernel-grouped sampling: 16 kernels x 4 points, 100 batches/epoch.
+[14m] INFO: num features for training: 403
+[14m] INFO: size of the edge attribute is 82
+task                       : regression
+subtask                    : train
+plot_dse                   : False
+vis_per_kernel             : True
+force_regen                : False
+allow_incomplete_dataset   : False
+min_allowed_latency        : 0.0
+epsilon                    : 1e-06
+normalizer                 : 10000000.0
+util_normalizer            : 1
+max_number                 : 10000000000.0
+norm_method                : log2
+new_speedup                : True
+invalid                    : False
+encode_log                 : False
+v_db                       : v21
+test_kernels               : serrano-kalman-filter
+val_kernels                : machsuite-sort-radix,
+                           : machsuite-viterbi,
+                           : rodinia_pathfinder_0_baseline_0,
+                           : rodinia_pathfinder_4_doublebuffer_0
+split_json                 : /home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json
+multi_target_qor           : True
+effective_area_floor       : 0.0625
+development_exclude_kernels : None
+target_kernel              : None
+all_kernels                : True
+dataset                    : harp
+benchmarks                 : ['machsuite',
+                           :  'poly']
+tag                        : whole-machsuite-poly
+graph_type                 : extended-pseudo-block-connected-hierarchy
+mlir_graph_dir             : GNN_branch/MLIR_graphs
+preprocessed_csv_dir       : artifacts/gnn_datasets/v13_all_targets_s123/preprocessed_CSVS
+mlir_dataset_cache_dir     : artifacts/gnn_datasets/paired_representation_s123/development_locked/mlir_dataset/all_kernels
+harp_graph_dir             : GNN_branch/HARP_graphs
+harp_dataset_cache_dir     : artifacts/gnn_datasets/paired_representation_s123/development_locked/harp_dataset/all_kernels
+encoder_path               : None
+pragma_dim_path            : None
+encode_edge                : True
+encode_edge_position       : True
+num_layers                 : 4
+num_features               : 403
+edge_dim                   : 82
+target                     : ['perf',
+                           :  'area']
+decompose_targets          : False
+target_mode                : absolute
+baseline_manifest          : None
+reference_delta_head       : anchored
+target_device              : xczu7ev-ffvc1156-2-e
+clock_period_ns            : 10.0
+vitis_hls_version          : 2021.1
+center_aux_weight          : 0.25
+qor_output_init_scale      : 0.1
+response_aux_weight        : 1.0
+checkpoint_objective       : qualified_lexicographic
+min_rank_tau               : 0.2
+max_kernel_zero_baseline_ratio : 1.25
+kernel_zero_baseline_additive_tolerance : 0.001
+MLP_common_lyr             : 0
+gnn_type                   : transformer
+dropout                    : 0.2
+graph_attention_heads      : 1
+graph_residual_beta        : False
+graph_layer_norm           : False
+jkn_mode                   : max
+jkn_enable                 : True
+node_attention             : True
+node_attention_MLP         : False
+separate_P                 : True
+separate_icmp              : False
+separate_T                 : False
+separate_pseudo            : True
+P_use_all_nodes            : True
+gae_T                      : False
+gae_P                      : False
+gnn_layer_after_MLP        : 1
+pragma_as_MLP              : True
+pragma_as_MLP_list         : ['pipeline',
+                           :  'unroll',
+                           :  'array_partition']
+pragma_scope               : block
+keep_pragma_attribute      : False
+pragma_order               : parallel_and_merge
+pragma_MLP_hidden_channels : [in_D // 2]
+merge_MLP_hidden_channels  : [in_D // 2]
+model_path                 : None
+ensemble                   : 0
+ensemble_weights           : None
+class_model_path           : None
+feature_extract            : False
+fix_gnn_layer              : 1
+FT_extra                   : False
+save_model                 : True
+resample                   : False
+val_ratio                  : 0.05
+activation                 : elu
+D                          : 64
+weight_decay               : 0.0001
+scheduler                  : plateau
+warmup                     : linear
+lr                         : 3e-05
+standardize_targets        : True
+kernel_balanced_loss       : True
+kernel_uniform_sampling    : False
+samples_per_kernel_per_epoch : 128
+rank_aux_weight            : 0.05
+rank_temperature           : 1.0
+pairwise_delta_weight      : 0.0
+pairwise_delta_start_epoch : 3
+pairwise_delta_ramp_epochs : 2
+pairwise_calibration_stable_epochs : 2
+pairwise_calibration_tolerance : 0.02
+rank_tie_relative          : 0.05
+rank_tie_epsilon           : None
+resource_aux_weight        : 0.1
+strict_paired_ablation     : False
+paired_control_contract    : None
+resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
+resource_boundary_tolerance : 0.02
+resource_budget_bank       : mailohls_runs/stage1_final_final_adp_s123/validation_resource_budget_bank.json
+resource_budget_count      : 16
+resource_budget_min_fraction : 0.05
+kernel_grouped_sampling    : True
+kernels_per_batch          : 16
+points_per_kernel          : 4
+warmup_epochs              : 3
+early_stopping_patience    : 8
+early_stopping_min_delta   : 0.0001
+plateau_patience           : 4
+plateau_factor             : 0.5
+evaluate_test              : False
+final_refit                : False
+final_refit_epochs         : None
+random_seed                : 123
+experiment_name            : paired_harp_smoke_s123
+allow_nondeterministic     : False
+batch_size                 : 64
+grad_accum_steps           : 1
+num_workers                : 2
+eval_num_workers           : 0
+prefetch_factor            : 1
+persistent_workers         : False
+loss                       : smooth_l1
+smooth_l1_beta             : 0.5
+epoch_num                  : 2
+sanity_print_n             : 0
+device                     : cuda:0
+tiny_overfit               : False
+tiny_overfit_kernel        : machsuite-gemm-blocked
+tiny_overfit_num_samples   : 64
+tiny_overfit_batch_size    : 16
+tiny_overfit_epochs        : 300
+tiny_overfit_workers       : 0
+resume_training            : False
+load_pretrained            : False
+explorer                   : exhaustive
+model_tag                  : test
+prune_util                 : True
+prune_class                : True
+print_every_iter           : 100
+plot_pred_points           : True
+user                       : elvouvali
+hostname                   : liono
+experiment_split_sha256    : d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c
+ts                         : 2026-08-31T11-56-48.313203
+Wrote captured GNN checkpoint contract -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/paired_harp_smoke_s123/run1/gnn_checkpoint_contract.json
+Model first param device: cuda:0
+Tesla V100S-PCIE-32GB
+Net(
+  (conv_first): TransformerConv(403, 64, heads=1)
+  (conv_layers): ModuleList(
+    (0-3): 4 x TransformerConv(64, 64, heads=1)
+  )
+  (graph_norms): ModuleList()
+  (jkn): JumpingKnowledge(max)
+  (loss_function): MSELoss()
+  (gate_nn_P): Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (glob_P): MyGlobalAttention(gate_nn=Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  ), nn=None)
+  (gate_nn_pseudo_B): Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (glob_pseudo_B): MyGlobalAttention(gate_nn=Sequential(
+    (0): Linear(in_features=64, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=1, bias=True)
+  ), nn=None)
+  (MLPs): MLP_multi_objective(
+    (activation): ELU(alpha=1.0)
+    (layers_common): ModuleList()
+    (MLP_heads): ModuleDict(
+      (perf): ModuleList(
+        (0): Linear(in_features=133, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=16, bias=True)
+        (2): Linear(in_features=16, out_features=8, bias=True)
+        (3): Linear(in_features=8, out_features=1, bias=True)
+      )
+      (area): ModuleList(
+        (0): Linear(in_features=133, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=16, bias=True)
+        (2): Linear(in_features=16, out_features=8, bias=True)
+        (3): Linear(in_features=8, out_features=1, bias=True)
+      )
+    )
+  )
+  (resource_heads): ModuleDict(
+    (bram): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=133, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+    (dsp): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=133, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+    (ff): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=133, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+    (lut): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=133, out_features=16, bias=True)
+        (1): Linear(in_features=16, out_features=1, bias=True)
+      )
+    )
+  )
+  (MLPs_per_pragma): ModuleDict(
+    (pipeline): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=65, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=64, bias=True)
+      )
+    )
+    (unroll): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=65, out_features=32, bias=True)
+        (1): Linear(in_features=32, out_features=64, bias=True)
+      )
+    )
+    (array_partition): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=67, out_features=33, bias=True)
+        (1): Linear(in_features=33, out_features=64, bias=True)
+      )
+    )
+    (merge): MLP(
+      (activation): ELU(alpha=1.0)
+      (layers): ModuleList(
+        (0): Linear(in_features=192, out_features=33, bias=True)
+        (1): Linear(in_features=33, out_features=64, bias=True)
+      )
+    )
+  )
+)
+
+Optimization schedule: steps=200, updates_per_epoch=100, grad_accum_steps=1, warmup_steps=199 (3 fixed epochs)
+  0%|          | 0/204 [00:00<?, ?it/s]  0%|          | 1/204 [00:00<03:21,  1.01it/s]  1%|          | 2/204 [00:01<02:10,  1.55it/s]  1%|▏         | 3/204 [00:01<01:44,  1.92it/s]  2%|▏         | 4/204 [00:02<01:32,  2.17it/s]  2%|▏         | 5/204 [00:02<01:25,  2.34it/s]  3%|▎         | 6/204 [00:02<01:15,  2.64it/s]  3%|▎         | 7/204 [00:03<01:14,  2.66it/s]  4%|▍         | 8/204 [00:03<01:13,  2.67it/s]  4%|▍         | 9/204 [00:03<01:07,  2.90it/s]  5%|▍         | 10/204 [00:04<01:01,  3.14it/s]  5%|▌         | 11/204 [00:04<00:56,  3.41it/s]  6%|▌         | 12/204 [00:04<00:54,  3.54it/s]  6%|▋         | 13/204 [00:04<00:51,  3.70it/s]  7%|▋         | 14/204 [00:05<00:51,  3.69it/s]  7%|▋         | 15/204 [00:05<00:52,  3.63it/s]  8%|▊         | 16/204 [00:05<00:49,  3.79it/s]  8%|▊         | 17/204 [00:05<00:50,  3.70it/s]  9%|▉         | 18/204 [00:06<00:51,  3.64it/s]  9%|▉         | 19/204 [00:06<00:48,  3.80it/s] 10%|▉         | 20/204 [00:06<00:49,  3.70it/s] 10%|█         | 21/204 [00:06<00:50,  3.63it/s] 11%|█         | 22/204 [00:07<00:50,  3.58it/s] 11%|█▏        | 23/204 [00:07<00:51,  3.55it/s] 12%|█▏        | 24/204 [00:07<00:51,  3.50it/s] 12%|█▏        | 25/204 [00:08<00:51,  3.46it/s] 13%|█▎        | 26/204 [00:08<00:52,  3.42it/s] 13%|█▎        | 27/204 [00:08<00:52,  3.37it/s] 14%|█▎        | 28/204 [00:09<00:52,  3.35it/s] 14%|█▍        | 29/204 [00:09<00:52,  3.32it/s] 15%|█▍        | 30/204 [00:09<00:45,  3.83it/s] 15%|█▌        | 31/204 [00:09<00:40,  4.30it/s] 16%|█▌        | 32/204 [00:09<00:36,  4.66it/s] 16%|█▌        | 33/204 [00:10<00:34,  4.97it/s] 17%|█▋        | 34/204 [00:10<00:39,  4.34it/s] 17%|█▋        | 35/204 [00:10<00:41,  4.04it/s] 18%|█▊        | 36/204 [00:10<00:43,  3.83it/s] 18%|█▊        | 37/204 [00:11<00:49,  3.40it/s] 19%|█▊        | 38/204 [00:11<00:51,  3.22it/s] 19%|█▉        | 39/204 [00:11<00:51,  3.21it/s] 20%|█▉        | 40/204 [00:12<00:51,  3.16it/s] 20%|██        | 41/204 [00:12<00:51,  3.18it/s] 21%|██        | 42/204 [00:12<00:50,  3.21it/s] 21%|██        | 43/204 [00:13<00:50,  3.16it/s] 22%|██▏       | 44/204 [00:13<00:50,  3.19it/s] 22%|██▏       | 45/204 [00:13<00:49,  3.21it/s] 23%|██▎       | 46/204 [00:14<00:49,  3.19it/s] 23%|██▎       | 47/204 [00:14<00:48,  3.21it/s] 24%|██▎       | 48/204 [00:14<00:50,  3.11it/s] 24%|██▍       | 49/204 [00:15<00:51,  3.03it/s] 25%|██▍       | 50/204 [00:15<00:52,  2.94it/s] 25%|██▌       | 51/204 [00:15<00:50,  3.02it/s] 25%|██▌       | 52/204 [00:16<00:52,  2.88it/s] 26%|██▌       | 53/204 [00:16<00:49,  3.03it/s] 26%|██▋       | 54/204 [00:16<00:51,  2.89it/s] 27%|██▋       | 55/204 [00:17<00:49,  3.04it/s] 27%|██▋       | 56/204 [00:17<00:50,  2.91it/s] 28%|██▊       | 57/204 [00:17<00:52,  2.82it/s] 28%|██▊       | 58/204 [00:18<00:49,  2.92it/s] 29%|██▉       | 59/204 [00:18<00:47,  3.06it/s] 29%|██▉       | 60/204 [00:18<00:45,  3.13it/s] 30%|██▉       | 61/204 [00:19<00:44,  3.22it/s] 30%|███       | 62/204 [00:19<00:43,  3.30it/s] 31%|███       | 63/204 [00:19<00:42,  3.30it/s] 31%|███▏      | 64/204 [00:20<00:42,  3.33it/s] 32%|███▏      | 65/204 [00:20<00:41,  3.33it/s] 32%|███▏      | 66/204 [00:20<00:41,  3.36it/s] 33%|███▎      | 67/204 [00:20<00:37,  3.68it/s] 33%|███▎      | 68/204 [00:21<00:37,  3.61it/s] 34%|███▍      | 69/204 [00:21<00:38,  3.53it/s] 34%|███▍      | 70/204 [00:21<00:38,  3.48it/s] 35%|███▍      | 71/204 [00:22<00:39,  3.36it/s] 35%|███▌      | 72/204 [00:22<00:39,  3.35it/s] 36%|███▌      | 73/204 [00:22<00:38,  3.36it/s] 36%|███▋      | 74/204 [00:22<00:39,  3.28it/s] 37%|███▋      | 75/204 [00:23<00:39,  3.29it/s] 37%|███▋      | 76/204 [00:23<00:38,  3.31it/s] 38%|███▊      | 77/204 [00:23<00:39,  3.25it/s] 38%|███▊      | 78/204 [00:24<00:38,  3.26it/s] 39%|███▊      | 79/204 [00:24<00:37,  3.29it/s] 39%|███▉      | 80/204 [00:24<00:40,  3.08it/s] 40%|███▉      | 81/204 [00:25<00:41,  2.96it/s] 40%|████      | 82/204 [00:25<00:42,  2.88it/s] 41%|████      | 83/204 [00:25<00:42,  2.82it/s] 41%|████      | 84/204 [00:26<00:43,  2.78it/s] 42%|████▏     | 85/204 [00:26<00:43,  2.77it/s] 42%|████▏     | 86/204 [00:27<00:42,  2.75it/s] 43%|████▎     | 87/204 [00:27<00:42,  2.74it/s] 43%|████▎     | 88/204 [00:27<00:40,  2.88it/s] 44%|████▎     | 89/204 [00:28<00:40,  2.84it/s] 44%|████▍     | 90/204 [00:28<00:40,  2.80it/s] 45%|████▍     | 91/204 [00:28<00:40,  2.78it/s] 45%|████▌     | 92/204 [00:29<00:38,  2.93it/s] 46%|████▌     | 93/204 [00:29<00:34,  3.18it/s] 46%|████▌     | 94/204 [00:29<00:32,  3.34it/s] 47%|████▋     | 95/204 [00:29<00:31,  3.46it/s] 47%|████▋     | 96/204 [00:30<00:30,  3.54it/s] 48%|████▊     | 97/204 [00:30<00:41,  2.57it/s] 48%|████▊     | 98/204 [00:31<00:37,  2.80it/s] 49%|████▊     | 99/204 [00:31<00:34,  3.01it/s] 49%|████▉     | 100/204 [00:31<00:31,  3.29it/s] 50%|████▉     | 101/204 [00:31<00:30,  3.38it/s] 50%|█████     | 102/204 [00:32<00:29,  3.44it/s] 50%|█████     | 103/204 [00:32<00:26,  3.78it/s] 51%|█████     | 104/204 [00:32<00:27,  3.68it/s] 51%|█████▏    | 105/204 [00:32<00:27,  3.62it/s] 52%|█████▏    | 106/204 [00:33<00:27,  3.58it/s] 52%|█████▏    | 107/204 [00:33<00:26,  3.64it/s] 53%|█████▎    | 108/204 [00:33<00:26,  3.60it/s] 53%|█████▎    | 109/204 [00:34<00:25,  3.69it/s] 54%|█████▍    | 110/204 [00:34<00:25,  3.65it/s] 54%|█████▍    | 111/204 [00:34<00:25,  3.66it/s] 55%|█████▍    | 112/204 [00:34<00:25,  3.56it/s] 55%|█████▌    | 113/204 [00:35<00:26,  3.48it/s] 56%|█████▌    | 114/204 [00:35<00:25,  3.50it/s] 56%|█████▋    | 115/204 [00:35<00:25,  3.46it/s] 57%|█████▋    | 116/204 [00:36<00:25,  3.44it/s] 57%|█████▋    | 117/204 [00:36<00:24,  3.60it/s] 58%|█████▊    | 118/204 [00:36<00:23,  3.59it/s] 58%|█████▊    | 119/204 [00:36<00:23,  3.65it/s] 59%|█████▉    | 120/204 [00:37<00:22,  3.75it/s] 59%|█████▉    | 121/204 [00:37<00:22,  3.71it/s] 60%|█████▉    | 122/204 [00:37<00:22,  3.69it/s] 60%|██████    | 123/204 [00:37<00:21,  3.73it/s] 61%|██████    | 124/204 [00:38<00:21,  3.74it/s] 61%|██████▏   | 125/204 [00:38<00:21,  3.73it/s] 62%|██████▏   | 126/204 [00:38<00:20,  3.85it/s] 62%|██████▏   | 127/204 [00:38<00:20,  3.83it/s] 63%|██████▎   | 128/204 [00:39<00:19,  3.86it/s] 63%|██████▎   | 129/204 [00:39<00:19,  3.93it/s] 64%|██████▎   | 130/204 [00:39<00:18,  4.02it/s] 64%|██████▍   | 131/204 [00:39<00:18,  4.05it/s] 65%|██████▍   | 132/204 [00:40<00:17,  4.05it/s] 65%|██████▌   | 133/204 [00:40<00:16,  4.29it/s] 66%|██████▌   | 134/204 [00:40<00:17,  4.05it/s] 66%|██████▌   | 135/204 [00:40<00:17,  4.00it/s] 67%|██████▋   | 136/204 [00:41<00:17,  3.91it/s] 67%|██████▋   | 137/204 [00:41<00:17,  3.88it/s] 68%|██████▊   | 138/204 [00:41<00:17,  3.84it/s] 68%|██████▊   | 139/204 [00:42<00:17,  3.70it/s] 69%|██████▊   | 140/204 [00:42<00:17,  3.71it/s] 69%|██████▉   | 141/204 [00:42<00:16,  3.77it/s] 70%|██████▉   | 142/204 [00:42<00:15,  3.94it/s] 70%|███████   | 143/204 [00:43<00:17,  3.54it/s] 71%|███████   | 144/204 [00:43<00:17,  3.51it/s] 71%|███████   | 145/204 [00:43<00:17,  3.33it/s] 72%|███████▏  | 146/204 [00:44<00:17,  3.35it/s] 72%|███████▏  | 147/204 [00:44<00:17,  3.22it/s] 73%|███████▎  | 148/204 [00:44<00:17,  3.14it/s] 73%|███████▎  | 149/204 [00:45<00:17,  3.16it/s] 74%|███████▎  | 150/204 [00:45<00:17,  3.08it/s] 74%|███████▍  | 151/204 [00:45<00:17,  3.05it/s] 75%|███████▍  | 152/204 [00:46<00:17,  3.05it/s] 75%|███████▌  | 153/204 [00:46<00:16,  3.01it/s] 75%|███████▌  | 154/204 [00:46<00:16,  2.97it/s] 76%|███████▌  | 155/204 [00:47<00:16,  2.91it/s] 76%|███████▋  | 156/204 [00:47<00:15,  3.01it/s] 77%|███████▋  | 157/204 [00:47<00:15,  2.96it/s] 77%|███████▋  | 158/204 [00:48<00:15,  2.92it/s] 78%|███████▊  | 159/204 [00:48<00:15,  2.87it/s] 78%|███████▊  | 160/204 [00:48<00:14,  2.94it/s] 79%|███████▉  | 161/204 [00:49<00:14,  2.90it/s] 79%|███████▉  | 162/204 [00:49<00:12,  3.28it/s] 80%|███████▉  | 163/204 [00:49<00:11,  3.66it/s] 80%|████████  | 164/204 [00:49<00:10,  4.00it/s] 81%|████████  | 165/204 [00:50<00:10,  3.61it/s] 81%|████████▏ | 166/204 [00:50<00:11,  3.33it/s] 82%|████████▏ | 167/204 [00:50<00:11,  3.19it/s] 82%|████████▏ | 168/204 [00:51<00:11,  3.09it/s] 83%|████████▎ | 169/204 [00:51<00:12,  2.88it/s] 83%|████████▎ | 170/204 [00:51<00:11,  2.89it/s] 84%|████████▍ | 171/204 [00:52<00:11,  2.93it/s] 84%|████████▍ | 172/204 [00:52<00:11,  2.91it/s] 85%|████████▍ | 173/204 [00:52<00:10,  2.91it/s] 85%|████████▌ | 174/204 [00:53<00:09,  3.04it/s] 86%|████████▌ | 175/204 [00:53<00:09,  3.01it/s] 86%|████████▋ | 176/204 [00:53<00:09,  3.01it/s] 87%|████████▋ | 177/204 [00:54<00:08,  3.07it/s] 87%|████████▋ | 178/204 [00:54<00:08,  3.02it/s] 88%|████████▊ | 179/204 [00:54<00:08,  2.94it/s] 88%|████████▊ | 180/204 [00:55<00:08,  2.96it/s] 89%|████████▊ | 181/204 [00:55<00:08,  2.76it/s] 89%|████████▉ | 182/204 [00:56<00:08,  2.64it/s] 90%|████████▉ | 183/204 [00:56<00:08,  2.57it/s] 90%|█████████ | 184/204 [00:56<00:07,  2.61it/s] 91%|█████████ | 185/204 [00:57<00:07,  2.64it/s] 91%|█████████ | 186/204 [00:57<00:06,  2.68it/s] 92%|█████████▏| 187/204 [00:57<00:06,  2.78it/s] 92%|█████████▏| 188/204 [00:58<00:05,  2.80it/s] 93%|█████████▎| 189/204 [00:58<00:05,  2.85it/s] 93%|█████████▎| 190/204 [00:58<00:04,  2.84it/s] 94%|█████████▎| 191/204 [00:59<00:04,  2.82it/s] 94%|█████████▍| 192/204 [00:59<00:04,  2.83it/s] 95%|█████████▍| 193/204 [01:00<00:04,  2.64it/s] 95%|█████████▌| 194/204 [01:00<00:03,  2.65it/s] 96%|█████████▌| 195/204 [01:00<00:03,  2.80it/s] 96%|█████████▌| 196/204 [01:01<00:02,  2.80it/s] 97%|█████████▋| 197/204 [01:01<00:02,  2.81it/s] 97%|█████████▋| 198/204 [01:01<00:02,  2.99it/s] 98%|█████████▊| 199/204 [01:02<00:01,  2.96it/s] 98%|█████████▊| 200/204 [01:02<00:01,  2.95it/s] 99%|█████████▊| 201/204 [01:02<00:00,  3.04it/s] 99%|█████████▉| 202/204 [01:03<00:00,  2.98it/s]100%|█████████▉| 203/204 [01:03<00:00,  2.96it/s]100%|██████████| 204/204 [01:03<00:00,  3.23it/s]100%|██████████| 204/204 [01:03<00:00,  3.20it/s]
+[initial_val] epoch -1
+        target   aggregation  samples  kernels    mape     rmse       mse  \
+0   latency_ms   point_micro    13011        4  1.8084  15.3586  235.8875   
+1   latency_ms        kernel     4035        1  3.8813   5.1487   26.5095   
+2   latency_ms        kernel     3329        1  1.1917  14.3593  206.1893   
+3   latency_ms        kernel     1735        1  0.5232  23.5293  553.6268   
+4   latency_ms        kernel     3912        1  0.7650  18.3358  336.2015   
+5   latency_ms  kernel_macro    13011        4  1.5903  15.3433  280.6318   
+6   area_score   point_micro    13011        4  2.5201   6.4091   41.0769   
+7   area_score        kernel     4035        1  4.0524   1.3185    1.7386   
+8   area_score        kernel     3329        1  0.8495   6.9563   48.3902   
+9   area_score        kernel     1735        1  2.1182  10.4259  108.7002   
+10  area_score        kernel     3912        1  2.5396   6.7407   45.4371   
+11  area_score  kernel_macro    13011        4  2.3899   6.3604   51.0665   
+
+        mae   max_err     tau                               kernel  
+0   10.0065  152.2575 -0.0935                                  NaN  
+1    4.9848    8.2553 -0.2843                 machsuite-sort-radix  
+2    6.4597   76.4763 -0.2361                    machsuite-viterbi  
+3   14.5393  152.2575  0.0677      rodinia_pathfinder_0_baseline_0  
+4   16.1939   53.6480 -0.1354  rodinia_pathfinder_4_doublebuffer_0  
+5   10.5444   72.6593 -0.1470                                       
+6    3.4485   41.3805  0.2741                                  NaN  
+7    0.8392   15.6821  0.0780                 machsuite-sort-radix  
+8    4.2961   41.3805 -0.0903                    machsuite-viterbi  
+9    6.4735   31.3908 -0.2547      rodinia_pathfinder_0_baseline_0  
+10   4.0770   36.8390  0.0516  rodinia_pathfinder_4_doublebuffer_0  
+11   3.9214   31.3231 -0.0538                                       
+[initial_val] epoch -1 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 4.073090106248856, 'bias_percentage_points': 2.053684741258621, 'kernel_macro_tau': -0.04544830224750663, 'constant_train_mean_validation_mae_percentage_points': 9.660611301660538, 'mae_baseline_ratio': 0.42161825779583356, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 16.51986539363861, 'bias_percentage_points': 16.51986539363861, 'kernel_macro_tau': 0.0075406649422480425, 'constant_train_mean_validation_mae_percentage_points': 3.9174895733594894, 'mae_baseline_ratio': 4.216951975055751, 'beats_constant_train_mean': False}, {'resource': 'ff', 'mae_percentage_points': 7.84992128610611, 'bias_percentage_points': 6.790066510438919, 'kernel_macro_tau': 0.002868305604691983, 'constant_train_mean_validation_mae_percentage_points': 5.995739996433258, 'mae_baseline_ratio': 1.3092497824748681, 'beats_constant_train_mean': False}, {'resource': 'lut', 'mae_percentage_points': 10.84359958767891, 'bias_percentage_points': -10.84359958767891, 'kernel_macro_tau': 0.038910958239075345, 'constant_train_mean_validation_mae_percentage_points': 13.15256953239441, 'mae_baseline_ratio': 0.8244472352699925, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.8707561728395061, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.5714285714285714, 'boundary_balanced_accuracy': 0.55, 'boundary_samples': 21, 'sample_count': 10368}, {'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.8184189406099518, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.7246376811594203, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 69, 'sample_count': 9968}, {'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7610169491525424, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.7027027027027027, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 37, 'sample_count': 9440}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.6811730506155951, 'false_feasible_fdr': 0.006031528444139822, 'false_feasible_rate': 0.003761969904240766, 'boundary_accuracy': 0.4299835255354201, 'boundary_balanced_accuracy': 0.49166500077741504, 'boundary_samples': 607, 'sample_count': 11696}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.6195723684210527, 'false_feasible_fdr': 0.0032394366197183097, 'false_feasible_rate': 0.0018914473684210527, 'boundary_accuracy': 0.38071065989847713, 'boundary_balanced_accuracy': 0.5079263366115956, 'boundary_samples': 394, 'sample_count': 12160}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6149341142020498, 'false_feasible_fdr': 0.007226145508293644, 'false_feasible_rate': 0.004026354319180088, 'boundary_accuracy': 0.3892100192678227, 'boundary_balanced_accuracy': 0.4951868718592965, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.7652981171548117, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.44285714285714284, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 350, 'sample_count': 7648}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.732377408056042, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.4727272727272727, 'boundary_balanced_accuracy': 0.5028571428571429, 'boundary_samples': 330, 'sample_count': 9136}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7027439024390244, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.48494983277591974, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 299, 'sample_count': 9840}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.6666666666666666, 'false_feasible_fdr': 0.31146144013634425, 'false_feasible_rate': 0.14857723577235774, 'boundary_accuracy': 0.4365436543654365, 'boundary_balanced_accuracy': 0.41811983228182925, 'boundary_samples': 2222, 'sample_count': 9840}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.6837335216572504, 'false_feasible_fdr': 0.24658240907918494, 'false_feasible_rate': 0.11252354048964218, 'boundary_accuracy': 0.5163246268656716, 'boundary_balanced_accuracy': 0.45578605793688864, 'boundary_samples': 2144, 'sample_count': 8496}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6651011560693642, 'false_feasible_fdr': 0.2648132547037349, 'false_feasible_rate': 0.1135597302504817, 'boundary_accuracy': 0.5010548523206751, 'boundary_balanced_accuracy': 0.46788800186113955, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.48050213675213677, 'false_feasible_fdr': 0.06677658697444352, 'false_feasible_rate': 0.021634615384615384, 'boundary_accuracy': 0.4971751412429379, 'boundary_balanced_accuracy': 0.5147849462365591, 'boundary_samples': 531, 'sample_count': 3744}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.4877358490566038, 'false_feasible_fdr': 0.06903914590747331, 'false_feasible_rate': 0.022877358490566036, 'boundary_accuracy': 0.502454991816694, 'boundary_balanced_accuracy': 0.5196530239553121, 'boundary_samples': 611, 'sample_count': 4240}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.5008259911894273, 'false_feasible_fdr': 0.13808463251670378, 'false_feasible_rate': 0.051211453744493395, 'boundary_accuracy': 0.5040322580645161, 'boundary_balanced_accuracy': 0.4897653194263364, 'boundary_samples': 496, 'sample_count': 3632}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.600095785440613, 'false_feasible_fdr': 0.30960086299892126, 'false_feasible_rate': 0.13745210727969348, 'boundary_accuracy': 0.4922048997772829, 'boundary_balanced_accuracy': 0.4666066426570628, 'boundary_samples': 449, 'sample_count': 4176}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.6394097222222223, 'false_feasible_fdr': 0.22576923076923078, 'false_feasible_rate': 0.10190972222222222, 'boundary_accuracy': 0.6050552922590837, 'boundary_balanced_accuracy': 0.5176879584352079, 'boundary_samples': 633, 'sample_count': 5760}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6436855670103093, 'false_feasible_fdr': 0.2555266579973992, 'false_feasible_rate': 0.12661082474226804, 'boundary_accuracy': 0.6160458452722063, 'boundary_balanced_accuracy': 0.5566452515187273, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.4883720930232558, 'false_feasible_fdr': 0.00037488284910965324, 'false_feasible_rate': 0.0001709986320109439, 'boundary_accuracy': 0.5501432664756447, 'boundary_balanced_accuracy': 0.5031645569620253, 'boundary_samples': 349, 'sample_count': 11696}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.5244819518716578, 'false_feasible_fdr': 0.003303358414387961, 'false_feasible_rate': 0.0015040106951871657, 'boundary_accuracy': 0.5120593692022264, 'boundary_balanced_accuracy': 0.525221202348466, 'boundary_samples': 539, 'sample_count': 11968}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.5133641479099679, 'false_feasible_fdr': 0.0004038772213247173, 'false_feasible_rate': 0.00020096463022508038, 'boundary_accuracy': 0.474025974025974, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 154, 'sample_count': 9952}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.6665521978021978, 'false_feasible_fdr': 0.08438324055083504, 'false_feasible_rate': 0.03296703296703297, 'boundary_accuracy': 0.535483870967742, 'boundary_balanced_accuracy': 0.6131550964605803, 'boundary_samples': 1860, 'sample_count': 8736}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 15, 'accuracy': 0.6169909208819715, 'false_feasible_fdr': 0.08020924149956409, 'false_feasible_rate': 0.0357976653696498, 'boundary_accuracy': 0.42994858611825193, 'boundary_balanced_accuracy': 0.5831191088260497, 'boundary_samples': 1556, 'sample_count': 7710}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6456391478029294, 'false_feasible_fdr': 0.14063185607722686, 'false_feasible_rate': 0.05334553928095872, 'boundary_accuracy': 0.48452768729641693, 'boundary_balanced_accuracy': 0.5449269016517064, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.6512939295586097, 'false_feasible_fdr': 0.061388375616292, 'false_feasible_rate': 0.03375677784091456, 'boundary_accuracy': 0.490894901144641, 'boundary_balanced_accuracy': 0.5042056105180942, 'boundary_samples': 19220, 'sample_count': 207662}, 'all_resource_heads_beat_constant_baseline': False}
+[initial_val] latency_ms physical RMSE: 15.3586 | MAE: 10.0065 | MAPE: 180.84% | tau-b: -0.0935
+[initial_val] area_score physical RMSE: 6.4091 | MAE: 3.4485 | MAPE: 252.01% | tau-b: 0.2741
+Untrained validation loss: 0.7271; breakdown={'perf': 0.12096247298369701, 'area': 0.5160120499508798}; target-balanced selection=0.9972; relative target losses={'area': 0.9971757668730635, 'perf': 0.9589321509232342}
+Initial validation GAE loss: 0
+Initial validation loss breakdown {'perf': 0.12096247298369701, 'area': 0.5160120499508798}
+Pairwise delta auxiliary weight at epoch 0: 0.000000
+Test batch ID (resample): -1 - Epoch 0 train
+  0%|          | 0/100 [00:00<?, ?it/s]epoch = 0, learning rate = 9.999999999999999e-06
+  1%|          | 1/100 [00:01<02:42,  1.64s/it]  2%|▏         | 2/100 [00:02<01:44,  1.06s/it]  3%|▎         | 3/100 [00:03<01:28,  1.10it/s]  4%|▍         | 4/100 [00:03<01:18,  1.23it/s]  5%|▌         | 5/100 [00:04<01:16,  1.24it/s]  6%|▌         | 6/100 [00:05<01:14,  1.27it/s]  7%|▋         | 7/100 [00:05<01:12,  1.29it/s]  8%|▊         | 8/100 [00:06<01:10,  1.31it/s]  9%|▉         | 9/100 [00:07<01:10,  1.30it/s] 10%|█         | 10/100 [00:08<01:13,  1.23it/s] 11%|█         | 11/100 [00:09<01:07,  1.32it/s] 12%|█▏        | 12/100 [00:09<01:08,  1.29it/s] 13%|█▎        | 13/100 [00:10<01:07,  1.28it/s] 14%|█▍        | 14/100 [00:11<01:02,  1.37it/s] 15%|█▌        | 15/100 [00:11<01:00,  1.40it/s] 16%|█▌        | 16/100 [00:12<00:57,  1.45it/s] 17%|█▋        | 17/100 [00:13<00:55,  1.50it/s] 18%|█▊        | 18/100 [00:14<00:58,  1.41it/s] 19%|█▉        | 19/100 [00:14<01:01,  1.32it/s] 20%|██        | 20/100 [00:15<01:00,  1.32it/s] 21%|██        | 21/100 [00:16<01:00,  1.31it/s] 22%|██▏       | 22/100 [00:17<00:59,  1.31it/s] 23%|██▎       | 23/100 [00:18<01:02,  1.24it/s] 24%|██▍       | 24/100 [00:19<01:05,  1.17it/s] 25%|██▌       | 25/100 [00:19<01:03,  1.19it/s] 26%|██▌       | 26/100 [00:20<01:00,  1.23it/s] 27%|██▋       | 27/100 [00:21<00:56,  1.29it/s] 28%|██▊       | 28/100 [00:21<00:54,  1.33it/s] 29%|██▉       | 29/100 [00:22<00:51,  1.37it/s] 30%|███       | 30/100 [00:23<00:48,  1.44it/s] 31%|███       | 31/100 [00:24<00:51,  1.33it/s] 32%|███▏      | 32/100 [00:24<00:50,  1.34it/s] 33%|███▎      | 33/100 [00:25<00:48,  1.39it/s] 34%|███▍      | 34/100 [00:26<00:49,  1.32it/s] 35%|███▌      | 35/100 [00:27<00:49,  1.31it/s] 36%|███▌      | 36/100 [00:27<00:49,  1.29it/s] 37%|███▋      | 37/100 [00:28<00:49,  1.27it/s] 38%|███▊      | 38/100 [00:29<00:50,  1.23it/s] 39%|███▉      | 39/100 [00:30<00:46,  1.31it/s] 40%|████      | 40/100 [00:31<00:44,  1.34it/s] 41%|████      | 41/100 [00:31<00:42,  1.39it/s] 42%|████▏     | 42/100 [00:32<00:42,  1.38it/s] 43%|████▎     | 43/100 [00:33<00:42,  1.35it/s] 44%|████▍     | 44/100 [00:33<00:41,  1.35it/s] 45%|████▌     | 45/100 [00:34<00:41,  1.33it/s] 46%|████▌     | 46/100 [00:35<00:41,  1.31it/s] 47%|████▋     | 47/100 [00:36<00:42,  1.25it/s] 48%|████▊     | 48/100 [00:37<00:42,  1.24it/s] 49%|████▉     | 49/100 [00:38<00:42,  1.21it/s] 50%|█████     | 50/100 [00:38<00:39,  1.28it/s] 51%|█████     | 51/100 [00:39<00:39,  1.24it/s] 52%|█████▏    | 52/100 [00:39<00:31,  1.54it/s] 53%|█████▎    | 53/100 [00:40<00:29,  1.60it/s] 54%|█████▍    | 54/100 [00:41<00:28,  1.59it/s] 55%|█████▌    | 55/100 [00:41<00:28,  1.58it/s] 56%|█████▌    | 56/100 [00:42<00:29,  1.49it/s] 57%|█████▋    | 57/100 [00:43<00:29,  1.44it/s] 58%|█████▊    | 58/100 [00:43<00:29,  1.44it/s] 59%|█████▉    | 59/100 [00:44<00:30,  1.36it/s] 60%|██████    | 60/100 [00:45<00:29,  1.34it/s] 61%|██████    | 61/100 [00:46<00:29,  1.33it/s] 62%|██████▏   | 62/100 [00:47<00:29,  1.28it/s] 63%|██████▎   | 63/100 [00:48<00:30,  1.20it/s] 64%|██████▍   | 64/100 [00:48<00:29,  1.22it/s] 65%|██████▌   | 65/100 [00:49<00:26,  1.34it/s] 66%|██████▌   | 66/100 [00:50<00:23,  1.43it/s] 67%|██████▋   | 67/100 [00:50<00:21,  1.54it/s] 68%|██████▊   | 68/100 [00:51<00:19,  1.61it/s] 69%|██████▉   | 69/100 [00:51<00:19,  1.60it/s] 70%|███████   | 70/100 [00:52<00:19,  1.58it/s] 71%|███████   | 71/100 [00:53<00:18,  1.55it/s] 72%|███████▏  | 72/100 [00:53<00:18,  1.54it/s] 73%|███████▎  | 73/100 [00:54<00:14,  1.83it/s] 74%|███████▍  | 74/100 [00:54<00:15,  1.68it/s] 75%|███████▌  | 75/100 [00:55<00:15,  1.58it/s] 76%|███████▌  | 76/100 [00:56<00:15,  1.55it/s] 77%|███████▋  | 77/100 [00:56<00:14,  1.55it/s] 78%|███████▊  | 78/100 [00:57<00:14,  1.51it/s] 79%|███████▉  | 79/100 [00:58<00:14,  1.43it/s] 80%|████████  | 80/100 [00:59<00:14,  1.37it/s] 81%|████████  | 81/100 [00:59<00:14,  1.34it/s] 82%|████████▏ | 82/100 [01:00<00:13,  1.32it/s] 83%|████████▎ | 83/100 [01:01<00:12,  1.35it/s] 84%|████████▍ | 84/100 [01:02<00:12,  1.31it/s] 85%|████████▌ | 85/100 [01:02<00:10,  1.39it/s] 86%|████████▌ | 86/100 [01:03<00:09,  1.51it/s] 87%|████████▋ | 87/100 [01:04<00:08,  1.49it/s] 88%|████████▊ | 88/100 [01:04<00:08,  1.49it/s] 89%|████████▉ | 89/100 [01:05<00:07,  1.53it/s] 90%|█████████ | 90/100 [01:05<00:06,  1.53it/s] 91%|█████████ | 91/100 [01:06<00:05,  1.53it/s] 92%|█████████▏| 92/100 [01:07<00:05,  1.53it/s] 93%|█████████▎| 93/100 [01:07<00:04,  1.56it/s] 94%|█████████▍| 94/100 [01:08<00:03,  1.58it/s] 95%|█████████▌| 95/100 [01:09<00:03,  1.63it/s] 96%|█████████▌| 96/100 [01:09<00:02,  1.61it/s] 97%|█████████▋| 97/100 [01:10<00:01,  1.60it/s] 98%|█████████▊| 98/100 [01:11<00:01,  1.54it/s] 99%|█████████▉| 99/100 [01:11<00:00,  1.52it/s]100%|██████████| 100/100 [01:12<00:00,  1.49it/s]100%|██████████| 100/100 [01:12<00:00,  1.38it/s]
+Saved train model at epoch 0
+Epoch 0 val
+  0%|          | 0/204 [00:00<?, ?it/s]  0%|          | 1/204 [00:00<01:02,  3.26it/s]  1%|          | 2/204 [00:00<01:00,  3.33it/s]  1%|▏         | 3/204 [00:00<01:04,  3.10it/s]  2%|▏         | 4/204 [00:01<01:01,  3.23it/s]  2%|▏         | 5/204 [00:01<01:00,  3.29it/s]  3%|▎         | 6/204 [00:01<00:59,  3.34it/s]  3%|▎         | 7/204 [00:02<00:58,  3.38it/s]  4%|▍         | 8/204 [00:02<00:58,  3.37it/s]  4%|▍         | 9/204 [00:02<00:57,  3.38it/s]  5%|▍         | 10/204 [00:03<00:57,  3.36it/s]  5%|▌         | 11/204 [00:03<00:57,  3.38it/s]  6%|▌         | 12/204 [00:03<00:55,  3.43it/s]  6%|▋         | 13/204 [00:03<00:48,  3.96it/s]  7%|▋         | 14/204 [00:03<00:42,  4.43it/s]  7%|▋         | 15/204 [00:04<00:39,  4.81it/s]  8%|▊         | 16/204 [00:04<00:43,  4.35it/s]  8%|▊         | 17/204 [00:04<00:44,  4.21it/s]  9%|▉         | 18/204 [00:04<00:49,  3.79it/s]  9%|▉         | 19/204 [00:05<00:49,  3.70it/s] 10%|▉         | 20/204 [00:05<00:50,  3.66it/s] 10%|█         | 21/204 [00:05<00:51,  3.57it/s] 11%|█         | 22/204 [00:06<00:51,  3.54it/s] 11%|█▏        | 23/204 [00:06<00:51,  3.50it/s] 12%|█▏        | 24/204 [00:06<00:52,  3.43it/s] 12%|█▏        | 25/204 [00:06<00:52,  3.44it/s] 13%|█▎        | 26/204 [00:07<00:51,  3.43it/s] 13%|█▎        | 27/204 [00:07<00:52,  3.38it/s] 14%|█▎        | 28/204 [00:07<00:51,  3.39it/s] 14%|█▍        | 29/204 [00:08<00:51,  3.40it/s] 15%|█▍        | 30/204 [00:08<00:55,  3.15it/s] 15%|█▌        | 31/204 [00:08<00:55,  3.10it/s] 16%|█▌        | 32/204 [00:09<00:55,  3.07it/s] 16%|█▌        | 33/204 [00:09<00:53,  3.18it/s] 17%|█▋        | 34/204 [00:09<00:51,  3.29it/s] 17%|█▋        | 35/204 [00:10<00:50,  3.35it/s] 18%|█▊        | 36/204 [00:10<00:49,  3.36it/s] 18%|█▊        | 37/204 [00:10<00:49,  3.39it/s] 19%|█▊        | 38/204 [00:10<00:47,  3.46it/s] 19%|█▉        | 39/204 [00:11<00:47,  3.49it/s] 20%|█▉        | 40/204 [00:11<00:46,  3.56it/s] 20%|██        | 41/204 [00:11<00:45,  3.55it/s] 21%|██        | 42/204 [00:12<00:44,  3.61it/s] 21%|██        | 43/204 [00:12<00:45,  3.52it/s] 22%|██▏       | 44/204 [00:12<00:45,  3.50it/s] 22%|██▏       | 45/204 [00:12<00:44,  3.57it/s] 23%|██▎       | 46/204 [00:13<00:44,  3.57it/s] 23%|██▎       | 47/204 [00:13<00:44,  3.53it/s] 24%|██▎       | 48/204 [00:13<00:42,  3.63it/s] 24%|██▍       | 49/204 [00:13<00:43,  3.58it/s] 25%|██▍       | 50/204 [00:14<00:43,  3.56it/s] 25%|██▌       | 51/204 [00:14<00:41,  3.67it/s] 25%|██▌       | 52/204 [00:14<00:42,  3.61it/s] 26%|██▌       | 53/204 [00:15<00:42,  3.57it/s] 26%|██▋       | 54/204 [00:15<00:41,  3.60it/s] 27%|██▋       | 55/204 [00:15<00:41,  3.56it/s] 27%|██▋       | 56/204 [00:15<00:41,  3.53it/s] 28%|██▊       | 57/204 [00:16<00:39,  3.75it/s] 28%|██▊       | 58/204 [00:16<00:39,  3.71it/s] 29%|██▉       | 59/204 [00:16<00:39,  3.64it/s] 29%|██▉       | 60/204 [00:17<00:40,  3.58it/s] 30%|██▉       | 61/204 [00:17<00:40,  3.54it/s] 30%|███       | 62/204 [00:17<00:40,  3.46it/s] 31%|███       | 63/204 [00:17<00:41,  3.42it/s] 31%|███▏      | 64/204 [00:18<00:41,  3.39it/s] 32%|███▏      | 65/204 [00:18<00:41,  3.38it/s] 32%|███▏      | 66/204 [00:18<00:41,  3.35it/s] 33%|███▎      | 67/204 [00:19<00:40,  3.34it/s] 33%|███▎      | 68/204 [00:19<00:39,  3.43it/s] 34%|███▍      | 69/204 [00:19<00:38,  3.49it/s] 34%|███▍      | 70/204 [00:19<00:38,  3.50it/s] 35%|███▍      | 71/204 [00:20<00:39,  3.34it/s] 35%|███▌      | 72/204 [00:20<00:38,  3.46it/s] 36%|███▌      | 73/204 [00:20<00:37,  3.51it/s] 36%|███▋      | 74/204 [00:21<00:37,  3.48it/s] 37%|███▋      | 75/204 [00:21<00:38,  3.37it/s] 37%|███▋      | 76/204 [00:21<00:37,  3.38it/s] 38%|███▊      | 77/204 [00:22<00:37,  3.36it/s] 38%|███▊      | 78/204 [00:22<00:38,  3.30it/s] 39%|███▊      | 79/204 [00:22<00:37,  3.32it/s] 39%|███▉      | 80/204 [00:22<00:37,  3.32it/s] 40%|███▉      | 81/204 [00:23<00:40,  3.06it/s] 40%|████      | 82/204 [00:23<00:38,  3.18it/s] 41%|████      | 83/204 [00:23<00:36,  3.28it/s] 41%|████      | 84/204 [00:24<00:35,  3.36it/s] 42%|████▏     | 85/204 [00:24<00:36,  3.28it/s] 42%|████▏     | 86/204 [00:24<00:35,  3.34it/s] 43%|████▎     | 87/204 [00:25<00:34,  3.37it/s] 43%|████▎     | 88/204 [00:25<00:32,  3.52it/s] 44%|████▎     | 89/204 [00:25<00:32,  3.50it/s] 44%|████▍     | 90/204 [00:25<00:32,  3.47it/s] 45%|████▍     | 91/204 [00:26<00:33,  3.42it/s] 45%|████▌     | 92/204 [00:26<00:32,  3.42it/s] 46%|████▌     | 93/204 [00:26<00:31,  3.49it/s] 46%|████▌     | 94/204 [00:27<00:31,  3.51it/s] 47%|████▋     | 95/204 [00:27<00:33,  3.27it/s] 47%|████▋     | 96/204 [00:27<00:33,  3.19it/s] 48%|████▊     | 97/204 [00:28<00:33,  3.18it/s] 48%|████▊     | 98/204 [00:28<00:32,  3.21it/s] 49%|████▊     | 99/204 [00:28<00:31,  3.28it/s] 49%|████▉     | 100/204 [00:28<00:31,  3.30it/s] 50%|████▉     | 101/204 [00:29<00:31,  3.26it/s] 50%|█████     | 102/204 [00:29<00:31,  3.29it/s] 50%|█████     | 103/204 [00:29<00:30,  3.29it/s] 51%|█████     | 104/204 [00:30<00:30,  3.28it/s] 51%|█████▏    | 105/204 [00:30<00:29,  3.30it/s] 52%|█████▏    | 106/204 [00:30<00:29,  3.32it/s] 52%|█████▏    | 107/204 [00:31<00:30,  3.14it/s] 53%|█████▎    | 108/204 [00:31<00:31,  3.01it/s] 53%|█████▎    | 109/204 [00:31<00:32,  2.92it/s] 54%|█████▍    | 110/204 [00:32<00:29,  3.21it/s] 54%|█████▍    | 111/204 [00:32<00:28,  3.26it/s] 55%|█████▍    | 112/204 [00:32<00:27,  3.29it/s] 55%|█████▌    | 113/204 [00:32<00:27,  3.35it/s] 56%|█████▌    | 114/204 [00:33<00:26,  3.42it/s] 56%|█████▋    | 115/204 [00:33<00:25,  3.47it/s] 57%|█████▋    | 116/204 [00:33<00:24,  3.61it/s] 57%|█████▋    | 117/204 [00:34<00:23,  3.73it/s] 58%|█████▊    | 118/204 [00:34<00:22,  3.80it/s] 58%|█████▊    | 119/204 [00:34<00:22,  3.79it/s] 59%|█████▉    | 120/204 [00:34<00:22,  3.77it/s] 59%|█████▉    | 121/204 [00:35<00:23,  3.49it/s] 60%|█████▉    | 122/204 [00:35<00:23,  3.50it/s] 60%|██████    | 123/204 [00:36<00:33,  2.44it/s] 61%|██████    | 124/204 [00:36<00:29,  2.72it/s] 61%|██████▏   | 125/204 [00:36<00:26,  3.00it/s] 62%|██████▏   | 126/204 [00:36<00:24,  3.23it/s] 62%|██████▏   | 127/204 [00:37<00:23,  3.33it/s] 63%|██████▎   | 128/204 [00:37<00:21,  3.50it/s] 63%|██████▎   | 129/204 [00:37<00:20,  3.58it/s] 64%|██████▎   | 130/204 [00:38<00:20,  3.57it/s] 64%|██████▍   | 131/204 [00:38<00:19,  3.66it/s] 65%|██████▍   | 132/204 [00:38<00:19,  3.71it/s] 65%|██████▌   | 133/204 [00:38<00:18,  3.79it/s] 66%|██████▌   | 134/204 [00:39<00:19,  3.64it/s] 66%|██████▌   | 135/204 [00:39<00:18,  3.70it/s] 67%|██████▋   | 136/204 [00:39<00:17,  3.87it/s] 67%|██████▋   | 137/204 [00:39<00:17,  3.80it/s] 68%|██████▊   | 138/204 [00:40<00:18,  3.65it/s] 68%|██████▊   | 139/204 [00:40<00:18,  3.60it/s] 69%|██████▊   | 140/204 [00:40<00:17,  3.58it/s] 69%|██████▉   | 141/204 [00:40<00:17,  3.64it/s] 70%|██████▉   | 142/204 [00:41<00:17,  3.62it/s] 70%|███████   | 143/204 [00:41<00:17,  3.39it/s] 71%|███████   | 144/204 [00:41<00:18,  3.22it/s] 71%|███████   | 145/204 [00:42<00:19,  3.07it/s] 72%|███████▏  | 146/204 [00:42<00:19,  3.04it/s] 72%|███████▏  | 147/204 [00:42<00:18,  3.04it/s] 73%|███████▎  | 148/204 [00:43<00:18,  3.01it/s] 73%|███████▎  | 149/204 [00:43<00:18,  3.00it/s] 74%|███████▎  | 150/204 [00:43<00:17,  3.05it/s] 74%|███████▍  | 151/204 [00:44<00:17,  3.01it/s] 75%|███████▍  | 152/204 [00:44<00:17,  2.98it/s] 75%|███████▌  | 153/204 [00:44<00:16,  3.04it/s] 75%|███████▌  | 154/204 [00:45<00:16,  2.97it/s] 76%|███████▌  | 155/204 [00:45<00:16,  2.94it/s] 76%|███████▋  | 156/204 [00:46<00:16,  2.92it/s] 77%|███████▋  | 157/204 [00:46<00:17,  2.71it/s] 77%|███████▋  | 158/204 [00:46<00:17,  2.58it/s] 78%|███████▊  | 159/204 [00:47<00:17,  2.50it/s] 78%|███████▊  | 160/204 [00:47<00:16,  2.64it/s] 79%|███████▉  | 161/204 [00:47<00:16,  2.69it/s] 79%|███████▉  | 162/204 [00:48<00:15,  2.76it/s] 80%|███████▉  | 163/204 [00:48<00:14,  2.85it/s] 80%|████████  | 164/204 [00:48<00:14,  2.85it/s] 81%|████████  | 165/204 [00:49<00:13,  2.91it/s] 81%|████████▏ | 166/204 [00:49<00:11,  3.32it/s] 82%|████████▏ | 167/204 [00:49<00:09,  3.71it/s] 82%|████████▏ | 168/204 [00:49<00:08,  4.01it/s] 83%|████████▎ | 169/204 [00:50<00:09,  3.60it/s] 83%|████████▎ | 170/204 [00:50<00:10,  3.37it/s] 84%|████████▍ | 171/204 [00:50<00:09,  3.38it/s] 84%|████████▍ | 172/204 [00:51<00:09,  3.22it/s] 85%|████████▍ | 173/204 [00:51<00:09,  3.13it/s] 85%|████████▌ | 174/204 [00:52<00:10,  2.83it/s] 86%|████████▌ | 175/204 [00:52<00:10,  2.80it/s] 86%|████████▋ | 176/204 [00:52<00:09,  2.80it/s] 87%|████████▋ | 177/204 [00:53<00:09,  2.73it/s] 87%|████████▋ | 178/204 [00:53<00:09,  2.84it/s] 88%|████████▊ | 179/204 [00:53<00:08,  2.83it/s] 88%|████████▊ | 180/204 [00:54<00:09,  2.66it/s] 89%|████████▊ | 181/204 [00:54<00:08,  2.71it/s] 89%|████████▉ | 182/204 [00:54<00:08,  2.73it/s] 90%|████████▉ | 183/204 [00:55<00:07,  2.76it/s] 90%|█████████ | 184/204 [00:55<00:07,  2.60it/s] 91%|█████████ | 185/204 [00:56<00:07,  2.56it/s] 91%|█████████ | 186/204 [00:56<00:06,  2.64it/s] 92%|█████████▏| 187/204 [00:56<00:06,  2.72it/s] 92%|█████████▏| 188/204 [00:57<00:05,  2.77it/s] 93%|█████████▎| 189/204 [00:57<00:05,  2.83it/s] 93%|█████████▎| 190/204 [00:57<00:04,  2.92it/s] 94%|█████████▎| 191/204 [00:58<00:04,  2.95it/s] 94%|█████████▍| 192/204 [00:58<00:03,  3.01it/s] 95%|█████████▍| 193/204 [00:58<00:03,  2.97it/s] 95%|█████████▌| 194/204 [00:59<00:03,  3.07it/s] 96%|█████████▌| 195/204 [00:59<00:02,  3.04it/s] 96%|█████████▌| 196/204 [00:59<00:02,  3.02it/s] 97%|█████████▋| 197/204 [01:00<00:02,  3.03it/s] 97%|█████████▋| 198/204 [01:00<00:01,  3.01it/s] 98%|█████████▊| 199/204 [01:00<00:01,  3.00it/s] 98%|█████████▊| 200/204 [01:01<00:01,  3.06it/s] 99%|█████████▊| 201/204 [01:01<00:00,  3.04it/s] 99%|█████████▉| 202/204 [01:01<00:00,  3.01it/s]100%|█████████▉| 203/204 [01:02<00:00,  3.05it/s]100%|██████████| 204/204 [01:02<00:00,  3.26it/s]100%|██████████| 204/204 [01:02<00:00,  3.27it/s]
+[val] epoch 0
+        target   aggregation  samples  kernels    mape     rmse       mse  \
+0   latency_ms   point_micro    13011        4  4.0976  16.0568  257.8192   
+1   latency_ms        kernel     4035        1  9.3429  12.5519  157.5493   
+2   latency_ms        kernel     3329        1  3.6508  15.2510  232.5929   
+3   latency_ms        kernel     1735        1  0.4598  22.4076  502.0983   
+4   latency_ms        kernel     3912        1  0.6810  16.5641  274.3692   
+5   latency_ms  kernel_macro    13011        4  3.5336  16.6936  291.6524   
+6   area_score   point_micro    13011        4  5.0001   5.8933   34.7308   
+7   area_score        kernel     4035        1  8.5243   1.7151    2.9416   
+8   area_score        kernel     3329        1  1.4990   6.2235   38.7318   
+9   area_score        kernel     1735        1  3.6616   9.7174   94.4277   
+10  area_score        kernel     3912        1  4.9382   6.1351   37.6389   
+11  area_score  kernel_macro    13011        4  4.6558   5.9478   43.4350   
+
+        mae   max_err     tau                               kernel  
+0   12.8478  149.1662 -0.2476                                  NaN  
+1   12.1236   18.9640 -0.2329                 machsuite-sort-radix  
+2   11.5031   66.3904 -0.2295                    machsuite-viterbi  
+3   13.3285  149.1662  0.0596      rodinia_pathfinder_0_baseline_0  
+4   14.5258   51.0141 -0.1577  rodinia_pathfinder_4_doublebuffer_0  
+5   12.8702   71.3837 -0.1401                                       
+6    3.4309   39.9065  0.3140                                  NaN  
+7    1.4853   14.5110  0.2641                 machsuite-sort-radix  
+8    3.9102   39.9065 -0.0125                    machsuite-viterbi  
+9    5.9080   30.0865 -0.0905      rodinia_pathfinder_0_baseline_0  
+10   3.9312   35.2122  0.3011  rodinia_pathfinder_4_doublebuffer_0  
+11   3.8087   29.9291  0.1155                                       
+[val] epoch 0 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 4.234495759010315, 'bias_percentage_points': 2.4624446406960487, 'kernel_macro_tau': -0.046244252787144835, 'constant_train_mean_validation_mae_percentage_points': 9.660611301660538, 'mae_baseline_ratio': 0.4383258602157462, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 12.164033204317093, 'bias_percentage_points': 12.162959575653076, 'kernel_macro_tau': 0.007068822803203202, 'constant_train_mean_validation_mae_percentage_points': 3.9174895733594894, 'mae_baseline_ratio': 3.1050582207129356, 'beats_constant_train_mean': False}, {'resource': 'ff', 'mae_percentage_points': 3.608217090368271, 'bias_percentage_points': 0.9348354302346706, 'kernel_macro_tau': -0.016505748068672128, 'constant_train_mean_validation_mae_percentage_points': 5.995739996433258, 'mae_baseline_ratio': 0.6017967911408307, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 10.15998050570488, 'bias_percentage_points': -8.92973467707634, 'kernel_macro_tau': 0.0952703629138981, 'constant_train_mean_validation_mae_percentage_points': 13.15256953239441, 'mae_baseline_ratio': 0.7724711495104537, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.9241898148148148, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.5714285714285714, 'boundary_balanced_accuracy': 0.55, 'boundary_samples': 21, 'sample_count': 10368}, {'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.8885433386837881, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.7246376811594203, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 69, 'sample_count': 9968}, {'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8770127118644068, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.7027027027027027, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 37, 'sample_count': 9440}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.717766757865937, 'false_feasible_fdr': 0.005953151287692506, 'false_feasible_rate': 0.00393296853625171, 'boundary_accuracy': 0.4299835255354201, 'boundary_balanced_accuracy': 0.49166500077741504, 'boundary_samples': 607, 'sample_count': 11696}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.6786184210526316, 'false_feasible_fdr': 0.003830439223697651, 'false_feasible_rate': 0.0024671052631578946, 'boundary_accuracy': 0.38071065989847713, 'boundary_balanced_accuracy': 0.5079263366115956, 'boundary_samples': 394, 'sample_count': 12160}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6829245973645681, 'false_feasible_fdr': 0.008598076362576508, 'false_feasible_rate': 0.005398975109809663, 'boundary_accuracy': 0.3834296724470135, 'boundary_balanced_accuracy': 0.48764918341708546, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.8151150627615062, 'false_feasible_fdr': 0.0011662779073642118, 'false_feasible_rate': 0.0009152719665271967, 'boundary_accuracy': 0.44857142857142857, 'boundary_balanced_accuracy': 0.5004962779156328, 'boundary_samples': 350, 'sample_count': 7648}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.8162215411558669, 'false_feasible_fdr': 0.0013912075681691708, 'false_feasible_rate': 0.0010945709281961471, 'boundary_accuracy': 0.47878787878787876, 'boundary_balanced_accuracy': 0.5052534562211981, 'boundary_samples': 330, 'sample_count': 9136}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7827235772357723, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.48494983277591974, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 299, 'sample_count': 9840}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.6707317073170732, 'false_feasible_fdr': 0.3423344947735192, 'false_feasible_rate': 0.19969512195121952, 'boundary_accuracy': 0.47614761476147616, 'boundary_balanced_accuracy': 0.46507585851065225, 'boundary_samples': 2222, 'sample_count': 9840}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.7006826741996234, 'false_feasible_fdr': 0.293841642228739, 'false_feasible_rate': 0.17690677966101695, 'boundary_accuracy': 0.5256529850746269, 'boundary_balanced_accuracy': 0.5076945159086614, 'boundary_samples': 2144, 'sample_count': 8496}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6915944123314065, 'false_feasible_fdr': 0.27980478735765746, 'false_feasible_rate': 0.14499036608863197, 'boundary_accuracy': 0.5116033755274262, 'boundary_balanced_accuracy': 0.4859968446456664, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.53125, 'false_feasible_fdr': 0.07989167230873392, 'false_feasible_rate': 0.031517094017094016, 'boundary_accuracy': 0.4783427495291902, 'boundary_balanced_accuracy': 0.49359959037378387, 'boundary_samples': 531, 'sample_count': 3744}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.5266509433962264, 'false_feasible_fdr': 0.08048780487804878, 'false_feasible_rate': 0.031132075471698113, 'boundary_accuracy': 0.4779050736497545, 'boundary_balanced_accuracy': 0.4937909549897948, 'boundary_samples': 611, 'sample_count': 4240}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.5137665198237885, 'false_feasible_fdr': 0.1339541547277937, 'false_feasible_rate': 0.05148678414096916, 'boundary_accuracy': 0.5060483870967742, 'boundary_balanced_accuracy': 0.491883963494133, 'boundary_samples': 496, 'sample_count': 3632}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.6044061302681992, 'false_feasible_fdr': 0.30765143464399575, 'false_feasible_rate': 0.13864942528735633, 'boundary_accuracy': 0.48997772828507796, 'boundary_balanced_accuracy': 0.4645658263305322, 'boundary_samples': 449, 'sample_count': 4176}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.6380208333333334, 'false_feasible_fdr': 0.23143939393939394, 'false_feasible_rate': 0.10607638888888889, 'boundary_accuracy': 0.6034755134281201, 'boundary_balanced_accuracy': 0.5184847624869019, 'boundary_samples': 633, 'sample_count': 5760}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6462628865979382, 'false_feasible_fdr': 0.25499677627337203, 'false_feasible_rate': 0.12741623711340205, 'boundary_accuracy': 0.6160458452722063, 'boundary_balanced_accuracy': 0.558148682312836, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.5569425444596443, 'false_feasible_fdr': 0.00032589212970506764, 'false_feasible_rate': 0.0001709986320109439, 'boundary_accuracy': 0.5501432664756447, 'boundary_balanced_accuracy': 0.5031645569620253, 'boundary_samples': 349, 'sample_count': 11696}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.5809659090909091, 'false_feasible_fdr': 0.0029387755102040815, 'false_feasible_rate': 0.0015040106951871657, 'boundary_accuracy': 0.5120593692022264, 'boundary_balanced_accuracy': 0.525221202348466, 'boundary_samples': 539, 'sample_count': 11968}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.5302451768488746, 'false_feasible_fdr': 0.000390625, 'false_feasible_rate': 0.00020096463022508038, 'boundary_accuracy': 0.474025974025974, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 154, 'sample_count': 9952}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.668040293040293, 'false_feasible_fdr': 0.08647707486941382, 'false_feasible_rate': 0.03411172161172161, 'boundary_accuracy': 0.5451612903225806, 'boundary_balanced_accuracy': 0.6210846118790825, 'boundary_samples': 1860, 'sample_count': 8736}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 15, 'accuracy': 0.6169909208819715, 'false_feasible_fdr': 0.08455565142364108, 'false_feasible_rate': 0.03813229571984436, 'boundary_accuracy': 0.43958868894601544, 'boundary_balanced_accuracy': 0.5869751499571552, 'boundary_samples': 1556, 'sample_count': 7710}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6524633821571239, 'false_feasible_fdr': 0.1804339550818424, 'false_feasible_rate': 0.0788948069241012, 'boundary_accuracy': 0.48574918566775244, 'boundary_balanced_accuracy': 0.5356967365505643, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.693400814785565, 'false_feasible_fdr': 0.06958418627443232, 'false_feasible_rate': 0.04239581627837544, 'boundary_accuracy': 0.49812695109261185, 'boundary_balanced_accuracy': 0.5093226590297666, 'boundary_samples': 19220, 'sample_count': 207662}, 'all_resource_heads_beat_constant_baseline': False}
+[val] latency_ms physical RMSE: 16.0568 | MAE: 12.8478 | MAPE: 409.76% | tau-b: -0.2476
+[val] area_score physical RMSE: 5.8933 | MAE: 3.4309 | MAPE: 500.01% | tau-b: 0.3140
+Validation target-balanced selection score: 1.299665; relative target losses={'area': 0.9547776881057046, 'perf': 1.2996646330411052}
+Validation worst-target kernel-macro tau-b: -0.140144; worst kernel/target baseline ratio=2.633908; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.299665; active_control_score=5.130074; lexicographic_qualification={'qualified': False, 'target_qualified': False, 'kernel_perf_qualified': False, 'resource_qualified': False, 'rank_qualified': False, 'worst_kernel_perf_ratio': 2.633907945959106, 'resource_mae_ratios': {'bram': 0.4383258602157462, 'dsp': 3.1050582207129356, 'ff': 0.6017967911408307, 'lut': 0.7724711495104537}, 'boundary_balanced_accuracy': 0.5093226590297666, 'false_feasible_fdr': 0.06958418627443232, 'ranking_score': -0.14014379567418028}
+Saved val model at epoch 0
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.5845790219306946, 'area': 0.6215922886133194, 'rank_aux/perf': 0.6962619256973267, 'rank_aux/area': 0.6948881620168685}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.16394345304904312, 'area': 0.49407216706811746}
+ 		 2.000 mins, 15.351 secs
+Epoch: 000, Train Loss: 1.3249, Val loss: 0.7166, Time: 2.000 mins, 15.351 secs
+Pairwise delta auxiliary weight at epoch 1: 0.000000
+Test batch ID (resample): -1 - Epoch 1 train
+  0%|          | 0/100 [00:00<?, ?it/s]epoch = 1, learning rate = 1.9999999999999998e-05
+  1%|          | 1/100 [00:01<02:22,  1.43s/it]  2%|▏         | 2/100 [00:02<01:47,  1.10s/it]  3%|▎         | 3/100 [00:03<01:29,  1.08it/s]  4%|▍         | 4/100 [00:03<01:16,  1.25it/s]  5%|▌         | 5/100 [00:04<01:10,  1.34it/s]  6%|▌         | 6/100 [00:04<01:07,  1.40it/s]  7%|▋         | 7/100 [00:05<01:04,  1.44it/s]  8%|▊         | 8/100 [00:06<01:07,  1.37it/s]  9%|▉         | 9/100 [00:07<01:06,  1.36it/s] 10%|█         | 10/100 [00:07<01:05,  1.38it/s] 11%|█         | 11/100 [00:08<01:06,  1.33it/s] 12%|█▏        | 12/100 [00:09<01:07,  1.31it/s] 13%|█▎        | 13/100 [00:10<01:07,  1.29it/s] 14%|█▍        | 14/100 [00:10<01:00,  1.42it/s] 15%|█▌        | 15/100 [00:11<00:56,  1.50it/s] 16%|█▌        | 16/100 [00:11<00:52,  1.61it/s] 17%|█▋        | 17/100 [00:12<00:50,  1.65it/s] 18%|█▊        | 18/100 [00:13<00:49,  1.66it/s] 19%|█▉        | 19/100 [00:13<00:50,  1.61it/s] 20%|██        | 20/100 [00:14<00:45,  1.77it/s] 21%|██        | 21/100 [00:14<00:48,  1.63it/s] 22%|██▏       | 22/100 [00:15<00:48,  1.61it/s] 23%|██▎       | 23/100 [00:16<00:47,  1.61it/s] 24%|██▍       | 24/100 [00:16<00:48,  1.58it/s] 25%|██▌       | 25/100 [00:17<00:48,  1.55it/s] 26%|██▌       | 26/100 [00:18<00:51,  1.43it/s] 27%|██▋       | 27/100 [00:19<00:51,  1.41it/s] 28%|██▊       | 28/100 [00:19<00:53,  1.35it/s] 29%|██▉       | 29/100 [00:20<00:52,  1.36it/s] 30%|███       | 30/100 [00:21<00:51,  1.35it/s] 31%|███       | 31/100 [00:21<00:48,  1.43it/s] 32%|███▏      | 32/100 [00:22<00:50,  1.36it/s] 33%|███▎      | 33/100 [00:23<00:50,  1.32it/s] 34%|███▍      | 34/100 [00:24<00:47,  1.40it/s] 35%|███▌      | 35/100 [00:24<00:44,  1.46it/s] 36%|███▌      | 36/100 [00:25<00:42,  1.49it/s] 37%|███▋      | 37/100 [00:26<00:42,  1.49it/s] 38%|███▊      | 38/100 [00:26<00:44,  1.39it/s] 39%|███▉      | 39/100 [00:27<00:43,  1.39it/s] 40%|████      | 40/100 [00:28<00:45,  1.32it/s] 41%|████      | 41/100 [00:29<00:44,  1.32it/s] 42%|████▏     | 42/100 [00:30<00:44,  1.29it/s] 43%|████▎     | 43/100 [00:30<00:46,  1.24it/s] 44%|████▍     | 44/100 [00:31<00:47,  1.17it/s] 45%|████▌     | 45/100 [00:32<00:44,  1.22it/s] 46%|████▌     | 46/100 [00:33<00:40,  1.34it/s] 47%|████▋     | 47/100 [00:33<00:36,  1.44it/s] 48%|████▊     | 48/100 [00:33<00:28,  1.83it/s] 49%|████▉     | 49/100 [00:34<00:27,  1.86it/s] 50%|█████     | 50/100 [00:35<00:27,  1.80it/s] 51%|█████     | 51/100 [00:35<00:28,  1.72it/s] 52%|█████▏    | 52/100 [00:36<00:30,  1.60it/s] 53%|█████▎    | 53/100 [00:37<00:31,  1.49it/s] 54%|█████▍    | 54/100 [00:37<00:27,  1.66it/s] 55%|█████▌    | 55/100 [00:38<00:26,  1.68it/s] 56%|█████▌    | 56/100 [00:38<00:26,  1.64it/s] 57%|█████▋    | 57/100 [00:39<00:25,  1.66it/s] 58%|█████▊    | 58/100 [00:40<00:24,  1.68it/s] 59%|█████▉    | 59/100 [00:40<00:26,  1.57it/s] 60%|██████    | 60/100 [00:41<00:26,  1.53it/s] 61%|██████    | 61/100 [00:42<00:25,  1.51it/s] 62%|██████▏   | 62/100 [00:42<00:25,  1.47it/s] 63%|██████▎   | 63/100 [00:43<00:24,  1.49it/s] 64%|██████▍   | 64/100 [00:44<00:23,  1.51it/s] 65%|██████▌   | 65/100 [00:44<00:23,  1.50it/s] 66%|██████▌   | 66/100 [00:45<00:22,  1.52it/s] 67%|██████▋   | 67/100 [00:46<00:21,  1.53it/s] 68%|██████▊   | 68/100 [00:46<00:20,  1.56it/s] 69%|██████▉   | 69/100 [00:47<00:21,  1.41it/s] 70%|███████   | 70/100 [00:48<00:22,  1.35it/s] 71%|███████   | 71/100 [00:49<00:21,  1.34it/s] 72%|███████▏  | 72/100 [00:49<00:21,  1.33it/s] 73%|███████▎  | 73/100 [00:50<00:20,  1.32it/s] 74%|███████▍  | 74/100 [00:51<00:19,  1.31it/s] 75%|███████▌  | 75/100 [00:52<00:18,  1.35it/s] 76%|███████▌  | 76/100 [00:52<00:17,  1.38it/s] 77%|███████▋  | 77/100 [00:53<00:16,  1.39it/s] 78%|███████▊  | 78/100 [00:54<00:15,  1.44it/s] 79%|███████▉  | 79/100 [00:54<00:14,  1.46it/s] 80%|████████  | 80/100 [00:55<00:14,  1.43it/s] 81%|████████  | 81/100 [00:56<00:14,  1.33it/s] 82%|████████▏ | 82/100 [00:57<00:14,  1.28it/s] 83%|████████▎ | 83/100 [00:58<00:13,  1.29it/s] 84%|████████▍ | 84/100 [00:58<00:12,  1.31it/s] 85%|████████▌ | 85/100 [00:59<00:11,  1.34it/s] 86%|████████▌ | 86/100 [01:00<00:10,  1.38it/s] 87%|████████▋ | 87/100 [01:00<00:09,  1.42it/s] 88%|████████▊ | 88/100 [01:01<00:08,  1.45it/s] 89%|████████▉ | 89/100 [01:02<00:07,  1.50it/s] 90%|█████████ | 90/100 [01:02<00:06,  1.45it/s] 91%|█████████ | 91/100 [01:03<00:06,  1.39it/s] 92%|█████████▏| 92/100 [01:04<00:06,  1.32it/s] 93%|█████████▎| 93/100 [01:05<00:05,  1.32it/s] 94%|█████████▍| 94/100 [01:06<00:04,  1.29it/s] 95%|█████████▌| 95/100 [01:06<00:03,  1.31it/s] 96%|█████████▌| 96/100 [01:07<00:03,  1.32it/s] 97%|█████████▋| 97/100 [01:08<00:02,  1.46it/s] 98%|█████████▊| 98/100 [01:08<00:01,  1.60it/s] 99%|█████████▉| 99/100 [01:09<00:00,  1.65it/s]100%|██████████| 100/100 [01:09<00:00,  1.62it/s]100%|██████████| 100/100 [01:09<00:00,  1.43it/s]
+Saved train model at epoch 1
+Epoch 1 val
+  0%|          | 0/204 [00:00<?, ?it/s]  0%|          | 1/204 [00:00<01:07,  3.00it/s]  1%|          | 2/204 [00:00<01:01,  3.28it/s]  1%|▏         | 3/204 [00:00<00:59,  3.39it/s]  2%|▏         | 4/204 [00:01<01:00,  3.32it/s]  2%|▏         | 5/204 [00:01<00:58,  3.39it/s]  3%|▎         | 6/204 [00:01<00:56,  3.49it/s]  3%|▎         | 7/204 [00:02<00:56,  3.51it/s]  4%|▍         | 8/204 [00:02<00:56,  3.49it/s]  4%|▍         | 9/204 [00:02<00:48,  4.00it/s]  5%|▍         | 10/204 [00:02<00:43,  4.46it/s]  5%|▌         | 11/204 [00:02<00:41,  4.62it/s]  6%|▌         | 12/204 [00:03<00:45,  4.27it/s]  6%|▋         | 13/204 [00:03<00:47,  4.00it/s]  7%|▋         | 14/204 [00:03<00:49,  3.81it/s]  7%|▋         | 15/204 [00:03<00:49,  3.83it/s]  8%|▊         | 16/204 [00:04<00:51,  3.62it/s]  8%|▊         | 17/204 [00:04<00:48,  3.82it/s]  9%|▉         | 18/204 [00:04<00:50,  3.68it/s]  9%|▉         | 19/204 [00:05<00:51,  3.62it/s] 10%|▉         | 20/204 [00:05<00:51,  3.58it/s] 10%|█         | 21/204 [00:05<00:52,  3.47it/s] 11%|█         | 22/204 [00:05<00:52,  3.48it/s] 11%|█▏        | 23/204 [00:06<00:53,  3.38it/s] 12%|█▏        | 24/204 [00:06<00:52,  3.43it/s] 12%|█▏        | 25/204 [00:06<00:54,  3.31it/s] 13%|█▎        | 26/204 [00:07<00:53,  3.34it/s] 13%|█▎        | 27/204 [00:07<00:51,  3.41it/s] 14%|█▎        | 28/204 [00:07<00:51,  3.41it/s] 14%|█▍        | 29/204 [00:08<00:51,  3.38it/s] 15%|█▍        | 30/204 [00:08<00:51,  3.35it/s] 15%|█▌        | 31/204 [00:08<00:52,  3.32it/s] 16%|█▌        | 32/204 [00:08<00:52,  3.31it/s] 16%|█▌        | 33/204 [00:09<00:51,  3.29it/s] 17%|█▋        | 34/204 [00:09<00:51,  3.32it/s] 17%|█▋        | 35/204 [00:09<00:51,  3.28it/s] 18%|█▊        | 36/204 [00:10<00:51,  3.23it/s] 18%|█▊        | 37/204 [00:10<00:52,  3.21it/s] 19%|█▊        | 38/204 [00:10<00:51,  3.25it/s] 19%|█▉        | 39/204 [00:11<00:50,  3.24it/s] 20%|█▉        | 40/204 [00:11<00:51,  3.21it/s] 20%|██        | 41/204 [00:11<00:49,  3.26it/s] 21%|██        | 42/204 [00:12<00:49,  3.29it/s] 21%|██        | 43/204 [00:12<00:49,  3.22it/s] 22%|██▏       | 44/204 [00:12<00:49,  3.24it/s] 22%|██▏       | 45/204 [00:12<00:48,  3.27it/s] 23%|██▎       | 46/204 [00:13<00:49,  3.21it/s] 23%|██▎       | 47/204 [00:13<00:49,  3.19it/s] 24%|██▎       | 48/204 [00:13<00:49,  3.16it/s] 24%|██▍       | 49/204 [00:14<00:51,  2.99it/s] 25%|██▍       | 50/204 [00:14<00:52,  2.91it/s] 25%|██▌       | 51/204 [00:15<00:53,  2.86it/s] 25%|██▌       | 52/204 [00:15<00:47,  3.18it/s] 26%|██▌       | 53/204 [00:15<00:48,  3.14it/s] 26%|██▋       | 54/204 [00:15<00:48,  3.11it/s] 27%|██▋       | 55/204 [00:16<00:50,  2.96it/s] 27%|██▋       | 56/204 [00:16<00:48,  3.08it/s] 28%|██▊       | 57/204 [00:16<00:46,  3.13it/s] 28%|██▊       | 58/204 [00:17<00:45,  3.19it/s] 29%|██▉       | 59/204 [00:17<00:44,  3.23it/s] 29%|██▉       | 60/204 [00:17<00:44,  3.25it/s] 30%|██▉       | 61/204 [00:18<00:44,  3.25it/s] 30%|███       | 62/204 [00:18<00:43,  3.30it/s] 31%|███       | 63/204 [00:18<00:42,  3.35it/s] 31%|███▏      | 64/204 [00:19<00:44,  3.13it/s] 32%|███▏      | 65/204 [00:19<00:45,  3.04it/s] 32%|███▏      | 66/204 [00:19<00:44,  3.13it/s] 33%|███▎      | 67/204 [00:20<00:43,  3.13it/s] 33%|███▎      | 68/204 [00:20<00:42,  3.19it/s] 34%|███▍      | 69/204 [00:20<00:41,  3.25it/s] 34%|███▍      | 70/204 [00:20<00:41,  3.22it/s] 35%|███▍      | 71/204 [00:21<00:40,  3.27it/s] 35%|███▌      | 72/204 [00:21<00:39,  3.32it/s] 36%|███▌      | 73/204 [00:21<00:40,  3.24it/s] 36%|███▋      | 74/204 [00:22<00:39,  3.28it/s] 37%|███▋      | 75/204 [00:22<00:39,  3.30it/s] 37%|███▋      | 76/204 [00:22<00:39,  3.26it/s] 38%|███▊      | 77/204 [00:23<00:41,  3.08it/s] 38%|███▊      | 78/204 [00:23<00:42,  2.97it/s] 39%|███▊      | 79/204 [00:23<00:42,  2.97it/s] 39%|███▉      | 80/204 [00:24<00:42,  2.89it/s] 40%|███▉      | 81/204 [00:24<00:40,  3.05it/s] 40%|████      | 82/204 [00:24<00:33,  3.60it/s] 41%|████      | 83/204 [00:24<00:33,  3.63it/s] 41%|████      | 84/204 [00:25<00:32,  3.64it/s] 42%|████▏     | 85/204 [00:25<00:32,  3.67it/s] 42%|████▏     | 86/204 [00:25<00:32,  3.68it/s] 43%|████▎     | 87/204 [00:26<00:31,  3.68it/s] 43%|████▎     | 88/204 [00:26<00:31,  3.65it/s] 44%|████▎     | 89/204 [00:26<00:31,  3.61it/s] 44%|████▍     | 90/204 [00:26<00:31,  3.68it/s] 45%|████▍     | 91/204 [00:27<00:31,  3.64it/s] 45%|████▌     | 92/204 [00:27<00:31,  3.58it/s] 46%|████▌     | 93/204 [00:27<00:29,  3.77it/s] 46%|████▌     | 94/204 [00:27<00:29,  3.68it/s] 47%|████▋     | 95/204 [00:28<00:30,  3.57it/s] 47%|████▋     | 96/204 [00:28<00:33,  3.25it/s] 48%|████▊     | 97/204 [00:28<00:35,  3.03it/s] 48%|████▊     | 98/204 [00:29<00:34,  3.11it/s] 49%|████▊     | 99/204 [00:29<00:35,  2.99it/s] 49%|████▉     | 100/204 [00:30<00:35,  2.90it/s] 50%|████▉     | 101/204 [00:30<00:34,  2.98it/s] 50%|█████     | 102/204 [00:30<00:34,  2.94it/s] 50%|█████     | 103/204 [00:30<00:32,  3.08it/s] 51%|█████     | 104/204 [00:31<00:32,  3.11it/s] 51%|█████▏    | 105/204 [00:31<00:30,  3.23it/s] 52%|█████▏    | 106/204 [00:31<00:29,  3.36it/s] 52%|█████▏    | 107/204 [00:32<00:28,  3.43it/s] 53%|█████▎    | 108/204 [00:32<00:27,  3.51it/s] 53%|█████▎    | 109/204 [00:32<00:26,  3.54it/s] 54%|█████▍    | 110/204 [00:32<00:26,  3.55it/s] 54%|█████▍    | 111/204 [00:33<00:26,  3.57it/s] 55%|█████▍    | 112/204 [00:33<00:25,  3.64it/s] 55%|█████▌    | 113/204 [00:33<00:24,  3.64it/s] 56%|█████▌    | 114/204 [00:34<00:25,  3.55it/s] 56%|█████▋    | 115/204 [00:34<00:25,  3.52it/s] 57%|█████▋    | 116/204 [00:34<00:25,  3.51it/s] 57%|█████▋    | 117/204 [00:34<00:25,  3.40it/s] 58%|█████▊    | 118/204 [00:35<00:24,  3.45it/s] 58%|█████▊    | 119/204 [00:35<00:24,  3.44it/s] 59%|█████▉    | 120/204 [00:35<00:24,  3.36it/s] 59%|█████▉    | 121/204 [00:36<00:24,  3.40it/s] 60%|█████▉    | 122/204 [00:36<00:23,  3.43it/s] 60%|██████    | 123/204 [00:36<00:24,  3.26it/s] 61%|██████    | 124/204 [00:37<00:25,  3.14it/s] 61%|██████▏   | 125/204 [00:37<00:25,  3.06it/s] 62%|██████▏   | 126/204 [00:37<00:25,  3.00it/s] 62%|██████▏   | 127/204 [00:38<00:25,  2.97it/s] 63%|██████▎   | 128/204 [00:38<00:25,  2.95it/s] 63%|██████▎   | 129/204 [00:38<00:25,  2.92it/s] 64%|██████▎   | 130/204 [00:39<00:25,  2.92it/s] 64%|██████▍   | 131/204 [00:39<00:24,  2.93it/s] 65%|██████▍   | 132/204 [00:39<00:24,  2.91it/s] 65%|██████▌   | 133/204 [00:40<00:24,  2.90it/s] 66%|██████▌   | 134/204 [00:40<00:23,  2.92it/s] 66%|██████▌   | 135/204 [00:40<00:23,  2.92it/s] 67%|██████▋   | 136/204 [00:41<00:23,  2.92it/s] 67%|██████▋   | 137/204 [00:41<00:23,  2.89it/s] 68%|██████▊   | 138/204 [00:41<00:23,  2.87it/s] 68%|██████▊   | 139/204 [00:42<00:22,  2.85it/s] 69%|██████▊   | 140/204 [00:42<00:20,  3.06it/s] 69%|██████▉   | 141/204 [00:42<00:19,  3.26it/s] 70%|██████▉   | 142/204 [00:43<00:18,  3.31it/s] 70%|███████   | 143/204 [00:43<00:19,  3.08it/s] 71%|███████   | 144/204 [00:43<00:20,  2.97it/s] 71%|███████   | 145/204 [00:44<00:20,  2.95it/s] 72%|███████▏  | 146/204 [00:44<00:19,  2.91it/s] 72%|███████▏  | 147/204 [00:44<00:19,  2.99it/s] 73%|███████▎  | 148/204 [00:45<00:18,  2.98it/s] 73%|███████▎  | 149/204 [00:45<00:18,  2.95it/s] 74%|███████▎  | 150/204 [00:45<00:17,  3.08it/s] 74%|███████▍  | 151/204 [00:46<00:17,  3.01it/s] 75%|███████▍  | 152/204 [00:46<00:17,  2.93it/s] 75%|███████▌  | 153/204 [00:46<00:16,  3.11it/s] 75%|███████▌  | 154/204 [00:47<00:16,  3.06it/s] 76%|███████▌  | 155/204 [00:47<00:16,  3.05it/s] 76%|███████▋  | 156/204 [00:47<00:15,  3.07it/s] 77%|███████▋  | 157/204 [00:48<00:15,  3.02it/s] 77%|███████▋  | 158/204 [00:48<00:15,  2.98it/s] 78%|███████▊  | 159/204 [00:48<00:15,  2.95it/s] 78%|███████▊  | 160/204 [00:49<00:16,  2.74it/s] 79%|███████▉  | 161/204 [00:49<00:16,  2.59it/s] 79%|███████▉  | 162/204 [00:50<00:16,  2.50it/s] 80%|███████▉  | 163/204 [00:50<00:16,  2.45it/s] 80%|████████  | 164/204 [00:51<00:16,  2.37it/s] 81%|████████  | 165/204 [00:51<00:15,  2.46it/s] 81%|████████▏ | 166/204 [00:51<00:14,  2.58it/s] 82%|████████▏ | 167/204 [00:52<00:14,  2.57it/s] 82%|████████▏ | 168/204 [00:52<00:13,  2.73it/s] 83%|████████▎ | 169/204 [00:52<00:12,  2.77it/s] 83%|████████▎ | 170/204 [00:53<00:10,  3.21it/s] 84%|████████▍ | 171/204 [00:53<00:09,  3.62it/s] 84%|████████▍ | 172/204 [00:53<00:09,  3.42it/s] 85%|████████▍ | 173/204 [00:53<00:09,  3.25it/s] 85%|████████▌ | 174/204 [00:54<00:09,  3.17it/s] 86%|████████▌ | 175/204 [00:54<00:09,  3.09it/s] 86%|████████▋ | 176/204 [00:54<00:09,  3.03it/s] 87%|████████▋ | 177/204 [00:55<00:09,  2.99it/s] 87%|████████▋ | 178/204 [00:55<00:09,  2.79it/s] 88%|████████▊ | 179/204 [00:55<00:08,  2.82it/s] 88%|████████▊ | 180/204 [00:56<00:08,  2.89it/s] 89%|████████▊ | 181/204 [00:56<00:07,  2.91it/s] 89%|████████▉ | 182/204 [00:57<00:07,  2.92it/s] 90%|████████▉ | 183/204 [00:57<00:06,  3.00it/s] 90%|█████████ | 184/204 [00:57<00:06,  2.93it/s] 91%|█████████ | 185/204 [00:58<00:06,  2.91it/s] 91%|█████████ | 186/204 [00:58<00:05,  3.09it/s] 92%|█████████▏| 187/204 [00:58<00:05,  3.00it/s] 92%|█████████▏| 188/204 [00:59<00:05,  2.89it/s] 93%|█████████▎| 189/204 [00:59<00:05,  2.87it/s] 93%|█████████▎| 190/204 [00:59<00:05,  2.72it/s] 94%|█████████▎| 191/204 [01:00<00:05,  2.57it/s] 94%|█████████▍| 192/204 [01:00<00:04,  2.49it/s] 95%|█████████▍| 193/204 [01:01<00:05,  2.05it/s] 95%|█████████▌| 194/204 [01:01<00:04,  2.31it/s] 96%|█████████▌| 195/204 [01:01<00:03,  2.53it/s] 96%|█████████▌| 196/204 [01:02<00:02,  2.71it/s] 97%|█████████▋| 197/204 [01:02<00:02,  2.78it/s] 97%|█████████▋| 198/204 [01:02<00:02,  2.80it/s] 98%|█████████▊| 199/204 [01:03<00:01,  3.04it/s] 98%|█████████▊| 200/204 [01:03<00:01,  3.00it/s] 99%|█████████▊| 201/204 [01:03<00:01,  2.97it/s] 99%|█████████▉| 202/204 [01:04<00:00,  2.85it/s]100%|█████████▉| 203/204 [01:04<00:00,  2.89it/s]100%|██████████| 204/204 [01:04<00:00,  3.29it/s]100%|██████████| 204/204 [01:04<00:00,  3.15it/s]
+[val] epoch 1
+        target   aggregation  samples  kernels    mape     rmse       mse  \
+0   latency_ms   point_micro    13011        4  4.6733  16.7976  282.1605   
+1   latency_ms        kernel     4035        1  9.8316  12.3896  153.5027   
+2   latency_ms        kernel     3329        1  5.2659  17.2238  296.6584   
+3   latency_ms        kernel     1735        1  0.4710  22.8967  524.2570   
+4   latency_ms        kernel     3912        1  0.7121  17.1801  295.1547   
+5   latency_ms  kernel_macro    13011        4  4.0702  17.4225  317.3932   
+6   area_score   point_micro    13011        4  5.3118   5.7688   33.2794   
+7   area_score        kernel     4035        1  8.4565   1.7058    2.9097   
+8   area_score        kernel     3329        1  1.6748   6.1093   37.3237   
+9   area_score        kernel     1735        1  4.0857   9.5204   90.6375   
+10  area_score        kernel     3912        1  5.7071   5.9769   35.7238   
+11  area_score  kernel_macro    13011        4  4.9810   5.8281   41.6487   
+
+        mae   max_err     tau                               kernel  
+0   13.9890  151.3902 -0.1945                                  NaN  
+1   12.2300   16.6857 -0.2841                 machsuite-sort-radix  
+2   14.8962   62.1074 -0.2531                    machsuite-viterbi  
+3   13.7833  151.3902  0.0699      rodinia_pathfinder_0_baseline_0  
+4   15.1225   51.9831 -0.1724  rodinia_pathfinder_4_doublebuffer_0  
+5   14.0080   70.5416 -0.1599                                       
+6    3.4059   39.4828  0.3126                                  NaN  
+7    1.4738   14.4924  0.2982                 machsuite-sort-radix  
+8    3.9022   39.4828  0.0043                    machsuite-viterbi  
+9    5.7819   29.6312  0.0414      rodinia_pathfinder_0_baseline_0  
+10   3.9226   34.6131  0.3221  rodinia_pathfinder_4_doublebuffer_0  
+11   3.7701   29.5549  0.1665                                       
+[val] epoch 1 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 3.85289266705513, 'bias_percentage_points': 1.3982891105115414, 'kernel_macro_tau': -0.033479152949058, 'constant_train_mean_validation_mae_percentage_points': 9.660611301660538, 'mae_baseline_ratio': 0.3988249342350485, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 3.7234630435705185, 'bias_percentage_points': 3.70589978992939, 'kernel_macro_tau': 0.0043429253272022844, 'constant_train_mean_validation_mae_percentage_points': 3.9174895733594894, 'mae_baseline_ratio': 0.950471717625382, 'beats_constant_train_mean': True}, {'resource': 'ff', 'mae_percentage_points': 4.058158025145531, 'bias_percentage_points': 1.8228447064757347, 'kernel_macro_tau': -0.017552080937629125, 'constant_train_mean_validation_mae_percentage_points': 5.995739996433258, 'mae_baseline_ratio': 0.6768402278216943, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 11.041763424873352, 'bias_percentage_points': -3.3746328204870224, 'kernel_macro_tau': 0.14010374779509377, 'constant_train_mean_validation_mae_percentage_points': 13.15256953239441, 'mae_baseline_ratio': 0.8395137845633737, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.9153163580246914, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.5238095238095238, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 21, 'sample_count': 10368}, {'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.8523274478330658, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.7246376811594203, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 69, 'sample_count': 9968}, {'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8096398305084745, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.7027027027027027, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 37, 'sample_count': 9440}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.8437072503419972, 'false_feasible_fdr': 0.015015974440894569, 'false_feasible_rate': 0.012055403556771547, 'boundary_accuracy': 0.4415156507413509, 'boundary_balanced_accuracy': 0.4865340618822327, 'boundary_samples': 607, 'sample_count': 11696}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.8180098684210526, 'false_feasible_fdr': 0.005019345393704904, 'false_feasible_rate': 0.003947368421052632, 'boundary_accuracy': 0.38578680203045684, 'boundary_balanced_accuracy': 0.49837015574067367, 'boundary_samples': 394, 'sample_count': 12160}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7425878477306003, 'false_feasible_fdr': 0.007327471356248335, 'false_feasible_rate': 0.00503294289897511, 'boundary_accuracy': 0.3872832369942196, 'boundary_balanced_accuracy': 0.49267430904522613, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.9244246861924686, 'false_feasible_fdr': 0.0047895500725689405, 'false_feasible_rate': 0.004314853556485356, 'boundary_accuracy': 0.5428571428571428, 'boundary_balanced_accuracy': 0.5705541770057899, 'boundary_samples': 350, 'sample_count': 7648}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.908493870402802, 'false_feasible_fdr': 0.0002495321272613849, 'false_feasible_rate': 0.00021891418563922942, 'boundary_accuracy': 0.48484848484848486, 'boundary_balanced_accuracy': 0.5135483870967742, 'boundary_samples': 330, 'sample_count': 9136}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8774390243902439, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.48494983277591974, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 299, 'sample_count': 9840}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.5862804878048781, 'false_feasible_fdr': 0.4458218040951854, 'false_feasible_rate': 0.40934959349593497, 'boundary_accuracy': 0.47614761476147616, 'boundary_balanced_accuracy': 0.5167073226484842, 'boundary_samples': 2222, 'sample_count': 9840}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.6411252354048964, 'false_feasible_fdr': 0.39138094592763245, 'false_feasible_rate': 0.339924670433145, 'boundary_accuracy': 0.44636194029850745, 'boundary_balanced_accuracy': 0.5326403726798354, 'boundary_samples': 2144, 'sample_count': 8496}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.640655105973025, 'false_feasible_fdr': 0.3682420336555675, 'false_feasible_rate': 0.24771194605009633, 'boundary_accuracy': 0.37658227848101267, 'boundary_balanced_accuracy': 0.392856295857948, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.5755876068376068, 'false_feasible_fdr': 0.1536189069423929, 'false_feasible_rate': 0.08333333333333333, 'boundary_accuracy': 0.4971751412429379, 'boundary_balanced_accuracy': 0.5055683563748079, 'boundary_samples': 531, 'sample_count': 3744}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.5912735849056604, 'false_feasible_fdr': 0.13910761154855644, 'false_feasible_rate': 0.075, 'boundary_accuracy': 0.5286415711947627, 'boundary_balanced_accuracy': 0.5369158878504673, 'boundary_samples': 611, 'sample_count': 4240}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.5966409691629956, 'false_feasible_fdr': 0.14378029079159935, 'false_feasible_rate': 0.07351321585903084, 'boundary_accuracy': 0.5100806451612904, 'boundary_balanced_accuracy': 0.5027705345501956, 'boundary_samples': 496, 'sample_count': 3632}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.60727969348659, 'false_feasible_fdr': 0.3143289606458123, 'false_feasible_rate': 0.14918582375478928, 'boundary_accuracy': 0.48997772828507796, 'boundary_balanced_accuracy': 0.46497599039615845, 'boundary_samples': 449, 'sample_count': 4176}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.6489583333333333, 'false_feasible_fdr': 0.23806154934559604, 'false_feasible_rate': 0.11684027777777778, 'boundary_accuracy': 0.6161137440758294, 'boundary_balanced_accuracy': 0.5454287460705554, 'boundary_samples': 633, 'sample_count': 5760}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6720360824742269, 'false_feasible_fdr': 0.24759615384615385, 'false_feasible_rate': 0.1327319587628866, 'boundary_accuracy': 0.6446991404011462, 'boundary_balanced_accuracy': 0.6044403653686465, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.5845588235294118, 'false_feasible_fdr': 0.00030959752321981426, 'false_feasible_rate': 0.0001709986320109439, 'boundary_accuracy': 0.5501432664756447, 'boundary_balanced_accuracy': 0.5031645569620253, 'boundary_samples': 349, 'sample_count': 11696}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.629177807486631, 'false_feasible_fdr': 0.0026857654431512983, 'false_feasible_rate': 0.0015040106951871657, 'boundary_accuracy': 0.5120593692022264, 'boundary_balanced_accuracy': 0.525221202348466, 'boundary_samples': 539, 'sample_count': 11968}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.5782757234726688, 'false_feasible_fdr': 0.0003572704537334762, 'false_feasible_rate': 0.00020096463022508038, 'boundary_accuracy': 0.474025974025974, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 154, 'sample_count': 9952}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.7416437728937729, 'false_feasible_fdr': 0.14189050645888865, 'false_feasible_rate': 0.07921245421245421, 'boundary_accuracy': 0.667741935483871, 'boundary_balanced_accuracy': 0.7145495974479721, 'boundary_samples': 1860, 'sample_count': 8736}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 15, 'accuracy': 0.7011673151750972, 'false_feasible_fdr': 0.11543478260869565, 'false_feasible_rate': 0.0688715953307393, 'boundary_accuracy': 0.43251928020565555, 'boundary_balanced_accuracy': 0.5428449014567267, 'boundary_samples': 1556, 'sample_count': 7710}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7119673768308922, 'false_feasible_fdr': 0.1986980322532919, 'false_feasible_rate': 0.1117676431424767, 'boundary_accuracy': 0.494299674267101, 'boundary_balanced_accuracy': 0.5390832038865316, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.731650470476062, 'false_feasible_fdr': 0.10136315258030183, 'false_feasible_rate': 0.07154414384913947, 'boundary_accuracy': 0.4943808532778356, 'boundary_balanced_accuracy': 0.4968123535537621, 'boundary_samples': 19220, 'sample_count': 207662}, 'all_resource_heads_beat_constant_baseline': True}
+[val] latency_ms physical RMSE: 16.7976 | MAE: 13.9890 | MAPE: 467.33% | tau-b: -0.1945
+[val] area_score physical RMSE: 5.7688 | MAE: 3.4059 | MAPE: 531.18% | tau-b: 0.3126
+Validation target-balanced selection score: 1.463124; relative target losses={'area': 0.9485241811383913, 'perf': 1.4631237737457075}
+Validation worst-target kernel-macro tau-b: -0.159927; worst kernel/target baseline ratio=3.103902; qualified_rank=False; embedding_rank_qualified=False; embedding_control_phase=zero_delta_qualification; embedding_control_score=1.463124; active_control_score=3.678416; lexicographic_qualification={'qualified': False, 'target_qualified': False, 'kernel_perf_qualified': False, 'resource_qualified': True, 'rank_qualified': False, 'worst_kernel_perf_ratio': 3.1039021581388875, 'resource_mae_ratios': {'bram': 0.3988249342350485, 'dsp': 0.950471717625382, 'ff': 0.6768402278216943, 'lut': 0.8395137845633737}, 'boundary_balanced_accuracy': 0.4968123535537621, 'false_feasible_fdr': 0.10136315258030183, 'ranking_score': -0.15992655938500683}
+Train GAE loss: 0
+Train loss breakdown {'perf': 0.5509577840566635, 'area': 0.5910057619214057, 'rank_aux/perf': 0.6965862888097764, 'rank_aux/area': 0.6936460030078888}
+Val GAE loss: 0
+Val loss breakdown {'perf': 0.18456266148040337, 'area': 0.4908361428316839}
+ 		 2.000 mins, 15.149 secs
+Epoch: 001, Train Loss: 1.2351, Val loss: 0.7087, Time: 2.000 mins, 15.149 secs
+Checkpoint saved at epoch 1 -> /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/paired_harp_smoke_s123/run1/last_ckpt.pt
+Final absolute validation report for epoch 0; target-balanced score=1.299665; relative target losses={'area': 0.9547776881057046, 'perf': 1.2996646330411052}
+  0%|          | 0/204 [00:00<?, ?it/s]  0%|          | 1/204 [00:00<00:59,  3.38it/s]  1%|          | 2/204 [00:00<01:09,  2.91it/s]  1%|▏         | 3/204 [00:00<01:05,  3.08it/s]  2%|▏         | 4/204 [00:01<01:09,  2.88it/s]  2%|▏         | 5/204 [00:01<01:07,  2.95it/s]  3%|▎         | 6/204 [00:01<01:04,  3.07it/s]  3%|▎         | 7/204 [00:02<01:02,  3.14it/s]  4%|▍         | 8/204 [00:02<01:02,  3.15it/s]  4%|▍         | 9/204 [00:02<01:01,  3.16it/s]  5%|▍         | 10/204 [00:03<00:59,  3.25it/s]  5%|▌         | 11/204 [00:03<00:59,  3.25it/s]  6%|▌         | 12/204 [00:03<00:58,  3.28it/s]  6%|▋         | 13/204 [00:04<00:57,  3.31it/s]  7%|▋         | 14/204 [00:04<00:57,  3.31it/s]  7%|▋         | 15/204 [00:04<00:56,  3.33it/s]  8%|▊         | 16/204 [00:04<00:53,  3.51it/s]  8%|▊         | 17/204 [00:05<00:54,  3.45it/s]  9%|▉         | 18/204 [00:05<00:54,  3.42it/s]  9%|▉         | 19/204 [00:05<00:54,  3.39it/s] 10%|▉         | 20/204 [00:06<00:55,  3.29it/s] 10%|█         | 21/204 [00:06<00:55,  3.30it/s] 11%|█         | 22/204 [00:06<00:55,  3.31it/s] 11%|█▏        | 23/204 [00:07<00:55,  3.24it/s] 12%|█▏        | 24/204 [00:07<00:55,  3.26it/s] 12%|█▏        | 25/204 [00:07<00:54,  3.28it/s] 13%|█▎        | 26/204 [00:08<00:58,  3.06it/s] 13%|█▎        | 27/204 [00:08<01:00,  2.94it/s] 14%|█▎        | 28/204 [00:08<01:01,  2.84it/s] 14%|█▍        | 29/204 [00:09<01:02,  2.79it/s] 15%|█▍        | 30/204 [00:09<01:02,  2.80it/s] 15%|█▌        | 31/204 [00:09<01:02,  2.76it/s] 16%|█▌        | 32/204 [00:10<01:03,  2.72it/s] 16%|█▌        | 33/204 [00:10<01:03,  2.71it/s] 17%|█▋        | 34/204 [00:10<00:59,  2.88it/s] 17%|█▋        | 35/204 [00:11<01:00,  2.81it/s] 18%|█▊        | 36/204 [00:11<01:00,  2.77it/s] 18%|█▊        | 37/204 [00:12<01:01,  2.70it/s] 19%|█▊        | 38/204 [00:12<00:57,  2.87it/s] 19%|█▉        | 39/204 [00:12<00:53,  3.07it/s] 20%|█▉        | 40/204 [00:12<00:51,  3.21it/s] 20%|██        | 41/204 [00:13<00:49,  3.32it/s] 21%|██        | 42/204 [00:13<00:47,  3.41it/s] 21%|██        | 43/204 [00:13<00:46,  3.47it/s] 22%|██▏       | 44/204 [00:14<00:45,  3.48it/s] 22%|██▏       | 45/204 [00:14<00:46,  3.44it/s] 23%|██▎       | 46/204 [00:14<00:44,  3.51it/s] 23%|██▎       | 47/204 [00:14<00:45,  3.47it/s] 24%|██▎       | 48/204 [00:15<00:45,  3.43it/s] 24%|██▍       | 49/204 [00:15<00:45,  3.39it/s] 25%|██▍       | 50/204 [00:15<00:44,  3.44it/s] 25%|██▌       | 51/204 [00:16<00:44,  3.45it/s] 25%|██▌       | 52/204 [00:16<00:44,  3.43it/s] 26%|██▌       | 53/204 [00:16<00:45,  3.35it/s] 26%|██▋       | 54/204 [00:17<00:44,  3.37it/s] 27%|██▋       | 55/204 [00:17<00:44,  3.38it/s] 27%|██▋       | 56/204 [00:17<00:43,  3.42it/s] 28%|██▊       | 57/204 [00:17<00:43,  3.41it/s] 28%|██▊       | 58/204 [00:18<00:42,  3.44it/s] 29%|██▉       | 59/204 [00:18<00:41,  3.47it/s] 29%|██▉       | 60/204 [00:18<00:41,  3.48it/s] 30%|██▉       | 61/204 [00:19<00:41,  3.44it/s] 30%|███       | 62/204 [00:19<00:41,  3.43it/s] 31%|███       | 63/204 [00:19<00:40,  3.45it/s] 31%|███▏      | 64/204 [00:19<00:40,  3.49it/s] 32%|███▏      | 65/204 [00:20<00:39,  3.54it/s] 32%|███▏      | 66/204 [00:20<00:40,  3.45it/s] 33%|███▎      | 67/204 [00:20<00:39,  3.43it/s] 33%|███▎      | 68/204 [00:21<00:39,  3.43it/s] 34%|███▍      | 69/204 [00:21<00:39,  3.40it/s] 34%|███▍      | 70/204 [00:21<00:39,  3.38it/s] 35%|███▍      | 71/204 [00:21<00:39,  3.34it/s] 35%|███▌      | 72/204 [00:22<00:39,  3.34it/s] 36%|███▌      | 73/204 [00:22<00:39,  3.33it/s] 36%|███▋      | 74/204 [00:22<00:38,  3.38it/s] 37%|███▋      | 75/204 [00:23<00:40,  3.16it/s] 37%|███▋      | 76/204 [00:23<00:42,  3.02it/s] 38%|███▊      | 77/204 [00:23<00:40,  3.17it/s] 38%|███▊      | 78/204 [00:24<00:41,  3.02it/s] 39%|███▊      | 79/204 [00:24<00:38,  3.23it/s] 39%|███▉      | 80/204 [00:24<00:37,  3.32it/s] 40%|███▉      | 81/204 [00:25<00:36,  3.37it/s] 40%|████      | 82/204 [00:25<00:34,  3.53it/s] 41%|████      | 83/204 [00:25<00:33,  3.58it/s] 41%|████      | 84/204 [00:25<00:33,  3.57it/s] 42%|████▏     | 85/204 [00:26<00:31,  3.74it/s] 42%|████▏     | 86/204 [00:26<00:31,  3.77it/s] 43%|████▎     | 87/204 [00:26<00:28,  4.14it/s] 43%|████▎     | 88/204 [00:26<00:25,  4.61it/s] 44%|████▎     | 89/204 [00:26<00:22,  5.02it/s] 44%|████▍     | 90/204 [00:27<00:23,  4.85it/s] 45%|████▍     | 91/204 [00:27<00:25,  4.40it/s] 45%|████▌     | 92/204 [00:27<00:28,  3.89it/s] 46%|████▌     | 93/204 [00:27<00:29,  3.81it/s] 46%|████▌     | 94/204 [00:28<00:29,  3.70it/s] 47%|████▋     | 95/204 [00:28<00:30,  3.54it/s] 47%|████▋     | 96/204 [00:28<00:30,  3.56it/s] 48%|████▊     | 97/204 [00:29<00:32,  3.33it/s] 48%|████▊     | 98/204 [00:29<00:31,  3.41it/s] 49%|████▊     | 99/204 [00:29<00:30,  3.48it/s] 49%|████▉     | 100/204 [00:30<00:31,  3.26it/s] 50%|████▉     | 101/204 [00:30<00:29,  3.47it/s] 50%|█████     | 102/204 [00:30<00:31,  3.21it/s] 50%|█████     | 103/204 [00:31<00:30,  3.31it/s] 51%|█████     | 104/204 [00:31<00:32,  3.10it/s] 51%|█████▏    | 105/204 [00:31<00:33,  2.97it/s] 52%|█████▏    | 106/204 [00:32<00:32,  3.00it/s] 52%|█████▏    | 107/204 [00:32<00:33,  2.90it/s] 53%|█████▎    | 108/204 [00:32<00:31,  3.07it/s] 53%|█████▎    | 109/204 [00:33<00:30,  3.14it/s] 54%|█████▍    | 110/204 [00:33<00:29,  3.21it/s] 54%|█████▍    | 111/204 [00:33<00:27,  3.34it/s] 55%|█████▍    | 112/204 [00:33<00:27,  3.38it/s] 55%|█████▌    | 113/204 [00:34<00:26,  3.39it/s] 56%|█████▌    | 114/204 [00:34<00:26,  3.43it/s] 56%|█████▋    | 115/204 [00:34<00:25,  3.47it/s] 57%|█████▋    | 116/204 [00:34<00:24,  3.55it/s] 57%|█████▋    | 117/204 [00:35<00:23,  3.76it/s] 58%|█████▊    | 118/204 [00:35<00:22,  3.77it/s] 58%|█████▊    | 119/204 [00:35<00:22,  3.79it/s] 59%|█████▉    | 120/204 [00:36<00:22,  3.67it/s] 59%|█████▉    | 121/204 [00:36<00:23,  3.52it/s] 60%|█████▉    | 122/204 [00:36<00:23,  3.52it/s] 60%|██████    | 123/204 [00:36<00:23,  3.50it/s] 61%|██████    | 124/204 [00:37<00:23,  3.40it/s] 61%|██████▏   | 125/204 [00:37<00:23,  3.43it/s] 62%|██████▏   | 126/204 [00:37<00:22,  3.46it/s] 62%|██████▏   | 127/204 [00:38<00:22,  3.37it/s] 63%|██████▎   | 128/204 [00:38<00:22,  3.40it/s] 63%|██████▎   | 129/204 [00:38<00:21,  3.42it/s] 64%|██████▎   | 130/204 [00:39<00:22,  3.24it/s] 64%|██████▍   | 131/204 [00:39<00:23,  3.11it/s] 65%|██████▍   | 132/204 [00:39<00:23,  3.05it/s] 65%|██████▌   | 133/204 [00:40<00:23,  2.98it/s] 66%|██████▌   | 134/204 [00:40<00:23,  2.93it/s] 66%|██████▌   | 135/204 [00:40<00:23,  2.94it/s] 67%|██████▋   | 136/204 [00:41<00:23,  2.93it/s] 67%|██████▋   | 137/204 [00:41<00:22,  2.93it/s] 68%|██████▊   | 138/204 [00:41<00:22,  2.94it/s] 68%|██████▊   | 139/204 [00:42<00:22,  2.95it/s] 69%|██████▊   | 140/204 [00:42<00:21,  2.96it/s] 69%|██████▉   | 141/204 [00:42<00:21,  2.97it/s] 70%|██████▉   | 142/204 [00:43<00:20,  2.97it/s] 70%|███████   | 143/204 [00:43<00:21,  2.79it/s] 71%|███████   | 144/204 [00:43<00:22,  2.69it/s] 71%|███████   | 145/204 [00:44<00:21,  2.68it/s] 72%|███████▏  | 146/204 [00:44<00:21,  2.69it/s] 72%|███████▏  | 147/204 [00:45<00:20,  2.78it/s] 73%|███████▎  | 148/204 [00:45<00:19,  2.93it/s] 73%|███████▎  | 149/204 [00:45<00:18,  2.97it/s] 74%|███████▎  | 150/204 [00:46<00:18,  2.97it/s] 74%|███████▍  | 151/204 [00:46<00:17,  3.00it/s] 75%|███████▍  | 152/204 [00:46<00:17,  2.98it/s] 75%|███████▌  | 153/204 [00:46<00:16,  3.00it/s] 75%|███████▌  | 154/204 [00:47<00:16,  3.00it/s] 76%|███████▌  | 155/204 [00:47<00:16,  2.93it/s] 76%|███████▋  | 156/204 [00:48<00:16,  2.93it/s] 77%|███████▋  | 157/204 [00:48<00:15,  2.97it/s] 77%|███████▋  | 158/204 [00:48<00:15,  2.96it/s] 78%|███████▊  | 159/204 [00:49<00:15,  2.98it/s] 78%|███████▊  | 160/204 [00:49<00:14,  3.04it/s] 79%|███████▉  | 161/204 [00:49<00:14,  3.04it/s] 79%|███████▉  | 162/204 [00:49<00:13,  3.06it/s] 80%|███████▉  | 163/204 [00:50<00:13,  3.06it/s] 80%|████████  | 164/204 [00:50<00:13,  3.04it/s] 81%|████████  | 165/204 [00:50<00:12,  3.04it/s] 81%|████████▏ | 166/204 [00:51<00:12,  3.04it/s] 82%|████████▏ | 167/204 [00:51<00:11,  3.09it/s] 82%|████████▏ | 168/204 [00:52<00:12,  2.84it/s] 83%|████████▎ | 169/204 [00:52<00:12,  2.89it/s] 83%|████████▎ | 170/204 [00:52<00:12,  2.72it/s] 84%|████████▍ | 171/204 [00:53<00:11,  2.76it/s] 84%|████████▍ | 172/204 [00:53<00:12,  2.63it/s] 85%|████████▍ | 173/204 [00:53<00:11,  2.61it/s] 85%|████████▌ | 174/204 [00:54<00:11,  2.68it/s] 86%|████████▌ | 175/204 [00:54<00:10,  2.71it/s] 86%|████████▋ | 176/204 [00:55<00:10,  2.73it/s] 87%|████████▋ | 177/204 [00:55<00:09,  2.80it/s] 87%|████████▋ | 178/204 [00:55<00:09,  2.82it/s] 88%|████████▊ | 179/204 [00:56<00:08,  2.84it/s] 88%|████████▊ | 180/204 [00:56<00:08,  2.81it/s] 89%|████████▊ | 181/204 [00:57<00:10,  2.22it/s] 89%|████████▉ | 182/204 [00:57<00:09,  2.36it/s] 90%|████████▉ | 183/204 [00:57<00:08,  2.49it/s] 90%|█████████ | 184/204 [00:58<00:07,  2.66it/s] 91%|█████████ | 185/204 [00:58<00:06,  2.73it/s] 91%|█████████ | 186/204 [00:58<00:06,  2.77it/s] 92%|█████████▏| 187/204 [00:59<00:05,  2.96it/s] 92%|█████████▏| 188/204 [00:59<00:05,  2.95it/s] 93%|█████████▎| 189/204 [00:59<00:05,  2.94it/s] 93%|█████████▎| 190/204 [01:00<00:04,  3.07it/s] 94%|█████████▎| 191/204 [01:00<00:04,  2.99it/s] 94%|█████████▍| 192/204 [01:00<00:04,  2.95it/s] 95%|█████████▍| 193/204 [01:01<00:03,  3.05it/s] 95%|█████████▌| 194/204 [01:01<00:03,  2.98it/s] 96%|█████████▌| 195/204 [01:01<00:03,  2.93it/s] 96%|█████████▌| 196/204 [01:02<00:02,  2.92it/s] 97%|█████████▋| 197/204 [01:02<00:02,  2.90it/s] 97%|█████████▋| 198/204 [01:02<00:02,  2.88it/s] 98%|█████████▊| 199/204 [01:03<00:01,  2.85it/s] 98%|█████████▊| 200/204 [01:03<00:01,  2.87it/s] 99%|█████████▊| 201/204 [01:03<00:01,  2.88it/s] 99%|█████████▉| 202/204 [01:04<00:00,  2.93it/s]100%|█████████▉| 203/204 [01:04<00:00,  2.95it/s]100%|██████████| 204/204 [01:04<00:00,  3.36it/s]100%|██████████| 204/204 [01:04<00:00,  3.15it/s]
+[best_val] epoch 0
+        target   aggregation  samples  kernels    mape     rmse       mse  \
+0   latency_ms   point_micro    13011        4  4.0976  16.0568  257.8192   
+1   latency_ms        kernel     4035        1  9.3429  12.5519  157.5493   
+2   latency_ms        kernel     3329        1  3.6508  15.2510  232.5929   
+3   latency_ms        kernel     1735        1  0.4598  22.4076  502.0983   
+4   latency_ms        kernel     3912        1  0.6810  16.5641  274.3692   
+5   latency_ms  kernel_macro    13011        4  3.5336  16.6936  291.6524   
+6   area_score   point_micro    13011        4  5.0001   5.8933   34.7308   
+7   area_score        kernel     4035        1  8.5243   1.7151    2.9416   
+8   area_score        kernel     3329        1  1.4990   6.2235   38.7318   
+9   area_score        kernel     1735        1  3.6616   9.7174   94.4277   
+10  area_score        kernel     3912        1  4.9382   6.1351   37.6389   
+11  area_score  kernel_macro    13011        4  4.6558   5.9478   43.4350   
+
+        mae   max_err     tau                               kernel  
+0   12.8478  149.1662 -0.2476                                  NaN  
+1   12.1236   18.9640 -0.2329                 machsuite-sort-radix  
+2   11.5031   66.3904 -0.2295                    machsuite-viterbi  
+3   13.3285  149.1662  0.0596      rodinia_pathfinder_0_baseline_0  
+4   14.5258   51.0141 -0.1577  rodinia_pathfinder_4_doublebuffer_0  
+5   12.8702   71.3837 -0.1401                                       
+6    3.4309   39.9065  0.3140                                  NaN  
+7    1.4853   14.5110  0.2641                 machsuite-sort-radix  
+8    3.9102   39.9065 -0.0125                    machsuite-viterbi  
+9    5.9080   30.0865 -0.0905      rodinia_pathfinder_0_baseline_0  
+10   3.9312   35.2122  0.3011  rodinia_pathfinder_4_doublebuffer_0  
+11   3.8087   29.9291  0.1155                                       
+[best_val] epoch 0 resource metrics: {'resources': [{'resource': 'bram', 'mae_percentage_points': 4.234495759010315, 'bias_percentage_points': 2.4624446406960487, 'kernel_macro_tau': -0.046244252787144835, 'constant_train_mean_validation_mae_percentage_points': 9.660611301660538, 'mae_baseline_ratio': 0.4383258602157462, 'beats_constant_train_mean': True}, {'resource': 'dsp', 'mae_percentage_points': 12.164033204317093, 'bias_percentage_points': 12.162959575653076, 'kernel_macro_tau': 0.007068822803203202, 'constant_train_mean_validation_mae_percentage_points': 3.9174895733594894, 'mae_baseline_ratio': 3.1050582207129356, 'beats_constant_train_mean': False}, {'resource': 'ff', 'mae_percentage_points': 3.608217090368271, 'bias_percentage_points': 0.9348354302346706, 'kernel_macro_tau': -0.016505748068672128, 'constant_train_mean_validation_mae_percentage_points': 5.995739996433258, 'mae_baseline_ratio': 0.6017967911408307, 'beats_constant_train_mean': True}, {'resource': 'lut', 'mae_percentage_points': 10.15998050570488, 'bias_percentage_points': -8.92973467707634, 'kernel_macro_tau': 0.0952703629138981, 'constant_train_mean_validation_mae_percentage_points': 13.15256953239441, 'mae_baseline_ratio': 0.7724711495104537, 'beats_constant_train_mean': True}], 'feasibility': [{'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.9241898148148148, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.5714285714285714, 'boundary_balanced_accuracy': 0.55, 'boundary_samples': 21, 'sample_count': 10368}, {'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.8885433386837881, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.7246376811594203, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 69, 'sample_count': 9968}, {'kernel': 'machsuite-sort-radix', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.8770127118644068, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.7027027027027027, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 37, 'sample_count': 9440}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.717766757865937, 'false_feasible_fdr': 0.005953151287692506, 'false_feasible_rate': 0.00393296853625171, 'boundary_accuracy': 0.4299835255354201, 'boundary_balanced_accuracy': 0.49166500077741504, 'boundary_samples': 607, 'sample_count': 11696}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.6786184210526316, 'false_feasible_fdr': 0.003830439223697651, 'false_feasible_rate': 0.0024671052631578946, 'boundary_accuracy': 0.38071065989847713, 'boundary_balanced_accuracy': 0.5079263366115956, 'boundary_samples': 394, 'sample_count': 12160}, {'kernel': 'machsuite-sort-radix', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6829245973645681, 'false_feasible_fdr': 0.008598076362576508, 'false_feasible_rate': 0.005398975109809663, 'boundary_accuracy': 0.3834296724470135, 'boundary_balanced_accuracy': 0.48764918341708546, 'boundary_samples': 519, 'sample_count': 10928}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.8151150627615062, 'false_feasible_fdr': 0.0011662779073642118, 'false_feasible_rate': 0.0009152719665271967, 'boundary_accuracy': 0.44857142857142857, 'boundary_balanced_accuracy': 0.5004962779156328, 'boundary_samples': 350, 'sample_count': 7648}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.8162215411558669, 'false_feasible_fdr': 0.0013912075681691708, 'false_feasible_rate': 0.0010945709281961471, 'boundary_accuracy': 0.47878787878787876, 'boundary_balanced_accuracy': 0.5052534562211981, 'boundary_samples': 330, 'sample_count': 9136}, {'kernel': 'machsuite-viterbi', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.7827235772357723, 'false_feasible_fdr': 0.0, 'false_feasible_rate': 0.0, 'boundary_accuracy': 0.48494983277591974, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 299, 'sample_count': 9840}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.6707317073170732, 'false_feasible_fdr': 0.3423344947735192, 'false_feasible_rate': 0.19969512195121952, 'boundary_accuracy': 0.47614761476147616, 'boundary_balanced_accuracy': 0.46507585851065225, 'boundary_samples': 2222, 'sample_count': 9840}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.7006826741996234, 'false_feasible_fdr': 0.293841642228739, 'false_feasible_rate': 0.17690677966101695, 'boundary_accuracy': 0.5256529850746269, 'boundary_balanced_accuracy': 0.5076945159086614, 'boundary_samples': 2144, 'sample_count': 8496}, {'kernel': 'machsuite-viterbi', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6915944123314065, 'false_feasible_fdr': 0.27980478735765746, 'false_feasible_rate': 0.14499036608863197, 'boundary_accuracy': 0.5116033755274262, 'boundary_balanced_accuracy': 0.4859968446456664, 'boundary_samples': 1896, 'sample_count': 8304}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.53125, 'false_feasible_fdr': 0.07989167230873392, 'false_feasible_rate': 0.031517094017094016, 'boundary_accuracy': 0.4783427495291902, 'boundary_balanced_accuracy': 0.49359959037378387, 'boundary_samples': 531, 'sample_count': 3744}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.5266509433962264, 'false_feasible_fdr': 0.08048780487804878, 'false_feasible_rate': 0.031132075471698113, 'boundary_accuracy': 0.4779050736497545, 'boundary_balanced_accuracy': 0.4937909549897948, 'boundary_samples': 611, 'sample_count': 4240}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.5137665198237885, 'false_feasible_fdr': 0.1339541547277937, 'false_feasible_rate': 0.05148678414096916, 'boundary_accuracy': 0.5060483870967742, 'boundary_balanced_accuracy': 0.491883963494133, 'boundary_samples': 496, 'sample_count': 3632}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.6044061302681992, 'false_feasible_fdr': 0.30765143464399575, 'false_feasible_rate': 0.13864942528735633, 'boundary_accuracy': 0.48997772828507796, 'boundary_balanced_accuracy': 0.4645658263305322, 'boundary_samples': 449, 'sample_count': 4176}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.6380208333333334, 'false_feasible_fdr': 0.23143939393939394, 'false_feasible_rate': 0.10607638888888889, 'boundary_accuracy': 0.6034755134281201, 'boundary_balanced_accuracy': 0.5184847624869019, 'boundary_samples': 633, 'sample_count': 5760}, {'kernel': 'rodinia_pathfinder_0_baseline_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6462628865979382, 'false_feasible_fdr': 0.25499677627337203, 'false_feasible_rate': 0.12741623711340205, 'boundary_accuracy': 0.6160458452722063, 'boundary_balanced_accuracy': 0.558148682312836, 'boundary_samples': 698, 'sample_count': 6208}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.5569425444596443, 'false_feasible_fdr': 0.00032589212970506764, 'false_feasible_rate': 0.0001709986320109439, 'boundary_accuracy': 0.5501432664756447, 'boundary_balanced_accuracy': 0.5031645569620253, 'boundary_samples': 349, 'sample_count': 11696}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 5.0, 'budget_count': 16, 'accuracy': 0.5809659090909091, 'false_feasible_fdr': 0.0029387755102040815, 'false_feasible_rate': 0.0015040106951871657, 'boundary_accuracy': 0.5120593692022264, 'boundary_balanced_accuracy': 0.525221202348466, 'boundary_samples': 539, 'sample_count': 11968}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xcu200-fsgd2104-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.5302451768488746, 'false_feasible_fdr': 0.000390625, 'false_feasible_rate': 0.00020096463022508038, 'boundary_accuracy': 0.474025974025974, 'boundary_balanced_accuracy': 0.5, 'boundary_samples': 154, 'sample_count': 9952}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 3.33, 'budget_count': 16, 'accuracy': 0.668040293040293, 'false_feasible_fdr': 0.08647707486941382, 'false_feasible_rate': 0.03411172161172161, 'boundary_accuracy': 0.5451612903225806, 'boundary_balanced_accuracy': 0.6210846118790825, 'boundary_samples': 1860, 'sample_count': 8736}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 5.0, 'budget_count': 15, 'accuracy': 0.6169909208819715, 'false_feasible_fdr': 0.08455565142364108, 'false_feasible_rate': 0.03813229571984436, 'boundary_accuracy': 0.43958868894601544, 'boundary_balanced_accuracy': 0.5869751499571552, 'boundary_samples': 1556, 'sample_count': 7710}, {'kernel': 'rodinia_pathfinder_4_doublebuffer_0', 'device': 'xczu7ev-ffvc1156-2-e', 'clock_period_ns': 10.0, 'budget_count': 16, 'accuracy': 0.6524633821571239, 'false_feasible_fdr': 0.1804339550818424, 'false_feasible_rate': 0.0788948069241012, 'boundary_accuracy': 0.48574918566775244, 'boundary_balanced_accuracy': 0.5356967365505643, 'boundary_samples': 2456, 'sample_count': 12016}], 'budget_policy': 'exact_stage1_validation_bank', 'generated_unseen_case_count': 0, 'independent_budget_summary': {'accuracy': 0.693400814785565, 'false_feasible_fdr': 0.06958418627443232, 'false_feasible_rate': 0.04239581627837544, 'boundary_accuracy': 0.49812695109261185, 'boundary_balanced_accuracy': 0.5093226590297666, 'boundary_samples': 19220, 'sample_count': 207662}, 'all_resource_heads_beat_constant_baseline': False}
+[best_val] latency_ms physical RMSE: 16.0568 | MAE: 12.8478 | MAPE: 409.76% | tau-b: -0.2476
+[best_val] area_score physical RMSE: 5.8933 | MAE: 3.4309 | MAPE: 500.01% | tau-b: 0.3140
+Wrote physical-unit metrics to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/paired_harp_smoke_s123/run1/best_val_physical_metrics.csv
+Wrote point predictions to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/paired_harp_smoke_s123/run1/best_val_predictions.csv
+Wrote resource validation metrics to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/paired_harp_smoke_s123/run1/best_val_resource_metrics.json
+Published independent structural-encoder checkpoint manifest: /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/paired_harp_smoke_s123/run1/structural_selected_checkpoint.json
+Traceback (most recent call last):
+  File "GNN_branch/main_GNN.py", line 138, in <module>
+    train_main(dataset, pragma_dim, test_ratio=test_ratio, resample=r)
+  File "/home/elvouvali/MailoHLS/MailoHLS-next/GNN_branch/train_GNN.py", line 2962, in train_main
+    raise RuntimeError(
+RuntimeError: No epoch simultaneously passed perf/area zero-delta, per-kernel perf, resource-head, and ranking qualifications. The held-out test set remains locked.

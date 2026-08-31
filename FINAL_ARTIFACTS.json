@@ -1,0 +1,40 @@
+{
+  "split": "mailohls_runs/mailohls_final_family_split_s123.json",
+
+  "gnn": {
+    "checkpoint": "Checkpoints/gnn_final_absolute_direct_rank_s123/run1/val_structural_rank_model_state_dict.pth",
+    "checkpoint_epoch": 9,
+    "checkpoint_tag": "val_structural_rank",
+    "memory": "artifacts/gnn/absolute_direct_rank_epoch9_s123/multiscale_aligned"
+  },
+
+  "stage1": {
+    "PARETO_ADP": "mailohls_runs/stage1_final_final_adp_s123/best_custom_stage1",
+    "PARETO_AREA": "mailohls_runs/stage1_final_final_area_s123/best_custom_stage1",
+    "PARETO_LATENCY": "mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1"
+  },
+
+  "stage2": {
+    "PARETO_ADP": {
+      "path": "mailohls_runs/stage2_specified_adp_epoch9_s123_v3/best_custom_stage2",
+      "status": "production"
+    },
+    "PARETO_AREA": {
+      "path": null,
+      "fallback": "stage1",
+      "status": "pending"
+    },
+    "PARETO_LATENCY": {
+      "path": null,
+      "fallback": "stage1",
+      "status": "candidate_rank_experiment_pending"
+    }
+  },
+
+  "stage3": {
+    "PARETO_ADP": {
+      "path": "mailohls_runs/stage3_adp_semantic_action_s789_rep2/best_custom_stage3",
+      "status": "ablation_step0_no_improvement"
+    }
+  }
+}
