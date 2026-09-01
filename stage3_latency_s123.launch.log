@@ -75,3 +75,63 @@ changed directives:
 trainable params: 8,683,524 || all params: 6,757,388,292 || trainable%: 0.1285
 [RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
 No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` hides base models input arguments, if label_names is not given, label_names can't be set automatically within `Trainer`. Note that empty label_names list will be used instead.
+[REFERENCE-FILTER] total=745 active=238 epsilon=0.05 active_reference_accuracy=0.3403 negative_margin_count=157 active_negative_margin_count=157
+[OPT-DPO] lora=0 embed=0 attn_gate=4 ff_gate=0 xattn_attn=8,683,520 xattn_ff=0
+  0%|          | 0/40 [00:00<?, ?it/s]
+  0%|          | 0/9 [00:00<?, ?it/s][A
+ 22%|██▏       | 2/9 [00:01<00:05,  1.29it/s][A
+ 33%|███▎      | 3/9 [00:03<00:06,  1.10s/it][A
+ 44%|████▍     | 4/9 [00:04<00:06,  1.27s/it][A
+ 56%|█████▌    | 5/9 [00:06<00:05,  1.36s/it][A
+ 67%|██████▋   | 6/9 [00:07<00:04,  1.39s/it][A
+ 78%|███████▊  | 7/9 [00:09<00:02,  1.44s/it][A
+ 89%|████████▉ | 8/9 [00:10<00:01,  1.48s/it][A
+100%|██████████| 9/9 [00:12<00:00,  1.46s/it][A                                      
+                                             [A{'eval_loss': 0.6251175403594971, 'eval_preference_accuracy': 0.2222222222222222, 'eval_preference_margin_mean': -0.0009081165189854801, 'eval_preference_margin_p10': -0.002648293972015381, 'eval_policy_pair_accuracy': 0.2222222222222222, 'eval_reference_pair_accuracy': 0.2222222222222222, 'eval_negative_reference_margin_count': 7, 'eval_negative_reference_margins_crossed_zero': 0, 'eval_runtime': 13.7388, 'eval_samples_per_second': 0.655, 'eval_steps_per_second': 0.655, 'epoch': 0}
+  0%|          | 0/40 [00:13<?, ?it/s]
+100%|██████████| 9/9 [00:12<00:00,  1.46s/it][A
+                                             [A
+====================================================================================================
+[VAL-SELECTION] step=0
+[VAL-SELECTION] mean_value_acc=0.540827
+[VAL-SELECTION] mean_decision_site_accuracy=0.479003
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.983739837398374, 'ARRAY_F': 0.24390243902439024, 'ARRAY_T': 0.6747967479674797, 'PIPE': 0.5, 'UNROLL': 0.46706586826347307}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.5330578512396692, 'machsuite-viterbi': 0.4745098039215686, 'rodinia_pathfinder_0_baseline_0': 0.5777777777777777, 'rodinia_pathfinder_4_doublebuffer_0': 0.5638888888888888}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.5330578512396692, 'machsuite-viterbi': 0.4764705882352941, 'rodinia_pathfinder_0_baseline_0': 0.4722222222222222, 'rodinia_pathfinder_4_doublebuffer_0': 0.4548611111111111}
+[VAL-SELECTION] decision_sites=928 forced_sites=109 budget_counterfactual_groups=18
+[VAL-SELECTION] minimum_kernel_accuracy=0.454861
+[VAL-SELECTION] selection_score=0.484153
+[VAL-SELECTION] joint_action_score=0.087259
+[VAL-SELECTION] decision_key=(0.48415294320207414, 0.4548611111111111, 0.08725895316804406, 0.47463142453951274)
+[VAL-SELECTION] checkpoint_key=(0.48415294320207414, 0.4548611111111111, 0.08725895316804406, 0.47463142453951274, -0.1587457434707803)
+====================================================================================================
+[VAL-LOCAL] count=928 top1=0.5129310344827587 mrr=0.6873901033114397 mean_margin=0.03228157399832431 cascade=0/928 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 15, 'top1_accuracy': 0.8666666666666667, 'mrr': 0.9333333333333333, 'mean_margin': 0.07984787027041117}, 'ARRAY_F': {'count': 122, 'top1_accuracy': 0.2786885245901639, 'mrr': 0.5032624251886546, 'mean_margin': -0.2833207608124272}, 'ARRAY_T': {'count': 123, 'top1_accuracy': 0.6666666666666666, 'mrr': 0.7994579945799457, 'mean_margin': 0.07370326934548897}, 'PIPE': {'count': 334, 'top1_accuracy': 0.5538922155688623, 'mrr': 0.7769461077844312, 'mean_margin': 0.007807997685528087}, 'UNROLL': {'count': 334, 'top1_accuracy': 0.48502994011976047, 'mrr': 0.6127744510978045, 'mean_margin': 0.15464473676360296}}
+[VAL-BUDGET] groups=18 cases=56 decision_accuracy=0.47463142453951274 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=3
+[VAL-MARGIN] count=928 mean=-0.1587457434707803 median=-0.04628956317901611 positive_fraction=0.4838362068965517 mean_gold_rank=2.1918103448275863
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 15, 'mean_margin': 0.037414568662643435, 'median_margin': 0.0352761447429657, 'positive_fraction': 0.8666666666666667, 'mean_gold_rank': 1.1333333333333333}, 'ARRAY_F': {'count': 122, 'mean_margin': -0.6396117407645359, 'median_margin': -0.45930016040802, 'positive_fraction': 0.2459016393442623, 'mean_gold_rank': 3.6721311475409837}, 'ARRAY_T': {'count': 123, 'mean_margin': 0.032250800389584486, 'median_margin': 0.20018264651298523, 'positive_fraction': 0.6747967479674797, 'mean_gold_rank': 1.6097560975609757}, 'PIPE': {'count': 334, 'mean_margin': -0.0221141611789158, 'median_margin': 0.002798721194267273, 'positive_fraction': 0.5, 'mean_gold_rank': 1.5}, 'UNROLL': {'count': 334, 'mean_margin': -0.19887830752009403, 'median_margin': -0.8771980106830597, 'positive_fraction': 0.46706586826347307, 'mean_gold_rank': 2.604790419161677}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 242, 'mean_margin': -0.02736289088021625, 'median_margin': 0.038164958357810974, 'positive_fraction': 0.5330578512396694, 'mean_gold_rank': 1.7727272727272727}, 'machsuite-viterbi': {'count': 254, 'mean_margin': -0.034117733003703625, 'median_margin': -0.05322767794132233, 'positive_fraction': 0.4763779527559055, 'mean_gold_rank': 2.074803149606299}, 'rodinia_pathfinder_0_baseline_0': {'count': 144, 'mean_margin': -0.09149696046693458, 'median_margin': -0.17331838607788086, 'positive_fraction': 0.4722222222222222, 'mean_gold_rank': 2.4652777777777777}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 288, 'mean_margin': -0.41268320783921, 'median_margin': -0.07701048254966736, 'positive_fraction': 0.4548611111111111, 'mean_gold_rank': 2.5104166666666665}}
+[VAL-SELECTION] Saved best STRUCTURAL xattn weights -> mailohls_runs/stage3_latency_semantic_action_s123_final/best_custom_stage3/structural_xattn.pt
+[VAL-SELECTION] New best checkpoint at step 0 -> mailohls_runs/stage3_latency_semantic_action_s123_final/best_custom_stage3
+Could not estimate the number of tokens of the input, floating-point operations will not be computed
+  2%|▎         | 1/40 [1:37:37<63:27:03, 5857.01s/it]  5%|▌         | 2/40 [1:37:50<25:32:33, 2419.83s/it]  8%|▊         | 3/40 [1:38:29<13:41:51, 1332.74s/it] 10%|█         | 4/40 [1:39:17<8:15:20, 825.57s/it]   12%|█▎        | 5/40 [1:39:45<5:13:36, 537.62s/it]                                                   {'loss': 0.7075, 'grad_norm': 0.018816612660884857, 'learning_rate': 1.9709418174260523e-05, 'epoch': 0.17}
+ 12%|█▎        | 5/40 [1:39:45<5:13:36, 537.62s/it] 15%|█▌        | 6/40 [1:40:19<3:27:44, 366.59s/it] 18%|█▊        | 7/40 [1:40:53<2:21:48, 257.84s/it] 20%|██        | 8/40 [1:41:31<1:40:05, 187.67s/it] 22%|██▎       | 9/40 [1:42:31<1:16:20, 147.76s/it] 25%|██▌       | 10/40 [1:43:11<57:21, 114.72s/it]                                                   {'loss': 0.7071, 'grad_norm': 0.052096251398324966, 'learning_rate': 1.7994427634035016e-05, 'epoch': 0.34}
+ 25%|██▌       | 10/40 [1:43:11<57:21, 114.72s/it] 28%|██▊       | 11/40 [1:44:21<48:48, 100.98s/it] 30%|███       | 12/40 [1:45:11<39:49, 85.35s/it]  32%|███▎      | 13/40 [1:46:24<36:43, 81.59s/it] 35%|███▌      | 14/40 [1:46:55<28:50, 66.56s/it] 38%|███▊      | 15/40 [1:47:59<27:20, 65.61s/it]                                                 {'loss': 0.706, 'grad_norm': 0.08671320974826813, 'learning_rate': 1.5000000000000002e-05, 'epoch': 0.5}
+ 38%|███▊      | 15/40 [1:47:59<27:20, 65.61s/it] 40%|████      | 16/40 [1:49:02<25:58, 64.94s/it] 42%|████▎     | 17/40 [1:49:39<21:39, 56.48s/it] 45%|████▌     | 18/40 [1:50:46<21:51, 59.61s/it] 48%|████▊     | 19/40 [1:51:15<17:41, 50.53s/it] 50%|█████     | 20/40 [1:51:47<14:55, 44.80s/it]                                                 {'loss': 0.7068, 'grad_norm': 0.1028347834944725, 'learning_rate': 1.1205366802553231e-05, 'epoch': 0.67}
+ 50%|█████     | 20/40 [1:51:47<14:55, 44.80s/it]
+  0%|          | 0/9 [00:00<?, ?it/s][A
+ 22%|██▏       | 2/9 [00:01<00:05,  1.29it/s][A
+ 33%|███▎      | 3/9 [00:03<00:06,  1.10s/it][A
+ 44%|████▍     | 4/9 [00:04<00:06,  1.27s/it][A
+ 56%|█████▌    | 5/9 [00:06<00:05,  1.36s/it][A
+ 67%|██████▋   | 6/9 [00:07<00:04,  1.38s/it][A
+ 78%|███████▊  | 7/9 [00:09<00:02,  1.44s/it][A
+ 89%|████████▉ | 8/9 [00:10<00:01,  1.47s/it][A
+100%|██████████| 9/9 [00:12<00:00,  1.46s/it][A                                                 
+                                             [A{'eval_loss': 0.6250519752502441, 'eval_preference_accuracy': 0.4444444444444444, 'eval_preference_margin_mean': -0.0002005365095101297, 'eval_preference_margin_p10': -0.001975440885871649, 'eval_policy_pair_accuracy': 0.2222222222222222, 'eval_reference_pair_accuracy': 0.2222222222222222, 'eval_negative_reference_margin_count': 7, 'eval_negative_reference_margins_crossed_zero': 0, 'eval_runtime': 13.701, 'eval_samples_per_second': 0.657, 'eval_steps_per_second': 0.657, 'epoch': 0.67}
+ 50%|█████     | 20/40 [1:52:00<14:55, 44.80s/it]
+100%|██████████| 9/9 [00:12<00:00,  1.46s/it][A
+                                             [A

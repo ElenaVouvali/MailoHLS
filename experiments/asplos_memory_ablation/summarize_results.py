@@ -112,24 +112,37 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(summary)
 
-    args.synthesis_queue_jsonl.parent.mkdir(parents=True, exist_ok=True)
-    with args.synthesis_queue_jsonl.open("w", encoding="utf-8") as handle:
-        seen = set()
-        for row in queue:
-            # Identical predictions from multiple controls require one HLS run;
-            # keep all variant labels in the raw results for attribution.
-            key = (
-                row["context_id"],
-                row["canonical_prediction"],
-            )
-            if key in seen:
-                continue
-            seen.add(key)
+    args.synthesis_queue_jsonl.parent.mkdir(
+        parents=True, exist_ok=True
+    )
+
+    unique = {}
+
+    for row in queue:
+        key = (
+            row["context_id"],
+            row["canonical_prediction"],
+        )
+
+        if key not in unique:
+            rec = dict(row)
+            rec["variants"] = [rec.pop("variant")]
+            unique[key] = rec
+        else:
+            variant = row["variant"]
+            if variant not in unique[key]["variants"]:
+                unique[key]["variants"].append(variant)
+
+    with args.synthesis_queue_jsonl.open(
+        "w", encoding="utf-8"
+    ) as handle:
+        for row in unique.values():
             handle.write(json.dumps(row, sort_keys=True) + "\n")
 
     print(f"[DONE] summary -> {args.summary_csv}")
     print(
-        f"[DONE] deduplicated synthesis queue ({len(seen)} designs) -> "
+        f"[DONE] deduplicated synthesis queue "
+        f"({len(unique)} designs) -> "
         f"{args.synthesis_queue_jsonl}"
     )
 

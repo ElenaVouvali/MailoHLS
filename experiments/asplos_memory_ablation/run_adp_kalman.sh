@@ -11,6 +11,7 @@ CASE_MANIFEST="${RUN_DIR}/cases/manifest.json"
 
 STAGE1="mailohls_runs/stage1_final_final_adp_s123/best_custom_stage1"
 STAGE2="mailohls_runs/stage2_specified_adp_epoch9_s123_v3/best_custom_stage2"
+STAGE3="mailohls_runs/stage3_adp_semantic_action_s789_rep2/best_custom_stage3"
 DOMAINS="mailohls_runs/stage2_specified_adp_epoch9_s123_v3/directive_domain_registry.json"
 ALIGNED="artifacts/gnn/absolute_direct_rank_epoch9_s123/multiscale_aligned"
 ABLATION_ROOT="${RUN_DIR}/memory_banks"
@@ -67,6 +68,20 @@ run_stage2() {
     2>&1 | tee "${RUN_DIR}/logs/${name}.log"
 }
 
+run_stage3() {
+  CUDA_VISIBLE_DEVICES="${GPU}" PYTHONPATH=. "${PYTHON_BIN}" -u \
+    LLM_branch/inference/eval_stage1_stage2_stage3.py \
+    --stage stage3 \
+    --adapter_dir "${STAGE3}" \
+    --directive_domain_registry_json "${DOMAINS}" \
+    --memory_dir "${ALIGNED}" \
+    --input_jsonl "${CASES}" \
+    --num_samples 1 \
+    --output_jsonl "${RUN_DIR}/predictions/stage3.jsonl" \
+    2>&1 | tee "${RUN_DIR}/logs/stage3.log"
+}
+
+
 if [[ ! -f "${RUN_DIR}/predictions/stage1.jsonl" ]] ||
    [[ "$(wc -l < "${RUN_DIR}/predictions/stage1.jsonl")" -ne 18 ]]; then
   run_stage1
@@ -76,12 +91,15 @@ fi
 run_stage2 zero "${ABLATION_ROOT}/zero" yes
 run_stage2 shuffled "${ABLATION_ROOT}/shuffled" yes
 run_stage2 aligned "${ALIGNED}" no
+run_stage3
+
 
 "${PYTHON_BIN}" experiments/asplos_memory_ablation/summarize_results.py \
   --result "stage1=${RUN_DIR}/predictions/stage1.jsonl" \
   --result "zero=${RUN_DIR}/predictions/zero.jsonl" \
   --result "shuffled=${RUN_DIR}/predictions/shuffled.jsonl" \
   --result "aligned=${RUN_DIR}/predictions/aligned.jsonl" \
+  --result "stage3=${RUN_DIR}/predictions/stage3.jsonl" \
   --summary_csv "${RUN_DIR}/summary.csv" \
   --synthesis_queue_jsonl "${RUN_DIR}/synthesis_queue.jsonl"
 

@@ -449,54 +449,24 @@ def main() -> None:
         # ----------------------------------------------
 
         zero = dict(static)
+        zero["node_embs"] = torch.zeros_like(vectors)
+        zero["memory_ablation"] = "zero_information"
 
-        if (
-            "action_relation_mask"
-            in zero
-        ):
-            zero[
-                "action_relation_mask"
-            ] = torch.zeros_like(
-                zero[
-                    "action_relation_mask"
-                ],
-                dtype=torch.bool,
-            )
-
-        if (
-            "action_relation_bits"
-            in zero
-        ):
-            zero[
-                "action_relation_bits"
-            ] = torch.zeros_like(
-                zero[
-                    "action_relation_bits"
-                ]
-            )
-
-        zero[
-            "node_embs"
-        ] = torch.zeros_like(
-            vectors
-        )
-
-        zero[
-            "node_embs_mask"
-        ] = torch.zeros_like(
+        # Scientific-contract checks.
+        if not torch.equal(
+            zero["node_embs_mask"].bool().view(-1),
             mask,
-            dtype=torch.bool,
-        )
+        ):
+            raise RuntimeError(
+                f"{source.name}: ZERO changed active-slot mask"
+            )
 
-        zero[
-            "memory_ablation"
-        ] = "zero_information"
+        if torch.count_nonzero(zero["node_embs"]).item() != 0:
+            raise RuntimeError(
+                f"{source.name}: ZERO contains non-zero embeddings"
+            )
 
-        torch.save(
-            zero,
-            args.zero_out
-            / source.name,
-        )
+        torch.save(zero, args.zero_out / source.name)
 
         # ----------------------------------------------
         # STATIC SHUFFLE
