@@ -111,10 +111,28 @@ def load_stage2_contract(stage2_adapter_dir: str) -> dict:
                 "Stage-2 production structural contract is missing: "
                 + ", ".join(missing_production)
             )
-        if structural["loss_policy"] != {
-            "ce_loss_weight": 1.0, "candidate_loss_weight": 0.0
-        }:
-            raise ValueError("Stage-2 production loss policy is incompatible with Stage 3")
+        # Stage 3 consumes the frozen Stage-2 weights and lineage.  A
+        # non-negative auxiliary candidate-ranking loss used to obtain those
+        # weights does not make the checkpoint incompatible with DPO.
+        loss_policy = structural["loss_policy"]
+        ce_weight = float(loss_policy.get("ce_loss_weight", -1.0))
+        candidate_weight = float(
+            loss_policy.get("candidate_loss_weight", -1.0)
+        )
+        if ce_weight != 1.0 or candidate_weight < 0.0:
+            raise ValueError(
+                "Stage-3 requires Stage-2 RHS CE weight 1.0 and a "
+                "non-negative candidate-loss weight"
+            )
+        top_loss = contract.get("stage2_loss")
+        if isinstance(top_loss, dict) and (
+            float(top_loss.get("ce_loss_weight", -1.0)) != ce_weight
+            or float(top_loss.get("candidate_loss_weight", -1.0))
+            != candidate_weight
+        ):
+            raise ValueError(
+                "Stage-2 loss-policy lineage is internally inconsistent"
+            )
         if structural["apply_mask_policy"] != "rhs_only_causal_logit_positions":
             raise ValueError("Stage-3 requires the Stage-2 RHS-only structural apply mask")
     if bool(structural["xattn_enable_ff"]):
@@ -2256,13 +2274,22 @@ def main():
     if len(train_pairs) == 0:
         raise ValueError("No training pairs were constructed. Relax the pair filters.")
 
-    # Bounded square-root weighting preserves coverage while emphasizing
-    # materially better ADP choices.
-    gains = [max(float(p.get("adp_rel_gain", 0.0)), 1e-8) for p in train_pairs]
+    # Bounded square-root weighting preserves coverage while emphasizing the
+    # objective that actually defines the preference pair.  The old ADP-only
+    # weighting was incorrect for latency and area Stage-3 runs.
+    primary_gain_field = {
+        "PARETO_LATENCY": "latency_rel_gain",
+        "PARETO_AREA": "area_rel_gain",
+        "PARETO_ADP": "adp_rel_gain",
+    }[args.objective]
+    gains = [
+        max(float(p.get(primary_gain_field, 0.0)), 1e-8)
+        for p in train_pairs
+    ]
     median_gain = float(np.median(gains))
     for pair in train_pairs + val_pairs:
         pair["pair_weight"] = float(np.clip(
-            np.sqrt(max(float(pair.get("adp_rel_gain", 0.0)), 1e-8) / median_gain),
+            np.sqrt(max(float(pair.get(primary_gain_field, 0.0)), 1e-8) / median_gain),
             0.5, 2.0,
         ))
 

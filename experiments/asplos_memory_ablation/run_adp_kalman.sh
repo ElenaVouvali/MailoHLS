@@ -67,7 +67,12 @@ run_stage2() {
     2>&1 | tee "${RUN_DIR}/logs/${name}.log"
 }
 
-run_stage1
+if [[ ! -f "${RUN_DIR}/predictions/stage1.jsonl" ]] ||
+   [[ "$(wc -l < "${RUN_DIR}/predictions/stage1.jsonl")" -ne 18 ]]; then
+  run_stage1
+else
+  echo "[SKIP] complete 18-context Stage-1 result already exists"
+fi
 run_stage2 zero "${ABLATION_ROOT}/zero" yes
 run_stage2 shuffled "${ABLATION_ROOT}/shuffled" yes
 run_stage2 aligned "${ALIGNED}" no

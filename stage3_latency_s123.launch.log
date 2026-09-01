@@ -1,0 +1,77 @@
+nohup: ignoring input
+[INFO] Loaded 150026 raw rows from artifacts/llm/mailohls_sft.jsonl
+[INFO] Raw rows per family (top 15): [('rodinia_knn', 19755), ('rodinia_streamcluster', 19141), ('rodinia_cfd_step_factor', 18866), ('rodinia_kmeans', 14532), ('rodinia_hotspot', 12230), ('rodinia_lavamd', 10968), ('rodinia_dilate', 10471), ('rodinia_backprop', 7739), ('serrano_kalman_filter', 6705), ('rodinia_pathfinder', 5647), ('machsuite_sort_radix', 4035), ('rodinia_lc_gicov', 3815), ('spcl_example', 3683), ('machsuite_stencil3d', 3459), ('machsuite_viterbi', 3329)]
+[SELECTION-CACHE] Reused train=27589 val=2298
+[INFO] Final selected split sizes: train=27589 val=2298 test=0
+[PAIR-CACHE] Reused train=745 val=9
+[INFO] Preference pairs: train=745 val=9 test=0
+[INFO] Unique train kernels with pairs: 23
+[INFO] Avg pairs per kernel-objective bucket: 32.39
+
+[PAIR-AUDIT] train
+  total pairs                 : 745
+  kernel-objective buckets    : 23
+  pairs by objective          : {'PARETO_LATENCY': 745}
+  pairs by tier               : {'medium': 501, 'hard': 244}
+  score_gap q10/q50/q90       : 0.0907 / 0.1649 / 0.3200
+  diff_count q10/q50/q90      : 1.0 / 2.0 / 2.0
+  diff_frac q10/q50/q90       : 0.054 / 0.500 / 1.000
+  LATENCY_EXTREME latency gain q10/q50/q90 : 0.108 / 0.354 / 0.750
+
+[PAIR-AUDIT] val
+  total pairs                 : 9
+  kernel-objective buckets    : 1
+  pairs by objective          : {'PARETO_LATENCY': 9}
+  pairs by tier               : {'hard': 9}
+  score_gap q10/q50/q90       : 0.0214 / 0.0285 / 0.0462
+  diff_count q10/q50/q90      : 1.0 / 1.0 / 1.0
+  diff_frac q10/q50/q90       : 0.100 / 0.100 / 0.100
+  LATENCY_EXTREME latency gain q10/q50/q90 : 0.050 / 0.054 / 0.101
+
+[PAIR-PREVIEW] showing 3 pairs
+
+----------------------------------------------------------------------------------------------------
+[0] kernel=rodinia-knn-0-baseline obj=PARETO_LATENCY
+score_gap=0.1606  diff_count=2  diff_frac=0.500
+latency_rel_gain=0.344  area_rel_gain=0.000
+changed directives:
+  auto{_PIPE_L1}: chosen=1 | rejected=0
+  auto{_UNROLL_L1}: chosen=0 | rejected=64
+
+----------------------------------------------------------------------------------------------------
+[1] kernel=spcl_example_01 obj=PARETO_LATENCY
+score_gap=0.1458  diff_count=2  diff_frac=1.000
+latency_rel_gain=0.247  area_rel_gain=0.000
+changed directives:
+  auto{_PIPE_L1}: chosen=1 | rejected=0
+  auto{_UNROLL_L1}: chosen=0 | rejected=64
+
+----------------------------------------------------------------------------------------------------
+[2] kernel=spcl_example_01 obj=PARETO_LATENCY
+score_gap=0.2593  diff_count=2  diff_frac=1.000
+latency_rel_gain=0.396  area_rel_gain=0.000
+changed directives:
+  auto{_PIPE_L1}: chosen=1 | rejected=0
+  auto{_UNROLL_L1}: chosen=0 | rejected=32
+[INFO] Memory files: 55
+[INFO] Unique memory records: 55
+[INFO] Lookup aliases: 85
+[INFO] Required split kernels covered: 54/54
+[INFO] Building policy model...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:20<00:20, 20.31s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:24<00:00, 10.89s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:24<00:00, 12.31s/it]
+[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[DPO-TRAINABLE] groups enabled: lora=False xattn=True attn_gate=True ff_gate=False
+[DPO-TRAINABLE] total trainable params: 8,683,524
+[DPO-TRAINABLE] first trainables: ['base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight', 'base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate', 'base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight']
+[INFO] Building frozen reference model...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:14<00:14, 14.97s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:19<00:00,  9.06s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:19<00:00,  9.95s/it]
+[STRUCTURAL-XATTN] placement=post_self_attention_residual layers=[8, 16, 24, 32] gate_scale=1 memory_value_scale=1
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+[STRUCTURAL-LOAD-STAGE2] loaded all structural parameters exactly
+[STRUCTURAL-DEVICE] moved 4 STRUCTURAL blocks to cuda:0
+trainable params: 8,683,524 || all params: 6,757,388,292 || trainable%: 0.1285
+[RANK 0] Detected kernel version 5.4.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+No label_names provided for model class `PeftModelForCausalLM`. Since `PeftModel` hides base models input arguments, if label_names is not given, label_names can't be set automatically within `Trainer`. Note that empty label_names list will be used instead.
