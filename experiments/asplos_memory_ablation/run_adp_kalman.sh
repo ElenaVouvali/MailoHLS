@@ -88,10 +88,37 @@ if [[ ! -f "${RUN_DIR}/predictions/stage1.jsonl" ]] ||
 else
   echo "[SKIP] complete 18-context Stage-1 result already exists"
 fi
-run_stage2 zero "${ABLATION_ROOT}/zero" yes
-run_stage2 shuffled "${ABLATION_ROOT}/shuffled" yes
-run_stage2 aligned "${ALIGNED}" no
-run_stage3
+
+is_complete_18() {
+  local path="$1"
+
+  [[ -f "${path}" ]] &&
+  [[ "$(wc -l < "${path}")" -eq 18 ]]
+}
+
+if is_complete_18 "${RUN_DIR}/predictions/zero.jsonl"; then
+  echo "[SKIP] complete 18-context S2-zero result already exists"
+else
+  run_stage2 zero "${ABLATION_ROOT}/zero" yes
+fi
+
+if is_complete_18 "${RUN_DIR}/predictions/shuffled.jsonl"; then
+  echo "[SKIP] complete 18-context S2-shuffled result already exists"
+else
+  run_stage2 shuffled "${ABLATION_ROOT}/shuffled" yes
+fi
+
+if is_complete_18 "${RUN_DIR}/predictions/aligned.jsonl"; then
+  echo "[SKIP] complete 18-context S2-aligned result already exists"
+else
+  run_stage2 aligned "${ALIGNED}" no
+fi
+
+if is_complete_18 "${RUN_DIR}/predictions/stage3.jsonl"; then
+  echo "[SKIP] complete 18-context Stage-3 result already exists"
+else
+  run_stage3
+fi
 
 
 "${PYTHON_BIN}" experiments/asplos_memory_ablation/summarize_results.py \

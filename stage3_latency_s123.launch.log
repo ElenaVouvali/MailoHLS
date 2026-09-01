@@ -135,3 +135,35 @@ Could not estimate the number of tokens of the input, floating-point operations 
  50%|█████     | 20/40 [1:52:00<14:55, 44.80s/it]
 100%|██████████| 9/9 [00:12<00:00,  1.46s/it][A
                                              [A
+====================================================================================================
+[VAL-SELECTION] step=20
+[VAL-SELECTION] mean_value_acc=0.540021
+[VAL-SELECTION] mean_decision_site_accuracy=0.477995
+[VAL-SELECTION] schema_compliance=1.000000
+[VAL-SELECTION] expected_key_accuracy=1.000000
+[VAL-SELECTION] exact_design_accuracy=0.000000
+[VAL-SELECTION] pragma_kind_accuracy={'ARRAY_D': 0.983739837398374, 'ARRAY_F': 0.24390243902439024, 'ARRAY_T': 0.6747967479674797, 'PIPE': 0.49700598802395207, 'UNROLL': 0.46706586826347307}
+[VAL-SELECTION] per_kernel_accuracy={'machsuite-sort-radix': 0.5330578512396692, 'machsuite-viterbi': 0.4745098039215686, 'rodinia_pathfinder_0_baseline_0': 0.5777777777777777, 'rodinia_pathfinder_4_doublebuffer_0': 0.561111111111111}
+[VAL-SELECTION] per_kernel_decision_accuracy={'machsuite-sort-radix': 0.5330578512396692, 'machsuite-viterbi': 0.4764705882352941, 'rodinia_pathfinder_0_baseline_0': 0.4722222222222222, 'rodinia_pathfinder_4_doublebuffer_0': 0.4513888888888889}
+[VAL-SELECTION] decision_sites=928 forced_sites=109 budget_counterfactual_groups=18
+[VAL-SELECTION] minimum_kernel_accuracy=0.451389
+[VAL-SELECTION] selection_score=0.483285
+[VAL-SELECTION] joint_action_score=0.082051
+[VAL-SELECTION] decision_key=(0.48328488764651856, 0.4513888888888889, 0.08205061983471074, 0.4737633689839572)
+[VAL-SELECTION] checkpoint_key=(0.48328488764651856, 0.4513888888888889, 0.08205061983471074, 0.4737633689839572, -0.16067959147441233)
+====================================================================================================
+[VAL-LOCAL] count=928 top1=0.5150862068965517 mrr=0.6885844280240833 mean_margin=0.032361566779556976 cascade=0/928 cascade_fraction=0.0
+[VAL-LOCAL] per_kind={'ARRAY_D': {'count': 15, 'top1_accuracy': 0.8666666666666667, 'mrr': 0.9333333333333333, 'mean_margin': 0.07880144317944844}, 'ARRAY_F': {'count': 122, 'top1_accuracy': 0.2786885245901639, 'mrr': 0.5033307311995836, 'mean_margin': -0.2834929059885564}, 'ARRAY_T': {'count': 123, 'top1_accuracy': 0.6747967479674797, 'mrr': 0.8035230352303523, 'mean_margin': 0.07441549493772227}, 'PIPE': {'count': 334, 'top1_accuracy': 0.5568862275449101, 'mrr': 0.7784431137724551, 'mean_margin': 0.00773380652159274}, 'UNROLL': {'count': 334, 'top1_accuracy': 0.48502994011976047, 'mrr': 0.6130738522954092, 'mean_margin': 0.15478877125385992}}
+[VAL-BUDGET] groups=18 cases=56 decision_accuracy=0.4737633689839572 exact_design_accuracy=0.0 correct_transition_accuracy=0.0 prediction_sensitive_groups=2
+[VAL-MARGIN] count=928 mean=-0.16067959147441233 median=-0.04627959430217743 positive_fraction=0.4827586206896552 mean_gold_rank=2.1918103448275863
+[VAL-MARGIN] per_kind={'ARRAY_D': {'count': 15, 'mean_margin': 0.03957005341847738, 'median_margin': 0.037347376346588135, 'positive_fraction': 0.8666666666666667, 'mean_gold_rank': 1.1333333333333333}, 'ARRAY_F': {'count': 122, 'mean_margin': -0.6421665012164682, 'median_margin': -0.4595470428466797, 'positive_fraction': 0.2459016393442623, 'mean_gold_rank': 3.6721311475409837}, 'ARRAY_T': {'count': 123, 'mean_margin': 0.031849907423422585, 'median_margin': 0.20208445191383362, 'positive_fraction': 0.6747967479674797, 'mean_gold_rank': 1.6178861788617886}, 'PIPE': {'count': 334, 'mean_margin': -0.024536606035903543, 'median_margin': -0.0030260980129241943, 'positive_fraction': 0.49700598802395207, 'mean_gold_rank': 1.5029940119760479}, 'UNROLL': {'count': 334, 'mean_margin': -0.20084494232997566, 'median_margin': -0.8789049461483955, 'positive_fraction': 0.46706586826347307, 'mean_gold_rank': 2.5988023952095807}}
+[VAL-MARGIN] per_kernel={'machsuite-sort-radix': {'count': 242, 'mean_margin': -0.027433877610716938, 'median_margin': 0.038079336285591125, 'positive_fraction': 0.5330578512396694, 'mean_gold_rank': 1.7727272727272727}, 'machsuite-viterbi': {'count': 254, 'mean_margin': -0.03370212553816987, 'median_margin': -0.04627959430217743, 'positive_fraction': 0.4763779527559055, 'mean_gold_rank': 2.0708661417322833}, 'rodinia_pathfinder_0_baseline_0': {'count': 144, 'mean_margin': -0.0913111243603958, 'median_margin': -0.17316514253616333, 'positive_fraction': 0.4722222222222222, 'mean_gold_rank': 2.4722222222222223}, 'rodinia_pathfinder_4_doublebuffer_0': {'count': 288, 'mean_margin': -0.41931430802732295, 'median_margin': -0.09303712844848633, 'positive_fraction': 0.4513888888888889, 'mean_gold_rank': 2.5104166666666665}}
+[EARLY-STOP] no improvement for 1/1 validation evaluations
+[EARLY-STOP] retaining best checkpoint from step 0
+/home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/peft/utils/save_and_load.py:309: UserWarning: Setting `save_embedding_layers` to `True` as the embedding layer has been resized during finetuning.
+  warnings.warn(
+[STRUCTURAL-SAVE] saved xattn weights to mailohls_runs/stage3_latency_semantic_action_s123_final/checkpoint-20/structural_xattn.pt
+                                                 {'train_runtime': 10956.3567, 'train_samples_per_second': 0.029, 'train_steps_per_second': 0.004, 'train_loss': 0.7068538069725037, 'epoch': 0.67}
+ 50%|█████     | 20/40 [3:02:36<14:55, 44.80s/it] 50%|█████     | 20/40 [3:02:36<3:02:36, 547.82s/it]
+[DPO-STRUCTURAL-CONFIG] mem_dim=128 max_slots=64 every_n_layers=8 xattn_heads=4 xattn_dim_head=64 xattn_ff_mult=1
+[DONE] Saved DPO LoRA + STRUCTURAL xattn adapters to: mailohls_runs/stage3_latency_semantic_action_s123_final
