@@ -84,7 +84,7 @@ def fit_fold(rows, train_idx, args, fold_id):
     return model.eval()
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument('--train_features',required=True); p.add_argument('--folds',type=int,default=5); p.add_argument('--epochs',type=int,default=20); p.add_argument('--hidden_dim',type=int,default=64); p.add_argument('--dropout',type=float,default=.1); p.add_argument('--lr',type=float,default=1e-3); p.add_argument('--weight_decay',type=float,default=1e-4); p.add_argument('--slow_loss_weight',type=float,default=.35); p.add_argument('--min_override_regret',type=float,default=.02); p.add_argument('--architecture',choices=('override_v4','override_v5','override_v6','override_v7'),default='override_v7'); p.add_argument('--fold_strategy',choices=('legacy_round_robin','stratified_group'),default='stratified_group'); p.add_argument('--max_false_override_rate',type=float,default=1.0); p.add_argument('--seed',type=int,default=123); p.add_argument('--output_json',required=True); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--train_features',required=True); p.add_argument('--folds',type=int,default=5); p.add_argument('--epochs',type=int,default=20); p.add_argument('--hidden_dim',type=int,default=64); p.add_argument('--dropout',type=float,default=.1); p.add_argument('--lr',type=float,default=1e-3); p.add_argument('--weight_decay',type=float,default=1e-4); p.add_argument('--slow_loss_weight',type=float,default=.35); p.add_argument('--min_override_regret',type=float,default=.02); p.add_argument('--architecture',choices=('override_v4','override_v5','override_v6','override_v7'),default='override_v7'); p.add_argument('--fold_strategy',choices=('legacy_round_robin','stratified_group'),default='stratified_group'); p.add_argument('--max_false_override_rate',type=float,default=1.0); p.add_argument('--seed',type=int,default=123); p.add_argument('--selector',required=True); p.add_argument('--output_selector',required=True); p.add_argument('--output_json',required=True); a=p.parse_args()
     rows=torch.load(a.train_features,weights_only=False); groups=[e.get('case',{}).get('family') or e.get('case',{}).get('kernel') or 'unknown' for e in rows]
     folds = _group_folds(rows, a.folds, a.min_override_regret, a.fold_strategy); oof=[]
     for fold,(tr,te) in enumerate(folds,1):
@@ -112,5 +112,13 @@ def main():
     result={'threshold':float(best[1] if best else 1.01),'false_override_rate':float(best[2] if best else 0.0),'raw_false_override_rate':float(best[2] if best else 0.0),'harmful_false_override_rate':float(best[3] if best else 0.0),'score':selected_score,'fastest_score':float(fast_score),'improvement_vs_fastest':improvement,'relative_improvement_vs_fastest':improvement/max(float(fast_score),1e-12),'macro_regret':float(best[5] if best else fast_score),'p90_regret':float(best[6] if best else 0.0),'folds':a.folds,'fold_strategy':a.fold_strategy,'seed':a.seed,'min_override_regret':a.min_override_regret,'max_harmful_false_override_rate':a.max_false_override_rate,'oof_cases':len(oof),'threshold_sweep':sweep}
     Path(a.output_json).parent.mkdir(parents=True, exist_ok=True)
     with open(a.output_json,'w') as f: json.dump(result,f,indent=2)
+    ck=torch.load(a.selector,map_location='cpu',weights_only=False)
+    if ck.get('architecture') != a.architecture:
+        raise ValueError(f"Architecture mismatch: checkpoint={ck.get('architecture')} calibration={a.architecture}")
+    ck['switch_threshold']=float(result['threshold'])
+    ck['calibration']={'method':'group_oof','score':result['score'],'fastest_score':result['fastest_score'],'improvement_vs_fastest':result['improvement_vs_fastest'],'false_override_rate':result['false_override_rate'],'folds':result['folds']}
+    Path(a.output_selector).parent.mkdir(parents=True,exist_ok=True)
+    torch.save(ck,a.output_selector)
+    print(f'[AUTO-CALIBRATION] saved calibrated selector -> {a.output_selector}')
     print(json.dumps(result))
 if __name__=='__main__': main()

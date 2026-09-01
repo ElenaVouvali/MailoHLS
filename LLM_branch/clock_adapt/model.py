@@ -17,37 +17,64 @@ def select_auto_clock_decision(
         clocks, dtype=clock_logits.dtype, device=clock_logits.device
     )
     fast_idx = int(periods.argmin())
-    adjusted_logits = clock_logits
-    risky_fast = False
-    pfeas = None
-    if feasibility_logits is not None:
-        pfeas = torch.sigmoid(feasibility_logits)
-        adjusted_logits = (
-            clock_logits
-            + float(feasibility_log_weight)
-            * torch.log(pfeas.clamp_min(1e-6))
-        )
-        risky_fast = bool(
-            float(pfeas[fast_idx]) < float(feasibility_threshold)
-        )
     slow_mask = periods > periods[fast_idx]
-    if bool(slow_mask.any()):
-        slow_scores = adjusted_logits.masked_fill(~slow_mask, -torch.inf)
-        candidate_idx = int(slow_scores.argmax())
+    override_probability = float(torch.sigmoid(override_logits))
+    if feasibility_logits is None:
+        candidate_idx = (
+            int(clock_logits.masked_fill(~slow_mask, -torch.inf).argmax())
+            if bool(slow_mask.any()) else fast_idx
+        )
+        selected_idx = (
+            candidate_idx
+            if override_probability >= float(switch_threshold)
+            else fast_idx
+        )
+        return {
+            "selected_idx": selected_idx,
+            "candidate_idx": candidate_idx,
+            "fast_idx": fast_idx,
+            "override_probability": override_probability,
+            "risky_fast": False,
+            "force_override": False,
+            "no_predicted_feasible": False,
+            "adjusted_logits": clock_logits,
+            "feasibility_probability": None,
+            "predicted_feasible_mask": None,
+        }
+
+    pfeas = torch.sigmoid(feasibility_logits)
+    feasible = pfeas >= float(feasibility_threshold)
+    adjusted_logits = (
+        clock_logits
+        + float(feasibility_log_weight)
+        * torch.log(pfeas.clamp_min(1e-6))
+    )
+    fast_feasible = bool(feasible[fast_idx])
+    feasible_slow = slow_mask & feasible
+    if bool(feasible_slow.any()):
+        candidate_idx = int(
+            adjusted_logits.masked_fill(~feasible_slow, -torch.inf).argmax()
+        )
     else:
         candidate_idx = fast_idx
-    override_probability = float(torch.sigmoid(override_logits))
-    selected_idx = (
-        candidate_idx
-        if risky_fast or override_probability >= float(switch_threshold)
-        else fast_idx
-    )
+    force_override = (not fast_feasible) and bool(feasible_slow.any())
+    gate_override = override_probability >= float(switch_threshold)
+    if force_override:
+        selected_idx = candidate_idx
+    elif fast_feasible and gate_override and bool(feasible_slow.any()):
+        selected_idx = candidate_idx
+    elif fast_feasible:
+        selected_idx = fast_idx
+    else:
+        selected_idx = int(pfeas.argmax())
     return {
         "selected_idx": selected_idx,
         "candidate_idx": candidate_idx,
         "fast_idx": fast_idx,
         "override_probability": override_probability,
-        "risky_fast": risky_fast,
+        "risky_fast": not fast_feasible,
+        "force_override": force_override,
+        "no_predicted_feasible": not bool(feasible.any()),
         "adjusted_logits": adjusted_logits,
         "feasibility_probability": pfeas,
     }

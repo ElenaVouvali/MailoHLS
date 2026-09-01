@@ -10,7 +10,7 @@ def num(r,*ns):
    if n in r:return float(r[n])
   except (TypeError,ValueError):pass
  return None
-def build_cases(rows,budget_bank,split,objective='PARETO_ADP', policy_labels=None):
+def build_cases(rows,budget_bank,split,objective='PARETO_ADP', policy_labels=None, policy_feasibility=None):
  idx_split={i:n for n in ('train','val','test') for i in split.get(f'{n}_jsonl_idx',[])}
  g=defaultdict(list)
  for i,r in enumerate(rows):
@@ -48,19 +48,30 @@ def build_cases(rows,budget_bank,split,objective='PARETO_ADP', policy_labels=Non
       raise ValueError(f'Non-positive policy QoR for {key}: {value}')
      policy_values[str(c)] = value
     adp = policy_values
-    feas = {str(c): True for c in supported_clock_periods(d)}
+    # Keep feasibility computed from actual synthesis/resource availability.
+    # Policy QoR labels must not turn infeasible clocks into feasible ones.
+    if policy_feasibility:
+     for c in supported_clock_periods(d):
+      pkey=(k,d,round(float(c),2),str(b.get('resource_budget_id','')),objective)
+      if pkey in policy_feasibility:
+       feas[str(c)] = bool(policy_feasibility[pkey])
    if not adp:continue
    gold=min(adp,key=adp.get); sp=next((s for _r,_c,_x,s in items if s),None)
    family=re.split(r'[-_](?:\d+|baseline|tiling|pipeline|unroll|doublebuffer|coalescing).*',k,1)[0]
    out.append({'kernel':k,'device':d,'family':family,'objective':objective,'frequency_mode':'auto','available_clock_periods':list(supported_clock_periods(d)),'gold_clock_period':float(gold),'gold_adp':adp[gold],'qor_by_clock':adp,'adp_by_clock':adp,'clock_feasible':feas,'best_directives_by_clock':dirs,'resource_budget':dict(zip(('bram','dsp','ff','lut'),fr)),'resource_budget_id':b.get('resource_budget_id'),'split':sp})
  return out
 def main():
- p=argparse.ArgumentParser();p.add_argument('--dataset',required=True);p.add_argument('--split_json',required=True);p.add_argument('--budget_bank',required=True);p.add_argument('--include_splits',default='train,val,test');p.add_argument('--objective',choices=('PARETO_LATENCY','PARETO_AREA','PARETO_ADP'),default='PARETO_ADP');p.add_argument('--policy_labels',default='');p.add_argument('--output_dir',required=True);a=p.parse_args();rows=[json.loads(x) for x in open(a.dataset) if x.strip()]; labels={}
+ p=argparse.ArgumentParser();p.add_argument('--dataset',required=True);p.add_argument('--split_json',required=True);p.add_argument('--budget_bank',required=True);p.add_argument('--include_splits',default='train,val,test');p.add_argument('--objective',choices=('PARETO_LATENCY','PARETO_AREA','PARETO_ADP'),default='PARETO_ADP');p.add_argument('--policy_labels',default='');p.add_argument('--output_dir',required=True);a=p.parse_args();rows=[json.loads(x) for x in open(a.dataset) if x.strip()]; labels={}; policy_feasibility={}
  if a.policy_labels:
   for r in (json.loads(x) for x in open(a.policy_labels) if x.strip()):
    if r.get('qor') is None: continue
    key=(r.get('kernel_name',r.get('kernel')),r.get('device'),round(float(r.get('clock_period_ns',r.get('clock_period'))),2),str(r.get('resource_budget_id','')),str(r.get('objective',a.objective))); labels[key]=min(float(r['qor']),labels.get(key,float('inf')))
- cases=build_cases(rows,json.load(open(a.budget_bank)),json.load(open(a.split_json)),a.objective,labels);included={x.strip() for x in a.include_splits.split(',') if x.strip()};cases=[x for x in cases if x.get('split') in included];Path(a.output_dir).mkdir(parents=True,exist_ok=True)
+   if 'clock_feasible' in r and r['clock_feasible'] is not None:
+    policy_feasibility[key]=bool(
+     r['clock_feasible'].get(str(r.get('clock_period_ns',r.get('clock_period'))), False)
+     if isinstance(r['clock_feasible'], dict) else r['clock_feasible']
+    )
+ cases=build_cases(rows,json.load(open(a.budget_bank)),json.load(open(a.split_json)),a.objective,labels,policy_feasibility);included={x.strip() for x in a.include_splits.split(',') if x.strip()};cases=[x for x in cases if x.get('split') in included];Path(a.output_dir).mkdir(parents=True,exist_ok=True)
  counts={n:sum(x['split']==n for x in cases) for n in ('train','val','test')}
  empty=sorted(n for n in included if counts.get(n,0)==0)
  if empty: raise ValueError(f'Requested AUTO splits produced no cases: {empty}')
