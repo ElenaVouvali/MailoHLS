@@ -1,0 +1,383 @@
+{
+  "chstone-aes": {
+    "actions": [
+      {
+        "bound": 16,
+        "function": "encrypt",
+        "kind": "loop",
+        "label": "L1",
+        "line": 287
+      },
+      {
+        "bound": 16,
+        "function": "decrypt",
+        "kind": "loop",
+        "label": "L2",
+        "line": 426
+      },
+      {
+        "bound": 4,
+        "function": "KeySchedule",
+        "kind": "loop",
+        "label": "L3",
+        "line": 566
+      },
+      {
+        "bound": 4,
+        "function": "KeySchedule",
+        "kind": "loop",
+        "label": "L4",
+        "line": 590
+      },
+      {
+        "bound": 4,
+        "function": "KeySchedule",
+        "kind": "loop",
+        "label": "L5",
+        "line": 592
+      },
+      {
+        "bound": 4,
+        "function": "AddRoundKey_InversMixColumn",
+        "kind": "loop",
+        "label": "L6",
+        "line": 1046
+      }
+    ],
+    "constant_count": 0,
+    "function_count": 11,
+    "kernel": "chstone-aes",
+    "kernel_info_sha256": "4d4061f17c5a371e5aded338a820574e40adc13eaa7bedca4b6127792ea9aa85",
+    "max_slots": 64,
+    "placeholder_sha256": "929aadf526e3f66aa45f00906b2cd6256ece807f4033bed542b2c6e5d0a5ba40",
+    "removed_upstream_optimization_pragmas": [],
+    "selected_action_count": 6,
+    "selected_array_actions": 0,
+    "selected_loop_actions": 6,
+    "selection_policy": "all statically bounded local-array and for-loop sites in lexical order; cap at absolute L1..L64",
+    "skipped_dynamic_loop_headers": 12,
+    "source_sha256": "84dc4d166a25e2d979cbf91e2cb7aaa132c3a035041fb26410267405e1830c6d",
+    "statically_bounded_action_candidates": 6,
+    "top_function": "chstone_aes",
+    "truncated": false
+  },
+  "chstone-jpeg": {
+    "actions": [
+      {
+        "bound": 16,
+        "function": "get_dht",
+        "kind": "loop",
+        "label": "L1",
+        "line": 1961
+      },
+      {
+        "bound": 64,
+        "function": "get_dqt",
+        "kind": "loop",
+        "label": "L2",
+        "line": 2027
+      },
+      {
+        "bound": 64,
+        "function": "IZigzagMatrix",
+        "kind": "loop",
+        "label": "L3",
+        "line": 2457
+      },
+      {
+        "bound": 64,
+        "function": "YuvToRgb",
+        "kind": "loop",
+        "label": "L4",
+        "line": 2673
+      },
+      {
+        "dims": [
+          64
+        ],
+        "function": "decode_block",
+        "kind": "array",
+        "label": "L5",
+        "line": 2712,
+        "name": "QuantBuff"
+      },
+      {
+        "dims": [
+          3,
+          64
+        ],
+        "function": "decode_start",
+        "kind": "array",
+        "label": "L6",
+        "line": 2738,
+        "name": "HuffBuff"
+      },
+      {
+        "dims": [
+          6,
+          64
+        ],
+        "function": "decode_start",
+        "kind": "array",
+        "label": "L7",
+        "line": 2739,
+        "name": "IDCTBuff"
+      },
+      {
+        "bound": 3,
+        "function": "decode_start",
+        "kind": "loop",
+        "label": "L8",
+        "line": 2747
+      },
+      {
+        "bound": 3,
+        "function": "decode_start",
+        "kind": "loop",
+        "label": "L9",
+        "line": 2761
+      },
+      {
+        "bound": 3,
+        "function": "decode_start",
+        "kind": "loop",
+        "label": "L10",
+        "line": 2778
+      },
+      {
+        "bound": 3,
+        "function": "decode_start",
+        "kind": "loop",
+        "label": "L11",
+        "line": 2788
+      },
+      {
+        "bound": 4,
+        "function": "decode_start",
+        "kind": "loop",
+        "label": "L12",
+        "line": 2811
+      },
+      {
+        "bound": 4,
+        "function": "decode_start",
+        "kind": "loop",
+        "label": "L13",
+        "line": 2825
+      },
+      {
+        "bound": 3,
+        "function": "decode_start",
+        "kind": "loop",
+        "label": "L14",
+        "line": 2831
+      },
+      {
+        "dims": [
+          257
+        ],
+        "function": "huff_make_dhuff_tb",
+        "kind": "array",
+        "label": "L15",
+        "line": 3032,
+        "name": "huffsize"
+      },
+      {
+        "dims": [
+          257
+        ],
+        "function": "huff_make_dhuff_tb",
+        "kind": "array",
+        "label": "L16",
+        "line": 3033,
+        "name": "huffcode"
+      },
+      {
+        "bound": 17,
+        "function": "huff_make_dhuff_tb",
+        "kind": "loop",
+        "label": "L17",
+        "line": 3039
+      },
+      {
+        "bound": 16,
+        "function": "huff_make_dhuff_tb",
+        "kind": "loop",
+        "label": "L18",
+        "line": 3074
+      },
+      {
+        "bound": 5207,
+        "function": "jpeg2bmp_main",
+        "kind": "loop",
+        "label": "L19",
+        "line": 3372
+      },
+      {
+        "bound": 3,
+        "function": "jpeg2bmp_main",
+        "kind": "loop",
+        "label": "L20",
+        "line": 3381
+      },
+      {
+        "bound": 5310,
+        "function": "jpeg2bmp_main",
+        "kind": "loop",
+        "label": "L21",
+        "line": 3383
+      }
+    ],
+    "constant_count": 32,
+    "function_count": 28,
+    "kernel": "chstone-jpeg",
+    "kernel_info_sha256": "d162e372de1f03eecff8b21c1870f716fa4e6737f6ff5ca974418bb6eb61fd68",
+    "max_slots": 64,
+    "placeholder_sha256": "175979575ab9017beaf2de50e2e1cfa9fd76e0d90e910ea0ec344020a3f97539",
+    "removed_upstream_optimization_pragmas": [],
+    "selected_action_count": 21,
+    "selected_array_actions": 5,
+    "selected_loop_actions": 16,
+    "selection_policy": "all statically bounded local-array and for-loop sites in lexical order; cap at absolute L1..L64",
+    "skipped_dynamic_loop_headers": 13,
+    "source_sha256": "7fb3e3e27c8d3d97d9881b0bacfc236edb7f19ad68d59dfb1a830434739e2e66",
+    "statically_bounded_action_candidates": 21,
+    "top_function": "chstone_jpeg",
+    "truncated": false
+  },
+  "rosetta-3d-rendering": {
+    "actions": [
+      {
+        "dims": [
+          256,
+          256
+        ],
+        "function": "zculling",
+        "kind": "array",
+        "label": "L1",
+        "line": 313,
+        "name": "z_buffer"
+      },
+      {
+        "bound": 256,
+        "function": "zculling",
+        "kind": "loop",
+        "label": "L2",
+        "line": 316
+      },
+      {
+        "bound": 256,
+        "function": "zculling",
+        "kind": "loop",
+        "label": "L3",
+        "line": 319
+      },
+      {
+        "bound": 256,
+        "function": "coloringFB",
+        "kind": "loop",
+        "label": "L4",
+        "line": 354
+      },
+      {
+        "bound": 256,
+        "function": "coloringFB",
+        "kind": "loop",
+        "label": "L5",
+        "line": 357
+      },
+      {
+        "bound": 256,
+        "function": "output_FB",
+        "kind": "loop",
+        "label": "L6",
+        "line": 376
+      },
+      {
+        "bound": 256,
+        "function": "output_FB",
+        "kind": "loop",
+        "label": "L7",
+        "line": 379
+      },
+      {
+        "dims": [
+          500
+        ],
+        "function": "rendering",
+        "kind": "array",
+        "label": "L8",
+        "line": 408,
+        "name": "fragment"
+      },
+      {
+        "dims": [
+          500
+        ],
+        "function": "rendering",
+        "kind": "array",
+        "label": "L9",
+        "line": 411,
+        "name": "pixels"
+      },
+      {
+        "dims": [
+          256,
+          256
+        ],
+        "function": "rendering",
+        "kind": "array",
+        "label": "L10",
+        "line": 413,
+        "name": "frame_buffer"
+      },
+      {
+        "dims": [
+          5
+        ],
+        "function": "rendering",
+        "kind": "array",
+        "label": "L11",
+        "line": 416,
+        "name": "max_min"
+      },
+      {
+        "bound": 3192,
+        "function": "rendering",
+        "kind": "loop",
+        "label": "L12",
+        "line": 421
+      }
+    ],
+    "constant_count": 4,
+    "function_count": 12,
+    "kernel": "rosetta-3d-rendering",
+    "kernel_info_sha256": "75350c282f1ce5e47b40d1ac030e9977a8c4115c381010fb0d2849a6a8af22b5",
+    "max_slots": 64,
+    "placeholder_sha256": "b410186635f119b5c64fc519e6c94b6e00336753d18f5d66a392b183aafb843c",
+    "removed_upstream_optimization_pragmas": [
+      "#pragma HLS INLINE off",
+      "#pragma HLS INLINE off",
+      "#pragma HLS INLINE off",
+      "#pragma HLS PIPELINE II=1",
+      "#pragma HLS INLINE off",
+      "#pragma HLS PIPELINE II=1",
+      "#pragma HLS PIPELINE II=1",
+      "#pragma HLS INLINE off",
+      "#pragma HLS PIPELINE II=1",
+      "#pragma HLS PIPELINE II=1",
+      "#pragma HLS INLINE",
+      "#pragma HLS PIPELINE II=1",
+      "#pragma HLS dataflow"
+    ],
+    "selected_action_count": 12,
+    "selected_array_actions": 5,
+    "selected_loop_actions": 7,
+    "selection_policy": "all statically bounded local-array and for-loop sites in lexical order; cap at absolute L1..L64",
+    "skipped_dynamic_loop_headers": 3,
+    "source_sha256": "b29d67e5e90401fff70ce477d1135c25284f8e84662fcc4121e88cd9c52faee9",
+    "statically_bounded_action_candidates": 12,
+    "top_function": "rendering",
+    "truncated": false
+  }
+}

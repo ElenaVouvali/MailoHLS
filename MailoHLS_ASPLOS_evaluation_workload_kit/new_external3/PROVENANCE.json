@@ -1,0 +1,11 @@
+{
+  "package_schema": "mailohls-external-app-materializer-v2",
+  "mailohls_repo": "ElenaVouvali/MailoHLS",
+  "mailohls_branch": "stage2-analysis-refactor",
+  "upstreams": {
+    "chstone-aes": {"repo": "ferrandi/CHStone", "commit": "2b7e20ffd3365016faf1e4e2b86496a5c95445fb", "canonical_vitis_top_policy": "upstream hls.tcl compiles main with -Dmain=chstone_main"},
+    "chstone-jpeg": {"repo": "ferrandi/CHStone", "commit": "2b7e20ffd3365016faf1e4e2b86496a5c95445fb", "canonical_vitis_top_policy": "upstream hls.tcl compiles main with -Dmain=chstone_main"},
+    "rosetta-3d-rendering": {"repo": "cornell-zhang/rosetta", "commit": "2feed1ce02d871603bf1fc344a65051837ac780f", "path": "3d-rendering/src/ocl/rendering.cpp", "top": "rendering"}
+  },
+  "adaptation_policy": "mechanical local-include flattening; preserve computation and interface pragmas; remove pre-existing HLS optimization pragmas; QoR-blind source-derived statically bounded action sites; absolute L1..L64 slots"
+}

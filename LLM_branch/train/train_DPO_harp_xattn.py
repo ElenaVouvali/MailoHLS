@@ -251,6 +251,20 @@ def build_stage3_contract(
     val_pairs: List[dict],
     test_pairs: List[dict],
 ) -> dict:
+    primary_gain_field = {
+        "PARETO_LATENCY": "latency_rel_gain",
+        "PARETO_AREA": "area_rel_gain",
+        "PARETO_ADP": "adp_rel_gain",
+    }[args.objective]
+
+    median_primary_gain = (
+        float(np.median([
+            max(float(p.get(primary_gain_field, 0.0)), 1e-8)
+            for p in train_pairs
+        ]))
+        if train_pairs else None
+    )
+
     contract = copy.deepcopy(parent_contract)
     contract["stage"] = "stage3"
     contract["git_commit"] = mod.current_git_commit()
@@ -304,10 +318,17 @@ def build_stage3_contract(
         "max_action_distance": args.dpo_max_action_distance,
         "max_reference_margin": args.dpo_max_reference_margin,
         "semantic_action_scoring": (args.dpo_pair_unit == "semantic_action" or args.dpo_semantic_action_only),
-        "pair_weighting": "clip(sqrt(adp_rel_gain / median_gain), 0.5, 2.0)",
-        "pair_weight_median_adp_gain": float(np.median([
-            max(float(p.get("adp_rel_gain", 0.0)), 1e-8) for p in train_pairs
-        ])) if train_pairs else None,
+        "pair_weighting": (
+            f"clip(sqrt({primary_gain_field} / median_gain), 0.5, 2.0)"
+        ),
+        "pair_weight_primary_gain_field": primary_gain_field,
+        "pair_weight_median_primary_gain": median_primary_gain,
+        # Backward-compatible field for historical ADP contracts.
+        "pair_weight_median_adp_gain": (
+            median_primary_gain
+            if args.objective == "PARETO_ADP"
+            else None
+        ),
         "require_same_supervised_schema": (
             args.require_same_supervised_schema
         ),

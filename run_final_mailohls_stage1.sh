@@ -13,6 +13,7 @@ esac
 OBJECTIVE_TAG="${OBJECTIVE#PARETO_}"
 OBJECTIVE_TAG="${OBJECTIVE_TAG,,}"
 OUT="${OUT:-mailohls_runs/stage1_final_final_${OBJECTIVE_TAG}_s123}"
+BUDGET_INVARIANT_DUPLICATES="${STAGE1_BUDGET_INVARIANT_MAX_DUPLICATES:-1}"
 GPU="${CUDA_VISIBLE_DEVICES:-0}"
 if [[ -e "$OUT" ]]; then
   echo "Refusing to overwrite existing Stage-1 output: $OUT" >&2
@@ -44,6 +45,7 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --min_feasible_candidates_per_budget 3 \
   --candidate_pool_per_objective 24 \
   --budget_target_max_duplicates 4 \
+  --budget_invariant_max_duplicates "$BUDGET_INVARIANT_DUPLICATES" \
   --auto_frequency_fraction 0 \
   --goal_domination_penalty 0.25 \
   --goal_max_dominated_gap 0.12 \

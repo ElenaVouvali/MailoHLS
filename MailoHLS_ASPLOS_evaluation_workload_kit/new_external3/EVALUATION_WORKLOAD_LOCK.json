@@ -1,0 +1,16 @@
+{
+  "schema": "salt-hls-asplos27-evaluation-workload-lock-v1",
+  "policy": "freeze-before-final-qor-inspection; retain failed/invalid applications; do not replace post hoc",
+  "headline_workloads": [
+    {"name": "serrano-kalman-filter", "status": "locked-held-out-family", "suite": "GNOSIS/Serrano", "role": "stateful and memory/resource-sensitive"},
+    {"name": "GAN", "status": "external", "suite": "external application", "role": "ML/compute/dataflow"},
+    {"name": "jacobi-2d", "status": "external", "suite": "PolyBench/HLSyn", "role": "stencil and spatial reuse"},
+    {"name": "trmm-opt", "status": "external", "suite": "PolyBench/HLSyn", "role": "triangular iteration/dependence"},
+    {"name": "chstone-aes", "status": "external", "suite": "CHStone", "role": "security/bitwise/control and lookup behavior"},
+    {"name": "chstone-jpeg", "status": "external", "suite": "CHStone", "role": "media/decode/control-memory complexity"},
+    {"name": "rosetta-3d-rendering", "status": "external", "suite": "Rosetta", "role": "realistic rendering pipeline and irregular geometry/control"},
+    {"name": "syr2k", "status": "external", "suite": "PolyBench/HLSyn", "role": "dense throughput/unroll pressure"},
+    {"name": "covariance", "status": "external", "suite": "PolyBench/HLSyn", "role": "statistics/reduction"}
+  ],
+  "aggregation_note": "Report per-workload results plus kernel-macro and suite/domain-macro aggregates so four PolyBench kernels cannot dominate the headline conclusion."
+}

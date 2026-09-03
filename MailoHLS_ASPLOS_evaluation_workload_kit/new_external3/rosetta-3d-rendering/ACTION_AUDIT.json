@@ -1,0 +1,135 @@
+{
+  "actions": [
+    {
+      "dims": [
+        256,
+        256
+      ],
+      "function": "zculling",
+      "kind": "array",
+      "label": "L1",
+      "line": 313,
+      "name": "z_buffer"
+    },
+    {
+      "bound": 256,
+      "function": "zculling",
+      "kind": "loop",
+      "label": "L2",
+      "line": 316
+    },
+    {
+      "bound": 256,
+      "function": "zculling",
+      "kind": "loop",
+      "label": "L3",
+      "line": 319
+    },
+    {
+      "bound": 256,
+      "function": "coloringFB",
+      "kind": "loop",
+      "label": "L4",
+      "line": 354
+    },
+    {
+      "bound": 256,
+      "function": "coloringFB",
+      "kind": "loop",
+      "label": "L5",
+      "line": 357
+    },
+    {
+      "bound": 256,
+      "function": "output_FB",
+      "kind": "loop",
+      "label": "L6",
+      "line": 376
+    },
+    {
+      "bound": 256,
+      "function": "output_FB",
+      "kind": "loop",
+      "label": "L7",
+      "line": 379
+    },
+    {
+      "dims": [
+        500
+      ],
+      "function": "rendering",
+      "kind": "array",
+      "label": "L8",
+      "line": 408,
+      "name": "fragment"
+    },
+    {
+      "dims": [
+        500
+      ],
+      "function": "rendering",
+      "kind": "array",
+      "label": "L9",
+      "line": 411,
+      "name": "pixels"
+    },
+    {
+      "dims": [
+        256,
+        256
+      ],
+      "function": "rendering",
+      "kind": "array",
+      "label": "L10",
+      "line": 413,
+      "name": "frame_buffer"
+    },
+    {
+      "dims": [
+        5
+      ],
+      "function": "rendering",
+      "kind": "array",
+      "label": "L11",
+      "line": 416,
+      "name": "max_min"
+    },
+    {
+      "bound": 3192,
+      "function": "rendering",
+      "kind": "loop",
+      "label": "L12",
+      "line": 421
+    }
+  ],
+  "constant_count": 4,
+  "function_count": 12,
+  "kernel": "rosetta-3d-rendering",
+  "kernel_info_sha256": "75350c282f1ce5e47b40d1ac030e9977a8c4115c381010fb0d2849a6a8af22b5",
+  "max_slots": 64,
+  "placeholder_sha256": "b410186635f119b5c64fc519e6c94b6e00336753d18f5d66a392b183aafb843c",
+  "removed_upstream_optimization_pragmas": [
+    "#pragma HLS INLINE off",
+    "#pragma HLS INLINE off",
+    "#pragma HLS INLINE off",
+    "#pragma HLS PIPELINE II=1",
+    "#pragma HLS INLINE off",
+    "#pragma HLS PIPELINE II=1",
+    "#pragma HLS PIPELINE II=1",
+    "#pragma HLS INLINE off",
+    "#pragma HLS PIPELINE II=1",
+    "#pragma HLS PIPELINE II=1",
+    "#pragma HLS INLINE",
+    "#pragma HLS PIPELINE II=1",
+    "#pragma HLS dataflow"
+  ],
+  "selected_action_count": 12,
+  "selected_array_actions": 5,
+  "selected_loop_actions": 7,
+  "selection_policy": "all statically bounded local-array and for-loop sites in lexical order; cap at absolute L1..L64",
+  "skipped_dynamic_loop_headers": 3,
+  "source_sha256": "b29d67e5e90401fff70ce477d1135c25284f8e84662fcc4121e88cd9c52faee9",
+  "statically_bounded_action_candidates": 12,
+  "top_function": "rendering",
+  "truncated": false
+}

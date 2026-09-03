@@ -2921,6 +2921,47 @@ def summarize_selection_rows(rows: List[dict]) -> Dict[str, object]:
         float(np.mean(group_decision_accuracies))
         if group_decision_accuracies else None
     )
+    # Transition diagnostics isolate the directive sites that actually
+    # change across budgets.  This complements the strict whole-design
+    # transition metric below, which is intentionally much harsher.
+    changed_site_pair_accuracies = []
+    transition_responsiveness = []
+    for group in informative:
+        changed_target_pairs = [
+            (first, second)
+            for index, first in enumerate(group)
+            for second in group[index + 1:]
+            if first["reference_target"] != second["reference_target"]
+        ]
+        for first, second in changed_target_pairs:
+            ref_first = parse_assignment_dict(first["reference_target"])
+            ref_second = parse_assignment_dict(second["reference_target"])
+            pred_first = parse_assignment_dict(first["prediction"])
+            pred_second = parse_assignment_dict(second["prediction"])
+            changed_keys = sorted(
+                key
+                for key in (set(ref_first) & set(ref_second))
+                if ref_first[key] != ref_second[key]
+            )
+            if not changed_keys:
+                continue
+            changed_site_pair_accuracies.append(float(np.mean([
+                pred_first.get(key) == ref_first[key]
+                and pred_second.get(key) == ref_second[key]
+                for key in changed_keys
+            ])))
+            transition_responsiveness.append(float(np.mean([
+                pred_first.get(key) != pred_second.get(key)
+                for key in changed_keys
+            ])))
+    summary["budget_counterfactual_changed_site_accuracy"] = (
+        float(np.mean(changed_site_pair_accuracies))
+        if changed_site_pair_accuracies else None
+    )
+    summary["budget_counterfactual_transition_responsiveness"] = (
+        float(np.mean(transition_responsiveness))
+        if transition_responsiveness else None
+    )
     exact_group_accuracies = [
         float(np.mean([bool(row["exact_design_match"]) for row in group]))
         for group in informative
@@ -3020,14 +3061,25 @@ class StageValSelectionCallback(TrainerCallback):
                         "the current Stage-1 contract. Resume only the exact "
                         "same experiment, or use a new --output_dir."
                     )
-                self.best_key = tuple(previous["decision_key"] if "decision_key" in previous else previous["checkpoint_key"][:4])
+                previous_key = tuple(
+                    previous["decision_key"]
+                    if "decision_key" in previous
+                    else previous["checkpoint_key"][:4]
+                )
+                if len(previous_key) != 6:
+                    raise RuntimeError(
+                        "Existing custom-best metrics use the legacy "
+                        "checkpoint-selection contract. Start this corrective "
+                        "experiment with a new --output_dir."
+                    )
+                self.best_key = previous_key
                 self.best_step = int(previous["step"])
                 print(
                     "[VAL-SELECTION] Restored compatible previous best: "
                     f"step={self.best_step}, key={self.best_key}"
                 )
             else:
-                self.best_key = (float("-inf"),) * 4
+                self.best_key = (float("-inf"),) * 6
                 self.best_step = -1
         else:
             if best_path.is_file():
@@ -3036,7 +3088,7 @@ class StageValSelectionCallback(TrainerCallback):
                     f"checkpoint: {best_path}. Use a new --output_dir or "
                     "explicitly --resume_from_checkpoint."
                 )
-            self.best_key = (float("-inf"),) * 4
+            self.best_key = (float("-inf"),) * 6
             self.best_step = -1
         self.last_selection_step = None
 
@@ -3390,9 +3442,21 @@ class StageValSelectionCallback(TrainerCallback):
             # Early stopping must reflect discrete deployment decisions. A
             # tiny continuous candidate-margin improvement must not reset
             # patience when selection/joint/budget decisions are unchanged.
+            transition_accuracy = float(
+                summary.get(
+                    "budget_counterfactual_changed_site_accuracy",
+                    0.0,
+                ) or 0.0
+            )
+            budget_aware_selection_score = (
+                0.90 * selection_score
+                + 0.10 * transition_accuracy
+            )
             decision_key = (
+                budget_aware_selection_score,
                 selection_score,
                 float(summary["minimum_kernel_decision_accuracy"]),
+                transition_accuracy,
                 joint_action_score,
                 float(summary["budget_counterfactual_decision_accuracy"] or 0.0),
             )
@@ -3417,6 +3481,18 @@ class StageValSelectionCallback(TrainerCallback):
                   f"budget_counterfactual_groups={summary['budget_counterfactual_groups']}")
             print(f"[VAL-SELECTION] minimum_kernel_accuracy={minimum_kernel_accuracy:.6f}")
             print(f"[VAL-SELECTION] selection_score={selection_score:.6f}")
+            print(
+                "[VAL-SELECTION] budget_changed_site_accuracy="
+                f"{summary['budget_counterfactual_changed_site_accuracy']}"
+            )
+            print(
+                "[VAL-SELECTION] budget_transition_responsiveness="
+                f"{summary['budget_counterfactual_transition_responsiveness']}"
+            )
+            print(
+                "[VAL-SELECTION] budget_aware_selection_score="
+                f"{budget_aware_selection_score:.6f}"
+            )
             print(
                 f"[VAL-SELECTION] joint_action_score="
                 f"{summary['joint_action_score']:.6f}"
