@@ -1,0 +1,225 @@
+task                       : regression
+subtask                    : train
+plot_dse                   : False
+vis_per_kernel             : True
+force_regen                : True
+allow_incomplete_dataset   : False
+min_allowed_latency        : 0.0
+epsilon                    : 1e-06
+normalizer                 : 10000000.0
+util_normalizer            : 1
+max_number                 : 10000000000.0
+norm_method                : log2
+new_speedup                : True
+invalid                    : False
+encode_log                 : False
+v_db                       : v21
+test_kernels               : serrano-kalman-filter
+val_kernels                : machsuite-sort-radix,
+                           : machsuite-viterbi,
+                           : rodinia_pathfinder_0_baseline_0,
+                           : rodinia_pathfinder_4_doublebuffer_0
+split_json                 : /home/elvouvali/MailoHLS/MailoHLS-next/mailohls_runs/mailohls_final_family_split_s123.json
+multi_target_qor           : False
+effective_area_floor       : 0.0625
+development_exclude_kernels : None
+target_kernel              : None
+all_kernels                : True
+dataset                    : harp
+benchmarks                 : ['machsuite',
+                           :  'poly']
+tag                        : whole-machsuite-poly
+graph_type                 : extended-pseudo-block-connected-hierarchy
+mlir_graph_dir             : GNN_branch/MLIR_graphs
+preprocessed_csv_dir       : GNN_branch/Data/preprocessed_CSVS
+mlir_dataset_cache_dir     : artifacts/gnn_datasets/harp_gnosis_paper_profile_s123/canonical_point_source
+harp_graph_dir             : GNN_branch/HARP_graphs
+harp_dataset_cache_dir     : artifacts/gnn_datasets/harp_gnosis_paper_profile_s123/harp_dataset
+encoder_path               : None
+pragma_dim_path            : None
+encode_edge                : True
+encode_edge_position       : True
+num_layers                 : 6
+num_features               : None
+edge_dim                   : None
+target                     : ['perf']
+decompose_targets          : False
+target_mode                : absolute
+baseline_manifest          : None
+reference_delta_head       : anchored
+target_device              : xczu7ev-ffvc1156-2-e
+clock_period_ns            : 10.0
+vitis_hls_version          : 2021.1
+center_aux_weight          : 0.25
+qor_output_init_scale      : 0.1
+response_aux_weight        : 1.0
+checkpoint_objective       : hardware_regression
+min_rank_tau               : 0.0
+max_kernel_zero_baseline_ratio : 1.1
+kernel_zero_baseline_additive_tolerance : 0.001
+MLP_common_lyr             : 0
+gnn_type                   : transformer
+dropout                    : 0.1
+graph_attention_heads      : 1
+graph_residual_beta        : False
+graph_layer_norm           : False
+jkn_mode                   : max
+jkn_enable                 : True
+node_attention             : True
+node_attention_MLP         : False
+separate_P                 : True
+separate_icmp              : False
+separate_T                 : False
+separate_pseudo            : True
+P_use_all_nodes            : True
+gae_T                      : False
+gae_P                      : False
+gnn_layer_after_MLP        : 1
+pragma_as_MLP              : True
+pragma_as_MLP_list         : ['pipeline',
+                           :  'unroll',
+                           :  'array_partition']
+pragma_scope               : block
+keep_pragma_attribute      : False
+pragma_order               : parallel_and_merge
+pragma_MLP_hidden_channels : [in_D // 2]
+merge_MLP_hidden_channels  : [in_D // 2]
+model_path                 : None
+ensemble                   : 0
+ensemble_weights           : None
+class_model_path           : None
+feature_extract            : False
+fix_gnn_layer              : 1
+FT_extra                   : False
+save_model                 : True
+resample                   : False
+val_ratio                  : 0.05
+activation                 : elu
+D                          : 64
+weight_decay               : 0.0001
+scheduler                  : cosine
+warmup                     : linear
+lr                         : 0.001
+standardize_targets        : False
+kernel_balanced_loss       : False
+kernel_uniform_sampling    : False
+samples_per_kernel_per_epoch : None
+rank_aux_weight            : 0.0
+rank_temperature           : 1.0
+pairwise_delta_weight      : 0.0
+pairwise_delta_start_epoch : 3
+pairwise_delta_ramp_epochs : 2
+pairwise_calibration_stable_epochs : 2
+pairwise_calibration_tolerance : 0.02
+rank_tie_relative          : None
+rank_tie_epsilon           : 0.05
+resource_aux_weight        : 1.0
+strict_paired_ablation     : False
+paired_control_contract    : None
+resource_eval_budgets      : 0.10;0.25;0.50;0.75;1.00
+resource_boundary_tolerance : 0.02
+resource_budget_bank       : None
+resource_budget_count      : 16
+resource_budget_min_fraction : 0.05
+kernel_grouped_sampling    : False
+kernels_per_batch          : 16
+points_per_kernel          : 4
+warmup_epochs              : 3
+early_stopping_patience    : 25
+early_stopping_min_delta   : 0.0001
+plateau_patience           : 4
+plateau_factor             : 0.5
+evaluate_test              : False
+final_refit                : False
+final_refit_epochs         : None
+random_seed                : 123
+experiment_name            : harp_gnosis_paper_profile_s123
+allow_nondeterministic     : False
+batch_size                 : 64
+grad_accum_steps           : 1
+num_workers                : 2
+eval_num_workers           : 0
+prefetch_factor            : 1
+persistent_workers         : False
+loss                       : mse
+smooth_l1_beta             : 0.5
+epoch_num                  : 1500
+sanity_print_n             : 0
+device                     : cuda:0
+tiny_overfit               : False
+tiny_overfit_kernel        : machsuite-gemm-blocked
+tiny_overfit_num_samples   : 64
+tiny_overfit_batch_size    : 16
+tiny_overfit_epochs        : 300
+tiny_overfit_workers       : 0
+resume_training            : False
+load_pretrained            : False
+explorer                   : exhaustive
+model_tag                  : test
+prune_util                 : True
+prune_class                : True
+print_every_iter           : 100
+plot_pred_points           : True
+user                       : elvouvali
+hostname                   : liono
+experiment_split_sha256    : d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c
+ts                         : 2026-09-03T23-22-40.974744
+Logging to /home/elvouvali/MailoHLS/MailoHLS-next/Checkpoints/harp_gnosis_paper_profile_s123
+Regenerating dataset...
+[TEST-LOCK] serrano-kalman-filter: encoding public static graph only; measured QoR not read
+[OK] machsuite-gemm-blocked: nodes=73, edges=265, points=189, unique_designs=189, pragma_dim=10, node_oov=0.0000%, edge_oov=0.0000%
+[OK] machsuite-gemm-ncubed: nodes=62, edges=217, points=148, unique_designs=148, pragma_dim=6, node_oov=0.0000%, edge_oov=0.0000%
+[OK] machsuite-md-knn: nodes=167, edges=636, points=35, unique_designs=35, pragma_dim=4, node_oov=0.0000%, edge_oov=0.0000%
+[OK] machsuite-sort-radix: nodes=328, edges=1221, points=683, unique_designs=683, pragma_dim=20, node_oov=1.1324%, edge_oov=0.0000%
+[OK] machsuite-spmv-ellpack: nodes=68, edges=240, points=28, unique_designs=28, pragma_dim=4, node_oov=0.0000%, edge_oov=0.0000%
+[OK] machsuite-stencil2d: nodes=71, edges=253, points=86, unique_designs=86, pragma_dim=8, node_oov=0.0000%, edge_oov=0.0000%
+[OK] machsuite-stencil3d: nodes=149, edges=611, points=537, unique_designs=537, pragma_dim=18, node_oov=0.0000%, edge_oov=0.0000%
+[OK] machsuite-viterbi: nodes=275, edges=1067, points=519, unique_designs=519, pragma_dim=17, node_oov=0.2078%, edge_oov=0.0000%
+[OK] rodinia-backprop-0-baseline-back: nodes=97, edges=351, points=20, unique_designs=20, pragma_dim=4, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-backprop-0-baseline-forward: nodes=209, edges=778, points=373, unique_designs=373, pragma_dim=15, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-backprop-1-tiling-back: nodes=409, edges=1608, points=567, unique_designs=567, pragma_dim=26, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-hotspot-0-baseline: nodes=641, edges=2578, points=120, unique_designs=120, pragma_dim=6, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-hotspot-1-tiling: nodes=549, edges=2212, points=620, unique_designs=620, pragma_dim=19, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-hotspot-2-pipeline: nodes=672, edges=2776, points=688, unique_designs=688, pragma_dim=48, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-hotspot-3-unroll: nodes=672, edges=2776, points=652, unique_designs=652, pragma_dim=48, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-kmeans-0-baseline: nodes=79, edges=286, points=60, unique_designs=60, pragma_dim=6, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-kmeans-1-tiling: nodes=262, edges=974, points=794, unique_designs=794, pragma_dim=27, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-kmeans-2-pipeline: nodes=262, edges=974, points=794, unique_designs=794, pragma_dim=27, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-kmeans-3-unroll: nodes=262, edges=974, points=796, unique_designs=796, pragma_dim=27, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-knn-0-baseline: nodes=57, edges=199, points=14, unique_designs=14, pragma_dim=4, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-knn-1-tiling: nodes=210, edges=787, points=630, unique_designs=630, pragma_dim=19, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-knn-2-pipeline: nodes=210, edges=787, points=725, unique_designs=725, pragma_dim=19, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-knn-3-unroll: nodes=217, edges=813, points=797, unique_designs=797, pragma_dim=21, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-knn-4-doublebuffer: nodes=371, edges=1440, points=710, unique_designs=710, pragma_dim=27, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia-knn-5-coalescing: nodes=408, edges=1601, points=623, unique_designs=623, pragma_dim=29, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_cfd_flux_0_baseline_0: nodes=1056, edges=4318, points=17, unique_designs=17, pragma_dim=4, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_cfd_step_factor_0_baseline_0: nodes=306, edges=1200, points=7, unique_designs=7, pragma_dim=2, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_cfd_step_factor_1_tiling_0: nodes=409, edges=1617, points=571, unique_designs=571, pragma_dim=11, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_cfd_step_factor_2_pipeline_0: nodes=416, edges=1675, points=497, unique_designs=497, pragma_dim=20, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_cfd_step_factor_3_unroll_0: nodes=645, edges=3342, points=856, unique_designs=856, pragma_dim=22, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_cfd_step_factor_4_doublebuffer_0: nodes=1074, edges=6071, points=845, unique_designs=845, pragma_dim=51, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_cfd_step_factor_5_coalescing_0: nodes=985, edges=5826, points=825, unique_designs=825, pragma_dim=51, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_dilate_0_baseline_0: nodes=122, edges=595, points=112, unique_designs=112, pragma_dim=11, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_dilate_1_tiling_0: nodes=292, edges=1218, points=482, unique_designs=482, pragma_dim=27, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_dilate_2_pipeline_0: nodes=416, edges=1728, points=749, unique_designs=749, pragma_dim=39, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_dilate_3_pipeline_0: nodes=570, edges=2418, points=247, unique_designs=247, pragma_dim=59, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_lavaMD_0_baseline: nodes=406, edges=2058, points=99, unique_designs=99, pragma_dim=11, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_lavaMD_1_tiling_0: nodes=532, edges=2714, points=601, unique_designs=601, pragma_dim=31, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_lavaMD_1_tiling_1: nodes=535, edges=2724, points=601, unique_designs=601, pragma_dim=31, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_lavaMD_2_pipeline_0: nodes=532, edges=2714, points=614, unique_designs=614, pragma_dim=28, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_lc_gicov_0_baseline_0: nodes=363, edges=1901, points=603, unique_designs=603, pragma_dim=27, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_lc_mgvf_0_baseline_0: nodes=326, edges=1267, points=31, unique_designs=31, pragma_dim=6, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_lud_1_tiling_0: nodes=1385, edges=5471, points=381, unique_designs=381, pragma_dim=93, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_pathfinder_0_baseline_0: nodes=207, edges=873, points=388, unique_designs=388, pragma_dim=10, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_pathfinder_4_doublebuffer_0: nodes=440, edges=1846, points=751, unique_designs=751, pragma_dim=20, node_oov=0.1299%, edge_oov=0.0000%
+[OK] rodinia_streamcluster_0_baseline_0: nodes=151, edges=559, points=43, unique_designs=43, pragma_dim=4, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_streamcluster_1_tiling_0: nodes=712, edges=2770, points=764, unique_designs=764, pragma_dim=38, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_streamcluster_2_pipeline_1: nodes=712, edges=2770, points=850, unique_designs=850, pragma_dim=38, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_streamcluster_3_doublebuffer_0: nodes=941, edges=3726, points=859, unique_designs=859, pragma_dim=50, node_oov=0.0000%, edge_oov=0.0000%
+[OK] rodinia_streamcluster_4_coalescing_0: nodes=1039, edges=4108, points=807, unique_designs=807, pragma_dim=50, node_oov=0.0000%, edge_oov=0.0000%
+[OK] spcl_example_00: nodes=42, edges=146, points=7, unique_designs=7, pragma_dim=2, node_oov=0.0000%, edge_oov=0.0000%
+[OK] spcl_example_01: nodes=62, edges=221, points=7, unique_designs=7, pragma_dim=2, node_oov=0.0000%, edge_oov=0.0000%
+[OK] spcl_example_03: nodes=91, edges=333, points=419, unique_designs=419, pragma_dim=10, node_oov=0.0000%, edge_oov=0.0000%
+[OK] spcl_example_05: nodes=84, edges=311, points=286, unique_designs=286, pragma_dim=9, node_oov=0.0000%, edge_oov=0.0000%
+[DONE] Built 24527 design points from 54 MLIR graphs.
+[DIMS] node_features=403, edge_features=82, max_pragma_length=93

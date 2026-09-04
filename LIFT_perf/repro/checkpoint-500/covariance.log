@@ -1,0 +1,47 @@
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama_fast.LlamaTokenizerFast'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message.
+Using CUDA device: 0 NVIDIA A2
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:18<00:18, 18.73s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:24<00:00, 11.22s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:24<00:00, 12.35s/it]
+Prompt tokens: 873
+Pragma placeholders: 14
+max_new_tokens: 224
+
+================ RAW GENERATION ================
+
+auto{_PIPE_L1} = 0
+auto{_UNROLL_L1} = 16
+auto{_PIPE_L3} = 0
+auto{_UNROLL_L3} = 2
+auto{_PIPE_L5} = 0
+auto{_UNROLL_L5} = 2
+auto{_PIPE_L2} = 1
+auto{_UNROLL_L2} = 0
+auto{_PIPE_L6} = 0
+auto{_UNROLL_L6} = 2
+auto{_PIPE_L4} = 0
+auto{_UNROLL_L4} = 16
+auto{_PIPE_L7} = 0
+auto{_UNROLL_L7} = 2
+auto{_ARRAY_T_L3} = cyclic
+auto{_ARRAY_F_L3} = 4
+auto{_ARRAY_D_L3} = 1
+auto{_AR
+
+================ FINAL RESOLVED DIRECTIVES ================
+
+auto{_PIPE_L1} = 0
+auto{_UNROLL_L1} = 16
+auto{_PIPE_L2} = 1
+auto{_UNROLL_L2} = 0
+auto{_PIPE_L3} = 0
+auto{_UNROLL_L3} = 2
+auto{_PIPE_L4} = 0
+auto{_UNROLL_L4} = 16
+auto{_PIPE_L5} = 0
+auto{_UNROLL_L5} = 2
+auto{_PIPE_L6} = 0
+auto{_UNROLL_L6} = 2
+auto{_PIPE_L7} = 0
+auto{_UNROLL_L7} = 2
+
+Saved text directives to: /home/elvouvali/MailoHLS/MailoHLS-next/LIFT_perf/repro/checkpoint-500/covariance_lift_prediction.txt
+Saved debug JSON to:      /home/elvouvali/MailoHLS/MailoHLS-next/LIFT_perf/repro/checkpoint-500/covariance_lift_prediction.json

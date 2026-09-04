@@ -1,0 +1,31 @@
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama_fast.LlamaTokenizerFast'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message.
+Using CUDA device: 0 NVIDIA A2
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:17<00:17, 17.78s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 10.66s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 11.73s/it]
+Prompt tokens: 573
+Pragma placeholders: 6
+max_new_tokens: 128
+
+================ RAW GENERATION ================
+
+auto{_PIPE_L1} = 0
+auto{_UNROLL_L1} = 16
+auto{_PIPE_L2} = 1
+auto{_UNROLL_L2} = 0
+auto{_PIPE_L3} = 0
+auto{_UNROLL_L3} = 64
+
+### Explanation
+auto{_PIPE_L1} = 0: The outer loop is not pipelined.
+auto{_UNROLL_L1} = 16: The inner loop is unrolled 16
+
+================ FINAL RESOLVED DIRECTIVES ================
+
+auto{_PIPE_L1} = 0
+auto{_UNROLL_L1} = 16
+auto{_PIPE_L2} = 1
+auto{_UNROLL_L2} = 0
+auto{_PIPE_L3} = 0
+auto{_UNROLL_L3} = 64
+
+Saved text directives to: /home/elvouvali/MailoHLS/MailoHLS-next/LIFT_perf/repro/checkpoint-500/trmm-opt_lift_prediction.txt
+Saved debug JSON to:      /home/elvouvali/MailoHLS/MailoHLS-next/LIFT_perf/repro/checkpoint-500/trmm-opt_lift_prediction.json
