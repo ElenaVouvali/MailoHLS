@@ -7,7 +7,11 @@ historical snapshot also contains experimental MLIR builders, but its active
 GNN entry point imports the original `data` backend. No historical source has
 been removed merely because it uses a different IR.
 
-Only these two development branches are needed. Earlier commits remain in Git
+The repository has three branches: `llvm-ir` for the original implementation,
+`mlir-target` for the preserved MLIR + target-conditioning baseline at
+`26db8ec57e48760fe1dfe617db60767b1ee63972`, and `main` for further framework
+extensions. Keep the baseline branch unchanged while new development proceeds
+on `main`. No additional worktree is required. Earlier commits remain in Git
 history; the reorganization does not rewrite history or immediately shrink
 GitHub's historical repository storage.
 

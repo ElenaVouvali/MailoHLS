@@ -5,15 +5,17 @@ optimization objectives, target FPGA, clock period, and available resources.
 The current implementation uses MLIR semantic graphs and GNN structural memory
 to condition an LLM. The paper also refers to this system as SALT-HLS.
 
-## Two versions, one repository
+## Versions and ongoing development
 
 | Branch | Implementation |
 | --- | --- |
-| [`main`](https://github.com/ElenaVouvali/MailoHLS/tree/main) | Current MLIR graphs, action-aligned multiscale GNN memory, target-aware SFT, structural cross-attention, DPO, clock selection, and device adaptation. |
+| [`main`](https://github.com/ElenaVouvali/MailoHLS/tree/main) | Active development of further framework extensions, starting from the MLIR + target-conditioning implementation. |
+| [`mlir-target`](https://github.com/ElenaVouvali/MailoHLS/tree/mlir-target) | Preserved MLIR + target-conditioning baseline at `26db8ec`: multiscale GNN memory, target-aware SFT, structural cross-attention, DPO, clock selection, and device adaptation. |
 | [`llvm-ir`](https://github.com/ElenaVouvali/MailoHLS/tree/llvm-ir) | Original LLVM IR / ProGraML / GNN implementation, based on the `MailoHLS_paper_v1` snapshot (`c9b2f43`). |
 
-Use one checkout and switch versions with `git switch main` or
-`git switch llvm-ir`. Commit or stash source changes before switching. The
+Use one checkout and switch with `git switch main`, `git switch mlir-target`,
+or `git switch llvm-ir`. Develop extensions on `main` and keep `mlir-target`
+as the preserved baseline. Commit or stash source changes before switching. The
 previous `stage2-analysis-refactor` branch is incorporated into `main`; a
 separate `MailoHLS-next` worktree is no longer required.
 
