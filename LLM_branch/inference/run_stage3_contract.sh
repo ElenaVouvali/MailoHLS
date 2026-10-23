@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+REPO_ROOT="$(git -C "$(dirname -- "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
+cd -- "$REPO_ROOT"
+
 # Contract-driven MailoHLS Stage 3.  The Stage-2 directory is the single
 # source of truth for model/tokenizer/placement/routing/memory configuration.
 : "${MAILOHLS_DATA:?set MAILOHLS_DATA}"
@@ -24,8 +27,6 @@ if [[ ! -f "${MAILOHLS_DOMAINS}" ]]; then
   fi
 fi
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-cd "${REPO_ROOT}"
 MODE="${STAGE3_MODE:-preflight}"
 GPU="${STAGE3_GPU:-0}"
 MAX_STEPS="${STAGE3_MAX_STEPS:-60}"

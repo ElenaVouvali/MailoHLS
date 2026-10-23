@@ -29,7 +29,8 @@ separate `MailoHLS-next` worktree is no longer required.
 | `LLM_branch/common/` | Prompt contracts, structural attention, and device-adaptation checkpoints. |
 | `LLM_branch/train/` | SFT and DPO training. |
 | `LLM_branch/inference/`, `LLM_branch/clock_adapt/` | Generation, evaluation, and automatic clock selection. |
-| `scripts/reproduction/`, `run_final_*.sh` | Reproduction and experiment entry points. |
+| `scripts/reproduction/`, `scripts/training/`, `scripts/evaluation/` | Maintained preparation, training, and evaluation launchers. |
+| `scripts/experiments/`, `scripts/legacy/` | Distinct experiment presets and archived LLVM-era launchers. |
 | `FINAL_ARTIFACTS.json` | Selected checkpoint and memory paths, including pending objectives. |
 | `HARP-rep/`, `HARP-paper-rep/` | Vendored baseline source, licenses, measurements, and local reproduction changes. |
 
@@ -50,10 +51,11 @@ The shared experiment preparation entry point is:
 bash scripts/reproduction/prepare_final_experiment.sh
 ```
 
-Inspect the paths and parameters in `scripts/reproduction/run_final_gnn.sh`,
-`run_final_mailohls_stage1.sh`, and `run_final_mailohls_stage2_specified.sh`
+Inspect the paths and parameters in `scripts/training/train_gnn.sh`,
+`scripts/training/train_stage1.sh`, and `scripts/training/train_stage2.sh`
 before launching training. Model weights and processed tensors must be generated
 or supplied separately; cloning this repository does not download them.
 
-See [`docs/repository-layout.md`](docs/repository-layout.md) for the cleanup
+See [`docs/shell-scripts.md`](docs/shell-scripts.md) for launcher choices and
+previous-to-current paths, [`docs/repository-layout.md`](docs/repository-layout.md) for the cleanup
 policy and [`docs/paper-draft.md`](docs/paper-draft.md) for the manuscript notes.

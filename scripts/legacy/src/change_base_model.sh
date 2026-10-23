@@ -1,0 +1,1 @@
+../inference/change_base_model.sh

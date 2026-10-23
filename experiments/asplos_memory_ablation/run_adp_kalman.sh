@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+MAILOHLS_REPO_ROOT="$(git -C "$(dirname -- "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
+cd -- "$MAILOHLS_REPO_ROOT"
+
 GPU="${GPU:-0}"
 PYTHON_BIN="${PYTHON_BIN:-python}"
 RUN_DIR="${RUN_DIR:-asplos_results/memory_ablation_adp_kalman_s123}"

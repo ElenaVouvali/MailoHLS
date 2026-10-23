@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="${MAILOHLS_ROOT:-$(pwd)}"
 PKG="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="${MAILOHLS_ROOT:-$(git -C "$PKG" rev-parse --show-toplevel)}"
 : "${CGEIST:=cgeist}"
 export PYTHONHASHSEED=0
 for K in chstone-aes chstone-jpeg rosetta-3d-rendering; do

@@ -22,6 +22,6 @@ raw, tanh-transformed, and effective values. The reports can be regenerated with
 `LLM_branch/tools/compare_gate_parity_reports.py`.
 
 The paired parity evaluation command is captured in
-`scripts/reproduction/run_gate_parity_screen.sh`. Its required inputs are
+`scripts/evaluation/run_gate_parity_screen.sh`. Its required inputs are
 explicit environment variables, and it rejects missing inputs and accidental
 output overwrites.
