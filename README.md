@@ -59,3 +59,6 @@ or supplied separately; cloning this repository does not download them.
 See [`docs/shell-scripts.md`](docs/shell-scripts.md) for launcher choices and
 previous-to-current paths, [`docs/repository-layout.md`](docs/repository-layout.md) for the cleanup
 policy and [`docs/paper-draft.md`](docs/paper-draft.md) for the manuscript notes.
+
+Duplicate artifact mappings and local-cache compatibility are documented in
+[`docs/duplicate-cleanup.md`](docs/duplicate-cleanup.md).
