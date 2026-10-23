@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 trap 'rc=$?; echo "[FATAL] rc=$rc line=$LINENO command=$BASH_COMMAND" >&2; exit $rc' ERR
 
-ROOT="${MAILOHLS_ROOT:-/home/elvouvali/MailoHLS/MailoHLS-next}"
+ROOT="${MAILOHLS_ROOT:-$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)}"
 GPU="${GPU:-0}"
 OBJECTIVE="${OBJECTIVE:-PARETO_ADP}"
 SEED12="${SEED12:-123}"

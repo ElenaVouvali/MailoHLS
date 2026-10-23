@@ -13,7 +13,7 @@ def apl_map(path):
     return out
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--results',type=Path,required=True);ap.add_argument('--source-csv-dir',type=Path,required=True);ap.add_argument('--repo',type=Path,default=Path('/home/elvouvali/MailoHLS/MailoHLS-next'));ap.add_argument('--output',type=Path,required=True);a=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument('--results',type=Path,required=True);ap.add_argument('--source-csv-dir',type=Path,required=True);ap.add_argument('--repo',type=Path,default=Path(__file__).resolve().parents[2]);ap.add_argument('--output',type=Path,required=True);a=ap.parse_args()
     records=[]
     for line in a.results.read_text().splitlines():
         if not line.strip(): continue
