@@ -67,4 +67,4 @@ for name,dev,clk,budget,app,fn,top,ds in cases:
 Path('/tmp/target_general_remote.py').write_text(remote)
 subprocess.run(['scp','/tmp/target_general_remote.py','bonus24@coroni.microlab.ntua.gr:/tmp/target_general_remote.py'],check=True)
 subprocess.run(['ssh','bonus24@coroni.microlab.ntua.gr','python3 /tmp/target_general_remote.py'],check=True)
-subprocess.run(['scp','bonus24@coroni.microlab.ntua.gr:/home/bonus24/target_general_20260907/Target_general_experiments.jsonl','Target_general_experiments.jsonl'],check=True)
+subprocess.run(['scp','bonus24@coroni.microlab.ntua.gr:/home/bonus24/target_general_20260907/Target_general_experiments.jsonl',str(Path(__file__).resolve().parents[1]/'paper_plots/Target_general_experiments.jsonl')],check=True)

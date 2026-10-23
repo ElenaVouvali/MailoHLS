@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-target_path = Path('Target_general_experiments.jsonl')
-salt_path = Path('SALT_experiments.jsonl')
+target_path = Path(__file__).resolve().parents[1] / 'paper_plots' / 'Target_general_experiments.jsonl'
+salt_path = Path(__file__).resolve().parents[1] / 'paper_plots' / 'SALT_experiments.jsonl'
 
 target = [json.loads(line) for line in target_path.read_text().splitlines() if line.strip()]
 salt = [json.loads(line) for line in salt_path.read_text().splitlines() if line.strip()]

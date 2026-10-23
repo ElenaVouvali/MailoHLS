@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-path = Path('Target_general_experiments.jsonl')
+path = Path(__file__).resolve().parents[1] / 'paper_plots' / 'Target_general_experiments.jsonl'
 rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 contexts = [
     ('ZCU104', 10.0), ('ZCU104', 10.0), ('ZCU104', 10.0), ('ZCU104', 10.0),

@@ -24,6 +24,8 @@ separate `MailoHLS-next` worktree is no longer required.
 | Path | Purpose |
 | --- | --- |
 | `Data/` | Kernel sources, action mappings, and original HLS measurements. |
+| `evaluation_set/` | External evaluation kernels, directive placeholders, and action metadata. |
+| `paper_plots/` | Consolidated measured results used by paper plotting and analysis. |
 | `Preprocessing/` | Target-aware preprocessing, SFT examples, and family splits. |
 | `GNN_branch/` | MLIR graph construction, GNN training, and memory export. |
 | `LLM_branch/common/` | Prompt contracts, structural attention, and device-adaptation checkpoints. |
@@ -62,3 +64,6 @@ policy and [`docs/paper-draft.md`](docs/paper-draft.md) for the manuscript notes
 
 Duplicate artifact mappings and local-cache compatibility are documented in
 [`docs/duplicate-cleanup.md`](docs/duplicate-cleanup.md).
+
+For measured objective-response figures, use `plots/objective_response/objective_response.py`;
+`src/objective_response.py` is the historical mock-data plotting example.

@@ -20,7 +20,7 @@ def arguments():
     # The corrected contract is the canonical no-argument input.  The old
     # ASPLOS_experiments.jsonl remains available explicitly via --jsonl when
     # reproducing the pre-correction figures.
-    p.add_argument("--jsonl", type=Path, default=repo / "SALT_experiments.jsonl")
+    p.add_argument("--jsonl", type=Path, default=repo / "paper_plots" / "SALT_experiments.jsonl")
     p.add_argument("--output-dir", type=Path,
                    default=Path(__file__).resolve().parent / "final")
     return p.parse_args()

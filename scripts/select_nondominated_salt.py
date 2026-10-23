@@ -3,6 +3,8 @@
 import argparse, json
 from pathlib import Path
 
+RESULTS_DIR = Path(__file__).resolve().parents[1] / "paper_plots"
+
 METRICS = ("latency", "bram", "dsp", "ff", "lut")
 
 def dominates(a, b):
@@ -12,8 +14,8 @@ def dominates(a, b):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("jsonl", type=Path, default=Path("SALT_experiments.jsonl"), nargs="?")
-    p.add_argument("--output", type=Path, default=Path("SALT_deployment_candidates.jsonl"))
+    p.add_argument("jsonl", type=Path, default=RESULTS_DIR / "SALT_experiments.jsonl", nargs="?")
+    p.add_argument("--output", type=Path, default=RESULTS_DIR / "SALT_deployment_candidates.jsonl")
     args = p.parse_args()
     rows = [json.loads(line) for line in args.jsonl.read_text().splitlines() if line.strip()]
     groups = {}

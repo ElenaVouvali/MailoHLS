@@ -17,7 +17,7 @@ plt.rcParams["svg.hashsalt"] = "mailohls-gemv-mlir-paper-v1"
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "paper_examples/gemv/gemv_mlir.gexf"
-META = ROOT / "gemv/code_to_memory_outputs/meta/kernel_info.txt"
+META = ROOT / "evaluation_set/gemv/code_to_memory_outputs/meta/kernel_info.txt"
 OUT = ROOT / "paper_figures"
 
 FLOW_NAME = {0:"control", 1:"ssa/data", 2:"call", 4:"block",

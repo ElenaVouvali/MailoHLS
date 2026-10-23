@@ -4,7 +4,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-rows = [json.loads(line) for line in Path('Target_general_experiments.jsonl').read_text().splitlines() if json.loads(line)['kernel'] == 'covariance']
+rows = [json.loads(line) for line in (Path(__file__).resolve().parents[1] / 'paper_plots' / 'Target_general_experiments.jsonl').read_text().splitlines() if json.loads(line)['kernel'] == 'covariance']
 script = r'''
 import json,re,subprocess,xml.etree.ElementTree as ET
 from pathlib import Path
