@@ -10,7 +10,7 @@ to condition an LLM. The paper also refers to this system as SALT-HLS.
 | Branch | Implementation |
 | --- | --- |
 | [`main`](https://github.com/ElenaVouvali/MailoHLS/tree/main) | Active development of further framework extensions, starting from the MLIR + target-conditioning implementation. |
-| [`mlir-target`](https://github.com/ElenaVouvali/MailoHLS/tree/mlir-target) | Preserved MLIR + target-conditioning baseline at `26db8ec`: multiscale GNN memory, target-aware SFT, structural cross-attention, DPO, clock selection, and device adaptation. |
+| [`mlir-target`](https://github.com/ElenaVouvali/MailoHLS/tree/mlir-target) | Preserved organized MLIR + target-conditioning baseline: multiscale GNN memory, target-aware SFT, structural cross-attention, DPO, clock selection, and device adaptation. |
 | [`llvm-ir`](https://github.com/ElenaVouvali/MailoHLS/tree/llvm-ir) | Original LLVM IR / ProGraML / GNN implementation, based on the `MailoHLS_paper_v1` snapshot (`c9b2f43`). |
 
 Use one checkout and switch with `git switch main`, `git switch mlir-target`,

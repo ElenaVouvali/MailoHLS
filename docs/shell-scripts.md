@@ -47,7 +47,8 @@ existing compiler callers continue to work.
 
 Toolchain scripts, upstream HARP scripts, and compiler helpers remain beside
 the code they support. No upstream baseline experiment parameters were changed.
-The `mlir-target` and `llvm-ir` branches preserve the pre-cleanup layouts.
+The organized MLIR baseline is preserved on `mlir-target`; pre-cleanup layouts
+remain available in Git history. The original LLVM baseline stays on `llvm-ir`.
 
 ## Previous paths
 

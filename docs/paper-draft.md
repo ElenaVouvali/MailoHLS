@@ -2,7 +2,7 @@
 
 These notes describe the previous paper-source layout. The manuscript build
 files have been removed from the current development branch; they remain in
-Git history and the preserved baseline branch. Evaluation kernels now live in
+Git history, including the initial `26db8ec` snapshot. Evaluation kernels live in
 `evaluation_set/`, and measured result tables live in `paper_plots/`.
 
 ## SALT-HLS / MailoHLS ASPLOS 2027 September-Cycle Draft

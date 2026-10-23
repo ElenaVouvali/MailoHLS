@@ -8,12 +8,13 @@ GNN entry point imports the original `data` backend. No historical source has
 been removed merely because it uses a different IR.
 
 The repository has three branches: `llvm-ir` for the original implementation,
-`mlir-target` for the preserved MLIR + target-conditioning baseline at
-`26db8ec57e48760fe1dfe617db60767b1ee63972`, and `main` for further framework
-extensions. Keep the baseline branch unchanged while new development proceeds
-on `main`. No additional worktree is required. Earlier commits remain in Git
-history; the reorganization does not rewrite history or immediately shrink
-GitHub's historical repository storage.
+`mlir-target` for the preserved organized MLIR + target-conditioning baseline,
+and `main` for further framework extensions. After the shared file, launcher,
+and artifact cleanup, `main` and `mlir-target` were synchronized to the same
+commit. Develop future extensions on `main` and keep `mlir-target` at that
+baseline. The initial pre-cleanup snapshot (`26db8ec`) remains in Git history.
+No additional worktree is required. The reorganization does not rewrite
+history or immediately shrink GitHub's historical repository storage.
 
 ## What belongs in Git
 

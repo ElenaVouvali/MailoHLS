@@ -26,8 +26,9 @@ separately as before.
 
 The cleanup retains the differing historical implementations, all checkpoint
 provenance snapshots, raw measurement tables, standalone canonical benchmark
-headers, and both HARP baseline trees. `mlir-target` and `llvm-ir` preserve the
-earlier layouts. Git history is unchanged.
+headers, and both HARP baseline trees. `mlir-target` shares this organized
+baseline. Earlier layouts remain in Git history, and `llvm-ir` preserves the
+original LLVM implementation.
 
 Git already stores identical blobs once. This cleanup reduces duplicate paths
 and repeated content in new checkouts; it does not claim to reduce historical
