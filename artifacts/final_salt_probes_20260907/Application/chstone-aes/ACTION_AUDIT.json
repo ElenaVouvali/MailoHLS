@@ -1,0 +1,62 @@
+{
+  "actions": [
+    {
+      "bound": 16,
+      "function": "encrypt",
+      "kind": "loop",
+      "label": "L1",
+      "line": 287
+    },
+    {
+      "bound": 16,
+      "function": "decrypt",
+      "kind": "loop",
+      "label": "L2",
+      "line": 426
+    },
+    {
+      "bound": 4,
+      "function": "KeySchedule",
+      "kind": "loop",
+      "label": "L3",
+      "line": 566
+    },
+    {
+      "bound": 4,
+      "function": "KeySchedule",
+      "kind": "loop",
+      "label": "L4",
+      "line": 590
+    },
+    {
+      "bound": 4,
+      "function": "KeySchedule",
+      "kind": "loop",
+      "label": "L5",
+      "line": 592
+    },
+    {
+      "bound": 4,
+      "function": "AddRoundKey_InversMixColumn",
+      "kind": "loop",
+      "label": "L6",
+      "line": 1046
+    }
+  ],
+  "constant_count": 0,
+  "function_count": 11,
+  "kernel": "chstone-aes",
+  "kernel_info_sha256": "4d4061f17c5a371e5aded338a820574e40adc13eaa7bedca4b6127792ea9aa85",
+  "max_slots": 64,
+  "placeholder_sha256": "929aadf526e3f66aa45f00906b2cd6256ece807f4033bed542b2c6e5d0a5ba40",
+  "removed_upstream_optimization_pragmas": [],
+  "selected_action_count": 6,
+  "selected_array_actions": 0,
+  "selected_loop_actions": 6,
+  "selection_policy": "all statically bounded local-array and for-loop sites in lexical order; cap at absolute L1..L64",
+  "skipped_dynamic_loop_headers": 12,
+  "source_sha256": "84dc4d166a25e2d979cbf91e2cb7aaa132c3a035041fb26410267405e1830c6d",
+  "statically_bounded_action_candidates": 6,
+  "top_function": "chstone_aes",
+  "truncated": false
+}

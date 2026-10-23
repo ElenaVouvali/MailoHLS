@@ -1,0 +1,54 @@
+{
+  "kernel": "covariance",
+  "stage": "stage-3",
+  "objective": "LATENCY",
+  "target_context": {
+    "device": "ZCU104",
+    "clock_period_ns": 10.0,
+    "budget": "full"
+  },
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L6",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L7",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    }
+  ]
+}

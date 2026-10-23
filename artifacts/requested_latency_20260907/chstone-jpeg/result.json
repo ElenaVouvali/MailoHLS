@@ -1,0 +1,167 @@
+{
+  "kernel": "chstone-jpeg",
+  "stage": "stage-3",
+  "objective": "LATENCY",
+  "target_context": {
+    "device": "ZCU104",
+    "clock_period_ns": 10.0,
+    "budget": "full"
+  },
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 4
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 4
+    },
+    {
+      "action_id": "L5",
+      "kind": "array",
+      "variable": "QuantBuff",
+      "partition_type": "cyclic",
+      "partition_factor": 4,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L6",
+      "kind": "array",
+      "variable": "HuffBuff",
+      "partition_type": "complete",
+      "partition_factor": 0,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L7",
+      "kind": "array",
+      "variable": "IDCTBuff",
+      "partition_type": "complete",
+      "partition_factor": 0,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L8",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 3
+    },
+    {
+      "action_id": "L9",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 3
+    },
+    {
+      "action_id": "L10",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L11",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 3
+    },
+    {
+      "action_id": "L12",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L13",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L14",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 3
+    },
+    {
+      "action_id": "L15",
+      "kind": "array",
+      "variable": "huffsize",
+      "partition_type": "none",
+      "partition_factor": 0,
+      "partition_dim": 0
+    },
+    {
+      "action_id": "L16",
+      "kind": "array",
+      "variable": "huffcode",
+      "partition_type": "none",
+      "partition_factor": 0,
+      "partition_dim": 0
+    },
+    {
+      "action_id": "L17",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L18",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L19",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L20",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 4
+    },
+    {
+      "action_id": "L21",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "returncode": 0,
+  "run_directory": "/home/bonus24/requested_latency_20260907/chstone-jpeg",
+  "status": "success",
+  "latency_cycles": {
+    "best": "undef",
+    "worst": "undef"
+  },
+  "estimated_clock_period_ns": 9.913,
+  "resources": {
+    "BRAM_18K": 78,
+    "DSP": 1173,
+    "FF": 59865,
+    "LUT": 155852,
+    "URAM": 0
+  },
+  "sha256": {
+    "kernel.c": "772acb0ebaf06652f30d745d7331505729695d7264589bb7c2aec356343cb8a0",
+    "run_hls.tcl": "771c21a7f8a03596f8cade0252ddca274a10c8b2a22aff3c83dfcde5b490a400"
+  }
+}

@@ -1,0 +1,402 @@
+{
+  "schema": "mailohls-u50-raw-assembly-v1",
+  "part": "xcu50-fsvh2104-2-e",
+  "clock_period_ns": 10.0,
+  "measurements": [
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0001_69b90b342c84"
+    },
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0002_422f99b0c3e9"
+    },
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0003_53b17e34b842"
+    },
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0004_1d6c39db11d6"
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0005_236eb4cb7064"
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0006_663f31ca64b6"
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0007_4a113377271c"
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "origin": "zcu104_pareto_latency__neighbor_L1_PIPE",
+      "version": "u50_adapt_0008_4072b80c2883"
+    },
+    {
+      "kernel": "machsuite-sort-radix",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0009_ed8eed2c6875"
+    },
+    {
+      "kernel": "machsuite-sort-radix",
+      "origin": "zcu104_pareto_adp__neighbor_L1_PIPE",
+      "version": "u50_adapt_0010_ecda32ac722c"
+    },
+    {
+      "kernel": "machsuite-sort-radix",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0011_bd8336a8faf5"
+    },
+    {
+      "kernel": "machsuite-sort-radix",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0012_3fd8f00ad156"
+    },
+    {
+      "kernel": "machsuite-spmv-ellpack",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0013_92ebcec55f7a"
+    },
+    {
+      "kernel": "machsuite-spmv-ellpack",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0014_83ffb318870b"
+    },
+    {
+      "kernel": "machsuite-spmv-ellpack",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0015_131b2e446ecc"
+    },
+    {
+      "kernel": "machsuite-spmv-ellpack",
+      "origin": "zcu104_pareto_latency__neighbor_L1_PIPE",
+      "version": "u50_adapt_0016_b150df569e99"
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0017_9bbbd37c95cb"
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0018_84fe05437140"
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0019_0113d9cacfd8"
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0020_a3192465715f"
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "origin": "u50_zero_shot_pareto_latency__replacement",
+      "version": "u50_adapt_0021_66a158171b1c"
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "origin": "zcu104_pareto_adp__neighbor_L1_PIPE",
+      "version": "u50_adapt_0022_37169fa18230"
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0023_f154e808e784"
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0024_9587740ef431"
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0025_da6346d5e219"
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0026_e9595b166b45"
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0027_6bfec2c14631"
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0028_c17a1bf78ece"
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-forward",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0029_4bbb10041fa2"
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-forward",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0030_36ab8d1aaf84"
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-forward",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0031_df9a851abfeb"
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-forward",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0032_d2a4112f36d9"
+    },
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0033_bc3af94a27ff"
+    },
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0034_8127b88c2347"
+    },
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0035_2b476bd355cc"
+    },
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0036_0c2e0f091bd3"
+    },
+    {
+      "kernel": "rodinia-kmeans-1-tiling",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0037_6e7b9f12b461"
+    },
+    {
+      "kernel": "rodinia-kmeans-1-tiling",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0038_ba04c2a09912"
+    },
+    {
+      "kernel": "rodinia-kmeans-1-tiling",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0039_b72c2e8ed843"
+    },
+    {
+      "kernel": "rodinia-kmeans-1-tiling",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0040_d68b93177bb0"
+    },
+    {
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0041_755ba0fd7227"
+    },
+    {
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "origin": "zcu104_pareto_adp__neighbor_L1_PIPE",
+      "version": "u50_adapt_0042_182002c4dd12"
+    },
+    {
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0043_679b51e4376b"
+    },
+    {
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0044_66439fe36f32"
+    },
+    {
+      "kernel": "rodinia_cfd_flux_0_baseline_0",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0045_9ead776bbbfc"
+    },
+    {
+      "kernel": "rodinia_cfd_flux_0_baseline_0",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0046_04964f2e4bd4"
+    },
+    {
+      "kernel": "rodinia_cfd_flux_0_baseline_0",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0047_91d10957644b"
+    },
+    {
+      "kernel": "rodinia_cfd_flux_0_baseline_0",
+      "origin": "zcu104_pareto_latency__neighbor_L2_PIPE",
+      "version": "u50_adapt_0048_7b2d575c0990"
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0049_1fda99ee6b9e"
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0050_80297cb393a2"
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0051_c3744277030e"
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "origin": "zcu104_pareto_latency__neighbor_L1_PIPE",
+      "version": "u50_adapt_0052_dd21f1cc3e3c"
+    },
+    {
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0053_f225bfd6fd08"
+    },
+    {
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0054_f4ba334b27b9"
+    },
+    {
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0055_4415a117a323"
+    },
+    {
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0056_a91cc296b020"
+    },
+    {
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0057_cb68ddbd931b"
+    },
+    {
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0058_8fee14264433"
+    },
+    {
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0059_5263c7e02a2f"
+    },
+    {
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0060_7ff0e3fc958d"
+    },
+    {
+      "kernel": "rodinia_lc_gicov_0_baseline_0",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0061_9f4349464436"
+    },
+    {
+      "kernel": "rodinia_lc_gicov_0_baseline_0",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0062_4da565486ebc"
+    },
+    {
+      "kernel": "rodinia_lc_gicov_0_baseline_0",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0063_85ea2eb0620d"
+    },
+    {
+      "kernel": "rodinia_lc_gicov_0_baseline_0",
+      "origin": "zcu104_pareto_latency__neighbor_L1_ARRAY",
+      "version": "u50_adapt_0064_5031a69167e4"
+    },
+    {
+      "kernel": "rodinia_lud_1_tiling_0",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0065_53b012a0bef0"
+    },
+    {
+      "kernel": "rodinia_lud_1_tiling_0",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0066_951a76b5ef23"
+    },
+    {
+      "kernel": "rodinia_lud_1_tiling_0",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0067_52d2a6ae74e0"
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0068_9340e4e4c2cb"
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "origin": "zcu104_pareto_adp",
+      "version": "u50_adapt_0069_702b155c611b"
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0070_f6dcb457ff00"
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0071_943f4b107eff"
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0072_1ed1531d6d55"
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "origin": "zcu104_pareto_adp__neighbor_L1_PIPE__replacement",
+      "version": "u50_adapt_0073_53e27e19c8d2"
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0074_a7a5a0b8d2f7"
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "origin": "zcu104_pareto_latency",
+      "version": "u50_adapt_0075_b7d884149225"
+    },
+    {
+      "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+      "origin": "u50_zero_shot_pareto_latency",
+      "version": "u50_adapt_0076_f7a4e4ed0fcd"
+    },
+    {
+      "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+      "origin": "zcu104_pareto_adp__neighbor_L1_PIPE__replacement",
+      "version": "u50_adapt_0077_8ac826921026"
+    },
+    {
+      "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+      "origin": "zcu104_pareto_area",
+      "version": "u50_adapt_0078_60400ae30270"
+    },
+    {
+      "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+      "origin": "zcu104_pareto_latency__neighbor_L1_UNROLL",
+      "version": "u50_adapt_0079_9bef6b2f27be"
+    }
+  ]
+}

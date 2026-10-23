@@ -1,0 +1,1372 @@
+<?xml version='1.0' encoding='utf-8'?>
+<gexf xmlns:viz="http://www.gexf.net/1.2draft/viz" xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
+  <meta lastmodifieddate="2026-09-09">
+    <creator>NetworkX 3.1</creator>
+  </meta>
+  <graph defaultedgetype="directed" mode="static" name="mailohls-meta-v1:{&quot;action_resolutions&quot;:{&quot;source_location&quot;:5},&quot;action_sha256&quot;:&quot;35ce5d337718b90ea66ed4ecefe8c0e41ef39f777860fd1747655181d359953a&quot;,&quot;analysis_extension_sha256&quot;:&quot;4d4932f962968118da6f8faee07402b62b2a99b29e996c53ede9939baba71e98&quot;,&quot;cgeist_sha256&quot;:&quot;29271acd6b365b0d828a637e908e5aa74eee2c21d402e64a8139f550e03fbc89&quot;,&quot;compiler_alias_classifications&quot;:{&quot;no_alias&quot;:3},&quot;compiler_analysis_coverage&quot;:{&quot;alias_queries&quot;:3,&quot;dependence&quot;:1,&quot;effects_known_no_effect&quot;:7,&quot;effects_unknown&quot;:3,&quot;effects_with_effects&quot;:7,&quot;no_dependence&quot;:2,&quot;not_applicable&quot;:4,&quot;operations&quot;:17,&quot;unknown&quot;:0,&quot;view_edges&quot;:0,&quot;view_roots&quot;:3},&quot;compiler_analysis_schema&quot;:&quot;mailohls-native-analysis-v3&quot;,&quot;compiler_fallback_reasons&quot;:{},&quot;frontend_policy&quot;:&quot;cgeist:-O0,scal-rep=0,print-debug-info,noinline-helpers,exact-action-manifest,memref-fullrank,raise-scf-to-affine&quot;,&quot;generator_sha256&quot;:&quot;5e4f93c89ce4c275c04ff6ed4dd81a17858647a55b0abec0846b8da240da3b05&quot;,&quot;kernel&quot;:&quot;gemv&quot;,&quot;memory_dependence_model&quot;:&quot;mlir-affine-proven-with-root-summarized-uncertainty&quot;,&quot;mlir_level&quot;:&quot;affine+scf+memref+arith+func&quot;,&quot;mlir_sha256&quot;:&quot;e449b25a470560c8824ff904937bb36baea8d0f2bf85be27ca1b5db71bf61446&quot;,&quot;must_alias_component_sizes&quot;:[1,1,1],&quot;proven_dependence_edge_count&quot;:1,&quot;proven_independent_count&quot;:2,&quot;root_uncertainty_feature_count&quot;:0,&quot;schema_version&quot;:&quot;mailohls-mlir-graph-v7-analysis-features&quot;,&quot;source_sha256&quot;:&quot;c6e8b0aab3919a433803bacf29c7af6b56a6a5cb4d7a511a6875a21593a7e8f6&quot;,&quot;summarized_uncertainty_occurrence_count&quot;:0,&quot;unresolved_dependence_query_count&quot;:0}">
+    <attributes mode="static" class="edge">
+      <attribute id="63" title="flow" type="long" />
+      <attribute id="64" title="paper_flow_name" type="string" />
+      <attribute id="65" title="position" type="long" />
+      <attribute id="66" title="role" type="string" />
+      <attribute id="67" title="networkx_key" type="long" />
+      <attribute id="68" title="access_function" type="long" />
+      <attribute id="69" title="analysis" type="string" />
+      <attribute id="70" title="certainty" type="string" />
+      <attribute id="71" title="dependence_depth" type="long" />
+      <attribute id="72" title="distance" type="string" />
+      <attribute id="73" title="distance_bounds_known" type="boolean" />
+      <attribute id="74" title="distance_known" type="boolean" />
+      <attribute id="75" title="distance_lower_bound" type="long" />
+      <attribute id="76" title="distance_upper_bound" type="long" />
+      <attribute id="77" title="finite_distance_component_count" type="long" />
+      <attribute id="78" title="first_nonzero_distance" type="long" />
+      <attribute id="79" title="loop_carried" type="boolean" />
+      <attribute id="80" title="operand_index" type="long" />
+    </attributes>
+    <attributes mode="static" class="node">
+      <attribute id="0" title="block" type="long" />
+      <attribute id="1" title="compiler_effect_analysis_unknown" type="long" />
+      <attribute id="2" title="compiler_operation_effect_allocate" type="long" />
+      <attribute id="3" title="compiler_operation_effect_count" type="long" />
+      <attribute id="4" title="compiler_operation_effect_free" type="long" />
+      <attribute id="5" title="compiler_operation_effect_read" type="long" />
+      <attribute id="6" title="compiler_operation_effect_unknown" type="long" />
+      <attribute id="7" title="compiler_operation_effect_write" type="long" />
+      <attribute id="8" title="compiler_operation_effects" type="string" />
+      <attribute id="9" title="full_text" type="string" />
+      <attribute id="10" title="function" type="long" />
+      <attribute id="11" title="is_loop" type="long" />
+      <attribute id="12" title="loop_depth" type="long" />
+      <attribute id="13" title="mlir_attrs" type="string" />
+      <attribute id="14" title="op_ordinal" type="long" />
+      <attribute id="15" title="op_uid" type="string" />
+      <attribute id="16" title="operand_count" type="long" />
+      <attribute id="17" title="operand_types" type="string" />
+      <attribute id="18" title="paper_action" type="string" />
+      <attribute id="19" title="paper_label" type="string" />
+      <attribute id="20" title="paper_role" type="string" />
+      <attribute id="21" title="result_count" type="long" />
+      <attribute id="22" title="result_types" type="string" />
+      <attribute id="23" title="source_column" type="long" />
+      <attribute id="24" title="source_file" type="string" />
+      <attribute id="25" title="source_line" type="long" />
+      <attribute id="26" title="source_location" type="string" />
+      <attribute id="27" title="text" type="string" />
+      <attribute id="28" title="type" type="long" />
+      <attribute id="29" title="argument_index" type="long" />
+      <attribute id="30" title="is_block_argument" type="long" />
+      <attribute id="31" title="is_memory" type="long" />
+      <attribute id="32" title="ssa_id" type="string" />
+      <attribute id="33" title="ssa_kind" type="string" />
+      <attribute id="34" title="ssa_position" type="long" />
+      <attribute id="35" title="ssa_use_count" type="long" />
+      <attribute id="36" title="value_name" type="string" />
+      <attribute id="37" title="value_type" type="string" />
+      <attribute id="38" title="action_id" type="string" />
+      <attribute id="39" title="dependency_blocks" type="string" />
+      <attribute id="40" title="feature_kind" type="string" />
+      <attribute id="41" title="action_resolution" type="string" />
+      <attribute id="42" title="action_source_column" type="long" />
+      <attribute id="43" title="action_source_file" type="string" />
+      <attribute id="44" title="action_source_line" type="long" />
+      <attribute id="45" title="array_var" type="string" />
+      <attribute id="46" title="memory_root_text" type="string" />
+      <attribute id="47" title="kernel_info_loop_value" type="long" />
+      <attribute id="48" title="kernel_info_loop_value_relation" type="string" />
+      <attribute id="49" title="loop_lower" type="long" />
+      <attribute id="50" title="loop_ordinal" type="long" />
+      <attribute id="51" title="loop_step" type="long" />
+      <attribute id="52" title="loop_upper" type="long" />
+      <attribute id="53" title="trip_count" type="long" />
+      <attribute id="54" title="trip_count_source" type="string" />
+      <attribute id="55" title="trip_count_static" type="long" />
+      <attribute id="56" title="is_memory_root" type="long" />
+      <attribute id="57" title="memory_offset" type="string" />
+      <attribute id="58" title="memory_rank" type="long" />
+      <attribute id="59" title="memory_root_count" type="long" />
+      <attribute id="60" title="memory_shape" type="string" />
+      <attribute id="61" title="memory_static_shape" type="long" />
+      <attribute id="62" title="memory_strides" type="string" />
+    </attributes>
+    <nodes>
+      <node id="1" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="57.38317966800914" y="138.6001100925602" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="1" value="0" />
+          <attvalue for="2" value="0" />
+          <attvalue for="3" value="0" />
+          <attvalue for="4" value="0" />
+          <attvalue for="5" value="0" />
+          <attvalue for="6" value="0" />
+          <attvalue for="7" value="0" />
+          <attvalue for="8" value="" />
+          <attvalue for="9" value="%0 = affine.load %alloca[] : memref&lt;f32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="11" value="0" />
+          <attvalue for="12" value="0" />
+          <attvalue for="13" value="{&quot;map&quot;:&quot;affine_map&lt;() -&gt; ()&gt;&quot;}" />
+          <attvalue for="14" value="15" />
+          <attvalue for="15" value="gemv:op15" />
+          <attvalue for="16" value="1" />
+          <attvalue for="17" value="[&quot;memref&lt;f32&gt;&quot;]" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="21" value="1" />
+          <attvalue for="22" value="[&quot;f32&quot;]" />
+          <attvalue for="23" value="12" />
+          <attvalue for="24" value="gemv.c" />
+          <attvalue for="25" value="23" />
+          <attvalue for="26" value="loc(&quot;gemv.c&quot;:23:12)" />
+          <attvalue for="27" value="affine.load" />
+          <attvalue for="28" value="0" />
+        </attvalues>
+      </node>
+      <node id="12" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-29.8791602122621" y="-104.06786816135454" z="0.0" />
+        <attvalues>
+          <attvalue for="29" value="0" />
+          <attvalue for="0" value="1" />
+          <attvalue for="9" value="Value(&lt;block argument&gt; of type 'index' at index: 0) : index" />
+          <attvalue for="10" value="0" />
+          <attvalue for="30" value="1" />
+          <attvalue for="31" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="32" value="gemv:b1:a0" />
+          <attvalue for="33" value="block_argument" />
+          <attvalue for="34" value="0" />
+          <attvalue for="35" value="2" />
+          <attvalue for="27" value="index" />
+          <attvalue for="28" value="1" />
+          <attvalue for="36" value="Value(&lt;block argument&gt; of type 'index' at index: 0)" />
+          <attvalue for="37" value="index" />
+        </attvalues>
+      </node>
+      <node id="13" label="UNROLL">
+        <viz:color r="214" g="39" b="40" a="1.0" />
+        <viz:size value="15.0" />
+        <viz:position x="-33.6" y="-276.0" z="0.0" />
+        <attvalues>
+          <attvalue for="38" value="L4" />
+          <attvalue for="0" value="1" />
+          <attvalue for="39" value="[1]" />
+          <attvalue for="9" value="#pragma HLS UNROLL factor=auto{_UNROLL_L4}" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="L4" />
+          <attvalue for="19" value="UNROLL" />
+          <attvalue for="20" value="pragma" />
+          <attvalue for="27" value="UNROLL" />
+          <attvalue for="28" value="100" />
+        </attvalues>
+      </node>
+      <node id="15" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="160.4535364610427" y="281.4123518499581" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="1" />
+          <attvalue for="1" value="0" />
+          <attvalue for="2" value="0" />
+          <attvalue for="3" value="0" />
+          <attvalue for="4" value="0" />
+          <attvalue for="5" value="0" />
+          <attvalue for="6" value="0" />
+          <attvalue for="7" value="0" />
+          <attvalue for="8" value="" />
+          <attvalue for="9" value="affine.yield" />
+          <attvalue for="10" value="0" />
+          <attvalue for="11" value="0" />
+          <attvalue for="12" value="1" />
+          <attvalue for="13" value="{}" />
+          <attvalue for="14" value="14" />
+          <attvalue for="15" value="gemv:op14" />
+          <attvalue for="16" value="0" />
+          <attvalue for="17" value="[]" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="21" value="0" />
+          <attvalue for="22" value="[]" />
+          <attvalue for="23" value="5" />
+          <attvalue for="24" value="-" />
+          <attvalue for="25" value="10" />
+          <attvalue for="26" value="loc(&quot;-&quot;:10:5)" />
+          <attvalue for="27" value="affine.yield" />
+          <attvalue for="28" value="0" />
+        </attvalues>
+      </node>
+      <node id="17" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="101.8389133891041" y="131.00458745982934" z="0.0" />
+        <attvalues>
+          <attvalue for="29" value="0" />
+          <attvalue for="0" value="1" />
+          <attvalue for="9" value="Value(%1 = affine.for %arg1 = 0 to 32 iter_args(%arg2 = %cst) -&gt; (f32) {&#10;  %2 = affine.load %alloca_1[%arg0, %arg1] : memref&lt;32x32xf32&gt;&#10;  %3 = affine.load %alloca_0[%arg1] : memref&lt;32xf32&gt;&#10;  %4 = arith.mulf %2, %3 : f32&#10;  %5 = arith.addf %arg2, %4 : f32&#10;  affine.yield %5 : f32&#10;}) : f32" />
+          <attvalue for="10" value="0" />
+          <attvalue for="30" value="0" />
+          <attvalue for="31" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="32" value="gemv:op5:r0" />
+          <attvalue for="33" value="op_result" />
+          <attvalue for="34" value="0" />
+          <attvalue for="35" value="1" />
+          <attvalue for="27" value="f32" />
+          <attvalue for="28" value="1" />
+          <attvalue for="36" value="Value(%1 = affine.for %arg1 = 0 to 32 iter_args(%arg2 = %cst) -&gt; (f32) {&#10;  %2 = affine.load %alloca_1[%arg0, %arg1] : memref&lt;32x32xf32&gt;&#10;  %3 = affine.load %alloca_0[%arg1] : memref&lt;32xf32&gt;&#10;  %4 = arith.mulf %2, %3 : f32&#10;  %5 = arith.addf %arg2, %4 : f32&#10;  affine.yield %5 : f32&#10;})" />
+          <attvalue for="37" value="f32" />
+        </attvalues>
+      </node>
+      <node id="2" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="143.44710330007504" y="119.01260765580122" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="2" />
+          <attvalue for="1" value="0" />
+          <attvalue for="2" value="0" />
+          <attvalue for="3" value="0" />
+          <attvalue for="4" value="0" />
+          <attvalue for="5" value="0" />
+          <attvalue for="6" value="0" />
+          <attvalue for="7" value="0" />
+          <attvalue for="8" value="" />
+          <attvalue for="9" value="affine.yield %5 : f32" />
+          <attvalue for="10" value="0" />
+          <attvalue for="11" value="0" />
+          <attvalue for="12" value="2" />
+          <attvalue for="13" value="{}" />
+          <attvalue for="14" value="10" />
+          <attvalue for="15" value="gemv:op10" />
+          <attvalue for="16" value="1" />
+          <attvalue for="17" value="[&quot;f32&quot;]" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="21" value="0" />
+          <attvalue for="22" value="[]" />
+          <attvalue for="23" value="17" />
+          <attvalue for="24" value="gemv.c" />
+          <attvalue for="25" value="16" />
+          <attvalue for="26" value="loc(&quot;gemv.c&quot;:16:17)" />
+          <attvalue for="27" value="affine.yield" />
+          <attvalue for="28" value="0" />
+        </attvalues>
+      </node>
+      <node id="20" label="">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-95.97356941021278" y="-78.89819080998932" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="40" value="memory_shape" />
+          <attvalue for="9" value="memref&lt;32x32xf32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="memory" />
+          <attvalue for="27" value="memref_elements_log2_10" />
+          <attvalue for="28" value="2" />
+        </attvalues>
+      </node>
+      <node id="21" label="">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-84.77573772976858" y="-125.73355612420984" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="1" value="0" />
+          <attvalue for="2" value="1" />
+          <attvalue for="3" value="1" />
+          <attvalue for="4" value="0" />
+          <attvalue for="5" value="0" />
+          <attvalue for="6" value="0" />
+          <attvalue for="7" value="0" />
+          <attvalue for="8" value="allocate" />
+          <attvalue for="9" value="%alloca_1 = memref.alloca() {mailohls.action_id = &quot;L1&quot;, mailohls.action_kind = &quot;array&quot;} : memref&lt;32x32xf32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="11" value="0" />
+          <attvalue for="12" value="0" />
+          <attvalue for="13" value="{&quot;mailohls.action_id&quot;:&quot;\&quot;L1\&quot;&quot;,&quot;mailohls.action_kind&quot;:&quot;\&quot;array\&quot;&quot;,&quot;operandSegmentSizes&quot;:&quot;array&lt;i32: 0, 0&gt;&quot;}" />
+          <attvalue for="14" value="3" />
+          <attvalue for="15" value="gemv:op3" />
+          <attvalue for="16" value="0" />
+          <attvalue for="17" value="[]" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="memory" />
+          <attvalue for="21" value="1" />
+          <attvalue for="22" value="[&quot;memref&lt;32x32xf32&gt;&quot;]" />
+          <attvalue for="23" value="19" />
+          <attvalue for="24" value="gemv.c" />
+          <attvalue for="25" value="5" />
+          <attvalue for="26" value="loc(&quot;gemv.c&quot;:5:19)" />
+          <attvalue for="27" value="memref.alloca" />
+          <attvalue for="28" value="0" />
+        </attvalues>
+      </node>
+      <node id="22" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-230.06042028622738" y="168.46469521209585" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="40" value="loop_trip_count" />
+          <attvalue for="9" value="32" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="27" value="tripcount_log2_5" />
+          <attvalue for="28" value="2" />
+        </attvalues>
+      </node>
+      <node id="23" label="L1&#10;array_scope&lt;A&gt;">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:size value="24.0" />
+        <viz:position x="-456.0" y="288.0" z="0.0" />
+        <attvalues>
+          <attvalue for="38" value="L1" />
+          <attvalue for="41" value="source_location" />
+          <attvalue for="42" value="19" />
+          <attvalue for="43" value="gemv.c" />
+          <attvalue for="44" value="5" />
+          <attvalue for="45" value="A" />
+          <attvalue for="0" value="0" />
+          <attvalue for="9" value="array_scope&lt;A&gt; action=L1" />
+          <attvalue for="10" value="0" />
+          <attvalue for="46" value="Value(%alloca_1 = memref.alloca() {mailohls.action_id = &quot;L1&quot;, mailohls.action_kind = &quot;array&quot;} : memref&lt;32x32xf32&gt;) : memref&lt;32x32xf32&gt;" />
+          <attvalue for="18" value="L1" />
+          <attvalue for="19" value="L1&#10;array_scope&lt;A&gt;" />
+          <attvalue for="20" value="array" />
+          <attvalue for="27" value="array_scope" />
+          <attvalue for="28" value="104" />
+        </attvalues>
+      </node>
+      <node id="26" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="312.0" y="99.41849857459684" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="1" />
+          <attvalue for="40" value="loop_trip_count" />
+          <attvalue for="9" value="32" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="27" value="tripcount_log2_5" />
+          <attvalue for="28" value="2" />
+        </attvalues>
+      </node>
+      <node id="28" label="L4&#10;affine.for">
+        <viz:color r="40" g="120" b="181" a="1.0" />
+        <viz:size value="24.0" />
+        <viz:position x="-120.0" y="-276.0" z="0.0" />
+        <attvalues>
+          <attvalue for="38" value="L4" />
+          <attvalue for="41" value="source_location" />
+          <attvalue for="42" value="13" />
+          <attvalue for="43" value="gemv.c" />
+          <attvalue for="44" value="12" />
+          <attvalue for="0" value="0" />
+          <attvalue for="1" value="1" />
+          <attvalue for="2" value="0" />
+          <attvalue for="3" value="0" />
+          <attvalue for="4" value="0" />
+          <attvalue for="5" value="0" />
+          <attvalue for="6" value="0" />
+          <attvalue for="7" value="0" />
+          <attvalue for="8" value="" />
+          <attvalue for="9" value="affine.for %arg0 = 0 to 32 {" />
+          <attvalue for="10" value="0" />
+          <attvalue for="11" value="1" />
+          <attvalue for="47" value="12" />
+          <attvalue for="48" value="different" />
+          <attvalue for="12" value="0" />
+          <attvalue for="49" value="0" />
+          <attvalue for="50" value="0" />
+          <attvalue for="51" value="1" />
+          <attvalue for="52" value="32" />
+          <attvalue for="13" value="{&quot;lower_bound&quot;:&quot;affine_map&lt;() -&gt; (0)&gt;&quot;,&quot;step&quot;:&quot;1 : index&quot;,&quot;upper_bound&quot;:&quot;affine_map&lt;() -&gt; (32)&gt;&quot;}" />
+          <attvalue for="14" value="4" />
+          <attvalue for="15" value="gemv:op4" />
+          <attvalue for="16" value="0" />
+          <attvalue for="17" value="[]" />
+          <attvalue for="18" value="L4" />
+          <attvalue for="19" value="L4&#10;affine.for" />
+          <attvalue for="20" value="loop" />
+          <attvalue for="21" value="0" />
+          <attvalue for="22" value="[]" />
+          <attvalue for="23" value="31" />
+          <attvalue for="24" value="gemv.c" />
+          <attvalue for="25" value="12" />
+          <attvalue for="26" value="loc(&quot;gemv.c&quot;:12:31)" />
+          <attvalue for="27" value="affine.for" />
+          <attvalue for="53" value="32" />
+          <attvalue for="54" value="mlir_affine_analysis" />
+          <attvalue for="55" value="1" />
+          <attvalue for="28" value="0" />
+        </attvalues>
+      </node>
+      <node id="3" label="L5&#10;affine.for">
+        <viz:color r="40" g="120" b="181" a="1.0" />
+        <viz:size value="24.0" />
+        <viz:position x="336.0" y="-276.0" z="0.0" />
+        <attvalues>
+          <attvalue for="38" value="L5" />
+          <attvalue for="41" value="source_location" />
+          <attvalue for="42" value="17" />
+          <attvalue for="43" value="gemv.c" />
+          <attvalue for="44" value="16" />
+          <attvalue for="0" value="1" />
+          <attvalue for="1" value="1" />
+          <attvalue for="2" value="0" />
+          <attvalue for="3" value="0" />
+          <attvalue for="4" value="0" />
+          <attvalue for="5" value="0" />
+          <attvalue for="6" value="0" />
+          <attvalue for="7" value="0" />
+          <attvalue for="8" value="" />
+          <attvalue for="9" value="%1 = affine.for %arg1 = 0 to 32 iter_args(%arg2 = %cst) -&gt; (f32) {" />
+          <attvalue for="10" value="0" />
+          <attvalue for="11" value="1" />
+          <attvalue for="47" value="16" />
+          <attvalue for="48" value="different" />
+          <attvalue for="12" value="1" />
+          <attvalue for="49" value="0" />
+          <attvalue for="50" value="1" />
+          <attvalue for="51" value="1" />
+          <attvalue for="52" value="32" />
+          <attvalue for="13" value="{&quot;lower_bound&quot;:&quot;affine_map&lt;() -&gt; (0)&gt;&quot;,&quot;step&quot;:&quot;1 : index&quot;,&quot;upper_bound&quot;:&quot;affine_map&lt;() -&gt; (32)&gt;&quot;}" />
+          <attvalue for="14" value="5" />
+          <attvalue for="15" value="gemv:op5" />
+          <attvalue for="16" value="1" />
+          <attvalue for="17" value="[&quot;f32&quot;]" />
+          <attvalue for="18" value="L5" />
+          <attvalue for="19" value="L5&#10;affine.for" />
+          <attvalue for="20" value="loop" />
+          <attvalue for="21" value="1" />
+          <attvalue for="22" value="[&quot;f32&quot;]" />
+          <attvalue for="23" value="35" />
+          <attvalue for="24" value="gemv.c" />
+          <attvalue for="25" value="16" />
+          <attvalue for="26" value="loc(&quot;gemv.c&quot;:16:35)" />
+          <attvalue for="27" value="affine.for" />
+          <attvalue for="53" value="32" />
+          <attvalue for="54" value="mlir_affine_analysis" />
+          <attvalue for="55" value="1" />
+          <attvalue for="28" value="0" />
+        </attvalues>
+      </node>
+      <node id="32" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="77.01932637929168" y="132.51967417597598" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="3" />
+          <attvalue for="1" value="0" />
+          <attvalue for="2" value="0" />
+          <attvalue for="3" value="0" />
+          <attvalue for="4" value="0" />
+          <attvalue for="5" value="0" />
+          <attvalue for="6" value="0" />
+          <attvalue for="7" value="0" />
+          <attvalue for="8" value="" />
+          <attvalue for="9" value="affine.store %1, %alloca[] : memref&lt;f32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="11" value="0" />
+          <attvalue for="12" value="1" />
+          <attvalue for="13" value="{&quot;map&quot;:&quot;affine_map&lt;() -&gt; ()&gt;&quot;}" />
+          <attvalue for="14" value="12" />
+          <attvalue for="15" value="gemv:op12" />
+          <attvalue for="16" value="2" />
+          <attvalue for="17" value="[&quot;f32&quot;,&quot;memref&lt;f32&gt;&quot;]" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="21" value="0" />
+          <attvalue for="22" value="[]" />
+          <attvalue for="23" value="14" />
+          <attvalue for="24" value="gemv.c" />
+          <attvalue for="25" value="21" />
+          <attvalue for="26" value="loc(&quot;gemv.c&quot;:21:14)" />
+          <attvalue for="27" value="affine.store" />
+          <attvalue for="28" value="0" />
+        </attvalues>
+      </node>
+      <node id="33" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="161.36902533430444" y="174.75118513272434" z="0.0" />
+        <attvalues>
+          <attvalue for="29" value="0" />
+          <attvalue for="0" value="0" />
+          <attvalue for="9" value="Value(%cst = arith.constant 0.000000e+00 : f32) : f32" />
+          <attvalue for="10" value="0" />
+          <attvalue for="30" value="0" />
+          <attvalue for="31" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="32" value="gemv:op0:r0" />
+          <attvalue for="33" value="op_result" />
+          <attvalue for="34" value="0" />
+          <attvalue for="35" value="1" />
+          <attvalue for="27" value="f32" />
+          <attvalue for="28" value="1" />
+          <attvalue for="36" value="Value(%cst = arith.constant 0.000000e+00 : f32)" />
+          <attvalue for="37" value="f32" />
+        </attvalues>
+      </node>
+      <node id="34" label="ARRAY&#10;PARTITION">
+        <viz:color r="214" g="39" b="40" a="1.0" />
+        <viz:size value="15.0" />
+        <viz:position x="-456.0" y="357.6" z="0.0" />
+        <attvalues>
+          <attvalue for="38" value="L1" />
+          <attvalue for="0" value="0" />
+          <attvalue for="39" value="[0]" />
+          <attvalue for="9" value="#pragma HLS ARRAY_PARTITION variable=A type=auto{_ARRAY_T_L1} factor=auto{_ARRAY_F_L1} dim=auto{_ARRAY_D_L1}" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="L1" />
+          <attvalue for="19" value="ARRAY&#10;PARTITION" />
+          <attvalue for="20" value="pragma" />
+          <attvalue for="27" value="ARRAY_PARTITION" />
+          <attvalue for="28" value="100" />
+        </attvalues>
+      </node>
+      <node id="35" label="">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-119.07834267862414" y="-101.77106728452104" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="40" value="memory_shape" />
+          <attvalue for="9" value="memref&lt;32x32xf32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="memory" />
+          <attvalue for="27" value="memref_layout_unknown" />
+          <attvalue for="28" value="2" />
+        </attvalues>
+      </node>
+      <node id="36" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-26.93020494208063" y="-124.18238917089403" z="0.0" />
+        <attvalues>
+          <attvalue for="29" value="0" />
+          <attvalue for="0" value="2" />
+          <attvalue for="9" value="Value(&lt;block argument&gt; of type 'index' at index: 0) : index" />
+          <attvalue for="10" value="0" />
+          <attvalue for="30" value="1" />
+          <attvalue for="31" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="32" value="gemv:b2:a0" />
+          <attvalue for="33" value="block_argument" />
+          <attvalue for="34" value="0" />
+          <attvalue for="35" value="2" />
+          <attvalue for="27" value="index" />
+          <attvalue for="28" value="1" />
+          <attvalue for="36" value="Value(&lt;block argument&gt; of type 'index' at index: 0)" />
+          <attvalue for="37" value="index" />
+        </attvalues>
+      </node>
+      <node id="39" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-41.74107052917576" y="-138.20068759465363" z="0.0" />
+        <attvalues>
+          <attvalue for="29" value="0" />
+          <attvalue for="0" value="2" />
+          <attvalue for="9" value="Value(%2 = affine.load %alloca_1[%arg0, %arg1] : memref&lt;32x32xf32&gt;) : f32" />
+          <attvalue for="10" value="0" />
+          <attvalue for="30" value="0" />
+          <attvalue for="31" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="32" value="gemv:op6:r0" />
+          <attvalue for="33" value="op_result" />
+          <attvalue for="34" value="0" />
+          <attvalue for="35" value="1" />
+          <attvalue for="27" value="f32" />
+          <attvalue for="28" value="1" />
+          <attvalue for="36" value="Value(%2 = affine.load %alloca_1[%arg0, %arg1] : memref&lt;32x32xf32&gt;)" />
+          <attvalue for="37" value="f32" />
+        </attvalues>
+      </node>
+      <node id="41" label="">
+        <viz:color r="176" g="180" b="184" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="166.61849126775502" y="192.3121578669447" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="1" value="0" />
+          <attvalue for="2" value="0" />
+          <attvalue for="3" value="0" />
+          <attvalue for="4" value="0" />
+          <attvalue for="5" value="0" />
+          <attvalue for="6" value="0" />
+          <attvalue for="7" value="0" />
+          <attvalue for="8" value="" />
+          <attvalue for="9" value="%cst = arith.constant 0.000000e+00 : f32" />
+          <attvalue for="10" value="0" />
+          <attvalue for="11" value="0" />
+          <attvalue for="12" value="0" />
+          <attvalue for="13" value="{&quot;value&quot;:&quot;0.000000e+00 : f32&quot;}" />
+          <attvalue for="14" value="0" />
+          <attvalue for="15" value="gemv:op0" />
+          <attvalue for="16" value="0" />
+          <attvalue for="17" value="[]" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="arith" />
+          <attvalue for="21" value="1" />
+          <attvalue for="22" value="[&quot;f32&quot;]" />
+          <attvalue for="23" value="21" />
+          <attvalue for="24" value="gemv.c" />
+          <attvalue for="25" value="15" />
+          <attvalue for="26" value="loc(&quot;gemv.c&quot;:15:21)" />
+          <attvalue for="27" value="arith.constant" />
+          <attvalue for="28" value="0" />
+        </attvalues>
+      </node>
+      <node id="42" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="129.0005674126791" y="134.52648311724792" z="0.0" />
+        <attvalues>
+          <attvalue for="29" value="0" />
+          <attvalue for="0" value="2" />
+          <attvalue for="9" value="Value(%5 = arith.addf %arg2, %4 : f32) : f32" />
+          <attvalue for="10" value="0" />
+          <attvalue for="30" value="0" />
+          <attvalue for="31" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="32" value="gemv:op9:r0" />
+          <attvalue for="33" value="op_result" />
+          <attvalue for="34" value="0" />
+          <attvalue for="35" value="1" />
+          <attvalue for="27" value="f32" />
+          <attvalue for="28" value="1" />
+          <attvalue for="36" value="Value(%5 = arith.addf %arg2, %4 : f32)" />
+          <attvalue for="37" value="f32" />
+        </attvalues>
+      </node>
+      <node id="44" label="">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-102.98094181088332" y="-129.60417433203924" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="40" value="memory_shape" />
+          <attvalue for="9" value="memref&lt;32x32xf32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="memory" />
+          <attvalue for="27" value="memref_dim_1_log2_5" />
+          <attvalue for="28" value="2" />
+        </attvalues>
+      </node>
+      <node id="46" label="">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-78.11835667377548" y="-87.16537827846021" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="40" value="memory_shape" />
+          <attvalue for="9" value="memref&lt;32x32xf32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="memory" />
+          <attvalue for="27" value="memref_static_shape" />
+          <attvalue for="28" value="2" />
+        </attvalues>
+      </node>
+      <node id="47" label="">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-91.73560209865549" y="-104.40112915699298" z="0.0" />
+        <attvalues>
+          <attvalue for="29" value="0" />
+          <attvalue for="0" value="0" />
+          <attvalue for="9" value="Value(%alloca_1 = memref.alloca() {mailohls.action_id = &quot;L1&quot;, mailohls.action_kind = &quot;array&quot;} : memref&lt;32x32xf32&gt;) : memref&lt;32x32xf32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="30" value="0" />
+          <attvalue for="31" value="1" />
+          <attvalue for="56" value="1" />
+          <attvalue for="57" value="dynamic" />
+          <attvalue for="58" value="2" />
+          <attvalue for="59" value="1" />
+          <attvalue for="60" value="[32,32]" />
+          <attvalue for="61" value="1" />
+          <attvalue for="62" value="[]" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="memory" />
+          <attvalue for="32" value="gemv:op3:r0" />
+          <attvalue for="33" value="op_result" />
+          <attvalue for="34" value="0" />
+          <attvalue for="35" value="1" />
+          <attvalue for="27" value="memref_rank2_f32" />
+          <attvalue for="28" value="1" />
+          <attvalue for="36" value="Value(%alloca_1 = memref.alloca() {mailohls.action_id = &quot;L1&quot;, mailohls.action_kind = &quot;array&quot;} : memref&lt;32x32xf32&gt;)" />
+          <attvalue for="37" value="memref&lt;32x32xf32&gt;" />
+        </attvalues>
+      </node>
+      <node id="48" label="">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-115.95986888273342" y="-118.3987583967535" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="40" value="memory_shape" />
+          <attvalue for="9" value="memref&lt;32x32xf32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="memory" />
+          <attvalue for="27" value="memref_rank_2" />
+          <attvalue for="28" value="2" />
+        </attvalues>
+      </node>
+      <node id="51" label="">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-112.01433864927964" y="-86.33778168069279" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="0" />
+          <attvalue for="40" value="memory_shape" />
+          <attvalue for="9" value="memref&lt;32x32xf32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="memory" />
+          <attvalue for="27" value="memref_dim_0_log2_5" />
+          <attvalue for="28" value="2" />
+        </attvalues>
+      </node>
+      <node id="53" label="UNROLL">
+        <viz:color r="214" g="39" b="40" a="1.0" />
+        <viz:size value="15.0" />
+        <viz:position x="249.60000000000002" y="-276.0" z="0.0" />
+        <attvalues>
+          <attvalue for="38" value="L5" />
+          <attvalue for="0" value="2" />
+          <attvalue for="39" value="[2]" />
+          <attvalue for="9" value="#pragma HLS UNROLL factor=auto{_UNROLL_L5}" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="L5" />
+          <attvalue for="19" value="UNROLL" />
+          <attvalue for="20" value="pragma" />
+          <attvalue for="27" value="UNROLL" />
+          <attvalue for="28" value="100" />
+        </attvalues>
+      </node>
+      <node id="56" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="147.25282679826833" y="155.2395071036796" z="0.0" />
+        <attvalues>
+          <attvalue for="29" value="1" />
+          <attvalue for="0" value="2" />
+          <attvalue for="9" value="Value(&lt;block argument&gt; of type 'f32' at index: 1) : f32" />
+          <attvalue for="10" value="0" />
+          <attvalue for="30" value="1" />
+          <attvalue for="31" value="0" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="32" value="gemv:b2:a1" />
+          <attvalue for="33" value="block_argument" />
+          <attvalue for="34" value="1" />
+          <attvalue for="35" value="1" />
+          <attvalue for="27" value="f32" />
+          <attvalue for="28" value="1" />
+          <attvalue for="36" value="Value(&lt;block argument&gt; of type 'f32' at index: 1)" />
+          <attvalue for="37" value="f32" />
+        </attvalues>
+      </node>
+      <node id="58" label="">
+        <viz:color r="217" g="221" b="225" a="1.0" />
+        <viz:size value="8.0" />
+        <viz:position x="-51.135356106850914" y="-114.50087725085287" z="0.0" />
+        <attvalues>
+          <attvalue for="0" value="2" />
+          <attvalue for="1" value="0" />
+          <attvalue for="2" value="0" />
+          <attvalue for="3" value="0" />
+          <attvalue for="4" value="0" />
+          <attvalue for="5" value="0" />
+          <attvalue for="6" value="0" />
+          <attvalue for="7" value="0" />
+          <attvalue for="8" value="" />
+          <attvalue for="9" value="%2 = affine.load %alloca_1[%arg0, %arg1] : memref&lt;32x32xf32&gt;" />
+          <attvalue for="10" value="0" />
+          <attvalue for="11" value="0" />
+          <attvalue for="12" value="2" />
+          <attvalue for="13" value="{&quot;map&quot;:&quot;affine_map&lt;(d0, d1) -&gt; (d0, d1)&gt;&quot;}" />
+          <attvalue for="14" value="6" />
+          <attvalue for="15" value="gemv:op6" />
+          <attvalue for="16" value="3" />
+          <attvalue for="17" value="[&quot;memref&lt;32x32xf32&gt;&quot;,&quot;index&quot;,&quot;index&quot;]" />
+          <attvalue for="18" value="" />
+          <attvalue for="19" value="" />
+          <attvalue for="20" value="context" />
+          <attvalue for="21" value="1" />
+          <attvalue for="22" value="[&quot;f32&quot;]" />
+          <attvalue for="23" value="20" />
+          <attvalue for="24" value="gemv.c" />
+          <attvalue for="25" value="19" />
+          <attvalue for="26" value="loc(&quot;gemv.c&quot;:19:20)" />
+          <attvalue for="27" value="affine.load" />
+          <attvalue for="28" value="0" />
+        </attvalues>
+      </node>
+      <node id="60" label="PIPELINE">
+        <viz:color r="214" g="39" b="40" a="1.0" />
+        <viz:size value="15.0" />
+        <viz:position x="422.4" y="-276.0" z="0.0" />
+        <attvalues>
+          <attvalue for="38" value="L5" />
+          <attvalue for="0" value="2" />
+          <attvalue for="39" value="[2]" />
+          <attvalue for="9" value="#pragma HLS PIPELINE II=auto{_PIPE_L5}" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="L5" />
+          <attvalue for="19" value="PIPELINE" />
+          <attvalue for="20" value="pragma" />
+          <attvalue for="27" value="PIPELINE" />
+          <attvalue for="28" value="100" />
+        </attvalues>
+      </node>
+      <node id="7" label="PIPELINE">
+        <viz:color r="214" g="39" b="40" a="1.0" />
+        <viz:size value="15.0" />
+        <viz:position x="-33.6" y="-276.0" z="0.0" />
+        <attvalues>
+          <attvalue for="38" value="L4" />
+          <attvalue for="0" value="1" />
+          <attvalue for="39" value="[1]" />
+          <attvalue for="9" value="#pragma HLS PIPELINE II=auto{_PIPE_L4}" />
+          <attvalue for="10" value="0" />
+          <attvalue for="18" value="L4" />
+          <attvalue for="19" value="PIPELINE" />
+          <attvalue for="20" value="pragma" />
+          <attvalue for="27" value="PIPELINE" />
+          <attvalue for="28" value="100" />
+        </attvalues>
+      </node>
+    </nodes>
+    <edges>
+      <edge source="12" target="58" id="150">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="1" />
+          <attvalue for="66" value="operand" />
+          <attvalue for="67" value="150" />
+        </attvalues>
+      </edge>
+      <edge source="13" target="28" id="167">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="1" />
+          <attvalue for="67" value="167" />
+        </attvalues>
+      </edge>
+      <edge source="15" target="28" id="144">
+        <viz:color r="119" g="119" b="119" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="8" />
+          <attvalue for="64" value="region" />
+          <attvalue for="65" value="1" />
+          <attvalue for="66" value="region_exit" />
+          <attvalue for="67" value="144" />
+        </attvalues>
+      </edge>
+      <edge source="17" target="32" id="147">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="operand" />
+          <attvalue for="67" value="147" />
+        </attvalues>
+      </edge>
+      <edge source="2" target="3" id="179">
+        <viz:color r="119" g="119" b="119" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="8" />
+          <attvalue for="64" value="region" />
+          <attvalue for="65" value="1" />
+          <attvalue for="66" value="region_exit" />
+          <attvalue for="67" value="179" />
+        </attvalues>
+      </edge>
+      <edge source="20" target="47" id="55">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="934" />
+          <attvalue for="66" value="memory_shape_feature" />
+          <attvalue for="67" value="55" />
+        </attvalues>
+      </edge>
+      <edge source="21" target="28" id="23">
+        <viz:color r="170" g="176" b="181" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="0" />
+          <attvalue for="64" value="control" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="next_in_block" />
+          <attvalue for="67" value="23" />
+        </attvalues>
+      </edge>
+      <edge source="21" target="47" id="24">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="result" />
+          <attvalue for="67" value="24" />
+        </attvalues>
+      </edge>
+      <edge source="22" target="28" id="77">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="900" />
+          <attvalue for="66" value="loop_trip_count" />
+          <attvalue for="67" value="77" />
+        </attvalues>
+      </edge>
+      <edge source="23" target="34" id="124">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="2" />
+          <attvalue for="67" value="124" />
+        </attvalues>
+      </edge>
+      <edge source="23" target="47" id="122">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="7" />
+          <attvalue for="64" value="array-scope" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="array_root" />
+          <attvalue for="67" value="122" />
+        </attvalues>
+      </edge>
+      <edge source="23" target="58" id="125">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="68" value="0" />
+          <attvalue for="63" value="7" />
+          <attvalue for="64" value="array-scope" />
+          <attvalue for="65" value="1" />
+          <attvalue for="66" value="array_read" />
+          <attvalue for="67" value="125" />
+        </attvalues>
+      </edge>
+      <edge source="26" target="3" id="151">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="900" />
+          <attvalue for="66" value="loop_trip_count" />
+          <attvalue for="67" value="151" />
+        </attvalues>
+      </edge>
+      <edge source="28" target="1" id="0">
+        <viz:color r="170" g="176" b="181" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="0" />
+          <attvalue for="64" value="control" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="next_in_block" />
+          <attvalue for="67" value="0" />
+        </attvalues>
+      </edge>
+      <edge source="28" target="13" id="4">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="1" />
+          <attvalue for="67" value="4" />
+        </attvalues>
+      </edge>
+      <edge source="28" target="3" id="2">
+        <viz:color r="119" g="119" b="119" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="8" />
+          <attvalue for="64" value="region" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="region_entry" />
+          <attvalue for="67" value="2" />
+        </attvalues>
+      </edge>
+      <edge source="28" target="7" id="3">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="0" />
+          <attvalue for="67" value="3" />
+        </attvalues>
+      </edge>
+      <edge source="3" target="17" id="136">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="result" />
+          <attvalue for="67" value="136" />
+        </attvalues>
+      </edge>
+      <edge source="3" target="53" id="140">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="1" />
+          <attvalue for="67" value="140" />
+        </attvalues>
+      </edge>
+      <edge source="3" target="58" id="138">
+        <viz:color r="119" g="119" b="119" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="8" />
+          <attvalue for="64" value="region" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="region_entry" />
+          <attvalue for="67" value="138" />
+        </attvalues>
+      </edge>
+      <edge source="3" target="60" id="139">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="0" />
+          <attvalue for="67" value="139" />
+        </attvalues>
+      </edge>
+      <edge source="32" target="1" id="221">
+        <viz:color r="224" g="123" b="57" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="69" value="mlir-affine-analysis" />
+          <attvalue for="70" value="proven" />
+          <attvalue for="71" value="1" />
+          <attvalue for="72" value="[]" />
+          <attvalue for="73" value="false" />
+          <attvalue for="74" value="false" />
+          <attvalue for="75" value="0" />
+          <attvalue for="76" value="0" />
+          <attvalue for="77" value="0" />
+          <attvalue for="78" value="0" />
+          <attvalue for="63" value="12" />
+          <attvalue for="79" value="false" />
+          <attvalue for="64" value="proven-dependence" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="RAW" />
+          <attvalue for="67" value="221" />
+        </attvalues>
+      </edge>
+      <edge source="33" target="3" id="29">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="operand" />
+          <attvalue for="67" value="29" />
+        </attvalues>
+      </edge>
+      <edge source="33" target="56" id="30">
+        <viz:color r="224" g="123" b="57" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="11" />
+          <attvalue for="64" value="loop-carried" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="iter_init" />
+          <attvalue for="67" value="30" />
+        </attvalues>
+      </edge>
+      <edge source="34" target="23" id="117">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="2" />
+          <attvalue for="67" value="117" />
+        </attvalues>
+      </edge>
+      <edge source="35" target="47" id="59">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="935" />
+          <attvalue for="66" value="memory_shape_feature" />
+          <attvalue for="67" value="59" />
+        </attvalues>
+      </edge>
+      <edge source="36" target="58" id="199">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="2" />
+          <attvalue for="66" value="operand" />
+          <attvalue for="67" value="199" />
+        </attvalues>
+      </edge>
+      <edge source="41" target="33" id="11">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="result" />
+          <attvalue for="67" value="11" />
+        </attvalues>
+      </edge>
+      <edge source="42" target="17" id="193">
+        <viz:color r="224" g="123" b="57" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="11" />
+          <attvalue for="64" value="loop-carried" />
+          <attvalue for="65" value="200" />
+          <attvalue for="66" value="loop_result" />
+          <attvalue for="67" value="193" />
+        </attvalues>
+      </edge>
+      <edge source="42" target="2" id="194">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="operand" />
+          <attvalue for="67" value="194" />
+        </attvalues>
+      </edge>
+      <edge source="42" target="56" id="195">
+        <viz:color r="224" g="123" b="57" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="11" />
+          <attvalue for="64" value="loop-carried" />
+          <attvalue for="65" value="100" />
+          <attvalue for="66" value="loop_backedge" />
+          <attvalue for="67" value="195" />
+        </attvalues>
+      </edge>
+      <edge source="44" target="47" id="51">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="933" />
+          <attvalue for="66" value="memory_shape_feature" />
+          <attvalue for="67" value="51" />
+        </attvalues>
+      </edge>
+      <edge source="46" target="47" id="71">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="931" />
+          <attvalue for="66" value="memory_shape_feature" />
+          <attvalue for="67" value="71" />
+        </attvalues>
+      </edge>
+      <edge source="47" target="23" id="42">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="7" />
+          <attvalue for="64" value="array-scope" />
+          <attvalue for="65" value="10" />
+          <attvalue for="66" value="array_root_reverse" />
+          <attvalue for="67" value="42" />
+        </attvalues>
+      </edge>
+      <edge source="47" target="58" id="43">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="operand" />
+          <attvalue for="67" value="43" />
+        </attvalues>
+      </edge>
+      <edge source="47" target="58" id="44">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="10" />
+          <attvalue for="80" value="0" />
+          <attvalue for="64" value="memory-access" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="read" />
+          <attvalue for="67" value="44" />
+        </attvalues>
+      </edge>
+      <edge source="48" target="47" id="69">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="930" />
+          <attvalue for="66" value="memory_shape_feature" />
+          <attvalue for="67" value="69" />
+        </attvalues>
+      </edge>
+      <edge source="51" target="47" id="47">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="932" />
+          <attvalue for="66" value="memory_shape_feature" />
+          <attvalue for="67" value="47" />
+        </attvalues>
+      </edge>
+      <edge source="53" target="3" id="219">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="1" />
+          <attvalue for="67" value="219" />
+        </attvalues>
+      </edge>
+      <edge source="58" target="23" id="170">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="68" value="0" />
+          <attvalue for="63" value="7" />
+          <attvalue for="64" value="array-scope" />
+          <attvalue for="65" value="11" />
+          <attvalue for="66" value="array_read_reverse" />
+          <attvalue for="67" value="170" />
+        </attvalues>
+      </edge>
+      <edge source="58" target="39" id="172">
+        <viz:color r="107" g="135" b="154" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="1" />
+          <attvalue for="64" value="ssa/data" />
+          <attvalue for="65" value="0" />
+          <attvalue for="66" value="result" />
+          <attvalue for="67" value="172" />
+        </attvalues>
+      </edge>
+      <edge source="58" target="47" id="169">
+        <viz:color r="89" g="161" b="79" a="1.0" />
+        <viz:thickness value="1.0" />
+        <attvalues>
+          <attvalue for="63" value="10" />
+          <attvalue for="80" value="0" />
+          <attvalue for="64" value="memory-access" />
+          <attvalue for="65" value="1" />
+          <attvalue for="66" value="read_reverse" />
+          <attvalue for="67" value="169" />
+        </attvalues>
+      </edge>
+      <edge source="60" target="3" id="217">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="0" />
+          <attvalue for="67" value="217" />
+        </attvalues>
+      </edge>
+      <edge source="7" target="28" id="165">
+        <viz:color r="34" g="34" b="34" a="1.0" />
+        <viz:thickness value="2.6" />
+        <attvalues>
+          <attvalue for="63" value="200" />
+          <attvalue for="64" value="Stage-2 action routing" />
+          <attvalue for="65" value="0" />
+          <attvalue for="67" value="165" />
+        </attvalues>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

@@ -37,11 +37,19 @@ def load(path):
             baseline[kernel] = row
         elif row["stage"] == "stage-3" and row["objective"] == "LATENCY":
             result[kernel, "LATENCY"] = row
+        elif row["stage"] == "predicted-directives" and row["objective"] == "LATENCY":
+            # Corrected contracts may supply LATENCY as predicted directives.
+            # Keep stage-3 preferred when both are present, regardless of order.
+            result.setdefault((kernel, "LATENCY"), row)
         elif row["stage"] == "predicted-directives" and row["objective"] in ("AREA", "ADP"):
             result[kernel, row["objective"]] = row
     expected = {(k, o) for k in KERNELS for o in OBJECTIVES}
-    if set(KERNELS) - set(baseline) or expected - set(result):
-        raise ValueError("JSONL lacks one or more baseline/objective rows")
+    missing_baselines = set(KERNELS) - set(baseline)
+    missing_results = expected - set(result)
+    if missing_baselines or missing_results:
+        missing = [f"{k}/baseline" for k in sorted(missing_baselines)]
+        missing += [f"{k}/{o}" for k, o in sorted(missing_results)]
+        raise ValueError(f"{path}: missing baseline/objective rows: {', '.join(missing)}")
     return baseline, result
 
 def metrics(baseline, result):
@@ -66,12 +74,12 @@ def overview(speedup, utilization, out):
         for bar, value in zip(bars, speedup[:, oi]):
             ax.annotate(f"{value:.2g}×", (bar.get_x()+bar.get_width()/2, value), xytext=(0,3),
                         textcoords="offset points", ha="center", fontsize=7, rotation=90)
-        for ki, bar in enumerate(bars):
-            if infeasible[ki, oi]:
-                # Keep the infeasibility marker below the bar so it does not
-                # obscure the speedup annotation on the logarithmic axis.
-                ax.scatter(bar.get_x()+bar.get_width()/2, 0.55, marker="x",
-                           s=85, color="#d62728", linewidth=2.2, zorder=5)
+        # for ki, bar in enumerate(bars):
+            # if infeasible[ki, oi]:
+            #     # Keep the infeasibility marker below the bar so it does not
+            #     # obscure the speedup annotation on the logarithmic axis.
+            #     ax.scatter(bar.get_x()+bar.get_width()/2, 0.55, marker="x",
+            #                s=85, color="#d62728", linewidth=2.2, zorder=5)
     ax.axhline(1, color="#333", ls="--", lw=1); ax.set_yscale("log")
     ax.set_ylabel("Speedup over baseline (×, log scale)")
     ax.set_xticks(x, KERNELS, rotation=25, ha="right"); ax.grid(axis="y", alpha=.25, which="both")

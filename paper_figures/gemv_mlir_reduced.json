@@ -1,0 +1,693 @@
+{
+  "all_actions": {
+    "L1": {
+      "anchor_full_text": "array_scope<A> action=L1",
+      "anchor_node": "23",
+      "anchor_text": "array_scope",
+      "anchor_type": 104,
+      "kind": "array",
+      "source_line": 5
+    },
+    "L2": {
+      "anchor_full_text": "array_scope<x> action=L2",
+      "anchor_node": "43",
+      "anchor_text": "array_scope",
+      "anchor_type": 104,
+      "kind": "array",
+      "source_line": 7
+    },
+    "L3": {
+      "anchor_full_text": "array_scope<y> action=L3",
+      "anchor_node": "18",
+      "anchor_text": "array_scope",
+      "anchor_type": 104,
+      "kind": "array",
+      "source_line": 9
+    },
+    "L4": {
+      "anchor_full_text": "affine.for %arg0 = 0 to 32 {",
+      "anchor_node": "28",
+      "anchor_text": "affine.for",
+      "anchor_type": 0,
+      "kind": "loop",
+      "source_line": 12
+    },
+    "L5": {
+      "anchor_full_text": "%1 = affine.for %arg1 = 0 to 32 iter_args(%arg2 = %cst) -> (f32) {",
+      "anchor_node": "3",
+      "anchor_text": "affine.for",
+      "anchor_type": 0,
+      "kind": "loop",
+      "source_line": 16
+    }
+  },
+  "edges": [
+    {
+      "flow": 1,
+      "production_edge_id": "150",
+      "relation": "ssa/data",
+      "source": "12",
+      "target": "58"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "167",
+      "relation": "Stage-2 action routing",
+      "source": "13",
+      "target": "28"
+    },
+    {
+      "flow": 8,
+      "production_edge_id": "144",
+      "relation": "region",
+      "source": "15",
+      "target": "28"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "147",
+      "relation": "ssa/data",
+      "source": "17",
+      "target": "32"
+    },
+    {
+      "flow": 8,
+      "production_edge_id": "179",
+      "relation": "region",
+      "source": "2",
+      "target": "3"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "55",
+      "relation": "ssa/data",
+      "source": "20",
+      "target": "47"
+    },
+    {
+      "flow": 0,
+      "production_edge_id": "23",
+      "relation": "control",
+      "source": "21",
+      "target": "28"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "24",
+      "relation": "ssa/data",
+      "source": "21",
+      "target": "47"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "77",
+      "relation": "ssa/data",
+      "source": "22",
+      "target": "28"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "124",
+      "relation": "Stage-2 action routing",
+      "source": "23",
+      "target": "34"
+    },
+    {
+      "flow": 7,
+      "production_edge_id": "122",
+      "relation": "array-scope",
+      "source": "23",
+      "target": "47"
+    },
+    {
+      "flow": 7,
+      "production_edge_id": "125",
+      "relation": "array-scope",
+      "source": "23",
+      "target": "58"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "151",
+      "relation": "ssa/data",
+      "source": "26",
+      "target": "3"
+    },
+    {
+      "flow": 0,
+      "production_edge_id": "0",
+      "relation": "control",
+      "source": "28",
+      "target": "1"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "4",
+      "relation": "Stage-2 action routing",
+      "source": "28",
+      "target": "13"
+    },
+    {
+      "flow": 8,
+      "production_edge_id": "2",
+      "relation": "region",
+      "source": "28",
+      "target": "3"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "3",
+      "relation": "Stage-2 action routing",
+      "source": "28",
+      "target": "7"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "136",
+      "relation": "ssa/data",
+      "source": "3",
+      "target": "17"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "140",
+      "relation": "Stage-2 action routing",
+      "source": "3",
+      "target": "53"
+    },
+    {
+      "flow": 8,
+      "production_edge_id": "138",
+      "relation": "region",
+      "source": "3",
+      "target": "58"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "139",
+      "relation": "Stage-2 action routing",
+      "source": "3",
+      "target": "60"
+    },
+    {
+      "flow": 12,
+      "production_edge_id": "221",
+      "relation": "proven-dependence",
+      "source": "32",
+      "target": "1"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "29",
+      "relation": "ssa/data",
+      "source": "33",
+      "target": "3"
+    },
+    {
+      "flow": 11,
+      "production_edge_id": "30",
+      "relation": "loop-carried",
+      "source": "33",
+      "target": "56"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "117",
+      "relation": "Stage-2 action routing",
+      "source": "34",
+      "target": "23"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "59",
+      "relation": "ssa/data",
+      "source": "35",
+      "target": "47"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "199",
+      "relation": "ssa/data",
+      "source": "36",
+      "target": "58"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "11",
+      "relation": "ssa/data",
+      "source": "41",
+      "target": "33"
+    },
+    {
+      "flow": 11,
+      "production_edge_id": "193",
+      "relation": "loop-carried",
+      "source": "42",
+      "target": "17"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "194",
+      "relation": "ssa/data",
+      "source": "42",
+      "target": "2"
+    },
+    {
+      "flow": 11,
+      "production_edge_id": "195",
+      "relation": "loop-carried",
+      "source": "42",
+      "target": "56"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "51",
+      "relation": "ssa/data",
+      "source": "44",
+      "target": "47"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "71",
+      "relation": "ssa/data",
+      "source": "46",
+      "target": "47"
+    },
+    {
+      "flow": 7,
+      "production_edge_id": "42",
+      "relation": "array-scope",
+      "source": "47",
+      "target": "23"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "43",
+      "relation": "ssa/data",
+      "source": "47",
+      "target": "58"
+    },
+    {
+      "flow": 10,
+      "production_edge_id": "44",
+      "relation": "memory-access",
+      "source": "47",
+      "target": "58"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "69",
+      "relation": "ssa/data",
+      "source": "48",
+      "target": "47"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "47",
+      "relation": "ssa/data",
+      "source": "51",
+      "target": "47"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "219",
+      "relation": "Stage-2 action routing",
+      "source": "53",
+      "target": "3"
+    },
+    {
+      "flow": 7,
+      "production_edge_id": "170",
+      "relation": "array-scope",
+      "source": "58",
+      "target": "23"
+    },
+    {
+      "flow": 1,
+      "production_edge_id": "172",
+      "relation": "ssa/data",
+      "source": "58",
+      "target": "39"
+    },
+    {
+      "flow": 10,
+      "production_edge_id": "169",
+      "relation": "memory-access",
+      "source": "58",
+      "target": "47"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "217",
+      "relation": "Stage-2 action routing",
+      "source": "60",
+      "target": "3"
+    },
+    {
+      "flow": 200,
+      "production_edge_id": "165",
+      "relation": "Stage-2 action routing",
+      "source": "7",
+      "target": "28"
+    }
+  ],
+  "layout": {
+    "algorithm": "fixed semantic centers + seeded local spring context",
+    "seed": 1729
+  },
+  "nodes": [
+    {
+      "action_id": "",
+      "full_text": "%0 = affine.load %alloca[] : memref<f32>",
+      "id": "1",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "affine.load",
+      "type": 0
+    },
+    {
+      "action_id": "",
+      "full_text": "Value(<block argument> of type 'index' at index: 0) : index",
+      "id": "12",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "index",
+      "type": 1
+    },
+    {
+      "action_id": "L4",
+      "full_text": "#pragma HLS UNROLL factor=auto{_UNROLL_L4}",
+      "id": "13",
+      "label": "UNROLL",
+      "reason": "selected action satellite",
+      "role": "pragma",
+      "text": "UNROLL",
+      "type": 100
+    },
+    {
+      "action_id": "",
+      "full_text": "affine.yield",
+      "id": "15",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "affine.yield",
+      "type": 0
+    },
+    {
+      "action_id": "",
+      "full_text": "Value(%1 = affine.for %arg1 = 0 to 32 iter_args(%arg2 = %cst) -> (f32) {\n  %2 = affine.load %alloca_1[%arg0, %arg1] : memref<32x32xf32>\n  %3 = affine.load %alloca_0[%arg1] : memref<32xf32>\n  %4 = arith.mulf %2, %3 : f32\n  %5 = arith.addf %arg2, %4 : f32\n  affine.yield %5 : f32\n}) : f32",
+      "id": "17",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "f32",
+      "type": 1
+    },
+    {
+      "action_id": "",
+      "full_text": "affine.yield %5 : f32",
+      "id": "2",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "affine.yield",
+      "type": 0
+    },
+    {
+      "action_id": "",
+      "full_text": "memref<32x32xf32>",
+      "id": "20",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "memory",
+      "text": "memref_elements_log2_10",
+      "type": 2
+    },
+    {
+      "action_id": "",
+      "full_text": "%alloca_1 = memref.alloca() {mailohls.action_id = \"L1\", mailohls.action_kind = \"array\"} : memref<32x32xf32>",
+      "id": "21",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "memory",
+      "text": "memref.alloca",
+      "type": 0
+    },
+    {
+      "action_id": "",
+      "full_text": "32",
+      "id": "22",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "tripcount_log2_5",
+      "type": 2
+    },
+    {
+      "action_id": "L1",
+      "full_text": "array_scope<A> action=L1",
+      "id": "23",
+      "label": "L1\narray_scope<A>",
+      "reason": "selected action satellite",
+      "role": "array",
+      "text": "array_scope",
+      "type": 104
+    },
+    {
+      "action_id": "",
+      "full_text": "32",
+      "id": "26",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "tripcount_log2_5",
+      "type": 2
+    },
+    {
+      "action_id": "L4",
+      "full_text": "affine.for %arg0 = 0 to 32 {",
+      "id": "28",
+      "label": "L4\naffine.for",
+      "reason": "selected action satellite",
+      "role": "loop",
+      "text": "affine.for",
+      "type": 0
+    },
+    {
+      "action_id": "L5",
+      "full_text": "%1 = affine.for %arg1 = 0 to 32 iter_args(%arg2 = %cst) -> (f32) {",
+      "id": "3",
+      "label": "L5\naffine.for",
+      "reason": "selected action satellite",
+      "role": "loop",
+      "text": "affine.for",
+      "type": 0
+    },
+    {
+      "action_id": "",
+      "full_text": "affine.store %1, %alloca[] : memref<f32>",
+      "id": "32",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "affine.store",
+      "type": 0
+    },
+    {
+      "action_id": "",
+      "full_text": "Value(%cst = arith.constant 0.000000e+00 : f32) : f32",
+      "id": "33",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "f32",
+      "type": 1
+    },
+    {
+      "action_id": "L1",
+      "full_text": "#pragma HLS ARRAY_PARTITION variable=A type=auto{_ARRAY_T_L1} factor=auto{_ARRAY_F_L1} dim=auto{_ARRAY_D_L1}",
+      "id": "34",
+      "label": "ARRAY\nPARTITION",
+      "reason": "selected action satellite",
+      "role": "pragma",
+      "text": "ARRAY_PARTITION",
+      "type": 100
+    },
+    {
+      "action_id": "",
+      "full_text": "memref<32x32xf32>",
+      "id": "35",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "memory",
+      "text": "memref_layout_unknown",
+      "type": 2
+    },
+    {
+      "action_id": "",
+      "full_text": "Value(<block argument> of type 'index' at index: 0) : index",
+      "id": "36",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "index",
+      "type": 1
+    },
+    {
+      "action_id": "",
+      "full_text": "Value(%2 = affine.load %alloca_1[%arg0, %arg1] : memref<32x32xf32>) : f32",
+      "id": "39",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "f32",
+      "type": 1
+    },
+    {
+      "action_id": "",
+      "full_text": "%cst = arith.constant 0.000000e+00 : f32",
+      "id": "41",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "arith",
+      "text": "arith.constant",
+      "type": 0
+    },
+    {
+      "action_id": "",
+      "full_text": "Value(%5 = arith.addf %arg2, %4 : f32) : f32",
+      "id": "42",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "f32",
+      "type": 1
+    },
+    {
+      "action_id": "",
+      "full_text": "memref<32x32xf32>",
+      "id": "44",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "memory",
+      "text": "memref_dim_1_log2_5",
+      "type": 2
+    },
+    {
+      "action_id": "",
+      "full_text": "memref<32x32xf32>",
+      "id": "46",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "memory",
+      "text": "memref_static_shape",
+      "type": 2
+    },
+    {
+      "action_id": "",
+      "full_text": "Value(%alloca_1 = memref.alloca() {mailohls.action_id = \"L1\", mailohls.action_kind = \"array\"} : memref<32x32xf32>) : memref<32x32xf32>",
+      "id": "47",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "memory",
+      "text": "memref_rank2_f32",
+      "type": 1
+    },
+    {
+      "action_id": "",
+      "full_text": "memref<32x32xf32>",
+      "id": "48",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "memory",
+      "text": "memref_rank_2",
+      "type": 2
+    },
+    {
+      "action_id": "",
+      "full_text": "memref<32x32xf32>",
+      "id": "51",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "memory",
+      "text": "memref_dim_0_log2_5",
+      "type": 2
+    },
+    {
+      "action_id": "L5",
+      "full_text": "#pragma HLS UNROLL factor=auto{_UNROLL_L5}",
+      "id": "53",
+      "label": "UNROLL",
+      "reason": "selected action satellite",
+      "role": "pragma",
+      "text": "UNROLL",
+      "type": 100
+    },
+    {
+      "action_id": "",
+      "full_text": "Value(<block argument> of type 'f32' at index: 1) : f32",
+      "id": "56",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "f32",
+      "type": 1
+    },
+    {
+      "action_id": "",
+      "full_text": "%2 = affine.load %alloca_1[%arg0, %arg1] : memref<32x32xf32>",
+      "id": "58",
+      "label": "",
+      "reason": "semantic context within two production relation hops",
+      "role": "context",
+      "text": "affine.load",
+      "type": 0
+    },
+    {
+      "action_id": "L5",
+      "full_text": "#pragma HLS PIPELINE II=auto{_PIPE_L5}",
+      "id": "60",
+      "label": "PIPELINE",
+      "reason": "selected action satellite",
+      "role": "pragma",
+      "text": "PIPELINE",
+      "type": 100
+    },
+    {
+      "action_id": "L4",
+      "full_text": "#pragma HLS PIPELINE II=auto{_PIPE_L4}",
+      "id": "7",
+      "label": "PIPELINE",
+      "reason": "selected action satellite",
+      "role": "pragma",
+      "text": "PIPELINE",
+      "type": 100
+    }
+  ],
+  "production_flow_names": {
+    "0": "control",
+    "1": "ssa/data",
+    "2": "call",
+    "4": "block",
+    "5": "block-connect",
+    "6": "loop-hierarchy",
+    "7": "array-scope",
+    "8": "region",
+    "9": "memory-view/alias",
+    "10": "memory-access",
+    "11": "loop-carried",
+    "12": "proven-dependence",
+    "13": "memory-uncertainty",
+    "200": "Stage-2 action routing"
+  },
+  "selected_actions": [
+    "L1",
+    "L4",
+    "L5"
+  ],
+  "source_gexf": "/home/elvouvali/MailoHLS/MailoHLS-next/paper_examples/gemv/gemv_mlir.gexf",
+  "source_sha256": "c49ba5f42ff618ca7a9b898fb5330e29035207930b4800e62614c8642f415545"
+}

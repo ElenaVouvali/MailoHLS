@@ -1,0 +1,73 @@
+{
+  "kernel": "covariance",
+  "stage": "stage-3",
+  "objective": "LATENCY",
+  "target_context": {
+    "device": "ZCU104",
+    "clock_period_ns": 10.0,
+    "budget": "full"
+  },
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L6",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L7",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    }
+  ],
+  "returncode": 0,
+  "run_directory": "/home/bonus24/requested_latency_20260907/covariance",
+  "status": "success",
+  "latency_cycles": {
+    "best": "59643",
+    "worst": "375643"
+  },
+  "estimated_clock_period_ns": 7.672,
+  "resources": {
+    "BRAM_18K": 0,
+    "DSP": 28,
+    "FF": 48163,
+    "LUT": 20006,
+    "URAM": 0
+  },
+  "sha256": {
+    "kernel.cpp": "0d29b5b42ebc24866d57f1f6fef2bacb3a5a6cc87ae12fe039f753750ac6169f",
+    "run_hls.tcl": "c9c9bec23f7c26da44270f3386501ad9ddbdab9913b51639e72000192dedabc4"
+  }
+}

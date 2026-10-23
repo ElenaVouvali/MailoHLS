@@ -1,0 +1,119 @@
+{
+  "kernel": "GAN",
+  "stage": "target-aware",
+  "objective": null,
+  "device": "U200",
+  "clock_period_ns": 10.0,
+  "frequency_mhz": 100.0,
+  "resource_budget": "full",
+  "latency": 1967,
+  "resources": {
+    "bram": 84,
+    "dsp": 250,
+    "ff": 33158,
+    "lut": 39316,
+    "uram": 0
+  },
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "array",
+      "variable": "xbuf",
+      "partition_type": "cyclic",
+      "partition_factor": 2,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L2",
+      "kind": "array",
+      "variable": "layer_1_out",
+      "partition_type": "cyclic",
+      "partition_factor": 15,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L3",
+      "kind": "array",
+      "variable": "layer_2_out",
+      "partition_type": "cyclic",
+      "partition_factor": 25,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L6",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 30
+    },
+    {
+      "action_id": "L7",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 30
+    },
+    {
+      "action_id": "L8",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L9",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 15
+    },
+    {
+      "action_id": "L10",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L11",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 25
+    }
+  ],
+  "latency_unit": "cycles",
+  "latency_ns": 19670.0,
+  "synthesis": {
+    "status": "success",
+    "returncode": 0,
+    "elapsed_seconds": 84.225,
+    "host": "coroni.microlab.ntua.gr",
+    "run_directory": "/home/bonus24/ta_gan_18_user_flow_20260906/18_U200_10p0ns_full",
+    "part": "xcu200-fsgd2104-2-e",
+    "fixed_point_library": "/home/bonus24/Application/GAN/ap_fixed.h (application-local header)",
+    "source_sha256": {
+      "ap_fixed.h": "0ff6d3d114df706338505574ee940e6e81bf91f1ae82794392cb174c43dde0c9",
+      "weight_definitions.h": "bcce980b890d8fec944c99795db9e07162c55d2799b1983ddb527ed81f8d2efa",
+      "tanh.h": "52408068008dfc4a6a3c47bdef65ebcac2d9cb7d058539eca7391a712feffc32",
+      "network.cpp": "17c6f09883feb1ca7bbb6a307e9c0c261e2e27b0412f5ddc725c902cb2879123",
+      "network.h": "2c78e50aa55bbd6531884a6aab7d5262196f0881ca48466832e742bffc26ee6c",
+      "run_hls.tcl": "70e6f819955ee2277f9ee075e9f1bbb743532da99e52565783a372083ec8b7b7"
+    },
+    "report_path": "/home/bonus24/ta_gan_18_user_flow_20260906/18_U200_10p0ns_full/hls_project/solution1/syn/report/forward_propagation_csynth.xml",
+    "report_sha256": "8e98e0cd2c15fa8062498d190b0caa785f739239aa89bd3c429b48d797a9c046",
+    "tool_version": "2021.1",
+    "estimated_clock_period_ns": 7.097,
+    "clock_uncertainty_ns": 2.7,
+    "bram_unit": "BRAM_18K",
+    "latency_best_cycles": 1967,
+    "interval_min_cycles": 1968,
+    "interval_max_cycles": 1968
+  }
+}

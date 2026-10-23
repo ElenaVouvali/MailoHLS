@@ -1,0 +1,17 @@
+{
+  "schema": "mailohls-u50-adaptation-experiment-v1",
+  "scope": "stage1_only",
+  "part": "xcu50-fsvh2104-2-e",
+  "clock_period_ns": 10.0,
+  "resource_budget": "full",
+  "measurements_per_kernel": 4,
+  "seeds": [123, 456, 789],
+  "base_stage1": "mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1",
+  "train_kernels": ["machsuite-gemm-blocked", "machsuite-md-knn", "machsuite-spmv-ellpack", "machsuite-stencil2d", "machsuite-stencil3d", "rodinia-backprop-0-baseline-forward", "rodinia_cfd_flux_0_baseline_0", "rodinia_cfd_step_factor_4_doublebuffer_0", "rodinia_dilate_2_pipeline_0", "rodinia-hotspot-2-pipeline", "rodinia-kmeans-1-tiling", "rodinia-knn-4-doublebuffer", "rodinia_lavaMD_2_pipeline_0", "rodinia_lc_gicov_0_baseline_0", "rodinia_lud_1_tiling_0", "rodinia_streamcluster_3_doublebuffer_0"],
+  "val_kernels": ["machsuite-sort-radix", "machsuite-viterbi", "rodinia_pathfinder_0_baseline_0", "rodinia_pathfinder_4_doublebuffer_0"],
+  "test_kernels": ["spcl_example_03"],
+  "excluded_final_kernels": ["GAN", "chstone-jpeg", "Kalman", "serrano-kalman-filter", "covariance"],
+  "selection": "adaptation-validation macro directive accuracy only",
+  "u50_available_resources": {"BRAM_18K": 2688, "DSP": 5952, "FF": 1743360, "LUT": 871680},
+  "capacity_source": "bonus24@coroni.microlab.ntua.gr:/home/bonus24/mailohls_target_generalization_hls/gan_u50_10/solution1/syn/report/forward_propagation_csynth.xml"
+}

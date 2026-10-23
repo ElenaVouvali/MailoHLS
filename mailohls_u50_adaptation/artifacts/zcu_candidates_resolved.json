@@ -1,0 +1,1628 @@
+[
+  {
+    "kernel": "machsuite-gemm-blocked",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_2_1": "unroll_2",
+      "InnerLoop_3_1": "unroll_2",
+      "InnerLoop_4_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0",
+    "signature": "9ecf08af679a010512f1c28bd7fad5a61dba4a1370f5f76d588168ac343d1313",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "bbgemm_281.c",
+      "latency_msec": 13.00589,
+      "area_pct": 0.875
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-gemm-blocked",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_2_1": "unroll_2",
+      "InnerLoop_3_1": "unroll_2",
+      "InnerLoop_4_1": "unroll_8"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 8",
+    "signature": "5d2689da101e1322cfc98f529c233ada72ded0f441426351fb7feb6ab6b5d747",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "bbgemm_395.c",
+      "latency_msec": 3.38029,
+      "area_pct": 1.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-gemm-blocked",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "OuterLoop_1": "unroll_16",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_3_1": "pipeline_1",
+      "InnerLoop_4_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 16\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0",
+    "signature": "b48813c574a8c2cd4fd7e053f741618de1e22febcdd3e5717cae89c48605cdc4",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "bbgemm_306.c",
+      "latency_msec": 0.37896,
+      "area_pct": 26.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-md-knn",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0",
+    "signature": "d64c8654b5b589ece6ee6f7ce0a29a00a75cf39ae6bf672afe6a222be7e1cf16",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "md_kernel_22.c",
+      "latency_msec": 0.36993,
+      "area_pct": 1.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-md-knn",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0",
+    "signature": "06e29391caf35629af4dc98322da9e7890c044253b8dabf9507cc10ddc58c496",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "md_kernel_1.c",
+      "latency_msec": 0.02465,
+      "area_pct": 8.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-md-knn",
+    "origin": "zcu104_pareto_latency__neighbor_L1_PIPE",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0",
+    "signature": "06e29391caf35629af4dc98322da9e7890c044253b8dabf9507cc10ddc58c496",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "md_kernel_1.c",
+      "latency_msec": 0.02465,
+      "area_pct": 8.5
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "machsuite-sort-radix",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_2",
+      "OuterLoop_5": "pipeline_1",
+      "OuterLoop_6": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "unroll_2",
+      "InnerLoop_1_4": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2",
+    "signature": "29ac225362f10bd44881a8a29afe1c3f5783660e702508a8bd93cefe234187b5",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "ss_sort_427.c",
+      "latency_msec": 2.54209,
+      "area_pct": 0.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-sort-radix",
+    "origin": "zcu104_pareto_adp__neighbor_L1_PIPE",
+    "directives": {
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_2",
+      "OuterLoop_5": "pipeline_1",
+      "OuterLoop_6": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "unroll_2",
+      "InnerLoop_1_4": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2",
+    "signature": "29ac225362f10bd44881a8a29afe1c3f5783660e702508a8bd93cefe234187b5",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "ss_sort_427.c",
+      "latency_msec": 2.54209,
+      "area_pct": 0.25
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "machsuite-sort-radix",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "unroll_64",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "pipeline_1",
+      "OuterLoop_5": "pipeline_1",
+      "OuterLoop_6": "unroll_4",
+      "InnerLoop_1_1": "unroll_16",
+      "InnerLoop_1_2": "pipeline_1",
+      "InnerLoop_1_3": "pipeline_1",
+      "InnerLoop_1_4": "unroll_4"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 64\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 4",
+    "signature": "0f3b45406fdea59f169431da67878c6dcbcdfea34cbd56c7d8e3835893961df7",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "ss_sort_867.c",
+      "latency_msec": 2.13285,
+      "area_pct": 3.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-spmv-ellpack",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "OuterLoop_1": "unroll_4",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 4\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0",
+    "signature": "75e0c77fdb0dc4f147e85a4f8c066b9bc921da28df80e464bfba2f4eaa3b3594",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "ellpack_24.c",
+      "latency_msec": 0.2349899999999999,
+      "area_pct": 0.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-spmv-ellpack",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0",
+    "signature": "06e29391caf35629af4dc98322da9e7890c044253b8dabf9507cc10ddc58c496",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "ellpack_1.c",
+      "latency_msec": 0.02528,
+      "area_pct": 0.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-spmv-ellpack",
+    "origin": "zcu104_pareto_latency__neighbor_L1_PIPE",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0",
+    "signature": "06e29391caf35629af4dc98322da9e7890c044253b8dabf9507cc10ddc58c496",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "ellpack_1.c",
+      "latency_msec": 0.02528,
+      "area_pct": 0.5
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "machsuite-stencil2d",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_3_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0",
+    "signature": "4893dc22f9464a62239ab5ce0ec0c9b5f488466cb397f26ae2f13e0ed6f9b19c",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "stencil_1.c",
+      "latency_msec": 0.82216,
+      "area_pct": 0.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-stencil2d",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_3_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0",
+    "signature": "6a29e7402b275053c32139c0c19f6d4558b6943cfb232e7ad0d09454565163fd",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "stencil_114.c",
+      "latency_msec": 0.12105,
+      "area_pct": 1.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-stencil2d",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "OuterLoop_1": "unroll_4",
+      "InnerLoop_1_1": "unroll_62",
+      "InnerLoop_2_1": "unroll_3",
+      "InnerLoop_3_1": "unroll_3"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 4\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 62\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 3\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 3",
+    "signature": "835fca0afe1523ddd9872e1d52f0ca46d0022825844fb4f6d1ac1fa266830749",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "stencil_163.c",
+      "latency_msec": 0.11979,
+      "area_pct": 10.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-stencil3d",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_2",
+      "OuterLoop_4": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "pipeline_1",
+      "InnerLoop_1_3": "pipeline_1",
+      "InnerLoop_1_4": "unroll_2",
+      "InnerLoop_2_1": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2",
+    "signature": "0a7dd87cdc9ce0fe680df31835147b5d3942b5524275633ee76b5279f588967d",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "stencil3d_441.c",
+      "latency_msec": 0.53849,
+      "area_pct": 0.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-stencil3d",
+    "origin": "zcu104_pareto_adp__neighbor_L1_PIPE",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_2",
+      "OuterLoop_4": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "pipeline_1",
+      "InnerLoop_1_3": "pipeline_1",
+      "InnerLoop_1_4": "unroll_2",
+      "InnerLoop_2_1": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2",
+    "signature": "0a7dd87cdc9ce0fe680df31835147b5d3942b5524275633ee76b5279f588967d",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "stencil3d_441.c",
+      "latency_msec": 0.53849,
+      "area_pct": 0.25
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "machsuite-stencil3d",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "unroll_31",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_16",
+      "InnerLoop_1_3": "pipeline_1",
+      "InnerLoop_1_4": "unroll_31",
+      "InnerLoop_2_1": "unroll_15"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 31\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 16\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 31\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 15",
+    "signature": "23705a3496de5c6c725546d1bb5685afe2fae3f9113534b410979709885722d9",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "stencil3d_723.c",
+      "latency_msec": 0.22183,
+      "area_pct": 37.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-viterbi",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "block_128_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "unroll_2",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_2",
+      "InnerLoop_1_1": "unroll_4",
+      "InnerLoop_1_2": "pipeline_1",
+      "InnerLoop_2_1": "unroll_2"
+    },
+    "target": "auto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 128\nauto{_ARRAY_D_L1} = 1\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 4\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0",
+    "signature": "908b7815833d46dc09c34de3e95a70542a4c0aae87ca5afe32e156d5b12d943e",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "viterbi_292.c",
+      "latency_msec": 71.63522,
+      "area_pct": 2.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-viterbi",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "cyclic_2_2",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "unroll_2",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 2\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0",
+    "signature": "9fe8fd70b4a022589d700ebade904f4299e7e3f34b5042a23cf8633ed4d3e046",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "viterbi_590.c",
+      "latency_msec": 3.04783,
+      "area_pct": 5.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "machsuite-viterbi",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "cyclic_8_2",
+      "OuterLoop_1": "unroll_64",
+      "OuterLoop_2": "unroll_4",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "pipeline_1",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_63",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 8\nauto{_ARRAY_D_L1} = 2\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 64\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 4\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 63",
+    "signature": "8e68b3cee72a62f67e0b866baa42d8318f145fdc89ab1df3a9972fd817a02ca1",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "viterbi_668.c",
+      "latency_msec": 3.02484,
+      "area_pct": 10.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-backprop-0-baseline-forward",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 2\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = complete\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 1\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+    "signature": "887d5b690f23aa0679346df883e0184193051af22487957554dfd748ae5139bf",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_470.cpp",
+      "latency_msec": 306.38237,
+      "area_pct": 7.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-backprop-0-baseline-forward",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "block_2_1",
+      "Array_3": "cyclic_2_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 2\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+    "signature": "35f8163dbc66458b206fe04a32aa1eb2a7613e402834d3f2cf6c7f4b0243dfa7",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_430.cpp",
+      "latency_msec": 14.3363,
+      "area_pct": 31.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-backprop-0-baseline-forward",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 2\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = complete\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 1\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+    "signature": "0dad9bc564724942f5ebd6b0315437c0bccf5e2b30b9a6a72a107c7a929d0f1d",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_464.cpp",
+      "latency_msec": 14.33621,
+      "area_pct": 32.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-hotspot-2-pipeline",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "cyclic_4_1",
+      "Array_2": "block_4_1",
+      "Array_3": "block_2_1",
+      "Array_4": "cyclic_2_2",
+      "Array_5": "cyclic_2_1",
+      "Array_6": "complete_1",
+      "Array_7": "cyclic_4_1",
+      "Array_8": "block_4_1",
+      "Array_9": "block_2_1",
+      "Array_10": "cyclic_8_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "unroll_2",
+      "OuterLoop_3": "unroll_2",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_1_2": "unroll_4",
+      "InnerLoop_1_3": "unroll_4",
+      "InnerLoop_1_4": "unroll_2",
+      "InnerLoop_1_5": "unroll_2",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 4\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 4\nauto{_ARRAY_D_L4} = 1\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 8\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 2\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 4\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 4\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0\nauto{_ARRAY_T_L14} = block\nauto{_ARRAY_F_L14} = 4\nauto{_ARRAY_D_L14} = 1\nauto{_ARRAY_T_L15} = cyclic\nauto{_ARRAY_F_L15} = 4\nauto{_ARRAY_D_L15} = 1\nauto{_ARRAY_T_L16} = block\nauto{_ARRAY_F_L16} = 2\nauto{_ARRAY_D_L16} = 1\nauto{_PIPE_L17} = 0\nauto{_UNROLL_L17} = 2\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2\nauto{_PIPE_L19} = 0\nauto{_UNROLL_L19} = 2",
+    "signature": "40d9b209959d14433b39a540d0de4ed278cc7e37cf0daac279158c6fe6d9bc16",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_922.cpp",
+      "latency_msec": 29533.93745,
+      "area_pct": 10.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-hotspot-2-pipeline",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "cyclic_4_1",
+      "Array_2": "block_4_1",
+      "Array_3": "cyclic_4_1",
+      "Array_4": "complete_2",
+      "Array_5": "complete_1",
+      "Array_6": "cyclic_2_1",
+      "Array_7": "complete_1",
+      "Array_8": "block_4_1",
+      "Array_9": "complete_1",
+      "Array_10": "cyclic_2_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "pipeline_1",
+      "InnerLoop_1_3": "pipeline_1",
+      "InnerLoop_1_4": "unroll_2",
+      "InnerLoop_1_5": "unroll_2",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 2\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = complete\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 4\nauto{_ARRAY_D_L4} = 1\nauto{_ARRAY_T_L5} = complete\nauto{_ARRAY_F_L5} = 0\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = complete\nauto{_ARRAY_F_L7} = 0\nauto{_ARRAY_D_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 1\nauto{_UNROLL_L12} = 0\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0\nauto{_ARRAY_T_L14} = block\nauto{_ARRAY_F_L14} = 4\nauto{_ARRAY_D_L14} = 1\nauto{_ARRAY_T_L15} = cyclic\nauto{_ARRAY_F_L15} = 4\nauto{_ARRAY_D_L15} = 1\nauto{_ARRAY_T_L16} = cyclic\nauto{_ARRAY_F_L16} = 4\nauto{_ARRAY_D_L16} = 1\nauto{_PIPE_L17} = 0\nauto{_UNROLL_L17} = 2\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2\nauto{_PIPE_L19} = 0\nauto{_UNROLL_L19} = 2",
+    "signature": "0d596104e25bf612594144a87fea00b267279c90bf67f8ae8dabe340b476faf7",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_920.cpp",
+      "latency_msec": 1700.30673,
+      "area_pct": 14.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-hotspot-2-pipeline",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "cyclic_4_1",
+      "Array_2": "block_4_1",
+      "Array_3": "block_2_1",
+      "Array_4": "complete_2",
+      "Array_5": "block_2_1",
+      "Array_6": "complete_1",
+      "Array_7": "complete_1",
+      "Array_8": "block_4_1",
+      "Array_9": "cyclic_2_1",
+      "Array_10": "block_2_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_2",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_1_2": "unroll_8",
+      "InnerLoop_1_3": "pipeline_1",
+      "InnerLoop_1_4": "unroll_8",
+      "InnerLoop_1_5": "unroll_2",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = complete\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 4\nauto{_ARRAY_D_L4} = 1\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = complete\nauto{_ARRAY_F_L7} = 0\nauto{_ARRAY_D_L7} = 2\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8\nauto{_PIPE_L12} = 1\nauto{_UNROLL_L12} = 0\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0\nauto{_ARRAY_T_L14} = block\nauto{_ARRAY_F_L14} = 4\nauto{_ARRAY_D_L14} = 1\nauto{_ARRAY_T_L15} = cyclic\nauto{_ARRAY_F_L15} = 4\nauto{_ARRAY_D_L15} = 1\nauto{_ARRAY_T_L16} = block\nauto{_ARRAY_F_L16} = 2\nauto{_ARRAY_D_L16} = 1\nauto{_PIPE_L17} = 0\nauto{_UNROLL_L17} = 2\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 8\nauto{_PIPE_L19} = 0\nauto{_UNROLL_L19} = 2",
+    "signature": "6f378d57f9157e733e5da59c05241764511d464e9a5bea43bdfa4b147992f2a3",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_917.cpp",
+      "latency_msec": 1610.19841,
+      "area_pct": 22.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-kmeans-1-tiling",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "cyclic_2_1",
+      "OuterLoop_1": "unroll_5",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_2",
+      "OuterLoop_4": "unroll_32",
+      "OuterLoop_5": "unroll_8",
+      "InnerLoop_1_1": "unroll_8",
+      "InnerLoop_1_2": "unroll_4",
+      "InnerLoop_1_3": "unroll_5",
+      "InnerLoop_2_1": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 5\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 8\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 4\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 5\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 32\nauto{_ARRAY_T_L9} = cyclic\nauto{_ARRAY_F_L9} = 2\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = cyclic\nauto{_ARRAY_F_L10} = 2\nauto{_ARRAY_D_L10} = 1\nauto{_ARRAY_T_L11} = cyclic\nauto{_ARRAY_F_L11} = 2\nauto{_ARRAY_D_L11} = 1\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 8",
+    "signature": "1f44694d37cf18c700fb5dadff65e6a44ef061a7ca1a40a85620e02bb8744b39",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_638.cpp",
+      "latency_msec": 5858.01784,
+      "area_pct": 11.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-kmeans-1-tiling",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "cyclic_2_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_64",
+      "OuterLoop_5": "unroll_64",
+      "InnerLoop_1_1": "unroll_4",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "pipeline_1",
+      "InnerLoop_2_1": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 4\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 64\nauto{_ARRAY_T_L9} = cyclic\nauto{_ARRAY_F_L9} = 2\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = cyclic\nauto{_ARRAY_F_L10} = 2\nauto{_ARRAY_D_L10} = 1\nauto{_ARRAY_T_L11} = cyclic\nauto{_ARRAY_F_L11} = 2\nauto{_ARRAY_D_L11} = 1\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 64",
+    "signature": "15a2a5180001006e68026c30b5dc20aaf6049d7b842ac1d15be8efd1fad1c296",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_716.cpp",
+      "latency_msec": 112.94234,
+      "area_pct": 17.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-kmeans-1-tiling",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "cyclic_32_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "cyclic_128_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "pipeline_1",
+      "OuterLoop_5": "unroll_64",
+      "InnerLoop_1_1": "unroll_8",
+      "InnerLoop_1_2": "unroll_4",
+      "InnerLoop_1_3": "pipeline_1",
+      "InnerLoop_2_1": "unroll_8"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 8\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 4\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 8\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\nauto{_ARRAY_T_L9} = cyclic\nauto{_ARRAY_F_L9} = 2\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = cyclic\nauto{_ARRAY_F_L10} = 32\nauto{_ARRAY_D_L10} = 1\nauto{_ARRAY_T_L11} = cyclic\nauto{_ARRAY_F_L11} = 128\nauto{_ARRAY_D_L11} = 1\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 64",
+    "signature": "96b509c1cb46f014d1d4ddabc9d6b57fba06fe9cc6dc48ffbcbd0a2604d931e7",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_709.cpp",
+      "latency_msec": 91.94393,
+      "area_pct": 53.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-knn-4-doublebuffer",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "block_2_1",
+      "Array_4": "cyclic_2_1",
+      "Array_5": "complete_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "unroll_2",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_ARRAY_T_L6} = complete\nauto{_ARRAY_F_L6} = 0\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\nauto{_ARRAY_T_L8} = cyclic\nauto{_ARRAY_F_L8} = 2\nauto{_ARRAY_D_L8} = 1\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 2\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = cyclic\nauto{_ARRAY_F_L10} = 2\nauto{_ARRAY_D_L10} = 1\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 2",
+    "signature": "ed415c52cf2b6c28b90f9c34361df77dbbc6a73405a30c6857cea3a87291911a",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_715.cpp",
+      "latency_msec": 0.06152,
+      "area_pct": 0.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia-knn-4-doublebuffer",
+    "origin": "zcu104_pareto_adp__neighbor_L1_PIPE",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "block_2_1",
+      "Array_4": "cyclic_2_1",
+      "Array_5": "complete_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "unroll_2",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_ARRAY_T_L6} = complete\nauto{_ARRAY_F_L6} = 0\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\nauto{_ARRAY_T_L8} = cyclic\nauto{_ARRAY_F_L8} = 2\nauto{_ARRAY_D_L8} = 1\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 2\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = cyclic\nauto{_ARRAY_F_L10} = 2\nauto{_ARRAY_D_L10} = 1\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 2",
+    "signature": "ed415c52cf2b6c28b90f9c34361df77dbbc6a73405a30c6857cea3a87291911a",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "workload_715.cpp",
+      "latency_msec": 0.06152,
+      "area_pct": 0.5
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "rodinia-knn-4-doublebuffer",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "cyclic_4_1",
+      "Array_3": "block_2_1",
+      "Array_4": "cyclic_32_1",
+      "Array_5": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "unroll_2",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_8",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_2_1": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_ARRAY_T_L6} = complete\nauto{_ARRAY_F_L6} = 0\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\nauto{_ARRAY_T_L8} = cyclic\nauto{_ARRAY_F_L8} = 4\nauto{_ARRAY_D_L8} = 1\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 2\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = cyclic\nauto{_ARRAY_F_L10} = 32\nauto{_ARRAY_D_L10} = 1\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 8",
+    "signature": "ad9ed14a1ebf9988704987e102cdd35a4072b71fb90060e9a7753cb6c6d6c5de",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_772.cpp",
+      "latency_msec": 0.06149,
+      "area_pct": 0.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_cfd_flux_0_baseline_0",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "unroll_2"
+    },
+    "target": "auto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2",
+    "signature": "c42ed40448919a3d829048cea40e6442d1e899ab5b6f8477e1c6d6edcbf262e6",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_7.cpp",
+      "latency_msec": 1.90466,
+      "area_pct": 5.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_cfd_flux_0_baseline_0",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0",
+    "signature": "06e29391caf35629af4dc98322da9e7890c044253b8dabf9507cc10ddc58c496",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_12.cpp",
+      "latency_msec": 0.2576,
+      "area_pct": 6.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_cfd_flux_0_baseline_0",
+    "origin": "zcu104_pareto_latency__neighbor_L2_PIPE",
+    "directives": {
+      "OuterLoop_1": "pipeline_1",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0",
+    "signature": "06e29391caf35629af4dc98322da9e7890c044253b8dabf9507cc10ddc58c496",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "workload_12.cpp",
+      "latency_msec": 0.2576,
+      "area_pct": 6.5
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "cyclic_64_1",
+      "Array_3": "cyclic_64_1",
+      "Array_4": "cyclic_64_1",
+      "Array_5": "cyclic_2_1",
+      "Array_6": "block_2_1",
+      "Array_7": "block_16_1",
+      "Array_8": "cyclic_4_1",
+      "Array_9": "block_64_1",
+      "Array_10": "block_8_1",
+      "Array_11": "block_128_1",
+      "Array_12": "cyclic_4_1",
+      "Array_13": "block_4_1",
+      "Array_14": "complete_1",
+      "Array_15": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "unroll_4",
+      "InnerLoop_1_1": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = complete\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = complete\nauto{_ARRAY_F_L4} = 0\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\nauto{_ARRAY_T_L8} = block\nauto{_ARRAY_F_L8} = 2\nauto{_ARRAY_D_L8} = 1\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 16\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = cyclic\nauto{_ARRAY_F_L10} = 64\nauto{_ARRAY_D_L10} = 1\nauto{_ARRAY_T_L11} = cyclic\nauto{_ARRAY_F_L11} = 4\nauto{_ARRAY_D_L11} = 1\nauto{_ARRAY_T_L12} = block\nauto{_ARRAY_F_L12} = 64\nauto{_ARRAY_D_L12} = 1\nauto{_ARRAY_T_L13} = cyclic\nauto{_ARRAY_F_L13} = 64\nauto{_ARRAY_D_L13} = 1\nauto{_ARRAY_T_L14} = block\nauto{_ARRAY_F_L14} = 8\nauto{_ARRAY_D_L14} = 1\nauto{_ARRAY_T_L15} = block\nauto{_ARRAY_F_L15} = 128\nauto{_ARRAY_D_L15} = 1\nauto{_ARRAY_T_L16} = cyclic\nauto{_ARRAY_F_L16} = 64\nauto{_ARRAY_D_L16} = 1\nauto{_ARRAY_T_L17} = cyclic\nauto{_ARRAY_F_L17} = 4\nauto{_ARRAY_D_L17} = 1\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 4",
+    "signature": "186c1a34eb9340cdd7b95faa9747ef99fdf4e869794d110cfa005bf7a3d78430",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_957.cpp",
+      "latency_msec": 0.54646,
+      "area_pct": 2.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "cyclic_8_1",
+      "Array_4": "block_2_1",
+      "Array_5": "cyclic_64_1",
+      "Array_6": "block_2_1",
+      "Array_7": "block_64_1",
+      "Array_8": "cyclic_4_1",
+      "Array_9": "block_64_1",
+      "Array_10": "block_4_1",
+      "Array_11": "cyclic_4_1",
+      "Array_12": "cyclic_128_1",
+      "Array_13": "block_4_1",
+      "Array_14": "block_2_1",
+      "Array_15": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "unroll_2",
+      "InnerLoop_1_1": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = complete\nauto{_ARRAY_F_L4} = 0\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 64\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\nauto{_ARRAY_T_L8} = block\nauto{_ARRAY_F_L8} = 2\nauto{_ARRAY_D_L8} = 1\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 64\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = cyclic\nauto{_ARRAY_F_L10} = 2\nauto{_ARRAY_D_L10} = 1\nauto{_ARRAY_T_L11} = cyclic\nauto{_ARRAY_F_L11} = 4\nauto{_ARRAY_D_L11} = 1\nauto{_ARRAY_T_L12} = block\nauto{_ARRAY_F_L12} = 64\nauto{_ARRAY_D_L12} = 1\nauto{_ARRAY_T_L13} = cyclic\nauto{_ARRAY_F_L13} = 8\nauto{_ARRAY_D_L13} = 1\nauto{_ARRAY_T_L14} = block\nauto{_ARRAY_F_L14} = 4\nauto{_ARRAY_D_L14} = 1\nauto{_ARRAY_T_L15} = cyclic\nauto{_ARRAY_F_L15} = 4\nauto{_ARRAY_D_L15} = 1\nauto{_ARRAY_T_L16} = block\nauto{_ARRAY_F_L16} = 2\nauto{_ARRAY_D_L16} = 1\nauto{_ARRAY_T_L17} = cyclic\nauto{_ARRAY_F_L17} = 128\nauto{_ARRAY_D_L17} = 1\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2",
+    "signature": "b6e630dc33581c3481c5a43ca01e68c06ef0b911de9b05353bbc9a4123639bd2",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_860.cpp",
+      "latency_msec": 0.00013,
+      "area_pct": 8.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+    "origin": "zcu104_pareto_latency__neighbor_L1_PIPE",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "cyclic_8_1",
+      "Array_4": "block_2_1",
+      "Array_5": "cyclic_64_1",
+      "Array_6": "block_2_1",
+      "Array_7": "block_64_1",
+      "Array_8": "cyclic_4_1",
+      "Array_9": "block_64_1",
+      "Array_10": "block_4_1",
+      "Array_11": "cyclic_4_1",
+      "Array_12": "cyclic_128_1",
+      "Array_13": "block_4_1",
+      "Array_14": "block_2_1",
+      "Array_15": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "unroll_2",
+      "InnerLoop_1_1": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 2\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = complete\nauto{_ARRAY_F_L4} = 0\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 64\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\nauto{_ARRAY_T_L8} = block\nauto{_ARRAY_F_L8} = 2\nauto{_ARRAY_D_L8} = 1\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 64\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = cyclic\nauto{_ARRAY_F_L10} = 2\nauto{_ARRAY_D_L10} = 1\nauto{_ARRAY_T_L11} = cyclic\nauto{_ARRAY_F_L11} = 4\nauto{_ARRAY_D_L11} = 1\nauto{_ARRAY_T_L12} = block\nauto{_ARRAY_F_L12} = 64\nauto{_ARRAY_D_L12} = 1\nauto{_ARRAY_T_L13} = cyclic\nauto{_ARRAY_F_L13} = 8\nauto{_ARRAY_D_L13} = 1\nauto{_ARRAY_T_L14} = block\nauto{_ARRAY_F_L14} = 4\nauto{_ARRAY_D_L14} = 1\nauto{_ARRAY_T_L15} = cyclic\nauto{_ARRAY_F_L15} = 4\nauto{_ARRAY_D_L15} = 1\nauto{_ARRAY_T_L16} = block\nauto{_ARRAY_F_L16} = 2\nauto{_ARRAY_D_L16} = 1\nauto{_ARRAY_T_L17} = cyclic\nauto{_ARRAY_F_L17} = 128\nauto{_ARRAY_D_L17} = 1\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2",
+    "signature": "b6e630dc33581c3481c5a43ca01e68c06ef0b911de9b05353bbc9a4123639bd2",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "workload_860.cpp",
+      "latency_msec": 0.00013,
+      "area_pct": 8.75
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "rodinia_dilate_2_pipeline_0",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "cyclic_8_1",
+      "Array_2": "cyclic_8_1",
+      "Array_3": "cyclic_4_1",
+      "Array_4": "cyclic_2_1",
+      "Array_5": "block_2_1",
+      "OuterLoop_1": "unroll_5",
+      "OuterLoop_2": "unroll_2",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "unroll_4",
+      "OuterLoop_5": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "unroll_4",
+      "InnerLoop_1_4": "unroll_32",
+      "InnerLoop_1_5": "pipeline_1",
+      "InnerLoop_2_1": "unroll_5",
+      "InnerLoop_3_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 5\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 4\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 2\nauto{_ARRAY_D_L9} = 1\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 5\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 0\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 4\nauto{_PIPE_L14} = 1\nauto{_UNROLL_L14} = 0\nauto{_PIPE_L15} = 0\nauto{_UNROLL_L15} = 32\nauto{_PIPE_L16} = 0\nauto{_UNROLL_L16} = 4\nauto{_PIPE_L17} = 1\nauto{_UNROLL_L17} = 0\nauto{_ARRAY_T_L18} = cyclic\nauto{_ARRAY_F_L18} = 8\nauto{_ARRAY_D_L18} = 1\nauto{_ARRAY_T_L19} = cyclic\nauto{_ARRAY_F_L19} = 8\nauto{_ARRAY_D_L19} = 1\nauto{_PIPE_L20} = 0\nauto{_UNROLL_L20} = 2",
+    "signature": "3671bd66d625d167143ae002696011b0311a4dd8c947f3b245a69732cd1987e1",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_847.cpp",
+      "latency_msec": 374.80136,
+      "area_pct": 7.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_dilate_2_pipeline_0",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "cyclic_16_1",
+      "Array_3": "cyclic_64_1",
+      "Array_4": "block_2_1",
+      "Array_5": "complete_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_4",
+      "OuterLoop_4": "pipeline_1",
+      "OuterLoop_5": "unroll_17",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_4",
+      "InnerLoop_1_3": "unroll_4",
+      "InnerLoop_1_4": "pipeline_1",
+      "InnerLoop_1_5": "unroll_2",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_3_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 64\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\nauto{_ARRAY_T_L9} = complete\nauto{_ARRAY_F_L9} = 0\nauto{_ARRAY_D_L9} = 1\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 0\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 4\nauto{_PIPE_L14} = 0\nauto{_UNROLL_L14} = 4\nauto{_PIPE_L15} = 1\nauto{_UNROLL_L15} = 0\nauto{_PIPE_L16} = 1\nauto{_UNROLL_L16} = 0\nauto{_PIPE_L17} = 0\nauto{_UNROLL_L17} = 2\nauto{_ARRAY_T_L18} = cyclic\nauto{_ARRAY_F_L18} = 16\nauto{_ARRAY_D_L18} = 1\nauto{_ARRAY_T_L19} = cyclic\nauto{_ARRAY_F_L19} = 2\nauto{_ARRAY_D_L19} = 1\nauto{_PIPE_L20} = 0\nauto{_UNROLL_L20} = 17",
+    "signature": "f8c86c65f023f7325797bc485524d45d560d669cdb58c1333e6b88b250ddfbe6",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_742.cpp",
+      "latency_msec": 6.69258,
+      "area_pct": 15.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_dilate_2_pipeline_0",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "cyclic_8_1",
+      "Array_2": "cyclic_16_1",
+      "Array_3": "cyclic_64_1",
+      "Array_4": "block_2_1",
+      "Array_5": "complete_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "pipeline_1",
+      "OuterLoop_4": "pipeline_1",
+      "OuterLoop_5": "unroll_17",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_4",
+      "InnerLoop_1_3": "unroll_2",
+      "InnerLoop_1_4": "pipeline_1",
+      "InnerLoop_1_5": "unroll_2",
+      "InnerLoop_2_1": "unroll_5",
+      "InnerLoop_3_1": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 64\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\nauto{_ARRAY_T_L9} = complete\nauto{_ARRAY_F_L9} = 0\nauto{_ARRAY_D_L9} = 1\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 5\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 0\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 2\nauto{_PIPE_L14} = 1\nauto{_UNROLL_L14} = 0\nauto{_PIPE_L15} = 1\nauto{_UNROLL_L15} = 0\nauto{_PIPE_L16} = 1\nauto{_UNROLL_L16} = 0\nauto{_PIPE_L17} = 0\nauto{_UNROLL_L17} = 2\nauto{_ARRAY_T_L18} = cyclic\nauto{_ARRAY_F_L18} = 16\nauto{_ARRAY_D_L18} = 1\nauto{_ARRAY_T_L19} = cyclic\nauto{_ARRAY_F_L19} = 8\nauto{_ARRAY_D_L19} = 1\nauto{_PIPE_L20} = 0\nauto{_UNROLL_L20} = 17",
+    "signature": "a82dfaa04acd596371b8bbb5b0d95f776cb6629de65b54858c09dc48f6beb94c",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_947.cpp",
+      "latency_msec": 6.31008,
+      "area_pct": 17.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_lavaMD_2_pipeline_0",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "NDIR",
+      "Array_2": "block_2_2",
+      "Array_3": "cyclic_4_1",
+      "Array_4": "cyclic_8_1",
+      "Array_5": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "unroll_4",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "unroll_16",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_2_2": "pipeline_1",
+      "InnerLoop_2_3": "unroll_2",
+      "InnerLoop_3_1": "unroll_2"
+    },
+    "target": "auto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = none\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 0\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 2\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 8\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 0\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 4\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 2\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 1\nauto{_UNROLL_L12} = 0\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 2\nauto{_PIPE_L14} = 0\nauto{_UNROLL_L14} = 2\nauto{_PIPE_L15} = 0\nauto{_UNROLL_L15} = 16",
+    "signature": "dfca837a11790b188dea818e11054eb0d67e684b8f1079d30dc3f6013ba551cf",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_934.cpp",
+      "latency_msec": 1301.01054,
+      "area_pct": 3.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_lavaMD_2_pipeline_0",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "NDIR",
+      "Array_2": "block_2_2",
+      "Array_3": "block_32_1",
+      "Array_4": "block_32_1",
+      "Array_5": "cyclic_8_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "unroll_4",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_2_2": "unroll_2",
+      "InnerLoop_2_3": "unroll_2",
+      "InnerLoop_3_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 8\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = none\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 0\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 2\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 32\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 32\nauto{_ARRAY_D_L6} = 1\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 0\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 4\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 2\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 2\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 2\nauto{_PIPE_L14} = 1\nauto{_UNROLL_L14} = 0\nauto{_PIPE_L15} = 1\nauto{_UNROLL_L15} = 0",
+    "signature": "583cc0bb2f5d52f9c9d181566191f008f91e036367fcdadbad98eae75d5b5ec8",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_605.cpp",
+      "latency_msec": 83.23374,
+      "area_pct": 4.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_lavaMD_2_pipeline_0",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "NDIR",
+      "Array_2": "block_2_2",
+      "Array_3": "cyclic_2_2",
+      "Array_4": "block_32_1",
+      "Array_5": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "unroll_16",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_2_2": "unroll_64",
+      "InnerLoop_2_3": "unroll_8",
+      "InnerLoop_3_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = none\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 0\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 2\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 32\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 2\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 0\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 2\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 64\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 8\nauto{_PIPE_L14} = 1\nauto{_UNROLL_L14} = 0\nauto{_PIPE_L15} = 0\nauto{_UNROLL_L15} = 16",
+    "signature": "b7d4ac7cc250c10bfd2613f7d4e7f8b6360698ee020ded4a23d9b6080a4b1887",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_925.cpp",
+      "latency_msec": 79.62422,
+      "area_pct": 13.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_lc_gicov_0_baseline_0",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "block_2_2",
+      "Array_2": "complete_2",
+      "Array_3": "block_4_1",
+      "Array_4": "block_4_1",
+      "Array_5": "block_8_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_3_1": "pipeline_1",
+      "InnerLoop_3_2": "pipeline_1",
+      "InnerLoop_3_3": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 2\nauto{_ARRAY_T_L4} = complete\nauto{_ARRAY_F_L4} = 0\nauto{_ARRAY_D_L4} = 2\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 8\nauto{_ARRAY_D_L6} = 1\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0",
+    "signature": "baac749b298fe509c7d7ff9aef93abd35e7df7cb3fd262330de3ada44f5e862e",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_674.cpp",
+      "latency_msec": 124.24126,
+      "area_pct": 1.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_lc_gicov_0_baseline_0",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "block_2_2",
+      "Array_2": "complete_1",
+      "Array_3": "block_2_1",
+      "Array_4": "block_4_1",
+      "Array_5": "cyclic_8_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_3_1": "pipeline_1",
+      "InnerLoop_3_2": "unroll_4",
+      "InnerLoop_3_3": "unroll_8"
+    },
+    "target": "auto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 2\nauto{_ARRAY_T_L4} = complete\nauto{_ARRAY_F_L4} = 0\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 8\nauto{_ARRAY_D_L6} = 1\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8",
+    "signature": "9dae693b0afc23dab9e586d77f776368306a6fcc9bfdcedec185a23aa72d2660",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_711.cpp",
+      "latency_msec": 22.38376,
+      "area_pct": 2.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_lc_gicov_0_baseline_0",
+    "origin": "zcu104_pareto_latency__neighbor_L1_ARRAY",
+    "directives": {
+      "Array_1": "block_2_2",
+      "Array_2": "complete_1",
+      "Array_3": "block_2_1",
+      "Array_4": "block_4_1",
+      "Array_5": "cyclic_8_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_2_1": "pipeline_1",
+      "InnerLoop_3_1": "pipeline_1",
+      "InnerLoop_3_2": "unroll_4",
+      "InnerLoop_3_3": "unroll_8"
+    },
+    "target": "auto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 2\nauto{_ARRAY_T_L4} = complete\nauto{_ARRAY_F_L4} = 0\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 8\nauto{_ARRAY_D_L6} = 1\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8",
+    "signature": "9dae693b0afc23dab9e586d77f776368306a6fcc9bfdcedec185a23aa72d2660",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "workload_711.cpp",
+      "latency_msec": 22.38376,
+      "area_pct": 2.0
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "rodinia_lud_1_tiling_0",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "block_16_1",
+      "Array_3": "block_16_1",
+      "Array_4": "cyclic_32_1",
+      "Array_5": "cyclic_32_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "unroll_8",
+      "OuterLoop_3": "unroll_16",
+      "OuterLoop_4": "unroll_16",
+      "OuterLoop_5": "pipeline_1",
+      "OuterLoop_6": "pipeline_1",
+      "OuterLoop_7": "unroll_4",
+      "OuterLoop_8": "unroll_8",
+      "OuterLoop_9": "unroll_2",
+      "OuterLoop_10": "pipeline_1",
+      "OuterLoop_11": "pipeline_1",
+      "OuterLoop_12": "unroll_4",
+      "OuterLoop_13": "pipeline_1",
+      "OuterLoop_14": "unroll_2",
+      "OuterLoop_15": "unroll_64",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "unroll_16",
+      "InnerLoop_1_4": "pipeline_1",
+      "InnerLoop_1_5": "unroll_2",
+      "InnerLoop_1_6": "unroll_16",
+      "InnerLoop_1_7": "pipeline_1",
+      "InnerLoop_1_8": "unroll_2",
+      "InnerLoop_1_9": "pipeline_1",
+      "InnerLoop_1_10": "unroll_2",
+      "InnerLoop_1_11": "unroll_2",
+      "InnerLoop_1_12": "pipeline_1",
+      "InnerLoop_1_13": "unroll_16",
+      "InnerLoop_1_14": "unroll_8",
+      "InnerLoop_1_15": "pipeline_1",
+      "InnerLoop_1_16": "unroll_2",
+      "InnerLoop_2_1": "unroll_4",
+      "InnerLoop_2_2": "unroll_8",
+      "InnerLoop_2_3": "pipeline_1",
+      "InnerLoop_2_4": "unroll_2",
+      "InnerLoop_2_5": "pipeline_1",
+      "InnerLoop_3_1": "unroll_16",
+      "InnerLoop_3_2": "pipeline_1",
+      "InnerLoop_3_3": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 8\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 16\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 16\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 8\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 16\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 2\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0\nauto{_PIPE_L14} = 0\nauto{_UNROLL_L14} = 16\nauto{_PIPE_L15} = 1\nauto{_UNROLL_L15} = 0\nauto{_PIPE_L16} = 1\nauto{_UNROLL_L16} = 0\nauto{_PIPE_L17} = 0\nauto{_UNROLL_L17} = 4\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2\nauto{_ARRAY_T_L19} = block\nauto{_ARRAY_F_L19} = 16\nauto{_ARRAY_D_L19} = 1\nauto{_ARRAY_T_L20} = none\nauto{_ARRAY_F_L20} = 0\nauto{_ARRAY_D_L20} = 0\nauto{_ARRAY_T_L21} = none\nauto{_ARRAY_F_L21} = 0\nauto{_ARRAY_D_L21} = 0\nauto{_PIPE_L22} = 0\nauto{_UNROLL_L22} = 8\nauto{_PIPE_L23} = 1\nauto{_UNROLL_L23} = 0\nauto{_PIPE_L24} = 0\nauto{_UNROLL_L24} = 2\nauto{_PIPE_L25} = 0\nauto{_UNROLL_L25} = 2\nauto{_PIPE_L26} = 1\nauto{_UNROLL_L26} = 0\nauto{_PIPE_L27} = 0\nauto{_UNROLL_L27} = 16\nauto{_PIPE_L28} = 0\nauto{_UNROLL_L28} = 2\nauto{_PIPE_L29} = 0\nauto{_UNROLL_L29} = 2\nauto{_PIPE_L30} = 1\nauto{_UNROLL_L30} = 0\nauto{_PIPE_L31} = 1\nauto{_UNROLL_L31} = 0\nauto{_PIPE_L32} = 1\nauto{_UNROLL_L32} = 0\nauto{_PIPE_L33} = 1\nauto{_UNROLL_L33} = 0\nauto{_PIPE_L34} = 0\nauto{_UNROLL_L34} = 16\nauto{_PIPE_L35} = 0\nauto{_UNROLL_L35} = 4\nauto{_PIPE_L36} = 0\nauto{_UNROLL_L36} = 8\nauto{_PIPE_L37} = 1\nauto{_UNROLL_L37} = 0\nauto{_PIPE_L38} = 1\nauto{_UNROLL_L38} = 0\nauto{_ARRAY_T_L39} = block\nauto{_ARRAY_F_L39} = 16\nauto{_ARRAY_D_L39} = 1\nauto{_ARRAY_T_L40} = cyclic\nauto{_ARRAY_F_L40} = 32\nauto{_ARRAY_D_L40} = 1\nauto{_ARRAY_T_L41} = cyclic\nauto{_ARRAY_F_L41} = 32\nauto{_ARRAY_D_L41} = 1\nauto{_PIPE_L42} = 0\nauto{_UNROLL_L42} = 2\nauto{_PIPE_L43} = 0\nauto{_UNROLL_L43} = 2\nauto{_PIPE_L44} = 1\nauto{_UNROLL_L44} = 0\nauto{_PIPE_L45} = 1\nauto{_UNROLL_L45} = 0\nauto{_PIPE_L46} = 0\nauto{_UNROLL_L46} = 64",
+    "signature": "80e0da742547cc65a67b414b186fd6ee6d31eb820d8ce4b9ffcb82f969878b7a",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_903.cpp",
+      "latency_msec": 324.06234,
+      "area_pct": 12.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_lud_1_tiling_0",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "block_4_1",
+      "Array_2": "block_16_1",
+      "Array_3": "block_16_1",
+      "Array_4": "block_8_1",
+      "Array_5": "cyclic_4_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "unroll_8",
+      "OuterLoop_3": "unroll_16",
+      "OuterLoop_4": "unroll_2",
+      "OuterLoop_5": "pipeline_1",
+      "OuterLoop_6": "unroll_8",
+      "OuterLoop_7": "unroll_16",
+      "OuterLoop_8": "unroll_2",
+      "OuterLoop_9": "pipeline_1",
+      "OuterLoop_10": "pipeline_1",
+      "OuterLoop_11": "unroll_16",
+      "OuterLoop_12": "unroll_2",
+      "OuterLoop_13": "pipeline_1",
+      "OuterLoop_14": "unroll_2",
+      "OuterLoop_15": "unroll_32",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "unroll_16",
+      "InnerLoop_1_4": "pipeline_1",
+      "InnerLoop_1_5": "pipeline_1",
+      "InnerLoop_1_6": "pipeline_1",
+      "InnerLoop_1_7": "pipeline_1",
+      "InnerLoop_1_8": "unroll_2",
+      "InnerLoop_1_9": "pipeline_1",
+      "InnerLoop_1_10": "unroll_16",
+      "InnerLoop_1_11": "unroll_2",
+      "InnerLoop_1_12": "pipeline_1",
+      "InnerLoop_1_13": "pipeline_1",
+      "InnerLoop_1_14": "unroll_8",
+      "InnerLoop_1_15": "unroll_4",
+      "InnerLoop_1_16": "pipeline_1",
+      "InnerLoop_2_1": "unroll_4",
+      "InnerLoop_2_2": "unroll_4",
+      "InnerLoop_2_3": "pipeline_1",
+      "InnerLoop_2_4": "unroll_2",
+      "InnerLoop_2_5": "pipeline_1",
+      "InnerLoop_3_1": "pipeline_1",
+      "InnerLoop_3_2": "unroll_8",
+      "InnerLoop_3_3": "unroll_4"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 8\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 4\nauto{_ARRAY_D_L5} = 1\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 16\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 16\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2\nauto{_PIPE_L12} = 1\nauto{_UNROLL_L12} = 0\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0\nauto{_PIPE_L14} = 1\nauto{_UNROLL_L14} = 0\nauto{_PIPE_L15} = 0\nauto{_UNROLL_L15} = 8\nauto{_PIPE_L16} = 1\nauto{_UNROLL_L16} = 0\nauto{_PIPE_L17} = 0\nauto{_UNROLL_L17} = 16\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2\nauto{_ARRAY_T_L19} = block\nauto{_ARRAY_F_L19} = 16\nauto{_ARRAY_D_L19} = 1\nauto{_ARRAY_T_L20} = none\nauto{_ARRAY_F_L20} = 0\nauto{_ARRAY_D_L20} = 0\nauto{_ARRAY_T_L21} = none\nauto{_ARRAY_F_L21} = 0\nauto{_ARRAY_D_L21} = 0\nauto{_PIPE_L22} = 0\nauto{_UNROLL_L22} = 2\nauto{_PIPE_L23} = 1\nauto{_UNROLL_L23} = 0\nauto{_PIPE_L24} = 1\nauto{_UNROLL_L24} = 0\nauto{_PIPE_L25} = 0\nauto{_UNROLL_L25} = 16\nauto{_PIPE_L26} = 1\nauto{_UNROLL_L26} = 0\nauto{_PIPE_L27} = 1\nauto{_UNROLL_L27} = 0\nauto{_PIPE_L28} = 0\nauto{_UNROLL_L28} = 2\nauto{_PIPE_L29} = 0\nauto{_UNROLL_L29} = 2\nauto{_PIPE_L30} = 0\nauto{_UNROLL_L30} = 8\nauto{_PIPE_L31} = 1\nauto{_UNROLL_L31} = 0\nauto{_PIPE_L32} = 1\nauto{_UNROLL_L32} = 0\nauto{_PIPE_L33} = 0\nauto{_UNROLL_L33} = 16\nauto{_PIPE_L34} = 1\nauto{_UNROLL_L34} = 0\nauto{_PIPE_L35} = 0\nauto{_UNROLL_L35} = 2\nauto{_PIPE_L36} = 0\nauto{_UNROLL_L36} = 8\nauto{_PIPE_L37} = 1\nauto{_UNROLL_L37} = 0\nauto{_PIPE_L38} = 0\nauto{_UNROLL_L38} = 4\nauto{_ARRAY_T_L39} = block\nauto{_ARRAY_F_L39} = 16\nauto{_ARRAY_D_L39} = 1\nauto{_ARRAY_T_L40} = block\nauto{_ARRAY_F_L40} = 8\nauto{_ARRAY_D_L40} = 1\nauto{_ARRAY_T_L41} = cyclic\nauto{_ARRAY_F_L41} = 4\nauto{_ARRAY_D_L41} = 1\nauto{_PIPE_L42} = 0\nauto{_UNROLL_L42} = 2\nauto{_PIPE_L43} = 1\nauto{_UNROLL_L43} = 0\nauto{_PIPE_L44} = 1\nauto{_UNROLL_L44} = 0\nauto{_PIPE_L45} = 0\nauto{_UNROLL_L45} = 4\nauto{_PIPE_L46} = 0\nauto{_UNROLL_L46} = 32",
+    "signature": "5d36d246b15e94ceeb17f4bc11b782cee46b7fd36dd3510a11d438f8fe265c4a",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_632.cpp",
+      "latency_msec": 52.69292,
+      "area_pct": 35.5
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_lud_1_tiling_0",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "cyclic_8_1",
+      "Array_2": "block_8_1",
+      "Array_3": "block_16_1",
+      "Array_4": "cyclic_32_1",
+      "Array_5": "cyclic_4_1",
+      "OuterLoop_1": "pipeline_1",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_16",
+      "OuterLoop_4": "unroll_16",
+      "OuterLoop_5": "pipeline_1",
+      "OuterLoop_6": "pipeline_1",
+      "OuterLoop_7": "unroll_16",
+      "OuterLoop_8": "pipeline_1",
+      "OuterLoop_9": "pipeline_1",
+      "OuterLoop_10": "pipeline_1",
+      "OuterLoop_11": "pipeline_1",
+      "OuterLoop_12": "unroll_4",
+      "OuterLoop_13": "pipeline_1",
+      "OuterLoop_14": "unroll_2",
+      "OuterLoop_15": "unroll_32",
+      "InnerLoop_1_1": "unroll_2",
+      "InnerLoop_1_2": "unroll_2",
+      "InnerLoop_1_3": "unroll_16",
+      "InnerLoop_1_4": "pipeline_1",
+      "InnerLoop_1_5": "pipeline_1",
+      "InnerLoop_1_6": "unroll_16",
+      "InnerLoop_1_7": "pipeline_1",
+      "InnerLoop_1_8": "unroll_2",
+      "InnerLoop_1_9": "pipeline_1",
+      "InnerLoop_1_10": "unroll_16",
+      "InnerLoop_1_11": "unroll_8",
+      "InnerLoop_1_12": "pipeline_1",
+      "InnerLoop_1_13": "pipeline_1",
+      "InnerLoop_1_14": "unroll_8",
+      "InnerLoop_1_15": "unroll_16",
+      "InnerLoop_1_16": "pipeline_1",
+      "InnerLoop_2_1": "unroll_8",
+      "InnerLoop_2_2": "unroll_8",
+      "InnerLoop_2_3": "pipeline_1",
+      "InnerLoop_2_4": "unroll_2",
+      "InnerLoop_2_5": "pipeline_1",
+      "InnerLoop_3_1": "unroll_16",
+      "InnerLoop_3_2": "pipeline_1",
+      "InnerLoop_3_3": "pipeline_1"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 8\nauto{_ARRAY_D_L5} = 1\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 16\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 16\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 8\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 8\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 16\nauto{_PIPE_L12} = 1\nauto{_UNROLL_L12} = 0\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0\nauto{_PIPE_L14} = 0\nauto{_UNROLL_L14} = 16\nauto{_PIPE_L15} = 1\nauto{_UNROLL_L15} = 0\nauto{_PIPE_L16} = 1\nauto{_UNROLL_L16} = 0\nauto{_PIPE_L17} = 0\nauto{_UNROLL_L17} = 16\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2\nauto{_ARRAY_T_L19} = block\nauto{_ARRAY_F_L19} = 8\nauto{_ARRAY_D_L19} = 1\nauto{_ARRAY_T_L20} = none\nauto{_ARRAY_F_L20} = 0\nauto{_ARRAY_D_L20} = 0\nauto{_ARRAY_T_L21} = none\nauto{_ARRAY_F_L21} = 0\nauto{_ARRAY_D_L21} = 0\nauto{_PIPE_L22} = 1\nauto{_UNROLL_L22} = 0\nauto{_PIPE_L23} = 1\nauto{_UNROLL_L23} = 0\nauto{_PIPE_L24} = 1\nauto{_UNROLL_L24} = 0\nauto{_PIPE_L25} = 0\nauto{_UNROLL_L25} = 16\nauto{_PIPE_L26} = 1\nauto{_UNROLL_L26} = 0\nauto{_PIPE_L27} = 0\nauto{_UNROLL_L27} = 16\nauto{_PIPE_L28} = 0\nauto{_UNROLL_L28} = 8\nauto{_PIPE_L29} = 0\nauto{_UNROLL_L29} = 2\nauto{_PIPE_L30} = 1\nauto{_UNROLL_L30} = 0\nauto{_PIPE_L31} = 1\nauto{_UNROLL_L31} = 0\nauto{_PIPE_L32} = 1\nauto{_UNROLL_L32} = 0\nauto{_PIPE_L33} = 1\nauto{_UNROLL_L33} = 0\nauto{_PIPE_L34} = 1\nauto{_UNROLL_L34} = 0\nauto{_PIPE_L35} = 0\nauto{_UNROLL_L35} = 4\nauto{_PIPE_L36} = 0\nauto{_UNROLL_L36} = 8\nauto{_PIPE_L37} = 1\nauto{_UNROLL_L37} = 0\nauto{_PIPE_L38} = 0\nauto{_UNROLL_L38} = 16\nauto{_ARRAY_T_L39} = block\nauto{_ARRAY_F_L39} = 16\nauto{_ARRAY_D_L39} = 1\nauto{_ARRAY_T_L40} = cyclic\nauto{_ARRAY_F_L40} = 32\nauto{_ARRAY_D_L40} = 1\nauto{_ARRAY_T_L41} = cyclic\nauto{_ARRAY_F_L41} = 4\nauto{_ARRAY_D_L41} = 1\nauto{_PIPE_L42} = 0\nauto{_UNROLL_L42} = 2\nauto{_PIPE_L43} = 1\nauto{_UNROLL_L43} = 0\nauto{_PIPE_L44} = 1\nauto{_UNROLL_L44} = 0\nauto{_PIPE_L45} = 1\nauto{_UNROLL_L45} = 0\nauto{_PIPE_L46} = 0\nauto{_UNROLL_L46} = 32",
+    "signature": "a155407adf4c08d9c08052ae9e81de4b9aca471ad5aaa2c2758819653a0fa627",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_900.cpp",
+      "latency_msec": 48.21715,
+      "area_pct": 50.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_pathfinder_0_baseline_0",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "block_2_1",
+      "OuterLoop_2": "unroll_2",
+      "InnerLoop_1_2": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+    "signature": "23da20a6e069f5d9ee8320a5f9ed290531bff9bbb88b8c32634aa7ff1c00673b",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_844.cpp",
+      "latency_msec": 31.65722,
+      "area_pct": 0.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_pathfinder_0_baseline_0",
+    "origin": "zcu104_pareto_adp",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "block_2_1",
+      "OuterLoop_2": "pipeline_1",
+      "InnerLoop_1_2": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+    "signature": "d83f3b6ca8c8db79b2e8ced39e368c80abdb6e04b899f090157ec8d5ea4c12d5",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_640.cpp",
+      "latency_msec": 13.30945,
+      "area_pct": 1.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_pathfinder_0_baseline_0",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "cyclic_2_1",
+      "Array_2": "block_128_1",
+      "OuterLoop_2": "pipeline_1",
+      "InnerLoop_1_2": "unroll_64"
+    },
+    "target": "auto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 128\nauto{_ARRAY_D_L4} = 1\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 64",
+    "signature": "1e69f95cd13d691e44c7d2c6abadfec8264115387ff399b22761bd6ca03d75e0",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_267.cpp",
+      "latency_msec": 10.6292,
+      "area_pct": 20.75
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "block_2_1",
+      "Array_3": "cyclic_2_1",
+      "Array_4": "cyclic_2_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "unroll_8",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 8",
+    "signature": "60a024ca33dd15b9986ab2f9e01ddfbf69cd8b198e4bbec8482c7c0c5b604119",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_920.cpp",
+      "latency_msec": 32.26351,
+      "area_pct": 3.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+    "origin": "zcu104_pareto_adp__neighbor_L1_PIPE",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "block_2_1",
+      "Array_3": "cyclic_2_1",
+      "Array_4": "cyclic_2_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "unroll_8",
+      "InnerLoop_1_1": "pipeline_1",
+      "InnerLoop_1_2": "unroll_2"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 1\nauto{_UNROLL_L2} = 0\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 2\nauto{_ARRAY_D_L7} = 1\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 8",
+    "signature": "60a024ca33dd15b9986ab2f9e01ddfbf69cd8b198e4bbec8482c7c0c5b604119",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "workload_920.cpp",
+      "latency_msec": 32.26351,
+      "area_pct": 3.0
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "block_4_1",
+      "Array_2": "cyclic_8_1",
+      "Array_3": "cyclic_4_1",
+      "Array_4": "cyclic_16_1",
+      "OuterLoop_1": "unroll_16",
+      "OuterLoop_2": "unroll_64",
+      "InnerLoop_1_1": "unroll_16",
+      "InnerLoop_1_2": "unroll_8"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 16\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 8\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 4\nauto{_ARRAY_D_L4} = 1\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 16\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 8\nauto{_ARRAY_D_L7} = 1\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 64",
+    "signature": "507f6af7ef911a49bfc119300d0eced217de27afd8d6af5bbd7466ffc65fac13",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_416.cpp",
+      "latency_msec": 31.61581,
+      "area_pct": 15.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "block_2_1",
+      "Array_4": "cyclic_2_1",
+      "Array_5": "block_4_1",
+      "Array_6": "block_16_1",
+      "Array_7": "block_2_1",
+      "Array_8": "block_2_1",
+      "Array_9": "cyclic_2_1",
+      "Array_10": "cyclic_2_1",
+      "Array_11": "cyclic_32_1",
+      "Array_12": "cyclic_16_1",
+      "Array_13": "block_128_1",
+      "Array_14": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_2",
+      "InnerLoop_1_1": "unroll_4"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 4\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 128\nauto{_ARRAY_D_L4} = 1\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\nauto{_ARRAY_T_L8} = complete\nauto{_ARRAY_F_L8} = 0\nauto{_ARRAY_D_L8} = 1\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 16\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = block\nauto{_ARRAY_F_L10} = 2\nauto{_ARRAY_D_L10} = 1\nauto{_ARRAY_T_L11} = block\nauto{_ARRAY_F_L11} = 2\nauto{_ARRAY_D_L11} = 1\nauto{_ARRAY_T_L12} = cyclic\nauto{_ARRAY_F_L12} = 2\nauto{_ARRAY_D_L12} = 1\nauto{_ARRAY_T_L13} = block\nauto{_ARRAY_F_L13} = 2\nauto{_ARRAY_D_L13} = 1\nauto{_ARRAY_T_L14} = cyclic\nauto{_ARRAY_F_L14} = 2\nauto{_ARRAY_D_L14} = 1\nauto{_ARRAY_T_L15} = cyclic\nauto{_ARRAY_F_L15} = 32\nauto{_ARRAY_D_L15} = 1\nauto{_ARRAY_T_L16} = cyclic\nauto{_ARRAY_F_L16} = 16\nauto{_ARRAY_D_L16} = 1\nauto{_ARRAY_T_L17} = cyclic\nauto{_ARRAY_F_L17} = 2\nauto{_ARRAY_D_L17} = 1\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2",
+    "signature": "05f7243e795292d42473489329bfe771e9f5e5ac4f314bf6840da04a7e10b7b6",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "workload_957.cpp",
+      "latency_msec": 0.16065,
+      "area_pct": 10.25
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+    "origin": "zcu104_pareto_adp__neighbor_L1_PIPE",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "block_2_1",
+      "Array_4": "cyclic_2_1",
+      "Array_5": "block_4_1",
+      "Array_6": "block_16_1",
+      "Array_7": "block_2_1",
+      "Array_8": "block_2_1",
+      "Array_9": "cyclic_2_1",
+      "Array_10": "cyclic_2_1",
+      "Array_11": "cyclic_32_1",
+      "Array_12": "cyclic_16_1",
+      "Array_13": "block_128_1",
+      "Array_14": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_2",
+      "InnerLoop_1_1": "unroll_4"
+    },
+    "target": "auto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 2\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 4\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 128\nauto{_ARRAY_D_L4} = 1\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\nauto{_ARRAY_T_L8} = complete\nauto{_ARRAY_F_L8} = 0\nauto{_ARRAY_D_L8} = 1\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 16\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = block\nauto{_ARRAY_F_L10} = 2\nauto{_ARRAY_D_L10} = 1\nauto{_ARRAY_T_L11} = block\nauto{_ARRAY_F_L11} = 2\nauto{_ARRAY_D_L11} = 1\nauto{_ARRAY_T_L12} = cyclic\nauto{_ARRAY_F_L12} = 2\nauto{_ARRAY_D_L12} = 1\nauto{_ARRAY_T_L13} = block\nauto{_ARRAY_F_L13} = 2\nauto{_ARRAY_D_L13} = 1\nauto{_ARRAY_T_L14} = cyclic\nauto{_ARRAY_F_L14} = 2\nauto{_ARRAY_D_L14} = 1\nauto{_ARRAY_T_L15} = cyclic\nauto{_ARRAY_F_L15} = 32\nauto{_ARRAY_D_L15} = 1\nauto{_ARRAY_T_L16} = cyclic\nauto{_ARRAY_F_L16} = 16\nauto{_ARRAY_D_L16} = 1\nauto{_ARRAY_T_L17} = cyclic\nauto{_ARRAY_F_L17} = 2\nauto{_ARRAY_D_L17} = 1\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2",
+    "signature": "05f7243e795292d42473489329bfe771e9f5e5ac4f314bf6840da04a7e10b7b6",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "workload_957.cpp",
+      "latency_msec": 0.16065,
+      "area_pct": 10.25
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+    "origin": "zcu104_pareto_latency__neighbor_L1_UNROLL",
+    "directives": {
+      "Array_1": "block_2_1",
+      "Array_2": "cyclic_2_1",
+      "Array_3": "block_2_1",
+      "Array_4": "cyclic_2_1",
+      "Array_5": "block_4_1",
+      "Array_6": "block_16_1",
+      "Array_7": "block_2_1",
+      "Array_8": "block_2_1",
+      "Array_9": "cyclic_2_1",
+      "Array_10": "cyclic_2_1",
+      "Array_11": "cyclic_32_1",
+      "Array_12": "cyclic_16_1",
+      "Array_13": "block_128_1",
+      "Array_14": "complete_1",
+      "OuterLoop_1": "unroll_2",
+      "OuterLoop_2": "pipeline_1",
+      "OuterLoop_3": "unroll_2",
+      "InnerLoop_1_1": "unroll_4"
+    },
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 4\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 128\nauto{_ARRAY_D_L4} = 1\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\nauto{_ARRAY_T_L7} = block\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\nauto{_ARRAY_T_L8} = complete\nauto{_ARRAY_F_L8} = 0\nauto{_ARRAY_D_L8} = 1\nauto{_ARRAY_T_L9} = block\nauto{_ARRAY_F_L9} = 16\nauto{_ARRAY_D_L9} = 1\nauto{_ARRAY_T_L10} = block\nauto{_ARRAY_F_L10} = 2\nauto{_ARRAY_D_L10} = 1\nauto{_ARRAY_T_L11} = block\nauto{_ARRAY_F_L11} = 2\nauto{_ARRAY_D_L11} = 1\nauto{_ARRAY_T_L12} = cyclic\nauto{_ARRAY_F_L12} = 2\nauto{_ARRAY_D_L12} = 1\nauto{_ARRAY_T_L13} = block\nauto{_ARRAY_F_L13} = 2\nauto{_ARRAY_D_L13} = 1\nauto{_ARRAY_T_L14} = cyclic\nauto{_ARRAY_F_L14} = 2\nauto{_ARRAY_D_L14} = 1\nauto{_ARRAY_T_L15} = cyclic\nauto{_ARRAY_F_L15} = 32\nauto{_ARRAY_D_L15} = 1\nauto{_ARRAY_T_L16} = cyclic\nauto{_ARRAY_F_L16} = 16\nauto{_ARRAY_D_L16} = 1\nauto{_ARRAY_T_L17} = cyclic\nauto{_ARRAY_F_L17} = 2\nauto{_ARRAY_D_L17} = 1\nauto{_PIPE_L18} = 0\nauto{_UNROLL_L18} = 2",
+    "signature": "05f7243e795292d42473489329bfe771e9f5e5ac4f314bf6840da04a7e10b7b6",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "workload_957.cpp",
+      "latency_msec": 0.16065,
+      "area_pct": 10.25
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "spcl_example_03",
+    "origin": "zcu104_pareto_area",
+    "directives": {
+      "Array_1": "cyclic_4_1",
+      "Array_2": "block_128_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 128\nauto{_ARRAY_D_L2} = 1\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+    "signature": "b290dc183e7d025731e93bd1fea710543967d4d634bb0b77984e066326a8797a",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "Stencil2D_409.cpp",
+      "latency_msec": 10.17033,
+      "area_pct": 0.0
+    },
+    "neighbor_resolved": false
+  },
+  {
+    "kernel": "spcl_example_03",
+    "origin": "zcu104_pareto_adp__neighbor_L1_ARRAY",
+    "directives": {
+      "Array_1": "cyclic_4_1",
+      "Array_2": "block_128_1",
+      "OuterLoop_1": "unroll_2",
+      "InnerLoop_1_1": "pipeline_1"
+    },
+    "target": "auto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 128\nauto{_ARRAY_D_L2} = 1\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+    "signature": "b290dc183e7d025731e93bd1fea710543967d4d634bb0b77984e066326a8797a",
+    "duplicate": true,
+    "zcu_reference": {
+      "version": "Stencil2D_409.cpp",
+      "latency_msec": 10.17033,
+      "area_pct": 0.0
+    },
+    "neighbor_resolved": true
+  },
+  {
+    "kernel": "spcl_example_03",
+    "origin": "zcu104_pareto_latency",
+    "directives": {
+      "Array_1": "cyclic_32_1",
+      "Array_2": "cyclic_64_1",
+      "OuterLoop_1": "pipeline_1",
+      "InnerLoop_1_1": "unroll_4"
+    },
+    "target": "auto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 32\nauto{_ARRAY_D_L1} = 1\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 64\nauto{_ARRAY_D_L2} = 1\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 4",
+    "signature": "c6368e7556045a662f6e31c5a5d074183d1606e6440fcc00ef7156139f3039d7",
+    "duplicate": false,
+    "zcu_reference": {
+      "version": "Stencil2D_16.cpp",
+      "latency_msec": 5.12031,
+      "area_pct": 23.5
+    },
+    "neighbor_resolved": false
+  }
+]

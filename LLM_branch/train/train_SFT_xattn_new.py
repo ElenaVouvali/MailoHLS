@@ -13,6 +13,7 @@ throughout Stage-2 training, validation, and inference.
 
 from __future__ import annotations
 
+from LLM_branch.common import device_adaptation
 import argparse
 import json
 import math
@@ -630,6 +631,7 @@ def selection_contract_sha256(contract: Mapping[str, Any]) -> str:
     ignored = {
         "runtime",
         "stage1_trainable_parameter_contract",
+        device_adaptation.KEY,
     }
     payload = {
         key: value
@@ -1163,9 +1165,16 @@ def dump_json(path: str, obj: Any):
 
 def save_mailohls_adapter(model, tokenizer, output_dir, contract):
     os.makedirs(output_dir, exist_ok=True)
+    if contract.get("device_mode") == "device_adapt":
+        if device_adaptation.frozen_parent_hash(model) != contract["device_adaptation"]["frozen_parent_tensor_sha256"]:
+            raise ValueError("Frozen parent changed during device adaptation")
+        if device_adaptation.trainables_contract(model) != contract[device_adaptation.KEY]:
+            raise ValueError("Device adaptation trainables changed")
     model.save_pretrained(output_dir, save_embedding_layers=False)
     tokenizer.save_pretrained(output_dir)
     dump_json(os.path.join(output_dir, "training_contract.json"), contract)
+    if contract.get("device_mode") == "device_adapt":
+        device_adaptation.save_bundle_manifest(output_dir, contract)
 
 
 STAGE1_COMPATIBILITY_FIELDS = (
@@ -7544,10 +7553,12 @@ def run_single_training(args):
             if args.lora_target_modules == "attention"
             else ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
         ),
-        trainable_token_indices=trainable_token_spec,
+        trainable_token_indices=(None if args.device_mode == "device_adapt" else trainable_token_spec),
     )
 
-    if resume_ckpt and os.path.isdir(resume_ckpt):
+    if resume_ckpt and args.device_mode == "device_adapt":
+        model = device_adaptation.load_bundle(base, resume_ckpt, trainable=True)
+    elif resume_ckpt and os.path.isdir(resume_ckpt):
         model = PeftModel.from_pretrained(
             base,
             resume_ckpt,
@@ -7570,17 +7581,7 @@ def run_single_training(args):
             is_trainable=False,
         )
         model.add_adapter("device_adapt", lora_cfg)
-        try:
-            model.base_model.set_adapter(["mailohls_base", "device_adapt"])
-        except Exception as exc:
-            raise RuntimeError(
-                "This PEFT version cannot compose the frozen MailoHLS adapter "
-                "with a trainable device adapter"
-            ) from exc
-
-        for name, parameter in model.named_parameters():
-            if "lora_" in name:
-                parameter.requires_grad_("device_adapt" in name)
+        device_adaptation.activate(model, trainable=True)
         print(
             "[INIT] Frozen mailohls_base + trainable device_adapt "
             f"for {TARGET_CFG.adapt_device}"
@@ -7603,8 +7604,14 @@ def run_single_training(args):
         for name, parameter in model.named_parameters()
         if "trainable_tokens_delta" in name and parameter.requires_grad
     )
+    # Stage-1 trains the special-token input rows. Device adaptation freezes
+    # the complete parent model and trains only the residual adapter, so its
+    # token-row inventory must be empty and must not inherit the Stage-1
+    # expectation.
     expected_token_delta_params = (
-        len(special_ids) * int(base.config.hidden_size)
+        0
+        if args.device_mode == "device_adapt"
+        else len(special_ids) * int(base.config.hidden_size)
     )
     if token_delta_params != expected_token_delta_params:
         raise RuntimeError(
@@ -7743,6 +7750,16 @@ def run_single_training(args):
         training_contract["stage1_trainable_parameter_contract"] = (
             assert_stage1_trainable_contract(model)
         )
+        dump_json(os.path.join(args.output_dir, "training_contract.json"), training_contract)
+    if args.device_mode == "device_adapt":
+        training_contract[device_adaptation.KEY] = device_adaptation.trainables_contract(model)
+        training_contract["device_adaptation"] = {
+            "device": TARGET_CFG.adapt_device,
+            "device_capacities": dict(DEVICE_RESOURCES[TARGET_CFG.adapt_device]),
+            "parent": device_adaptation.parent_contract(init_adapter_dir, training_contract),
+            "scope": "stage1_only",
+            "frozen_parent_tensor_sha256": device_adaptation.frozen_parent_hash(model),
+        }
         dump_json(os.path.join(args.output_dir, "training_contract.json"), training_contract)
     model.print_trainable_parameters()
 
@@ -8205,22 +8222,6 @@ def run_single_training(args):
     else:
         print(f"[DONE] Saved LoRA adapter to: {args.output_dir}")
 
-    if args.device_mode == "device_adapt":
-        dump_json(
-            os.path.join(args.output_dir, "device_adaptation.json"),
-            {
-                "schema": "mailohls-device-adaptation-v1",
-                "device": TARGET_CFG.adapt_device,
-                "base_adapter": os.path.abspath(args.init_adapter_dir),
-                "base_structural_xattn": (
-                    os.path.abspath(args.init_structural_xattn_from)
-                    if args.init_structural_xattn_from else ""
-                ),
-                "active_adapters": ["mailohls_base", "device_adapt"],
-                "device_capacities": DEVICE_RESOURCES[TARGET_CFG.adapt_device],
-                "objective": args.objective,
-            },
-        )
 
 
 

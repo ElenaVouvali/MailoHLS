@@ -17,6 +17,7 @@ from peft import PeftModel
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 from LLM_branch.common import (
+    device_adaptation,
     directive_domains,
     mailohls_contract,
     structural_memory as structural_memory_utils,
@@ -1284,6 +1285,13 @@ def load_peft_adapter_strict(base, adapter_dir: str):
     if not os.path.isdir(adapter_dir):
         raise FileNotFoundError(f"Adapter directory does not exist: {adapter_dir}")
 
+    contract_path = os.path.join(adapter_dir, "training_contract.json")
+    if os.path.isfile(contract_path):
+        with open(contract_path) as handle:
+            contract = json.load(handle)
+        if contract.get("device_mode") == "device_adapt":
+            return device_adaptation.load_bundle(base, adapter_dir)
+
     if not has_adapter_weights(adapter_dir):
         raise FileNotFoundError(
             f"No adapter_model.safetensors or adapter_model.bin found in: {adapter_dir}"
@@ -1413,7 +1421,9 @@ def predict_case(
     sections = mailohls_contract.build_prompt_sections(
         case.source_text,
         case.obj_mode,
-        mailohls_contract.target_prompt_fields(platform),
+        mailohls_contract.target_prompt_fields(
+            platform, device_mode=platform.get("_checkpoint_device_mode", "known")
+        ),
     )
     base_prompt_ids = [
         token_id for section in sections
@@ -1644,6 +1654,7 @@ def load_cases(args) -> List[InferenceCase]:
 # ============================================================
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--device_specs_json", default="", help="Exact HLS available-resource capacities")
 
     # model / stage
     ap.add_argument("--stage", type=str, required=True, choices=["stage1", "stage2", "stage3"])
@@ -1947,7 +1958,9 @@ def main():
                 raise ValueError(f"--{field} conflicts with the Stage-1 contract")
             setattr(args, field, trained)
         trainables = training_contract.get("stage1_trainable_parameter_contract")
-        if (training_contract.get("prompt_schema_version") != 1
+        if training_contract.get("device_mode") == "device_adapt":
+            device_adaptation.validate_contract(training_contract)
+        elif (training_contract.get("prompt_schema_version") != 1
                 and (not isinstance(trainables, dict)
                      or trainables.get("schema") != "mailohls-stage1-trainables-v1")):
             raise ValueError("Stage-1 checkpoint is missing its trainable-parameter contract")
@@ -1975,6 +1988,15 @@ def main():
     if mismatches:
         raise ValueError("Checkpoint response contract is incompatible: "
                          + json.dumps(mismatches, sort_keys=True))
+    if args.device_specs_json:
+        from LLM_branch.train.train_SFT_xattn_new import load_device_specs
+        load_device_specs(args.device_specs_json)
+    adaptation = None
+    if training_contract.get("device_mode") == "device_adapt":
+        adaptation = device_adaptation.validate_contract(training_contract)
+        if args.lora_adapter_dir and os.path.realpath(args.lora_adapter_dir) != os.path.realpath(args.adapter_dir):
+            raise ValueError("Adapted Stage-1 inference cannot override its composed adapter")
+        mailohls_contract.DEVICE_RESOURCES[adaptation["device"]] = dict(adaptation["device_capacities"])
     cases = load_cases(args)
     mismatched = [case.kernel_name for case in cases
                   if training_contract["objective"] != "ALL"
@@ -1985,6 +2007,11 @@ def main():
             f"mismatched cases: {mismatched[:10]}"
         )
     for case in cases:
+        if adaptation:
+            device = mailohls_contract._norm_device(case.platform_row.get("device", case.platform_row.get("Device", "")))
+            if device != adaptation["device"]:
+                raise ValueError("Adapted checkpoint may only evaluate its declared device")
+            case.platform_row["_checkpoint_device_mode"] = "device_adapt"
         mailohls_contract.target_prompt_fields(case.platform_row)
     expected_registry_hash = training_contract.get("directive_domain_registry_sha256")
     if expected_registry_hash:

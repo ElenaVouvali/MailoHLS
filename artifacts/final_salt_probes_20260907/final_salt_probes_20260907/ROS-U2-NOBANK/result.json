@@ -1,0 +1,140 @@
+{
+  "candidate": "ROS-U2-NOBANK",
+  "kernel": "rosetta-3d-rendering",
+  "stage": "final-probe",
+  "objective": "ADP",
+  "target_context": {
+    "device": "ZCU104",
+    "clock_period_ns": 10.0,
+    "budget": "full"
+  },
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "array",
+      "variable": "z_buffer",
+      "partition_type": "none",
+      "partition_factor": 0,
+      "partition_dim": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L6",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L7",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L8",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L9",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L10",
+      "kind": "array",
+      "variable": "fragment",
+      "partition_type": "none",
+      "partition_factor": 0,
+      "partition_dim": 0
+    },
+    {
+      "action_id": "L11",
+      "kind": "array",
+      "variable": "pixels",
+      "partition_type": "none",
+      "partition_factor": 0,
+      "partition_dim": 0
+    },
+    {
+      "action_id": "L12",
+      "kind": "array",
+      "variable": "frame_buffer",
+      "partition_type": "none",
+      "partition_factor": 0,
+      "partition_dim": 0
+    },
+    {
+      "action_id": "L13",
+      "kind": "array",
+      "variable": "max_min",
+      "partition_type": "complete",
+      "partition_factor": 0,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L14",
+      "kind": "array",
+      "variable": "max_index",
+      "partition_type": "complete",
+      "partition_factor": 0,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L15",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 0
+    }
+  ],
+  "top": "rendering",
+  "reference_source": "corrected_changed_20260904/area/rosetta-3d-rendering/kernel_placeholders.cpp",
+  "source_sha256": "0e532e2c69380a1705e0c0862066056dc7259701dbbae4dc1a89cf4e4acbce73",
+  "input_sha256": {
+    "kernel.cpp": "a829c8736bf1a36611f37628f37e12e978bce162d1875b19191fffe19d84b628",
+    "outputs_golden.txt": "713f46db11487d9b44d6091d243dc8472a949efb0629433029a6bd28245f16db",
+    "tb_rendering.cpp": "1f63d269bbb16f8fbc9a137c8a96b695b697a949550eb4194522d402d47349d1",
+    "run_hls.tcl": "92471be3d08ebfff60a0a8e2a8aab05f90c0a255fb60c86e9886c6f22c93092c",
+    "input_data.h": "02f91adc6e350445f14480d5cccfefc39e6af4206af91a8474dda0585a5902ea"
+  },
+  "arithmetic_headers": "Vitis HLS vendor headers",
+  "status": "success",
+  "synthesis_status": "completed",
+  "cosimulation_status": "passed",
+  "implementation_status": "not_run",
+  "latency": null,
+  "latency_source": "hls_synthesis_min_cycles",
+  "resources": {
+    "bram": 63,
+    "dsp": 3,
+    "ff": 2474,
+    "lut": 4189
+  },
+  "estimated_clock_period_ns": 7.096,
+  "synthesis_report": "/home/bonus24/final_salt_probes_20260907/ROS-U2-NOBANK/project/solution1/syn/report/rendering_csynth.xml"
+}

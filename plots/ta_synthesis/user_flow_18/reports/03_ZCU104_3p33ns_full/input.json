@@ -1,0 +1,90 @@
+{
+  "kernel": "GAN",
+  "stage": "target-aware",
+  "objective": null,
+  "device": "ZCU104",
+  "clock_period_ns": 3.33,
+  "frequency_mhz": 300.3003,
+  "resource_budget": "full",
+  "latency": null,
+  "resources": {
+    "bram": null,
+    "dsp": null,
+    "ff": null,
+    "lut": null
+  },
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "array",
+      "variable": "xbuf",
+      "partition_type": "cyclic",
+      "partition_factor": 2,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L2",
+      "kind": "array",
+      "variable": "layer_1_out",
+      "partition_type": "cyclic",
+      "partition_factor": 15,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L3",
+      "kind": "array",
+      "variable": "layer_2_out",
+      "partition_type": "cyclic",
+      "partition_factor": 10,
+      "partition_dim": 1
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L6",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 30
+    },
+    {
+      "action_id": "L7",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 30
+    },
+    {
+      "action_id": "L8",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L9",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L10",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L11",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    }
+  ]
+}

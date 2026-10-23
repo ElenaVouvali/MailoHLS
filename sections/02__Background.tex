@@ -1,0 +1,55 @@
+\section{Background \& Related Work}
+\label{sec:background}
+
+
+\subsection{HLS Directive Optimization}
+\label{subsec:hls-background}
+
+\begin{lstlisting}[style=hlsalgo,float=t,
+caption={GEMV HLS kernel with representative pragma configurations.},
+label={alg:gemv-hls}]
+<O>const float</O> <CR>A[N][M]</CR>;
+<R>#pragma HLS ARRAY_PARTITION variable=A cyclic factor=8 dim=2</R>
+<O>const float</O> <CB>x[M]</CB>;
+<B>#pragma HLS ARRAY_PARTITION variable=x complete</B>
+<O>float</O> <OR>y[N]</OR>;
+<COR>#pragma HLS ARRAY_PARTITION variable=y complete</COR>
+<CG>for</CG> <O>(int i = 0; i < N; i++) {</O>
+<G>#pragma HLS PIPELINE II=1</G>
+  <O>float acc = 0;</O>
+  <CM>for</CM> <O>(int j = 0; j < M; j++) {</O>
+    <M>#pragma HLS UNROLL factor=8</M>
+    acc += A[i][j] * x[j];
+  }
+  y[i] = acc;
+}
+\end{lstlisting}
+
+HLS translates behavioral C/C++ descriptions into RTL accelerators while allowing designers to guide scheduling, parallelism, and memory organization through pragmas~\cite{rupnow2011study,cong2011high}. Listing~\ref{alg:gemv-hls} illustrates three transformations central to our design space: loop pipelining, loop unrolling, and array partitioning. 
+Their effects are coupled. Unrolling the inner GEMV loop creates multiple concurrent memory requests; if the referenced arrays are not partitioned into enough independently accessible banks, the additional arithmetic parallelism cannot be supplied with operands at the required rate. Conversely, aggressive partitioning can increase BRAM, register, and LUT pressure without proportional latency reduction. 
+
+We call a source location at which a supported HLS decision may be applied an \emph{action point}. If action $a_i$ exposes finite directive domain $D_i$, the source-derived configuration space contains $\prod_i |D_i|$ assignments before synthesis failures or target constraints are considered. Even small kernels therefore induce large combinatorial spaces because loop and array decisions compose multiplicatively; \EV{the GEMV example for instance, contain only X action points but already expose Y legal source-derived configurations, respectively.}
+
+Automating these choices has led to synthesis-based, model-based, and knowledge-driven DSE. The approaches differ primarily in where exploration cost is paid: synthesis-driven methods evaluate configurations with the HLS tool~\cite{mahapatra2014machine,ferretti2018lattice,ferretti2018cluster, sohrabizadeh2020autodse}; model-driven methods replace many evaluations with learned QoR predictors~\cite{dai2018fast,makrani2019xppe,lin2020hl, sohrabizadeh2022automated}; and data-driven methods reuse previously measured designs~\cite{ferretti2020leveraging,ferikoglou2024collectivehls}.
+\framework is complementary to these DSE formulations: it learns the configuration-selection policy itself and therefore does not require candidate exploration at deployment.
+
+
+\subsection{Graph-Based HLS Optimization}
+\label{subsec:gnn-background}
+
+GNNs are well suited to HLS because compiler representations expose explicit control, data, call, hierarchy, and memory relations. GNN-DSE~\cite{ sohrabizadeh2022automated} augments a program graph with pragma nodes and learns QoR predictors that replace many synthesis calls during exploration. HARP~\cite{sohrabizadeh2023harp} further introduces pseudo nodes for compiler blocks to shorten long graph paths. Its Neural Pragma Transformer models each pragma type with a dedicated MLP that transforms the corresponding pseudo-node embedding using the selected pragma value; a second MLP combines pragma effects before another GNN layer propagates them through the graph.
+
+ProgSG~\cite{bai2023progsg} combines HARP-style graph structure with source tokens at two granularities: graph summaries augment the source sequence, while block-level graph nodes and source chunks exchange information through attention-based node--token message passing before subsequent GNN and Transformer layers propagate it locally. Its goal remains learning a joint representation for QoR prediction. More recently, hierarchical mixture-of-experts models specialize reusable predictors at node, block, and graph granularities and gate among them when adapting to kernels with limited labeled data~\cite{li2025hierarchical}.
+
+\framework uses these representations for a different purpose. The GNN is trained as a QoR predictor so that its hidden states become hardware-sensitive, but its regression heads are not used during directive selection. Instead, the hidden action embeddings immediately before those heads are aligned with source action points and injected into the LLM decisions themselves. Our production graph is built from structured MLIR~\cite{lattner2021mlir, ye2022scalehls}, retaining loop/region, memory, SSA, and compiler-derived dependence information before lower-level control-flow flattening.
+
+
+\subsection{Transformers, Adaptation, and LLM-Based HLS}
+\label{subsec:llm-background}
+
+Transformers~\cite{vaswani2017attention} model long-range token relationships and provide a flexible interface for source code optimization intent. Parameter-efficient fine-tuning methods such as LoRA~\cite{hu2022lora} allow a pretrained code model to specialize without updating the full backbone, which is useful when separate policies are required for different HLS objectives. Cross-attention provides a standard mechanism for conditioning a language stream on external representations; in \framework, it is used specifically to expose compiler-derived structural memory at directive decisions.
+
+Recent LLM-based HLS systems span several distinct formulations.
+HLSPilot~\cite{xiong2024hlspilot} combines retrieved HLS knowledge with
+tool-assisted code generation and design exploration. LIFT~\cite{prakriya2025lift} directly generates pragma values, but uses the HARP GNN as \emph{training supervision}: predicted and target pragma configurations are compiled into graphs and their GNN embeddings contribute an auxiliary loss, while pragma generation itself remains an LLM task. LLM-DSE~\cite{wang2025llmdse} instead places multiple LLM agents inside an iterative DSE loop that learns from tool feedback. MPM-LLM4DSE~\cite{xu2026mpmllm4dse} fuses behavioral-source and CDFG representations to predict QoR and then uses an LLM as the optimizer inside multi-objective exploration.
+HLS-Eval~\cite{abikaram2025hlseval}, HLStrans~\cite{zou2025hlstrans}, and ForgeHLS~\cite{peng2025forgehls} provide complementary benchmark and dataset infrastructure rather than directly comparable optimization policies; we therefore discuss their relationship to our evaluation corpus in \S\ref{subsec:eval-data}.

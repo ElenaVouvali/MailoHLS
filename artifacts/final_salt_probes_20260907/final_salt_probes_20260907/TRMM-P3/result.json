@@ -1,0 +1,54 @@
+{
+  "candidate": "TRMM-P3",
+  "kernel": "trmm-opt",
+  "stage": "final-probe",
+  "objective": "ADP",
+  "target_context": {
+    "device": "ZCU104",
+    "clock_period_ns": 10.0,
+    "budget": "full"
+  },
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 5
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "top": "kernel_trmm",
+  "reference_source": "Application/trmm-opt/kernel.cpp",
+  "source_sha256": "4b413ad5d5c82c860b32845f3023e53c2b011482fe7a38ca52a646166eb11ce0",
+  "input_sha256": {
+    "tb.cpp": "4501d45b4d190e95e16300bb4b4f0fc174d52bf8094ccd163e4174711f0630db",
+    "kernel.cpp": "ef09de94baff7502e726fee7d3fbf06ed9eb4897446f316e71a2d4ed34e2a1f8",
+    "run_hls.tcl": "3856f28c46a6a237056c9e2be4c5c623418b7b180341927dbd10b29fdd786100"
+  },
+  "arithmetic_headers": "Vitis HLS vendor headers",
+  "status": "success",
+  "synthesis_status": "completed",
+  "cosimulation_status": "not_requested",
+  "implementation_status": "not_run",
+  "latency": 162721,
+  "latency_source": "hls_synthesis_min_cycles",
+  "resources": {
+    "bram": 0,
+    "dsp": 28,
+    "ff": 79067,
+    "lut": 51479
+  },
+  "estimated_clock_period_ns": 7.731,
+  "synthesis_report": "/home/bonus24/final_salt_probes_20260907/TRMM-P3/project/solution1/syn/report/kernel_trmm_csynth.xml"
+}

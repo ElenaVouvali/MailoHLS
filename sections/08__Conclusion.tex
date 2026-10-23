@@ -1,0 +1,8 @@
+\section{Conclusion}
+
+We presented \framework, a target-conditioned policy for HLS pragma optimization that combines source-derived directive domains with action-aligned compiler structure. The target-aware Stage~1 policy predicts directive values from source, objective, FPGA, component-wise resource budget, and clock; Stage~2 freezes that policy and injects QoR-supervised structured-MLIR embeddings only at directive decisions. This design makes task-specific fine-tuning and structural fusion independently measurable and avoids using GNN QoR predictions as an inference-time search oracle.
+
+\resulttodo{Final 2--3 strongest quantitative conclusions from frozen ASPLOS checkpoints: main seen/unseen objective quality; validity/synthesis/resource-feasibility; cross-target evidence; and optimization/HLS-call cost.}
+
+\paragraph{Limitations and future extensions.}
+\framework predicts within source-derived loop/array directive domains instead of arbitrary source rewriting. Source-compatible predictions still require the HLS flow to verify timing, functionality, and resource feasibility. Generalization is also bounded by the devices, clocks, toolchain, and action-space sizes evaluated in this work. \asplostodo{State exactly which cross-device/frequency settings are zero-shot versus adapted and name untested toolchains explicitly. Mention broader directive space, additional FPGA families, and device-conditioned structural encoders only as future work.}

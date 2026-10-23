@@ -1,0 +1,189 @@
+\subsection{Target-Conditioned Structural-Semantic Policy}
+\label{subsec:llm-backbone}
+
+\framework learns $p(\mathbf d\mid\text{source},o,\tau)$ over the source-derived action points. Stage~1 learns the target/objective-conditioned semantic policy; 
+Stage~2 freezes it and learns gated access to action-aligned compiler memory.
+
+
+\subsubsection{Prompt and Target Conditioning}
+\label{subsubsec:prompt}
+
+For each action $L_k$, \texttt{<SRC\_Lk>} marks its source location and \texttt{<Lk>} anchors the corresponding output assignments.
+Assignment names and order are fixed; the model predicts only directive values and $L_k$ also serves as the Stage~2 routing identity.
+The prompt supplies objective, FPGA, clock, and component-wise BRAM/DSP/FF/LUT budgets as both absolute numbers and fractions of device capacity. 
+During Stage~1, the same kernel/device/clock case is presented under multiple budgets, with supervision drawn only from designs feasible under all four limits.
+
+Among feasible candidates, the objective-specific ranking determines the measured configuration used as supervision; 
+the ranking and budget-sampling policy are detailed in \S\ref{subsec:eval-data}.
+
+
+
+\subsubsection{Target-Aware Conditioning}
+\label{subsubsec:target-conditioning}
+
+For specified-clock inference, the deployment target is
+\[
+\tau=(d,c,\mathbf b),\qquad
+\mathbf b=(b_{\rm BRAM},b_{\rm DSP},b_{\rm FF},b_{\rm LUT}).
+\]
+Stage~1 minimizes cross-entropy only at directive-value positions, conditioned jointly on source, objective $o$, and $\tau$; fixed anchors and directive syntax are not supervised. 
+The same source can therefore appear with different measured target contexts and different desired directive assignments. \EV{more analysis required here on the target-aware training}
+Stage~2 preserves this conditioning interface and adds only structural evidence. 
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[
+        width=0.97\columnwidth
+    ]{figures/02__Methodology/target_conditioning_heatmap-1.pdf}
+    \caption{
+        \textbf{Target conditioning across device, clock, and resource
+        requests on GAN.}
+        Each synthesized target reports latency (top), mean resource
+        utilization $R$, and the directive change $\Delta D$ relative to
+        ZCU104/10\,ns/full. Lower latency is better;
+    }
+    \label{fig:target-conditioning}
+\end{figure}
+
+Figure~\ref{fig:target-conditioning} confirms that the requested target
+contexts affect the emitted policy. The target-conditioned framework
+selectively adapts its directive policy as the requested device, clock, and
+resource budget change. On ZCU104, tightening the budget request reduces
+array banking and loop unrolling together, preserving the correspondence
+between memory bandwidth and compute parallelism, while the medium and full
+requests retain more aggressive factors. As the requested clock becomes
+faster, the policy reduces selected partition and unroll factors, limiting
+the parallel reduction structures exposed under the 3.33\,ns timing target.
+
+Device conditioning is visible through matched-target comparisons with U200.
+At 3.33\,ns, U200 retains more aggressive banking and unrolling than ZCU104,
+consistent with its greater resource capacity and timing headroom. Under the
+tight 5 and 10\,ns requests, U200 likewise retains the aggressive reference
+policy while ZCU104 reduces its parallelism. At medium and full budgets for
+5 and 10\,ns, both devices reuse the same configuration because the common
+policy remains applicable. The 20\%, 50\%, and 100\% U200 budgets select
+identical directives because even the tightest allowance is nonbinding for
+this kernel.
+
+The combination of budget-dependent changes on ZCU104, clock-dependent
+changes at 3.33\,ns, device-dependent differences under matched targets, and
+policy reuse where no change is needed provides evidence that the framework
+responds to the joint target context rather than applying one fixed directive
+configuration indiscriminately.
+
+\subsubsection{Objective-Specific Adapters}
+\label{subsubsec:objective-adapters}
+
+Target conditioning specifies the deployment constraints, whereas the objective selects the preferred feasible trade-off. We therefore share the code backbone and target interface but maintain separate LoRA adapters~\cite{hu2022lora} for latency, area, and ADP; at inference, $o$ selects the corresponding adapter. This avoids collapsing conflicting objective updates into one policy without duplicating the backbone.
+
+
+\subsubsection{Compiler-Routed Structural Fusion}
+\label{subsubsec:structural-fusion}
+
+Stage~2 turns the target-conditioned language policy into an action-grounded structural policy. The decoder hidden state provides the semantic and target-aware query, whereas the action-aligned GNN memory of \S\ref{subsubsec:gnn-backbone} provides compiler-derived keys and values. 
+The Stage~1 policy is frozen: Stage~2 learns only how structural evidence should correct an already functional directive policy.
+
+For a directive value position associated with action $L_k$, the structural update can be written schematically as
+%
+\[
+\tilde{\mathbf h}_t =
+\mathbf h_t +
+\tanh(g)\,
+\mathrm{XAttn}(\mathbf h_t,\mathbf M;\mathbf A_k),
+\qquad t\in\mathcal R_k .
+\]
+%
+where $\mathbf h_t$ is the decoder representation at directive-value position $t$ after causal self-attention, $\mathbf M$ is the structural-memory bank, $\mathbf A_k$ is the compiler-derived routing mask \EV{should have been explained in from MLIR to an Action-Aligned graph section} for $L_k$, and $g$ is a learned residual gate. 
+
+In simple terms, when the model is predicting a directive for action $L_k$, it cannot inspect arbitrary graph nodes. It can consult only the structural memory that the compiler has associated with $L_k$---for example, its enclosing loops, accessed memories, or proven dependences. 
+The compiler-derived routing determines which structural evidence is eligible to be visible, while the language model learns how that evidence should influence the directive prediction.
+Structural fusion is therefore selective in two independent ways: only directive-value positions receive the update, and each such position can inspect only structural slots related to its current action.
+
+The routing mask also acts as an architectural interpretability constraint. Without routing, a directive token could attend to structurally unrelated loops or arrays and the model would have to relearn compiler locality from data. 
+Instead, the compiler determines \emph{which} structural evidence is eligible, while learning determines \emph{how strongly} that evidence should modify the directive state. 
+
+Cross-attention is applied after the self-attention residual and before the block's feed-forward transformation. \EV{should connect this to the design overview figure where the cross-attention fusion is represented}
+This ordering first lets the causal decoder combine source, objective, and target context, then lets that contextualized directive state query compiler memory before further local transformation. 
+The residual gate is initialized at zero, so inserting the structural path initially reproduces the frozen Stage~1 policy and structural corrections are introduced only as training opens the gate. 
+
+DeepSeek-Coder-6.7B~\cite{guo2024deepseekcoder} contains 32 decoder layers; we insert structural fusion after every eighth layer, yielding four interaction points distributed over the backbone. 
+This provides repeated access to compiler evidence without modifying every pretrained block. During Stage~2, the backbone, Stage~1 LoRA, and special-token embeddings remain frozen; only structural cross-attention and its gates are optimized. 
+We evaluate the sensitivity to fusion frequency below and report the remaining architectural hyperparameters in \S\ref{subsec:eval-training}.
+
+Hence, the compiler determines \emph{where structural evidence comes from}, the GNN determines \emph{how that evidence is represented}, and the target-conditioned LLM determines \emph{which directive should be selected}.
+
+
+\paragraph{Does aligned structural memory matter?}
+At one frozen latency-policy checkpoint, we intervene on the fixed Kalman request reported in Table~\ref{tab:memory-ablation}: ZCU104, 10\,ns, and full device budget. 
+Backbone, LoRA, cross-attention weights, routing, decoding, and target request remain unchanged. \emph{Zero} sets every structural-memory value to zero; \emph{Deranged} applies a deterministic permutation to the same non-zero action embeddings; and \emph{Aligned} restores the correct $L_k$--memory correspondence. The intervention thus separates cross-attention topology, arbitrary non-zero side information, and correctly aligned compiler evidence.
+
+\begin{table}[t]
+    \centering
+    \caption{\textbf{Fixed-checkpoint structural-memory intervention}
+    on Kalman (ZCU104, 10\,ns, full budget).}
+    \label{tab:memory-ablation}
+    \footnotesize
+    \setlength{\tabcolsep}{2.6pt}
+    \renewcommand{\arraystretch}{1.03}
+
+    \begin{tabular}{lccr}
+        \toprule
+        \textbf{Policy} & \textbf{Speedup} & \textbf{Feas.} &
+        \textbf{[BRAM,DSP,FF,LUT] (\%)} \\
+        \midrule
+        Stage 1
+          & 1.23$\times$  & No  & [183.97,0.12,1.19,8.14] \\
+        Stage 2--Zero
+          & 1.23$\times$  & No  & [183.97,0.12,1.19,8.14] \\
+        Stage 2--Deranged
+          & 19.43$\times$ & No  & [183.97,0.23,1.57,8.30] \\
+        Stage 2--Aligned
+          & \textbf{20.70$\times$} & \textbf{Yes}
+          & [96.79,0.23,1.53,8.26] \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Zero memory exactly reproduces Stage~1, while deranged memory changes the policy but remains severely BRAM-infeasible. 
+Correct alignment preserves the acceleration and reduces BRAM from 183.97\% to 96.79\%, which shows that only restoring the correct action--memory correspondence recovers resource feasibility while retaining the acceleration.
+
+
+
+
+\paragraph{LLM backbone capacity.}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[
+        width=0.96\columnwidth
+    ]{figures/02__Methodology/architectural_sensitivity_horizontal.pdf}
+    \caption{\textbf{Architectural sensitivity.}
+    (a) Backbone capacity on Covariance and
+    (b) cross-attention placement on JPEG.
+    Bars report synthesized speedup over pragma-free Vitis; annotations report
+    mean BRAM/DSP/FF/LUT utilization, and dashed lines mark $1\times$.}
+    \label{fig:backbone-capacity}
+\end{figure}
+
+To test whether SALT-HLS gains arise primarily from language-model scale, we conduct an experiment on the Covariance kernel with DeepSeek-Coder-1.3B and 6.7B under the same pipeline. 
+Figure~\ref{fig:backbone-capacity}(a) yields identical synthesized QoR ($3.29\times$, 5.2\% utilization), showing that additional backbone capacity is not the dominant factor in this controlled case.
+
+\paragraph{Cross-attention placement.}
+Increasing structural access from every 16 to every 8 decoder layers raises JPEG speedup from $1.17\times$ to $1.70\times$, with utilization increasing from 6.0\% to 39.8\% (Fig.~\ref{fig:backbone-capacity}(b)). Denser fusion therefore changes the selected hardware operating point materially; we use the every-8-layer configuration by default.
+
+
+\subsubsection{Whole-Design Preference Alignment.}
+Stages~1--2 supervise directive values individually, but hardware quality is a
+property of the \emph{complete} configuration. For example, aggressive unrolling may be useful only when the corresponding arrays provide sufficient bandwidth, so assigning credit independently to either directive can be misleading. Stage~3 therefore compares complete directive assignments under the same deployment request and teaches the policy to prefer the configuration with better measured QoR.
+We construct preference pairs from complete directive configurations evaluated under the same kernel, device, clock, resource budget, and objective; the chosen design has better measured objective QoR than the rejected one. Holding the target context fixed ensures that the preference signal reflects the directive configuration itself rather than an easier deployment setting. 
+We then apply reference-based Direct Preference Optimization (DPO~\cite{rafailov2023dpo}), which increases the relative likelihood of the preferred complete configuration without training a separate reward model. This whole-design objective complements the token-level supervision of Stages~1--2: it captures interactions among pipeline, unroll, and partition decisions that cannot be attributed reliably to individual directive fields. During Stage~3, the Stage~1 semantic LoRA remains fixed while the structural-fusion parameters are refined, preserving the learned target-conditioned policy while aligning the structural policy with measured hardware preference.
+
+\paragraph{Inference path.}
+For a new kernel, SALT-HLS first runs the deterministic analyzer and constructs the pragma-free structured-MLIR graph. The frozen GNN exports one structural memory slot per aligned action, while the requested objective selects the corresponding Stage~1 adapter and the target fields specify the deployment context. As each directive value for $L_k$ is decoded, routed cross-attention may inspect only the compiler memory permitted for that action. The model then emits one complete assignment; no candidate is synthesized or QoR-scored during this decode, and HLS is invoked only afterward for validation and measurement.
+
+
+\subsubsection{Automatic Clock Selection}
+\label{subsubsec:auto-clock}
+
+If the clock is unspecified, a separate selector chooses $\hat c\in\mathcal C(d)$ from the device-defined measured clock menu using the frozen structural memory and target/objective context.
+Training labels select the clock whose best feasible same-context design minimizes the requested objective. \framework then rewrites the request as $(d,\hat c,\mathbf b,o)$ and invokes the ordinary specified-clock policy once. \textsc{Auto} therefore adds one learned discrete choice rather than an iterative clock--pragma search. The implementation supports this mode, but the end-to-end results in this paper use explicit clock requests unless stated otherwise; accordingly, we do not introduce an unsupported stand-alone AUTO-clock accuracy claim. 

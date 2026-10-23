@@ -1,0 +1,66 @@
+{
+  "candidate": "JAC-U2",
+  "kernel": "jacobi-2d",
+  "stage": "final-probe",
+  "objective": "LATENCY",
+  "target_context": {
+    "device": "ZCU104",
+    "clock_period_ns": 10.0,
+    "budget": "full"
+  },
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "top": "kernel_jacobi_2d",
+  "reference_source": "corrected_changed_20260904/area/jacobi-2d/kernel_placeholders.cpp",
+  "source_sha256": "78899effd01fcc8e8442c4c6fceffe663ad2c909597890439f8bda179380147b",
+  "input_sha256": {
+    "tb.cpp": "101f18d8a38e504095eadc102057576def76de72f976436cfb16bc6505826916",
+    "kernel.cpp": "843dffa9ca5a1049d000303f91a7de115338f0a6f31d8f1e7b86240afd7d55c0",
+    "run_hls.tcl": "47aa8d3dda9b0237e8907a6d2ffc9dcff89008f81b0b9fbb55b047ba3a359f75"
+  },
+  "arithmetic_headers": "Vitis HLS vendor headers",
+  "status": "success",
+  "synthesis_status": "completed",
+  "cosimulation_status": "not_requested",
+  "implementation_status": "not_run",
+  "latency": 2048761,
+  "latency_source": "hls_synthesis_min_cycles",
+  "resources": {
+    "bram": 0,
+    "dsp": 17,
+    "ff": 3747,
+    "lut": 4158
+  },
+  "estimated_clock_period_ns": 7.042,
+  "synthesis_report": "/home/bonus24/final_salt_probes_20260907/JAC-U2/project/solution1/syn/report/kernel_jacobi_2d_csynth.xml"
+}

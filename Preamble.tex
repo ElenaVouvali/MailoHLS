@@ -1,0 +1,121 @@
+% ASPLOS'27 working preamble. Do NOT alter page geometry, margins, font sizes,
+% column spacing, or ACM spacing. In particular, do not use manual \vspace to
+% squeeze the paper: ASPLOS explicitly forbids this.
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{xspace}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{siunitx}
+
+% Internal-draft annotations. Set false before the final submission.
+\newif\ifinternaldraft
+\internaldrafttrue
+% \internaldraftfalse
+
+% ASPLOS'27 double-blind policy asks authors to rename an already-public system.
+\newcommand{\framework}{\textsc{SALT-HLS}\xspace}
+\newcommand{\legacyframework}{MailoHLS\xspace}
+
+\definecolor{algobg}{RGB}{246,244,238}
+\definecolor{pragmaBlue}{RGB}{0,70,200}
+\definecolor{pragmaRed}{RGB}{200,0,0}
+\definecolor{pragmaGreen}{RGB}{0,140,90}
+\definecolor{pragmaMagenta}{RGB}{200,0,130}
+\definecolor{todoRed}{RGB}{170,0,0}
+\definecolor{todoBg}{RGB}{255,245,245}
+\definecolor{legacyOrange}{RGB}{180,85,0}
+
+% Use >= 9pt-equivalent text where possible; ASPLOS forbids figure/table fonts <8pt.
+\lstdefinestyle{hlsalgo}{%
+  language=C++,
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  breaklines=true,
+  breakatwhitespace=false,
+  backgroundcolor=\color{algobg},
+  xleftmargin=0em,
+  xrightmargin=0em,
+  aboveskip=0.6em,
+  belowskip=0.4em,
+  frame=tb,
+  framexleftmargin=8pt,
+  rulecolor=\color{black},
+  framerule=0.5pt,
+  framesep=5pt,
+  moredelim=[is][\color{black}]{<O>}{</O>},
+  moredelim=[is][\color{pragmaRed}\bfseries]{<R>}{</R>},
+  moredelim=[is][\color{pragmaRed}]{<CR>}{</CR>},
+  moredelim=[is][\color{pragmaGreen}\bfseries]{<G>}{</G>},
+  moredelim=[is][\color{pragmaGreen}]{<CG>}{</CG>},
+  moredelim=[is][\color{pragmaMagenta}\bfseries]{<M>}{</M>},
+  moredelim=[is][\color{pragmaMagenta}]{<CM>}{</CM>},
+  moredelim=[is][\color{pragmaBlue}\bfseries]{<B>}{</B>},
+  moredelim=[is][\color{pragmaBlue}]{<CB>}{</CB>},
+  moredelim=[is][\color{legacyOrange}]{<OR>}{</OR>},
+  moredelim=[is][\color{legacyOrange}\bfseries]{<COR>}{</COR>},
+}
+
+\lstdefinestyle{shortlststyle}{%
+  backgroundcolor=\color{algobg},
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  breakatwhitespace=false,
+  frame=tb,
+  rulecolor=\color{black},
+  framerule=0.5pt,
+  xleftmargin=0pt,
+  xrightmargin=0pt,
+  aboveskip=0.5em,
+  belowskip=0.5em,
+  moredelim=[is][\color{pragmaGreen}\bfseries]{<R>}{</R>},
+}
+\renewcommand{\lstlistingname}{Listing}
+
+\newcommand{\circled}[1]{\tikz[baseline=(char.base)]{\node[shape=circle,fill,inner sep=0.4pt] (char) {\textcolor{white}{#1}};}}
+
+% Draft-only editorial helpers.
+\newcommand{\texttodo}[1]{\ifinternaldraft\textcolor{todoRed}{\textbf{[TEXT TODO:} #1\textbf{]}}\fi}
+\newcommand{\experimenttodo}[1]{\ifinternaldraft\textcolor{todoRed}{\textbf{[EXPERIMENT TODO:} #1\textbf{]}}\fi}
+\newcommand{\figuretodo}[1]{\ifinternaldraft\textcolor{todoRed}{\textbf{[FIGURE TODO:} #1\textbf{]}}\fi}
+\newcommand{\legacycheck}[1]
+
+\newcommand{\placeholderbox}[2]{%
+  \ifinternaldraft
+  \begin{center}
+  \fcolorbox{todoRed}{todoBg}{%
+    \begin{minipage}{0.92\columnwidth}
+      \textbf{#1}\\
+      #2
+    \end{minipage}}
+  \end{center}
+  \fi}
+
+% Legacy author annotations preserved only so the MICRO source can be reused
+% without deleting potentially useful comments. They disappear in final mode.
+\newcommand{\DM}[1]{\ifinternaldraft\textcolor{blue}{[DM: #1]}\fi}
+\newcommand{\EV}[1]{\ifinternaldraft\textcolor{legacyOrange}{[EV: #1]}\fi}
+\newcommand{\SX}[1]{\ifinternaldraft\textcolor{todoRed}{[SX: #1]}\fi}
+\newcommand{\AF}[1]{\ifinternaldraft\textcolor{blue}{[AF: #1]}\fi}
+\newcommand{\new}[1]{#1}
+
+% Result-figure support
+\usepackage{subcaption}
+\usepackage{placeins}
+
+% Adjust/remove paths depending on where you copied the mock files.
+\graphicspath{
+  {figures/}
+  {Figures/}
+  {SALT_HLS_Section7_mock_visuals/}
+  {./}
+}

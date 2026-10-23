@@ -1,0 +1,72 @@
+{
+  "candidate": "AES-U4-NOPIPE",
+  "kernel": "chstone-aes",
+  "stage": "final-probe",
+  "objective": "ADP",
+  "target_context": {
+    "device": "ZCU104",
+    "clock_period_ns": 10.0,
+    "budget": "full"
+  },
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 4
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 4
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 4
+    },
+    {
+      "action_id": "L6",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 4
+    }
+  ],
+  "top": "chstone_aes",
+  "reference_source": "corrected_changed_20260904/area/chstone-aes/kernel_placeholders.c",
+  "source_sha256": "da0ea77d5245e7bf058aee3f9f3f03bf56b512344d9087bd31f11411fb7866a9",
+  "input_sha256": {
+    "tb.c": "dff1f56f2167970be0daeeaaf7bebc23322cffd409b5ea36fc7ed96500613111",
+    "kernel.c": "d19baf0549b24fda8e21d46d8c65002cf50b727de23692a223dcb7560f8b9fe4",
+    "run_hls.tcl": "e074df820880bc679d4b52ae8fa8b6d6623e65988ed2eeb3228627ea8b5134bd"
+  },
+  "arithmetic_headers": "Vitis HLS vendor headers",
+  "status": "success",
+  "synthesis_status": "completed",
+  "cosimulation_status": "passed",
+  "implementation_status": "not_run",
+  "latency": null,
+  "latency_source": "hls_synthesis_min_cycles",
+  "resources": {
+    "bram": 16,
+    "dsp": 0,
+    "ff": 3694,
+    "lut": 13109
+  },
+  "estimated_clock_period_ns": 6.564,
+  "synthesis_report": "/home/bonus24/final_salt_probes_20260907/AES-U4-NOPIPE/project/solution1/syn/report/chstone_aes_csynth.xml"
+}

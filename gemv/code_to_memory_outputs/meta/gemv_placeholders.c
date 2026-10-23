@@ -1,7 +1,7 @@
 #define M 32
 #define N 32
 
-void gemv() {
+float gemv() {
     /*L1:*/	float A[N][M];
 #pragma HLS array_partition variable=A type=auto{_ARRAY_T_L1} factor=auto{_ARRAY_F_L1} dim=auto{_ARRAY_D_L1}
     /*L2:*/	float x[M];
@@ -20,4 +20,5 @@ void gemv() {
         }
         y[i] = acc;
     }
+    return y[0];
 }

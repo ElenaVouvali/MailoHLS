@@ -1,0 +1,427 @@
+{
+  "affine_loops": [
+    {
+      "function": "gemv",
+      "op_name": "affine.for",
+      "ordinal": 4,
+      "status": "known",
+      "trip_count": 32
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.for",
+      "ordinal": 5,
+      "status": "known",
+      "trip_count": 32
+    }
+  ],
+  "aliases": [
+    {
+      "lhs": "gemv:op1:r0",
+      "result": "no_alias",
+      "rhs": "gemv:op2:r0"
+    },
+    {
+      "lhs": "gemv:op1:r0",
+      "result": "no_alias",
+      "rhs": "gemv:op3:r0"
+    },
+    {
+      "lhs": "gemv:op2:r0",
+      "result": "no_alias",
+      "rhs": "gemv:op3:r0"
+    }
+  ],
+  "coverage": {
+    "alias_queries": 3,
+    "dependence": 1,
+    "effects_known_no_effect": 7,
+    "effects_unknown": 3,
+    "effects_with_effects": 7,
+    "no_dependence": 2,
+    "not_applicable": 4,
+    "operations": 17,
+    "unknown": 0,
+    "view_edges": 0,
+    "view_roots": 3
+  },
+  "dependences": [
+    {
+      "fallback_required": false,
+      "kind": "WAR",
+      "possible_loop_carried": true,
+      "reason": "proven_no_alias",
+      "result": "not_applicable",
+      "source": {
+        "function": "gemv",
+        "op_name": "affine.load",
+        "ordinal": 6
+      },
+      "target": {
+        "function": "gemv",
+        "op_name": "affine.store",
+        "ordinal": 12
+      }
+    },
+    {
+      "fallback_required": false,
+      "kind": "WAR",
+      "possible_loop_carried": true,
+      "reason": "proven_no_alias",
+      "result": "not_applicable",
+      "source": {
+        "function": "gemv",
+        "op_name": "affine.load",
+        "ordinal": 7
+      },
+      "target": {
+        "function": "gemv",
+        "op_name": "affine.store",
+        "ordinal": 12
+      }
+    },
+    {
+      "fallback_required": false,
+      "kind": "RAW",
+      "possible_loop_carried": true,
+      "reason": "proven_no_alias",
+      "result": "not_applicable",
+      "source": {
+        "function": "gemv",
+        "op_name": "affine.store",
+        "ordinal": 12
+      },
+      "target": {
+        "function": "gemv",
+        "op_name": "affine.load",
+        "ordinal": 6
+      }
+    },
+    {
+      "fallback_required": false,
+      "kind": "RAW",
+      "possible_loop_carried": true,
+      "reason": "proven_no_alias",
+      "result": "not_applicable",
+      "source": {
+        "function": "gemv",
+        "op_name": "affine.store",
+        "ordinal": 12
+      },
+      "target": {
+        "function": "gemv",
+        "op_name": "affine.load",
+        "ordinal": 7
+      }
+    },
+    {
+      "fallback_required": false,
+      "kind": "WAW",
+      "possible_loop_carried": true,
+      "reason": "proven_affine_independence",
+      "result": "no_dependence",
+      "source": {
+        "function": "gemv",
+        "op_name": "affine.store",
+        "ordinal": 12
+      },
+      "target": {
+        "function": "gemv",
+        "op_name": "affine.store",
+        "ordinal": 12
+      }
+    },
+    {
+      "common_loop_depth": 0,
+      "components": [],
+      "dependence_depth": 1,
+      "fallback_required": false,
+      "kind": "RAW",
+      "loop_carried": false,
+      "possible_loop_carried": false,
+      "reason": "proven_affine_dependence",
+      "result": "dependence",
+      "source": {
+        "function": "gemv",
+        "op_name": "affine.store",
+        "ordinal": 12
+      },
+      "target": {
+        "function": "gemv",
+        "op_name": "affine.load",
+        "ordinal": 15
+      }
+    },
+    {
+      "fallback_required": false,
+      "kind": "WAR",
+      "possible_loop_carried": false,
+      "reason": "proven_affine_independence",
+      "result": "no_dependence",
+      "source": {
+        "function": "gemv",
+        "op_name": "affine.load",
+        "ordinal": 15
+      },
+      "target": {
+        "function": "gemv",
+        "op_name": "affine.store",
+        "ordinal": 12
+      }
+    }
+  ],
+  "effects": [
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "arith.constant",
+      "ordinal": 0,
+      "status": "known_no_effect"
+    },
+    {
+      "effects": [
+        {
+          "kind": "allocate",
+          "value": "gemv:op1:r0"
+        }
+      ],
+      "function": "gemv",
+      "op_name": "memref.alloca",
+      "ordinal": 1,
+      "status": "known"
+    },
+    {
+      "effects": [
+        {
+          "kind": "allocate",
+          "value": "gemv:op2:r0"
+        }
+      ],
+      "function": "gemv",
+      "op_name": "memref.alloca",
+      "ordinal": 2,
+      "status": "known"
+    },
+    {
+      "effects": [
+        {
+          "kind": "allocate",
+          "value": "gemv:op3:r0"
+        }
+      ],
+      "function": "gemv",
+      "op_name": "memref.alloca",
+      "ordinal": 3,
+      "status": "known"
+    },
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "affine.for",
+      "ordinal": 4,
+      "status": "unknown"
+    },
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "affine.for",
+      "ordinal": 5,
+      "status": "unknown"
+    },
+    {
+      "effects": [
+        {
+          "kind": "read",
+          "operand_index": 0,
+          "value": "gemv:op3:r0"
+        }
+      ],
+      "function": "gemv",
+      "op_name": "affine.load",
+      "ordinal": 6,
+      "status": "known"
+    },
+    {
+      "effects": [
+        {
+          "kind": "read",
+          "operand_index": 0,
+          "value": "gemv:op2:r0"
+        }
+      ],
+      "function": "gemv",
+      "op_name": "affine.load",
+      "ordinal": 7,
+      "status": "known"
+    },
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "arith.mulf",
+      "ordinal": 8,
+      "status": "known_no_effect"
+    },
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "arith.addf",
+      "ordinal": 9,
+      "status": "known_no_effect"
+    },
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "affine.yield",
+      "ordinal": 10,
+      "status": "known_no_effect"
+    },
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "affine.if",
+      "ordinal": 11,
+      "status": "unknown"
+    },
+    {
+      "effects": [
+        {
+          "kind": "write",
+          "operand_index": 1,
+          "value": "gemv:op1:r0"
+        }
+      ],
+      "function": "gemv",
+      "op_name": "affine.store",
+      "ordinal": 12,
+      "status": "known"
+    },
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "affine.yield",
+      "ordinal": 13,
+      "status": "known_no_effect"
+    },
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "affine.yield",
+      "ordinal": 14,
+      "status": "known_no_effect"
+    },
+    {
+      "effects": [
+        {
+          "kind": "read",
+          "operand_index": 0,
+          "value": "gemv:op1:r0"
+        }
+      ],
+      "function": "gemv",
+      "op_name": "affine.load",
+      "ordinal": 15,
+      "status": "known"
+    },
+    {
+      "effects": [],
+      "function": "gemv",
+      "op_name": "func.return",
+      "ordinal": 16,
+      "status": "known_no_effect"
+    }
+  ],
+  "operations": [
+    {
+      "function": "gemv",
+      "op_name": "arith.constant",
+      "ordinal": 0
+    },
+    {
+      "function": "gemv",
+      "op_name": "memref.alloca",
+      "ordinal": 1
+    },
+    {
+      "function": "gemv",
+      "op_name": "memref.alloca",
+      "ordinal": 2
+    },
+    {
+      "function": "gemv",
+      "op_name": "memref.alloca",
+      "ordinal": 3
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.for",
+      "ordinal": 4
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.for",
+      "ordinal": 5
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.load",
+      "ordinal": 6
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.load",
+      "ordinal": 7
+    },
+    {
+      "function": "gemv",
+      "op_name": "arith.mulf",
+      "ordinal": 8
+    },
+    {
+      "function": "gemv",
+      "op_name": "arith.addf",
+      "ordinal": 9
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.yield",
+      "ordinal": 10
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.if",
+      "ordinal": 11
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.store",
+      "ordinal": 12
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.yield",
+      "ordinal": 13
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.yield",
+      "ordinal": 14
+    },
+    {
+      "function": "gemv",
+      "op_name": "affine.load",
+      "ordinal": 15
+    },
+    {
+      "function": "gemv",
+      "op_name": "func.return",
+      "ordinal": 16
+    }
+  ],
+  "schema": "mailohls-native-analysis-v3",
+  "verification": {
+    "after": true,
+    "before": true,
+    "unchanged": true
+  },
+  "views": []
+}

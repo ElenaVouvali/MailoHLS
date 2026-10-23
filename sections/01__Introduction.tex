@@ -1,0 +1,134 @@
+\section{Introduction}
+
+Hardware accelerators are increasingly deployed across cloud and edge environments, with field-programmable gate arrays (FPGAs) playing a key role because of their flexibility and energy efficiency. Cloud platforms such as Microsoft Project Catapult~\cite{putnam2014reconfigurable} and Amazon EC2 FPGA instances~\cite{amazon_f1_instance}, as well as edge applications in networking~\cite{chamola2020fpga} and robotics~\cite{wan2021survey}, illustrate the breadth of FPGA deployment.
+
+Despite these advantages, designing efficient FPGA accelerators remains challenging. High-Level Synthesis (HLS) raises the abstraction level from register-transfer level (RTL) design to C/C++-like specifications~\cite{cong2011hls}, but the generated microarchitecture remains strongly determined by compiler directives (a.k.a. \textit{pragmas}) controlling loop parallelism, pipelining, and memory organization. Consequently, quality of results (QoR), including latency and resource utilization, critically depends on selecting effective combinations of these directives. Directive effects are highly interdependent: for example, loop unrolling can expose parallelism only when the memory system supplies sufficient bandwidth, which may in turn require coordinated array partitioning. The same configuration can also behave differently under another FPGA, resource budget, or target clock. HLS pragma optimization is therefore a large target-constrained design problem whose configurations are expensive to evaluate through synthesis.
+
+Prior work automates pragma selection primarily through design-space exploration (DSE). Synthesis-driven methods repeatedly evaluate candidate
+configurations with the HLS tool~\cite{mahapatra2014machine,
+sengupta2015user,ferretti2018lattice,ferretti2018cluster, sohrabizadeh2020autodse}; learned surrogates reduce this cost by predicting QoR from program representations~\cite{dai2018fast,makrani2019xppe, lin2020hl,sohrabizadeh2022automated,sohrabizadeh2023harp}; and knowledge-driven methods reuse measurements from previously explored designs~\cite{ferretti2020leveraging,ferikoglou2024collectivehls}.
+These approaches have substantially reduced exploration cost, but they typically retain an explicit optimization loop: candidate configurations are
+generated, scored, and compared before a design is selected. Moreover, the
+mapping from directives to QoR is target dependent. A configuration learned
+for one FPGA, resource envelope, or clock need not remain appropriate for another. This motivates a complementary question: can the optimization process itself be learned as a direct policy
+\[
+(\text{program},\text{objective},\text{device},\text{budget},\text{clock})
+\rightarrow \text{directive configuration},
+\]
+without requiring online exploration to select each design?
+
+Large Language Models (LLMs) provide a natural starting point because they
+encode source-level semantics and can interpret optimization intent expressed
+in the request~\cite{pan2025survey}. Recent HLS systems exploit prompting, retrieval, fine-tuning, or LLM-guided exploration~\cite{xiong2024hlspilot,
+prakriya2025lift,wang2025llmdse,xu2026mpmllm4dse}. However, source tokens do
+not explicitly expose many relations that determine whether a pragma is useful:
+loop nesting and dependences, the memory object reached by an access, aliasing,
+or the bandwidth coupling between an unrolled loop and the arrays it consumes.
+Prompting and RAG can describe such principles textually, but they do not bind
+each directive decision to the corresponding compiler relation. Conversely, graph-language models such as ProgSG~\cite{bai2023progsg} demonstrate that source and compiler representations are complementary, but use their joint
+representation primarily for QoR prediction and subsequent DSE rather than
+for direct target-conditioned directive selection.
+
+\framework addresses this problem through three complementary abstractions:
+\emph{source-derived directive action points}, an explicit \emph{target-conditioned policy}, and \emph{action-aligned compiler memory}.
+Rather than generating arbitrary HLS code, the model chooses directive values
+only at deterministic loop and array locations identified from the source.
+Every choice is conditioned on the requested objective, FPGA, independent
+BRAM/DSP/FF/LUT budgets, and target clock.
+
+
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Positioning of representative HLS optimization methods.}
+}
+\label{tab:method-positioning}
+\scriptsize
+\setlength{\tabcolsep}{2.7pt}
+\renewcommand{\arraystretch}{1.05}
+
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} &
+\textbf{Direct} &
+\textbf{Structural Infer.} &
+\textbf{Target} &
+\textbf{Online DSE} \\
+\midrule
+AutoDSE~\cite{sohrabizadeh2020autodse}
+    & -- & -- & -- & \checkmark \\
+HARP~\cite{sohrabizadeh2023harp}
+    & -- & \checkmark & -- & \checkmark \\
+ProgSG~\cite{bai2023progsg}
+    & -- & \checkmark & -- & \checkmark \\
+HLSPilot~\cite{xiong2024hlspilot}
+    & -- & -- & -- & \checkmark \\
+LIFT~\cite{prakriya2025lift}
+    & \checkmark & --$^\dagger$ & -- & -- \\
+LLM-DSE~\cite{wang2025llmdse}
+    & -- & -- & -- & \checkmark \\
+MPM-LLM4DSE~\cite{xu2026mpmllm4dse}
+    & -- & \checkmark & -- & \checkmark \\
+ScaleHLS~\cite{ye2022scalehls}
+& -- & \checkmark & $\circ$ & \checkmark \\
+\textbf{\framework}
+    & \textbf{\checkmark}
+    & \textbf{\checkmark}
+    & \textbf{\checkmark}
+    & \textbf{--} \\
+\bottomrule
+\end{tabular}
+
+\vspace{1pt}
+\parbox{0.98\columnwidth}{\scriptsize
+$^\dagger$LIFT uses GNN structural supervision during training, but does not
+query that GNN as structural memory during LLM inference.
+$\circ$ScaleHLS accepts target/resource constraints as a compiler-DSE input;
+the symbol distinguishes this from learned device/budget/clock conditioning.}
+\end{table}
+
+\EV{Should i add objective awareness as a column? DSE methods accept target as input or no? Should i further explain ScaleHLS in my main text in Related work? Reference to this table in the main text?}
+
+
+Training separates semantic adaptation from structural grounding. Stage~1 learns target-conditioned directive selection from source code, while a separately trained edge-aware GNN learns QoR-supervised structured-MLIR representations. Stage~2 freezes the Stage~1 policy and learns gated, action-routed cross-attention to these representations.
+Stage~3 completes training with same-context whole-design preference alignment. At deployment, a specified-clock request produces one complete directive configuration without selection-time HLS; synthesis is used only to validate and measure the emitted design.
+
+
+
+% Training deliberately separates semantic adaptation from structural grounding.
+% Stage~1 fine-tunes a decoder-only code model to learn the target-conditioned
+% directive task without compiler-graph input. Independently, an edge-aware GNN
+% is trained to predict synthesized QoR from a structured MLIR representation~\cite{lattner2021mlir}. This QoR task is used as \emph{representation supervision}: at directive inference time, the prediction
+% heads are discarded and only the hidden embeddings associated with source action points are retained. Stage~2 freezes the Stage~1 policy and learns gated cross-attention that exposes these embeddings only when directive values are selected. Stage~3 then preference-aligns complete directive configurations within the same target context.
+
+% This staging makes the role of compiler structure experimentally identifiable:
+% the same Stage~1 policy can be evaluated with no structural information, zero-valued memory, shuffled action memory, or correctly aligned memory.
+% For specified-clock requests, the final system emits one complete directive
+% configuration in a single policy invocation and requires no HLS feedback during selection. HLS is invoked only afterward to validate and measure the emitted design. Requests without a clock use a separate lightweight clock selector
+% before invoking the unchanged specified-clock policy.
+
+% At deployment, \framework does not require iterative HLS feedback to choose the next configuration. HLS is used to validate and measure the final emitted design; \S\ref{sec:results} reports this validation cost separately from selection-time HLS calls.
+
+The main contributions of this work are:
+
+\begin{itemize}[leftmargin=*,topsep=2pt,itemsep=2pt]
+\item \textbf{Direct target-conditioned pragma prediction.}
+We formulate HLS optimization as structured prediction over
+source-derived loop/array actions conditioned on objective, FPGA,
+component-wise resource budgets, and clock.
+
+\item \textbf{Action-aligned compiler grounding.}
+A QoR-supervised structured-MLIR GNN exports pragma-free action
+embeddings that are routed only to structurally relevant directive
+decisions, without using GNN QoR predictions for online search or
+reranking.
+
+\item \textbf{Controlled synthesized evaluation.}
+Matched semantic-only, memory-alignment, representation, and target
+controls isolate where the gains originate, while end-to-end
+comparisons quantify QoR, feasibility, generalization, and online
+HLS cost.
+\end{itemize}
+
+Together, these results show that high-quality direct pragma prediction
+benefits from both target-aware semantic adaptation and explicit compiler-structural grounding, while avoiding an online HLS search loop.

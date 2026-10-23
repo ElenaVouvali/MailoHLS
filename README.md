@@ -1,280 +1,57 @@
 # MailoHLS
 
-MailoHLS is a pipeline for **structure-aware HLS design-space
-optimization**. It combines two complementary models:
+MailoHLS learns to generate HLS pragma configurations from kernel structure,
+optimization objectives, target FPGA, clock period, and available resources.
+The current implementation uses MLIR semantic graphs and GNN structural memory
+to condition an LLM. The paper also refers to this system as SALT-HLS.
 
-- an edge-aware GNN learns kernel structure and predicts latency/area from a 
-  MLIR graph and a pragma configuration;
-- an LLM generates a complete legal pragma assignment for a kernel, objective,
-  target FPGA, clock period, and resource budget.
+## Two versions, one repository
 
-The final system uses action-aligned GNN representations as structural
-memory for the LLM. 
+| Branch | Implementation |
+| --- | --- |
+| [`main`](https://github.com/ElenaVouvali/MailoHLS/tree/main) | Current MLIR graphs, action-aligned multiscale GNN memory, target-aware SFT, structural cross-attention, DPO, clock selection, and device adaptation. |
+| [`llvm-ir`](https://github.com/ElenaVouvali/MailoHLS/tree/llvm-ir) | Original LLVM IR / ProGraML / GNN implementation, based on the `MailoHLS_paper_v1` snapshot (`c9b2f43`). |
 
-```mermaid
-flowchart TD
-    A["C/C++ kernels"] --> C["MLIR semantic graphs"]
-    B["HLS measurements"] --> D["Target-specific QoR tables"]
-    C --> E["Edge-aware GNN"]
-    D --> E
-    E --> F["Action-aligned structural memory"]
-    D --> G["Target-aware SFT examples"]
-    F --> H["LLM pragma generator"]
-    G --> H
-```
+Use one checkout and switch versions with `git switch main` or
+`git switch llvm-ir`. Commit or stash source changes before switching. The
+previous `stage2-analysis-refactor` branch is incorporated into `main`; a
+separate `MailoHLS-next` worktree is no longer required.
 
-## Repository map
+## Implementation map
 
-```text
-Data/
-├── ApplicationDataset/          labeled C/C++ sources and kernel_info.txt
-├── ApplicationAPLMapping/       synthesis-CSV column -> source action ID
-├── ApplicationInformation.csv   top function and source-file metadata
-└── CSVS/                        raw multi-device/multi-clock HLS measurements
+| Path | Purpose |
+| --- | --- |
+| `Data/` | Kernel sources, action mappings, and original HLS measurements. |
+| `Preprocessing/` | Target-aware preprocessing, SFT examples, and family splits. |
+| `GNN_branch/` | MLIR graph construction, GNN training, and memory export. |
+| `LLM_branch/common/` | Prompt contracts, structural attention, and device-adaptation checkpoints. |
+| `LLM_branch/train/` | SFT and DPO training. |
+| `LLM_branch/inference/`, `LLM_branch/clock_adapt/` | Generation, evaluation, and automatic clock selection. |
+| `scripts/reproduction/`, `run_final_*.sh` | Reproduction and experiment entry points. |
+| `FINAL_ARTIFACTS.json` | Selected checkpoint and memory paths, including pending objectives. |
+| `HARP-rep/`, `HARP-paper-rep/` | Vendored baseline source, licenses, measurements, and local reproduction changes. |
 
-Preprocessing/
-├── data_preprocess.py           validated GNN/LLM QoR preprocessing
-└── create_jsonl.py              deterministic target-aware SFT builder
+Historical source and checkpoint provenance code are retained. Generated model
+weights, tensor caches, intermediate checkpoints, tokenizer copies, training
+logs, and temporary files are excluded from Git.
 
-GNN_branch/
-├── mlir_graph_gen.py            one source kernel -> one semantic GEXF graph
-├── generate_mlir_dataset.py     reproducible 55-kernel graph driver
-├── mlir_data.py                 GEXF + QoR points -> PyG samples
-├── model.py                     edge-aware TransformerConv architecture
-├── train_GNN.py                 training, model selection, and evaluation
-├── main_GNN.py                  command-line entry point
-└── MLIR_graphs/                 published graphs, audit MLIR, logs, manifest
+## Setup and reproduction
 
-LLM_branch/train/
-└── train_SFT_xattn_new.py       target-aware Stage-1/Stage-2 SFT trainer
-```
+Install the dependencies from `requirements.txt` in an isolated environment.
+MLIR graph generation additionally requires the pinned Polygeist toolchain;
+follow [`toolchain/README.md`](toolchain/README.md). The detailed pipeline guide
+is [`docs/mlir-pipeline.md`](docs/mlir-pipeline.md).
 
-Older HARP graph builders, SFT scripts, and inference scripts are retained as
-research history. The files named above define the current path.
-
-## 1. Environment
-
-Create a Python environment:
+The shared experiment preparation entry point is:
 
 ```bash
-python3 -m venv .hls-llm
-source .hls-llm/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+bash scripts/reproduction/prepare_final_experiment.sh
 ```
 
-`requirements.txt` records the development environment. 
+Inspect the paths and parameters in `scripts/reproduction/run_final_gnn.sh`,
+`run_final_mailohls_stage1.sh`, and `run_final_mailohls_stage2_specified.sh`
+before launching training. Model weights and processed tensors must be generated
+or supplied separately; cloning this repository does not download them.
 
-<!-- PyTorch/CUDA wheels may need to be selected for the local GPU before installing the remaining packages. -->
-
-### Reproducible compiler toolchain
-
-MLIR graph generation requires the pinned, patched Polygeist compiler, its
-Python 3.11 MLIR bindings, and the CMake-built `_mailohls_analysis` extension.
-The PyPI package named `mlir` is unrelated. The complete source lock and patch
-chain live in [`toolchain/`](toolchain/): `lock.env` pins Polygeist and its
-`llvm-project` submodule, `SHA256SUMS` authenticates the ordered patches, and
-the scripts never install or copy a prebuilt shared object.
-
-Install Python 3.11 and `pybind11==2.10.3`, then build into paths of your choice:
-
-```bash
-python3.11 -m venv .toolchain-python
-.toolchain-python/bin/pip install pybind11==2.10.3
-
-PYTHON="$PWD/.toolchain-python/bin/python" \
-  toolchain/bootstrap.sh ../Polygeist-mailohls ../Polygeist-mailohls-build
-```
-
-The build is Release-with-assertions, targets the host, enables Clang, MLIR,
-and MLIR Python bindings, and disables optional CUDA, ROCm, and Polymer support.
-Override `CC`, `CXX`, `PYTHON`, or `BUILD_JOBS` when necessary; missing or
-incompatible tools produce an actionable error. Versions used for the locked
-validation are recorded in `toolchain/lock.env`.
-
-Point commands at the resulting build:
-
-```bash
-export POLYGEIST_BUILD="$PWD/../Polygeist-mailohls-build"
-export CGEIST="$POLYGEIST_BUILD/bin/cgeist"
-export MLIR_PYTHON="$PWD/.toolchain-python/bin/python"
-export MLIR_PYTHON_ROOT="$POLYGEIST_BUILD/tools/mlir/python_packages/mlir_core"
-export PYTHONHASHSEED=0
-export PYTHONPATH="$MLIR_PYTHON_ROOT"
-
-"$CGEIST" --help | grep mailohls-action-manifest
-"$MLIR_PYTHON" - <<'PY'
-from mlir import ir
-from mlir._mlir_libs import _mailohls_analysis
-print("MLIR bindings:", ir.__file__)
-print("MailoHLS analysis:", _mailohls_analysis.__file__)
-PY 
-```
-
-Run the full compiler regressions and an end-to-end graph smoke test with:
-
-```bash
-PYTHON="$MLIR_PYTHON" toolchain/verify.sh \
-  ../Polygeist-mailohls "$POLYGEIST_BUILD" ./toolchain-smoke
-```
-
-This rechecks every patch against the pinned base, imports the native analysis
-module, runs its targeted tests plus `check-cgeist` and
-`check-polygeist-opt`, and generates a representative `bbgemm.gexf`. See
-[`toolchain/README.md`](toolchain/README.md) for the patch inventory and exact
-lock details.
-
-## 2. Preprocess HLS measurements
-
-`Data/CSVS/` is the immutable measurement source. The action metadata chain is:
-
-```text
-synthesis CSV column -> ApplicationAPLMapping -> kernel_info.txt -> source label
-```
-
-An active directive is accepted only when that chain is complete.
-
-### GNN labels: one hardware target
-
-The graph represents the kernel and pragma configuration; therefore the GNN
-uses one device/clock so identical inputs do not receive conflicting QoR labels.
-
-```bash
-python Preprocessing/data_preprocess.py \
-  --mode gnn \
-  --device xczu7ev-ffvc1156-2-e \
-  --clock-period-ns 10.0 \
-  --force
-```
-
-### LLM labels: all measured targets
-
-The target-aware LLM retains every device and clock and computes Pareto weights
-within each hardware target:
-
-```bash
-python Preprocessing/data_preprocess.py --mode llm --force
-
-python Preprocessing/create_jsonl.py --force
-```
-
-The second command writes `artifacts/llm/mailohls_sft.jsonl`: complete directive assignments plus
-  device, clock, QoR, utilization, and a compact source key;
-
-
-## 3. Generate MLIR graphs
-
-```bash
-PYTHONHASHSEED=0 PYTHONPATH="$MLIR_PYTHON_ROOT" \
-"$MLIR_PYTHON" GNN_branch/generate_mlir_dataset.py \
-  --force --keep-mlir
-```
-
-| Relation | Information represented |
-|---|---|
-| Structure/control | functions, regions, blocks, order, loops, and calls |
-| SSA data flow | operands/results, block arguments, and loop-carried values |
-| Memory | allocations, views, exact aliases, pairwise uncertain aliases, effects, and accesses |
-| Dependences | proven affine RAW/WAR/WAW and explicitly marked conservative fallbacks |
-| HLS actions | source-grounded pipeline, unroll, and array-partition scopes |
-
-
-## 4. Build the PyG cache and train the GNN
-
-The first run after any graph/feature change must include `--force_regen`:
-
-```bash
-export CUBLAS_WORKSPACE_CONFIG=:4096:8
-
-PYTHONHASHSEED=0 python GNN_branch/main_GNN.py \
-  --dataset mlir \
-  --subtask train \
-  --force_regen \
-  --epoch_num 200 \
-  --random_seed 123 \
-  --experiment_name gnn_train_seed123 \
-  --standardize_targets \
-  --kernel_balanced_loss \
-  --kernel_uniform_sampling \
-  --scheduler plateau \
-  --warmup_epochs 3 \
-  --plateau_patience 4 \
-  --early_stopping_patience 25 \
-  --val_kernels machsuite-sort-radix,rodinia_pathfinder_0_baseline_0,rodinia_pathfinder_4_doublebuffer_0 \
-  --test_kernels serrano-kalman-filter
-```
-
-The GNN reports inverse-transformed physical latency/area metrics, per-kernel
-macro averages, and Kendall tau-b. The selected model must beat both the
-training-mean baseline and the seeded untrained model on every validation target
-before test evaluation is permitted.
-
-## 5. Train the target-aware LLM
-
-### Stage 1: directive-only baseline
-
-This stage is runnable after creating the JSONL and does not require GNN memory:
-
-```bash
-python LLM_branch/train/train_SFT_xattn_new.py \
-  --dataset artifacts/llm/mailohls_sft.jsonl \
-  --objective ALL \
-  --run_mode single \
-  --disable_structural_memory \
-  --device_mode known \
-  --device_token_dropout 0 \
-  --top_k 1 \
-  --auto_frequency_fraction 0 \
-  --output_dir checkpoints/sft_stage1 \
-  --save_split_json artifacts/llm/family_split.json \
-  --seed 123
-```
-
-The prompt conditions on device identity, exact clock, available resources, 
-and optimization objective;
-the target contains one deterministic value for every legal directive site.
-
-### Optional automatic-clock task
-
-The trainer can also ask the model to choose the best **measured** clock for the
-same kernel/device/resource budget (disabled by default). It uses `<CLK=AUTO>`, 
-lists the supported clock candidates, and emits `selected_clock_period_ns` before 
-the directives:
-
-### Stage 2: structural-memory conditioning
-
-Stage 2 should begin only after the current GNN checkpoint can be exported as
-one deterministic, zero-pragma, action-aligned memory pack per kernel. The
-export must record graph/feature/checkpoint hashes and reject missing action
-slots. 
-
-## Additive Stage-3 complete-design reranking
-
-The existing DPO Stage-3 remains available. The alternative path streams
-Stage-2 candidates to a resumable bank (one JSON object per candidate):
-
-```bash
-PYTHONPATH=. CUDA_VISIBLE_DEVICES=0 python -u LLM_branch/inference/eval_stage1_stage2_stage3.py \
-  --stage stage2 --adapter_dir "$STAGE2_CHECKPOINT" --memory_dir "$MEMORY_BANK" \
-  --input_jsonl "$CASES_JSONL" --num_samples 32 --sample_temperature 0.8 \
-  --candidate_bank_jsonl runs/stage3/candidates.jsonl \
-  --output_jsonl runs/stage3/predictions.jsonl
-```
-
-Re-running the command resumes the append-only bank and skips records already
-written. Join that bank to measured configurations with
-`exact_join_candidates`; unmatched promising rows are intentionally returned
-as a synthesis queue, never assigned nearest-neighbour QoR. Tensorize the
-labelled pairs and train the independent ranker:
-
-```bash
-PYTHONPATH=. CUDA_VISIBLE_DEVICES=0 python -m LLM_branch.train.train_whole_design_reranker \
-  --pairs runs/stage3/pairs.jsonl --output_dir runs/stage3/ranker \
-  --epochs 10 --batch_size 64
-```
-
-On an NVIDIA A2 (16 GB), keep Stage-2 generation batch size at one, use
-`--num_samples 16–32`, and use gradient accumulation when tensorizing/training
-the small ranker. Select the highest ranker score within each exact context,
-then synthesize the emitted queue; the resulting QoR is the acceptance test
-for claiming improvement over Stage-2.
+See [`docs/repository-layout.md`](docs/repository-layout.md) for the cleanup
+policy and [`docs/paper-draft.md`](docs/paper-draft.md) for the manuscript notes.

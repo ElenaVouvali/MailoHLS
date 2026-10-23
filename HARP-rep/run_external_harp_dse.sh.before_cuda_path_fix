@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+ROOT=/home/elvouvali/HARP-paper-rep-unseen4
+SRC="$ROOT/src"
+
+REG="$ROOT/final_unseen4_checkpoints/harp_regression_unseen4_s123_best_val.pth"
+CLS="$ROOT/final_unseen4_checkpoints/harp_classifier_unseen4_s123_best_val.pth"
+
+OUT="$ROOT/external_harp_dse_results"
+mkdir -p "$OUT"
+
+# Previously verified V100 on liono.
+V100_UUID="GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb"
+
+export CUDA_VISIBLE_DEVICES="$V100_UUID"
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
+export PYTHONHASHSEED=123
+export DGLBACKEND=pytorch
+
+cd "$SRC" || exit 1
+
+echo "============================================================"
+echo "External HARP zero-shot DSE"
+echo "Started: $(date -Is)"
+echo "GPU: $CUDA_VISIBLE_DEVICES"
+echo "Regression: $REG"
+echo "Classifier: $CLS"
+echo "============================================================"
+
+nvidia-smi \
+  --query-gpu=index,uuid,name,memory.used,memory.total \
+  --format=csv || true
+
+run_kernel () {
+    K="$1"
+    STDOUT="$OUT/${K}.stdout.log"
+    EXITFILE="$OUT/${K}.exitcode"
+    LOGDIRFILE="$OUT/${K}.logdir"
+
+    echo
+    echo "################################################################"
+    echo "START $K : $(date -Is)"
+    echo "################################################################"
+
+    python -u -W ignore main.py \
+      --task regression \
+      --subtask dse \
+      --target_kernel "$K" \
+      --all_kernels "" \
+      --model_path "$REG" \
+      --class_model_path "$CLS" \
+      --graph_type extended-pseudo-block-connected-hierarchy \
+      --dataset harp \
+      --v_db v21 \
+      --random_seed 123 \
+      --device cuda:0 \
+      2>&1 | tee "$STDOUT"
+
+    CODE=${PIPESTATUS[0]}
+    echo "$CODE" > "$EXITFILE"
+
+    LOGDIR=$(
+      grep -m1 '^Logging to ' "$STDOUT" \
+      | sed 's/^Logging to //'
+    )
+
+    if [ -n "$LOGDIR" ]; then
+        echo "$LOGDIR" > "$LOGDIRFILE"
+
+        echo
+        echo "HARP log directory:"
+        echo "$LOGDIR"
+
+        if [ -f "$LOGDIR/${K}.pickle" ]; then
+            cp \
+              "$LOGDIR/${K}.pickle" \
+              "$OUT/${K}_top10.pickle"
+
+            echo "COPIED TOP10: $OUT/${K}_top10.pickle"
+        else
+            echo "WARNING: $LOGDIR/${K}.pickle not found"
+        fi
+    else
+        echo "WARNING: could not identify HARP log directory"
+    fi
+
+    echo
+    echo "FINISH $K : $(date -Is)"
+    echo "EXIT $K = $CODE"
+    echo
+
+    return "$CODE"
+}
+
+# Higher-priority external application first.
+run_kernel gan
+GAN_CODE=$?
+
+# Continue to Kalman even if GAN fails.
+run_kernel kalman
+KALMAN_CODE=$?
+
+{
+    echo "gan=$GAN_CODE"
+    echo "kalman=$KALMAN_CODE"
+    echo "finished=$(date -Is)"
+} > "$OUT/queue_summary.txt"
+
+echo
+echo "============================================================"
+echo "QUEUE COMPLETE"
+cat "$OUT/queue_summary.txt"
+echo "============================================================"

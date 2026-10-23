@@ -1,0 +1,20 @@
+\section{Discussion and Limitations}
+\label{sec:limitations}
+
+\paragraph{What the learned components represent.}
+The revised system makes the division of labor more explicit than the MICRO presentation. The language-model policy receives source code and the user-visible optimization context (objective, device, resource budget, and clock). The GNN receives compiler-derived program structure and is trained with QoR/resource labels so that its hidden states become sensitive to HLS-relevant structural differences. The final policy consumes these embeddings through cross-attention; it does not query the GNN's predicted QoR as an inference-time oracle. This distinction improves reproducibility of the architecture but does not imply that the two learned representations are perfectly disentangled.
+
+\paragraph{Generality is bounded by the evaluated targets.}
+Explicit target tokens and resource vectors make cross-device/frequency adaptation possible, but they do not by themselves guarantee generalization to an arbitrary FPGA or HLS toolchain. QoR distributions, timing behavior, legal transformations, and compiler heuristics can change substantially across tools and device families. \asplostodo{State exactly which transfer settings are zero-shot, which use few-shot adaptation, and which remain untested. If no alternative Vitis version or Intel flow is evaluated, say so directly.}
+
+\paragraph{Constrained action space.}
+\framework predicts within source-derived loop/array directive domains rather than synthesizing arbitrary source transformations. This improves robustness and makes fair controlled learning possible, but it also limits the optimizer to the supported pragma family and eligible action sites. More aggressive source rewriting, dataflow restructuring, tiling, interface transformations, and HLS-specific refactoring remain outside the current action space.
+
+\paragraph{Structural-memory scale.}
+The present implementation uses a fixed maximum number of action-aligned slots. This is sufficient for the current benchmark distribution but may truncate larger programs with many independently tunable actions. \asplostodo{Report active-slot histogram, maximum/percentile action count, truncation frequency, and performance versus action-space/cyclomatic complexity. If truncation is zero in all evaluated kernels, state that instead of speculating.}
+
+\paragraph{No synthesis guarantee.}
+Constraining placement and RHS domains prevents many malformed generations, but the final directive configuration is not correct-by-construction with respect to timing, resource feasibility, or functionality. HLS and, where required, post-implementation verification remain the source of ground truth. The benefit claimed by \framework is that these expensive tools need not form an iterative feedback loop for selecting the initial configuration.
+
+\paragraph{Future extensions.}
+Natural extensions include uncertainty-aware structural memory, broader source transformations, adaptation to additional FPGA/toolchain families, device-feature conditioning within the structural encoder, and optional post-routing feedback for timing-sensitive optimization. These are deliberately separated from the submitted system unless backed by completed experiments.
