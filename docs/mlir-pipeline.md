@@ -164,6 +164,14 @@ The second command writes `artifacts/llm/mailohls_sft.jsonl`: complete directive
 
 ## 3. Generate MLIR graphs
 
+For an individual C++ top without C linkage, `mlir_graph_gen.py` accepts
+`--compiler-symbol EXACT_MANGLED_SYMBOL`. This changes only cgeist's function
+selector. Keep `kernel_info.txt` and `--kernel` at the original source-level
+name. The explicit symbol is recorded in graph provenance; source/action hashes
+and exact action validation remain required. Omitting this option preserves the
+existing selection behavior. R0's GAN example uses source-level
+`forward_propagation` and compiler symbol `_Z19forward_propagationPfS_`.
+
 ```bash
 PYTHONHASHSEED=0 PYTHONPATH="$MLIR_PYTHON_ROOT" \
 "$MLIR_PYTHON" GNN_branch/generate_mlir_dataset.py \

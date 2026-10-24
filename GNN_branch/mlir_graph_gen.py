@@ -548,6 +548,10 @@ def encode_graph_metadata(graph: nx.MultiDiGraph) -> str:
             for key in PERSISTED_GRAPH_METADATA_KEYS
         },
     }
+    # Optional frontend selection provenance must not become a new requirement
+    # for existing graphs or callers using the unchanged C-linkage path.
+    if graph.graph.get("compiler_symbol") is not None:
+        metadata["compiler_symbol"] = str(graph.graph["compiler_symbol"])
     return GRAPH_METADATA_PREFIX + json.dumps(
         metadata,
         sort_keys=True,
@@ -5083,17 +5087,26 @@ def build_cgeist_command(
     mlir_output: Path,
     action_manifest: Path,
     cflags: Sequence[str],
+    compiler_symbol: str | None = None,
 ) -> list[str]:
-    """Return the command used for every dataset example."""
+    """Keep the source-level kernel identity separate from frontend selection.
+
+    C++ tops without C linkage may require an exact mangled symbol. Make that
+    mapping explicit instead of guessing among overloads or rewriting source.
+    Existing callers continue to select the unchanged source-level name.
+    """
     if not kernel or kernel == "*":
         raise ValueError("--kernel must name exactly one C/C++ top function")
+    selected_symbol = compiler_symbol if compiler_symbol is not None else kernel
+    if compiler_symbol is not None and not re.fullmatch(r"[A-Za-z_.$][A-Za-z0-9_.$]*", compiler_symbol):
+        raise ValueError("Compiler selection must name exactly one symbol, without wildcards or flags")
     return [
         executable,
         # compile_source_to_mlir runs with cwd=source.parent.  Passing only the
         # basename prevents machine-specific absolute paths entering the IR.
         source.name,
         *validate_cgeist_flags(cflags),
-        f"-function={kernel}",
+        f"-function={selected_symbol}",
         "-S",
         "-O0",
         # ARRAY_PARTITION action points must remain represented as MemRefs.
@@ -5122,6 +5135,7 @@ def compile_source_to_mlir(
     action_manifest: Path,
     cgeist: str,
     cflags: Sequence[str],
+    compiler_symbol: str | None = None,
 ) -> tuple[list[str], str]:
     """Run Polygeist and return (command, MLIR text)"""
     if not source.is_file():
@@ -5139,6 +5153,7 @@ def compile_source_to_mlir(
         mlir_output=mlir_output,
         action_manifest=action_manifest,
         cflags=cflags,
+        compiler_symbol=compiler_symbol,
     )
     completed = subprocess.run(
         command,
@@ -5177,13 +5192,25 @@ def compile_source_to_mlir(
             ".C",
         }:
             cpp_hint = (
-                ' The selected top is C++; declare it extern "C" '
-                "or provide the exact mangled symbol understood by cgeist."
+                " The selected top is C++; use --compiler-symbol with its "
+                "exact mangled symbol while keeping --kernel and metadata unchanged."
             )
         raise RuntimeError(
             f"Polygeist produced no function body for "
             f"kernel {kernel!r}.{cpp_hint}"
         )
+
+    if compiler_symbol is not None:
+        # Do not accept an unrelated helper body as evidence that the explicit
+        # top selection succeeded. Later native analysis still validates every
+        # action against exact source locations.
+        symbol = re.escape(compiler_symbol)
+        selected_top = re.compile(rf'@(?:{symbol}|"{symbol}")\s*\(')
+        if not any(selected_top.search(header) for header in function_body_re.findall(text)):
+            raise RuntimeError(
+                f"Polygeist did not emit the selected compiler symbol {compiler_symbol!r} "
+                f"for source-level kernel {kernel!r}"
+            )
 
     return command, text
 
@@ -5311,6 +5338,7 @@ def run(args: argparse.Namespace) -> Path:
             action_manifest=action_manifest,
             cgeist=args.cgeist,
             cflags=cflags,
+            compiler_symbol=args.compiler_symbol,
         )
 
         if args.mlir_output:
@@ -5348,6 +5376,8 @@ def run(args: argparse.Namespace) -> Path:
 
         try:
             initial = result.graph
+            if args.compiler_symbol is not None:
+                initial.graph["compiler_symbol"] = args.compiler_symbol
             initial.graph.update(
                 {
                     "kernel": kernel,
@@ -5423,6 +5453,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--kernel",
         default=None,
         help="Optional top-function override (default: first line of kernel_info.txt).",
+    )
+    parser.add_argument(
+        "--compiler-symbol",
+        default=None,
+        help=(
+            "Exact cgeist top symbol for a C++ function with name mangling. "
+            "Does not change the source-level kernel_info/--kernel identity. "
+            "Default: use the source-level name, preserving existing behavior."
+        ),
     )
     parser.add_argument(
         "--output",
