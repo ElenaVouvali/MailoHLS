@@ -1,1 +1,1 @@
-"""Controlled local-refinement experiments; no changes to the SALT policy."""
+"""Compiler-grounded local refinement with explicit synthesis budgets."""

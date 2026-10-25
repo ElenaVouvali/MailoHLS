@@ -1,4 +1,8 @@
-"""Derive finite directive proposal domains from source/action metadata only."""
+"""Shared source domains: checkpoint-compatible defaults and explicit TCAD policy.
+
+Policy identifiers remain stable for saved contracts. Mathematical factors and
+dimension-aware tuples are implemented once here, rather than in versioned files.
+"""
 
 from __future__ import annotations
 
@@ -149,7 +153,7 @@ def prepare_source_template(
     return source_text
 
 
-def source_site_domains(
+def legacy_site_domains(
     kernel_name: str,
     source_text: str,
     application_dataset_dir: str | Path | None = None,
@@ -192,7 +196,7 @@ def source_site_domains(
     return domains
 
 
-def build_source_domain_registry(
+def legacy_domain_registry(
     rows: Iterable[Mapping[str, Any]],
     application_dataset_dir: str | Path | None = None,
 ) -> dict[str, dict[str, list[str]]]:
@@ -215,3 +219,175 @@ def build_source_domain_registry(
     if not registry:
         raise ValueError("No source-derived directive domains could be built")
     return registry
+
+from functools import lru_cache
+from itertools import product
+from math import isqrt
+from types import SimpleNamespace
+from . import mailohls_contract as contract
+
+TCAD_SOURCE_DOMAIN_POLICY = "tcad_source_factors_v3"
+
+@lru_cache(maxsize=4096)
+def factor_values(n):
+    """Sorted immutable F(n); O(sqrt(n)) divisor enumeration, no 64/1024 caps."""
+    if isinstance(n, bool) or not isinstance(n, int) or n < 1:
+        raise ValueError('F(n) requires a resolved positive integer size')
+    values = set()
+    power = 2
+    while power <= n:
+        values.add(power)
+        power *= 2
+    if n > 1:
+        values.add(n)
+        if n & n - 1:
+            for divisor in range(2, isqrt(n) + 1):
+                if n % divisor == 0:
+                    values.add(divisor)
+                    values.add(n // divisor)
+    return tuple(sorted(values))
+
+@lru_cache(maxsize=4096)
+def action_tuples(action):
+    """Authoritative whole-action tuples, including disabled encodings."""
+    if action.kind == 'loop':
+        factors = (0, *factor_values(action.trip_count)) if action.trip_count is not None else (0,)
+        return tuple(((str(pipe), str(factor)) for (pipe, factor) in product((0, 1), factors)))
+    if action.kind != 'array' or not action.dimensions:
+        raise ValueError('Array metadata must resolve its positive dimension extents')
+    result = [('none', '0', '0')]
+    for (dimension, extent) in action.dimensions:
+        result.append(('complete', '0', str(dimension)))
+        result.extend(
+            (
+                (kind, str(factor), str(dimension)) for kind in ('block', 'cyclic') for factor in factor_values(extent)
+            )
+        )
+    return tuple(result)
+
+class SourceDomains(dict):
+    """Flat decoder vocabulary plus authoritative per-site tuple metadata."""
+
+    def __init__(self, values, actions):
+        super().__init__(values)
+        self.actions = actions
+        self.policy = TCAD_SOURCE_DOMAIN_POLICY
+
+KINDS = {'loop': ('PIPE', 'UNROLL'), 'array': ('ARRAY_T', 'ARRAY_F', 'ARRAY_D')}
+
+def domains_from_actions(actions):
+    domains = {}
+    for (label, action) in actions.items():
+        tuples = action_tuples(action)
+        for (index, kind) in enumerate(KINDS[action.kind]):
+            values = {row[index] for row in tuples}
+            domains[f'AUTO{{_{kind}_{label}}}'] = sorted(values, key=str if kind == 'ARRAY_T' else int)
+    return SourceDomains(domains, actions)
+
+def tcad_site_domains(kernel_name, source_text, application_dataset_dir=None):
+    actions = load_source_actions(kernel_name, application_dataset_dir)
+    domains = domains_from_actions(actions)
+    observed = {match[1].upper() for match in DIRECTIVE_RE.finditer(source_text)}
+    if observed != set(domains):
+        raise ValueError('Source/action placeholders do not match the TCAD action contract')
+    return SourceDomains(
+        {
+            match[1].upper(): domains[match[1].upper()] for match in DIRECTIVE_RE.finditer(source_text)
+        },
+        actions
+    )
+
+def tcad_domain_registry(rows, application_dataset_dir=None):
+    (result, sources) = ({}, {})
+    for row in rows:
+        name = str(row['kernel_name'])
+        key = normalize_kernel_name(name)
+        text = str(row.get('input', row.get('source_text', '')))
+        if not text or (key in sources and sources[key] != text):
+            raise ValueError('Missing/inconsistent source text for TCAD registry')
+        sources[key] = text
+        result[key] = tcad_site_domains(name, text, application_dataset_dir)
+    if not result:
+        raise ValueError('No TCAD source domains')
+    return result
+
+def filter_semantic_candidates(lhs, candidates, chosen_assignments, site_domains):
+    """Preserve a value iff a dimension-correct complete action can extend it."""
+    if not isinstance(site_domains, SourceDomains):
+        raise ValueError('TCAD filtering requires source action metadata, not a flat vocabulary alone')
+    match = DIRECTIVE_RE.fullmatch(lhs)
+    if not match:
+        raise ValueError('Malformed directive key')
+    (kind, label) = (match[2].upper(), match[3].upper())
+    action = site_domains.actions[label]
+    kinds = KINDS[action.kind]
+    keys = [f'AUTO{{_{field}_{label}}}' for field in kinds]
+    assignments = {key.upper(): str(value).strip().lower() for (key, value) in chosen_assignments.items()}
+    legal = []
+    for candidate in candidates:
+        value = str(candidate).strip().lower()
+        if value not in site_domains[lhs.upper()]:
+            continue
+        prefix = {key: assignments[key] for key in keys if key in assignments}
+        prefix[lhs.upper()] = value
+        if any(
+            (
+                all((prefix.get(key, entry) == entry for (key, entry) in zip(keys, option))) for option in action_tuples(action)
+            )
+        ):
+            legal.append(value)
+    if not legal:
+        raise ValueError(f'No source-aware TCAD completion for {lhs}')
+    return legal
+
+def validate_assignments(values, actions, baseline=None, allow_baseline_exceptions=False):
+    expected = {
+        f'AUTO{{_{kind}_{label}}}' for (label, action) in actions.items() for kind in KINDS[action.kind]
+    }
+    if set(values) != expected:
+        raise ValueError('Incomplete/extra directive fields')
+    contract.validate_directive_assignments(values)
+    exceptions = {}
+    for (label, action) in actions.items():
+        keys = [f'AUTO{{_{kind}_{label}}}' for kind in KINDS[action.kind]]
+        option = tuple((values[key] for key in keys))
+        if option not in action_tuples(action):
+            if allow_baseline_exceptions and baseline is not None and all((values[key] == baseline[key] for key in keys)):
+                exceptions[label] = {key: values[key] for key in keys}
+            else:
+                raise ValueError(f'Source-aware TCAD tuple violation at {label}: {option}')
+    return exceptions
+
+
+def source_site_domains(kernel_name, source_text, application_dataset_dir=None, *, policy="legacy"):
+    """Choose source domains explicitly; existing checkpoints keep legacy defaults."""
+    if policy in ("legacy", SOURCE_DOMAIN_POLICY):
+        return legacy_site_domains(kernel_name, source_text, application_dataset_dir)
+    if policy in ("tcad", TCAD_SOURCE_DOMAIN_POLICY):
+        return tcad_site_domains(kernel_name, source_text, application_dataset_dir)
+    raise ValueError("Unknown directive domain policy: " + str(policy))
+
+
+def build_source_domain_registry(rows, application_dataset_dir=None, *, policy="legacy"):
+    if policy in ("legacy", SOURCE_DOMAIN_POLICY):
+        return legacy_domain_registry(rows, application_dataset_dir)
+    if policy in ("tcad", TCAD_SOURCE_DOMAIN_POLICY):
+        return tcad_domain_registry(rows, application_dataset_dir)
+    raise ValueError("Unknown directive domain policy: " + str(policy))
+
+
+# This view supplies the existing train/inference contract interface without
+# duplicating domain implementations or relabeling historical checkpoints.
+tcad = SimpleNamespace(
+    SOURCE_DOMAIN_POLICY=TCAD_SOURCE_DOMAIN_POLICY,
+    MAX_UNROLL_FACTOR=None, MAX_PARTITION_FACTOR=None,
+    DEFAULT_APPLICATION_DATASET_DIR=DEFAULT_APPLICATION_DATASET_DIR,
+    load_source_actions=load_source_actions, prepare_source_template=prepare_source_template,
+    normalize_kernel_name=normalize_kernel_name, DIRECTIVE_RE=DIRECTIVE_RE,
+    SourceAction=SourceAction, SourceDomains=SourceDomains,
+    factor_values=factor_values, action_tuples=action_tuples,
+    domains_from_actions=domains_from_actions, source_site_domains=tcad_site_domains,
+    build_source_domain_registry=tcad_domain_registry,
+    filter_semantic_candidates=filter_semantic_candidates,
+    validate_assignments=validate_assignments,
+)

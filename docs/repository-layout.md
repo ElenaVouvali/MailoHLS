@@ -18,6 +18,24 @@ history or immediately shrink GitHub's historical repository storage.
 
 ## What belongs in Git
 
+Local refinement has one maintained package, `experiments/refinement/`, and one
+entry point, `python -m experiments.refinement.experiment`. Its four modules
+separate configurations, compiler evidence, synthesis and experiment execution.
+Do not add numbered experiment packages or duplicate policy implementations
+for each research update. Extend the existing modules and tests instead.
+
+The shared directive-domain module contains current TCAD factors and explicit
+checkpoint compatibility. Serialized policy/schema identifiers remain stable
+because existing checkpoints and artifacts refer to them; they are not separate
+implementation directories. Superseded experiment launchers were removed from
+the active tree. Exact historical code is recoverable through Git history and
+an ignored local source archive, while original measurements remain unchanged.
+
+Generated refinement reports, source snapshots, graphs, receipts and HLS
+projects belong under ignored `experiments/refinement/results/`. The user guide
+is `experiments/refinement/README.md`; it documents the current interface rather
+than a sequence of historical research milestones.
+
 Keep implementation, tests, source patches, compiler locks, kernel sources,
 measurement tables, evaluation results, experiment configurations, family splits,
 checkpoint contracts, and source provenance. The upstream HARP source and

@@ -13,11 +13,9 @@ to condition an LLM. The paper also refers to this system as SALT-HLS.
 | [`mlir-target`](https://github.com/ElenaVouvali/MailoHLS/tree/mlir-target) | Preserved organized MLIR + target-conditioning baseline: multiscale GNN memory, target-aware SFT, structural cross-attention, DPO, clock selection, and device adaptation. |
 | [`llvm-ir`](https://github.com/ElenaVouvali/MailoHLS/tree/llvm-ir) | Original LLVM IR / ProGraML / GNN implementation, based on the `MailoHLS_paper_v1` snapshot (`c9b2f43`). |
 
-Use one checkout and switch with `git switch main`, `git switch mlir-target`,
-or `git switch llvm-ir`. Develop extensions on `main` and keep `mlir-target`
-as the preserved baseline. Commit or stash source changes before switching. The
-previous `stage2-analysis-refactor` branch is incorporated into `main`; a
-separate `MailoHLS-next` worktree is no longer required.
+Use `main` for current development. The other two branches preserve the baseline
+implementations. Keep local source changes safe before switching branches;
+one checkout is sufficient.
 
 ## Implementation map
 
@@ -31,6 +29,7 @@ separate `MailoHLS-next` worktree is no longer required.
 | `LLM_branch/common/` | Prompt contracts, structural attention, and device-adaptation checkpoints. |
 | `LLM_branch/train/` | SFT and DPO training. |
 | `LLM_branch/inference/`, `LLM_branch/clock_adapt/` | Generation, evaluation, and automatic clock selection. |
+| `experiments/refinement/` | Optional compiler-verified local directive experiments, synthesis, measurement reuse and attribution. |
 | `scripts/reproduction/`, `scripts/training/`, `scripts/evaluation/` | Maintained preparation, training, and evaluation launchers. |
 | `scripts/experiments/`, `scripts/legacy/` | Distinct experiment presets and archived LLVM-era launchers. |
 | `FINAL_ARTIFACTS.json` | Selected checkpoint and memory paths, including pending objectives. |
@@ -64,6 +63,41 @@ policy and [`docs/paper-draft.md`](docs/paper-draft.md) for the manuscript notes
 
 Duplicate artifact mappings and local-cache compatibility are documented in
 [`docs/duplicate-cleanup.md`](docs/duplicate-cleanup.md).
+
+## Optional local refinement
+
+The standard framework predicts a complete directive configuration in one pass.
+The optional refinement experiment tests small legal changes using stored
+predictions and measured HLS feedback. It has one maintained implementation and
+one command-line interface:
+
+```bash
+python -m experiments.refinement.experiment --mode prepare
+python -m experiments.refinement.experiment --mode run --vitis-hls /path/to/vitis_hls
+python -m experiments.refinement.experiment --mode summarize
+```
+
+Preparation does not launch synthesis. Read
+[`experiments/refinement/README.md`](experiments/refinement/README.md) for compiler
+prerequisites, targets, measurement reuse, outputs and scientific limitations.
+Generated projects and reports remain outside Git; source/measurement hashes and
+explicit synthesis budgets preserve reproducibility.
+
+Directive domains are maintained in one shared module,
+`LLM_branch/common/directive_domains.py`. Existing model entry points retain
+their checkpoint-compatible policy. The explicit `tcad` policy adds bounded
+powers of two and divisors, with dimension-aware array validation. To inspect
+the opt-in model workflow without loading a model or starting training:
+
+```bash
+python -m LLM_branch.common.directive_domain_workflow --workflow train --domain-policy tcad
+```
+
+Execution requires `--execute` and a policy record. Evaluating an existing
+checkpoint with expanded domains additionally requires `--allow-domain-shift`;
+its trained policy is never silently relabeled. Future training requires an
+audited compatible dataset. Existing checkpoints and `FINAL_ARTIFACTS.json`
+remain unchanged.
 
 For measured objective-response figures, use `plots/objective_response/objective_response.py`;
 `src/objective_response.py` is the historical mock-data plotting example.
