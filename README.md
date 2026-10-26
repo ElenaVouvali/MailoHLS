@@ -31,6 +31,7 @@ one checkout is sufficient.
 | `LLM_branch/inference/`, `LLM_branch/clock_adapt/` | Generation, evaluation, and automatic clock selection. |
 | `experiments/refinement/` | Optional compiler-verified local directive experiments, synthesis, measurement reuse and attribution. |
 | `experiments/refinement_search/` | Optional budgeted feedback controller comparing coordinate, composition, structural, hybrid and random search. |
+| `experiments/structural_audit/` | Read-only source, graph, action-memory and model-interface diagnostics. |
 | `scripts/reproduction/`, `scripts/training/`, `scripts/evaluation/` | Maintained preparation, training, and evaluation launchers. |
 | `scripts/experiments/`, `scripts/legacy/` | Distinct experiment presets and archived LLVM-era launchers. |
 | `FINAL_ARTIFACTS.json` | Selected checkpoint and memory paths, including pending objectives. |
@@ -89,6 +90,10 @@ It reuses the same configuration, compiler-evidence and HLS interfaces, adds fiv
 deterministic search policies, and separates logical evaluation budgets from
 physical report reuse. Neither experiment runs the LLM or GNN during refinement.
 The standard one-pass training and inference entry points remain unchanged.
+
+To inspect compiler relationships and their path into GNN features, action memory
+and attention routing without synthesis or model inference, use the
+[`structural representation audit`](experiments/structural_audit/README.md).
 
 Directive domains are maintained in one shared module,
 `LLM_branch/common/directive_domains.py`. Existing model entry points retain

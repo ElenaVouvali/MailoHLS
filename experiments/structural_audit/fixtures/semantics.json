@@ -1,0 +1,68 @@
+[
+  {
+    "name":"direct_read",
+    "semantics":"L9 directly reads the local array L1. Unit graph edges are hand-specified assumptions, not compiler output.",
+    "unit_expected":{"own_array":"direct_verified"},
+    "program":"extern \"C\" float top(float x) {\nL1: float a[8]={1,2,3,4,5,6,7,8};\nfloat s=x;\nL9: for(int i=0;i<8;++i){s+=a[i];}\nreturn s;\n}\n",
+    "metadata":"top\nL1,array,a,1,8\nL9,loop,8\n",
+    "compiler_access_checks":[{"array":"L1","loop":"L9","allowed_classes":["direct_verified"]}]
+  },
+  {
+    "name":"direct_write",
+    "semantics":"L9 writes L1 before the array is returned through an output copy.",
+    "unit_expected":{"own_array":"direct_verified"},
+    "program":"extern \"C\" void top(float x,float *out) {\nL1: float a[8];\nL9: for(int i=0;i<8;++i){a[i]=x+i;}\nfor(int i=0;i<8;++i){out[i]=a[i];}\n}\n",
+    "metadata":"top\nL1,array,a,1,8\nL9,loop,8\n",
+    "compiler_access_checks":[{"array":"L1","loop":"L9","allowed_classes":["direct_verified"]}]
+  },
+  {
+    "name":"nested_loops",
+    "semantics":"L19 is inside L9, with sparse absolute identities.",
+    "unit_expected":{"nested_region":true},
+    "program":"extern \"C\" void top(float *out) {\nL9: for(int i=0;i<8;++i){\nL19: for(int j=0;j<8;++j){out[i*8+j]=i+j;}\n}\n}\n",
+    "metadata":"top\nL9,loop,8\nL19,loop,8\n",
+    "compiler_relation_checks":[{"action_i":"L9","action_j":"L19","bit":4,"expected":true}],
+    "compiler_access_checks":[]
+  },
+  {
+    "name":"different_arrays",
+    "semantics":"L9 only accesses L1, L19 only accesses L3. No relationship is established across the other loop/array; no general independence claim.",
+    "unit_expected":{"own_array":"direct_verified","other_array":"no_evidenced_relation"},
+    "program":"extern \"C\" float top(float x) {\nL1: float a[8];\nL3: float b[8];\nL9: for(int i=0;i<8;++i){a[i]=x+i;}\nL19: for(int i=0;i<8;++i){b[i]=x-i;}\nreturn a[3]+b[4];\n}\n",
+    "metadata":"top\nL1,array,a,1,8\nL3,array,b,1,8\nL9,loop,8\nL19,loop,8\n",
+    "compiler_access_checks":[{"array":"L1","loop":"L9","allowed_classes":["direct_verified"]},{"array":"L3","loop":"L9","allowed_classes":["no_evidenced_relation"]}]
+  },
+  {
+    "name":"shared_helper",
+    "semantics":"Two different call sites pass different buffers to the same helper. The unit input omits callsite metadata deliberately. No positional binding is accepted as call-specific proof.",
+    "unit_expected":{"own_array":"conservative_unknown","other_array":"conservative_unknown"},
+    "program":"extern \"C\" __attribute__((noinline)) void helper(float *a,float v){a[0]=v;}\nextern \"C\" float top(float x) {\nL1: float a[8];\nL3: float b[8];\nL9: for(int i=0;i<8;++i){helper(a,x+i);}\nL19: for(int i=0;i<8;++i){helper(b,x-i);}\nreturn a[0]+b[0];\n}\n",
+    "metadata":"top\nL1,array,a,1,8\nL3,array,b,1,8\nL9,loop,8\nL19,loop,8\n",
+    "compiler_access_checks":[{"array":"L1","loop":"L9","allowed_classes":["conservative_unknown"]},{"array":"L3","loop":"L9","allowed_classes":["conservative_unknown","no_evidenced_relation"]}]
+  },
+  {
+    "name":"bound_helper",
+    "semantics":"Positive unit case with explicit originating callsite and formal-root access. The real legacy generator cannot emit the new field; real compilation must remain conservative even when source semantics establish the helper access.",
+    "unit_expected":{"own_array":"indirect_verified","other_array":"conservative_unknown"},
+    "program":"extern \"C\" __attribute__((noinline)) float helper(float *a){return a[0];}\nextern \"C\" float top(float x) {\nL1: float a[8]={1,2,3,4,5,6,7,8};\nfloat s=x;\nL9: for(int i=0;i<8;++i){s+=helper(a);}\nreturn s;\n}\n",
+    "metadata":"top\nL1,array,a,1,8\nL9,loop,8\n",
+    "compiler_access_checks":[{"array":"L1","loop":"L9","allowed_classes":["conservative_unknown"]}]
+  },
+  {
+    "name":"resolved_view",
+    "semantics":"Memory view of L1 has a compiler-resolved root in the unit input. Real C++ pointer offset lowering is inspected, not presumed to produce a particular memref opcode.",
+    "unit_expected":{"own_array":"direct_verified"},
+    "program":"extern \"C\" float top(float x) {\nL1: float a[8]={1,2,3,4,5,6,7,8};\nfloat *v=a+1; float s=x;\nL9: for(int i=0;i<7;++i){s+=v[i];}\nreturn s;\n}\n",
+    "metadata":"top\nL1,array,a,1,8\nL9,loop,7\n",
+    "compiler_access_checks":[{"array":"L1","loop":"L9","allowed_classes":["direct_verified"]}]
+  },
+  {
+    "name":"dependencies",
+    "semantics":"A proven RAW edge qualifies; an unresolved reverse edge must not qualify. Unit certainty is explicitly specified. Real compiler certainty is reported as observed, not assigned from this fixture.",
+    "unit_expected":{"proven_forward":true,"uncertain_reverse":false},
+    "program":"extern \"C\" float top(float x,int *index) {\nL1: float a[8];\nL9: for(int i=0;i<8;++i){a[i]=x+i;}\nfloat s=0;\nL19: for(int i=0;i<8;++i){s+=a[index[i]&7];}\nL29: for(int i=0;i<8;++i){s+=a[i];}\nreturn s;\n}\n",
+    "metadata":"top\nL1,array,a,1,8\nL9,loop,8\nL19,loop,8\nL29,loop,8\n",
+    "compiler_relation_checks":[{"action_i":"L9","action_j":"L29","bit":16,"expected":true},{"action_i":"L9","action_j":"L19","bit":16,"expected":false}],
+    "compiler_access_checks":[{"array":"L1","loop":"L9","allowed_classes":["direct_verified"]},{"array":"L1","loop":"L19","allowed_classes":["direct_verified"]}]
+  }
+]
