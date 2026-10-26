@@ -26,10 +26,25 @@ separately as before.
 
 The cleanup retains the differing historical implementations, all checkpoint
 provenance snapshots, raw measurement tables, standalone canonical benchmark
-headers, and both HARP baseline trees. `mlir-target` shares this organized
-baseline. Earlier layouts remain in Git history, and `llvm-ir` preserves the
-original LLVM implementation.
+headers, and the HARP baseline source and measurements. `mlir-target` preserves
+the organized baseline before the HARP consolidation below. Earlier layouts
+remain in Git history, and `llvm-ir` preserves the original LLVM implementation.
 
 Git already stores identical blobs once. This cleanup reduces duplicate paths
 and repeated content in new checkouts; it does not claim to reduce historical
 GitHub storage by the same amount.
+
+## HARP baseline consolidation
+
+On 2026-10-26, `HARP-paper-rep/` was consolidated into `HARP-rep/`. A byte-content
+comparison found 807 identical files and two differing shared files. The former
+configuration already exists at `HARP-rep/src/config.py.original`; the original
+compiler script is preserved at `HARP-rep/dse_database/clang_script.sh.original`.
+The only files exclusive to the removed tree were two generated PyTorch cache
+metadata files, totaling 862 bytes, which were discarded. Its models, graphs,
+measurements and results all have identical copies in `HARP-rep/`.
+
+The retained tree also includes the external-kernel experiments and unseen-kernel
+checkpoints. No callers outside the HARP trees referenced either directory;
+the repository map and upstream provenance now point to `HARP-rep/`. Removing
+the duplicate directory reclaims approximately 576 MiB in this checkout.

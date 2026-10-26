@@ -39,8 +39,10 @@ than a sequence of historical research milestones.
 Keep implementation, tests, source patches, compiler locks, kernel sources,
 measurement tables, evaluation results, experiment configurations, family splits,
 checkpoint contracts, and source provenance. The upstream HARP source and
-measurement databases are preserved with their license; upstream revisions are
-recorded in `third-party-provenance.json`.
+measurement databases are consolidated in `HARP-rep/` with their license;
+upstream revisions are recorded in `third-party-provenance.json`. The original
+paper configuration and compiler script are retained as `.original` files;
+see `duplicate-cleanup.md` for the consolidation details.
 
 Generated weights (`.pt`, `.pth`, `.safetensors`, `.bin`), encoder/tensor caches,
 intermediate `checkpoint-*` output, repeated tokenizer files, logs, Python

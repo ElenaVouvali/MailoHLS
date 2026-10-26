@@ -35,7 +35,7 @@ one checkout is sufficient.
 | `scripts/reproduction/`, `scripts/training/`, `scripts/evaluation/` | Maintained preparation, training, and evaluation launchers. |
 | `scripts/experiments/`, `scripts/legacy/` | Distinct experiment presets and archived LLVM-era launchers. |
 | `FINAL_ARTIFACTS.json` | Selected checkpoint and memory paths, including pending objectives. |
-| `HARP-rep/`, `HARP-paper-rep/` | Vendored baseline source, licenses, measurements, and local reproduction changes. |
+| `HARP-rep/` | Consolidated HARP baseline source, license, measurements, and local reproduction changes. |
 
 Historical source and checkpoint provenance code are retained. Generated model
 weights, tensor caches, intermediate checkpoints, tokenizer copies, training
@@ -116,5 +116,4 @@ its trained policy is never silently relabeled. Future training requires an
 audited compatible dataset. Existing checkpoints and `FINAL_ARTIFACTS.json`
 remain unchanged.
 
-For measured objective-response figures, use `plots/objective_response/objective_response.py`;
-`src/objective_response.py` is the historical mock-data plotting example.
+For measured objective-response figures, use `plots/objective_response/objective_response.py`.
