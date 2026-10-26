@@ -30,6 +30,7 @@ one checkout is sufficient.
 | `LLM_branch/train/` | SFT and DPO training. |
 | `LLM_branch/inference/`, `LLM_branch/clock_adapt/` | Generation, evaluation, and automatic clock selection. |
 | `experiments/refinement/` | Optional compiler-verified local directive experiments, synthesis, measurement reuse and attribution. |
+| `experiments/refinement_search/` | Optional budgeted feedback controller comparing coordinate, composition, structural, hybrid and random search. |
 | `scripts/reproduction/`, `scripts/training/`, `scripts/evaluation/` | Maintained preparation, training, and evaluation launchers. |
 | `scripts/experiments/`, `scripts/legacy/` | Distinct experiment presets and archived LLVM-era launchers. |
 | `FINAL_ARTIFACTS.json` | Selected checkpoint and memory paths, including pending objectives. |
@@ -67,9 +68,8 @@ Duplicate artifact mappings and local-cache compatibility are documented in
 ## Optional local refinement
 
 The standard framework predicts a complete directive configuration in one pass.
-The optional refinement experiment tests small legal changes using stored
-predictions and measured HLS feedback. It has one maintained implementation and
-one command-line interface:
+The optional local experiment tests small legal changes using stored predictions
+and measured HLS feedback:
 
 ```bash
 python -m experiments.refinement.experiment --mode prepare
@@ -82,6 +82,13 @@ Preparation does not launch synthesis. Read
 prerequisites, targets, measurement reuse, outputs and scientific limitations.
 Generated projects and reports remain outside Git; source/measurement hashes and
 explicit synthesis budgets preserve reproducibility.
+
+For sequential decisions driven by previous synthesis results, use the
+[`budgeted refinement controller`](experiments/refinement_search/README.md).
+It reuses the same configuration, compiler-evidence and HLS interfaces, adds five
+deterministic search policies, and separates logical evaluation budgets from
+physical report reuse. Neither experiment runs the LLM or GNN during refinement.
+The standard one-pass training and inference entry points remain unchanged.
 
 Directive domains are maintained in one shared module,
 `LLM_branch/common/directive_domains.py`. Existing model entry points retain
