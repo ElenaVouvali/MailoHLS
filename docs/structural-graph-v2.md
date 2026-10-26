@@ -369,3 +369,28 @@ Semantic references: [MLIR Func](https://mlir.llvm.org/docs/Dialects/Func/),
 [MemRef](https://mlir.llvm.org/docs/Dialects/MemRef/),
 [Affine](https://mlir.llvm.org/docs/Dialects/Affine/) and the
 [language reference](https://mlir.llvm.org/docs/LangRef/).
+
+## Full-corpus validation and refinement comparison
+
+`GNN_branch/generate_mlir_v2_corpus.py` orchestrates the existing builder with
+explicit revision 2.1. It reads the 55-kernel inventory without importing
+training configuration, preserves external source/metadata/header variants,
+authenticates reusable graphs, and checks every canonical/compact semantic
+query. Compiler failures and unresolved registered action points remain visible.
+
+```bash
+python -B -m GNN_branch.generate_mlir_v2_corpus
+```
+
+The ignored output is `GNN_branch/MLIR_graphs/v21_corpus/`. Repeating the command
+resumes its frozen contract. For a changed implementation use a fresh output and
+`--reuse-dir` pointing at previous canonical graphs. Source-only labels do not
+become directive slots. Saved kernel-name split provenance is recorded; an
+index-only split is not sufficient to infer kernel membership.
+
+The [V2.1 refinement workflow](../experiments/v21_refinement/README.md) separates
+an unchanged coordinate baseline, legacy structural search, V2.1 relationship
+replacement, and additional structural ordering. The existing controller still
+owns measurements, feasibility, budgets and incumbents. Compiler evidence is
+never treated as a hardware-quality prediction. No V2.1 tensors enter production
+GNN weights, memory or Stage-2 routing.

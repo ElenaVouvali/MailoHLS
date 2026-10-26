@@ -32,6 +32,7 @@ one checkout is sufficient.
 | `experiments/refinement/` | Optional compiler-verified local directive experiments, synthesis, measurement reuse and attribution. |
 | `experiments/refinement_search/` | Optional budgeted feedback controller comparing coordinate, composition, structural, hybrid and random search. |
 | `experiments/structural_audit/` | Read-only source, graph, action-memory and model-interface diagnostics. |
+| `experiments/v21_refinement/` | Full-corpus V2.1 validation and controlled comparison of relationship eligibility versus structural proposal ordering. |
 | `scripts/reproduction/`, `scripts/training/`, `scripts/evaluation/` | Maintained preparation, training, and evaluation launchers. |
 | `scripts/experiments/`, `scripts/legacy/` | Distinct experiment presets and archived LLVM-era launchers. |
 | `FINAL_ARTIFACTS.json` | Selected checkpoint and memory paths, including pending objectives. |
@@ -100,6 +101,12 @@ adds precise call bindings, unified memory relations and a lossless compact view
 Its explicit `--revision 2.1` extends return, indexing, loop-state and coverage evidence.
 It is a research representation alongside the production graph; existing GNN
 weights, structural memory and inference continue to use V1.
+
+For corpus generation, authenticated graph reuse and the four-policy
+structure-guided refinement comparison, see the
+[V2.1 validation workflow](experiments/v21_refinement/README.md). It reuses the
+existing compiler builder and budgeted synthesis controller; preparation never
+starts synthesis.
 
 Directive domains are maintained in one shared module,
 `LLM_branch/common/directive_domains.py`. Existing model entry points retain
