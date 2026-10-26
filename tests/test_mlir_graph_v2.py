@@ -9,7 +9,7 @@ import networkx as nx
 import pytest
 
 from GNN_branch import mlir_graph_v2 as v2
-from GNN_branch.action_point_relations import get_action_point_relations as query, action_point_views, historical_relation
+from GNN_branch.action_point_relations import get_action_point_relations as query, action_point_views, historical_relation, get_loop_semantics
 
 
 def hand_graph():
@@ -274,3 +274,201 @@ def test_fresh_frontend_and_canonical_global_storage(native_tools, tmp_path):
     definition = globals_[0][1]['global_definition']
     assert definition['status'] == 'compiler_recorded' and 'initial_value' in definition['attributes']
     assert 'action:L9' in graph and graph.nodes['action:L9']['absolute_index'] == 9
+
+
+# V2.1 extends the same builder; V2.0 read/query semantics stay selectable.
+def test_unbound_helper_formal_is_not_substituted_with_every_caller():
+    graph=hand_graph()
+    loop='op:H:op9'
+    graph.add_node(loop,category='operation',function=1,op_uid='H:op9',is_loop=1,loop_context=[])
+    graph.add_node('action:L29',category='action_point',action_id='L29',action_kind='loop',absolute_index=29)
+    v2.add_relation(graph,'action:L29',loop,'targets')
+    graph.nodes['op:H:op0']['loop_context']=[loop]
+    assert {r['neighbor'] for r in query(graph,'L29')}=={'L1','L3'}  # Reproduce the old defect.
+    graph.graph['schema']=v2.SCHEMA_V21
+    assert not [r for r in query(graph,'L29',call_context=()) if r['relation_type']=='memory_access']
+    assert {r['neighbor'] for r in query(graph,'L29',call_context=('op:F:op2',))}=={'L1'}
+    assert {r['neighbor'] for r in query(graph,'L29',call_context=('op:F:op3',))}=={'L3'}
+    scoped=query(graph,'L29')
+    assert {(r['neighbor'],tuple(r['invocation_context'])) for r in scoped}=={('L1',('op:F:op2',)),('L3',('op:F:op3',))}
+    facts=get_loop_semantics(graph,'L29')
+    assert {r['memory_root'] for r in facts['accesses']}=={'memory:H:b1:a0'}
+    assert all(not r['call_chain'] for r in facts['accesses'])
+
+
+@pytest.fixture(scope='module')
+def semantic_cases(native_tools,tmp_path_factory):
+    from experiments.structural_audit import compare_v2 as compare
+    output=tmp_path_factory.mktemp('semantic_v21')
+    receipts=compare.compile_semantic_fixtures(output,native_tools)
+    return receipts
+
+
+@pytest.mark.parametrize('name',['returned_alias','ambiguous_return','unresolved_call','recursive_call',
+    'index_and_state','different_indices','registration','strided_views'])
+def test_new_native_semantic_programs(name,semantic_cases):
+    record=semantic_cases[name]
+    assert record['status']=='checked',record.get('reason')
+    assert all(c['passed'] for c in record['checks']),record['checks']
+    graph=v2.read_graph(record['graph'])
+    assert graph.graph['schema']==v2.SCHEMA_V21
+    assert graph.graph['provenance']['semantic_annotation_sha256']==v2.digest(Path(v2.__file__).with_name('mlir_semantics.py'))
+    assert record['origin']==('handwritten_MLIR_native_verified' if name=='strided_views' else 'source_compiled_by_pinned_cgeist')
+
+
+@pytest.fixture(scope='module')
+def real_v21(native_tools,tmp_path_factory):
+    from experiments.structural_audit import compare_v2 as compare
+    if not compare.audit.DEFAULT_SHARED.is_file():pytest.skip('Authenticated external archives unavailable')
+    shared=json.loads(compare.audit.DEFAULT_SHARED.read_text());output=tmp_path_factory.mktemp('real_v21')
+    graphs={}
+    for name in ('GAN','covariance','Kalman'):
+        source,metadata,old_path,old,actions,projected=compare.audit.load_kernel(name,shared)
+        raw=compare.audit.raw_artifacts(name,old_path,old)
+        active=compare.c.repo_path(projected['compiler_active_metadata_path']) if projected.get('compiler_active_metadata_path') else metadata
+        graph,record=compare._compile_case(name,source,active,compare.c.repo_path(raw['raw_mlir']),old_path,output,native_tools,'2.1')
+        graphs[name]=graph
+    return graphs
+
+
+def test_GAN_v21_relationships_and_compiler_call_origins(real_v21):
+    graph=real_v21['GAN']
+    for array,loop,mode in [('L1','L4','write'),('L2','L9','read'),('L3','L11','read')]:
+        rows=[r for r in query(graph,loop) if r['relation_type']=='memory_access' and r['neighbor']==array]
+        assert rows and any(r['access']==mode for r in rows)
+        assert all(r['access_scope']=='through_call' and r['callsite_bindings'] for r in rows)
+        assert all(r['call_origin_scope']=='direct_body' for r in rows)
+    assert not [r for r in query(graph,'L11') if r['neighbor']=='L2' and r['relation_type']=='memory_access']
+    for parent,child in [('L5','L6'),('L10','L11')]:
+        assert any(r['neighbor']==child and r['relation_type']=='loop_hierarchy' and r['hierarchy']=='child' for r in query(graph,parent))
+    globals_=[a for _,a in graph.nodes(data=True) if a.get('root_kind')=='global']
+    assert globals_ and len({a['global_symbol'] for a in globals_})==len(globals_)
+    assert all(a['global_definition']['status']=='compiler_recorded' for a in globals_)
+    assert graph.graph['numerical_fidelity']['hardware_exact'] is False
+    assert graph.nodes['action:L3']['source_declared_type']['spelling']=='l_quantized_type'
+
+
+def test_Kalman_state_indices_coverage_and_exact_counts(real_v21):
+    graph=real_v21['Kalman']
+    for array,loop,mode in [('L1','L4','write'),('L2','L13','read'),('L5','L11','read'),('L5','L11','write')]:
+        assert any(r['neighbor']==array and r.get('access')==mode and r['access_scope']=='direct_body' for r in query(graph,loop))
+    assert not [r for r in query(graph,'L13') if r['neighbor']=='L1' and r['relation_type']=='memory_access']
+    coverage={r['action_id']:r for r in graph.graph['action_point_coverage']['records']}
+    for label in ('L7','L8'):
+        assert coverage[label]['source_labeled'] and not coverage[label]['metadata_registered']
+        assert not coverage[label]['compiler_matched'] and coverage[label]['compiler_status']=='not_registered'
+        assert 'action:'+label not in graph
+    outer,inner=get_loop_semantics(graph,'L10'),get_loop_semantics(graph,'L11')
+    assert (outer['metadata_value'],outer['compiler_proven_trip_count'])==(4096,4095)
+    assert (inner['metadata_value'],inner['compiler_proven_trip_count'])==(64,64)
+    carrying=[d for d in outer['memory_dependences'] if d.get('carrying_loop')==outer['compiler_loop'] and d['evidence_status']=='proven']
+    assert len(carrying)==6 and {d['dependence_kind'] for d in carrying}=={'RAW','WAR','WAW'}
+    assert all(d['distance_bounds'][0]['lower']==1 and d['distance_bounds'][0]['upper']==4094 for d in carrying)
+    assert all(d['distance_exact']==[None,0] for d in carrying)
+    assert any(r.get('dependence_direction')=='carried_by' for r in query(graph,'L10'))
+    assert all(r['access_scope']=='nested_descendant' for r in outer['accesses'])
+    assert all(r['access_scope']=='direct_body' for r in inner['accesses'])
+    assert {1,2}=={len(r['access_indices']['induction_loops']) for r in inner['accesses']}
+    assert graph.graph['numerical_fidelity']['hardware_exact'] is False
+    views=action_point_views(graph,64)
+    assert views['labels'][6:8]==[-1,-1] and views['labels'][9:11]==[10,11]
+
+
+def test_v21_queries_are_deterministic_read_only_and_compact_preserved(real_v21):
+    for graph in real_v21.values():
+        before=v2.graph_payload(graph);compact=v2.compact_view(graph)
+        assert v2.graph_payload(v2.expand_compact(compact))==before
+        assert action_point_views(graph)==action_point_views(compact)
+        for _,a in graph.nodes(data=True):
+            if a['category']!='action_point':continue
+            assert query(graph,a['action_id'],'all')==query(compact,a['action_id'],'all')
+            if a['action_kind']=='loop':assert get_loop_semantics(graph,a['action_id'])==get_loop_semantics(compact,a['action_id'])
+        loop=next(a['action_id'] for _,a in graph.nodes(data=True) if a['category']=='action_point' and a['action_kind']=='loop')
+        record=query(graph,loop,'all')
+        if record:record[0]['source_provenance']['source_sha256']='caller modification'
+        assert v2.graph_payload(graph)==before
+
+
+def test_validation_rejects_fabricated_root_chain(real_v21):
+    graph=deepcopy(real_v21['Kalman'])
+    points={label:next(v for _,v,e in graph.out_edges('action:'+label,data=True) if e['relation_type']=='targets') for label in ('L1','L2')}
+    value=graph.nodes[points['L1']]['root_value']
+    v2.add_relation(graph,value,points['L2'],'resolves_to','proven')
+    with pytest.raises(ValueError,match='evidence chain'):v2.validate(graph)
+
+
+def test_validation_rejects_wrong_dependence_direction(real_v21):
+    graph=deepcopy(real_v21['Kalman'])
+    u,v,key,edge=next((u,v,k,e) for u,v,k,e in graph.edges(keys=True,data=True) if e['relation_type']=='depends_on' and u!=v)
+    graph.remove_edge(u,v,key);graph.add_edge(v,u,key=key,**edge)
+    with pytest.raises(ValueError,match='Dependence direction'):v2.validate(graph)
+
+
+def test_validation_rejects_lost_view_mapping(semantic_cases):
+    graph=v2.read_graph(semantic_cases['strided_views']['graph'])
+    edge=next(e for _,_,e in graph.edges(data=True) if e['relation_type']=='references')
+    edge.pop('view_mapping')
+    with pytest.raises(ValueError,match='compiler mapping'):v2.validate(graph)
+
+
+def test_validation_rejects_corrupted_return_binding(semantic_cases):
+    graph=v2.read_graph(semantic_cases['returned_alias']['graph'])
+    attrs=next(a for _,a in graph.nodes(data=True) if a.get('return_root_evidence'))
+    attrs['return_root_evidence']['bindings'][0]['call_uid']='another-call'
+    with pytest.raises(ValueError,match='evidence chain'):v2.validate(graph)
+
+
+def test_v2_archives_remain_readable_and_unchanged():
+    root=Path('experiments/structural_audit/results/graph_v2/complete')
+    if not (root/'manifest.json').is_file():pytest.skip('Historical V2 comparison unavailable')
+    data=json.loads((root/'comparison.json').read_text())
+    for rec in data['cases'].values():
+        graph=v2.read_graph(rec['canonical_graph'])
+        assert graph.graph['schema']==v2.SCHEMA
+        assert v2.digest(rec['canonical_graph'])==rec['canonical_graph_sha256']
+        assert v2.digest(rec['compact_graph'])==rec['compact_graph_sha256']
+
+
+
+def test_compiler_non_affine_dependence_remains_possible(semantic_cases):
+    graph=v2.read_graph(semantic_cases['strided_views']['graph'])
+    edges=[e for _,_,e in graph.edges(data=True) if e['relation_type']=='depends_on']
+    assert edges and all(e['evidence_status']=='possible' for e in edges)
+    assert all(e['loop_carried'] is None and e['carrying_loop'] is None for e in edges)
+    assert all(e['source_analysis']['fallback_required'] for e in edges)
+
+
+@pytest.mark.parametrize('field',['metadata_value','compiler_proven_trip_count'])
+def test_validation_retains_source_compiler_count_disagreements(real_v21,field):
+    graph=deepcopy(real_v21['Kalman']);graph.nodes['action:L10'][field]=99
+    with pytest.raises(ValueError,match='trip-count distinction'):v2.validate(graph)
+
+
+def test_validation_checks_index_semantics_against_compiler(real_v21):
+    graph=deepcopy(real_v21['Kalman'])
+    edge=next(e for _,_,e in graph.edges(data=True) if e['relation_type']=='memory_access' and e['access_indices']['induction_loops'])
+    edge['access_indices']['induction_loops']=[]
+    with pytest.raises(ValueError,match='index dependencies'):v2.validate(graph)
+
+
+def test_v21_generation_is_deterministic(real_v21,native_tools,tmp_path):
+    from experiments.structural_audit import compare_v2 as compare
+    shared=json.loads(compare.audit.DEFAULT_SHARED.read_text())
+    source,metadata,old_path,old,_,projected=compare.audit.load_kernel('Kalman',shared)
+    metadata=compare.c.repo_path(projected['compiler_active_metadata_path'])
+    raw=compare.audit.raw_artifacts('Kalman',old_path,old)
+    again,_=compare._compile_case('again',source,metadata,compare.c.repo_path(raw['raw_mlir']),old_path,tmp_path,native_tools,'2.1')
+    assert v2.canonical_json(v2.graph_payload(again))==v2.canonical_json(v2.graph_payload(real_v21['Kalman']))
+
+
+
+def test_verified_interprocedural_loop_context(native_tools,tmp_path):
+    from experiments.structural_audit import compare_v2 as compare
+    source,metadata,old_path,old,_,_=compare.audit.load_kernel('rodinia_lud_1_tiling_0',{})
+    raw=compare.audit.raw_artifacts('rodinia_lud_1_tiling_0',old_path,old)
+    graph,_=compare._compile_case('lud',source,metadata,compare.c.repo_path(raw['raw_mlir']),old_path,tmp_path,native_tools,'2.1')
+    rows=[r for r in query(graph,'L2') if r['neighbor']=='L5' and r['relation_type']=='memory_access']
+    assert rows and all(r['invocation_context']==['op:lud_diagonal:op5'] for r in rows)
+    assert all(r['callsite_bindings'] and r['access']=='write' and r['call_origin_scope']=='not_applicable' for r in rows)
+    assert not [r for r in query(graph,'L2',call_context=()) if r['neighbor']=='L5']
+    with pytest.raises(ValueError,match='verified originating call'):query(graph,'L2',call_context=('missing-call',))

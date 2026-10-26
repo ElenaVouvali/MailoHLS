@@ -97,6 +97,7 @@ and attention routing without synthesis or model inference, use the
 
 An explicitly selected [MLIR structural graph V2](docs/structural-graph-v2.md)
 adds precise call bindings, unified memory relations and a lossless compact view.
+Its explicit `--revision 2.1` extends return, indexing, loop-state and coverage evidence.
 It is a research representation alongside the production graph; existing GNN
 weights, structural memory and inference continue to use V1.
 

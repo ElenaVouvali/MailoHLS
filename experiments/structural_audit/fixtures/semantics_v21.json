@@ -1,0 +1,51 @@
+[
+  {
+    "name": "returned_alias",
+    "description": "One helper returns exactly its argument; two callers must remain distinct.",
+    "program": "extern \"C\" __attribute__((noinline)) float *identity(float *p){return p;}\nextern \"C\" float top(float x){\nL1: float a[8];\nL3: float b[8];\nfloat *p=identity(a); float *q=identity(b);\nL9: for(int i=0;i<8;i++)p[i]=x+i;\nL19: for(int i=0;i<8;i++)q[i]=x-i;\nreturn p[0]+q[0];}\n",
+    "metadata": "top\nL1,array,a,1,8\nL3,array,b,1,8\nL9,loop,8\nL19,loop,8\n"
+  },
+  {
+    "name": "ambiguous_return",
+    "description": "A data-dependent helper returns either actual array; neither is a unique must-alias.",
+    "program": "extern \"C\" __attribute__((noinline)) float *choose(float *a,float *b,int flag){if(flag)return a;return b;}\nextern \"C\" float top(float x,int flag){\nL1: float a[8];\nL3: float b[8];\nfloat *p=choose(a,b,flag);\nL9: for(int i=0;i<8;i++)p[i]=x+i;\nreturn p[0];}\n",
+    "metadata": "top\nL1,array,a,1,8\nL3,array,b,1,8\nL9,loop,8\n"
+  },
+  {
+    "name": "unresolved_call",
+    "description": "An external declaration has possible effects, not concrete load/store proof.",
+    "program": "extern \"C\" void unknown(float *p);\nextern \"C\" float top(float x){\nL1: float a[8];\na[0]=x;\nL9: for(int i=0;i<8;i++)unknown(a);\nreturn a[0];}\n",
+    "metadata": "top\nL1,array,a,1,8\nL9,loop,8\n"
+  },
+  {
+    "name": "recursive_call",
+    "description": "Recursion cannot establish a finite interprocedural access proof.",
+    "program": "extern \"C\" __attribute__((noinline)) void recur(float *p,int n){if(n>0){p[0]+=1;recur(p,n-1);}}\nextern \"C\" float top(float x,int n){\nL1: float a[8];\na[0]=x;\nL9: for(int i=0;i<8;i++)recur(a,n);\nreturn a[0];}\n",
+    "metadata": "top\nL1,array,a,1,8\nL9,loop,8\n"
+  },
+  {
+    "name": "index_and_state",
+    "description": "Time/batch indices and scalar accumulation, including a direct outer-body access.",
+    "program": "extern \"C\" float top(float x,int k){\nL1: float a[8];\nL3: float b[64];\nL5: for(int i=0;i<8;i++)a[i]=x;\nfloat sum=0;\nL9: for(int t=1;t<8;t++){\nL19: for(int i=0;i<8;i++){a[i]+=x;b[i*8+t]=a[i];sum+=a[i];}\na[0]+=x;\n}\nreturn sum+a[k&7]+b[(k&7)*8+1];}\n",
+    "metadata": "top\nL1,array,a,1,8\nL3,array,b,1,64\nL5,loop,8\nL9,loop,8\nL19,loop,8\n"
+  },
+  {
+    "name": "different_indices",
+    "description": "Two disjoint ranges of the same array; root equality alone is not dependence proof.",
+    "program": "extern \"C\" float top(float x,int k){\nL1: float a[16];\nL9: for(int i=0;i<8;i++){a[i]=x+i;a[i+8]=x-i;}\nreturn a[k&15];}\n",
+    "metadata": "top\nL1,array,a,1,16\nL9,loop,8\n"
+  },
+  {
+    "name": "registration",
+    "description": "L3 is source-labelled but unregistered; L5 is registered but unused and may disappear. Absence of a match is not an elimination proof. L7 is an empty registered loop; no ordinal fallback may relabel L9 as L7.",
+    "program": "extern \"C\" float top(float x,int k){\nL1: float a[8];\nL3: float b[8];\nL5: float gone[8];\nL7: for(int z=0;z<1;z++){}\nL9: for(int i=1;i<8;i++){a[i]=x+i;b[i]=x-i;}\nreturn a[(k%7)+1]+b[(k%7)+1];}\n",
+    "metadata": "top\nL1,array,a,1,8\nL5,array,gone,1,8\nL7,loop,1\nL9,loop,8\n"
+  },
+  {
+    "name": "strided_views",
+    "description": "Native-verified handwritten MLIR, not frontend-generated output: subview offset is relative to source view, reinterpret_cast to underlying storage. C++ is a semantic annotation counterpart.",
+    "program": "extern \"C\" float top(float x){\nL1: float a[64];\nfloat *p=a+16;\nfloat s=0;\nL9: for(int i=0;i<8;i++){p[i*2]=x;s+=p[i*2];}\nreturn s;\n}\n",
+    "metadata": "top\nL1,array,a,1,64\nL9,loop,8\n",
+    "mlir": "module {\n  func.func @top(%x: f32) -> f32 {\n    %a = memref.alloca() {mailohls.action_id = \"L1\"} : memref<64xf32> loc(\"kernel.cpp\":2:11)\n    %p = memref.subview %a[16] [8] [2] : memref<64xf32> to memref<8xf32, strided<[2], offset: 16>>\n    %r = memref.reinterpret_cast %p to offset: [0], sizes: [8], strides: [1] : memref<8xf32, strided<[2], offset: 16>> to memref<8xf32>\n    %c0 = arith.constant 0 : index\n    %c8 = arith.constant 8 : index\n    %c1 = arith.constant 1 : index\n    %zero = arith.constant 0.0 : f32\n    %s = scf.for %i = %c0 to %c8 step %c1 iter_args(%sum = %zero) -> f32 {\n      memref.store %x, %p[%i] : memref<8xf32, strided<[2], offset: 16>>\n      %v = memref.load %p[%i] : memref<8xf32, strided<[2], offset: 16>>\n      %next = arith.addf %sum, %v : f32\n      scf.yield %next : f32\n    } loc(\"kernel.cpp\":5:5)\n    return %s : f32\n  }\n}\n"
+  }
+]

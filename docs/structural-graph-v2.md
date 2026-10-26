@@ -1,6 +1,11 @@
-# MLIR structural graph V2
+# MLIR structural graph V2 and V2.1
 
-V2 is an explicitly selected research representation. Production SALT still uses
+V2 is an explicitly selected research representation. V2.1 extends the same
+builder with `--revision 2.1`; the default remains `2.0` for baseline reproduction.
+Existing V2 JSON remains readable with its original query semantics. V2.1 uses
+`salt-hls-mlir-structural-v2.1`, so the revision is never inferred from a filename.
+
+Production SALT still uses
 V1 graphs, its trained feature encoders, GNN checkpoints, 128-D memory and
 Stage-2 routing. V2 does not run HLS, DeepSeek-Coder, training or a refinement
 search. A smaller graph alone is not evidence of better QoR prediction.
@@ -22,6 +27,8 @@ flowchart TD
     V -->|operand| C["Concrete access or call operation"]
     C -->|memory_access| M["Memory object"]
     V -->|references / resolves_to| M
+    D["Other memory access"] -->|"depends_on + carrying loop evidence"| C
+    V -->|"loop_carried: init / backedge / result"| S["Loop SSA state"]
     A["Action point Lk"] -->|targets| L
     A -->|targets| M
     C -->|calls| H["Helper function"]
@@ -34,7 +41,8 @@ source locations validate optimization targets, rather than invent call IDs.
 
 The graph schema is `salt-hls-mlir-structural-v2`, serialized as deterministic
 JSON. Graph identity includes source, metadata, raw IR, analysis extension and
-builder hashes. Local header hashes are captured; the entire transitive system
+builder hashes. Local header hashes are captured; historical raw-IR include closures cannot be
+authenticated solely from current snapshot headers. The entire transitive system
 include closure is not. AP analysis stubs remain control/dataflow surrogates,
 not bit-accurate models of genuine Vitis arithmetic.
 
@@ -44,7 +52,7 @@ not bit-accurate models of genuine Vitis arithmetic.
 | `ssa_value` | Exact results and block arguments; retains use-def and memory-view identity | Call/root resolution; future encoder |
 | `constant_or_feature` | Semantic constants and explicitly identified auxiliary analysis tokens | Canonical evidence; compact encoding |
 | `control_region` | Module, real MLIR regions and blocks with explicit ownership | Hierarchy/control validation |
-| `memory_object` | Function-local allocation or formal-parameter root, separate from SSA views and action points | Access/alias queries |
+| `memory_object` | Allocation, global, formal-parameter root or explicitly unresolved storage; separate from SSA views and action points | Access/alias queries |
 | `action_point` | One active `Lk`, supported directives and one exact compiler target | Derived action-point views; future refinement |
 
 Function operations remain operations. Regions/blocks replace synthetic
@@ -107,7 +115,8 @@ compiler views, must-alias evidence and region/loop forwarding. May-alias and
 partial-alias facts never enter the proven root solver. No global union propagates
 every caller's buffers into a shared callee. Queries substitute formal roots only
 through the selected call's binding. An unresolved binding is prevented from
-falling back to another call's root. Returned-memory aliases remain conservative.
+falling back to another call's root. V2.0 leaves returned-memory aliases conservative; V2.1 resolves the supported
+call-scoped cases described below.
 Global storage is identified by its compiler symbol. Unresolved storage has an
 explicit placeholder object with `not_established` provenance; concrete accesses
 are retained without claiming that placeholder is a proven allocation.
@@ -123,11 +132,12 @@ edge orientation and graphs are preserved in the compatibility records.
 
 ```python
 from GNN_branch.mlir_graph_v2 import read_graph
-from GNN_branch.action_point_relations import get_action_point_relations, action_point_views
+from GNN_branch.action_point_relations import get_action_point_relations, action_point_views, get_loop_semantics
 
-graph = read_graph('/tmp/kernel.v2.json')
+graph = read_graph('/tmp/kernel.v21.json')
 relations = get_action_point_relations(graph, 'L11', evidence='proven')
 views = action_point_views(graph, max_slots=64)
+loop_state = get_loop_semantics(graph, 'L11')
 ```
 
 Records separate `relation_type`, `evidence_status` (`proven`, `possible`,
@@ -145,8 +155,111 @@ legacy-compatible self/parent/child/access/dependence bits. Sparse IDs retain
 their absolute `Lk-1` slots; inactive points are not renumbered. No-alias evidence
 does not create a positive connectivity edge. Facts without a legacy bit (such
 as alias information) remain in `unrepresented_in_legacy_bits`; the legacy mask
-is exactly the nonzero projection of legacy bits. These views are not installed
+is exactly the nonzero projection of legacy bits. Boolean connectivity and legacy bits collapse relation types and invocation
+contexts; typed records retain those distinctions. These views are not installed
 in production Stage-2 or refinement.
+
+## V2.1: semantic precision and coverage
+
+The six node categories and one authoritative graph remain. The small
+`mlir_semantics.py` helper annotates the existing builder's objects; it is not a
+second frontend, graph builder or learned model.
+
+| Information | V2.0 baseline | V2.1 explicit revision |
+|---|---|---|
+| Unbound helper formal | Historical all-caller fallback retained for reproduction | Symbolic until an exact active call binding is supplied |
+| Native buffer-view analysis | Reachability treated as direct references | Direct supported views verified against defining operands; other reachability retained as possible summaries |
+| Returned memory | Conservative unresolved roots | Call/result/return-operand binding; understood views/selects; multiple candidates remain possible |
+| Loop state | SSA forwarding and raw dependence records | Adds owning/carrying loop IDs and scalar-versus-memory-reference distinction |
+| Access region | Origin operation retained | Adds direct, descendant and through-call query scopes; exact indices/maps and induction-variable dependencies |
+| Action coverage | Active anchors and source metadata | Separates source labels, registration, exact compiler matches and unresolved targets |
+| Arithmetic | Lowered types plus header provenance | Separately records source declarations, lowered widths and numerical fidelity limits |
+
+`BufferViewFlowAnalysis` describes reachability, including transitive and
+conditional forwarding. It does not establish that every reported pair is an
+immediate must-alias view. V2.1 proves supported direct view relationships using
+the actual defining operation and its base operand. Other reachability remains
+`analysis_summary` with `possible` evidence, and the complete native record is
+retained. Sharing a storage root does not prove overlapping elements.
+
+`memref.subview` offsets/strides are relative to the source view;
+`memref.reinterpret_cast` offsets/strides refer to underlying storage. The graph
+keeps exact static attributes, dynamic SSA operands, source/result types and
+shapes; it does not compose unsupported mappings or invent offsets. These rules
+follow the [MemRef dialect semantics](https://mlir.llvm.org/docs/Dialects/MemRef/).
+
+Returned aliases follow the exact `func.call`, result index and `func.return`
+operand. Supported view/select paths retain their bindings. Conditional returns
+lowered through scalar memory temporaries retain possible stored references;
+without reaching-definition/control-coverage proof these are not must-alias.
+Recursion, external declarations and incomplete bindings remain uncertain.
+When a caller owns an array action point and a callee owns a loop action point,
+V2.1 can enumerate **separate verified invocation contexts** joining those points.
+Each resulting record includes `invocation_context`, call UIDs and exact argument
+bindings. This does not union formal roots or assert that every invocation uses
+the same array. Pass `call_context=("op:caller:op5",)` to inspect one invocation;
+pass `call_context=()` for local-only queries. `get_loop_semantics()` defaults to
+the local symbolic function context and also accepts an explicit call context.
+The LUD array/loader-loop regression checks this distinction. An unbound formal
+is never resolved by looking up arbitrary callers in the root solver.
+
+The [Func dialect](https://mlir.llvm.org/docs/Dialects/Func/) supplies the operand,
+result and callee contract. Graph validation rechecks root derivations and
+binding receipts rather than trusting a serialized confidence label.
+
+Access queries expose `access_scope`: `direct_body`, `nested_descendant` or
+`through_call`. `call_origin_scope` identifies whether the originating call is
+in the queried loop's body or a descendant. `origin_loop`, operation UID and
+`call_chain` keep precise origins. A local access through a returned pointer can
+have `direct_body` scope and a `through_call` root-resolution path. Aggregate
+queries over enclosing loops reuse the same access operation; they do not add
+physical loads/stores. `memory_views` and `caller_view_induction_loops` retain
+caller-side offset/index operands when a helper loads element zero of an actual
+view; helper-local indices alone would lose that caller context.
+`get_loop_semantics()` includes accesses to memory objects
+without controllable action points.
+
+For affine loads/stores, `access_indices` retains the exact compiler map and SSA
+arguments. Other supported loads/stores retain SSA indices. Their use-def paths
+identify induction variables; this is not an analysis of mathematical
+independence or a synthesized memory-bank prediction. For Kalman, accesses to
+state arrays depend on batch `i`, while input/output indexing uses both `i` and
+time `t`.
+
+The [SCF](https://mlir.llvm.org/docs/Dialects/SCFDialect/) and
+[Affine](https://mlir.llvm.org/docs/Dialects/Affine/) loop contracts define separate
+init, iteration-argument, yield/backedge and result forwarding. Memory dependencies
+retain native RAW/WAR/WAW direction, distance bounds and carrying-loop identity.
+Unknown `loop_carried` stays null; `possible_loop_carried` is separate. Native
+queries that require fallback remain explicit possible dependencies, including
+non-affine/inapplicable analysis cases. Proven no-dependence records remain in
+the native payload. The extension stops at its first successful dependence depth:
+no missing inner-loop edge is a proof of independence, and a distance interval
+is not silently reduced to an exact distance.
+
+`action_point_coverage.records` lists independent `source_labeled`,
+`metadata_registered` and `compiler_matched` flags. A source-only label gets no
+active directive slot. A missing registered target is `compiler_unresolved`;
+`compiler_eliminated` stays null unless there is an explicit proof, while matched
+targets set it false. A narrow adapter lets these unresolved targets be reported
+without using V1's ordinal/shape fallbacks or changing production V1.
+
+Kalman's Data/ApplicationDataset metadata (identical to the archived compiler
+active metadata) registers 11 of 13 source labels. L7/L8 are **not registered**;
+the historical experiment metadata separately registered them. Both historical
+files remain intact. L10 preserves metadata value 4096 and compiler-proven count
+4095. `tcad_trip_count` exposes the proven count for future TCAD-domain consumers;
+it is null when unresolved. This milestone does not change production directive
+domains or reinterpret existing training labels. Source dimensions remain
+separate from optimized compiler shapes.
+
+`numerical_fidelity` records source typedef text/lines and arithmetic-header
+markers; action points retain source-declared type spelling. These are lexical
+records, not compiler-verified source widths. MLIR scalar/element widths describe
+the lowered module only. Analysis-stub headers explicitly set hardware fidelity
+false. Missing source type correspondence stays unresolved, including template
+expressions; no hardware DSP/LUT cost or bit accuracy is inferred from a float
+surrogate.
 
 ## Compact view
 
@@ -178,21 +291,21 @@ export PYTHONPATH="$POLYGEIST_BUILD/tools/mlir/python_packages/mlir_core"
 export PYTHONHASHSEED=0
 
 # Compile source through the unchanged frontend, then construct V2.
-"$MLIR_PYTHON" -B -m GNN_branch.mlir_graph_v2 --mode generate \
+"$MLIR_PYTHON" -B -m GNN_branch.mlir_graph_v2 --mode generate --revision 2.1 \
   --source Data/ApplicationDataset/machsuite-gemm-ncubed/gemm.c \
-  --cgeist "$POLYGEIST_BUILD/bin/cgeist" --output /tmp/gemm.v2.json
+  --cgeist "$POLYGEIST_BUILD/bin/cgeist" --output /tmp/gemm.v21.json
 
 # Or reuse an authenticated raw module; paired context hashes must agree.
-"$MLIR_PYTHON" -B -m GNN_branch.mlir_graph_v2 --mode generate \
+"$MLIR_PYTHON" -B -m GNN_branch.mlir_graph_v2 --mode generate --revision 2.1 \
   --source Data/ApplicationDataset/machsuite-gemm-ncubed/gemm.c \
   --mlir GNN_branch/MLIR_graphs/audit_mlir/machsuite-gemm-ncubed.mlir \
   --v1-graph GNN_branch/MLIR_graphs/machsuite-gemm-ncubed.gexf \
-  --output /tmp/gemm.from-ir.v2.json
+  --output /tmp/gemm.from-ir.v21.json
 
 "$MLIR_PYTHON" -B -m GNN_branch.mlir_graph_v2 --mode compact \
-  --input /tmp/gemm.v2.json --output /tmp/gemm.compact.json
+  --input /tmp/gemm.v21.json --output /tmp/gemm.compact.v21.json
 "$MLIR_PYTHON" -B -m GNN_branch.mlir_graph_v2 --mode validate \
-  --input /tmp/gemm.compact.json
+  --input /tmp/gemm.compact.v21.json
 ```
 
 Use `--metadata PATH` for metadata outside the source directory and
@@ -204,7 +317,7 @@ With the ordinary project Python environment (torch/networkx), compare the three
 development kernels, five original GNΩSIS kernels and eight compiled fixtures:
 
 ```bash
-python -B -m experiments.structural_audit.compare_v2 \
+python -B -m experiments.structural_audit.compare_v2 --revision 2.1 \
   --kernels GAN covariance Kalman \
   --polygeist-build "$POLYGEIST_BUILD" --mlir-python "$MLIR_PYTHON"
 
@@ -218,8 +331,18 @@ missing fixtures; `--fixture-dir PATH` selects those receipts. Real references
 remain the 28 source-written, machine-assisted drafts. Hand-authored unit graphs
 are never reported as compiler outputs or reviewed ground truth.
 
-Outputs are ignored under `experiments/structural_audit/results/graph_v2/`:
-`manifest.json`, `comparison.json`, `report.md` and canonical/compact graph JSONs.
+V2.1 outputs are ignored under `experiments/structural_audit/results/graph_v21/`
+(the V2.0 default and historical outputs remain under `results/graph_v2/`):
+`manifest.json`, `comparison.json`, `report.md`, a draft `review_worksheet.jsonl`,
+canonical/compact graph JSONs and native semantic-fixture receipts.
+Use `--baseline-v2 PATH` to select an authenticated old V2 comparison. If no
+baseline exists for a case, revision 2.0 is regenerated and labelled accordingly.
+Use the original `0d11888` Git revision and its pinned inputs to reproduce the
+original byte-level provenance; current revision-2.0 generation necessarily
+records the current builder hash. Use `--mode fixtures --revision 2.1` to run only
+the eight new small semantic programs (seven frontend-generated and one explicitly
+handwritten, native-verified MLIR view fixture).
+
 Use `--output-dir PATH` for a new protocol; sealed comparisons are not overwritten.
 The manifest captures code, source, compiler and protected V1 hashes. Failed
 checks produce a nonzero exit with their report preserved.
