@@ -11,6 +11,12 @@ optimization**. It combines two complementary models:
 The final system uses action-aligned GNN representations as structural
 memory for the LLM.
 
+This page documents the production V1 pipeline. The optional
+[structural graph V2](structural-graph-v2.md) reuses its pinned compiler frontend
+and native analysis, with a separate schema, canonical action points and precise
+call-scoped memory queries. V2 does not replace the default graph/data loader or
+the trained GNN, structural memory and Stage-2 routing.
+
 ```mermaid
 flowchart TD
     A["C/C++ kernels"] --> C["MLIR semantic graphs"]

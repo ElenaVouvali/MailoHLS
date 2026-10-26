@@ -95,6 +95,11 @@ To inspect compiler relationships and their path into GNN features, action memor
 and attention routing without synthesis or model inference, use the
 [`structural representation audit`](experiments/structural_audit/README.md).
 
+An explicitly selected [MLIR structural graph V2](docs/structural-graph-v2.md)
+adds precise call bindings, unified memory relations and a lossless compact view.
+It is a research representation alongside the production graph; existing GNN
+weights, structural memory and inference continue to use V1.
+
 Directive domains are maintained in one shared module,
 `LLM_branch/common/directive_domains.py`. Existing model entry points retain
 their checkpoint-compatible policy. The explicit `tcad` policy adds bounded

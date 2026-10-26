@@ -10,6 +10,11 @@ projector and pure encoder function bodies through scoped AST extraction,
 avoiding their training CLI side effects. Existing refinement, inference,
 training and graph generator files remain unchanged.
 
+The optional [V1/V2 comparison](../../docs/structural-graph-v2.md) is exposed by
+`python -m experiments.structural_audit.compare_v2`. It reuses the same raw MLIR
+and source references, validates call-scoped V2 queries and compact-view
+preservation, and keeps this original audit and all production consumers unchanged.
+
 ## Run from the repository root
 
 Use the project's Python environment with torch, networkx and pytest (Python
