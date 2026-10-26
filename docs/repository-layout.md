@@ -60,3 +60,38 @@ Local recovery material is outside the tracked tree in
 `.local-archive/reorganization-20261023/`: a Git bundle of the original refs,
 working-tree patches, file manifests, and cleanup records. This directory is
 ignored. It is a recovery copy, not a development worktree or another branch.
+
+## Selected model runs
+
+The active `mailohls_runs/` directory keeps the five selected checkpoint folders
+and family split listed in `FINAL_ARTIFACTS.json`. Selected `best_custom_stage*`
+directories remain intact. Their directive registries, validation budget banks,
+training contracts, and selected Stage-3 datasets/pairs are retained for
+reproducibility. Intermediate checkpoints and duplicate last-step model exports
+are outside the active directory.
+
+Two supporting components are retained even though the final-artifact manifest
+does not inventory them: `stage2_initial_states/` is required by the maintained
+Stage-2 training launcher, and the selected model, cases, calibration and metrics
+under `auto_clock_v8_final/` support the documented automatic-clock evaluation.
+Generated clock-feature caches are archived. Do not remove these dependencies
+merely because they are absent from `FINAL_ARTIFACTS.json`.
+
+Unselected runs and intermediate files were moved to the ignored recovery copy
+`.local-archive/mailohls-runs-20261026T132025Z/`. Its `manifest.json` inventories
+all original files, records moved paths and retained-file SHA256 hashes, and its
+`moves.jsonl` records each completed move. The active directory shrank from
+approximately 8.6 GiB to 438 MiB. Archiving is reversible and does not reclaim
+that disk space; model weights and historical experiments have not been
+permanently deleted. The final-artifact manifest remains unchanged.
+
+To restore the original layout, first ensure that no new run occupies an
+archived path, then run:
+
+```bash
+python .local-archive/mailohls-runs-20261026T132025Z/restore.py
+```
+
+The recovery script refuses to overwrite existing paths. Historical run metadata
+also remains in Git history. This cleanup does not automatically commit or push
+the working-tree removals of previously tracked experiment metadata.
