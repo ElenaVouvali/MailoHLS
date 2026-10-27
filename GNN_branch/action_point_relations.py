@@ -47,7 +47,11 @@ def _caller_roots(graph, root, context, chain=(), seen=()):
     if root in seen:
         return [(root, 'possible', chain)]
     if root in context:
-        target, status, bindings = context[root]
+        substitution=context[root]
+        if isinstance(substitution,list):
+            return [result for target,status,bindings in substitution
+                for result in ((r,_weakest(status,s),c) for r,s,c in _caller_roots(graph,target,context,chain+bindings,seen+(root,)))]
+        target, status, bindings = substitution
         return [(r, _weakest(status, s), c)
                 for r, s, c in _caller_roots(graph, target, context, chain + bindings, seen + (root,))]
     attrs = graph.nodes[root]
@@ -70,11 +74,34 @@ def _caller_roots(graph, root, context, chain=(), seen=()):
     return candidates or [(root, 'proven', chain)]
 
 
+def _candidate_set_complete(graph,value,seen=()):
+    """Completeness is separate from the certainty of any one alternative."""
+    if value in seen:return True
+    attrs=graph.nodes[value];roots=_roots(graph,value)
+    if not roots or any(graph.nodes[r].get('root_kind')=='unresolved' for r,_ in roots):return False
+    for key,field in (('region_root_evidence','all_alternatives_resolved'),
+                      ('return_root_evidence','all_returns_resolved'),
+                      ('loaded_pointer_evidence','candidate_set_complete')):
+        if not attrs.get(key,{}).get(field,True):return False
+    return all(_candidate_set_complete(graph,parent,seen+(value,))
+        for _,parent,_,_ in _edges(graph,value,'references'))
+
+
 def _bind_call(graph, operation, context, bindings):
     next_context=dict(context)
     for actual,formal,binding in bindings:
         actual_roots,formal_roots=_roots(graph,actual),_roots(graph,formal)
         receipt={**binding,'actual':actual,'formal':formal}
+        if graph.graph.get('semantic_revision')=='rc3':
+            complete=_candidate_set_complete(graph,actual)
+            receipt={**receipt,'root_candidates_complete':bool(complete)}
+            for formal_root,_ in formal_roots:
+                alternatives=[]
+                for actual_root,status in actual_roots:
+                    proof=_weakest(status,binding['evidence_status'],'proven' if complete and len(actual_roots)==1 else 'possible')
+                    alternatives.append((actual_root,proof,(receipt,)))
+                next_context[formal_root]=alternatives or [(formal_root,'possible',(receipt,))]
+            continue
         for formal_root,_ in formal_roots:
             next_context[formal_root]=(formal_root,'possible',(receipt,))
         if len(actual_roots)==len(formal_roots)==1:
@@ -140,6 +167,9 @@ def _accesses(graph, loop, call_context=()):
                             row['call_chain']=list(dict.fromkeys(row['call_chain']+return_calls))
                             row['access_path']='through_call'
                     found.append(row)
+                    if graph.graph.get('semantic_revision')=='rc3':
+                        row['root_candidates_complete']=all(p.get('root_candidates_complete',True) for p in path)
+                        row['root_candidates_complete'] &= _candidate_set_complete(graph,edge['memory_operand'])
             node = graph.nodes[operation]
             if not node.get('call_identity'):
                 continue

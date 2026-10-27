@@ -34,6 +34,13 @@ def resolve_returned_memory(graph, roots, constraints):
     def resolve(value, context, calls=(), seen=()):
         if value in seen: return {}, False, []
         if value in context: return context[value]
+        loaded=graph.nodes[value].get('loaded_pointer_evidence') if graph.graph.get('semantic_revision')=='rc3' else None
+        if loaded and loaded['candidate_set_complete'] and loaded['candidate_values']:
+            merged={};complete=True;receipts=[]
+            for candidate in loaded['candidate_values']:
+                found,known,path=resolve(candidate,context,calls,seen+(value,));complete &= known;merged.update(found);receipts.extend(path)
+            if not complete or len(merged)!=1:merged={r:'possible' for r in merged}
+            return merged,complete,receipts
         defining = definitions(graph, value)
         if len(defining) == 1:
             operation, index = defining[0]
@@ -308,6 +315,9 @@ def validate_semantics(graph):
         if value in context:
             actual,caller_context=context[value]
             return root_path(actual,root,seen+(value,),caller_context,calls)
+        loaded=graph.nodes[value].get('loaded_pointer_evidence') if graph.graph.get('semantic_revision')=='rc3' else None
+        if loaded and loaded['candidate_set_complete'] and loaded['candidate_values']:
+            return all(root_path(v,root,seen+(value,),context,calls) for v in loaded['candidate_values'])
         obj=graph.nodes[root]
         if obj.get('root_kind')=='unresolved':return False
         if value in obj.get('root_values',[obj.get('root_value')]):

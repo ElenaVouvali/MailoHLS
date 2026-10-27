@@ -13,13 +13,13 @@ from experiments.structural_audit import finalize_v22 as audit
 from GNN_branch.mlir_semantics_v22 import canonical_analysis
 
 
-def native_graph(tools,source,metadata,raw,output,provenance):
+def native_graph(tools,source,metadata,raw,output,provenance,semantic_revision='rc3'):
     script='''import json,sys
 from GNN_branch import mlir_graph_v2 as v
-g,_=v.generate(sys.argv[1],sys.argv[2],sys.argv[3],provenance=json.loads(sys.argv[5]),revision='2.2')
+g,_=v.generate(sys.argv[1],sys.argv[2],sys.argv[3],provenance=json.loads(sys.argv[5]),revision='2.2',semantic_revision=sys.argv[6])
 v.write_graph(g,sys.argv[4])
 '''
-    result=subprocess.run([tools['python'],'-B','-c',script,str(source),str(metadata),str(raw),str(output),json.dumps(provenance)],
+    result=subprocess.run([tools['python'],'-B','-c',script,str(source),str(metadata),str(raw),str(output),json.dumps(provenance),semantic_revision],
         cwd=audit.ROOT,env={**os.environ,'PYTHONPATH':tools['pythonpath'],'PYTHONHASHSEED':'0'},capture_output=True,text=True,timeout=180)
     assert result.returncode==0,result.stderr
     return v2.read_graph(output)
@@ -182,13 +182,75 @@ def native_ir_cases(native_tools,tmp_path_factory):
     programs['memory_zero_trip']=programs['memory_state'].replace(
         '        %c0 =', '        %b = memref.alloca() {mailohls.action_id = "L3"} : memref<8xf32> loc("kernel.cpp":3:11)\n        %c0 =').replace(
         'scf.yield %p','scf.yield %b')
+    cell='memref<memref<8xf32>>'
+    slot_stores={
+        'slot_dominating':'memref.store %a, %slot[] : '+cell,
+        'slot_overwritten':'memref.store %a, %slot[] : '+cell+'\nmemref.store %b, %slot[] : '+cell,
+        'slot_conditional':'scf.if %flag { memref.store %a, %slot[] : '+cell+' } else { memref.store %b, %slot[] : '+cell+' }',
+        'slot_incomplete':'scf.if %flag { memref.store %a, %slot[] : '+cell+' }',
+        'slot_helper':'memref.store %a, %slot[] : '+cell+'\nfunc.call @set(%slot, %b) : ('+cell+', memref<8xf32>) -> ()',
+        'slot_may_alias':'%q = arith.select %flag, %slot, %external : '+cell+'\nmemref.store %a, %q[] : '+cell,
+    }
+    for name,stores in slot_stores.items():
+        programs[name]='''module {
+func.func @set(%s: memref<memref<8xf32>>, %p: memref<8xf32>) {
+ memref.store %p, %s[] : memref<memref<8xf32>>
+ return
+}
+func.func @take(%p: memref<8xf32>, %x: f32) {
+ %z = arith.constant 0 : index
+ memref.store %x, %p[%z] : memref<8xf32>
+ return
+}
+func.func @top(%x: f32, %flag: i1, %external: memref<memref<8xf32>>) -> f32 {
+ %a = memref.alloca() {mailohls.action_id="L1"} : memref<8xf32> loc("kernel.cpp":2:11)
+ %b = memref.alloca() {mailohls.action_id="L3"} : memref<8xf32> loc("kernel.cpp":3:11)
+ %slot = memref.alloca() : memref<memref<8xf32>>
+ '''+stores+'''
+ %p = memref.load %slot[] : memref<memref<8xf32>>
+ %c0 = arith.constant 0 : index
+ %c1 = arith.constant 1 : index
+ %c8 = arith.constant 8 : index
+ scf.for %i = %c0 to %c8 step %c1 {
+  func.call @take(%p, %x) : (memref<8xf32>, f32) -> ()
+ } loc("kernel.cpp":4:5)
+ return %x : f32
+} }'''
+    programs['slot_nested']=programs['slot_conditional'].replace('func.func @top(',
+        'func.func @outer(%p:memref<8xf32>,%x:f32) { func.call @take(%p,%x) : (memref<8xf32>,f32)->() return }\nfunc.func @top(').replace(
+        'func.call @take(%p, %x)', 'func.call @outer(%p, %x)').replace(
+        ' } loc("kernel.cpp":4:5)', '  func.call @outer(%a,%x) : (memref<8xf32>,f32)->()\n } loc("kernel.cpp":4:5)')
+    conditional_prefix='''module { func.func @top(%x:f32,%flag:i1,%n:index)->f32 {
+ %a=memref.alloca() {mailohls.action_id="L1"}:memref<8xf32> loc("kernel.cpp":2:11)
+ %b=memref.alloca() {mailohls.action_id="L3"}:memref<8xf32> loc("kernel.cpp":3:11)
+ %z=arith.constant 0:index
+ %one=arith.constant 1:index
+'''
+    expressions={
+        'conditional_if':'%p=scf.if %flag -> memref<8xf32> {scf.yield %a:memref<8xf32>} else {scf.yield %b:memref<8xf32>}',
+        'conditional_affine':'%p=affine.if affine_set<(d0):(d0>=0)>(%n) -> memref<8xf32> {affine.yield %a:memref<8xf32>} else {affine.yield %b:memref<8xf32>}',
+        'conditional_while':'''%p=scf.while (%v=%a):(memref<8xf32>)->memref<8xf32> {
+ scf.condition(%flag) %v:memref<8xf32>
+ } do { ^bb0(%v:memref<8xf32>): scf.yield %b:memref<8xf32> }''',
+        'conditional_for_zero':'%p=scf.for %i=%z to %z step %one iter_args(%v=%a)->memref<8xf32> {scf.yield %b:memref<8xf32>}',
+        'conditional_for_one':'%p=scf.for %i=%z to %one step %one iter_args(%v=%a)->memref<8xf32> {scf.yield %b:memref<8xf32>}',
+    }
+    for name,expression in expressions.items():
+        programs[name]=conditional_prefix+expression+'\nmemref.store %x,%p[%z]:memref<8xf32>\nreturn %x:f32 } }'
+    programs['evidence_first']='''module {func.func @top(%x:f32) -> f32 {
+ %wrong = memref.alloca() {mailohls.action_id="L3"} : memref<8xf32> loc("kernel.cpp":2:11)
+ %correct = memref.alloca() {mailohls.action_id="L1"} : memref<8xf32> loc("kernel.cpp":20:11)
+ %z = arith.constant 0 : index
+ memref.store %x, %correct[%z] : memref<8xf32>
+ return %x : f32
+} }'''
     programs['overlapping_views']=views['mlir'].replace('    %r =',
         '    %q = memref.subview %a[18] [8] [2] : memref<64xf32> to memref<8xf32, strided<[2], offset: 18>>\n    %r =').replace(
         '      %v = memref.load','      memref.store %x, %q[%i] : memref<8xf32, strided<[2], offset: 18>>\n      %v = memref.load')
     for name,mlir in programs.items():
         directory=output/name;directory.mkdir();source=directory/'kernel.cpp';meta=directory/'kernel_info.txt';raw=directory/'kernel.mlir'
         source.write_text(views['program'] if 'views' in name else 'extern "C" float top(float x){\nL1: float a[8];\nL3: float b[8];\nL9: for(int i=0;i<8;i++)a[i]=x;\nreturn x;\n}\n')
-        meta.write_text(views['metadata'] if 'views' in name else 'top\nL1,array,a,1,8\n'+('L3,array,b,1,8\nL9,loop,8\n' if name=='memory_zero_trip' else 'L9,loop,8\n' if name=='memory_state' else 'L3,array,b,1,8\n' if name=='select' else ''));raw.write_text(mlir)
+        meta.write_text(views['metadata'] if 'views' in name else 'top\nL1,array,a,1,8\n'+('L3,array,b,1,8\nL9,loop,8\n' if name=='memory_zero_trip' or name.startswith('slot_') else 'L9,loop,8\n' if name=='memory_state' else 'L3,array,b,1,8\n' if name=='select' or name.startswith('conditional_') else ''));raw.write_text(mlir)
         provenance={'native_fixture':{'origin':'handwritten_MLIR_native_verified','mlir_sha256':v2.digest(raw)},
                     'fixture_semantic_expectations':'independently specified; not frontend-generated output'}
         graphs[name]=native_graph(native_tools,source,meta,raw,directory/'graph.json',provenance)
@@ -287,3 +349,100 @@ def test_native_view_order_canonicalization_retains_the_exact_multiset():
     assert len(canonical_analysis(original)['views'])==3
     assert original['views'][0]['source']=='b'  # Input/legacy data is not mutated.
     assert canonical_analysis(original)['dependences']==original['dependences']
+
+
+@pytest.mark.parametrize('name,expected,complete',[
+    ('slot_dominating',{'L1'},True),('slot_overwritten',{'L3'},True),
+    ('slot_conditional',{'L1','L3'},True),('slot_incomplete',{'L1'},False),
+    ('slot_helper',{'L1'},False),('slot_may_alias',set(),False)])
+def test_reaching_pointer_stores_are_control_proven(native_ir_cases,name,expected,complete):
+    g=native_ir_cases[name]
+    plans=[a['loaded_pointer_evidence'] for _,a in g.nodes(data=True) if a.get('loaded_pointer_evidence') and a['loaded_pointer_evidence']['load_operation'].startswith('op:top:')]
+    assert len(plans)==1 and plans[0]['candidate_set_complete']==complete
+    rows=[r for r in query(g,'L9','all') if r['relation_type']=='memory_access']
+    assert {r['neighbor'] for r in rows}==expected
+    if len(expected)>1 or not complete:assert not any(r['evidence_status']=='proven' for r in rows)
+    if expected:assert all(r['root_candidates_complete']==complete for r in rows)
+    audit.queries_equal(g,v2.compact_view(g))
+
+
+def test_array_resolution_enumerates_native_evidence_before_legacy_selection(native_ir_cases):
+    g=native_ir_cases['evidence_first'];point=g.nodes['action:L1'];proof=point['array_binding_evidence']
+    assert proof['tier']=='native_action_attribute'
+    assert g.nodes[proof['operation']]['source_line']==20  # Legacy location-first picks the wrong object at line 2.
+    assert g.nodes[proof['operation']]['mlir_attrs']['mailohls.action_id']=='"L1"'
+
+
+def test_possible_nested_calls_preserve_alternatives_and_separate_invocations(native_ir_cases):
+    g=native_ir_cases['slot_nested']
+    rows=[r for r in query(g,'L9','all') if r['relation_type']=='memory_access' and r.get('concrete')]
+    groups={}
+    for row in rows:groups.setdefault(row['call_chain'][0],[]).append(row)
+    assert len(groups)==2
+    alternatives=next(rs for rs in groups.values() if len(rs)==2)
+    assert {r['neighbor'] for r in alternatives}=={'L1','L3'}
+    assert all(r['evidence_status']=='possible' and r['root_candidates_complete'] for r in alternatives)
+    single=next(rs for rs in groups.values() if len(rs)==1)
+    assert single[0]['neighbor']=='L1' and single[0]['evidence_status']=='proven'
+    assert all(len(r['call_chain'])==2 for r in rows)
+    audit.queries_equal(g,v2.compact_view(g))
+
+
+@pytest.mark.parametrize('name',['conditional_if','conditional_affine','conditional_while','conditional_for_zero','conditional_for_one'])
+def test_conditional_memory_results_do_not_invent_unique_roots(native_ir_cases,name):
+    g=native_ir_cases[name]
+    accesses=[(v,e) for _,v,e in g.edges(data=True) if e['relation_type']=='memory_access']
+    assert len(accesses)==2 and all(e['evidence_status']=='possible' for _,e in accesses)
+    assert {v for v,_ in accesses}=={v for u,v,e in g.edges(data=True) if e['relation_type']=='targets'}
+    # For static for counts this implementation conservatively retains both
+    # state paths. It does not equate a sound overapproximation with exact aliasing.
+    audit.queries_equal(g,v2.compact_view(g))
+
+
+def test_loaded_pointer_witness_corruption_is_rejected(native_ir_cases):
+    g=deepcopy(native_ir_cases['slot_dominating'])
+    value=next(n for n,a in g.nodes(data=True) if a.get('loaded_pointer_evidence',{}).get('candidate_set_complete'))
+    g.nodes[value]['loaded_pointer_evidence']['store_operations']=[]
+    with pytest.raises(ValueError,match='Loaded-pointer'):
+        v2.validate(g)
+
+
+def test_rc2_native_mode_reproduces_frozen_topology(frozen,native_tools,tmp_path):
+    base,cohort=frozen
+    row=next(r for r in cohort['graphs'] if r['snapshot_id'].startswith('96b4d608'))
+    directory,records=audit.rc2_baseline(tmp_path)
+    record=records[row['snapshot_id']]
+    reference=v2.read_graph(directory/'canonical'/Path(record['canonical']).name)
+    reproduced=native_graph(native_tools,base/row['source'],base/row['metadata'],base/row['raw_mlir'],
+        tmp_path/'historical_rc2.json',reference.graph['provenance'],'rc2')
+    assert not reproduced.graph.get('semantic_revision')
+    assert v2.graph_payload(reference)['nodes']==v2.graph_payload(reproduced)['nodes']
+    assert v2.graph_payload(reference)['edges']==v2.graph_payload(reproduced)['edges']
+    # Source/code hashes legitimately differ in a reproduction run. Semantics do not.
+    for point,a in reference.nodes(data=True):
+        if a.get('category')=='action_point':
+            old=query(reference,a['action_id'],'all');new=query(reproduced,a['action_id'],'all')
+            for rows in (old,new):
+                for r in rows:r.pop('source_provenance',None);r.pop('graph_identity',None)
+            assert old==new
+
+
+def test_live_tuple_and_portable_list_have_identical_canonical_JSON(native_ir_cases,tmp_path):
+    graph=deepcopy(native_ir_cases['pointer'])
+    graph.graph['roundtrip_contract_fixture']={'source_use_lines':(2,4)}
+    path=tmp_path/'portable.json';v2.write_graph(graph,path)
+    read=v2.read_graph(path)
+    assert v2.canonical_json(v2.graph_payload(graph))==v2.canonical_json(v2.graph_payload(read))
+
+
+def test_resume_seals_initial_git_receipt_but_rejects_changed_code(tmp_path):
+    path=tmp_path/'protocol.json'
+    original={'git_commit':'initial','worktree_status':'initial local edits',
+        'code_sha256':{'builder':'exact'},'source_sha256':'source'}
+    audit.seal_protocol(path,original);before=path.read_bytes()
+    audit.seal_protocol(path,{**original,'git_commit':'later','worktree_status':'later docs'})
+    assert path.read_bytes()==before
+    with pytest.raises(ValueError,match='Frozen contract changed'):
+        audit.seal_protocol(path,{**original,'code_sha256':{'builder':'changed'}})
+    with pytest.raises(ValueError,match='Frozen contract changed'):
+        audit.seal_protocol(path,{**original,'source_sha256':'changed'})

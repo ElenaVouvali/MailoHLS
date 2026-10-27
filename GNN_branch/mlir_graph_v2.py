@@ -311,10 +311,15 @@ def _memory(graph, result, revision='2.0'):
         if not changed: break
     if revision in ('2.1', '2.2'):
         from GNN_branch.mlir_semantics import resolve_returned_memory
+        if graph.graph.get('semantic_revision')=='rc3':
+            from GNN_branch.mlir_semantics_v22 import region_roots, resolve_loaded_memory
+            region_roots(graph,roots,constraints)
+            resolve_loaded_memory(graph,roots,constraints)
         resolve_returned_memory(graph, roots, constraints)
     if revision == '2.2':
         from GNN_branch.mlir_semantics_v22 import region_roots
         region_roots(graph, roots, constraints)
+        if graph.graph.get('semantic_revision')=='rc3':resolve_loaded_memory(graph,roots,constraints)
     # Keep unresolved storage explicit instead of dropping concrete accesses.
     # One placeholder per source SCC preserves view/iter-argument forwarding
     # without claiming an allocation, a unique caller, or a proven alias.
@@ -388,6 +393,8 @@ def build_from_result(result, provenance=None, paired_v1=None, global_definition
     if revision not in ('2.0', '2.1', '2.2'):
         raise ValueError('Unknown structural graph revision')
     graph.graph['schema'] = {'2.0':SCHEMA, '2.1':SCHEMA_V21, '2.2':SCHEMA_V22}[revision]
+    if revision=='2.2' and (provenance or {}).get('v22_semantic_revision')=='rc3':
+        graph.graph['semantic_revision']='rc3'
     _control_and_calls(graph, result, mapping)
     roots = _memory(graph, result, revision)
     for _, attrs in graph.nodes(data=True):
@@ -435,6 +442,10 @@ def build_from_result(result, provenance=None, paired_v1=None, global_definition
             if binding:
                 graph.nodes[point].update(global_action_binding=deepcopy(binding),
                     target_binding_rule='exact_compiler_global_source_binding')
+            evidence=graph.nodes[targets[0]].get('array_binding_evidence')
+            if evidence:
+                graph.nodes[point].update(array_binding_evidence=deepcopy(evidence),
+                    target_binding_rule='native_evidence_first_array')
         add_relation(graph, point, target, 'targets', status, source_binding=dict(attrs))
     compatibility = {}
     old_graph = paired_v1 if paired_v1 is not None else result.graph
@@ -710,6 +721,9 @@ class _PreciseCoverageBuilder(_CoverageBuilder):
                     flow=v1.FLOW_REGION,position=0,role='native_block_argument_ownership')
 
     def _array_argument_node(self, spec):
+        if getattr(self,'semantic_revision',None)=='rc3':
+            from GNN_branch.mlir_semantics_v22 import resolve_array_action
+            return resolve_array_action(self,spec)
         resolved = super()._array_argument_node(spec)
         function, node, _, _ = resolved
         defining = [r for r in self.operation_records if any(self.value_nodes[k] == node for k in r.result_keys)]
@@ -721,7 +735,7 @@ class _PreciseCoverageBuilder(_CoverageBuilder):
         return resolved
 
 
-def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='2.0'):
+def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='2.0', semantic_revision='rc3'):
     """Keep the owning MLIR module alive until every live-object query finishes."""
     from mlir._mlir_libs import _mailohls_analysis
     fixture = (provenance or {}).get('native_fixture', {})
@@ -768,11 +782,13 @@ def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='
         builder_class = {'2.0':v1.MLIRGraphBuilder, '2.1':_CoverageBuilder, '2.2':_PreciseCoverageBuilder}[revision]
         builder = builder_class(module, text, actions, compiler_analysis=analysis,
             analysis_extension_sha256=digest(_mailohls_analysis.__file__), require_actions=revision == '2.0')
+        builder.semantic_revision=semantic_revision if revision=='2.2' else None
         result = builder.build()
         if revision in ('2.1','2.2'): result.actions = actions
         shared_seconds = time.perf_counter() - started
         started = time.perf_counter()
         graph = build_from_result(result, {**(provenance or {}), 'source_sha256': digest(source),
+            **({'v22_semantic_revision':'rc3'} if revision=='2.2' and semantic_revision=='rc3' else {}),
             'metadata_sha256': digest(metadata), 'mlir_sha256': digest(mlir),
             'analysis_extension_sha256': digest(_mailohls_analysis.__file__),
             'v1_generator_sha256': digest(v1.__file__), 'v2_builder_sha256': digest(__file__),
@@ -797,6 +813,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--mode', choices=('generate', 'compact', 'validate'), default='generate')
     parser.add_argument('--revision', choices=('2.0', '2.1', '2.2'), default='2.0')
+    parser.add_argument('--semantic-revision',choices=('rc2','rc3'),default='rc3',help='V2.2 semantic compatibility mode')
     parser.add_argument('--source'); parser.add_argument('--metadata'); parser.add_argument('--mlir')
     parser.add_argument('--mlir-output', help='Preserve frontend IR for a fresh source compilation')
     parser.add_argument('--input'); parser.add_argument('--output')
@@ -820,7 +837,7 @@ def main():
     metadata = Path(args.metadata).resolve() if args.metadata else source.with_name('kernel_info.txt')
     paired = nx.read_gexf(args.v1_graph) if args.v1_graph else None
     if args.mlir:
-        graph, timing = generate(source, metadata, args.mlir, paired, revision=args.revision)
+        graph, timing = generate(source, metadata, args.mlir, paired, revision=args.revision,semantic_revision=args.semantic_revision)
     else:
         with tempfile.TemporaryDirectory(prefix='mailohls_v2_') as directory:
             path = Path(directory)
@@ -837,7 +854,7 @@ def main():
                 saved.parent.mkdir(parents=True, exist_ok=True)
                 saved.write_bytes((path/'input.mlir').read_bytes())
             graph, timing = generate(source, metadata, path/'input.mlir', paired,
-                {'cgeist_sha256': digest(command[0]), 'frontend_arguments': [a for a in command if str(path) not in a]}, args.revision)
+                {'cgeist_sha256': digest(command[0]), 'frontend_arguments': [a for a in command if str(path) not in a]}, args.revision,args.semantic_revision)
     write_graph(graph, args.output)
     print(canonical_json({**validate(graph), **timing}))
 

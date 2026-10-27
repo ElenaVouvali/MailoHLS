@@ -9,10 +9,13 @@ import argparse
 from collections import Counter, defaultdict
 import csv
 import fcntl
+import gzip
+import io
 import json
 import os
 from pathlib import Path
 import subprocess
+import tarfile
 import time
 
 from GNN_branch import mlir_graph_v2 as v2
@@ -33,13 +36,14 @@ def headers(source):
     return {p.name: c.sha256(p) for p in sorted(Path(source).parent.glob('*.h'))}
 
 
-def inventory(root=c.ROOT):
+def inventory(root=c.ROOT, source_overrides=None):
     """Read the authoritative 55-kernel list through AST, never config imports.
 
     Metadata copies with equal content collapse; different metadata stays a
     different snapshot even when the C/C++ source is byte-identical.
     """
     root = Path(root)
+    source_overrides = source_overrides or {}
     names = load_all_kernel_names(root / 'GNN_branch/config.py')
     applications = load_application_rows(root / 'Data/ApplicationInformation.csv')
     memberships, split_hashes = {}, {}
@@ -74,6 +78,9 @@ def inventory(root=c.ROOT):
                                memberships.get(directory.name, {})))
     snapshots = {}
     for name, source, meta, top, origin, split in discovered:
+        original_source = source
+        if name in source_overrides:
+            source = Path(source_overrides[name]).resolve()
         error = None
         try:
             if source is None:
@@ -94,6 +101,10 @@ def inventory(root=c.ROOT):
         alias = {'kernel': name, 'family':c.mc.family_id_from_kernel_name(name),
                  'origin': origin, 'source': str(source) if source else None,
                  'metadata': str(meta), 'split_membership': split or {'status': 'unidentified'}}
+        if name in source_overrides:
+            alias.update(original_source=str(original_source) if original_source else None,
+                original_source_sha256=c.sha256(original_source) if original_source and original_source.is_file() else None,
+                source_selection='explicit_override; different source snapshot; equivalence not assumed')
         if identity in snapshots:
             snapshots[identity]['aliases'].append(alias)
             continue
@@ -101,17 +112,19 @@ def inventory(root=c.ROOT):
             'source': str(source) if source else None, 'metadata': str(meta),
             'source_sha256': source_hash, 'metadata_sha256': meta_hash,
             'local_header_sha256': local_headers, 'aliases': [alias], 'inventory_error': error}
+    unknown = set(source_overrides) - {item[0] for item in discovered}
+    if unknown:
+        raise ValueError('Unknown source-override kernels: ' + ', '.join(sorted(unknown)))
     return {'development_kernel_count': len(names), 'split_sha256': split_hashes,
             'split_note':'The stage1_stage2_family_split_s123 artifact has JSONL row indices only; kernel membership is recorded from separately saved kernel-name split manifests, not guessed from those indices.',
             'snapshots': list(snapshots.values())}
 
 
 def authenticate(path, snapshot, tools):
-    graph = v2.read_graph(path)
-    if graph.graph['schema'] != v2.SCHEMA_V21 or graph.graph.get('view') != 'canonical':
+    payload = json.loads(Path(path).read_text())
+    if payload.get('schema') != v2.SCHEMA_V21 or payload.get('metadata', {}).get('view') != 'canonical':
         raise ValueError('A canonical V2.1 artifact is required')
-    v2.validate(graph)
-    provenance = graph.graph['provenance']
+    provenance = payload['metadata']['provenance']
     expected = {key: snapshot[key] for key in ('source_sha256', 'metadata_sha256', 'local_header_sha256')}
     expected.update(analysis_extension_sha256=tools['analysis_extension_sha256'],
                     v1_generator_sha256=c.sha256(c.ROOT / 'GNN_branch/mlir_graph_gen.py'),
@@ -125,7 +138,7 @@ def authenticate(path, snapshot, tools):
         raise ValueError('Graph frontend build mismatch')
     if frontend.get('kernel', snapshot['top']) != snapshot['top']:
         raise ValueError('Graph top mismatch')
-    return graph
+    return v2.read_graph(path)  # Includes full validation after provenance checks.
 
 
 def checked_views(graph, compact=None):
@@ -238,13 +251,92 @@ def csv_rows(path, rows):
                          for k, v in row.items()} for row in rows)
 
 
+def package(output, archive):
+    """Export a complete, hash-checked corpus with a portable relative index.
+
+    No compiler, model or synthesis runs here. Old code/source contracts are
+    never silently relabeled as current artifacts.
+    """
+    output, archive = Path(output), Path(archive)
+    manifest = json.loads((output/'corpus_manifest.json').read_text())
+    records = manifest['records']
+    if (set(records) != {r['snapshot_id'] for r in manifest['inventory']['snapshots']}
+            or any(r.get('validation') != 'pass' or r.get('semantic_queries') != 'identical' for r in records.values())):
+        raise ValueError('A complete validated corpus is required; pending/blocked snapshots cannot be packaged as complete')
+    files, index = {}, []
+    for filename, digest in manifest['code_sha256'].items():
+        path = c.repo_path(filename)
+        if c.sha256(path) != digest:
+            raise ValueError('Frozen corpus implementation changed: '+filename)
+        files['provenance/code/'+filename] = path.read_bytes()
+    files['corpus_manifest.json'] = (output/'corpus_manifest.json').read_bytes()
+    for name in ('graph_coverage.csv','relation_coverage.csv','generation_summary.csv'):
+        files[name] = (output/name).read_bytes()
+    for ident, record in sorted(records.items()):
+        row = {k:record[k] for k in ('kernel','snapshot_id','top','source_sha256','metadata_sha256','aliases','schema','coverage','numerical_fidelity')}
+        views = {}
+        for kind in ('canonical','compact'):
+            path = Path(record[kind])
+            if c.sha256(path) != record[kind+'_sha256']:
+                raise ValueError('Graph changed: '+str(path))
+            views[kind] = authenticate(path,record,manifest['toolchain']) if kind == 'canonical' else v2.read_graph(path)
+            row[kind] = kind+'/'+path.name
+            row[kind+'_sha256'] = record[kind+'_sha256']
+            files[row[kind]] = path.read_bytes()
+        checked_views(views['canonical'],views['compact'])
+        for key in ('source','metadata'):
+            path = Path(record[key])
+            if c.sha256(path) != record[key+'_sha256']:
+                raise ValueError('Corpus input changed: '+str(path))
+            row[key] = 'source_snapshots/'+ident+'/'+path.name
+            files[row[key]] = path.read_bytes()
+        source = Path(record['source'])
+        for name,digest in record['local_header_sha256'].items():
+            path = source.parent/name
+            if c.sha256(path) != digest: raise ValueError('Local header changed: '+str(path))
+            files['source_snapshots/'+ident+'/'+name] = path.read_bytes()
+        for alias in record['aliases']:
+            original = alias.get('original_source')
+            if original:
+                path = Path(original)
+                if c.sha256(path) != alias['original_source_sha256']:
+                    raise ValueError('Original overridden source changed')
+                files['source_snapshots/'+ident+'/original/'+path.name] = path.read_bytes()
+        if record.get('raw_mlir'):
+            path = Path(record['raw_mlir'])
+            if c.sha256(path) != record['raw_mlir_sha256']: raise ValueError('Raw compiler IR changed')
+            row['raw_mlir'] = 'raw_mlir/'+path.name; files[row['raw_mlir']] = path.read_bytes()
+        index.append(row)
+    files['index.json'] = (json.dumps({'schema':v2.SCHEMA_V21,'toolchain':manifest['toolchain'],
+        'snapshots':index},sort_keys=True,indent=2)+'\n').encode()
+    files['README.txt'] = b'V2.1 compiler graphs. Read index.json for portable relative paths and exact source variants.\nThe original manifest retains execution-host paths. Source overrides are different snapshots, not equivalence claims.\nAP analysis stubs are not vendor arithmetic. Compiler uncertainty is retained. V1 weights are incompatible.\nNo model weights or HLS measurements are included. Local source/header snapshots and generation code are included.\n'
+    archive.parent.mkdir(parents=True,exist_ok=True)
+    temporary = archive.with_name(archive.name+'.tmp')
+    with temporary.open('wb') as handle, gzip.GzipFile(fileobj=handle,mode='wb',filename='',mtime=0) as compressed:
+        with tarfile.open(fileobj=compressed,mode='w') as bundle:
+            for name,data in sorted(files.items()):
+                info = tarfile.TarInfo(name); info.size=len(data); info.mode=0o644
+                bundle.addfile(info,io.BytesIO(data))
+    temporary.replace(archive)
+    archive.with_name(archive.name+'.sha256').write_text(c.sha256(archive)+'  '+archive.name+'\n')
+    print(f'Packaged {len(records)} snapshots: {archive} ({archive.stat().st_size} bytes)')
+    return index
+
+
 def run(args):
     output = Path(args.output_dir).resolve(); output.mkdir(parents=True, exist_ok=True)
     with (output / '.lock').open('w') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        found = inventory()
+        overrides = {}
+        for entry in getattr(args, 'source_override', []):
+            name, separator, filename = entry.partition('=')
+            if not separator or not name or not filename or name in overrides:
+                raise ValueError('Use one --source-override KERNEL=SOURCE per kernel')
+            overrides[name] = filename
+        found = inventory(source_overrides=overrides)
         tools = compiler_tools(args.build, args.native_python)
         code = {c.display_path(p): c.sha256(p) for p in [Path(__file__),
+            c.ROOT/'GNN_branch/generate_mlir_dataset.py',
             c.ROOT/'GNN_branch/mlir_graph_v2.py', c.ROOT/'GNN_branch/mlir_graph_gen.py',
             c.ROOT/'GNN_branch/mlir_semantics.py', c.ROOT/'GNN_branch/action_point_relations.py']}
         contract = {'inventory': found, 'toolchain': tools, 'code_sha256': code, 'schema': v2.SCHEMA_V21}
@@ -252,7 +344,18 @@ def run(args):
         manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {**contract, 'records': {}}
         if any(manifest[k] != value for k, value in contract.items()):
             raise ValueError('Frozen corpus inputs/code/toolchain changed; select a fresh output directory')
-        reused = sorted(Path(args.reuse_dir).glob('*.json'))
+        # Index provenance once; unrelated large graphs need not be parsed and
+        # semantically validated for every source snapshot in the corpus.
+        reused = defaultdict(list)
+        for path in sorted(Path(args.reuse_dir).glob('*.json')):
+            try:
+                data = json.loads(path.read_text())
+                if data.get('schema') != v2.SCHEMA_V21 or data.get('metadata', {}).get('view') != 'canonical':
+                    continue
+                provenance = data['metadata']['provenance']
+                reused[(provenance.get('source_sha256'), provenance.get('metadata_sha256'))].append(path)
+            except (OSError, ValueError, KeyError):
+                continue
         selected = set(args.only or [])
         for snapshot in found['snapshots']:
             if selected and not selected.intersection(a['kernel'] for a in snapshot['aliases']):
@@ -260,7 +363,7 @@ def run(args):
             key = snapshot['snapshot_id']; previous = manifest['records'].get(key)
             if previous and previous['status'] in ('blocked', 'invalid_artifact') and not args.retry_blocked:
                 continue
-            record = process(snapshot, output, tools, reused, previous, args.timeout)
+            record = process(snapshot, output, tools, reused[(snapshot['source_sha256'],snapshot['metadata_sha256'])], previous, args.timeout)
             if previous and previous.get('validation') == 'pass' and record.get('validation') == 'pass':
                 record = {**previous, 'resume_validation': 'pass'}
             manifest['records'][key] = record
@@ -286,15 +389,21 @@ def run(args):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--mode', choices=('generate','package'), default='generate')
     parser.add_argument('--output-dir', default=str(DEFAULT_OUTPUT))
     parser.add_argument('--reuse-dir', default=str(DEFAULT_REUSE))
     parser.add_argument('--build', default=BUILD)
     parser.add_argument('--native-python', default=str(Path.home()/'.mlir-python311/bin/python'))
     parser.add_argument('--only', nargs='+'); parser.add_argument('--retry-blocked', action='store_true')
+    parser.add_argument('--source-override', action='append', default=[], metavar='KERNEL=SOURCE',
+                        help='Explicit source variant; original source identity is retained and equivalence is not assumed')
     parser.add_argument('--timeout', type=int, default=600)
+    parser.add_argument('--archive', help='Export a complete validated portable .tar.gz corpus')
     args = parser.parse_args(argv)
     if args.timeout <= 0: parser.error('--timeout must be positive')
-    run(args)
+    if args.mode == 'generate': run(args)
+    if args.mode == 'package' and not args.archive: parser.error('package mode requires --archive')
+    if args.archive: package(Path(args.output_dir).resolve(),Path(args.archive).resolve())
 
 
 if __name__ == '__main__':

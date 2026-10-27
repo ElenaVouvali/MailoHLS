@@ -24,6 +24,75 @@ POINTER_VIEWS = {
 LOOPS = {'scf.for','scf.forall','scf.parallel','scf.while','affine.for','affine.parallel'}
 
 
+def pointer_semantics(graph,kind):
+    if is_rc3(graph) and kind=='polygeist.memref2pointer':
+        return 'aligned_pointer_plus_source_descriptor_offset_or_pointer_ABI_cast'
+    return POINTER_VIEWS[kind]
+
+
+def is_rc3(graph):
+    return graph.graph.get('semantic_revision')=='rc3'
+
+
+def resolve_array_action(builder,spec):
+    """Enumerate compiler evidence before any legacy heuristic selection."""
+    from GNN_branch import mlir_graph_gen as front
+    function,_=builder._resolve_action_function_id(spec)
+    storage={'memref.alloc','memref.alloca','llvm.alloca','memref.get_global'}
+    views=front.VIEW_OPS | set(POINTER_VIEWS) | {'polygeist.subindex'}
+    definitions_by_value={builder.value_nodes[k]:r for r in builder.operation_records for k in r.result_keys}
+    def root(value,seen=()):
+        if value in seen:return None
+        record=definitions_by_value.get(value)
+        if record and record.op_name in storage:return value
+        if record and record.op_name in views and record.operands:
+            base=builder.value_nodes.get(builder._value_key(record.operands[0]))
+            return root(base,seen+(value,)) if base is not None else None
+        if builder.graph.nodes[value].get('function_argument_index',-1)>=0:return value
+        return None
+    candidates=[]
+    for record in builder.operation_records:
+        if record.function_id!=function:continue
+        annotation=front.strip_mlir_string(record.attributes.get('mailohls.action_id',''))
+        declaration=builder._source_distance(record,spec) is not None and record.op_name in storage
+        if annotation!=spec.action_id and not (declaration and not annotation):continue
+        for key in record.result_keys:
+            value=builder.value_nodes[key]
+            if not front.is_memory_type(str(builder.graph.nodes[value].get('value_type',''))):continue
+            origin=root(value)
+            candidates.append((0 if annotation==spec.action_id else 1,record,value,origin))
+    if candidates:
+        tier=min(c[0] for c in candidates);candidates=[c for c in candidates if c[0]==tier]
+    # Repeated get_global operations for one compiler symbol denote one object.
+    identities={}
+    for tier,record,value,origin in candidates:
+        if origin is None:continue
+        base=definitions_by_value.get(origin)
+        identity=('global',str(base.attributes.get('name'))) if base and base.op_name=='memref.get_global' else ('ssa',builder.graph.nodes[origin]['ssa_id'])
+        identities.setdefault(identity,(tier,record,value,origin))
+    if len(identities)>1 and candidates and candidates[0][0]==1:
+        # Colocated C++ initialization guards are compiler objects too. Shape
+        # is only a consistency filter AFTER exact declaration/function proof.
+        consistent={key:c for key,c in identities.items() if tuple(builder._node_memory_shape(c[2])[:len(spec.array_dimensions)])==spec.array_dimensions}
+        if len(consistent)==1:identities=consistent
+    if len(identities)!=1 or any(c[3] is None for c in candidates):
+        diagnostic=[{'operation':r.function_name+':op'+str(r.function_ordinal),'kind':r.op_name,
+            'annotation':front.strip_mlir_string(r.attributes.get('mailohls.action_id','')),
+            'location':r.location,'value':builder.graph.nodes[v]['ssa_id'],'unique_root_available':origin is not None}
+            for _,r,v,origin in candidates]
+        raise RuntimeError(f'Array action {spec.action_id}/{spec.variable}: no unique compiler-evidence target; candidates='+json.dumps(diagnostic,sort_keys=True))
+    tier,record,value,origin=next(iter(identities.values()))
+    evidence={'action_id':spec.action_id,'tier':'native_action_attribute' if tier==0 else 'exact_declaration_location',
+        'operation':'op:'+record.function_name+':op'+str(record.function_ordinal),
+        'value':'value:'+builder.graph.nodes[value]['ssa_id'],'root_value':'value:'+builder.graph.nodes[origin]['ssa_id'],
+        'function':record.function_id,'source_line':spec.source_line,
+        'compiler_shape':list(builder._node_memory_shape(value)),'source_shape':list(spec.array_dimensions),
+        'shape_role':'consistency_only; optimized compiler shape does not redefine source dimensions',
+        'selection':'all exact compiler candidates enumerated before selection; no heuristic candidate consulted'}
+    builder.graph.nodes[value]['array_binding_evidence']=evidence
+    return record.function_id,value,record.block_id,'source_location'
+
+
 class _Handle(ctypes.Structure):
     _fields_=[('ptr',ctypes.c_void_p)]
 
@@ -102,7 +171,7 @@ def pointer_constraints(graph, constraints):
             constraints[value].add(base)
             add_relation(graph,value,base,'references',source_analysis={
                 'operation':operation,'operand_index':0,'reason':'native_storage_preserving_pointer_operation'},
-                storage_relation=POINTER_VIEWS[node['text']], element_overlap='not_established')
+                storage_relation=pointer_semantics(graph,node['text']), element_overlap='not_established')
 
 
 def region_roots(graph, roots, constraints):
@@ -139,6 +208,105 @@ def region_roots(graph, roots, constraints):
         if not changed:break
 
 
+def loaded_pointer_plan(graph,value,roots):
+    """Small reaching-definition proof: nonescaping local cell, exact address,
+    same native block order and structured if branches. Other CFG/call writes
+    remain incomplete; textual order in different blocks is never dominance.
+    """
+    found=definitions(graph,value)
+    if len(found)!=1:return None
+    load,_=found[0];node=graph.nodes[load]
+    if node.get('text') not in ('memref.load','affine.load') or not graph.nodes[value].get('is_memory'):return None
+    slot=operands(graph,load).get(0);slot_roots=roots.get(slot,set())
+    plan={'load_operation':load,'container_value':slot,'candidate_values':[],'store_operations':[],
+          'candidate_set_complete':False,'scope':'same_native_block_and_structured_conditionals',
+          'reason':'no_unique_nonescaping_local_pointer_cell'}
+    if len(slot_roots)!=1:return plan
+    root=next(iter(slot_roots));plan['container_root']=root
+    if graph.nodes[root].get('root_kind')!='allocation':
+        plan['reason']='formal_or_global_pointer_cell_requires_invocation_aware_reaching_store_analysis';return plan
+    function=node['function']
+    aliases={v for v,r in roots.items() if root in r}
+    # A helper or unsupported consumer may retain/write the cell. No assumption
+    # about an unknown call's purity or absence of aliases is made here.
+    escaped=[]
+    allowed={'memref.load','affine.load','memref.store','affine.store','memref.cast','memref.subview','memref.reinterpret_cast'}
+    for op,a in graph.nodes(data=True):
+        if a.get('category')!='operation' or a.get('function')!=function:continue
+        args=operands(graph,op)
+        if set(args.values())&aliases:
+            if a['text'] not in allowed or (a['text'] in ('memref.store','affine.store') and args.get(0) in aliases):escaped.append(op)
+    def address(op,store):
+        args=operands(graph,op);offset=2 if store else 1
+        indices=[]
+        for i,v in sorted(args.items()):
+            if i<offset:continue
+            d=definitions(graph,v)
+            if len(d)==1 and graph.nodes[d[0][0]].get('text')=='arith.constant':
+                indices.append(('constant',graph.nodes[d[0][0]].get('mlir_attrs',{}).get('value'),graph.nodes[v]['value_type']))
+            else:indices.append(('ssa',v))
+        return (args.get(1 if store else 0),graph.nodes[op].get('mlir_attrs',{}).get('map'),tuple(indices))
+    key=address(load,False)
+    def block_ops(block):return sorted((n for n,a in graph.nodes(data=True) if a.get('category')=='operation'
+        and a.get('function')==function and a.get('block')==block and ':op' in a.get('op_uid','')),key=lambda n:graph.nodes[n]['block_order'])
+    def transfer(op,state):
+        values,stores,complete=state;kind=graph.nodes[op]['text'];args=operands(graph,op)
+        if kind in ('memref.store','affine.store') and root in roots.get(args.get(1),set()):
+            candidate=args.get(0)
+            if address(op,True)==key and graph.nodes[candidate].get('is_memory'):
+                return {candidate},{op},True
+            return values,stores,False
+        if kind in ('scf.if','affine.if'):
+            regions=[v for _,v,e in graph.out_edges(op,data=True) if e['relation_type']=='owns_region']
+            branches=[]
+            for region in regions:
+                blocks=[v for _,v,e in graph.out_edges(region,data=True) if e['relation_type']=='contains_block']
+                if len(blocks)!=1:return values,stores,False
+                b=graph.nodes[blocks[0]]['block'];branch=(set(values),set(stores),complete)
+                for child in block_ops(b):branch=transfer(child,branch)
+                branches.append(branch)
+            if len(branches)==1:branches.append((values,stores,complete))
+            if len(branches)!=2:return values,stores,False
+            return set.union(*(b[0] for b in branches)),set.union(*(b[1] for b in branches)),all(b[2] for b in branches)
+        if kind in LOOPS or graph.nodes[op].get('call_identity'):
+            # Loops/helper effects cannot establish a complete reaching set.
+            descendants=[n for n,a in graph.nodes(data=True) if op in a.get('loop_context',[])]
+            if any(root in roots.get(operands(graph,n).get(1),set()) for n in descendants):return values,stores,False
+        return values,stores,complete
+    state=(set(),set(),False)
+    for op in block_ops(node['block']):
+        if op==load:break
+        state=transfer(op,state)
+    values,stores,complete=state
+    if escaped:complete=False
+    plan.update(candidate_values=sorted(values),store_operations=sorted(stores),candidate_set_complete=complete,
+        escaped_or_unsupported_uses=sorted(escaped),reason='complete_local_reaching_stores' if complete else 'incomplete_reaching_definitions_or_escaped_cell')
+    return plan
+
+
+def resolve_loaded_memory(graph,roots,constraints):
+    """Resolve only the candidate set established by loaded_pointer_plan."""
+    for _ in range(len(roots)+1):
+        changed=False
+        for value in sorted(roots):
+            plan=loaded_pointer_plan(graph,value,roots)
+            if plan is None:continue
+            graph.nodes[value]['loaded_pointer_evidence']=plan
+            candidates=plan['candidate_values']
+            selected=set().union(*(roots.get(v,set()) for v in candidates)) if candidates else set()
+            before=len(roots[value]);roots[value].update(selected);changed|=before!=len(roots[value])
+            if selected and (not plan['candidate_set_complete'] or len(selected)!=1 or
+                             any(graph.nodes[v].get('possible_return_alias') for v in candidates)):
+                graph.nodes[value]['possible_return_alias']=True
+        for value in roots:
+            for parent in constraints[value]:
+                before=(len(roots[value]),bool(graph.nodes[value].get('possible_return_alias')))
+                roots[value].update(roots.get(parent,set()))
+                if graph.nodes[parent].get('possible_return_alias'):graph.nodes[value]['possible_return_alias']=True
+                changed|=before!=(len(roots[value]),bool(graph.nodes[value].get('possible_return_alias')))
+        if not changed:break
+
+
 def annotate(graph, source):
     from GNN_branch.mlir_graph_v2 import digest
     graph.graph['provenance']['semantic_extension_v22_sha256']=digest(__file__)
@@ -159,13 +327,15 @@ def annotate(graph, source):
                      'multiple_or_incomplete_memory_alternatives' if attrs.get('root_resolution')=='possible' else
                      'loaded_pointer_requires_reaching_store_and_invocation_analysis' if any(graph.nodes[op]['text'] in ('affine.load','memref.load','llvm.load') for op,_ in defs) else
                      'no_supported_unique_allocation_formal_view_or_return_chain'}
+        if is_rc3(graph) and attrs.get('loaded_pointer_evidence'):
+            attrs['root_resolution_diagnostic']['loaded_pointer_plan']=attrs['loaded_pointer_evidence']
     for u,v,edge in graph.edges(data=True):
         if edge['relation_type']=='loop_carried' and edge['legacy_evidence']['role']=='loop_zero_trip_result':
             owner=definitions(graph,v)[0][0]
             edge.update(carrying_loop=owner,state_kind='memory_reference',forwarding_role='loop_zero_trip_result',
                 evidence_origin='native_for_initial_result_on_zero_iteration_path')
         if edge['relation_type']=='references' and graph.nodes[edge['view_mapping']['operation']].get('text') in POINTER_VIEWS:
-            edge['view_mapping']['offset_semantics']=POINTER_VIEWS[graph.nodes[edge['view_mapping']['operation']]['text']]
+            edge['view_mapping']['offset_semantics']=pointer_semantics(graph,graph.nodes[edge['view_mapping']['operation']]['text'])
         if edge['relation_type']=='memory_access':
             edge['access_class']='concrete_resolved_storage' if edge['evidence_status']=='proven' else 'concrete_possible_storage' if edge['evidence_status']=='possible' else 'concrete_unresolved_storage'
             if graph.nodes[u]['text'] in ('llvm.load','llvm.store'):
@@ -240,7 +410,7 @@ def validate_evidence(graph):
             if op['text'] in POINTER_VIEWS:
                 if operands(graph,operation).get(0)!=v or graph.nodes[u]['function']!=graph.nodes[v]['function']:
                     raise ValueError('Pointer root has wrong base or function context')
-                if mapping['offset_semantics']!=POINTER_VIEWS[op['text']]:raise ValueError('Pointer view semantics mismatch')
+                if mapping['offset_semantics']!=pointer_semantics(graph,op['text']):raise ValueError('Pointer view semantics mismatch')
         elif kind=='memory_access':
             operand=edge['memory_operand']
             roots=[e for _,target,e in graph.out_edges(operand,data=True) if target==v and e['relation_type']=='resolves_to']
@@ -259,12 +429,35 @@ def validate_evidence(graph):
                 expected=index_dependencies(graph,[value for step in chain for value in step['index_operands']])
                 if edge['access_indices']['pointer_induction_loops']!=expected:raise ValueError('Pointer index dependency mismatch')
         elif kind=='targets' and graph.nodes[u]['action_kind']=='array':
+            evidence=graph.nodes[u].get('array_binding_evidence') if is_rc3(graph) else None
+            if evidence:
+                operation=evidence['operation'];value=evidence['value']
+                if operation not in graph or value not in graph or operation not in {n for n,_ in definitions(graph,value)}:
+                    raise ValueError('Array evidence has no defining compiler operation')
+                if graph.nodes[operation]['function']!=evidence['function'] or graph.nodes[u]['function']!=evidence['function']:
+                    raise ValueError('Array evidence crosses function scope')
+                if evidence['tier']=='native_action_attribute':
+                    if graph.nodes[operation].get('mlir_attrs',{}).get('mailohls.action_id','').strip('"')!=graph.nodes[u]['action_id']:
+                        raise ValueError('Array action annotation disagrees with native evidence')
+                elif graph.nodes[operation].get('source_line')!=graph.nodes[u]['source_line']:
+                    raise ValueError('Array declaration location differs')
+                resolved=[(target,e['evidence_status']) for _,target,e in graph.out_edges(value,data=True) if e['relation_type']=='resolves_to']
+                if resolved!=[(v,'proven')]:
+                    raise ValueError('Array action evidence lacks a unique proven storage root')
             if graph.nodes[u]['target_binding_rule']=='native_action_attribute':
                 label=graph.nodes[u]['action_id']
                 if not any(graph.nodes[op].get('mlir_attrs',{}).get('mailohls.action_id','').strip('"')==label
                     for value in graph.nodes[v].get('root_values',[graph.nodes[v].get('root_value')])
                     for op,_ in definitions(graph,value)):
                     raise ValueError('Array action target contradicts native action identity')
+    if is_rc3(graph):
+        roots=defaultdict(set)
+        for value,root,edge in graph.edges(data=True):
+            if edge['relation_type']=='resolves_to' and graph.nodes[root].get('root_kind')!='unresolved':roots[value].add(root)
+        for value,attrs in graph.nodes(data=True):
+            plan=attrs.get('loaded_pointer_evidence')
+            if plan and loaded_pointer_plan(graph,value,roots)!=plan:
+                raise ValueError('Loaded-pointer reaching-store evidence differs from native graph control/operands')
     receipt=graph.graph.get('native_correspondence')
     if receipt and receipt.get('graph_witness_sha256')!=fingerprint(graph_witness(graph)):
         raise ValueError('Native occurrence witness mismatch: operation/SSA/CFG/call or loop evidence was changed')

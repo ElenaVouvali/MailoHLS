@@ -45,17 +45,27 @@ def test_discovery_collapses_identical_copies_preserves_metadata_variants(tmp_pa
 
 
 @pytest.fixture(scope='module')
-def real_graph():
+def real_graph(tmp_path_factory):
     path = corpus.DEFAULT_REUSE/'GAN.v21.json'
     if not path.is_file(): pytest.skip('Locally authenticated GAN artifact unavailable')
-    return path,v2.read_graph(path)
+    graph = v2.read_graph(path)
+    if graph.graph['provenance']['v2_builder_sha256'] != c.sha256(v2.__file__):
+        try:
+            tools = corpus.compiler_tools(corpus.BUILD)
+        except FileNotFoundError as exc:
+            pytest.skip(str(exc))
+        snapshot = next(r for r in corpus.inventory()['snapshots'] if r['kernel']=='GAN')
+        record = corpus.process(snapshot,tmp_path_factory.mktemp('current_GAN_graph'),tools)
+        assert record.get('validation')=='pass',record.get('error')
+        path = Path(record['canonical']); graph = v2.read_graph(path)
+    return path,graph
 
 
 def test_real_authentication_rejects_mismatched_source_metadata_schema_tool(real_graph,tmp_path):
     path,graph = real_graph
     snap = next(r for r in corpus.inventory()['snapshots'] if r['kernel']=='GAN')
     tools = {'analysis_extension_sha256':graph.graph['provenance']['analysis_extension_sha256'],
-             'cgeist_sha256':graph.graph['provenance']['v1_provenance']['cgeist_sha256']}
+             'cgeist_sha256':graph.graph['provenance'].get('v1_provenance',graph.graph['provenance'])['cgeist_sha256']}
     corpus.authenticate(path,snap,tools)
     for key in ('source_sha256','metadata_sha256'):
         with pytest.raises(ValueError,match='provenance mismatch'): corpus.authenticate(path,{**snap,key:'different'},tools)
@@ -78,7 +88,7 @@ def test_real_canonical_compact_queries_deterministic_and_unmodified(real_graph,
 def test_corpus_failure_isolation_authenticated_reuse_and_resume(real_graph,tmp_path,monkeypatch):
     path,graph=real_graph; snap=next(r for r in corpus.inventory()['snapshots'] if r['kernel']=='GAN')
     tools={'analysis_extension_sha256':graph.graph['provenance']['analysis_extension_sha256'],
-           'cgeist_sha256':graph.graph['provenance']['v1_provenance']['cgeist_sha256']}
+           'cgeist_sha256':graph.graph['provenance'].get('v1_provenance',graph.graph['provenance'])['cgeist_sha256']}
     monkeypatch.setattr(corpus.subprocess,'run',lambda *a,**kw:pytest.fail('Authenticated reuse must not compile'))
     assert corpus.process({**snap,'inventory_error':'missing source'},tmp_path,tools)['status']=='blocked'
     good=corpus.process(snap,tmp_path,tools,[path])
@@ -202,3 +212,195 @@ def test_retrospective_diagnostic_uses_canonical_assignment_field_identity():
     # Serialized directives accept auto; internal assignments use canonical AUTO.
     values=c.parse_assignment('auto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0')
     assert values[c.field_key('PIPE','L6')]=='1'
+
+
+def test_explicit_source_variant_preserves_original_identity(tmp_path):
+    (tmp_path/'GNN_branch').mkdir();(tmp_path/'GNN_branch/config.py').write_text("ALL_KERNEL=['toy']\n")
+    (tmp_path/'Data/ApplicationDataset/toy').mkdir(parents=True)
+    (tmp_path/'Data/ApplicationInformation.csv').write_text('app_name,top_level_function,file_name,file_name_extension\ntoy,top,kernel.c,c\n')
+    original=tmp_path/'Data/ApplicationDataset/toy/kernel.c';original.write_text('void top(void) {}\n')
+    (original.parent/'kernel_info.txt').write_text('top\nL9,loop,8\n')
+    (tmp_path/'evaluation_set').mkdir()
+    selected=tmp_path/'variant.c';selected.write_text('int top(int x) {\nL9: for(int i=0;i<8;i++) x+=i;\nreturn x;\n}\n')
+    before=original.read_bytes()
+    found=corpus.inventory(tmp_path,{'toy':selected});row=found['snapshots'][0]
+    assert row['inventory_error'] is None and row['source_sha256']==c.sha256(selected)
+    assert row['aliases'][0]['original_source_sha256']==c.sha256(original)
+    assert 'equivalence not assumed' in row['aliases'][0]['source_selection']
+    assert original.read_bytes()==before
+    with pytest.raises(ValueError,match='Unknown source-override'):
+        corpus.inventory(tmp_path,{'absent':selected})
+
+
+def test_portable_package_integrity_and_determinism(real_graph,tmp_path):
+    import tarfile
+    path,graph=real_graph
+    snap=next(r for r in corpus.inventory()['snapshots'] if r['kernel']=='GAN')
+    tools={'analysis_extension_sha256':graph.graph['provenance']['analysis_extension_sha256'],
+           'cgeist_sha256':graph.graph['provenance'].get('v1_provenance',graph.graph['provenance'])['cgeist_sha256']}
+    output=tmp_path/'corpus';output.mkdir()
+    record=corpus.process(snap,output,tools,[path]);assert record['validation']=='pass'
+    manifest={'schema':v2.SCHEMA_V21,'toolchain':tools,'inventory':{'snapshots':[snap]},
+              'records':{snap['snapshot_id']:record},
+              'code_sha256':{'GNN_branch/mlir_graph_v2.py':c.sha256(v2.__file__)}}
+    c.write_json(output/'corpus_manifest.json',manifest)
+    for name in ('graph_coverage.csv','relation_coverage.csv','generation_summary.csv'):
+        (output/name).write_text('kernel,status\nGAN,pass\n')
+    one,two=tmp_path/'one.tar.gz',tmp_path/'two.tar.gz'
+    index=corpus.package(output,one);corpus.package(output,two)
+    assert c.sha256(one)==c.sha256(two)
+    with tarfile.open(one) as archive:
+        portable=__import__('json').load(archive.extractfile('index.json'))
+        assert portable['schema']==v2.SCHEMA_V21
+        row=portable['snapshots'][0]
+        assert not Path(row['canonical']).is_absolute()
+        assert archive.extractfile(row['source']).read()==Path(snap['source']).read_bytes()
+    compact=Path(record['compact']);compact.write_text(compact.read_text()+' ')
+    with pytest.raises(ValueError,match='Graph changed'):
+        corpus.package(output,tmp_path/'tampered.tar.gz')
+    manifest['records']={};c.write_json(output/'corpus_manifest.json',manifest)
+    with pytest.raises(ValueError,match='complete validated corpus'):
+        corpus.package(output,tmp_path/'partial.tar.gz')
+
+
+@pytest.fixture(scope='module')
+def native_pipeline():
+    try:
+        return corpus.compiler_tools(corpus.BUILD)
+    except FileNotFoundError as exc:
+        pytest.skip(str(exc))
+
+
+@pytest.mark.parametrize('name,expected',[('chstone-jpeg',21),('rosetta-3d-rendering',12),('gemv',5)])
+def test_recovered_external_sources_compile_with_complete_action_coverage(name,expected,native_pipeline,tmp_path):
+    overrides={'gemv':c.ROOT/'evaluation_set/gemv/code_to_memory_outputs/meta/gemv.c'}
+    snap=next(r for r in corpus.inventory(source_overrides=overrides)['snapshots'] if r['kernel']==name)
+    result=corpus.process(snap,tmp_path,native_pipeline,timeout=180)
+    assert result.get('validation')=='pass',result.get('error')
+    assert result['coverage']['registered']==expected
+    if name!='rosetta-3d-rendering':
+        assert result['coverage']['compiler_active']==expected
+    assert result['semantic_queries']=='identical' and result['reconstruction']=='exact'
+    graph=v2.read_graph(result['canonical'])
+    if name=='rosetta-3d-rendering':
+        # Historical V2.1 misses this class-valued static array. Preserve that
+        # result; require complete coverage from the explicitly selected RC3.
+        assert result['coverage']['compiler_active']==11
+        assert 'action:L1' not in graph
+        import subprocess,os
+        path=tmp_path/'rc3.json'
+        import json
+        script="""import json,sys
+from GNN_branch import mlir_graph_v2 as v
+g,_=v.generate(sys.argv[1],sys.argv[2],sys.argv[3],provenance=json.loads(sys.argv[5]),revision='2.2',semantic_revision='rc3')
+v.write_graph(g,sys.argv[4])
+"""
+        command=[native_pipeline['python'],'-B','-c',script,snap['source'],snap['metadata'],
+            result['raw_mlir'],str(path),json.dumps(graph.graph['provenance'])]
+        run=subprocess.run(command,cwd=c.ROOT,env={**os.environ,'PYTHONPATH':native_pipeline['pythonpath']},capture_output=True,text=True,timeout=180)
+        assert run.returncode==0,run.stderr
+        graph=v2.read_graph(path);compact,facts=corpus.checked_views(graph)
+        assert corpus.coverage(graph,facts)['compiler_active']==expected
+        binding=graph.nodes['action:L1']['array_binding_evidence']
+        assert binding['tier']=='exact_declaration_location' and binding['source_line']==314
+        assert graph.graph['numerical_fidelity']['hardware_exact'] is False
+    if name=='gemv':
+        assert all(graph.nodes['action:'+label]['compiler_proven_trip_count']==32 for label in ('L4','L5'))
+        assert 'original_source_sha256' in result['aliases'][0]
+
+
+@pytest.fixture(scope='module')
+def original_jpeg(tmp_path_factory):
+    import subprocess,shutil
+    if not shutil.which('gcc'):pytest.skip('Host GCC unavailable')
+    result=subprocess.run(['git','show','6863ce0:evaluation_set/chstone-jpeg/kernel.c'],cwd=c.ROOT,capture_output=True)
+    if result.returncode:pytest.skip('Original immutable JPEG reference commit unavailable')
+    directory=tmp_path_factory.mktemp('original_jpeg');source=directory/'original.c';source.write_bytes(result.stdout)
+    return source
+
+
+@pytest.mark.parametrize('optimization',['-O0','-O2'])
+def test_jpeg_full_selftest_stdout_matches_original(original_jpeg,optimization,tmp_path):
+    import subprocess
+    harness=tmp_path/'main.c';harness.write_text('int chstone_jpeg(void); int main(void){return chstone_jpeg();}\n')
+    outputs=[]
+    for i,source in enumerate((original_jpeg,c.ROOT/'evaluation_set/chstone-jpeg/kernel.c')):
+        target=tmp_path/('jpeg'+str(i))
+        build=subprocess.run(['gcc','-std=c99',optimization,str(source),str(harness),'-o',str(target)],capture_output=True,text=True)
+        assert build.returncode==0,build.stderr
+        run=subprocess.run([str(target)],capture_output=True,text=True,timeout=30)
+        assert run.returncode==0,run.stdout[-200:]
+        outputs.append((run.stdout,run.stderr))
+    assert outputs[0]==outputs[1]
+
+
+def test_jpeg_marker_edge_cases_and_all_read_word_values_match_original(original_jpeg,tmp_path):
+    import subprocess
+    harness=tmp_path/'markers.c'
+    harness.write_text(r'''
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+static unsigned char data[64];
+static void report(void) {
+ printf("STATE %d %d %ld %d %d %d %d %d %d\n",main_result,i_get_sos,(long)(ReadBuf-data),
+ p_jinfo_comps_info_dc_tbl_no[0],p_jinfo_comps_info_dc_tbl_no[1],p_jinfo_comps_info_dc_tbl_no[2],
+ p_jinfo_comps_info_ac_tbl_no[0],p_jinfo_comps_info_ac_tbl_no[1],p_jinfo_comps_info_ac_tbl_no[2]);
+}
+int main(int argc,char **argv) {
+ int mode=atoi(argv[1]);
+ if(mode==9) {
+  for(int a=0;a<256;a++)for(int b=0;b<256;b++) {
+   data[0]=a;data[1]=b;ReadBuf=data;
+   if(read_word()!=(short)((a<<8)|b) || ReadBuf!=data+2)return 1;
+  }
+  puts("65536 words matched");return 0;
+ }
+ atexit(report);
+ p_jinfo_num_components=(mode==4)?0:3;
+ for(int i=0;i<3;i++)p_jinfo_comps_info_id[i]=i+1;
+ data[0]=0;data[1]=12;data[2]=(mode==3)?0:3;
+ for(int i=0;i<3;i++) {
+  data[3+2*i]=(mode==1)?3-i:i+1;
+  data[4+2*i]=i*17;
+ }
+ if(mode==2)data[3]=99;
+ ReadBuf=data;get_sos();return 0;
+}
+''')
+    binaries=[]
+    for i,source in enumerate((original_jpeg,c.ROOT/'evaluation_set/chstone-jpeg/kernel.c')):
+        target=tmp_path/('markers'+str(i))
+        # Include the benchmark in the wrapper's translation unit so ReadBuf
+        # retains its actual file-local linkage. No benchmark code is changed.
+        build=subprocess.run(['gcc','-std=c99','-O2','-include',str(source),str(harness),'-o',str(target)],capture_output=True,text=True)
+        assert build.returncode==0,build.stderr;binaries.append(target)
+    for case in (0,1,2,3,4,9):
+        runs=[subprocess.run([str(binary),str(case)],capture_output=True,text=True,timeout=10) for binary in binaries]
+        assert all(r.returncode==0 for r in runs)
+        assert (runs[0].stdout,runs[0].stderr)==(runs[1].stdout,runs[1].stderr),case
+
+
+def test_rosetta_analysis_header_masks_slices_and_wraps_without_hardware_claim(tmp_path):
+    import subprocess,shutil
+    if not shutil.which('g++'):pytest.skip('Host C++ compiler unavailable')
+    source=tmp_path/'ap_test.cpp'
+    source.write_text(r'''
+#include "ap_int.h"
+#include <cassert>
+int main() {
+ ap_uint<32> value=0;
+ value(7,0)=0x12;value(15,8)=0x34;value(23,16)=0x56;value(31,24)=0x78;
+ assert((std::uint64_t)value==0x78563412);
+ assert((std::uint64_t)value(15,8)==0x34);
+ ap_uint<8> byte=255;assert((std::uint64_t)byte++==255);assert((std::uint64_t)byte==0);
+ byte=257;assert((std::uint64_t)byte==1);
+ ap_uint<1> bit=1;++bit;assert((std::uint64_t)bit==0);
+ ap_uint<64> full=0;full(63,0)=~std::uint64_t(0);assert((std::uint64_t)full(63,0)==~std::uint64_t(0));
+ return 0;
+}
+''')
+    result=subprocess.run(['g++','-std=c++17','-O2','-I',str(c.ROOT/'evaluation_set/rosetta-3d-rendering'),str(source),'-o',str(tmp_path/'ap_test')],capture_output=True,text=True)
+    assert result.returncode==0,result.stderr
+    assert subprocess.run([str(tmp_path/'ap_test')]).returncode==0
+    assert 'AP_INT_STUB' in (c.ROOT/'evaluation_set/rosetta-3d-rendering/ap_int.h').read_text()

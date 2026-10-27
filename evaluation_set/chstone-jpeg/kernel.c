@@ -4,6 +4,9 @@
  * Benchmark-local includes were flattened mechanically.
  * Existing HLS optimization pragmas were removed; interface pragmas are preserved.
  * Lk sites are derived QoR-blind from statically bounded source actions.
+ * Marker dispatch/component search use equivalent structured control, and
+ * read_word makes integer promotion explicit for the pinned MLIR frontend.
+ * See README.md for the preserved upstream reference and differential tests.
  */
 
 /* ===== BEGIN UPSTREAM FILE: jpeg/main.c ===== */
@@ -1669,7 +1672,7 @@ read_word (void)
   short c;
 
   c = *ReadBuf++ << 8;
-  c |= *ReadBuf++;
+  c = c | *ReadBuf++;
 
   return c;
 }
@@ -1859,20 +1862,23 @@ get_sos ()
       cc = read_byte ();
       c = read_byte ();
 
+      int component_found = 0;
       for (ci = 0; ci < p_jinfo_num_components; ci++)
 	{
 	  p_comp_info_id = &p_jinfo_comps_info_id[ci];
 	  p_comp_info_dc_tbl_no = &p_jinfo_comps_info_dc_tbl_no[ci];
 	  p_comp_info_ac_tbl_no = &p_jinfo_comps_info_ac_tbl_no[ci];
 
-	  if (cc == *p_comp_info_id)
-	    goto id_found;
+	  if (cc == *p_comp_info_id) {
+            component_found = 1;
+            break;
+          }
 	}
-      main_result++;
-      printf ("Bad Component ID!\n");
-      EXIT;
-
-    id_found:
+      if (!component_found) {
+        main_result++;
+        printf ("Bad Component ID!\n");
+        EXIT;
+      }
       *p_comp_info_dc_tbl_no = (c >> 4) & 15;
       *p_comp_info_ac_tbl_no = (c) & 15;
 
@@ -2047,6 +2053,7 @@ read_markers (unsigned char *buf)
 {
   int unread_marker;
   int sow_SOI;
+  int scanning = 1;
 
   ReadBuf = buf;
 
@@ -2055,7 +2062,7 @@ read_markers (unsigned char *buf)
   unread_marker = 0;
 
   /* Read the head of the marker */
-  for (;;)
+  while (scanning)
     {
       if (!sow_SOI)
 	{
@@ -2074,31 +2081,20 @@ read_markers (unsigned char *buf)
 	}
 
 
-      switch (unread_marker)
-	{
-	case M_SOI:		/* Start of Image */
-	  sow_SOI = 1;
-	  break;
-
-	case M_SOF0:		/* Baseline DCT ( Huffman ) */
-	  get_sof ();
-	  break;
-
-	case M_SOS:		/* Start of Scan ( Head of Compressed Data ) */
-	  get_sos ();
-	  return;
-
-	case M_DHT:
-	  get_dht ();
-	  break;
-
-	case M_DQT:
-	  get_dqt ();
-	  break;
-
-	case M_EOI:
-	  return;
-	}
+      if (unread_marker == M_SOI) {
+        sow_SOI = 1;
+      } else if (unread_marker == M_SOF0) {
+        get_sof ();
+      } else if (unread_marker == M_SOS) {
+        get_sos ();
+        scanning = 0;
+      } else if (unread_marker == M_DHT) {
+        get_dht ();
+      } else if (unread_marker == M_DQT) {
+        get_dqt ();
+      } else if (unread_marker == M_EOI) {
+        scanning = 0;
+      }
     }
 }
 

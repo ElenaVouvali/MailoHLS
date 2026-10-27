@@ -1,14 +1,17 @@
 # SALT-HLS structural graph V2.2
 
-**Release candidate — remaining evidence required.** V2.1 remains the frozen
+**RC3 — independent evidence remains required.** V2.1 remains the frozen
 published baseline. Explicit `--revision 2.2` selects schema
 `salt-hls-mlir-structural-v2.2`. There is no compatible learned tensor encoder
 or checkpoint. Production V1 models, memory, routing and refinement stay frozen.
 
-Artifacts: [candidate manifest](graph-release-v22.json),
-[candidate archive](../GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc2.tar.gz)
-and [archive checksum](graph-release-v22.sha256). They are explicitly RC assets,
-not a replacement for the frozen V2.1 release.
+Latest RC3 artifacts: [manifest](graph-release-v22-rc3.json),
+[archive](../GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz)
+and [checksum](graph-release-v22-rc3.sha256). The preserved
+[RC2 manifest](graph-release-v22.json) and V2.1 release remain historical baselines.
+RC3 uses the same schema, with explicit `semantic_revision: rc3`. Old files
+without that marker retain their original query semantics. New generation can
+select `--semantic-revision rc2` to reproduce the historical behavior.
 
 ## One compiler graph
 
@@ -43,9 +46,8 @@ host data layout describe frontend lowering, not a deployment FPGA.
 ## Semantic changes
 
 **Action identity.** A matching native `mailohls.action_id` or exact compiler
-declaration location is required. Shared source-use lines are context, not
-allocation identity. Static/global binding still requires a unique symbol,
-function/declaration match and concrete rooted access witnesses.
+declaration location is required. RC3 enumerates native candidates before selection; it does not ask the V1 heuristic to choose a target first. Exact annotations outrank declaration matches, uniqueness and rooted storage are required, and shapes only filter inconsistent declaration candidates. Shared source-use lines are context, not
+allocation identity. Static/global binding requires an exact function/declaration location and a unique compiler-symbol storage root. This can identify a declared static object even when V2.1 cannot recognize its class-lowered accesses.
 
 Both external Kalman metadata variants register L7 (`k_arr`, source line 63)
 and L8 (`calc_temp_arr`, line 64). Their frozen IR has no independently bound
@@ -67,7 +69,7 @@ and 14 unresolved. This is a correction, not an attempt to maximize coverage.
 cast and Polygeist memref/pointer conversions preserve underlying storage.
 They do not prove equal addresses, overlap or dependence. Exact base/index
 operands are retained. Integer-to-pointer conversions and loaded pointer
-fields needing reaching-store/context analysis remain conservative. Types,
+fields needing invocation-aware reaching-store/context analysis remain conservative. RC3 proves exact-address loads from nonescaping local pointer cells only when all reaching stores are covered by same-block order or structured conditional branches. Overwrites replace earlier definitions. Helper escapes, unsupported CFG paths and uncertain aliases leave candidate sets incomplete. Types,
 names, equal shapes, declaration order and global may-alias closure are not
 storage-identity proofs. Select/conditional alternatives stay possible unless
 all alternatives establish the same unique object.
@@ -88,9 +90,7 @@ zero offset. Composed addresses and element overlap remain unproven.
 **Calls.** Bindings retain exact call UID, caller/callee, operand/result position
 and actual/formal SSA identities. Returned-memory reasoning is invocation
 scoped. Shared helpers do not merge caller arrays. Recursive, external and
-incomplete calls remain conservative. Ambiguous actuals can retain possible
-canonical roots without a complete caller-specific array-access projection;
-this is a coverage limit, not proof of absence. LUD L2–L5 is checked in context
+incomplete calls remain conservative. RC3 substitutes ambiguous actual roots lazily at each exact invocation. Both A and B remain possible, each with its call UID, actual/formal position and compiler witnesses. `root_candidates_complete` distinguishes a closed set from known alternatives with unresolved paths. Completeness is relative to the represented invocation: an unbound formal remains symbolic, not an enumeration of every caller allocation. Arguments are not combined into a Cartesian product; unrelated callers are not merged. LUD L2–L5 is checked in context
 `lud_diagonal:op5` and rejected in the empty helper context.
 
 **CFG and SSA.** The pinned Python Operation wrapper lacks `successors`.
@@ -170,7 +170,7 @@ preserved in `validated/`; the current RC2 run is in `validated_rc2/`. Its `vali
 `V22_SEMANTIC_AUDIT.md` distinguish all pass/fail/pending cases and release gates.
 Candidate packaging never declares the representation final.
 
-## Completed corpus comparison
+## Preserved RC2 corpus comparison
 
 All **63/63** corrected snapshots passed input authentication, native occurrence
 checks, repeated native generation, exact compact reconstruction and public
@@ -229,6 +229,49 @@ native-witness consistency, reconstruction and every public action/loop query,
 without loading native MLIR bindings. The final RC2 portable read-only check took
 100.44 seconds. Every bundled checksum passed.
 
+## RC3 changes and review boundary
+
+The evidence-first resolver fixes a coverage failure on Rosetta's static
+`z_buffer`: explicit RC3 has 12/12 targets; V2.1 retains its historical 11/12.
+The recovery workload remains outside the frozen 63. JPEG's recovery failure
+was its test harness: `ReadBuf` has file-local static linkage and the two table
+names must include `comps_info`. Including the benchmark in the wrapper's
+translation unit fixes the harness without changing the benchmark algorithm.
+Both original/recovered implementations are compared, including 65,536 words.
+
+RC3 adds native-verified adversarial MLIR fixtures for dominating/overwritten
+pointer stores, two conditional stores, missing branch initialization, helper
+writes, uncertain cell aliases, nested calls with two possible caller roots,
+SCF/Affine conditional results, SCF while and zero/positive-count for-results.
+The for-root analysis deliberately retains a sound union of initial/yielded
+buffers even for known counts; it is not exact last-iteration alias analysis.
+The complete/incomplete set flag does not establish element overlap.
+
+AES analysis is unchanged. No common affine-scope block is recovered by bypassing
+the pinned checker's precondition. No unknown is turned into `no_dependence`.
+The first-successful-depth limitation and all distinct RAW/WAR/WAW facts remain.
+The `memref2pointer` storage tag now explicitly mentions the source descriptor
+offset; it still does not claim normalized addresses or equal elements.
+
+The core counts remain the same as RC2: 30,634 nodes, 115,783 edges, 592/606 matched registrations, six unknown concrete access relationships and 51,659 possible dependencies. No corpus public-query proven relationship was lost, and the new ambiguous-call handling adds no relationship in this cohort; its improvement is established by adversarial fixtures.
+
+RC3 validation completed **267 tests with no failures or skips** (53 V2.2, 124 graph/audit/domain/recovery, 90 refinement/device/selection), plus the unchanged native-analysis regression script. All 63 snapshots passed two separate-interpreter native generations and canonical/compact query checks. The final release graphs match the earlier complete RC3 pass byte for byte.
+
+The RC3 audit package contains `V22_RC3_SEMANTIC_AUDIT.md`,
+`V22_ACTION_BINDING_AUDIT.md` (all 14 RC2 registrations),
+`V22_POINTER_ROOT_AUDIT.md` (all six RC2 unknown accesses),
+`V22_INTERPROCEDURAL_AUDIT.md`, `V22_RC2_VS_RC3_COMPARISON.csv` and
+`V22_REGRESSION_REPORT.md`, with machine-readable witnesses in `details/`.
+Two native generations use separate interpreters. The failed initial RC3 check
+is preserved: it compared live Python tuples with JSON lists. Canonical JSON
+comparison checks the actual serialization contract, with a regression test.
+
+Mechanical native checks, independently specified adversarial assertions and
+source-compiled fixtures are separate evidence levels. Machine-produced real
+program/dependence review worksheets are **not human adjudication**. Gate C
+remains open until an independent reviewer resolves those records. An RC label
+does not imply a known incorrect proven relationship or hardware-exact arithmetic.
+
 ## Reproduction
 
 Use project Python/NetworkX for orchestration and the pinned native Python/
@@ -245,7 +288,9 @@ python -B -m experiments.structural_audit.finalize_v22 --mode package
 
 Override `--build`, `--native-python`, `--output-dir` or `--timeout` as needed.
 Changed code/input/compiler identities require a fresh output directory.
-Resume authenticates completed outputs. Failures do not omit later snapshots.
+`V22_RECOVERY_INPUTS.json` separately authenticates the local JPEG/Rosetta/GEMV regression inputs; they are not extra snapshots in the frozen cohort. The bundled `V22_PORTABLE_VALIDATION.py` checks extracted graphs using archived code and project Python without native MLIR bindings.
+
+The default fresh RC3 output is `GNN_branch/MLIR_graphs/v22_corpus/validated_rc3_release/`. Resume authenticates completed outputs. Failures do not omit later snapshots.
 The candidate package contains sources, metadata, raw MLIR, both graph views,
 generation/validation code, compiler identities and checksums. The original
 V2.1 archive/checksum is never overwritten. Transitive system include closure
@@ -254,7 +299,7 @@ and exact Vitis arithmetic are not claimed.
 For individual sources, the existing CLI accepts:
 
 ```bash
-python -m GNN_branch.mlir_graph_v2 --revision 2.2 --source path/to/kernel.cpp --metadata path/to/kernel_info.txt --cgeist /path/to/pinned/cgeist --output /fresh/graph.json
+python -m GNN_branch.mlir_graph_v2 --revision 2.2 --semantic-revision rc3 --source path/to/kernel.cpp --metadata path/to/kernel_info.txt --cgeist /path/to/pinned/cgeist --output /fresh/graph.json
 python -m GNN_branch.mlir_graph_v2 --mode validate --input /fresh/graph.json
 python -m GNN_branch.mlir_graph_v2 --mode compact --input /fresh/graph.json --output /fresh/compact.json
 ```
@@ -266,7 +311,7 @@ python -m GNN_branch.mlir_graph_v2 --mode compact --input /fresh/graph.json --ou
 | Operations/types/SSA/regions/shapes/indexing | Compiler facts | Separate tensor encoder |
 | Typed accesses/views/aliases/dependencies and certainty | Evidence-bearing relationships | Refinement queries and evidence-aware encoding |
 | Call UID, action Lk, SSA IDs, locations, hashes | Alignment/provenance | Matching/audit; exclude raw IDs as learned shortcuts |
-| Possible roots, failures, unknown trip counts | Uncertainty rather than zero | Explicit missingness/certainty features |
+| Possible call-scoped roots/completeness, unresolved-action masks, failures, unknown trip counts | Uncertainty rather than zero | Explicit missingness/certainty features |
 | Source/lowered numerical fidelity | Limits on hardware interpretation | Prevent unsupported width/cost claims |
 | FPGA, objective, clock, budget, candidate pragmas | Separate request/design inputs | Later conditioning/ranking; never overwrite compiler facts |
 
