@@ -53,7 +53,7 @@ def _caller_roots(graph, root, context, chain=(), seen=()):
     attrs = graph.nodes[root]
     if attrs.get('root_kind') != 'formal_parameter':
         return [(root, 'not_established' if attrs.get('root_kind') == 'unresolved' else 'proven', chain)]
-    if graph.graph.get('schema', '').endswith('v2.1'):
+    if graph.graph.get('schema', '').endswith(('v2.1', 'v2.2')):
         # Unbound formals remain symbolic. A query inside a helper is not a
         # licence to substitute buffers from every caller into that helper.
         return [(root, 'proven', chain)]
@@ -120,7 +120,7 @@ def _accesses(graph, loop, call_context=()):
                         'call_chain': list(dict.fromkeys(chain + tuple(p['call_operation'] for p in path))),
                         'callsite_bindings': list(path), 'supporting_edge': str(key),
                         'memory_operand': edge['memory_operand'], 'operand_index': edge.get('operand_index')}
-                    if graph.graph.get('schema', '').endswith('v2.1'):
+                    if graph.graph.get('schema', '').endswith(('v2.1', 'v2.2')):
                         from GNN_branch.mlir_semantics import index_dependencies
                         local_calls=chain[len(call_context):]
                         origin = local_calls[0] if local_calls else operation
@@ -154,7 +154,7 @@ def _accesses(graph, loop, call_context=()):
                                 'access': 'readwrite', 'evidence_status': 'possible', 'access_path': 'through_call',
                                 'call_chain': list(dict.fromkeys(chain + (operation,) + tuple(p['call_operation'] for p in path))),
                                 'callsite_bindings': list(path), 'reason': 'Recursive/unresolved call; no concrete interprocedural proof'}
-                            if graph.graph.get('schema','').endswith('v2.1'):
+                            if graph.graph.get('schema','').endswith(('v2.1', 'v2.2')):
                                 row.update(access_scope='through_call', memory_object=resolved,supporting_operation=operation,
                                            access_indices={'status':'not_established'},concrete=False, origin_loop=(node.get('loop_context',[]) or [None])[-1])
                             found.append(row)
@@ -178,7 +178,7 @@ def _accesses(graph, loop, call_context=()):
         context=_bind_call(graph,call,context,bindings_by_call[call])
     if functions and functions[-1]!=symbol:raise ValueError('Invocation context does not end at the loop function')
     rows=visit(owned,context,tuple(call_context),tuple(functions) if functions else (symbol,))
-    if graph.graph.get('schema','').endswith('v2.1'):
+    if graph.graph.get('schema','').endswith(('v2.1', 'v2.2')):
         for row in rows:row['invocation_context']=list(call_context)
     return rows
 
@@ -217,7 +217,7 @@ def get_action_point_relations(graph, action_point, evidence='proven', *, call_c
         if call_context is not None and call_context:
             callee=graph.nodes[call_context[-1]].get('callee_function') if call_context[-1] in graph else None
             if graph.nodes[loop]['op_uid'].rsplit(':op',1)[0]!=callee:continue
-        elif call_context is None and graph.graph.get('schema','').endswith('v2.1'):
+        elif call_context is None and graph.graph.get('schema','').endswith(('v2.1', 'v2.2')):
             # Join action points in different functions only through complete,
             # individually verified invocation contexts. Roots are never unioned.
             for root,points in arrays.items():
@@ -263,7 +263,7 @@ def get_action_point_relations(graph, action_point, evidence='proven', *, call_c
             return next((by_loop[n] for n in reversed(context) if n in by_loop), None)
         for consumer, producer, key, edge in graph.edges(keys=True, data=True):
             if edge['relation_type'] != 'depends_on': continue
-            if graph.graph.get('schema', '').endswith('v2.1') and edge.get('carrying_loop') == own:
+            if graph.graph.get('schema', '').endswith(('v2.1', 'v2.2')) and edge.get('carrying_loop') == own:
                 rows.append(_base(graph, action_point, action_point, 'memory_dependence',
                     evidence_status=edge['evidence_status'], dependence_direction='carried_by',
                     carrying_loop=own, dependence_kind=edge['dependence_kind'],

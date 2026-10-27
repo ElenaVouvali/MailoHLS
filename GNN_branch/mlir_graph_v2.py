@@ -17,6 +17,7 @@ from GNN_branch import mlir_graph_gen as v1
 
 SCHEMA = 'salt-hls-mlir-structural-v2'
 SCHEMA_V21 = 'salt-hls-mlir-structural-v2.1'
+SCHEMA_V22 = 'salt-hls-mlir-structural-v2.2'
 NODE_KINDS = {'operation', 'ssa_value', 'constant_or_feature', 'control_region', 'memory_object', 'action_point'}
 EDGE_KINDS = {
     'owns_region', 'contains_block', 'contains_operation', 'declares_argument',
@@ -83,7 +84,7 @@ def write_graph(graph, path):
 
 def read_graph(path):
     data = json.loads(Path(path).read_text())
-    if data.get('schema') not in (SCHEMA, SCHEMA_V21):
+    if data.get('schema') not in (SCHEMA, SCHEMA_V21, SCHEMA_V22):
         raise ValueError('Not a V2 graph; V1 tensors are not accepted')
     if data['metadata'].get('schema') != data['schema']:
         raise ValueError('Graph and metadata schema disagree')
@@ -254,7 +255,7 @@ def _memory(graph, result, revision='2.0'):
         if base in memory_values and view in memory_values:
             if graph.nodes[base].get('function') != graph.nodes[view].get('function'):
                 raise ValueError('A local SSA view cannot cross isolated function scopes')
-            if revision == '2.1':
+            if revision in ('2.1', '2.2'):
                 defining = [u for u, _, e in graph.in_edges(view, data=True) if e['relation_type']=='defines']
                 operation = defining[0] if len(defining)==1 else None
                 supported = operation and graph.nodes[operation].get('text') in (v1.VIEW_OPS - {'unrealized_conversion_cast'}) | {'polygeist.subindex'}
@@ -278,6 +279,9 @@ def _memory(graph, result, revision='2.0'):
     for u, v, edge in graph.edges(data=True):
         if edge['relation_type'] == 'loop_carried' and u in memory_values and v in memory_values:
             constraints[v].add(u)
+    if revision == '2.2':
+        from GNN_branch.mlir_semantics_v22 import pointer_constraints
+        pointer_constraints(graph, constraints)
     roots = {node: set() for node in memory_values}
     for node in sorted(memory_values):
         attrs = graph.nodes[node]
@@ -287,7 +291,7 @@ def _memory(graph, result, revision='2.0'):
         if allocation or formal:
             globals_ = [u for u in defining if graph.nodes[u].get('text') == 'memref.get_global']
             reference = graph.nodes[globals_[0]].get('mlir_attrs', {}).get('name', '') if globals_ else ''
-            symbol = _symbol(reference) if revision == '2.1' else v1.strip_mlir_string(reference).lstrip('@')
+            symbol = _symbol(reference) if revision in ('2.1', '2.2') else v1.strip_mlir_string(reference).lstrip('@')
             if globals_ and not symbol: raise ValueError('Global memory reference has no compiler symbol')
             obj = 'memory:global:' + symbol if symbol else 'memory:' + attrs['ssa_id']
             if obj not in graph:
@@ -305,9 +309,12 @@ def _memory(graph, result, revision='2.0'):
             inherited = set().union(*(roots.get(source, set()) for source in constraints[node])) if constraints[node] else set()
             before = len(roots[node]); roots[node].update(inherited); changed |= before != len(roots[node])
         if not changed: break
-    if revision == '2.1':
+    if revision in ('2.1', '2.2'):
         from GNN_branch.mlir_semantics import resolve_returned_memory
         resolve_returned_memory(graph, roots, constraints)
+    if revision == '2.2':
+        from GNN_branch.mlir_semantics_v22 import region_roots
+        region_roots(graph, roots, constraints)
     # Keep unresolved storage explicit instead of dropping concrete accesses.
     # One placeholder per source SCC preserves view/iter-argument forwarding
     # without claiming an allocation, a unique caller, or a proven alias.
@@ -357,7 +364,7 @@ def _memory(graph, result, revision='2.0'):
         if effect['status'] == 'unknown':
             op['memory_effect_status'] = 'not_established'
     for dep in analysis.get('dependences', []):
-        unresolved = revision=='2.1' and dep['result']=='not_applicable' and dep.get('fallback_required')
+        unresolved = revision in ('2.1','2.2') and dep['result']=='not_applicable' and dep.get('fallback_required')
         if dep['result'] not in ('dependence', 'unknown') and not unresolved:
             continue
         source = f'op:{dep["source"]["function"]}:op{dep["source"]["ordinal"]}'
@@ -378,9 +385,9 @@ def build_from_result(result, provenance=None, paired_v1=None, global_definition
     if result.compiler_analysis is None:
         raise ValueError('V2 requires native compiler analysis; no approximate graph fallback')
     graph, mapping = _build_nodes(result)
-    if revision not in ('2.0', '2.1'):
+    if revision not in ('2.0', '2.1', '2.2'):
         raise ValueError('Unknown structural graph revision')
-    graph.graph['schema'] = SCHEMA if revision == '2.0' else SCHEMA_V21
+    graph.graph['schema'] = {'2.0':SCHEMA, '2.1':SCHEMA_V21, '2.2':SCHEMA_V22}[revision]
     _control_and_calls(graph, result, mapping)
     roots = _memory(graph, result, revision)
     for _, attrs in graph.nodes(data=True):
@@ -474,9 +481,13 @@ def build_from_result(result, provenance=None, paired_v1=None, global_definition
                        compatibility_mapping=compatibility,
                        feature_encoding={'kind': 'typed_attributes', 'tensor_feature_dimension': None,
                                          'note': 'No V2 learned tensor encoder or checkpoint is implemented'})
-    if revision == '2.1':
+    if revision in ('2.1', '2.2'):
         from GNN_branch.mlir_semantics import annotate_semantics
         annotate_semantics(graph, result, source, metadata)
+    if revision == '2.2':
+        graph.graph['global_definitions']=deepcopy(global_definitions or {})
+        from GNN_branch.mlir_semantics_v22 import annotate
+        annotate(graph, source)
     graph.graph['graph_identity'] = hashlib.sha256(canonical_json({
         'schema': graph.graph['schema'], 'provenance': provenance or {}, 'builder_sha256': digest(__file__)}).encode()).hexdigest()
     validate(graph)
@@ -522,7 +533,7 @@ def expand_compact(graph):
 
 
 def validate(graph):
-    if graph.graph.get('schema') not in (SCHEMA, SCHEMA_V21):
+    if graph.graph.get('schema') not in (SCHEMA, SCHEMA_V21, SCHEMA_V22):
         raise ValueError('V2 schema is required')
     points = set()
     for node, attrs in graph.nodes(data=True):
@@ -579,9 +590,12 @@ def validate(graph):
                          for _, w, e in graph.out_edges(call, data=True))
             if not actual or not formal or not callee:
                 raise ValueError('Binding operand/formal/callee mismatch')
-    if graph.graph.get('schema') == SCHEMA_V21:
+    if graph.graph.get('schema') in (SCHEMA_V21, SCHEMA_V22):
         from GNN_branch.mlir_semantics import validate_semantics
         validate_semantics(graph)
+    if graph.graph.get('schema') == SCHEMA_V22:
+        from GNN_branch.mlir_semantics_v22 import validate_evidence
+        validate_evidence(graph)
     if 'module' in graph and not nx.is_weakly_connected(graph):
         raise ValueError('Canonical semantic levels contain disconnected entities')
     return {'nodes': len(graph), 'edges': graph.number_of_edges(), 'action_points': len(points),
@@ -666,11 +680,52 @@ class _CoverageBuilder(v1.MLIRGraphBuilder):
             self.actions = registered
 
 
+class _PreciseCoverageBuilder(_CoverageBuilder):
+    """V2.2: shared access lines are context, never allocation identity."""
+    def _add_loop_carried_edges(self):
+        super()._add_loop_carried_edges()
+        # A for-result is its initial argument on the zero-iteration path.
+        # Memory roots must include this path even when the yield is another
+        # buffer. Retain a conditional SSA fact, not a must-alias assertion.
+        for loop in self.loops:
+            record=loop.op_record
+            if record.op_name not in ('scf.for','affine.for'):continue
+            body=v1.region_blocks(v1.operation_regions(record.operation)[0])[0]
+            count=len(v1.block_arguments(body))-1
+            initial=record.operands[3:] if record.op_name=='scf.for' else record.operands[-count:] if count else []
+            for index,(value,result) in enumerate(zip(initial,record.results)):
+                if not v1.is_memory_type(v1.value_type(result)):continue
+                self.graph.add_edge(self.value_nodes[self._value_key(value)],self.value_nodes[self._value_key(result)],
+                    flow=v1.FLOW_LOOP_CARRIED,position=400+index,role='loop_zero_trip_result',
+                    condition='result equals initial argument when the loop executes zero iterations')
+
+    def _attach_actions(self):
+        super()._attach_actions()
+        # V1 cleanup removes isolated unused block arguments. Preserve actual
+        # native ownership before cleanup; V2 exports declares_argument edges
+        # from real blocks rather than these temporary compatibility edges.
+        for block in self.blocks.values():
+            for key in block.argument_keys:
+                self.graph.add_edge(block.parent_op_node,self.value_nodes[key],
+                    flow=v1.FLOW_REGION,position=0,role='native_block_argument_ownership')
+
+    def _array_argument_node(self, spec):
+        resolved = super()._array_argument_node(spec)
+        function, node, _, _ = resolved
+        defining = [r for r in self.operation_records if any(self.value_nodes[k] == node for k in r.result_keys)]
+        native = [r for r in defining if v1.strip_mlir_string(r.attributes.get('mailohls.action_id','')) == spec.action_id]
+        exact = [r for r in defining if self._source_distance(r,spec) is not None and r.function_id == function
+                 and not r.attributes.get('mailohls.action_id')]
+        if not native and not exact:
+            raise RuntimeError(f'Array action {spec.action_id}/{spec.variable}: no unique native action attribute or declaration-location target; shared source-use lines are insufficient')
+        return resolved
+
+
 def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='2.0'):
     """Keep the owning MLIR module alive until every live-object query finishes."""
     from mlir._mlir_libs import _mailohls_analysis
     fixture = (provenance or {}).get('native_fixture', {})
-    valid_fixture = revision == '2.1' and fixture.get('origin') == 'handwritten_MLIR_native_verified' and fixture.get('mlir_sha256') == digest(mlir)
+    valid_fixture = revision in ('2.1','2.2') and fixture.get('origin') == 'handwritten_MLIR_native_verified' and fixture.get('mlir_sha256') == digest(mlir)
     if paired_v1 is None and not ((provenance and provenance.get('cgeist_sha256')) or valid_fixture):
         raise ValueError('External raw MLIR requires an authenticated paired V1 graph')
     _, actions = v1.load_kernel_info_actions(Path(source).resolve(), Path(metadata).resolve())
@@ -688,7 +743,7 @@ def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='
     builder = result = None
     started = time.perf_counter()
     try:
-        if revision == '2.1' and not module.operation.verify():
+        if revision in ('2.1','2.2') and not module.operation.verify():
             raise ValueError('Native MLIR verification failed')
         # Globals do not define function-local SSA results, but their constant
         # initializers/visibility are still semantic facts. Keep them once on
@@ -698,7 +753,7 @@ def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='
             name = v1.operation_name(operation)
             if name in ('memref.global','llvm.mlir.global'):
                 attrs = v1.attribute_items(operation)
-                symbol = _symbol(attrs.get('sym_name','')) if revision == '2.1' else v1.strip_mlir_string(attrs.get('sym_name',''))
+                symbol = _symbol(attrs.get('sym_name','')) if revision in ('2.1','2.2') else v1.strip_mlir_string(attrs.get('sym_name',''))
                 if symbol:
                     definitions[symbol] = {'operation': name, 'attributes': attrs, 'status': 'compiler_recorded'}
             elif name not in ('func.func','llvm.func'):
@@ -707,11 +762,14 @@ def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='
                         for child in v1.block_operations(block): collect_globals(child)
         collect_globals(module.operation)
         analysis = _mailohls_analysis.analyze_module(module.operation)
-        builder_class = v1.MLIRGraphBuilder if revision=='2.0' else _CoverageBuilder
+        if revision == '2.2':
+            from GNN_branch.mlir_semantics_v22 import canonical_analysis
+            analysis=canonical_analysis(analysis)
+        builder_class = {'2.0':v1.MLIRGraphBuilder, '2.1':_CoverageBuilder, '2.2':_PreciseCoverageBuilder}[revision]
         builder = builder_class(module, text, actions, compiler_analysis=analysis,
             analysis_extension_sha256=digest(_mailohls_analysis.__file__), require_actions=revision == '2.0')
         result = builder.build()
-        if revision=='2.1': result.actions = actions
+        if revision in ('2.1','2.2'): result.actions = actions
         shared_seconds = time.perf_counter() - started
         started = time.perf_counter()
         graph = build_from_result(result, {**(provenance or {}), 'source_sha256': digest(source),
@@ -720,7 +778,11 @@ def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='
             'v1_generator_sha256': digest(v1.__file__), 'v2_builder_sha256': digest(__file__),
             'local_header_sha256': {p.name: digest(p) for p in sorted(Path(source).parent.glob('*.h'))},
             'header_limit': 'Local headers sealed; transitive system include closure is not captured. AP analysis stubs are not vendor arithmetic.',
-            **({'unresolved_registration_evidence':builder.unresolved_action_evidence} if revision=='2.1' else {})}, paired_v1, definitions, revision, source, metadata)
+            **({'unresolved_registration_evidence':builder.unresolved_action_evidence} if revision in ('2.1','2.2') else {})}, paired_v1, definitions, revision, source, metadata)
+        if revision == '2.2':
+            from GNN_branch.mlir_semantics_v22 import native_correspondence, attach_cfg
+            attach_cfg(graph,result)
+            graph.graph['native_correspondence'] = native_correspondence(module, graph)
         timing = {'shared_native_analysis_and_v1_builder_seconds': shared_seconds,
                   'additional_v2_construction_seconds': time.perf_counter() - started,
                   'historical_v1_construction_seconds': None}
@@ -734,7 +796,7 @@ def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--mode', choices=('generate', 'compact', 'validate'), default='generate')
-    parser.add_argument('--revision', choices=('2.0', '2.1'), default='2.0')
+    parser.add_argument('--revision', choices=('2.0', '2.1', '2.2'), default='2.0')
     parser.add_argument('--source'); parser.add_argument('--metadata'); parser.add_argument('--mlir')
     parser.add_argument('--mlir-output', help='Preserve frontend IR for a fresh source compilation')
     parser.add_argument('--input'); parser.add_argument('--output')

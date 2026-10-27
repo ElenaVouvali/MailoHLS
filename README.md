@@ -109,6 +109,10 @@ See [verification and scope](docs/structural-graph-v2.md#locked-graph-release)
 before evaluation; earlier graphs remain preserved and four external snapshots
 are explicitly excluded.
 
+The opt-in [V2.2 semantic release candidate](docs/structural-graph-v22.md)
+audits the same cohort, adds native CFG/SSA checks and strengthens storage
+identity. It does not replace the V2.1 release or production V1 models.
+
 For corpus generation, authenticated graph reuse and the four-policy
 structure-guided refinement comparison, see the
 [V2.1 validation workflow](experiments/v21_refinement/README.md). It reuses the

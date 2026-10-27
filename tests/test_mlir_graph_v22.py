@@ -1,0 +1,289 @@
+"""Independent source/native fixtures; handwritten IR is explicitly identified."""
+from copy import deepcopy
+import json
+import os
+from pathlib import Path
+import subprocess
+
+import pytest
+from test_mlir_graph_v2 import native_tools
+from GNN_branch import mlir_graph_v2 as v2
+from GNN_branch.action_point_relations import get_action_point_relations as query, action_point_views, get_loop_semantics
+from experiments.structural_audit import finalize_v22 as audit
+from GNN_branch.mlir_semantics_v22 import canonical_analysis
+
+
+def native_graph(tools,source,metadata,raw,output,provenance):
+    script='''import json,sys
+from GNN_branch import mlir_graph_v2 as v
+g,_=v.generate(sys.argv[1],sys.argv[2],sys.argv[3],provenance=json.loads(sys.argv[5]),revision='2.2')
+v.write_graph(g,sys.argv[4])
+'''
+    result=subprocess.run([tools['python'],'-B','-c',script,str(source),str(metadata),str(raw),str(output),json.dumps(provenance)],
+        cwd=audit.ROOT,env={**os.environ,'PYTHONPATH':tools['pythonpath'],'PYTHONHASHSEED':'0'},capture_output=True,text=True,timeout=180)
+    assert result.returncode==0,result.stderr
+    return v2.read_graph(output)
+
+
+@pytest.fixture(scope='module')
+def frozen(tmp_path_factory):
+    return audit.baseline(tmp_path_factory.mktemp('v22_frozen'))
+
+
+@pytest.fixture(scope='module')
+def real_graphs(frozen,native_tools,tmp_path_factory):
+    base,release=frozen;output=tmp_path_factory.mktemp('v22_real');graphs={}
+    for row in release['graphs']:
+        if not (row['kernel']=='rodinia_lud_1_tiling_0' or row['snapshot_id'].startswith('96b4d608')):continue
+        old=v2.read_graph(base/row['canonical'])
+        graphs[row['kernel']]=(old,native_graph(native_tools,base/row['source'],base/row['metadata'],base/row['raw_mlir'],
+            output/(row['snapshot_id']+'.json'),old.graph['provenance']))
+    return graphs
+
+
+def test_external_kalman_overlap_binding_is_not_allocation_identity(real_graphs):
+    old,new=real_graphs['serrano-kalman-filter']
+    def target(g,label):return next(v for _,v,e in g.out_edges('action:'+label,data=True) if e['relation_type']=='targets')
+    assert target(old,'L6')==target(old,'L8')  # Confirm the demonstrated legacy failure.
+    assert 'action:L7' not in new and 'action:L8' not in new
+    coverage={r['action_id']:r for r in new.graph['action_point_coverage']['records']}
+    for label in ('L7','L8'):
+        assert coverage[label]['metadata_registered'] and not coverage[label]['compiler_matched']
+        assert coverage[label]['compiler_eliminated'] is None
+        assert not coverage[label]['resolution_diagnostic']['elimination_proven']
+    assert get_loop_semantics(new,'L10')['compiler_proven_trip_count']==4095
+    assert len([r for r in coverage.values() if r['metadata_registered']])==13
+
+
+def test_LUD_invocation_contexts_retain_positive_and_negative_evidence(real_graphs):
+    _,graph=real_graphs['rodinia_lud_1_tiling_0']
+    assert sum(a['category']=='action_point' for _,a in graph.nodes(data=True))==46
+    rows=[r for r in query(graph,'L2') if r['neighbor']=='L5' and r['relation_type']=='memory_access']
+    assert rows and all(r['invocation_context']==['op:lud_diagonal:op5'] and r['callsite_bindings'] for r in rows)
+    assert not [r for r in query(graph,'L2',call_context=()) if r['neighbor']=='L5']
+    with pytest.raises(ValueError,match='verified originating call'):query(graph,'L2',call_context=('missing',))
+
+
+@pytest.fixture(scope='module')
+def source_cases(native_tools,tmp_path_factory):
+    entries=json.loads((audit.ROOT/'experiments/structural_audit/fixtures/semantics_v21.json').read_text())
+    entries=[r for r in entries if 'mlir' not in r]
+    entries.append({'name':'nested_calls','program':'''extern "C" __attribute__((noinline)) void inner(float *p){p[0]+=1;}
+extern "C" __attribute__((noinline)) void outer(float *p){inner(p);}
+extern "C" float top(float x){
+L1: float a[8];
+L3: float b[8];
+a[0]=x;b[0]=x+1;
+L9: for(int i=0;i<8;i++)outer(a);
+L19: for(int j=0;j<8;j++)outer(b);
+outer(a);return a[0]+b[0];}
+''','metadata':'top\nL1,array,a,1,8\nL3,array,b,1,8\nL9,loop,8\nL19,loop,8\n'})
+    entries.append({'name':'static_arrays','program':'''extern "C" float top(float x){
+L1: static float a[8];
+L3: static float b[8];
+L9: for(int i=0;i<8;i++){a[i]+=x;b[i]=a[i]*2;}
+return b[0];}
+''','metadata':'top\nL1,array,a,1,8\nL3,array,b,1,8\nL9,loop,8\n'})
+    output=tmp_path_factory.mktemp('v22_sources');graphs={}
+    for entry in entries:
+        directory=output/entry['name'];directory.mkdir()
+        source=directory/'kernel.cpp';meta=directory/'kernel_info.txt';path=directory/'graph.json'
+        source.write_text(entry['program']);meta.write_text(entry['metadata'])
+        result=subprocess.run([native_tools['python'],'-B','-m','GNN_branch.mlir_graph_v2','--revision','2.2',
+            '--source',str(source),'--metadata',str(meta),'--cgeist',native_tools['cgeist'],'--output',str(path)],
+            cwd=audit.ROOT,env={**os.environ,'PYTHONPATH':native_tools['pythonpath'],'PYTHONHASHSEED':'0'},capture_output=True,text=True,timeout=180)
+        assert result.returncode==0,(entry['name'],result.stderr)
+        graphs[entry['name']]=v2.read_graph(path)
+    return graphs
+
+
+@pytest.mark.parametrize('name',['returned_alias','ambiguous_return','unresolved_call','recursive_call',
+    'index_and_state','different_indices','registration','nested_calls','static_arrays'])
+def test_native_source_cases_have_occurrence_level_validation(source_cases,name):
+    g=source_cases[name];assert g.graph['schema']==v2.SCHEMA_V22
+    assert g.graph['native_correspondence']['status']=='pass'
+    v2.validate(g)
+
+
+def test_two_nested_helper_invocations_do_not_merge_arrays(source_cases):
+    g=source_cases['nested_calls']
+    for point,array,other in [('L9','L1','L3'),('L19','L3','L1')]:
+        rows=[r for r in query(g,point) if r['relation_type']=='memory_access']
+        assert rows and any(r['neighbor']==array and len(r['call_chain'])==2 for r in rows)
+        assert not [r for r in rows if r['neighbor']==other]
+
+
+def test_ambiguous_returns_and_unresolved_calls_never_gain_false_proof(source_cases):
+    rows=[r for r in query(source_cases['ambiguous_return'],'L9','all') if r['relation_type']=='memory_access']
+    assert not [r for r in rows if r['evidence_status']=='proven']
+    for name in ('recursive_call','unresolved_call'):
+        rows=query(source_cases[name],'L9','all')
+        assert any(r['evidence_status']=='possible' and not r['concrete'] for r in rows if r['relation_type']=='memory_access')
+
+
+def test_returned_aliases_and_global_arrays_keep_distinct_roots(source_cases):
+    for point,expected,other in [('L9','L1','L3'),('L19','L3','L1')]:
+        rows=[r for r in query(source_cases['returned_alias'],point) if r['relation_type']=='memory_access']
+        assert any(r['neighbor']==expected for r in rows) and not any(r['neighbor']==other for r in rows)
+    graph=source_cases['static_arrays']
+    roots=[v for u,v,e in graph.edges(data=True) if e['relation_type']=='targets' and graph.nodes[u]['action_kind']=='array']
+    assert len(set(roots))==2 and all(graph.nodes[r]['root_kind']=='global' for r in roots)
+
+
+@pytest.fixture(scope='module')
+def native_ir_cases(native_tools,tmp_path_factory):
+    output=tmp_path_factory.mktemp('v22_native_ir');graphs={}
+    programs={
+      'pointer':'''module { func.func @top(%x: f32) -> f32 {
+        %a = memref.alloca() {mailohls.action_id = "L1"} : memref<8xf32> loc("kernel.cpp":2:11)
+        %p = "polygeist.memref2pointer"(%a) : (memref<8xf32>) -> !llvm.ptr
+        %i = llvm.mlir.constant(1 : i64) : i64
+        %q = llvm.getelementptr %p[%i] : (!llvm.ptr, i64) -> !llvm.ptr, f32
+        llvm.store %x, %q : f32, !llvm.ptr
+        %v = llvm.load %q : !llvm.ptr -> f32
+        return %v : f32
+      } }''',
+      'cfg':'''module { func.func @top(%x: f32, %flag: i1) -> f32 {
+        %a = memref.alloca() {mailohls.action_id = "L1"} : memref<8xf32> loc("kernel.cpp":2:11)
+        %c0 = arith.constant 0 : index
+        cf.cond_br %flag, ^yes, ^no
+      ^yes:
+        memref.store %x, %a[%c0] : memref<8xf32>
+        cf.br ^join
+      ^no:
+        memref.store %x, %a[%c0] : memref<8xf32>
+        cf.br ^join
+      ^join:
+        %v = memref.load %a[%c0] : memref<8xf32>
+        return %v : f32
+      } }''',
+      'memory_state':'''module { func.func @top(%x: f32, %n: index) -> f32 {
+        %a = memref.alloca() {mailohls.action_id = "L1"} : memref<8xf32> loc("kernel.cpp":2:11)
+        %c0 = arith.constant 0 : index
+        %c1 = arith.constant 1 : index
+        %q = scf.for %i = %c0 to %n step %c1 iter_args(%p = %a) -> memref<8xf32> {
+          memref.store %x, %p[%c0] : memref<8xf32>
+          scf.yield %p : memref<8xf32>
+        } loc("kernel.cpp":4:5)
+        %v = memref.load %q[%c0] : memref<8xf32>
+        return %v : f32
+      } }''',
+      'select':'''module { func.func @top(%x: f32, %flag: i1) -> f32 {
+        %a = memref.alloca() {mailohls.action_id = "L1"} : memref<8xf32> loc("kernel.cpp":2:11)
+        %b = memref.alloca() {mailohls.action_id = "L3"} : memref<8xf32> loc("kernel.cpp":3:11)
+        %p = arith.select %flag, %a, %b : memref<8xf32>
+        %c0 = arith.constant 0 : index
+        memref.store %x, %p[%c0] : memref<8xf32>
+        %v = memref.load %p[%c0] : memref<8xf32>
+        return %v : f32
+      } }'''}
+    views=next(r for r in json.loads((audit.ROOT/'experiments/structural_audit/fixtures/semantics_v21.json').read_text()) if r['name']=='strided_views')
+    programs['strided_views']=views['mlir']
+    programs['memory_zero_trip']=programs['memory_state'].replace(
+        '        %c0 =', '        %b = memref.alloca() {mailohls.action_id = "L3"} : memref<8xf32> loc("kernel.cpp":3:11)\n        %c0 =').replace(
+        'scf.yield %p','scf.yield %b')
+    programs['overlapping_views']=views['mlir'].replace('    %r =',
+        '    %q = memref.subview %a[18] [8] [2] : memref<64xf32> to memref<8xf32, strided<[2], offset: 18>>\n    %r =').replace(
+        '      %v = memref.load','      memref.store %x, %q[%i] : memref<8xf32, strided<[2], offset: 18>>\n      %v = memref.load')
+    for name,mlir in programs.items():
+        directory=output/name;directory.mkdir();source=directory/'kernel.cpp';meta=directory/'kernel_info.txt';raw=directory/'kernel.mlir'
+        source.write_text(views['program'] if 'views' in name else 'extern "C" float top(float x){\nL1: float a[8];\nL3: float b[8];\nL9: for(int i=0;i<8;i++)a[i]=x;\nreturn x;\n}\n')
+        meta.write_text(views['metadata'] if 'views' in name else 'top\nL1,array,a,1,8\n'+('L3,array,b,1,8\nL9,loop,8\n' if name=='memory_zero_trip' else 'L9,loop,8\n' if name=='memory_state' else 'L3,array,b,1,8\n' if name=='select' else ''));raw.write_text(mlir)
+        provenance={'native_fixture':{'origin':'handwritten_MLIR_native_verified','mlir_sha256':v2.digest(raw)},
+                    'fixture_semantic_expectations':'independently specified; not frontend-generated output'}
+        graphs[name]=native_graph(native_tools,source,meta,raw,directory/'graph.json',provenance)
+    return graphs
+
+
+def test_LLVM_pointer_roots_preserve_concrete_accesses(native_ir_cases):
+    graph=native_ir_cases['pointer']
+    edges=[e for u,v,e in graph.edges(data=True) if e['relation_type']=='memory_access']
+    assert len(edges)==2 and all(e['evidence_status']=='proven' for e in edges)
+    assert all(e['access_indices']['pointer_expression_chain'][0]['operation_kind']=='llvm.getelementptr' for e in edges)
+    assert not [e for _,_,e in graph.edges(data=True) if e['relation_type']=='depends_on']  # Same root isn't a dependence proof.
+
+
+def test_CFG_successors_use_native_C_API(native_ir_cases):
+    graph=native_ir_cases['cfg'];assert graph.graph['native_correspondence']['cfg_successors']==4
+    assert sum(e['relation_type']=='control_flow' for _,_,e in graph.edges(data=True))==4
+
+
+@pytest.mark.parametrize('name',['pointer','cfg','strided_views','overlapping_views','memory_state','memory_zero_trip','select'])
+def test_compact_native_evidence_and_queries_are_exact(native_ir_cases,name):
+    graph=native_ir_cases[name];compact=v2.compact_view(graph)
+    audit.queries_equal(graph,compact);assert action_point_views(graph)==action_point_views(compact)
+
+
+def test_memory_iteration_and_dynamic_count_do_not_use_metadata_as_proof(native_ir_cases):
+    graph=native_ir_cases['memory_state'];loop=get_loop_semantics(graph,'L9')
+    assert loop['compiler_proven_trip_count'] is None and loop['metadata_value']==8
+    assert len(loop['ssa_state'])==4 and all(e['state_kind']=='memory_reference' for e in loop['ssa_state'])
+    assert any(e['forwarding_role']=='loop_zero_trip_result' for e in loop['ssa_state'])
+
+
+def test_zero_trip_memory_result_keeps_initial_and_yielded_buffers(native_ir_cases):
+    g=native_ir_cases['memory_zero_trip']
+    result=next(n for n,a in g.nodes(data=True) if a.get('text')=='scf.for')
+    value=next(v for _,v,e in g.out_edges(result,data=True) if e['relation_type']=='defines')
+    roots=[(v,e['evidence_status']) for _,v,e in g.out_edges(value,data=True) if e['relation_type']=='resolves_to']
+    assert len(roots)==2 and all(status=='possible' for _,status in roots)
+    assert {v for v,_ in roots}=={v for u,v,e in g.edges(data=True) if e['relation_type']=='targets' and u in ('action:L1','action:L3')}
+
+
+def test_pointer_select_is_possible_and_view_overlap_is_not_guessed(native_ir_cases):
+    graph=native_ir_cases['select']
+    accesses=[e for _,_,e in graph.edges(data=True) if e['relation_type']=='memory_access']
+    assert accesses and all(e['evidence_status']=='possible' for e in accesses)
+    graph=native_ir_cases['overlapping_views']
+    views=[e['view_mapping'] for _,_,e in graph.edges(data=True) if e['relation_type']=='references']
+    assert {tuple(v['offsets']) for v in views if isinstance(v['offsets'],list)} >= {(16,),(18,),(0,)}
+    assert all(v['element_overlap']=='not_established' for v in views)
+
+
+@pytest.mark.parametrize('change',['operand','call_uid','carrying_loop','certainty','root','reverse'])
+def test_corrupted_evidence_is_rejected(source_cases,native_ir_cases,change):
+    g=deepcopy(source_cases['index_and_state'] if change in ('carrying_loop','certainty') else source_cases['nested_calls'] if change=='call_uid' else native_ir_cases['pointer'])
+    if change=='operand':
+        e=next(e for _,_,e in g.edges(data=True) if e['relation_type']=='operand');e['legacy_evidence']['position']=999
+    elif change=='call_uid':
+        e=next(e for _,_,e in g.edges(data=True) if e['relation_type']=='actual_to_formal');e['call_uid']='wrong'
+    elif change=='carrying_loop':
+        e=next(e for _,_,e in g.edges(data=True) if e['relation_type']=='depends_on' and e['evidence_status']=='proven');e['carrying_loop']='missing'
+    elif change=='certainty':
+        e=next(e for _,_,e in g.edges(data=True) if e['relation_type']=='depends_on');e['evidence_status']='possible' if e['evidence_status']=='proven' else 'proven'
+    elif change=='root':
+        e=next(e for _,_,e in g.edges(data=True) if e['relation_type']=='memory_access');e['evidence_status']='not_established'
+    else:next(e for _,_,e in g.edges(data=True))['is_reverse']=True
+    with pytest.raises((ValueError,KeyError)):v2.validate(g)
+
+
+def test_numeric_fidelity_never_claims_stub_hardware_exactness(real_graphs):
+    _,g=real_graphs['serrano-kalman-filter'];f=g.graph['numerical_fidelity']
+    assert f['hardware_exact'] is False and f['source_template_spellings']
+    assert all(r['resolved_width'] is None and not r['hardware_semantics_verified'] for r in f['source_template_spellings'])
+
+
+def test_frozen_AES_uncertainty_is_distinct_not_duplicate(frozen):
+    base,m=frozen;row=next(r for r in m['graphs'] if r['kernel']=='chstone-aes')
+    graph=v2.read_graph(base/row['canonical']);stats=audit.statistics(graph)
+    assert stats['duplicate_native_queries']==0
+    assert stats['dependence_status']['possible']==43236
+    assert stats['native_negative_conclusions']>0
+    assert stats['native_dependence_reasons']['affine_analysis_failure']==20032
+
+
+def test_historical_schemas_remain_readable_without_modifying_release(frozen):
+    base,m=frozen
+    for row in m['graphs'][:3]:
+        before=v2.digest(base/row['canonical']);assert v2.read_graph(base/row['canonical']).graph['schema']==v2.SCHEMA_V21
+        assert v2.digest(base/row['canonical'])==before
+
+
+def test_native_view_order_canonicalization_retains_the_exact_multiset():
+    original={'views':[{'source':'b','target':'c'},{'source':'a','target':'c'},{'source':'b','target':'c'}],
+              'dependences':[{'result':'unknown'}],'aliases':[{'result':'may_alias'}]}
+    shuffled={**original,'views':list(reversed(original['views']))}
+    assert canonical_analysis(original)==canonical_analysis(shuffled)
+    assert len(canonical_analysis(original)['views'])==3
+    assert original['views'][0]['source']=='b'  # Input/legacy data is not mutated.
+    assert canonical_analysis(original)['dependences']==original['dependences']

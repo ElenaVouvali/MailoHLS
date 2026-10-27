@@ -1,5 +1,8 @@
 # MailoHLS
 
+The opt-in [V2.2 semantic audit](structural-graph-v22.md) preserves V1/V2.1
+and validates the frozen 63-program cohort without synthesis or training.
+
 MailoHLS is a pipeline for **structure-aware HLS design-space
 optimization**. It combines two complementary models:
 

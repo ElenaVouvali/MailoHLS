@@ -322,8 +322,8 @@ def validate_semantics(graph):
                 return bool(returned) and all(root_path(v,root,(),bound,calls+(operation,)) for v in returned)
             candidates=[]
             if node.get('text')=='arith.select':candidates=[v for i,v in operands(graph,operation).items() if i in (1,2)]
-            if node.get('text')=='scf.if':
-                candidates=[operands(graph,n)[index] for n,a in graph.nodes(data=True) if a.get('parent_operation')==operation and a.get('text')=='scf.yield' and index in operands(graph,n)]
+            if node.get('text')=='scf.if' or (graph.graph.get('schema','').endswith('v2.2') and node.get('text')=='affine.if'):
+                candidates=[operands(graph,n)[index] for n,a in graph.nodes(data=True) if a.get('parent_operation')==operation and a.get('text') in (('scf.yield','affine.yield') if graph.graph.get('schema','').endswith('v2.2') else ('scf.yield',)) and index in operands(graph,n)]
             if candidates:return all(root_path(v,root,seen+(value,),context,calls) for v in candidates)
         parents=[v for _,v,e in graph.out_edges(value,data=True) if e['relation_type']=='references']
         parents += [u for u,_,e in graph.in_edges(value,data=True) if e['relation_type']=='loop_carried']
