@@ -6,6 +6,9 @@ import torch
 
 from experiments.stage1_recovery import decisions
 from experiments.stage1_recovery.run import remove_delimiter_supervision
+from experiments.stage1_recovery.evaluate import transition_metrics
+from experiments.stage1_recovery.prepare import prepare, sha
+import json
 from LLM_branch.train import train_SFT_xattn_new as production
 
 
@@ -130,3 +133,37 @@ def test_decision_metrics_exclude_forced_array_dimensions():
     assert 'ARRAY_D' in result['by_kind']
     assert 'ARRAY_D' not in result['decision_by_kind']
     assert result['forced_sites'] == 1
+
+
+def test_budget_sensitivity_is_not_correctness():
+    rows = [dict(reference_target=f'auto{{_UNROLL_L3}} = {g}',
+                 prediction=f'auto{{_UNROLL_L3}} = {p}') for g, p in [('2', '4'), ('4', '2')]]
+    result = transition_metrics(rows)
+    assert result['sensitive_groups'] == 1
+    assert result['correct_groups'] == 0
+
+
+def test_constant_baseline_roundtrips_canonical_uppercase_keys():
+    row = dict(input=source(), kernel_name='toy', target=(
+        'auto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\nauto{_ARRAY_T_L9} = cyclic\n'
+        'auto{_ARRAY_F_L9} = 2\nauto{_ARRAY_D_L9} = 1'))
+    modes = decisions.modes_from_train([row])
+    pred = decisions.constant_baseline(row, registry(), modes)
+    result = decisions.metrics([dict(kernel_name='toy', reference_target=row['target'], prediction=pred)], registry())
+    assert result['exact_design_accuracy'] == 1.
+
+
+def test_prepared_cache_authenticates_parent_and_export_bytes(tmp_path):
+    parent = tmp_path / 'parent'
+    parent.mkdir()
+    (parent / 'training_contract.json').write_text('{}')
+    out = tmp_path / 'selection'
+    out.mkdir()
+    (out / 'train.jsonl').write_text('sample')
+    manifest = dict(parent_contract_sha256=sha(parent / 'training_contract.json'),
+                    files={'train.jsonl': sha(out / 'train.jsonl')})
+    (out / 'manifest.json').write_text(json.dumps(manifest))
+    assert prepare(parent, out) == manifest
+    (out / 'train.jsonl').write_text('changed')
+    with pytest.raises(ValueError, match='Selected data changed'):
+        prepare(parent, out)

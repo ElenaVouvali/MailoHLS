@@ -16,6 +16,8 @@ Regression tests reject a swapped device-token mapping even when the vocabulary 
 
 The deterministic 20-example selection favors diverse families and directive values, allows at most two examples per kernel, and fits complete sources and targets without truncation. Selection comes from the authenticated training-winner reconstruction. The selected example files and parent trainable hashes permit checking that controls start from identical data and weights.
 
+In the recorded run this is 16 kernels from 13 families: 16 U200 and four ZCU104 examples, with 18 examples at 3.33 ns and two at 10 ns. The control is not stratified across all targets and has no 5 ns examples. Its purpose is checking learning capacity; target-generalization claims require the full dataset.
+
 | Control | Loss | Steps | LoRA / token LR |
 |---|---|---:|---|
 | `ce_control` | Original weighted RHS CE, including newline | 120 | 1.5e-5 / 5e-6 |
@@ -24,6 +26,8 @@ The deterministic 20-example selection favors diverse families and directive val
 | `joint_choice` | Value-only CE plus sampled complete-action softmax | 200 | 1e-4 / 2e-5 |
 
 The first versus second comparison changes **both** optimization rate and number of updates; it cannot isolate learning rate alone. The three 200-step runs use matched examples, initialization, rate and update-attempt budget. All runs use batch 1, no accumulation, constant LR, no warmup, inherited adapter dropout and 0.01 LoRA weight decay. These are memorization controls, not reproductions of the original full-corpus training schedule.
+
+The decision objectives also replace the parent's per-kind weights with uniform total weight per decision site. Thus the CE versus decision-CE comparison tests a combined value-only/equal-site policy; it does not isolate newline removal alone.
 
 `optimizer_audit.json` records gradient norms and whether each optimizer step was skipped. `report.json` stores initial/final adapter tensor hashes, parent file hashes, accuracy, settings and elapsed time. Teacher-forced value accuracy requires all ordinary tokens in each nonforced value to be correct, excluding newline; it is not free-generation accuracy. `train_greedy.json` separately records generated directives on four selected training cases.
 
@@ -63,10 +67,10 @@ export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export CUDA_VISIBLE_DEVICES=GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb
 ```
 
-If the source audit files do not exist, first run its CPU reconstruction:
+Reconstruct authenticated training/validation winners with the tracked CPU preparation command. The trainer/evaluator also check or create this cache automatically:
 
 ```bash
-"$MAILOHLS_PYTHON" artifacts/diagnostics/stage1_latency_collapse_20261027/audit_data.py
+"$MAILOHLS_PYTHON" -m experiments.stage1_recovery.prepare
 ```
 
 Use a fresh output root; run directories refuse overwrites:
@@ -81,10 +85,12 @@ mkdir -p artifacts/diagnostics/stage1_recovery_reproduction
   --mode ce --steps 200 --examples 20 --lr-lora 1e-4 --lr-embed 2e-5
 bash scripts/experiments/stage1_recovery_controls.sh \
   artifacts/diagnostics/stage1_recovery_reproduction
+"$MAILOHLS_PYTHON" -m experiments.stage1_recovery.finalize \
+  --root artifacts/diagnostics/stage1_recovery_reproduction
 "$MAILOHLS_PYTHON" -m pytest -q LLM_branch/tests
 ```
 
-The audit reconstruction script and its JSONL files are local diagnostic artifacts, not tracked dependencies. For a fresh clone, reconstruct winners with the source audit or preserve its authenticated exports. A forthcoming full-training runner should perform that selection directly rather than treating this small pilot as the production data builder.
+Preparation authenticates the dataset and split, reproduces the parent's kind weights and all 62 saved validation cases, and writes checksummed exports under `artifacts/diagnostics/stage1_recovery_data`. Subsequent runs verify the cache's parent-contract identity, export hashes and recorded input hashes. No untracked diagnostic script is required for reproduction.
 
 ## Results
 

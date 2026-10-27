@@ -24,9 +24,10 @@ from LLM_branch.common import frozen_stage1, mailohls_contract as contract_api
 from LLM_branch.inference import eval_stage1_stage2_stage3 as inference
 from LLM_branch.train import train_SFT_xattn_new as production
 from experiments.stage1_recovery import decisions
+from experiments.stage1_recovery.prepare import DEFAULT_OUTPUT, prepare
 
 DEFAULT_PARENT = 'mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1'
-AUDIT = Path('artifacts/diagnostics/stage1_latency_collapse_20261027')
+AUDIT = DEFAULT_OUTPUT
 
 
 def sha(path):
@@ -238,6 +239,7 @@ def main():
     start = time.perf_counter()
     parent = Path(args.parent)
     contract = json.loads((parent / 'training_contract.json').read_text())
+    selection_manifest = prepare(parent)
     before = {name: sha(parent / name) for name in ['adapter_model.safetensors', 'training_contract.json', 'tokenizer.json']}
     set_seed(123)
     tok = inference.load_checkpoint_tokenizer(str(parent), contract)
@@ -273,6 +275,7 @@ def main():
                   trainable_contract=production.assert_stage1_trainable_contract(model),
                   selected_examples=len(selected), max_sequence_length=max(data.lengths),
                   gpu=torch.cuda.get_device_name(), heldout_test_used=False)
+    report['selection_manifest'] = selection_manifest
     report['implementation_hashes'] = {str(p): sha(p) for p in [Path(__file__), Path(decisions.__file__), Path(production.__file__)]}
     report['initial_train_teacher'] = teacher_metrics(model, data, selected, tok, registry)
     dump(out / 'report.json', report)
