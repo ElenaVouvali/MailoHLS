@@ -13,6 +13,58 @@ RC3 uses the same schema, with explicit `semantic_revision: rc3`. Old files
 without that marker retain their original query semantics. New generation can
 select `--semantic-revision rc2` to reproduce the historical behavior.
 
+## Updated development Kalman registration
+
+The development CSV and its action mapping now include `Array_5 → L7` (`k_arr`)
+and `Array_6 → L8` (`calc_temp_arr`). Each column has 11 partition choices across
+10,549 rows. The source metadata now also registers both 64-element arrays.
+The old development snapshot in the frozen RC3 archive retains its original
+11 registrations; historical release counts below still describe that archive.
+
+The corrected source, metadata and headers exactly match the **already-released
+13-action snapshot** `serrano-kalman-filter-96b4d608969f`. Fresh pinned-compiler
+generation confirms the same operation nodes, semantic edges, coverage records
+and native alias/dependence outcomes. Reuse that authenticated canonical/compact
+pair from the existing archive; a duplicate graph release is unnecessary.
+The [registration-update receipt](graph-update-kalman.json) records the matching
+input hashes, fresh native validation and before/after coverage counts.
+
+Extract the existing release and validate the selected Kalman graph:
+
+```bash
+KALMAN_GRAPH_DIR=$(mktemp -d /tmp/mailohls-kalman-v22.XXXXXX)
+tar -xzf GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz -C "$KALMAN_GRAPH_DIR"
+(cd "$KALMAN_GRAPH_DIR" && sha256sum -c checksums.sha256)
+python -B -m GNN_branch.mlir_graph_v2 --mode validate \
+  --input "$KALMAN_GRAPH_DIR/canonical/serrano-kalman-filter-96b4d608969f.json"
+```
+
+There are **13 registered actions, 11 matched compiler targets and two unresolved
+registrations**, L7/L8. Source and headers are unchanged. The graph still has
+541 nodes and 1,006 edges; its operation nodes, semantic edges and native
+alias/dependence outcomes match the original development graph. L7/L8 now appear
+as registered/unresolved records rather than source-only labels. No separate
+compiler allocation was established for either, and no elimination proof was
+found. The CSV correction establishes directive labels, not compiler storage
+identity. Those directives remain legal under the source-domain rules; consumers
+must mask missing structural evidence instead of omitting the actions.
+
+Native operation/SSA correspondence and canonical/compact query equivalence
+pass. Two native interpreters reading the **same raw MLIR** produced identical
+graph bytes. Two fresh frontend compilations reordered `dlti.dl_spec` entries,
+so their raw-IR hashes differed despite identical graph nodes/edges; the exact
+selected raw MLIR is preserved. Reproduction must retain that distinction.
+
+This registration update changes neither the 63-snapshot release nor its gate status.
+Remaining limitations are the unresolved array targets (also ten Hotspot
+registrations in the frozen cohort), six loaded-pointer access relationships
+across its three Kalman snapshots, conservative dependence analysis (especially
+AES), simplified numerical headers, and pending independent human semantic
+review. The selected Kalman graph retains two unknown loaded-pointer relationships.
+No tensor encoder or model compatibility is implied. Previously trained models,
+cached datasets and experiment contracts keep their original hashes; the repaired
+CSV is a new data identity, not a silent replacement inside those artifacts.
+
 ## One compiler graph
 
 V2.2 extends the [existing representation](structural-graph-v2.md), retaining
@@ -55,8 +107,9 @@ allocation for either. V2.1 assigned L8 to the L6-tagged `p_arr_1` allocation
 at line 62, using overlapping use lines 74/80. V2.2 rejects that unsupported
 assignment. The surviving `arith.divf` at line 76 and scalar uses at lines 78/80
 do not prove separate L7/L8 memory. No transformation receipt proves elimination:
-the registrations remain unresolved. Development metadata never registered
-these two labels. Absolute `Lk`/slot `k-1` identities are never renumbered.
+the registrations remain unresolved. The development metadata frozen in RC3 did
+not register these labels; the registration update above now does. Absolute
+`Lk`/slot `k-1` identities are never renumbered.
 
 The same issue occurs in `rodinia-hotspot-2-pipeline` and
 `rodinia-hotspot-3-unroll`: L1–L4 and L6 were mapped to the allocation tagged

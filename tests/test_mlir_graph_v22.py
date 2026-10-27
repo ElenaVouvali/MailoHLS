@@ -55,6 +55,53 @@ def test_external_kalman_overlap_binding_is_not_allocation_identity(real_graphs)
     assert len([r for r in coverage.values() if r['metadata_registered']])==13
 
 
+def test_updated_development_kalman_archive_accounts_for_repaired_directive_columns(tmp_path):
+    """Data registration must not turn missing compiler identity into proof."""
+    import csv
+    import hashlib
+    import tarfile
+
+    root = audit.ROOT
+    manifest = json.loads((root/'docs/graph-update-kalman.json').read_text())
+    archive = root/manifest['archive']
+    assert hashlib.sha256(archive.read_bytes()).hexdigest() == manifest['archive_sha256']
+    with tarfile.open(archive, 'r:gz') as bundle:
+        for name, expected in manifest['files_sha256'].items():
+            stream = bundle.extractfile(name)
+            assert stream is not None
+            payload = stream.read()
+            assert hashlib.sha256(payload).hexdigest() == expected, name
+            if name.startswith(('canonical/', 'compact/')):
+                target = tmp_path/name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(payload)
+    graph = v2.read_graph(tmp_path/manifest['canonical'])
+    compact = v2.read_graph(tmp_path/manifest['compact'])
+    audit.queries_equal(graph, compact)
+    records = {r['action_id']: r for r in graph.graph['action_point_coverage']['records']}
+    metadata = root/'Data/ApplicationDataset/serrano-kalman-filter/kernel_info.txt'
+    assert v2.digest(metadata) == graph.graph['provenance']['metadata_sha256']
+    assert v2.digest(metadata.with_name('kernel.cpp')) == graph.graph['provenance']['source_sha256']
+    assert {line.split(',')[0] for line in metadata.read_text().splitlines()[1:]} == set(records)
+    assert len(records) == 13 and all(r['metadata_registered'] for r in records.values())
+    assert sum(r['compiler_matched'] for r in records.values()) == 11
+    mapping = dict(line.split(',') for line in
+        (root/'Data/ApplicationAPLMapping/serrano-kalman-filter.txt').read_text().splitlines())
+    assert mapping['Array_5'] == 'L7' and mapping['Array_6'] == 'L8'
+    with (root/'Data/CSVS/serrano-kalman-filter.csv').open(newline='') as stream:
+        rows = list(csv.DictReader(stream))
+    for column, label in [('Array_5', 'L7'), ('Array_6', 'L8')]:
+        assert all(row[column] not in ('', 'NDIR') for row in rows)
+        record = records[label]
+        assert record['metadata_registered'] and not record['compiler_matched']
+        assert record.get('compiler_target') is None
+        assert record['compiler_eliminated'] is None
+        assert not record['resolution_diagnostic']['elimination_proven']
+        assert 'action:'+label not in graph
+    assert graph.graph['native_correspondence']['status'] == 'pass'
+    assert get_loop_semantics(graph, 'L10')['compiler_proven_trip_count'] == 4095
+
+
 def test_LUD_invocation_contexts_retain_positive_and_negative_evidence(real_graphs):
     _,graph=real_graphs['rodinia_lud_1_tiling_0']
     assert sum(a['category']=='action_point' for _,a in graph.nodes(data=True))==46

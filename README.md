@@ -18,6 +18,7 @@ not claim checkpoint compatibility or improved QoR prediction.
 | Verification, limitations and review status | [Final release review](docs/V22_FINAL_RELEASE_REVIEW.md) |
 | All 63 canonical and 63 compact graphs, source/metadata/raw MLIR and evidence | [Graph archive](GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz) |
 | Exact artifact identities | [Manifest](docs/graph-release-v22-rc3.json) and [checksum](docs/graph-release-v22-rc3.sha256) |
+| Updated development Kalman: L7/L8 registered, compiler targets still unresolved | Use `canonical/serrano-kalman-filter-96b4d608969f.json` in the existing archive; [validation receipt](docs/graph-update-kalman.json) and [explanation](docs/structural-graph-v22.md#updated-development-kalman-registration) |
 | Graph builder and semantic annotations | [mlir_graph_v2.py](GNN_branch/mlir_graph_v2.py), [mlir_semantics.py](GNN_branch/mlir_semantics.py), [mlir_semantics_v22.py](GNN_branch/mlir_semantics_v22.py) |
 | Current typed action-point queries | [action_point_relations.py](GNN_branch/action_point_relations.py) |
 
@@ -28,6 +29,13 @@ V22_GRAPH_DIR=$(mktemp -d /tmp/mailohls-v22-rc3.XXXXXX)
 tar -xzf GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz -C "$V22_GRAPH_DIR"
 # Graphs are in "$V22_GRAPH_DIR/canonical" and "$V22_GRAPH_DIR/compact".
 ```
+
+For the corrected development Kalman metadata, use
+`"$V22_GRAPH_DIR/canonical/serrano-kalman-filter-96b4d608969f.json"` (or its
+`compact/` counterpart). This already-released snapshot matches the corrected
+source/metadata and registers L7/L8. The historical 11-action snapshot remains
+unchanged. L7/L8 remain valid directive actions even though their compiler
+targets are unresolved; downstream models must keep a structural-evidence mask.
 
 For new graphs, use the pinned compiler environment and select the revision
 explicitly; older default modes remain available for reproduction:

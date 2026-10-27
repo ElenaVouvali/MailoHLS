@@ -225,8 +225,15 @@ registered without a supported surviving compiler target. Neither implies
 compiler elimination. Source legality is independent of graph matching.
 
 The 14 unresolved cases are external Kalman L7/L8 in two metadata variants (4)
-and Hotspot pipeline/unroll L1–L4/L6 (10). The development Kalman metadata never
-registered L7/L8. Consumers must carry separate registered/matched/unresolved
+and Hotspot pipeline/unroll L1–L4/L6 (10). The development metadata **frozen in
+RC3** did not register L7/L8. The later
+[Kalman registration update](../structural-graph-v22.md#updated-development-kalman-registration)
+registers both to match the repaired CSV, while retaining unresolved compiler
+targets. The corrected source/metadata match the already-released snapshot
+`serrano-kalman-filter-96b4d608969f.json`; use that file and the default RC3
+manifest with the overlay CLI. No duplicate graph release is needed, and the
+historical corpus measurements above remain unchanged. Consumers must carry
+separate registered/matched/unresolved
 masks: Boolean flags stating what is known for each slot. They must never remove
 gaps or renumber active slots. The existing production memory uses
 `[max_slots,128]`, absolute labels, active masks and relation masks;
