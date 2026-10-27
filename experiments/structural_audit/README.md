@@ -5,10 +5,20 @@ the compiler graph, action projection, saved GNN tensors, structural memory and
 Stage-2 routing. It does not launch HLS, load the language model, run the GNN,
 change model behavior or regenerate production artifacts.
 
-`audit.py` is the only implementation module. It reuses the actual production
-projector and pure encoder function bodies through scoped AST extraction,
-avoiding their training CLI side effects. Existing refinement, inference,
-training and graph generator files remain unchanged.
+For the latest representation on `main`, start with the
+[V2.2 guide](../../docs/structural-graph-v22.md) and
+[release review](../../docs/V22_FINAL_RELEASE_REVIEW.md).
+
+| Tool | Purpose |
+| --- | --- |
+| `audit.py` | Original source-to-model-interface audit; reuses production projector and encoder function bodies without training CLI side effects. |
+| `compare_v2.py` | Historical V1/V2/V2.1 graph comparisons. |
+| `finalize_v22.py` | Authenticated frozen-cohort release generation and evidence accounting. |
+| `review_v22.py` | Read-only RC3 verification and bounded, editable independent-adjudication worksheet. |
+
+Production training, inference and refinement are unchanged. Review commands
+and the distinction between newly executed and inherited checks are documented
+in the release review; a generated worksheet is not human adjudication.
 
 The optional [V1/V2 comparison](../../docs/structural-graph-v2.md) is exposed by
 `python -m experiments.structural_audit.compare_v2`. It reuses the same raw MLIR

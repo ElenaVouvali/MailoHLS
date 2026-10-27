@@ -1,7 +1,7 @@
 # SALT-HLS structural graph V2.2
 
-**RC3 — independent evidence remains required.** V2.1 remains the frozen
-published baseline. Explicit `--revision 2.2` selects schema
+**Latest structural representation on `main`: V2.2 RC3 — technically frozen;
+independent adjudication pending.** V2.1 remains a frozen historical baseline. Explicit `--revision 2.2` selects schema
 `salt-hls-mlir-structural-v2.2`. There is no compatible learned tensor encoder
 or checkpoint. Production V1 models, memory, routing and refinement stay frozen.
 
@@ -325,3 +325,39 @@ Semantic references: official [LLVM](https://mlir.llvm.org/docs/Dialects/LLVM/),
 [SCF](https://mlir.llvm.org/docs/Dialects/SCFDialect/) and
 [Affine](https://mlir.llvm.org/docs/Dialects/Affine/) documentation. The pinned
 source APIs, rather than newer documentation syntax alone, determine this build.
+
+## Final verification and consumer contract
+
+The [release review](V22_FINAL_RELEASE_REVIEW.md) and
+[independent-adjudication worksheet](v22-independent-adjudication.json) separate
+new checks from inherited RC3 receipts. The immutable RC3 archive and checksum
+are preserved. No corpus graph was regenerated for this verification.
+
+A native adversarial fixture exposed a **query-only** completeness defect:
+an incomplete root set forwarded through loop SSA state could lose its
+incomplete flag. The current `_candidate_set_complete()` follows incoming
+memory-valued `loop_carried` facts as well as view references, checks local
+unknown/incomplete evidence before closing cycles, and does not change graph
+facts. The archived RC3 query implementation remains historical; consumers
+needing completeness flags must use the corrected checkout implementation
+identified by the review's source hash. This is not a new graph revision.
+
+The following interface is the downstream contract, conditional on independent
+adjudication. It does not certify hardware arithmetic or prediction quality.
+
+| Field or derived input | Required interpretation |
+|---|---|
+| `action_point_coverage.records` | Authoritative registration registry: all registered actions remain here, including unresolved targets. Active `action_point` nodes are only the matched subset. |
+| `Lk` / absolute slot | Slot is `k-1`; preserve holes. Never renumber or silently truncate actions. |
+| Missing compiler target | Structural evidence is missing; directive legality is still decided by source metadata and the separate TCAD policy. Do not delete a legal directive or fabricate a target. |
+| Structural masks | Derive registration, target-presence and relation-evidence masks separately. An unresolved target contributes no claimed structural proof. |
+| `evidence_status` | Keep `proven`, `possible`, `not_established` separate. Interpret relation polarity too: proven `no_alias` is negative evidence, not positive connectivity. Missing edges do not prove independence. |
+| Call-scoped roots | Retain every supported alternative, exact invocation binding and `root_candidates_complete`. A complete possible set is not must-alias; incomplete known alternatives do not exhaust storage. Unbound formals remain symbolic. |
+| Native source / SSA / call IDs and hashes | Alignment and provenance keys, not arbitrary learned categorical features or kernel-identity shortcuts. |
+| Trip counts / numerical types | Keep value, knownness, compiler proof and source metadata distinct. A known zero trip count is different from unknown. Stub-lowered widths are not hardware-exact types. |
+| Reverse message edges | Derive only in a separate tensor view with explicit direction metadata; never insert them into canonical facts. |
+| FPGA / resources / clock / objective / QoR / selected directives | Separate request or design-conditioning inputs. They must not overwrite canonical compiler semantics. |
+
+No tensor encoder, training, target conditioning, production routing or
+refinement behavior is implemented by this review. Human adjudication remains
+open; a generated worksheet never closes that gate.

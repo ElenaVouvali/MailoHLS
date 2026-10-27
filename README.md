@@ -5,11 +5,54 @@ optimization objectives, target FPGA, clock period, and available resources.
 The current implementation uses MLIR semantic graphs and GNN structural memory
 to condition an LLM. The paper also refers to this system as SALT-HLS.
 
+## Latest structural representation: V2.2
+
+**Available on `main`: V2.2 RC3, technically frozen; independent adjudication
+pending.** This is the latest compiler-semantic graph representation. Existing
+pretrained GNNs, structural memory and SALT inference still use V1; V2.2 does
+not claim checkpoint compatibility or improved QoR prediction.
+
+| Start here | Location |
+| --- | --- |
+| Representation and consumer contract | [V2.2 guide](docs/structural-graph-v22.md) |
+| Verification, limitations and review status | [Final release review](docs/V22_FINAL_RELEASE_REVIEW.md) |
+| All 63 canonical and 63 compact graphs, source/metadata/raw MLIR and evidence | [Graph archive](GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz) |
+| Exact artifact identities | [Manifest](docs/graph-release-v22-rc3.json) and [checksum](docs/graph-release-v22-rc3.sha256) |
+| Graph builder and semantic annotations | [mlir_graph_v2.py](GNN_branch/mlir_graph_v2.py), [mlir_semantics.py](GNN_branch/mlir_semantics.py), [mlir_semantics_v22.py](GNN_branch/mlir_semantics_v22.py) |
+| Current typed action-point queries | [action_point_relations.py](GNN_branch/action_point_relations.py) |
+
+To inspect the published graphs, extract into a fresh directory:
+
+```bash
+V22_GRAPH_DIR=$(mktemp -d /tmp/mailohls-v22-rc3.XXXXXX)
+tar -xzf GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz -C "$V22_GRAPH_DIR"
+# Graphs are in "$V22_GRAPH_DIR/canonical" and "$V22_GRAPH_DIR/compact".
+```
+
+For new graphs, use the pinned compiler environment and select the revision
+explicitly; older default modes remain available for reproduction:
+
+```bash
+python -m GNN_branch.mlir_graph_v2 --revision 2.2 --semantic-revision rc3 \
+  --source path/to/kernel.cpp --metadata path/to/kernel_info.txt \
+  --cgeist /path/to/pinned/cgeist --output /fresh/graph.json
+```
+
+Use the current checkout's query module for downstream work. The archive's
+bundled code is a frozen reproduction snapshot; its historical completeness
+query is superseded by the documented loop-forwarding correction on `main`.
+
+V2.2 describes target-independent compiler facts. FPGA characteristics, clock,
+resource budgets, optimization objectives and QoR belong in separate
+conditioning inputs linked to these graphs. A separate V2.2 tensor encoder and
+controlled learning comparison remain future work; no retraining is required
+to read, query or validate the release.
+
 ## Versions and ongoing development
 
 | Branch | Implementation |
 | --- | --- |
-| [`main`](https://github.com/ElenaVouvali/MailoHLS/tree/main) | Active development of further framework extensions, starting from the MLIR + target-conditioning implementation. |
+| [`main`](https://github.com/ElenaVouvali/MailoHLS/tree/main) | Latest framework development, V2.2 structural graphs and their verification; pretrained production models remain on V1. |
 | [`mlir-target`](https://github.com/ElenaVouvali/MailoHLS/tree/mlir-target) | Preserved organized MLIR + target-conditioning baseline: multiscale GNN memory, target-aware SFT, structural cross-attention, DPO, clock selection, and device adaptation. |
 | [`llvm-ir`](https://github.com/ElenaVouvali/MailoHLS/tree/llvm-ir) | Original LLVM IR / ProGraML / GNN implementation, based on the `MailoHLS_paper_v1` snapshot (`c9b2f43`). |
 
@@ -96,24 +139,10 @@ To inspect compiler relationships and their path into GNN features, action memor
 and attention routing without synthesis or model inference, use the
 [`structural representation audit`](experiments/structural_audit/README.md).
 
-An explicitly selected [MLIR structural graph V2](docs/structural-graph-v2.md)
-adds precise call bindings, unified memory relations and a lossless compact view.
-Its explicit `--revision 2.1` extends return, indexing, loop-state and coverage evidence.
-It is a research representation alongside the production graph; existing GNN
-weights, structural memory and inference continue to use V1.
-
-**Current research graph release:** [63-graph V2.1 release manifest](docs/graph-release-v21.json)
-and [downloadable graph archive](GNN_branch/MLIR_graphs/salt-hls-graphs-v21-20261027.tar.gz).
-The release includes the quoted-global and static-array action-point fixes.
-See [verification and scope](docs/structural-graph-v2.md#locked-graph-release)
-before evaluation; earlier graphs remain preserved and four external snapshots
-are explicitly excluded.
-
-The opt-in [V2.2 RC3 semantic release candidate](docs/structural-graph-v22.md)
-audits the same cohort, adds native CFG/SSA checks and strengthens storage
-identity, with evidence-first action binding and call-scoped possible roots.
-Independent semantic adjudication remains open; it does not replace the V2.1
-release or production V1 models.
+The [latest structural representation](#latest-structural-representation-v22)
+is V2.2 on `main`. Earlier V2.0/V2.1 graphs and the
+[V2.1 frozen release](docs/graph-release-v21.json) remain available for historical
+comparisons. No production checkpoint or structural-memory format is replaced.
 
 For corpus generation, authenticated graph reuse and the four-policy
 structure-guided refinement comparison, see the

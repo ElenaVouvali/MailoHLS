@@ -76,15 +76,19 @@ def _caller_roots(graph, root, context, chain=(), seen=()):
 
 def _candidate_set_complete(graph,value,seen=()):
     """Completeness is separate from the certainty of any one alternative."""
-    if value in seen:return True
     attrs=graph.nodes[value];roots=_roots(graph,value)
-    if not roots or any(graph.nodes[r].get('root_kind')=='unresolved' for r,_ in roots):return False
+    if not roots or any(status=='not_established' or graph.nodes[r].get('root_kind')=='unresolved' for r,status in roots):return False
     for key,field in (('region_root_evidence','all_alternatives_resolved'),
                       ('return_root_evidence','all_returns_resolved'),
                       ('loaded_pointer_evidence','candidate_set_complete')):
         if not attrs.get(key,{}).get(field,True):return False
-    return all(_candidate_set_complete(graph,parent,seen+(value,))
-        for _,parent,_,_ in _edges(graph,value,'references'))
+    # Check every node's evidence before closing a cycle. Iteration arguments
+    # and loop results also forward memory; ignoring them loses incompleteness.
+    if value in seen:return True
+    parents=[parent for _,parent,_,_ in _edges(graph,value,'references')]
+    parents += [parent for parent,_,_,_ in _edges(graph,value,'loop_carried',incoming=True)
+                if graph.nodes[parent].get('is_memory')]
+    return all(_candidate_set_complete(graph,parent,seen+(value,)) for parent in parents)
 
 
 def _bind_call(graph, operation, context, bindings):

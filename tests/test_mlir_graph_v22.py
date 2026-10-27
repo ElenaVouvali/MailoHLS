@@ -446,3 +446,79 @@ def test_resume_seals_initial_git_receipt_but_rejects_changed_code(tmp_path):
         audit.seal_protocol(path,{**original,'code_sha256':{'builder':'changed'}})
     with pytest.raises(ValueError,match='Frozen contract changed'):
         audit.seal_protocol(path,{**original,'source_sha256':'changed'})
+
+
+@pytest.mark.parametrize('gap',['missing_roots','unresolved_root','incomplete_branch','unknown_status'])
+def test_cyclic_reference_forwarding_keeps_incomplete_sets(gap):
+    import networkx as nx
+    from GNN_branch.action_point_relations import _candidate_set_complete
+    g=nx.MultiDiGraph()
+    g.add_node('root',root_kind='allocation')
+    for value in ('a','b'):
+        g.add_node(value)
+        g.add_edge(value,'root',relation_type='resolves_to',evidence_status='possible')
+    g.add_edge('a','b',relation_type='references',evidence_status='proven')
+    g.add_edge('b','a',relation_type='references',evidence_status='proven')
+    if gap=='missing_roots':
+        for u,v,k,e in list(g.edges(keys=True,data=True)):
+            if u=='b' and e['relation_type']=='resolves_to':g.remove_edge(u,v,k)
+    elif gap=='unresolved_root':g.nodes['root']['root_kind']='unresolved'
+    elif gap=='unknown_status':
+        for u,v,e in g.edges(data=True):
+            if u=='b' and e['relation_type']=='resolves_to':e['evidence_status']='not_established'
+    else:g.nodes['b']['region_root_evidence']={'all_alternatives_resolved':False}
+    assert not _candidate_set_complete(g,'a')
+    assert not _candidate_set_complete(g,'b')
+
+
+def test_native_loop_forwarding_does_not_close_incomplete_alternatives(native_tools,tmp_path):
+    from GNN_branch.action_point_relations import _candidate_set_complete
+    source=tmp_path/'kernel.cpp';meta=tmp_path/'kernel_info.txt';raw=tmp_path/'fixture.mlir'
+    source.write_text('extern "C" void top(){\nL1: float a[8];\nL9: for(int i=0;i<2;i++){}\n}\n')
+    meta.write_text('top\nL1,array,a,1,8\nL9,loop,2\n')
+    raw.write_text('''module {
+func.func private @unknown() -> memref<8xf32>
+func.func @sink(%p:memref<8xf32>) { %z=arith.constant 0:index %x=memref.load %p[%z]:memref<8xf32> return }
+func.func @top(%flag:i1,%n:index) {
+ %a=memref.alloca() {mailohls.action_id="L1"}:memref<8xf32> loc("kernel.cpp":2:11)
+ %u=func.call @unknown():()->memref<8xf32>
+ %partial=arith.select %flag,%a,%u:memref<8xf32>
+ %z=arith.constant 0:index
+ %one=arith.constant 1:index
+ %forwarded=scf.for %i=%z to %n step %one iter_args(%p=%partial)->memref<8xf32> {
+   scf.yield %p:memref<8xf32>
+ }
+ %two=arith.constant 2:index
+ scf.for %j=%z to %two step %one {
+   func.call @sink(%forwarded):(memref<8xf32>)->()
+ } loc("kernel.cpp":3:1)
+ return
+} }''')
+    g=native_graph(native_tools,source,meta,raw,tmp_path/'graph.json',
+        {'native_fixture':{'origin':'handwritten_MLIR_native_verified','mlir_sha256':v2.digest(raw)}})
+    partial=next(n for n,a in g.nodes(data=True) if a.get('region_root_evidence'))
+    assert not _candidate_set_complete(g,partial)
+    loop=next(n for n,a in g.nodes(data=True) if a.get('text')=='scf.for')
+    forwarded=next(v for _,v,e in g.out_edges(loop,data=True) if e['relation_type']=='defines')
+    assert not _candidate_set_complete(g,forwarded)
+    rows=[r for r in query(g,'L9','all') if r['relation_type']=='memory_access' and r.get('concrete')]
+    assert rows and all(r['evidence_status']=='possible' and not r['root_candidates_complete'] for r in rows)
+    audit.queries_equal(g,v2.compact_view(g))
+
+
+
+def test_review_worksheet_preserves_disposition_and_rejects_changed_reviewed_evidence(tmp_path):
+    from experiments.structural_audit.review_v22 import adjudication
+    path=tmp_path/'worksheet.json'
+    case={'case_id':'test_only','expected_semantic_relationship':'allocation A',
+        'reviewer_disposition':'pending','reviewer_identity':None,'review_date':None,
+        'supporting_evidence':[],'reviewer_notes':None}
+    adjudication(path,[deepcopy(case)],[],'archive')
+    record=json.loads(path.read_text());reviewed=record['cases'][0]
+    reviewed.update(reviewer_disposition='agree',reviewer_identity='synthetic_test_identity_not_human_review',
+        review_date='2000-01-01',supporting_evidence=['test fixture only'])
+    path.write_text(json.dumps(record))
+    adjudication(path,[deepcopy(case)],[],'archive')
+    assert json.loads(path.read_text())['cases'][0]==reviewed
+    with pytest.raises(ValueError,match='Reviewed evidence changed'):
+        adjudication(path,[{**case,'expected_semantic_relationship':'different storage'}],[],'archive')

@@ -1,7 +1,11 @@
 # MailoHLS
 
-The opt-in [V2.2 semantic audit](structural-graph-v22.md) preserves V1/V2.1
-and validates the frozen 63-program cohort without synthesis or training.
+The latest [V2.2 structural representation](structural-graph-v22.md) and
+[63-graph archive](../GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz)
+are on `main`. See the [release review](V22_FINAL_RELEASE_REVIEW.md) for the
+technical freeze, corrected query consumer and pending independent adjudication.
+This page documents the production V1 training/inference pipeline; V2.2 needs
+a separate tensor encoder before a controlled learning comparison.
 
 MailoHLS is a pipeline for **structure-aware HLS design-space
 optimization**. It combines two complementary models:
@@ -83,7 +87,7 @@ python -m pip install -r requirements.txt
 MLIR graph generation requires the pinned, patched Polygeist compiler, its
 Python 3.11 MLIR bindings, and the CMake-built `_mailohls_analysis` extension.
 The PyPI package named `mlir` is unrelated. The complete source lock and patch
-chain live in [`toolchain/`](toolchain/): `lock.env` pins Polygeist and its
+chain live in [`toolchain/`](../toolchain/): `lock.env` pins Polygeist and its
 `llvm-project` submodule, `SHA256SUMS` authenticates the ordered patches, and
 the scripts never install or copy a prebuilt shared object.
 
@@ -132,7 +136,7 @@ PYTHON="$MLIR_PYTHON" toolchain/verify.sh \
 This rechecks every patch against the pinned base, imports the native analysis
 module, runs its targeted tests plus `check-cgeist` and
 `check-polygeist-opt`, and generates a representative `bbgemm.gexf`. See
-[`toolchain/README.md`](toolchain/README.md) for the patch inventory and exact
+[`toolchain/README.md`](../toolchain/README.md) for the patch inventory and exact
 lock details.
 
 ## 2. Preprocess HLS measurements
