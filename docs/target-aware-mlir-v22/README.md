@@ -1,5 +1,28 @@
 # SALT-HLS MLIR V2.2: compiler graph and target-aware extension
 
+This document explains two parts of the framework: the V2.2 RC3 graph, which
+records what the compiler knows about a program, and a separate **target
+overlay**, which adds FPGA capacities, the requested clock and resource budgets.
+The overlay connects relevant program entities to possible hardware resources.
+For example, a multiply may connect to DSP and LUT resources, but these links
+do not say which implementation HLS will choose or how many resources it needs.
+
+The sections below retain the exact schemas, evidence rules, measurements and
+reproduction commands. A few terms are useful before reading them:
+
+| Term | Meaning here |
+|---|---|
+| MLIR / dialect | The compiler's intermediate representation / a group of operations for a particular purpose, such as loops or memory |
+| Operation / SSA value | A compiler instruction / one result or block argument used by instructions; SSA means each value has one definition |
+| Region / block | A body owned by an operation / a sequence of operations with arguments and control-flow connections |
+| Memory root / view | The underlying allocation, global or symbolic parameter / a reference into storage, possibly with offsets and strides |
+| Alias / dependence | Two references may refer to overlapping storage / one access or computation may constrain another's execution |
+| Action point | A source loop or array marked `Lk` where the framework supports an HLS directive |
+| Call context | The particular helper invocation, including its argument bindings; two calls to the same helper are different contexts |
+| Witness / provenance | The specific operation, operand or analysis record supporting a claim / the inputs, tool versions and hashes needed to trace it |
+| Canonical / compact graph | The authoritative graph / a smaller view from which that graph can be restored exactly |
+| Tensor encoder | Future code that converts graph attributes and relationships into numerical arrays for a GNN |
+
 ## Baseline documentation checkpoint (Phase A)
 
 This section was written and saved **before implementing hardware enrichment**.
@@ -10,9 +33,9 @@ with pre-existing working-tree deletions preserved. Work branch:
 `salt-hls-mlir-structural-v2.2`, semantic revision `rc3`, selected explicitly by
 `--revision 2.2 --semantic-revision rc3`. V2.1 is historical.
 
-**RC3 is technically frozen; independent human semantic adjudication is pending.**
-Mechanical consistency does not close that review. The bounded review worksheet
-has 60 pending cases. See [final review](../V22_FINAL_RELEASE_REVIEW.md) and
+**RC3 is technically frozen; independent human semantic review is pending.**
+Automated checks establish consistency but do not replace that review. The
+review worksheet has 60 pending cases. See [final review](../V22_FINAL_RELEASE_REVIEW.md) and
 [V2.2 semantics](../structural-graph-v22.md). This work neither regenerates nor
 amends that graph release.
 
@@ -39,12 +62,14 @@ Recorded binary SHA-256:
 | Archived V2.2 extension | `522135be66558874905bd133b2d6396514c0437482788bfe2989d895a389c855` |
 | Toolchain lock | `9b46a4dd124a4e92cb99fdc87414e8e026bf2fe43ebdadeb56e6923a9a5451b3` |
 
-The **current checkout** `GNN_branch/action_point_relations.py` is authoritative
-for derived queries. Its corrected `_candidate_set_complete()` follows incoming
-memory-valued loop state and checks incompleteness before closing cycles.
-The archived helper has an off-corpus incomplete-root defect. The correction
-does not change RC3 graph bytes. Per-file consumer hashes and newly executed
-validation receipts are recorded with the verification report below.
+Use the **current checkout's** `GNN_branch/action_point_relations.py` to query
+the graphs. Its corrected `_candidate_set_complete()` follows memory references
+passed between loop iterations. It checks for missing root alternatives before
+treating a revisited node as fully explored. The helper bundled in the archive
+has a defect exposed by a test outside the released corpus: it can report an
+incomplete root set as complete. The current correction changes query behavior,
+not RC3 graph bytes. The verification report below records the code hashes and
+validation results.
 
 ### Source to native analysis to graph
 
@@ -56,28 +81,33 @@ validation receipts are recorded with the verification report below.
    source/header/metadata/raw-MLIR hashes are in each graph's provenance.
 3. Official MLIR Python bindings parse and verify the module. The compiled
    `_mailohls_analysis.analyze_module()` supplies effects, view reachability,
-   aliases, affine dependence outcomes and trip counts. Production generation
+   aliases, affine dependence outcomes and trip counts. Memory effects describe
+   reads/writes; affine analysis reasons about supported loop bounds and index
+   expressions. Production generation
    rejects missing native analysis; there is no approximate fallback.
 4. `mlir_graph_v2.generate()` uses `_PreciseCoverageBuilder`, then
    `build_from_result()`, `mlir_semantics.annotate_semantics()` and
    `mlir_semantics_v22.annotate()`. Native operation/SSA ownership, successor
-   occurrences and state forwarding are independently checked before releasing
-   the owning MLIR context. The pinned wrapper needs the existing
-   `mlirOperationGetSuccessor` C API for actual CFG successors.
+   occurrences and state forwarding are independently checked against the native
+   MLIR objects before those objects are released. The pinned wrapper uses the
+   `mlirOperationGetSuccessor` C API to read the actual control-flow graph (CFG)
+   successors: the blocks to which an operation can transfer control.
 5. The canonical `networkx.MultiDiGraph` is validated and serialized.
    `compact_view()` makes an optional, losslessly reconstructible view.
 6. Public `get_action_point_relations()`, `get_loop_semantics()` and
    `action_point_views()` derive action relationships on demand from that graph.
-   `generate_mlir_v2_corpus.py` is an inventory/reuse orchestrator whose default
-   is still V2.1; it is not an alternative V2.2 analysis engine. The RC3 release
+   `generate_mlir_v2_corpus.py` manages the kernel inventory and artifact reuse;
+   its default is still V2.1. It is not an alternative V2.2 analysis engine. The RC3 release
    uses authenticated frozen raw MLIR through the V2.2 finalization workflow.
 
 The represented dialects include Affine, SCF, MemRef, Arith, Math, Func and
-surviving CF/LLVM/Polygeist operations. Operations are not restricted to a
+remaining CF/LLVM/Polygeist operations. Operations are not restricted to a
 preselected arithmetic vocabulary: their exact names, attributes, operand/result
 types, locations and ownership are retained. LLVM pointer operations matter
-for class-lowered memory. Full text and lexical source evidence are audit data,
-not a guarantee of hardware-exact C++ template semantics.
+when C++ objects are lowered to pointer-based operations. Full operation text
+and source declarations are retained for inspection. A declaration copied from
+source text does not establish how the compiler implemented a C++ template or
+whether it matches Vitis hardware arithmetic exactly.
 
 ### Compiler entities: the six node categories
 
@@ -90,9 +120,10 @@ not a guarantee of hardware-exact C++ template semantics.
 | `memory_object` | `memory:<ssa_id>`, `memory:global:<symbol>`, `memory:unresolved:<ssa_id>`; `root_kind`, root SSA values, shape/type | Allocation, exact global, symbolic formal parameter or explicitly unresolved storage identity |
 | `action_point` | `action:Lk`; `action_id`, `absolute_index`, `action_kind`, `supported_directives`, source binding | Matched registered source directive site with one exact compiler target |
 
-Shapes, scalar constants, affine maps, source dimensions, lowered widths and
-compiler-proven trip counts remain distinct attributes. Metadata loop values
-may disagree with native counts; they are not silently substituted.
+Shapes, scalar constants, affine maps (compiler expressions describing indices),
+source dimensions, lowered widths and compiler-proven trip counts remain
+separate attributes. A loop's metadata value may describe its upper bound
+rather than its actual iteration count. Both values are kept when they disagree.
 
 ### Complete compiler edge vocabulary
 
@@ -127,44 +158,54 @@ Examples are schematic relation illustrations, not additional benchmark facts.
 | `targets` | A → O(loop)/M | Proven exact source/compiler binding; one target per active action | `L5 → loop`; action alignment |
 | `analysis_summary` | F → V, V → V, or O → M (retained summary endpoints) | Explicit possible view reachability/call/legacy summary; not concrete access proof | `call → formal root`; conservative effects |
 
-`proven` means the stated compiler relationship is supported within the analysis
-contract. `possible` retains alternatives/analysis uncertainty.
-`not_established` records missing proof; it does not mean false.
+`proven` means compiler evidence supports the stated relationship within the
+documented analysis limits. `possible` keeps alternatives that the analysis
+cannot rule out. `not_established` means proof is missing; it does not mean false.
 Native negative conclusions (`no_alias`, `no_dependence`) remain identifiable
-negative evidence. Missing edges never prove independence. Dependence intervals
-are not exact distances. Native analysis stops at its first successful depth;
-other carrying depths remain unverified. Parallel relation kinds and distinct
-native outcomes are preserved rather than sampled away.
+negative evidence. Missing edges never prove independence. A dependence-distance
+interval gives bounds, not an exact iteration distance. The native analyzer
+stops at the first loop depth where it establishes a dependence; it does not
+prove that no other enclosing loop carries one. Different relation types and
+distinct native outcomes between the same operations are all kept.
 
 ### Memory, calls, loops and uncertainty
 
-Allocations, globals and formal parameters seed function-local roots. Direct
-views, native must-alias facts and supported SSA forwarding propagate roots;
-may-alias does not prove identity. Subview offsets are relative to the source
+Root resolution starts from allocations, globals and formal parameters within
+each function. It follows direct views, native must-alias evidence and supported
+SSA forwarding. Must-alias is a definite alias conclusion; may-alias alone
+cannot establish a unique root. Subview offsets are relative to the source
 view; reinterpret casts use underlying-storage offsets. Offsets, sizes, strides,
 SSA indices, affine maps and their induction dependencies remain available.
 For LLVM accesses the pointer-expression chain and induction dependencies are
-retained; empty direct memref indices do not mean an invariant address.
+retained. An LLVM access can calculate its address through pointer operations,
+so an empty memref-index list does not mean it uses the same address each time.
 
 `llvm.getelementptr`, pointer casts and Polygeist pointer/memref conversions
-can preserve a storage root. `memref2pointer` uses the aligned pointer plus
-descriptor offset or its pointer-ABI cast. These facts establish neither equal
-addresses nor element overlap. Loaded pointer cells are resolved only with
-supported reaching-store coverage; escapes, unsupported CFG and uncertain
-aliases preserve incompleteness. A nonempty candidate set may still be incomplete.
+can preserve the underlying storage root. `memref2pointer` uses the memref's
+aligned pointer plus its descriptor offset, or a pointer cast required by the
+calling convention. Sharing a root does not establish equal addresses or
+overlapping elements. When a pointer is itself loaded from memory, resolution
+requires evidence about which stores could have supplied it. If the pointer
+escapes to unanalyzed code, control flow is unsupported, or aliasing is uncertain,
+the root set remains incomplete. Finding one or more roots does not prove that
+all alternatives have been found.
 
 Calls retain exact call UIDs, actual/formal positions and return positions.
-Public queries lazily substitute roots in each verified invocation; they do not
-merge all callers or enumerate argument Cartesian products. Recursive/external
-calls stay conservative. Symbolic formal roots are not known on-chip buffers.
-`root_candidates_complete` is relative to the represented invocation.
+Public queries substitute caller roots only when examining that verified
+invocation. They do not merge arrays from unrelated callers or generate every
+combination of argument alternatives. Recursive/external calls remain uncertain
+where evidence is insufficient. A symbolic formal parameter is not a proven
+local on-chip buffer. `root_candidates_complete` says whether all alternatives
+are accounted for in the particular invocation being examined.
 
-Loop hierarchy includes unlabeled loops. Public queries find nearest labeled
-ancestors/descendants without erasing them. Native trip counts stay separate
-from source metadata. Init, yield, backedge and result forwarding are explicit;
+Loop hierarchy includes unlabeled loops. Public queries can find the nearest
+labeled enclosing or nested loop without deleting the intervening loops.
+Native trip counts stay separate from source metadata. Init, yield, backedge
+and result forwarding are explicit;
 memory-valued for-results retain initial-buffer zero-trip alternatives, and
-while-results use condition forwarding. Absence of a dependence proof does not
-establish independence.
+while-results follow values passed by the loop condition. This distinguishes
+SSA state passed between iterations from dependencies through memory. Absence
+of a dependence proof does not establish independence.
 
 ### Action registration and absolute alignment
 
@@ -172,7 +213,8 @@ establish independence.
 Matched loop actions bind through exact compiler source evidence. Array actions
 enumerate native `mailohls.action_id` or exact declaration-location candidates,
 require a unique storage origin, and use shape only as a consistency filter.
-Shared use lines, names or equal shapes cannot establish allocation identity.
+Two objects sharing source-use lines, names or shapes are not thereby the same
+allocation.
 Unresolved registrations get coverage records and diagnostics, not guessed
 `targets` edges or fabricated active nodes.
 
@@ -184,11 +226,13 @@ compiler elimination. Source legality is independent of graph matching.
 
 The 14 unresolved cases are external Kalman L7/L8 in two metadata variants (4)
 and Hotspot pipeline/unroll L1–L4/L6 (10). The development Kalman metadata never
-registered L7/L8. Consumers must carry registered/matched/unresolved masks and
-must never compact away gaps or renumber active slots. The existing production
-memory uses `[max_slots,128]`, absolute labels, active masks and relation masks;
+registered L7/L8. Consumers must carry separate registered/matched/unresolved
+masks: Boolean flags stating what is known for each slot. They must never remove
+gaps or renumber active slots. The existing production memory uses
+`[max_slots,128]`, absolute labels, active masks and relation masks;
 multiscale export also seals checkpoint, graph, split and normalization hashes.
-These are future interface constraints, not proof of V2.2 checkpoint compatibility.
+These conventions guide a future interface; matching the array dimensions alone
+does not make V2.2 compatible with the old checkpoint.
 
 ### Canonical and compact views
 
@@ -197,8 +241,10 @@ These are future interface constraints, not proof of V2.2 checkpoint compatibili
 are all `feature`. Folded tokens are attached to the neighbor, while complete
 original node attributes and keyed edges are saved in `compaction_mapping`.
 `expand_compact()` removes the fold annotations and restores the exact canonical
-payload. Operations, SSA values, semantic constants, regions/blocks, memory
-objects, action points and their semantic relations survive intact.
+payload. In other words, it removes a feature-only leaf from the visible topology
+while keeping enough information to restore it exactly. Operations, SSA values,
+semantic constants, regions/blocks, memory objects, action points and their
+semantic relations survive intact.
 
 The existing guarantees are exact canonical reconstruction and equal public
 action views, all-evidence action queries and loop semantics. Smaller topology
@@ -209,9 +255,10 @@ not attach irreplaceable semantics to compacted auxiliary node IDs.
 
 `graph_payload()` sorts node IDs and keyed edges and copies metadata;
 `canonical_json()` sorts keys, uses compact separators and rejects NaN.
-`add_relation()` keys facts with the first 24 hex digits of SHA-256 over
-endpoints and complete attributes; identical facts deduplicate, distinct facts
-remain parallel. `write_graph()` refuses to overwrite different bytes.
+`add_relation()` gives each fact an edge key using the first 24 hex digits of
+SHA-256 over its endpoints and complete attributes. Identical facts are stored
+once; different facts between the same nodes remain separate edges.
+`write_graph()` refuses to overwrite different bytes.
 Graph identity hashes schema/provenance/builder identity, while release file
 hashes authenticate the complete payload. Neither is a learned feature.
 
@@ -302,12 +349,14 @@ There are 1,911 proven and 51,659 possible dependencies; 150,439 native negative
 conclusions are retained. No graph count is a QoR label.
 
 Independent semantic adjudication remains open. Fourteen registrations and
-some pointer roots remain unresolved. Static loop-result root unions can be
-conservative. Alias roots do not prove element overlap; dependence analysis is
-not complete. AP analysis stubs and lexical declarations do not establish
-hardware-exact widths, rounding, overflow or cost. Transitive system headers
-are not fully authenticated. FPGA characteristics are absent from canonical
-compiler facts. No V2.2 tensor encoder is trained or implemented; production
+some pointer roots remain unresolved. Static root sets for loop results can
+include alternatives that a particular execution will not take. Sharing a root
+does not prove element overlap, and dependence analysis is not complete.
+Simplified analysis headers for arbitrary-precision (AP) types, and declarations
+read from source text, do not establish hardware-exact widths, rounding,
+overflow or cost. System headers included indirectly are not all covered by
+recorded hashes. FPGA characteristics are absent from canonical compiler facts.
+No V2.2 tensor encoder is trained or implemented; production
 GNN weights consume V1 feature schema `mailohls-mlir-features-v13-conditioned-targets`
 (403 node features, 82 edge features in the maintained training launcher).
 
@@ -342,17 +391,21 @@ and [upstream repository](https://github.com/aferikoglou/GNWSIS) describe the
 larger dataset; that publication-level inventory is distinct from this
 repository's processed records and 63-snapshot graph release.
 
-The hypothesis is that numerical hardware properties, explicit constraints and
-compiler-grounded resource relevance provide a useful inductive bias for a
-future GNN, including U50 and 6.67 ns. **No generalization or QoR improvement
+The hypothesis is that hardware capacities, explicit constraints and links from
+relevant program entities to resources will help a future GNN learn useful
+patterns. This includes testing a new device such as U50 or a clock period such
+as 6.67 ns. **No generalization or QoR improvement
 has been established by this task.** Device properties are inputs; directive
 assignments, measured latency/utilization, Pareto ranks and adaptation labels
 are never read by the overlay. Resource ratios are conditioning values, not
 synthetic QoR labels.
 
-## Target architecture: Approach C
+## Target architecture: a separate hardware overlay (Approach C)
 
 `G_joint(x,d,c,B) = G_V2.2(x) ∪ H_d ∪ R_PH(x,d,c,B)`.
+Here `x` is the program, `d` the device, `c` the requested clock period and `B`
+the resource budget. `G_V2.2` is the unchanged program graph, `H_d` contains
+hardware nodes, and `R_PH` contains the links between program and hardware.
 The separate overlay composes an existing graph with five hardware nodes and
 justified relationships. Compile once; reuse the same authenticated program
 graph for different targets, clocks and budgets. No hardware attribute is
@@ -372,10 +425,40 @@ flowchart LR
   L -.-> D["Future predicted directives"]
 ```
 
-Dashed paths are **not implemented in this task**. Preserve and reuse
-`mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1` during the
-first future experiments. Existing Stage-2 integration is a reference contract,
-not a compatible trained consumer of these new graphs.
+Dashed paths are **not implemented in this task**. Existing Stage-2 code shows
+how structural memory can reach the LLM, but its trained components are not
+compatible with the new graphs without further work.
+
+### What the Stage-1 checkpoint path means
+
+`mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1` is an
+**existing LLM adapter directory**, not an MLIR graph, a V2.2 GNN checkpoint or
+an RC3 release requirement. [FINAL_ARTIFACTS.json](../../FINAL_ARTIFACTS.json)
+selects it for the `PARETO_LATENCY` objective. Its saved
+[training contract](../../mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1/training_contract.json)
+records seed 123, the DeepSeek-Coder 6.7B base model and
+`--disable_structural_memory`. The directory holds the learned LoRA adapter
+(small updates loaded alongside the base LLM), tokenizer files and training
+records. `best_custom_stage1` is the selected checkpoint directory; the repeated
+`final_final` is a historical run name, not a graph-version identifier.
+
+Keep this directory unchanged and backed up if you want to reproduce the
+existing latency model or use it as a fixed baseline. **No action on this
+checkpoint is needed to generate, inspect or validate RC3 graphs or target
+overlays.** For later experiments, first build and evaluate a separate V2.2
+encoder; only then test how its action vectors enter Stage-2 while holding this
+Stage-1 baseline fixed. This is a proposed experimental control, not a claim
+that the adapter already understands V2.2.
+
+The adapter weights and tokenizer files exist in the inspected local checkout,
+but the weights are Git-ignored and are not tracked in this repository. A fresh
+GitHub clone therefore does not provide the complete model. Before future LLM
+inference, obtain the full adapter/tokenizer directory and its base model, and
+check the files against the recorded
+[checkpoint hashes](baseline-verification.json). Preserve the saved tokenizer
+and training contract: the contract records the historical v2 directive-domain
+policy, which must not be silently reinterpreted as a newer policy. None of
+these model files is loaded by the graph commands below.
 
 ## Hardware specifications and independent verification
 
@@ -385,8 +468,9 @@ schema `salt-hls-fpga-profiles-v1`, registry/profile version `1.0.0`.
 `validate_registry()` checks positive integer capacities, units, meaning,
 missingness, source references, vendor-excerpt hashes and exact excerpt/profile
 agreement. The four resource keys match the existing LLM and V1 GNN conventions.
-These are **physical full-part capacities**, not resources left after a Vitis
-platform shell, user request, or synthesized design consumption.
+These are **physical full-part capacities**: all resources on the FPGA chip.
+A Vitis platform shell may reserve some of them for infrastructure, and a user
+may impose a smaller budget. Neither changes the chip's physical capacity.
 
 | Property / unit | ZCU104 | Alveo U200 | Alveo U50 | Meaning and evidence |
 |---|---|---|---|---|
@@ -440,7 +524,9 @@ applies to UltraScale architecture-based devices, including these UltraScale+
 parts. One 36-Kbit block splits into two independent 18-Kbit halves. The overlay
 records 18,432 bits per RAMB18 equivalent, 36,864 bits per physical block,
 two halves, and maximum per-half port widths of 18 bits in true dual-port mode
-and 36 bits in simple dual-port mode. These describe primitive configurations,
+and 36 bits in simple dual-port mode. True dual-port allows reads/writes through
+either port; simple dual-port separates the read and write ports. These describe
+primitive configurations,
 not the ports or capacity achieved by a benchmark array. Primitive bit capacity
 includes parity storage; usable array payload depends on the chosen configuration.
 Hence 624/4,320/2,688
@@ -448,8 +534,9 @@ BRAM18K equivalents correspond to 312/2,160/1,344 physical 36-Kbit blocks.
 
 [UG579 v1.11, 2021-08-30, DSP48E2 functionality, p.16](https://docs.amd.com/api/khub/documents/pTysoma4TYgNH95BrY1Sbw/content)
 documents integer multiply/accumulate/add capability, with 27×18-bit multiplier
-inputs and a 48-bit ALU. These values are typed physical primitive properties;
-they are **not** a model for mapping a lowered MLIR operation to one DSP.
+inputs and a 48-bit arithmetic logic unit (ALU). These describe a physical DSP
+block, not the cost of every compiler multiply. They are **not** a model for
+mapping a lowered MLIR operation to one DSP.
 
 [UG574 v1.6, 2025-01-22, Distributed RAM Applications](https://docs.amd.com/r/en-US/ug574-ultrascale-clb/Distributed-RAM-Applications)
 supports LUT-based storage relevance. Only a subset of LUTs provides distributed
@@ -464,16 +551,19 @@ interfaces, their kernel bindings, and physical interconnect topology.
 The API accepts `clock_period_ns`, `budgets` and optional `platform_available`
 maps using `BRAM_18K/DSP/LUT/FF`. The CLI exposes `--clock-period-ns`,
 `--available-bram18k`, `--available-dsp`, `--available-lut`, `--available-ff`
-and optional `--platform-resources-json`.
+and optional `--platform-resources-json`. A platform allocation is the resource
+pool available after platform infrastructure has reserved its share; a user
+budget can restrict that pool further.
 
-For each resource, effective availability is the explicit user budget, otherwise
-the explicit platform allocation, otherwise physical full capacity by documented
-convention. Requests cannot exceed a supplied platform allocation or physical
+For each resource, the overlay uses the user budget when supplied. Otherwise,
+it uses the supplied platform allocation. If neither is known, it uses the
+full physical capacity as an explicit convention, not as a measured amount of
+free space. Requests cannot exceed a supplied platform allocation or physical
 capacity. Counts must be nonnegative integers; fractional/boolean/nonfinite
 counts are rejected. Periods must be finite positive numbers. A zero available
 DSP budget is valid; an absent budget is `null` with `known=false` in the
-request field. The physical capacity never changes. Platform allocation can
-be supplied without asserting a platform when none is known.
+request field. The physical capacity never changes. Providing allocation counts
+does not imply that every other property of the platform is known.
 
 `deployment` stores raw clock, units, requested/platform/effective counts,
 availability fractions and their basis. The FPGA node holds the raw requested
@@ -495,19 +585,20 @@ deployment allocation metadata, not proof that the full part is free in a shell.
 
 Composition/export schema: **`salt-hls-target-enriched-v22-v1`**. The original
 schema remains **`salt-hls-mlir-structural-v2.2`** inside `program_metadata`.
-The unchanged V2.2 validator intentionally rejects the composed graph. The
-dedicated `target_graph_v22.validate()` strips the overlay, validates the exact
-restored program, reconstructs the overlay from current code/profile/context,
-and compares the complete composed payload. This catches altered capacities,
-contexts, mapping certainty, witnesses, implementation identities and original
-compiler facts. It is independent validation of the overlay contract, not a
-second independent compiler analysis or human adjudication.
+The original V2.2 validator accepts compiler graphs only, so it intentionally
+rejects a graph with the added hardware schema. Use the dedicated
+`target_graph_v22.validate()` for that graph. It removes the overlay, validates
+the restored program, rebuilds the overlay from the current code, FPGA profile
+and deployment inputs, and compares the complete result. This detects changed
+capacities, inputs, certainty flags, evidence, code identities or compiler facts.
+It checks the overlay's construction rules; it does not rerun an independent
+compiler analysis or perform human semantic review.
 
-Original node IDs/attributes and keyed edges/attributes are copied verbatim.
-Original graph metadata is retained verbatim under `program_metadata`; the
-outer metadata belongs to the new schema. `strip_overlay()` restores the exact
-original `graph_payload()`, including canonical/compact metadata and evidence.
-No copy of the complete program topology is hidden in another metadata field.
+Original node IDs, edge keys and attributes are copied without changes.
+Original graph metadata is kept under `program_metadata`; the outer metadata
+describes the combined graph. `strip_overlay()` restores the exact original
+`graph_payload()`, including canonical/compact metadata and evidence. The
+program's nodes and edges are not duplicated in a hidden metadata field.
 
 ### Hardware nodes and identifiers
 
@@ -516,9 +607,10 @@ No copy of the complete program topology is hidden in another metadata field.
 | `hardware_target` | `hardware:fpga` | Physical part/family/profile version; identity sources; raw clock and unit/constraint meaning; board memory architecture with unknown kernel binding; platform-known mask |
 | `hardware_resource` | `hardware:resource:DSP`, `hardware:resource:BRAM_18K`, `hardware:resource:LUT`, `hardware:resource:FF` | Resource class; typed physical capacity; effective available capacity; available fraction; separate platform/request properties with `known` masks; documented capability properties |
 
-Every numerical property has a unit and meaning. Known physical/profile numbers
-have source references; deployment numbers identify their user/platform/default
-basis. Null optional properties retain masks. No missing value becomes zero.
+Every numerical property has a unit and meaning. Known device properties cite
+their sources; deployment numbers record whether they came from the user, a
+platform allocation or the full-capacity convention. Optional unknown values
+stay `null` with explicit known/unknown flags. No missing value becomes zero.
 Compiler graphs containing reserved `hardware:` IDs or overlay markers are
 rejected. There is one node per resource **class**, not per physical primitive.
 
@@ -536,7 +628,9 @@ Every added edge has `_target_overlay=true` and a deterministic
 | `target:action_resource_relevance` | matched action point → resource | Exact `targets` edge plus supported loop/storage relevance; candidate directive values absent |
 | `target:requested_clock` | matched loop action → FPGA | Exact loop target participates in requested global clock constraint; no achievable II or timing assertion |
 
-Each edge has three **separate** axes:
+Each edge answers three **separate questions**: what does the compiler establish,
+what hardware capability is documented, and is an actual implementation known?
+These are stored in three evidence fields:
 
 ```json
 {
@@ -555,13 +649,18 @@ Each edge has three **separate** axes:
 }
 ```
 
-This is an illustrative field layout, not a literal benchmark edge. Compiler
-status is `proven`, `possible`, `not_established`, or `not_applicable`; actual
-new relationships use only the supported statuses of their witnesses. Hardware
-membership uses `not_applicable` for program evidence. Compatibility is always
-`possible`, except non-mapping membership/clock facts use `not_applicable`.
-There is no collapsed overlay `evidence_status=proven` implying a hardware
-binding. Uncertain memory relevance is not promoted when propagated to actions.
+This illustrates the field layout; it is not a literal benchmark edge. Compiler
+status is `proven`, `possible`, `not_established`, or `not_applicable`, as supported
+by the underlying evidence. Resource membership has no program-side claim, so
+that field is `not_applicable`. Implementation compatibility is always
+`possible`; membership and clock facts use `not_applicable` because they do not
+map a computation to hardware.
+
+For example, a multiply can be a **proven compiler operation** and DSP support
+can be a **documented device capability**, while implementing that multiply
+with DSPs remains only **possible**. The overlay never combines these fields
+into a single `proven` hardware-binding claim. If a loop's memory relevance is
+uncertain, the corresponding action point's relevance remains uncertain too.
 
 ### Identities, serialization and provenance
 
@@ -571,12 +670,14 @@ numeric deployment context, implementation version and hashes of the overlay,
 current query helper, V2 builder and semantic helpers. `target_context_identity`
 hashes profile/registry/deployment independently of the source graph;
 `overlay_identity` additionally includes program payload and implementation.
-Canonical/compact inputs share semantic identity but have distinct payload hashes.
+Canonical/compact inputs describe the same program semantics but have different
+payload hashes because their serialized representations differ.
 
-CLI input authentication checks the exact canonical/compact file hash against
-the release manifest. A composed authenticated graph rechecks that source claim
-against the restored bytes. API unit fixtures may omit authentication; they are
-validated payloads and **must not be described as authenticated release graphs**.
+The CLI checks each input file's hash against the release manifest. When
+validating a combined graph, it restores the program and checks its bytes
+against the same recorded identity. Handwritten API test graphs may omit release
+authentication; they can pass schema checks but **must not be described as
+authenticated release graphs**.
 The registry contains source IDs/URLs and exact capacity excerpts; referenced
 registry bytes are sealed by its hash. Hashes, arbitrary IDs and source paths
 are provenance, not proposed learned features.
@@ -590,56 +691,65 @@ machine-dependent absolute output paths enter deterministic graph payloads.
 
 ### Arithmetic and compute relevance
 
-Version 1 recognizes `arith.addi/subi/muli` with two equal scalar integer operand
-types and one matching result type, and `arith.addf/subf/mulf/divf` with equal
-scalar f16/f32/f64 operands/results. Add/sub/multiply connect to DSP and LUT;
-floating division connects to LUT only. Index arithmetic, vectors, unsupported
-operations and missing/inconsistent types are omitted and counted diagnostically.
+Version 1 recognizes `arith.addi/subi/muli` when both operands and the result
+have the same scalar integer type. It recognizes `arith.addf/subf/mulf/divf`
+when operands and results have the same scalar f16/f32/f64 type. Add, subtract
+and multiply connect to DSP and LUT resources; floating division connects to
+LUT only. These are the implemented compatibility rules, not a complete account
+of all hardware implementations. Index arithmetic, vectors, unsupported
+operations and missing/inconsistent types get no arithmetic-compatibility links;
+the exclusions are counted in diagnostics.
 
 [UG1399 **2021.1** BIND_OP](https://docs.amd.com/r/2021.1-English/ug1399-vitis-hls/pragma-HLS-bind_op)
 documents fabric/DSP arithmetic alternatives and automatic synthesis selection.
-Its floating implementations can require multiple primitives. We adopt only
-possible compatibility, not that directive, its latency ranges, or a cost model.
+Its floating implementations can require multiple hardware primitives. The
+overlay records only possible compatibility; it does not apply BIND_OP, use its
+latency ranges or estimate implementation cost.
 The graph retains lowered types and graph-level numerical-fidelity evidence:
-`hardware_exact=false/null`, source correspondence `not_established`. Even a
-stub-lowered multiply gets no inferred DSP count, width-fit or throughput claim.
+`hardware_exact=false/null`, source correspondence `not_established`. A multiply
+produced using simplified analysis headers therefore gets no inferred DSP count,
+claim that it fits one DSP's width, or throughput estimate.
 
-Loop compute relevance follows existing `loop_context` ownership and recursively
-traverses **proven** `calls` edges with verified resolution. Exact call chains
-and supporting call-edge keys are preserved; recursion/unresolved calls do not
-become proven computation witnesses. This traversal reads existing compiler
-facts and does not reimplement alias, dependence or call-root analysis.
+To relate a loop to compute resources, the overlay finds operations belonging
+to its `loop_context` and follows **proven** calls into resolved helpers. It
+keeps the exact call chain and supporting edge keys. Recursive or unresolved
+calls do not become proof of a particular computation. This traversal reads
+existing compiler facts; it does not run another alias, dependence or root analysis.
 
 ### Memory and storage relevance
 
 Storage compatibility requires `root_kind=allocation`, a unique defining
-`memref.alloc`/`memref.alloca`, a proven direct root resolution, and a static,
-positive-rank memref of ordinary scalar integer/f16/f32/f64 elements. Its three
+`memref.alloc`/`memref.alloca` and a proven direct root resolution. The memory
+must have at least one dimension, all sizes must be statically known, and its
+elements must be ordinary scalar integer/f16/f32/f64 values. Its three
 possible realizations are BRAM, distributed LUT storage, and FF-based storage.
 These are general alternatives, independent of candidate pragmas. No complete
 partition directive, demand, fit, port count or banking decision is assumed.
 
-Formal/external parameters, globals, views as separate objects, unresolved roots,
-pointer/aggregate/zero-rank/dynamic/unsupported allocation types get no storage
-compatibility in version 1. Their compiler facts remain intact and exclusions
-are counted. This deliberate under-approximation avoids treating arbitrary
-`memref` arguments as local BRAM. A view can still lead to an eligible exact
-allocation via an established access; it is never a new physical memory node.
+Version 1 adds no storage-compatibility links for formal/external parameters,
+globals, views considered as separate objects, or unresolved roots. It also
+excludes allocations with pointers, aggregates, zero rank, dynamic dimensions
+or unsupported types. Their compiler facts remain intact and the exclusions
+are counted. This intentionally limited coverage avoids treating every `memref`
+argument as a local BRAM buffer. An established access through a view can still
+reach an eligible allocation; the view is not a new physical memory.
 
 Memory relevance reads the corrected `get_loop_semantics()` and
 `get_action_point_relations(..., 'all')` outputs. The latter preserves verified
-invocation contexts such as LUD helper-to-caller arrays. Witnesses retain
-concrete access keys, roots, memory operands, indices, views, call-site binding
-receipts, certainty and `root_candidates_complete`. Possible accesses can
-support possible relevance to known storage alternatives; incomplete sets never
-become unique roots. Not-established accesses stay in query summaries without
-creating unsupported resource links. Shared roots do not prove overlap.
+invocation contexts such as LUD helper-to-caller arrays. Supporting records keep
+the concrete access keys, roots, memory operands, indices, views, call bindings,
+certainty and `root_candidates_complete`. A possible access to an eligible
+allocation can support a possible resource-relevance link. An incomplete root
+set is never treated as a proven unique root. Accesses with no established root
+remain in query summaries without creating unsupported resource links. Shared
+roots do not prove overlapping accesses.
 
 ### Directive actions, dependencies and constraints
 
 The original supported action kinds remain PIPELINE/UNROLL for loops and
 ARRAY_PARTITION for arrays. Action-resource edges refer to the exact original
-`targets` key plus a compatibility/relevance witness; no directive RHS is used.
+`targets` key plus supporting compatibility/relevance evidence. They do not use
+a chosen directive value, such as an unroll factor or partition type.
 Array dimensions remain in the original source binding and memory node;
 access maps, index dependencies and invocation contexts remain in original
 edges/public query witnesses. No bank-conflict proof is synthesized.
@@ -647,28 +757,34 @@ edges/public query witnesses. No bank-conflict proof is synthesized.
 `action_annotations` records absolute slot, exact target, supported directive
 names, all-evidence query hash/counts and (for loops) native trip-count metadata,
 SSA-state keys, dependence keys/certainty counts and access evidence counts.
-`dependence_completeness=not_established` and `achievable_ii=null` are explicit.
+`dependence_completeness=not_established` means the analysis does not establish
+that it found every dependence. `achievable_ii=null` means there is no estimate
+of the initiation interval: the cycles between starting consecutive iterations.
 All original dependence details remain on the program graph. `no_alias` is
 counted as negative evidence and is never used to create resource connectivity.
 The `action_slots` table preserves full absolute label spans and separate
 registered/matched/unresolved/source-only masks, including unresolved trailing
 registrations. No active or inactive slot is renumbered.
 
-### Intended inductive bias and proposed normalization
+### How a future GNN could use these inputs
 
-A future heterogeneous GNN can propagate numerical capacity/budget context
-through the specific operations, local memories and matched actions for which
-that resource has supported relevance. This may help distinguish compute
-opportunities, potential memory-access constraints, recurrence evidence and a
-requested clock, without depending on a learned device-ID embedding. U50 is
-representable through the same four classes and continuous numerical properties.
+A future heterogeneous GNN (one that handles different node and edge types)
+could pass capacity and budget information to the operations, local memories and
+matched actions connected to each resource. This is the intended inductive
+bias: provide relevant hardware context rather than ask the model to learn it
+from a device name alone. The model could then learn how computations, memory
+accesses and dependencies relate to a requested clock. U50 can use the same
+four resource classes and numerical properties without requiring a new learned
+device-ID embedding. Whether this helps predictions remains to be tested.
 
-Raw properties are stored. A future encoder may use `log2(1+capacity)` with fixed
-documented scales or train-only fitted statistics, raw available fractions and
-`log2(clock_period_ns/10)` plus missingness masks. Scale fitting must use the
-training split only; absent values require masks before numerical filling.
-No normalization is fitted or encoder implemented here. Feature scaling cannot
-guarantee extrapolation, physical feasibility, synthesis accuracy or improved QoR.
+The graph stores raw properties. A future encoder may rescale capacities with
+`log2(1+capacity)`, keep the available fractions, and express the clock as
+`log2(clock_period_ns/10)`. Logarithmic scaling reduces the difference in scale
+between large capacities and smaller numerical inputs. Use fixed documented scales or statistics
+fitted on the training split only. Unknown values need explicit masks before
+any placeholder numbers are inserted. No encoder or normalization is implemented
+here, and scaling alone does not guarantee accuracy on new targets or clocks,
+physical feasibility or improved QoR.
 
 ## Relationship to MLIR and prior research
 
@@ -782,7 +898,11 @@ The API exposes `enrich`, `validate`, `strip_overlay`, `overlay_signature`,
 Run existing public compiler queries on `strip_overlay(joint)`, not directly on
 the independently typed composed graph. No existing consumer is silently adapted.
 
-## Verification report and before/after comparison
+## Recorded verification results and before/after comparison
+
+The results in this section come from implementing and validating the overlay,
+before the later readability edit. The linked JSON reports preserve the exact
+commands and results; editing this README does not rerun those experiments.
 
 Phase A's original documentation is independently preserved in commit `afe131c`.
 The focused overlay tests pass **58/58** (14.27 s), zero failures/skips. Tests
@@ -835,14 +955,17 @@ Added relations across the full canonical corpus:
 | `target:action_resource_relevance` | 1,862 |
 | `target:requested_clock` | 380 |
 
-All 6,655 added edges have documented hardware evidence. The program-side
-evidence axis has 6,403 proven structural facts and 252 not-applicable hardware
-memberships; no possible/unknown program-side *new* relation is required by this
-conservative release cohort. Synthetic incomplete-root tests do exercise
-possible program relevance and confirm no promotion. On the separate mapping
-axis there are **6,023 possible compatibilities**, 632 non-mapping facts and
-**zero proven actual bindings**. Every actual binding is unknown. Existing
-compiler uncertainty is preserved, not erased by these aggregate counts.
+All 6,655 added edges cite documented hardware evidence. Their compiler-evidence
+fields contain 6,403 `proven` entries and 252 `not_applicable` entries for
+hardware membership. The conservative linking rules did not need to add any
+edge with possible/unknown compiler evidence in this cohort. Separate synthetic
+tests do exercise incomplete root sets and confirm that their uncertainty is
+preserved.
+
+The implementation-compatibility fields tell a different story: there are
+**6,023 possible compatibilities**, 632 non-mapping facts and **zero proven
+actual bindings**. None of these results establishes which resources HLS will
+choose. Existing compiler uncertainty remains in the underlying graphs.
 
 Serialized enriched canonical payloads total **199,637,711 bytes**. The stencil
 is 221,861 bytes; AES is 67,826,368 bytes because its compiler evidence is
@@ -867,8 +990,10 @@ hashes** unchanged, including release files and the Stage-1 checkpoint; the
 current pinned `cgeist`, analysis extension and lock hashes also match the
 release. All **386 pre-existing tracked changes** are preserved. `main` still
 points to `d488681f68e58ab1b1e666f6911f5257d6462dc2`; all task commits are on
-`research/target-aware-mlir-v22`. Nothing was pushed or merged. No validation is
-blocked in this environment; independent semantic adjudication remains pending.
+`research/target-aware-mlir-v22`. These statements describe the recorded
+implementation run. The branch was subsequently pushed to GitHub; it was not
+merged into `main`. No validation was blocked in that run's environment;
+independent human semantic review remains pending.
 
 ### Exact before/after neighborhood
 
@@ -914,7 +1039,7 @@ This neighborhood intentionally omits other verified nodes/edges for readability
 It expresses relevance and possibility, not DSP count, achieved latency,
 memory-port pressure or a recommended directive assignment.
 
-## Limitations and interface for the next independent task
+## Limitations and the next integration steps
 
 This is a graph representation with possible resource relevance. It does not
 implement a V2.2 tensor encoder, GNN training, learned target-aware action
@@ -925,7 +1050,8 @@ operators, formal/global/dynamic/aggregate storage and uncertain roots deliberat
 receive fewer links. All RC3 numerical and semantic limitations remain, including
 pending independent adjudication and 14 unresolved registrations.
 
-The next task is to build and train a **new V2.2 target-aware heterogeneous GNN**:
+The proposed next learning task is a **new V2.2 target-aware heterogeneous GNN**,
+subject to the semantic-review boundary below. It requires these explicit steps:
 
 1. Define versioned tensor schemas for the six compiler categories, two overlay
    categories, 22 compiler relation kinds and six overlay relation kinds. Keep
@@ -935,7 +1061,8 @@ The next task is to build and train a **new V2.2 target-aware heterogeneous GNN*
 2. Encode static typed operations/types, loops, index/view/state relationships,
    resource capacities, availability and numeric clock. Fit normalization only
    on training data. Exclude source IDs, provenance hashes, query fingerprints,
-   candidate pragmas and QoR labels from input features. A new device must not
+   candidate pragmas and QoR labels from input features of this static
+   program/target encoder. A new device must not
    require a learned device embedding.
 3. Produce target-aware action vectors at exact slot `k-1`, with separate
    registered/matched/unresolved masks and explicit handling of missing targets.
@@ -946,7 +1073,9 @@ The next task is to build and train a **new V2.2 target-aware heterogeneous GNN*
    only afterward export new memory and integrate with existing Stage-2
    cross-attention, initially freezing the preserved Stage-1 latency adapter.
 
-The current V1 GNN, its 403/82 dimensions, old checkpoint weights and structural
-memory are not reinterpreted as compatible. Before learning claims, independent
-semantic reviewers must adjudicate the RC3 worksheet or explicitly approve its
-remaining uncertainty boundaries. This task does not close that review.
+The current V1 GNN uses 403 node-feature dimensions and 82 edge-feature
+dimensions. Its weights and structural memory are not compatible merely because
+a future V2.2 encoder produces vectors of a familiar size. Before making learning
+claims, independent semantic reviewers must review the RC3 worksheet or
+explicitly approve the documented uncertainty boundaries. Neither the overlay
+implementation nor this documentation edit closes that review.
