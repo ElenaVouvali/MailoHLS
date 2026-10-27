@@ -7306,6 +7306,9 @@ def run_single_training(args):
         "tokenizer_size": len(tok),
         "special_tokens": special_token_strings,
         "special_token_ids": special_ids,
+        "special_token_to_id": {
+            token: tok.convert_tokens_to_ids(token) for token in special_token_strings
+        },
         "supervise_eos": args.supervise_eos,
         "directive_domain_registry_sha256": (
             effective_registry_sha256
