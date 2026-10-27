@@ -13,7 +13,7 @@ from LLM_branch.train import train_SFT_xattn_new as production
 
 def parse(text):
     return {lhs.upper(): rhs for lhs, rhs in re.findall(
-        r'(auto\{_[A-Z_]+_L\d+\})\s*=\s*(\w+)', text)}
+        r'(auto\{_[A-Z_]+_L\d+\})\s*=\s*(\w+)', text, flags=re.IGNORECASE)}
 
 
 def action_plan(source):

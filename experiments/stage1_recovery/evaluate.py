@@ -14,6 +14,7 @@ import torch
 from LLM_branch.inference import eval_stage1_stage2_stage3 as inference
 from experiments.stage1_recovery import decisions
 from experiments.stage1_recovery.run import AUDIT, DEFAULT_PARENT, dump, evaluate_greedy, sha
+from experiments.stage1_recovery.prepare import prepare
 
 
 def validation_pairs(rows, sources):
@@ -71,6 +72,7 @@ def main():
         raise FileExistsError(out)
     out.mkdir(parents=True)
     start = time.perf_counter()
+    prepare(DEFAULT_PARENT)
     sources = json.loads(Path('artifacts/llm/mailohls_sft.sources.json').read_text())['templates']
     split = json.loads(Path('mailohls_runs/mailohls_final_family_split_s123.json').read_text())
     all_train = [json.loads(l) for l in (AUDIT / 'train_reconstructed_selected.jsonl').read_text().splitlines()]
