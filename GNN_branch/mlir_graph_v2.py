@@ -37,6 +37,14 @@ def canonical_json(value):
     return json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False)
 
 
+def _symbol(value):
+    """Normalize a printed MLIR symbol without damaging quoted static names."""
+    text = str(value or '').strip()
+    if text.startswith('@'):
+        text = text[1:]
+    return text[1:-1] if len(text) >= 2 and text[0] == text[-1] == '"' else text
+
+
 def _decode(value):
     if isinstance(value, str) and value[:1] in ('[', '{'):
         try:
@@ -278,7 +286,8 @@ def _memory(graph, result, revision='2.0'):
         formal = int(attrs.get('function_argument_index', -1)) >= 0
         if allocation or formal:
             globals_ = [u for u in defining if graph.nodes[u].get('text') == 'memref.get_global']
-            symbol = v1.strip_mlir_string(graph.nodes[globals_[0]].get('mlir_attrs', {}).get('name', '')).lstrip('@') if globals_ else ''
+            reference = graph.nodes[globals_[0]].get('mlir_attrs', {}).get('name', '') if globals_ else ''
+            symbol = _symbol(reference) if revision == '2.1' else v1.strip_mlir_string(reference).lstrip('@')
             if globals_ and not symbol: raise ValueError('Global memory reference has no compiler symbol')
             obj = 'memory:global:' + symbol if symbol else 'memory:' + attrs['ssa_id']
             if obj not in graph:
@@ -415,6 +424,10 @@ def build_from_result(result, provenance=None, paired_v1=None, global_definition
             graph.nodes[point]['target_binding_rule'] = 'native_action_attribute' if native_targets else 'exact_compiler_array_source_binding'
             graph.nodes[point]['legacy_array_root_values'] = legacy_targets
             graph.nodes[point]['legacy_target_disagreement'] = bool(legacy_targets and target not in set().union(*(roots.get(v,set()) for v in legacy_targets)))
+            binding = graph.nodes[targets[0]].get('global_action_binding')
+            if binding:
+                graph.nodes[point].update(global_action_binding=deepcopy(binding),
+                    target_binding_rule='exact_compiler_global_source_binding')
         add_relation(graph, point, target, 'targets', status, source_binding=dict(attrs))
     compatibility = {}
     old_graph = paired_v1 if paired_v1 is not None else result.graph
@@ -528,6 +541,25 @@ def validate(graph):
             expected = 'operation' if kind == 'loop' else 'memory_object' if kind == 'array' else None
             if graph.nodes[target]['category'] != expected or (kind == 'loop' and not int(graph.nodes[target].get('is_loop', 0))):
                 raise ValueError('Action point target kind mismatch')
+            binding = attrs.get('global_action_binding')
+            if binding:
+                operation, value = binding['operation'], binding['value']
+                if (graph.nodes[target].get('root_kind') != 'global' or operation not in graph or value not in graph
+                        or graph.nodes[operation].get('text') != 'memref.get_global'
+                        or _symbol(graph.nodes[operation].get('mlir_attrs', {}).get('name')) != graph.nodes[target].get('global_symbol')
+                        or binding['symbol'] != graph.nodes[target].get('global_symbol')
+                        or graph.nodes[operation].get('source_line') != attrs['source_line']
+                        or graph.nodes[operation].get('function') != graph.nodes[value].get('function')
+                        or not binding['source_use_lines'] or value not in graph.nodes[target].get('root_values', [])
+                        or not any(v == value and e['relation_type'] == 'defines' for _,v,e in graph.out_edges(operation,data=True))):
+                    raise ValueError('Static/global action point has an invalid compiler binding')
+                witnesses = binding.get('access_operations', [])
+                if not witnesses or any(access not in graph
+                        or graph.nodes[access].get('function') != graph.nodes[operation].get('function')
+                        or graph.nodes[access].get('source_line') not in binding['source_use_lines']
+                        or not any(v == target and e['relation_type'] == 'memory_access' and e.get('concrete')
+                                   for _,v,e in graph.out_edges(access,data=True)) for access in witnesses):
+                    raise ValueError('Static/global action point has an invalid compiler binding: access witness')
     for u, v, edge in graph.edges(data=True):
         if edge.get('relation_type') not in EDGE_KINDS or edge.get('evidence_status') not in EVIDENCE:
             raise ValueError('Unknown edge relation/evidence category')
@@ -559,6 +591,47 @@ def validate(graph):
 
 class _CoverageBuilder(v1.MLIRGraphBuilder):
     """V2.1 adapter: absent targets are coverage evidence, never shape repairs."""
+    def _array_argument_node(self, spec):
+        try:
+            return super()._array_argument_node(spec)
+        except RuntimeError:
+            # A static local is a global object, not an allocation. Require its
+            # compiler declaration location AND rooted source-use witnesses.
+            # Shape only filters incompatible candidates (including C++ init
+            # guards); it never supplies the identity proof.
+            function, _ = self._resolve_action_function_id(spec)
+            records = {record.node: record for record in self.operation_records}
+            matches = {}
+            for record in self.operation_records:
+                if record.op_name != 'memref.get_global' or record.function_id != function or self._source_distance(record, spec) is None:
+                    continue
+                for key in record.result_keys:
+                    node = self.value_nodes[key]
+                    shape = self._node_memory_shape(node)
+                    accesses = [records[access.op_node] for access in self.memory_accesses
+                        if access.root_node == node and access.op_node in records
+                        and records[access.op_node].function_id == function
+                        and records[access.op_node].op_name in v1.READ_OPS | v1.WRITE_OPS]
+                    uses = {point.line for access in accesses for point in access.source_points
+                        if self._same_source_file(point.filename, spec.source_file)}
+                    overlap = set(spec.source_use_lines) & uses
+                    if tuple(shape[:len(spec.array_dimensions)]) != spec.array_dimensions or not overlap:
+                        continue
+                    symbol = _symbol(record.attributes.get('name'))
+                    if symbol:
+                        witnesses = sorted({'op:' + access.function_name + ':op' + str(access.function_ordinal)
+                            for access in accesses if any(point.line in overlap for point in access.source_points)})
+                        matches.setdefault(symbol, (record, node, sorted(overlap), witnesses))
+            if len(matches) != 1:
+                raise
+            symbol, (record, node, uses, witnesses) = next(iter(matches.items()))
+            self.graph.nodes[node]['global_action_binding'] = {
+                'symbol': symbol, 'operation': 'op:' + record.function_name + ':op' + str(record.function_ordinal),
+                'value': 'value:' + self.graph.nodes[node]['ssa_id'], 'source_use_lines': uses,
+                'access_operations': witnesses,
+                'evidence': 'compiler_get_global_declaration_location_and_rooted_source_accesses'}
+            return record.function_id, node, record.block_id, 'source_location'
+
     def _add_memory_shape_features(self):
         super()._add_memory_shape_features()
         # V1 resolves loop labels during trip-count annotation, before action
@@ -625,7 +698,7 @@ def generate(source, metadata, mlir, paired_v1=None, provenance=None, revision='
             name = v1.operation_name(operation)
             if name in ('memref.global','llvm.mlir.global'):
                 attrs = v1.attribute_items(operation)
-                symbol = v1.strip_mlir_string(attrs.get('sym_name',''))
+                symbol = _symbol(attrs.get('sym_name','')) if revision == '2.1' else v1.strip_mlir_string(attrs.get('sym_name',''))
                 if symbol:
                     definitions[symbol] = {'operation': name, 'attributes': attrs, 'status': 'compiler_recorded'}
             elif name not in ('func.func','llvm.func'):

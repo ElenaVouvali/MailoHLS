@@ -102,6 +102,13 @@ Its explicit `--revision 2.1` extends return, indexing, loop-state and coverage 
 It is a research representation alongside the production graph; existing GNN
 weights, structural memory and inference continue to use V1.
 
+**Current research graph release:** [63-graph V2.1 release manifest](docs/graph-release-v21.json)
+and [downloadable graph archive](GNN_branch/MLIR_graphs/salt-hls-graphs-v21-20261027.tar.gz).
+The release includes the quoted-global and static-array action-point fixes.
+See [verification and scope](docs/structural-graph-v2.md#locked-graph-release)
+before evaluation; earlier graphs remain preserved and four external snapshots
+are explicitly excluded.
+
 For corpus generation, authenticated graph reuse and the four-policy
 structure-guided refinement comparison, see the
 [V2.1 validation workflow](experiments/v21_refinement/README.md). It reuses the

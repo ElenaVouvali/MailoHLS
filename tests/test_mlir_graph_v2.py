@@ -472,3 +472,74 @@ def test_verified_interprocedural_loop_context(native_tools,tmp_path):
     assert all(r['callsite_bindings'] and r['access']=='write' and r['call_origin_scope']=='not_applicable' for r in rows)
     assert not [r for r in query(graph,'L2',call_context=()) if r['neighbor']=='L5']
     with pytest.raises(ValueError,match='verified originating call'):query(graph,'L2',call_context=('missing-call',))
+
+
+@pytest.mark.parametrize('spelling', ['plain', '@plain', '"plain"', '@"plain"'])
+def test_v21_symbol_spelling_normalization(spelling):
+    assert v2._symbol(spelling) == 'plain'
+
+
+def test_v21_quoted_static_symbol_is_not_damaged():
+    assert v2._symbol('@"helper@static@buffer"') == 'helper@static@buffer'
+    assert v2._symbol('"helper@static@buffer"') == 'helper@static@buffer'
+    assert v2._symbol('@"@leading"') == '@leading'
+
+
+@pytest.fixture(scope='module')
+def static_global_graph(native_tools, tmp_path_factory):
+    from experiments.refinement import configurations as c
+    directory = tmp_path_factory.mktemp('v21_static_global')
+    source = directory/'kernel.cpp'
+    source.write_text('''extern "C" float top(float x) {
+/*L1:*/ static float A[8][8];
+/*L3:*/ static float B[8][8];
+/*L5:*/ static float unused[8][8];
+/*L9:*/ for (int i=0;i<8;i++) {
+A[i][0] += x;
+B[i][0] = A[i][0] * 2;
+}
+return B[0][0];
+}
+''')
+    metadata = directory/'kernel_info.txt'
+    metadata.write_text('top\nL1,array,A,1,8,2,8\nL3,array,B,1,8,2,8\nL5,array,unused,1,8,2,8\nL9,loop,8\n')
+    command=[native_tools['python'],'-B','-m','GNN_branch.mlir_graph_v2','--revision','2.1',
+        '--source',str(source),'--metadata',str(metadata),'--cgeist',native_tools['cgeist'],
+        '--output',str(directory/'graph.json')]
+    env={**os.environ,'PYTHONPATH':native_tools['pythonpath'],'PYTHONHASHSEED':'0'}
+    result=subprocess.run(command,cwd=c.ROOT,env=env,capture_output=True,text=True,timeout=120)
+    assert result.returncode==0,result.stderr
+    return v2.read_graph(directory/'graph.json')
+
+
+def test_native_static_arrays_have_distinct_proven_compiler_bindings(static_global_graph):
+    graph=static_global_graph
+    targets=[]
+    for label in ('L1','L3'):
+        attrs=graph.nodes['action:'+label]
+        assert attrs['target_binding_rule']=='exact_compiler_global_source_binding'
+        binding=attrs['global_action_binding']
+        assert binding['source_use_lines']
+        target=next(v for _,v,e in graph.out_edges('action:'+label,data=True) if e['relation_type']=='targets')
+        targets.append(target)
+        assert graph.nodes[target]['root_kind']=='global'
+        assert graph.nodes[target]['global_definition']['status']=='compiler_recorded'
+        assert binding['symbol']==graph.nodes[target]['global_symbol']
+    assert len(set(targets))==2
+    assert 'action:L5' not in graph  # No source-use witness; never attach by shape.
+    assert {(r['neighbor'],r.get('access')) for r in query(graph,'L9')} >= {('L1','read'),('L1','write'),('L3','write')}
+    compact=v2.compact_view(graph)
+    assert action_point_views(compact)==action_point_views(graph)
+    assert v2.graph_payload(v2.expand_compact(compact))==v2.graph_payload(graph)
+
+
+@pytest.mark.parametrize('field,value',[
+    ('symbol','other'), ('value','missing'), ('source_use_lines',[]),
+    ('source_use_lines',[999999]), ('access_operations',[]),
+    ('access_operations',['missing']),
+])
+def test_static_global_binding_tampering_is_rejected(static_global_graph,field,value):
+    graph=deepcopy(static_global_graph)
+    graph.nodes['action:L1']['global_action_binding'][field]=value
+    with pytest.raises(ValueError,match='invalid compiler binding'):
+        v2.validate(graph)

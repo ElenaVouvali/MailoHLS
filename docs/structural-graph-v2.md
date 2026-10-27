@@ -370,6 +370,74 @@ Semantic references: [MLIR Func](https://mlir.llvm.org/docs/Dialects/Func/),
 [Affine](https://mlir.llvm.org/docs/Dialects/Affine/) and the
 [language reference](https://mlir.llvm.org/docs/LangRef/).
 
+## Locked graph release
+
+The [current release manifest](graph-release-v21.json) identifies the exact 63
+source/metadata snapshots frozen for evaluation. Download the
+[release archive](../GNN_branch/MLIR_graphs/salt-hls-graphs-v21-20261027.tar.gz),
+or obtain it with the repository. This is a fixed subset, not a claim that all
+external workloads are complete. It contains all 55 GNΩSIS development kernels
+and eight external snapshots. CHStone JPEG, Rosetta 3D rendering and the two
+previous GEMV metadata variants are excluded. Earlier V1/V2/V2.1 graph files
+and experimental manifests are preserved.
+
+Two targeted changes apply only to the V2.1 builder:
+
+- Printed global symbols are normalized by removing the MLIR `@` prefix before
+  removing surrounding quotes. Embedded `@` characters retain their identity.
+- A static array may bind to `memref.get_global` when its compiler function,
+  declaration location, compatible dimensions, unique global symbol and concrete
+  rooted source-access witnesses agree. Shape alone and shared helper summaries
+  cannot prove a binding. Missing or ambiguous evidence remains unresolved.
+
+Each accepted static binding retains its operation, SSA value, symbol, source
+access lines and concrete access operations. Validation checks the defining
+operation, function, global root and concrete access witnesses. The 2.0 path is
+unchanged. The graph schema remains `salt-hls-mlir-structural-v2.1`; the release
+manifest and builder SHA distinguish this patch from earlier V2.1 artifacts.
+
+The archive contains `canonical/`, `compact/`, `raw_mlir/`, `source_snapshots/`,
+the generation `code/`, `release.json` and `checksums.sha256`. Its inputs and
+implementation are frozen by SHA-256. Extract into a fresh directory:
+
+```bash
+sha256sum --check docs/graph-release-v21.sha256
+mkdir -p /tmp/mailohls-graph-release
+tar -xzf GNN_branch/MLIR_graphs/salt-hls-graphs-v21-20261027.tar.gz -C /tmp/mailohls-graph-release
+(cd /tmp/mailohls-graph-release && sha256sum --check checksums.sha256)
+```
+
+Use an extracted canonical path with the existing read-only validator:
+
+```bash
+python -m GNN_branch.mlir_graph_v2 --mode validate --input /tmp/mailohls-graph-release/canonical/GAN-afa1bdfea894.json
+```
+
+Choose the exact filename from `release.json`; names do not determine schema.
+The portable index is not a prepared synthesis queue. For the existing refinement
+workflow, let the corpus driver authenticate the extracted graphs and construct
+a fresh manifest with local paths, for example for the three diagnostic kernels:
+
+```bash
+python -m GNN_branch.generate_mlir_v2_corpus \
+  --reuse-dir /tmp/mailohls-graph-release/canonical \
+  --output-dir GNN_branch/MLIR_graphs/v21_corpus/release_evaluation \
+  --only GAN covariance serrano-kalman-filter
+```
+
+This requires the pinned analysis environment to verify its identity. It does
+not run HLS. Pass that fresh directory as `--corpus` to the documented refinement
+preparation command; preserve historical prepared queues.
+
+Generation commands and tool hashes are recorded there. Rebuilding requires the
+pinned native compiler and source/header snapshots; the entire transitive system
+include closure is not sealed. Compiler uncertainty and simplified-header
+numerical-fidelity limitations remain. This release is ready for structural and
+refinement evaluation, but has no V2.1 tensor encoder or trained GNN. Source
+annotations remain drafts, and HLS synthesis alone does not prove functional
+equivalence. Historical hash-sealed experiments must use their recorded code
+revision rather than silently accepting the patched builder.
+
 ## Full-corpus validation and refinement comparison
 
 `GNN_branch/generate_mlir_v2_corpus.py` orchestrates the existing builder with
