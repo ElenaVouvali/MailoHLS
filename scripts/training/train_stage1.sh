@@ -15,6 +15,8 @@ OBJECTIVE_TAG="${OBJECTIVE_TAG,,}"
 OUT="${OUT:-mailohls_runs/stage1_final_final_${OBJECTIVE_TAG}_s123}"
 BUDGET_INVARIANT_DUPLICATES="${STAGE1_BUDGET_INVARIANT_MAX_DUPLICATES:-1}"
 GPU="${CUDA_VISIBLE_DEVICES:-0}"
+STAGE1_LORA_RATE="${STAGE1_LR_LORA:-1.5e-5}"
+STAGE1_TOKEN_RATE="${STAGE1_LR_EMBED:-5e-6}"
 if [[ -e "$OUT" ]]; then
   echo "Refusing to overwrite existing Stage-1 output: $OUT" >&2
   exit 2
@@ -60,8 +62,8 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --lora_target_modules attention \
   --lora_dropout 0.10 \
   --lora_weight_decay 0.01 \
-  --lr_lora 1.5e-5 \
-  --lr_embed 5e-6 \
+  --lr_lora "$STAGE1_LORA_RATE" \
+  --lr_embed "$STAGE1_TOKEN_RATE" \
   --lr_scheduler_type cosine \
   --warmup_ratio 0.05 \
   --max_grad_norm 1 \

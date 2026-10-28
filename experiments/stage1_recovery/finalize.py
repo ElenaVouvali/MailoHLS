@@ -5,6 +5,30 @@ from pathlib import Path
 
 from experiments.stage1_recovery.run import DEFAULT_PARENT, dump, sha
 from experiments.stage1_recovery import decisions
+from experiments.stage1_recovery.prepare import DEFAULT_OUTPUT, prepare
+from LLM_branch.inference import eval_stage1_stage2_stage3 as inference
+
+
+def full_saved_baselines():
+    """Re-score all 62 stored validation outputs, not fresh model inference."""
+    prepare(DEFAULT_PARENT)
+    sources = json.loads(Path('artifacts/llm/mailohls_sft.sources.json').read_text())['templates']
+    selected = {name: [json.loads(line) for line in (DEFAULT_OUTPUT / (name + '_reconstructed_selected.jsonl')).read_text().splitlines()]
+                for name in ['train', 'val']}
+    registry = inference.load_directive_domain_registry(str(Path(DEFAULT_PARENT).parent / 'directive_domain_registry.json'))
+    modes = decisions.modes_from_train(selected['train'])
+    lookup = {(r['_jsonl_idx'], r['resource_budget_id'], r['clock_period']): r for r in selected['val']}
+    saved = json.loads((Path(DEFAULT_PARENT) / 'best_selection_metrics.json').read_text())['rows']
+    original, baseline = [], []
+    for old in saved:
+        row = dict(lookup[(old['jsonl_idx'], old['resource_budget_id'], old['selected_clock_period'])])
+        row['input'] = sources[row['source_key']]
+        original.append(dict(kernel_name=old['kernel_name'], reference_target=old['reference_target'], prediction=old['prediction']))
+        baseline.append(dict(kernel_name=old['kernel_name'], reference_target=old['reference_target'],
+                             prediction=decisions.constant_baseline(row, registry, modes)))
+    return dict(schema='mailohls-stage1-full-saved-validation-baselines-v1', cases=len(saved),
+                saved_checkpoint=decisions.metrics(original, registry), constant_baseline=decisions.metrics(baseline, registry),
+                training_modes=modes, new_gpu_inference=False)
 
 
 def normalize_metadata(run):
@@ -61,6 +85,19 @@ def main():
     result['parent_hashes_unchanged'] = first
     result['validation'] = json.loads((root / 'validation/report.json').read_text())
     assert len(result['validation']['adapters']) == 4
+    validation = result['validation']
+    validation['baseline']['core_decision_balanced_accuracy'] = decisions.core_balanced(validation['baseline'])
+    result['full_training_followup_candidates'] = []
+    for index, record in validation['adapters'].items():
+        for method in ['field_greedy', 'joint_greedy']:
+            record[method]['core_decision_balanced_accuracy'] = decisions.core_balanced(record[method])
+        record['core_balanced_gain'] = (record['joint_greedy']['core_decision_balanced_accuracy']
+                                       - validation['baseline']['core_decision_balanced_accuracy'])
+        if record['pilot_gate']['passed'] and record['core_balanced_gain'] > 0:
+            result['full_training_followup_candidates'].append(record['path'])
+    result['production_checkpoint_promoted'] = False
+    result['full_saved_validation_baselines'] = full_saved_baselines()
+    dump(root / 'full_saved_validation_baselines.json', result['full_saved_validation_baselines'])
     dump(root / 'summary.json', result)
     print(json.dumps(result, indent=2))
 

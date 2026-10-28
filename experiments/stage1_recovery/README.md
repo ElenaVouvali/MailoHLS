@@ -39,6 +39,8 @@ For a loop, a candidate contains `(PIPELINE, UNROLL)`. For an array it contains 
 
 In `joint_choice`, each update selects one action from the example, scores its reference choice and up to three randomly sampled legal alternatives, and adds sampled-softmax loss to the value-only CE. Earlier actions use gold prefixes. This is an approximate contrastive objective, not an exhaustive softmax over the whole design. Sampling introduces additional dropout/negative noise; the experiment does not establish a uniquely best objective.
 
+Alternatives are contrastive rivals to the selected reference, not synthesis-proven inferior implementations. Whole-action scores include all serialized value tokens, including deterministic companion values; auxiliary CE still masks forced fields. Branching-only scoring is a possible further ablation. No unmeasured alternative is assigned a fabricated QoR value.
+
 Joint inference exhaustively scores legal choices **within each action**, batching four choices at a time, then greedily proceeds to the next action. It is not globally optimal design search, beam search across all actions, or synthesis evaluation. Length preferences remain possible under sum scoring; the candidate-choice objective tests learning complete semantic alternatives instead of treating a scoring change alone as a repair.
 
 `balanced-decision-ce` is also implemented as an optional ablation. It clips inverse-square-root within-kind value weights to [0.5, 2], using only the selected training examples. It is not part of the four primary controls above.
@@ -54,6 +56,8 @@ Each adapter is compared using conventional fieldwise mean scoring and complete-
 Reported metrics include per-kind/per-value recall, prediction distributions, balanced value accuracy, exact-design accuracy, complete-action accuracy, and exact correctness of reference-changed fields across each budget pair. Forced fields are reported separately from decision-only scores. Merely changing outputs between budgets does not count as a correct transition.
 
 A pilot passes its gate only if it exceeds the constant baseline on decision-balanced and complete-action accuracy and predicts at least one complete changed-field budget transition correctly. This gate is a research diagnostic, not a synthesis or deployment acceptance criterion. Even a passing eight-case pilot requires a full training/validation experiment before promotion. Kalman is excluded from all tuning and pilot selection.
+
+The summary also reports a **core decision-balanced score** over PIPELINE, UNROLL, array type and array factor. The two nonforced dimension fields in this pilot both have the same reference value, so including dimension can inflate the five-kind aggregate. `finalize.py` requires a core-score gain as well as the recorded pilot gate before listing a full-training follow-up candidate. It never promotes a 20-example adapter to production.
 
 ## Reproduction
 
@@ -94,4 +98,20 @@ Preparation authenticates the dataset and split, reproduces the parent's kind we
 
 ## Results
 
-Actual run files are under [artifacts/diagnostics/stage1_recovery_20261028](../../artifacts/diagnostics/stage1_recovery_20261028). The final verification report records completed runs, skipped optimizer updates, training versus validation results and remaining limitations. No QoR improvement is claimed from directive agreement or output diversity.
+See [RESULTS.md](RESULTS.md) and the [compact measured results](results/20261028.json). Actual run files are under [artifacts/diagnostics/stage1_recovery_20261028](../../artifacts/diagnostics/stage1_recovery_20261028). The verification report records completed runs, skipped optimizer updates, training versus validation results and remaining limitations. No QoR improvement is claimed from directive agreement or output diversity.
+
+## A later full-data ablation
+
+The production launcher now accepts `STAGE1_LR_LORA` and `STAGE1_LR_EMBED`; their defaults remain 1.5e-5 and 5e-6. A syntax check and a stubbed invocation verified both defaults and overrides without launching training. Output-directory overwrite protection remains intact.
+
+The following is a **prepared follow-up recipe**, not one of the executed 20-example controls. It retrains a fresh adapter on the full selected training corpus. Setting the invariant-duplicate cap to -1 matches the audited parent's compaction policy; the current launcher's default cap of 1 is a different data-policy ablation.
+
+```bash
+OBJECTIVE=PARETO_LATENCY \
+OUT=mailohls_runs/stage1_recovery_full_latency_s123_lr1e4 \
+STAGE1_BUDGET_INVARIANT_MAX_DUPLICATES=-1 \
+STAGE1_LR_LORA=1e-4 STAGE1_LR_EMBED=2e-5 \
+bash scripts/training/train_stage1.sh
+```
+
+Activate the Python environment first. This larger job includes the production validation callbacks and may take hours on the V100. The stronger rate is an experimental setting, not a validated full-data optimum. A replacement checkpoint must outperform the legal baseline on nontrivial fields and budget transitions on the full validation set before any deployment or Stage-2 reuse. The pilot does not justify adopting a 20-example adapter as the replacement.
