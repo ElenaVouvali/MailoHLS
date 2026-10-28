@@ -1079,3 +1079,12 @@ a future V2.2 encoder produces vectors of a familiar size. Before making learnin
 claims, independent semantic reviewers must review the RC3 worksheet or
 explicitly approve the documented uncertainty boundaries. Neither the overlay
 implementation nor this documentation edit closes that review.
+
+### Subsequent bounded learning-readiness check
+
+The [readiness report](../../experiments/target_graph_readiness/README.md) tests
+a separate tensor encoder, hardware-message gradients and a tiny measured A/B
+learning pilot. Its outcome is **CONDITIONAL GO**: the interfaces work, but the
+pilot does not show an enriched-graph advantage and the candidate head needs
+better calibration before a full-corpus run. It changes none of the graph,
+hardware-profile or production-checkpoint contracts documented above.
