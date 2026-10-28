@@ -118,7 +118,9 @@ def test_batched_action_scores_equal_scalar_scores():
 
     model = Model().eval()
     fields = ['auto{_PIPE_L3}', 'auto{_UNROLL_L3}']
-    choices = decisions.legal_actions('toy', fields, registry())
+    domains = registry()
+    domains['toy']['AUTO{_UNROLL_L3}'] = ['0', '2', '16']
+    choices = decisions.legal_actions('toy', fields, domains)
     batched = decisions.score_actions_batch(model, tok, [1, 2], fields, choices)
     for score, candidate, _ in batched:
         ids, positions = decisions.encode_action(tok, fields, candidate)
@@ -151,6 +153,12 @@ def test_constant_baseline_roundtrips_canonical_uppercase_keys():
     pred = decisions.constant_baseline(row, registry(), modes)
     result = decisions.metrics([dict(kernel_name='toy', reference_target=row['target'], prediction=pred)], registry())
     assert result['exact_design_accuracy'] == 1.
+
+
+def test_trivial_dimension_cannot_inflate_core_score():
+    kinds = {k: {'balanced_accuracy': .25} for k in ['PIPE', 'UNROLL', 'ARRAY_T', 'ARRAY_F']}
+    kinds['ARRAY_D'] = {'balanced_accuracy': 1.}
+    assert decisions.core_balanced({'decision_by_kind': kinds}) == .25
 
 
 def test_prepared_cache_authenticates_parent_and_export_bytes(tmp_path):

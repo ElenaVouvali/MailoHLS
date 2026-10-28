@@ -137,6 +137,15 @@ def modes_from_train(rows):
     return {kind: max(c, key=lambda v: (c[v], v)) for kind, c in counts.items()}
 
 
+def core_balanced(metrics):
+    """The four collapsing fields, without the often trivial dimension field."""
+    kinds = metrics['decision_by_kind']
+    values = [kinds[k]['balanced_accuracy'] for k in ['PIPE', 'UNROLL', 'ARRAY_T', 'ARRAY_F'] if k in kinds]
+    if not values:
+        raise ValueError('No core decision fields to score')
+    return sum(values) / len(values)
+
+
 def constant_baseline(row, registry, modes):
     chosen = {}
     for label, lhs in production.extract_ordered_lhs_plan(row['input']):
