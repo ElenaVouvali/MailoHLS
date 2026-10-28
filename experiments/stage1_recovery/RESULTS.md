@@ -66,4 +66,6 @@ No adapter was promoted, no gold directives were manually inserted into inferenc
 - Preserved parent contract SHA-256: `d2c63fdaf32199d5de3625dcd4a9358c34a79e48f6761f16948ca7a2c7120dd8`.
 - Preserved parent tokenizer SHA-256: `eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891`.
 
-The first two controls' inherited metadata was normalized to the explicit experimental schema, with backups and hashes, without changing their weights. Experimental model cards label their limited purpose. No original graph archive, structural memory, measurement, checkpoint, main branch or unrelated worktree change was overwritten.
+The first two controls' inherited metadata was normalized to the explicit experimental schema, with backups and hashes, without changing their weights. Experimental model cards label their limited purpose. Recovery changes did not overwrite the original graph archives, structural memories, measurements, checkpoints, main branch or unrelated worktree changes.
+
+A concurrent commit, `a9cb717`, updated Kalman's registrations/CSV and graph selection. It was preserved and is separate from this recovery work. The experiments use the authenticated frozen JSONL and source sidecar, whose hashes remain tied to the parent contract; Kalman is excluded from training and validation. Historical Kalman inference artifacts therefore describe their recorded source/action revision, not an automatic rebuild using the newer registrations.
