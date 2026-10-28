@@ -1,0 +1,468 @@
+{
+  "edges": [
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "92fb19c0e02f396c541dbf41",
+          "e7a52b440de70ea082a60400"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<25xi8>",
+        "nodes": [
+          "memory:workload:op4:r0",
+          "op:workload:op4",
+          "value:workload:op4:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:656e566c85bf615ff3d11c59",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:workload:op4:r0",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:656e566c85bf615ff3d11c59",
+        "edges": [
+          "f62edebc51db292beb44568f"
+        ],
+        "nodes": [
+          "action:L1",
+          "memory:workload:op4:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:f8d2db9c037500041d0efa0d",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "ea279ed882ec2efb77803193"
+        ],
+        "nodes": [
+          "action:L2",
+          "op:workload:op30"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:a648968c5fe06d847e38b593",
+      "relation_type": "target:requested_clock",
+      "source": "action:L2",
+      "target": "hardware:fpga"
+    },
+    {
+      "access_path": "not_applicable",
+      "evidence_status": "proven",
+      "is_reverse": false,
+      "key": "f62edebc51db292beb44568f",
+      "relation_type": "targets",
+      "source": "action:L1",
+      "source_binding": {
+        "action_id": "L1",
+        "action_resolution": "source_location",
+        "action_source_column": 10,
+        "action_source_file": "dilate.cpp",
+        "action_source_line": 16,
+        "array_var": "strel",
+        "block": 0,
+        "full_text": "array_scope<strel> action=L1",
+        "function": 0,
+        "memory_root_text": "Value(%alloca = memref.alloca() {mailohls.action_id = \"L1\", mailohls.action_kind = \"array\"} : memref<25xi8>) : memref<25xi8>",
+        "text": "array_scope",
+        "type": 104
+      },
+      "target": "memory:workload:op4:r0"
+    },
+    {
+      "access_path": "not_applicable",
+      "evidence_status": "proven",
+      "is_reverse": false,
+      "key": "ea279ed882ec2efb77803193",
+      "relation_type": "targets",
+      "source": "action:L2",
+      "source_binding": {
+        "action_id": "L2",
+        "action_resolution": "source_location",
+        "action_source_column": 5,
+        "action_source_file": "dilate.cpp",
+        "action_source_line": 21,
+        "block": 0,
+        "compiler_effect_analysis_unknown": 1,
+        "compiler_operation_effect_allocate": 0,
+        "compiler_operation_effect_count": 0,
+        "compiler_operation_effect_free": 0,
+        "compiler_operation_effect_read": 0,
+        "compiler_operation_effect_unknown": 0,
+        "compiler_operation_effect_write": 0,
+        "compiler_operation_effects": "",
+        "full_text": "affine.for %arg2 = 0 to 544 {",
+        "function": 0,
+        "is_loop": 1,
+        "kernel_info_loop_value": 544,
+        "kernel_info_loop_value_relation": "equal",
+        "loop_depth": 0,
+        "loop_lower": 0,
+        "loop_ordinal": 0,
+        "loop_step": 1,
+        "loop_upper": 544,
+        "mlir_attrs": {
+          "lower_bound": "affine_map<() -> (0)>",
+          "step": "1 : index",
+          "upper_bound": "affine_map<() -> (544)>"
+        },
+        "op_ordinal": 30,
+        "op_uid": "workload:op30",
+        "operand_count": 0,
+        "operand_types": [],
+        "result_count": 0,
+        "result_types": [],
+        "source_column": 23,
+        "source_file": "dilate.cpp",
+        "source_line": 21,
+        "source_location": "loc(\"dilate.cpp\":21:23)",
+        "text": "affine.for",
+        "trip_count": 544,
+        "trip_count_source": "mlir_affine_analysis",
+        "trip_count_static": 1,
+        "type": 0
+      },
+      "target": "op:workload:op30"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:637e43e76d444e7ca91ca3c8",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:BRAM_18K",
+      "target": "hardware:fpga"
+    }
+  ],
+  "nodes": [
+    {
+      "absolute_index": 1,
+      "action_id": "L1",
+      "action_kind": "array",
+      "array_binding_evidence": {
+        "action_id": "L1",
+        "compiler_shape": [
+          25
+        ],
+        "function": 0,
+        "operation": "op:workload:op4",
+        "root_value": "value:workload:op4:r0",
+        "selection": "all exact compiler candidates enumerated before selection; no heuristic candidate consulted",
+        "shape_role": "consistency_only; optimized compiler shape does not redefine source dimensions",
+        "source_line": 16,
+        "source_shape": [
+          25
+        ],
+        "tier": "native_action_attribute",
+        "value": "value:workload:op4:r0"
+      },
+      "array_variable": "strel",
+      "category": "action_point",
+      "function": 0,
+      "id": "action:L1",
+      "legacy_array_root_values": [
+        "value:workload:op4:r0"
+      ],
+      "legacy_target_disagreement": false,
+      "source_array_dimensions": [
+        25
+      ],
+      "source_column": 10,
+      "source_declared_type": {
+        "bit_width": null,
+        "evidence": "source_text_not_compiler_verified",
+        "signedness": null,
+        "spelling": "bool"
+      },
+      "source_file": "dilate.cpp",
+      "source_line": 16,
+      "supported_directives": [
+        "array_partition"
+      ],
+      "target_binding_rule": "native_evidence_first_array"
+    },
+    {
+      "absolute_index": 2,
+      "action_id": "L2",
+      "action_kind": "loop",
+      "category": "action_point",
+      "compiler_proven_trip_count": 544,
+      "function": 0,
+      "id": "action:L2",
+      "metadata_value": 544,
+      "source_column": 5,
+      "source_file": "dilate.cpp",
+      "source_line": 21,
+      "source_loop_metadata_value": 544,
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ],
+      "target_binding_rule": "exact_compiler_loop_source_binding",
+      "tcad_trip_count": 544,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "category": "memory_object",
+      "function": 0,
+      "global_symbol": "",
+      "id": "memory:workload:op4:r0",
+      "memory_rank": 1,
+      "memory_shape": [
+        25
+      ],
+      "root_kind": "allocation",
+      "root_value": "value:workload:op4:r0",
+      "root_values": [
+        "value:workload:op4:r0"
+      ],
+      "value_type": "memref<25xi8>"
+    },
+    {
+      "action_id": "L2",
+      "action_resolution": "source_location",
+      "action_source_column": 5,
+      "action_source_file": "dilate.cpp",
+      "action_source_line": 21,
+      "block": 0,
+      "block_order": 30,
+      "category": "operation",
+      "compiler_effect_analysis_unknown": 1,
+      "compiler_operation_effect_allocate": 0,
+      "compiler_operation_effect_count": 0,
+      "compiler_operation_effect_free": 0,
+      "compiler_operation_effect_read": 0,
+      "compiler_operation_effect_unknown": 0,
+      "compiler_operation_effect_write": 0,
+      "compiler_operation_effects": "",
+      "full_text": "affine.for %arg2 = 0 to 544 {",
+      "function": 0,
+      "id": "op:workload:op30",
+      "is_loop": 1,
+      "kernel_info_loop_value": 544,
+      "kernel_info_loop_value_relation": "equal",
+      "legacy_node_id": "90",
+      "loop_context": [],
+      "loop_depth": 0,
+      "loop_lower": 0,
+      "loop_ordinal": 0,
+      "loop_step": 1,
+      "loop_upper": 544,
+      "memory_effect_status": "not_established",
+      "mlir_attrs": {
+        "lower_bound": "affine_map<() -> (0)>",
+        "step": "1 : index",
+        "upper_bound": "affine_map<() -> (544)>"
+      },
+      "op_ordinal": 30,
+      "op_uid": "workload:op30",
+      "operand_count": 0,
+      "operand_types": [],
+      "operation_family": "loop",
+      "parent_operation": "op:workload:function",
+      "result_count": 0,
+      "result_types": [],
+      "source_column": 23,
+      "source_file": "dilate.cpp",
+      "source_line": 21,
+      "source_location": "loc(\"dilate.cpp\":21:23)",
+      "text": "affine.for",
+      "trip_count": 544,
+      "trip_count_source": "mlir_affine_analysis",
+      "trip_count_static": 1,
+      "type": 0
+    },
+    {
+      "_target_overlay": true,
+      "category": "hardware_target",
+      "clock_meaning": "user_requested_constraint",
+      "clock_period_ns": 10.0,
+      "clock_unit": "ns",
+      "external_memory": {
+        "architecture": "PS/PL DDR4",
+        "bandwidth_bytes_per_second": null,
+        "bandwidth_known": false,
+        "kernel_binding": null,
+        "kernel_binding_known": false,
+        "sources": [
+          "ug1267"
+        ]
+      },
+      "family": "Zynq UltraScale+ MPSoC",
+      "id": "hardware:fpga",
+      "identity_sources": [
+        "ug1267",
+        "vendor_zcu104"
+      ],
+      "part": "xczu7ev-ffvc1156-2-e",
+      "platform_availability_known": false,
+      "profile_version": "1.0.0"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "18-Kibit RAM equivalent",
+        "value": 624
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "RAMB18/RAMB36 halves",
+        "properties": {
+          "physical_36k_block_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 36864
+          },
+          "sdp_max_port_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 36
+          },
+          "tdp_max_port_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 18
+          },
+          "unit_storage_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 18432
+          },
+          "units_per_36k_block": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "18-Kibit RAM equivalent",
+            "value": 2
+          }
+        },
+        "sources": [
+          "ug573",
+          "hls_partition"
+        ],
+        "supported_modes": [
+          "true_dual_port",
+          "simple_dual_port"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:BRAM_18K",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "18-Kibit RAM equivalent",
+        "value": 624,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "18-Kibit RAM equivalent",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "18-Kibit RAM equivalent",
+        "value": null
+      },
+      "resource_class": "BRAM_18K"
+    }
+  ],
+  "notice": "Literal subset of canonical program plus ZCU104/10ns/full overlay; no inferred diagram edges."
+}

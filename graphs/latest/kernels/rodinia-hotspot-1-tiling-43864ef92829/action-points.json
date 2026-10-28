@@ -1,0 +1,204 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 64,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:hotspot:op13",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 64,
+      "source_binding": {
+        "function": "hotspot",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "hotspot.cpp",
+        "source_line": 9
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 512,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:hotspot:op31",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 512,
+      "source_binding": {
+        "function": "hotspot",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "hotspot.cpp",
+        "source_line": 10
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        32768
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op13:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        32768
+      ],
+      "source_binding": {
+        "array_name": "result_inner",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "hotspot.cpp",
+        "source_line": 59,
+        "source_use_lines": [
+          70,
+          72,
+          79,
+          81
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        33792
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op12:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        33792
+      ],
+      "source_binding": {
+        "array_name": "temp_inner",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "hotspot.cpp",
+        "source_line": 60,
+        "source_use_lines": [
+          67,
+          70,
+          76,
+          79
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        32768
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op11:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        32768
+      ],
+      "source_binding": {
+        "array_name": "power_inner",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "hotspot.cpp",
+        "source_line": 61,
+        "source_use_lines": [
+          68,
+          70,
+          77,
+          79
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 32,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op48",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 32,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "hotspot.cpp",
+        "source_line": 64
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L7",
+      "action_point_node": "action:L7",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 8,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op49",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 8,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "hotspot.cpp",
+        "source_line": 66
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L8",
+      "action_point_node": "action:L8",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 8,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op82",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 8,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "hotspot.cpp",
+        "source_line": 75
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "hotspot.cpp"
+}

@@ -1,0 +1,157 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        65537
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op13:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        65537
+      ],
+      "source_binding": {
+        "array_name": "l1_buf",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "backprop_kernel.cpp",
+        "source_line": 20,
+        "source_use_lines": [
+          24,
+          27,
+          39
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        8704
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op12:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        8704
+      ],
+      "source_binding": {
+        "array_name": "conn_buf",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "backprop_kernel.cpp",
+        "source_line": 21,
+        "source_use_lines": [
+          36,
+          39
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        17
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op11:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        17
+      ],
+      "source_binding": {
+        "array_name": "l2_buf",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "backprop_kernel.cpp",
+        "source_line": 22,
+        "source_use_lines": [
+          45,
+          47
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op26",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 17,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "backprop_kernel.cpp",
+        "source_line": 30
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 129,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op27",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 66048,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "backprop_kernel.cpp",
+        "source_line": 34
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 512,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op46",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 512,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 16,
+        "source_file": "backprop_kernel.cpp",
+        "source_line": 37
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "backprop_kernel.cpp"
+}

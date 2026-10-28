@@ -1,0 +1,132 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:encrypt:op95",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "encrypt",
+        "kind": "loop",
+        "source_column": 11,
+        "source_file": "kernel.c",
+        "source_line": 288
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:decrypt:op100",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "decrypt",
+        "kind": "loop",
+        "source_column": 11,
+        "source_file": "kernel.c",
+        "source_line": 427
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 4,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:KeySchedule:op27",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 4,
+      "source_binding": {
+        "function": "KeySchedule",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "kernel.c",
+        "source_line": 567
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 4,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:KeySchedule:op73",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 4,
+      "source_binding": {
+        "function": "KeySchedule",
+        "kind": "loop",
+        "source_column": 10,
+        "source_file": "kernel.c",
+        "source_line": 591
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 4,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:KeySchedule:op79",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 4,
+      "source_binding": {
+        "function": "KeySchedule",
+        "kind": "loop",
+        "source_column": 15,
+        "source_file": "kernel.c",
+        "source_line": 593
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 4,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:AddRoundKey_InversMixColumn:op32",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 4,
+      "source_binding": {
+        "function": "AddRoundKey_InversMixColumn",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "kernel.c",
+        "source_line": 1047
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "kernel.c"
+}

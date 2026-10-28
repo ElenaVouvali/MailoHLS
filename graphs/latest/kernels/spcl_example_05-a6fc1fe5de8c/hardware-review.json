@@ -1,0 +1,3661 @@
+{
+  "action_annotations": {
+    "L1": {
+      "absolute_slot": 0,
+      "all_evidence_query_sha256": "f859a330f79be361d83a1cf51e0b2788410fa803ce36728510b93f60c2ef4036",
+      "compiler_target": "op:MatrixMultiplication:op2",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 6
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 1024,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 4,
+          "proven": 5
+        },
+        "dependence_supporting_edges": [
+          "0cc44b847e31f51a8d8cd177",
+          "14523aae6cd14fa752e983b6",
+          "3af8719a686bc8f9779bed78",
+          "4cd90eba01127eaf2d3d90cc",
+          "6e50ee9a298158034a3bfd78",
+          "752c908ae412a8d16a413295",
+          "772f1affd28e13558c5e2929",
+          "a2b1dcac95cc7492b5894306",
+          "d887669ed9a51518acaf3cb5"
+        ],
+        "sha256": "3bdc91ae3a756c85d546e7136414bb1e769de8f08c1531a0da63dd4b4f2a5a87",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 2,
+        "memory_access:proven": 3,
+        "memory_dependence:proven": 5
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    },
+    "L2": {
+      "absolute_slot": 1,
+      "all_evidence_query_sha256": "db1d5d7efd38f3617f3281a15818158868b24fe5da5698c996bea75398032cb1",
+      "compiler_target": "memory:MatrixMultiplication:op1:r0",
+      "query_counts": {
+        "memory_access:proven": 8
+      },
+      "supported_directives": [
+        "array_partition"
+      ]
+    },
+    "L3": {
+      "absolute_slot": 2,
+      "all_evidence_query_sha256": "0028c55d5f290fb03e9a15470587f736527f1f5c4996ea0ca48badc731330232",
+      "compiler_target": "op:MatrixMultiplication:op3",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 4
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 1024,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 4,
+          "proven": 5
+        },
+        "dependence_supporting_edges": [
+          "0cc44b847e31f51a8d8cd177",
+          "14523aae6cd14fa752e983b6",
+          "3af8719a686bc8f9779bed78",
+          "4cd90eba01127eaf2d3d90cc",
+          "6e50ee9a298158034a3bfd78",
+          "752c908ae412a8d16a413295",
+          "772f1affd28e13558c5e2929",
+          "a2b1dcac95cc7492b5894306",
+          "d887669ed9a51518acaf3cb5"
+        ],
+        "sha256": "721de673ad28ae79b183e69235f5197f24d12a6faf690eee7446a270bfdff919",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 2,
+        "memory_access:proven": 2,
+        "memory_dependence:possible": 2
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    },
+    "L4": {
+      "absolute_slot": 3,
+      "all_evidence_query_sha256": "37f68d7d0eb945a56fbfe965c0c372bb0b2bc517c063d49e8057f1f0546f4287",
+      "compiler_target": "op:MatrixMultiplication:op5",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 3
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 1024,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 2,
+          "proven": 5
+        },
+        "dependence_supporting_edges": [
+          "0cc44b847e31f51a8d8cd177",
+          "14523aae6cd14fa752e983b6",
+          "3af8719a686bc8f9779bed78",
+          "4cd90eba01127eaf2d3d90cc",
+          "6e50ee9a298158034a3bfd78",
+          "a2b1dcac95cc7492b5894306",
+          "d887669ed9a51518acaf3cb5"
+        ],
+        "sha256": "27d58f26bc8ae57574b9496466c2f9a7401ff0e174e1911f0dbf2d772341a412",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 1,
+        "memory_access:proven": 2,
+        "memory_dependence:possible": 2,
+        "memory_dependence:proven": 2
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    },
+    "L5": {
+      "absolute_slot": 4,
+      "all_evidence_query_sha256": "0803dce252fd244ae95e3de4f343612013cccd25347aeec1a08cf269b37df226",
+      "compiler_target": "op:MatrixMultiplication:op16",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 2
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 1024,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 4,
+          "proven": 2
+        },
+        "dependence_supporting_edges": [
+          "0cc44b847e31f51a8d8cd177",
+          "3af8719a686bc8f9779bed78",
+          "6e50ee9a298158034a3bfd78",
+          "752c908ae412a8d16a413295",
+          "772f1affd28e13558c5e2929",
+          "d887669ed9a51518acaf3cb5"
+        ],
+        "sha256": "f1423ead4be092586de9ff359698ca9685290fda51d811422b8ced9644e43a47",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 1,
+        "memory_access:proven": 1,
+        "memory_dependence:possible": 4,
+        "memory_dependence:proven": 2
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    }
+  },
+  "action_slots": {
+    "labels": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5"
+    ],
+    "matched_mask": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "registered_mask": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "slot_rule": "Lk -> k-1; no renumbering",
+    "source_only_mask": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "unresolved_mask": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "context": {
+    "clock_period_ns": 10.0,
+    "full_physical_capacity": true,
+    "target": "zcu104"
+  },
+  "edges": [
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "5e4d7e0d9cb14a761e1da32c"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:MatrixMultiplication:op2"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:58bc987d09e2d9ea48ea64b0",
+      "relation_type": "target:requested_clock",
+      "source": "action:L1",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:906d34a45fffdc8c520a6259",
+        "edges": [
+          "5e4d7e0d9cb14a761e1da32c"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:MatrixMultiplication:op2"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:61a60a51b43cc4cb911f2ebd",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:55a265f10cd4db21e4b9ccd2",
+        "edges": [
+          "5e4d7e0d9cb14a761e1da32c"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:MatrixMultiplication:op2"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:0c6c81338448aa4b0c7a5a69",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:6fa6b658d48db645c09db8c5",
+        "edges": [
+          "5e4d7e0d9cb14a761e1da32c"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:MatrixMultiplication:op2"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:77858cf51835e23030b9d056",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:074e4da272347b1c9074248b",
+        "edges": [
+          "5e4d7e0d9cb14a761e1da32c"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:MatrixMultiplication:op2"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:d9d8d4b539cbb1a144f474ed",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:eadd5acdfa11c5dc1f921bf3",
+        "edges": [
+          "7ec6d02626b15e74b343446e"
+        ],
+        "nodes": [
+          "action:L2",
+          "memory:MatrixMultiplication:op1:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:d658e34169ada3de980105e7",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L2",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:d59ed661bd9692c18c2f841a",
+        "edges": [
+          "7ec6d02626b15e74b343446e"
+        ],
+        "nodes": [
+          "action:L2",
+          "memory:MatrixMultiplication:op1:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:d0fede92a8fda7b2aaca3429",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L2",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:e81a3ce6e91d0258c3bb0da6",
+        "edges": [
+          "7ec6d02626b15e74b343446e"
+        ],
+        "nodes": [
+          "action:L2",
+          "memory:MatrixMultiplication:op1:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:2425a7b882a496fe05f2ff7c",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L2",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "8c394dd1829c13bbf189409b"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:MatrixMultiplication:op3"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:a8eb5257ef0c390cc5c1b7af",
+      "relation_type": "target:requested_clock",
+      "source": "action:L3",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:08d6cb57b26f85c2a5f31f91",
+        "edges": [
+          "8c394dd1829c13bbf189409b"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:MatrixMultiplication:op3"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:41c24e6f09d8f2da6d024c5a",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L3",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:b133e3691b1078f2f251be8e",
+        "edges": [
+          "8c394dd1829c13bbf189409b"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:MatrixMultiplication:op3"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:5c0d4e3b800cca4fc8366888",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L3",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:7f60ccaac0cf998bb5ce59c3",
+        "edges": [
+          "8c394dd1829c13bbf189409b"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:MatrixMultiplication:op3"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:62c7642f64c51ffe1024ff61",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L3",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:3b5154a130e4e07c0eded40a",
+        "edges": [
+          "8c394dd1829c13bbf189409b"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:MatrixMultiplication:op3"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:67bdb9739c2797a3921f8b24",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L3",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "840cbf9146e6e6622d1bca2c"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:MatrixMultiplication:op5"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:d013811e309b8eb69152dc25",
+      "relation_type": "target:requested_clock",
+      "source": "action:L4",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:be6e701e0516d27f85398cf7",
+        "edges": [
+          "840cbf9146e6e6622d1bca2c"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:MatrixMultiplication:op5"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:1d7fe17507ad3db268ee3993",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L4",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:0113b5ea5dbff03c898bee10",
+        "edges": [
+          "840cbf9146e6e6622d1bca2c"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:MatrixMultiplication:op5"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:8c15269a0805ad1c95c64016",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L4",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:0f1090817a3e87ba55ecca17",
+        "edges": [
+          "840cbf9146e6e6622d1bca2c"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:MatrixMultiplication:op5"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:aeb64d943f788d0d482a646f",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L4",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:4c42c8054f42e6b53089325a",
+        "edges": [
+          "840cbf9146e6e6622d1bca2c"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:MatrixMultiplication:op5"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:732afc83f1be5539303f4b8c",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L4",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "cd70eb9f32d34f1dbfa576c8"
+        ],
+        "nodes": [
+          "action:L5",
+          "op:MatrixMultiplication:op16"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:768673d4338bb67d22f3e5d9",
+      "relation_type": "target:requested_clock",
+      "source": "action:L5",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:e663630980e483d08b94aefa",
+        "edges": [
+          "cd70eb9f32d34f1dbfa576c8"
+        ],
+        "nodes": [
+          "action:L5",
+          "op:MatrixMultiplication:op16"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:4d4e5aecd033f54f47436945",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L5",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:07c51dec1c9a1e3a5c0c08bb",
+        "edges": [
+          "cd70eb9f32d34f1dbfa576c8"
+        ],
+        "nodes": [
+          "action:L5",
+          "op:MatrixMultiplication:op16"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:3b421b5252fe95bb5a69d830",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L5",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:21f5272d748a87c99f41caf2",
+        "edges": [
+          "cd70eb9f32d34f1dbfa576c8"
+        ],
+        "nodes": [
+          "action:L5",
+          "op:MatrixMultiplication:op16"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:008d4e812d941611c8c0ec71",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L5",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:637e43e76d444e7ca91ca3c8",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:BRAM_18K",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:28f91c46b0dde87ced9b8e5f",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:DSP",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:aad8e4933de9cf6a3e0ebc86",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:FF",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:76f08dff7a3e76684a9c4b13",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:LUT",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "4dce2dc9034e236449a6d9e1",
+          "703f22dd47364780a06e5c5e"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<1024xf64>",
+        "nodes": [
+          "memory:MatrixMultiplication:op1:r0",
+          "op:MatrixMultiplication:op1",
+          "value:MatrixMultiplication:op1:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:eadd5acdfa11c5dc1f921bf3",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:MatrixMultiplication:op1:r0",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "4dce2dc9034e236449a6d9e1",
+          "703f22dd47364780a06e5c5e"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<1024xf64>",
+        "nodes": [
+          "memory:MatrixMultiplication:op1:r0",
+          "op:MatrixMultiplication:op1",
+          "value:MatrixMultiplication:op1:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:d59ed661bd9692c18c2f841a",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:MatrixMultiplication:op1:r0",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "4dce2dc9034e236449a6d9e1",
+          "703f22dd47364780a06e5c5e"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<1024xf64>",
+        "nodes": [
+          "memory:MatrixMultiplication:op1:r0",
+          "op:MatrixMultiplication:op1",
+          "value:MatrixMultiplication:op1:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "hls_partition",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:e81a3ce6e91d0258c3bb0da6",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:MatrixMultiplication:op1:r0",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "3321010a42174adc277e7459",
+          "a936745cb553c4add995f115",
+          "fa9b9bc907f98f801eafbe6a"
+        ],
+        "nodes": [
+          "op:MatrixMultiplication:op11",
+          "value:MatrixMultiplication:op10:r0",
+          "value:MatrixMultiplication:op11:r0",
+          "value:MatrixMultiplication:op4:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:ad394645521c082cc4d863dd",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:MatrixMultiplication:op11",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "3321010a42174adc277e7459",
+          "a936745cb553c4add995f115",
+          "fa9b9bc907f98f801eafbe6a"
+        ],
+        "nodes": [
+          "op:MatrixMultiplication:op11",
+          "value:MatrixMultiplication:op10:r0",
+          "value:MatrixMultiplication:op11:r0",
+          "value:MatrixMultiplication:op4:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:2f944f7c9ec18828a2964a06",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:MatrixMultiplication:op11",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "8593bb1db7bebdfa1c58ac9c",
+          "915a87177e74e0c1f22a86ac",
+          "af1ff3c3f639a780384395e9"
+        ],
+        "nodes": [
+          "op:MatrixMultiplication:op12",
+          "value:MatrixMultiplication:op11:r0",
+          "value:MatrixMultiplication:op12:r0",
+          "value:MatrixMultiplication:op6:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:8b8e5e092bf5bcfd29c345d1",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:MatrixMultiplication:op12",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "8593bb1db7bebdfa1c58ac9c",
+          "915a87177e74e0c1f22a86ac",
+          "af1ff3c3f639a780384395e9"
+        ],
+        "nodes": [
+          "op:MatrixMultiplication:op12",
+          "value:MatrixMultiplication:op11:r0",
+          "value:MatrixMultiplication:op12:r0",
+          "value:MatrixMultiplication:op6:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:0e6f1f7973a476d3591e6cea",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:MatrixMultiplication:op12",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op16"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "424b1ba73f04ee90779e21eff5f6cc53836c22c2e5b3cc0cc0ee38fb0bba73e5",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "7036c3238f2d20f260a6bc7a3bfe18c31ebad64523519f5642d597da9607abda",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:e663630980e483d08b94aefa",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op16",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op16"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "424b1ba73f04ee90779e21eff5f6cc53836c22c2e5b3cc0cc0ee38fb0bba73e5",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "7036c3238f2d20f260a6bc7a3bfe18c31ebad64523519f5642d597da9607abda",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:07c51dec1c9a1e3a5c0c08bb",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op16",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op16"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "424b1ba73f04ee90779e21eff5f6cc53836c22c2e5b3cc0cc0ee38fb0bba73e5",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "7036c3238f2d20f260a6bc7a3bfe18c31ebad64523519f5642d597da9607abda",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:21f5272d748a87c99f41caf2",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op16",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op2"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "b406631b5b92a180721e3aea7b7e181ce480683e0392f566f37a893c64fbaba9",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "79a79315a0c4e557bce8c2f95fa944a6154c387a4476149f91280ef13718e211",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "b740e98a537da3e019c1d58ddceb4782c5d13395f104ea1a4dab35392346eef1",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "656f682688e859c7de9ede739ecf66ee05f112dfed5b6c2acaa8a26ca455f972",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "ec1fdea0946473d9310073bd721f55b5b0853b6838f82f8d904f546104816bdc",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "02f2b10e8d08680b9cd32615c926ab21b5176d663d38a64b7987fb13b4c91864",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:906d34a45fffdc8c520a6259",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op2",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op2"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:8b8e5e092bf5bcfd29c345d1",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:ad394645521c082cc4d863dd",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op11",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:55a265f10cd4db21e4b9ccd2",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op2",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op2"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "b406631b5b92a180721e3aea7b7e181ce480683e0392f566f37a893c64fbaba9",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "79a79315a0c4e557bce8c2f95fa944a6154c387a4476149f91280ef13718e211",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "b740e98a537da3e019c1d58ddceb4782c5d13395f104ea1a4dab35392346eef1",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "656f682688e859c7de9ede739ecf66ee05f112dfed5b6c2acaa8a26ca455f972",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "ec1fdea0946473d9310073bd721f55b5b0853b6838f82f8d904f546104816bdc",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "02f2b10e8d08680b9cd32615c926ab21b5176d663d38a64b7987fb13b4c91864",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:6fa6b658d48db645c09db8c5",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op2",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op2"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "b406631b5b92a180721e3aea7b7e181ce480683e0392f566f37a893c64fbaba9",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op16"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b6:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "79a79315a0c4e557bce8c2f95fa944a6154c387a4476149f91280ef13718e211",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op17",
+            "supporting_edge": "69da53565b210ef773280b17"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "b740e98a537da3e019c1d58ddceb4782c5d13395f104ea1a4dab35392346eef1",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "656f682688e859c7de9ede739ecf66ee05f112dfed5b6c2acaa8a26ca455f972",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "ec1fdea0946473d9310073bd721f55b5b0853b6838f82f8d904f546104816bdc",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "02f2b10e8d08680b9cd32615c926ab21b5176d663d38a64b7987fb13b4c91864",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:0e6f1f7973a476d3591e6cea",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:2f944f7c9ec18828a2964a06",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op11",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:074e4da272347b1c9074248b",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op2",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op3"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "bd53f40c0162ae562c1bbef34bfc1511dbebd018224f0234e065277520fd0cdf",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "656f682688e859c7de9ede739ecf66ee05f112dfed5b6c2acaa8a26ca455f972",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "3fe9d3a2b3b34172a0e71cc3cc0bf22e842337c3228f7484b2877cb807acf3c3",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "02f2b10e8d08680b9cd32615c926ab21b5176d663d38a64b7987fb13b4c91864",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:08d6cb57b26f85c2a5f31f91",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op3",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op3"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:8b8e5e092bf5bcfd29c345d1",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:ad394645521c082cc4d863dd",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op11",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:b133e3691b1078f2f251be8e",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op3",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op3"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "bd53f40c0162ae562c1bbef34bfc1511dbebd018224f0234e065277520fd0cdf",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "656f682688e859c7de9ede739ecf66ee05f112dfed5b6c2acaa8a26ca455f972",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "3fe9d3a2b3b34172a0e71cc3cc0bf22e842337c3228f7484b2877cb807acf3c3",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "02f2b10e8d08680b9cd32615c926ab21b5176d663d38a64b7987fb13b4c91864",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:7f60ccaac0cf998bb5ce59c3",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op3",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op3"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "bd53f40c0162ae562c1bbef34bfc1511dbebd018224f0234e065277520fd0cdf",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "656f682688e859c7de9ede739ecf66ee05f112dfed5b6c2acaa8a26ca455f972",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "3fe9d3a2b3b34172a0e71cc3cc0bf22e842337c3228f7484b2877cb807acf3c3",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "02f2b10e8d08680b9cd32615c926ab21b5176d663d38a64b7987fb13b4c91864",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:0e6f1f7973a476d3591e6cea",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:2f944f7c9ec18828a2964a06",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op11",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:3b5154a130e4e07c0eded40a",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op3",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op5"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "04882f0f80024cb3718247ed4adee4fb0c738d123dde4d88abefff4b8ee59d8b",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "d355fc796f63d9633ac9d3c82408bd62d193c462797722178813760ecd805198",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "714e370a024819c723337e2858f6d6ef0daf1f19c8be55a17100bdd4ae5b87c4",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:eadd5acdfa11c5dc1f921bf3",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "59fc0978bed5ac7a72cd7398e406fa7b2e11cb8de04ac064b92f2b6fcb5d2878",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:be6e701e0516d27f85398cf7",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op5",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op5"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:8b8e5e092bf5bcfd29c345d1",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:ad394645521c082cc4d863dd",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op11",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:0113b5ea5dbff03c898bee10",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op5",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op5"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "04882f0f80024cb3718247ed4adee4fb0c738d123dde4d88abefff4b8ee59d8b",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "d355fc796f63d9633ac9d3c82408bd62d193c462797722178813760ecd805198",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "714e370a024819c723337e2858f6d6ef0daf1f19c8be55a17100bdd4ae5b87c4",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:d59ed661bd9692c18c2f841a",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "59fc0978bed5ac7a72cd7398e406fa7b2e11cb8de04ac064b92f2b6fcb5d2878",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:0f1090817a3e87ba55ecca17",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op5",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:MatrixMultiplication:op5"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "04882f0f80024cb3718247ed4adee4fb0c738d123dde4d88abefff4b8ee59d8b",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "d355fc796f63d9633ac9d3c82408bd62d193c462797722178813760ecd805198",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op8",
+            "supporting_edge": "dbd9e311dc3db5838517c1c9"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "714e370a024819c723337e2858f6d6ef0daf1f19c8be55a17100bdd4ae5b87c4",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:MatrixMultiplication:op5"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:MatrixMultiplication:b3:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:e81a3ce6e91d0258c3bb0da6",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:MatrixMultiplication:op1:r0",
+            "memory_root": "memory:MatrixMultiplication:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "59fc0978bed5ac7a72cd7398e406fa7b2e11cb8de04ac064b92f2b6fcb5d2878",
+            "root_candidates_complete": true,
+            "source_operation": "op:MatrixMultiplication:op13",
+            "supporting_edge": "fa4e554b7f7e4782a2d93ac0"
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:0e6f1f7973a476d3591e6cea",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:2f944f7c9ec18828a2964a06",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:MatrixMultiplication:op11",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:4c42c8054f42e6b53089325a",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:MatrixMultiplication:op5",
+      "target": "hardware:resource:LUT"
+    }
+  ],
+  "excluded_relationships": {
+    "storage_formal_parameter_not_eligible": 3,
+    "unsupported_or_untyped_arithmetic": 1
+  },
+  "nodes": [
+    {
+      "_target_overlay": true,
+      "category": "hardware_target",
+      "clock_meaning": "user_requested_constraint",
+      "clock_period_ns": 10.0,
+      "clock_unit": "ns",
+      "external_memory": {
+        "architecture": "PS/PL DDR4",
+        "bandwidth_bytes_per_second": null,
+        "bandwidth_known": false,
+        "kernel_binding": null,
+        "kernel_binding_known": false,
+        "sources": [
+          "ug1267"
+        ]
+      },
+      "family": "Zynq UltraScale+ MPSoC",
+      "id": "hardware:fpga",
+      "identity_sources": [
+        "ug1267",
+        "vendor_zcu104"
+      ],
+      "part": "xczu7ev-ffvc1156-2-e",
+      "platform_availability_known": false,
+      "profile_version": "1.0.0"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "18-Kibit RAM equivalent",
+        "value": 624
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "RAMB18/RAMB36 halves",
+        "properties": {
+          "physical_36k_block_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 36864
+          },
+          "sdp_max_port_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 36
+          },
+          "tdp_max_port_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 18
+          },
+          "unit_storage_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 18432
+          },
+          "units_per_36k_block": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "18-Kibit RAM equivalent",
+            "value": 2
+          }
+        },
+        "sources": [
+          "ug573",
+          "hls_partition"
+        ],
+        "supported_modes": [
+          "true_dual_port",
+          "simple_dual_port"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:BRAM_18K",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "18-Kibit RAM equivalent",
+        "value": 624,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "18-Kibit RAM equivalent",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "18-Kibit RAM equivalent",
+        "value": null
+      },
+      "resource_class": "BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "DSP slice",
+        "value": 1728
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "DSP48E2",
+        "properties": {
+          "alu_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 48
+          },
+          "multiplier_a_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 27
+          },
+          "multiplier_b_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 18
+          }
+        },
+        "sources": [
+          "ug579",
+          "hls_bind_op"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:DSP",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "DSP slice",
+        "value": 1728,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "DSP slice",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "DSP slice",
+        "value": null
+      },
+      "resource_class": "DSP"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "flip-flop",
+        "value": 460800
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "CLB flip-flop",
+        "properties": {},
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:FF",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "flip-flop",
+        "value": 460800,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "flip-flop",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "flip-flop",
+        "value": null
+      },
+      "resource_class": "FF"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "LUT",
+        "value": 230400
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "CLB LUT; distributed RAM on SLICEM subset",
+        "properties": {
+          "available_distributed_storage_luts": {
+            "known": false,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug574"
+            ],
+            "unit": "LUT",
+            "value": null
+          }
+        },
+        "sources": [
+          "ug574",
+          "hls_bind_op"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:LUT",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "LUT",
+        "value": 230400,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "LUT",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "LUT",
+        "value": null
+      },
+      "resource_class": "LUT"
+    }
+  ],
+  "notice": "Exact overlay excerpt, not a complete graph; actual synthesis bindings unknown."
+}

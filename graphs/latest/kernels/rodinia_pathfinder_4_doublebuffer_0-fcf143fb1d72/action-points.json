@@ -1,0 +1,212 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:pathfinder_kernel:op7",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "pathfinder_kernel",
+        "kind": "loop",
+        "source_column": 17,
+        "source_file": "pathfinder.cpp",
+        "source_line": 10
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 1024,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:pathfinder_kernel:op8",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 1024,
+      "source_binding": {
+        "function": "pathfinder_kernel",
+        "kind": "loop",
+        "source_column": 20,
+        "source_file": "pathfinder.cpp",
+        "source_line": 11
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 512,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:pathfinder_kernel:op45",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 512,
+      "source_binding": {
+        "function": "pathfinder_kernel",
+        "kind": "loop",
+        "source_column": 18,
+        "source_file": "pathfinder.cpp",
+        "source_line": 27
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1024
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op5:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1024
+      ],
+      "source_binding": {
+        "array_name": "dst",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 13,
+        "source_file": "pathfinder.cpp",
+        "source_line": 48,
+        "source_use_lines": [
+          55,
+          61,
+          64,
+          67,
+          69
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1024
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op4:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1024
+      ],
+      "source_binding": {
+        "array_name": "src",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 13,
+        "source_file": "pathfinder.cpp",
+        "source_line": 49,
+        "source_use_lines": [
+          61,
+          64,
+          67
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        16384
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op3:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        16384
+      ],
+      "source_binding": {
+        "array_name": "wall",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 13,
+        "source_file": "pathfinder.cpp",
+        "source_line": 52,
+        "source_use_lines": [
+          56,
+          60,
+          64
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L7",
+      "action_point_node": "action:L7",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        16384
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op2:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        16384
+      ],
+      "source_binding": {
+        "array_name": "wall2",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 13,
+        "source_file": "pathfinder.cpp",
+        "source_line": 53,
+        "source_use_lines": [
+          61,
+          63,
+          67
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L8",
+      "action_point_node": "action:L8",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 63,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op35",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 64,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 19,
+        "source_file": "pathfinder.cpp",
+        "source_line": 58
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "pathfinder.cpp"
+}

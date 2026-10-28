@@ -1,0 +1,240 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 1024,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:load:op1",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 1024,
+      "source_binding": {
+        "function": "load",
+        "kind": "loop",
+        "source_column": 16,
+        "source_file": "knn.cpp",
+        "source_line": 7
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 256,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:compute_dist:op1",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 512,
+      "source_binding": {
+        "function": "compute_dist",
+        "kind": "loop",
+        "source_column": 19,
+        "source_file": "knn.cpp",
+        "source_line": 17
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 2,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:compute_dist:op2",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 2,
+      "source_binding": {
+        "function": "compute_dist",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "knn.cpp",
+        "source_line": 18
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 2,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:compute_dist:op3",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 2,
+      "source_binding": {
+        "function": "compute_dist",
+        "kind": "loop",
+        "source_column": 16,
+        "source_file": "knn.cpp",
+        "source_line": 20
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 512,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:store:op1",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 512,
+      "source_binding": {
+        "function": "store",
+        "kind": "loop",
+        "source_column": 17,
+        "source_file": "knn.cpp",
+        "source_line": 33
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        2
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op2:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        2
+      ],
+      "source_binding": {
+        "array_name": "local_inputQuery",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 11,
+        "source_file": "knn.cpp",
+        "source_line": 51,
+        "source_use_lines": [
+          56,
+          61
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L7",
+      "action_point_node": "action:L7",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1024
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op1:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1024
+      ],
+      "source_binding": {
+        "array_name": "local_searchSpace",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 11,
+        "source_file": "knn.cpp",
+        "source_line": 52,
+        "source_use_lines": [
+          60,
+          61
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L8",
+      "action_point_node": "action:L8",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        512
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op0:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        512
+      ],
+      "source_binding": {
+        "array_name": "local_distance",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 11,
+        "source_file": "knn.cpp",
+        "source_line": 53,
+        "source_use_lines": [
+          61,
+          62
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L9",
+      "action_point_node": "action:L9",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 2,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op3",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 2,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 22,
+        "source_file": "knn.cpp",
+        "source_line": 55
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L10",
+      "action_point_node": "action:L10",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 2048,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op12",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 2048,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 16,
+        "source_file": "knn.cpp",
+        "source_line": 59
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "knn.cpp"
+}

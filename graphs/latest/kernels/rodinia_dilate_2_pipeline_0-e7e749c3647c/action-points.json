@@ -1,0 +1,470 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 5,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate_stencil_core:op1",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 5,
+      "source_binding": {
+        "function": "lc_dilate_stencil_core",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "dilate.cpp",
+        "source_line": 10
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 5,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate_stencil_core:op2",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 5,
+      "source_binding": {
+        "function": "lc_dilate_stencil_core",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "dilate.cpp",
+        "source_line": 11
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        25
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lc_dilate:op14:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        25
+      ],
+      "source_binding": {
+        "array_name": "strel",
+        "function": "lc_dilate",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "dilate.cpp",
+        "source_line": 21,
+        "source_use_lines": [
+          47
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        2084
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lc_dilate:op13:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        2084
+      ],
+      "source_binding": {
+        "array_name": "img_rf",
+        "function": "lc_dilate",
+        "kind": "array",
+        "source_column": 15,
+        "source_file": "dilate.cpp",
+        "source_line": 25,
+        "source_use_lines": [
+          29,
+          33,
+          52,
+          60,
+          65,
+          68
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 2,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate:op40",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 2,
+      "source_binding": {
+        "function": "lc_dilate",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "dilate.cpp",
+        "source_line": 28
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 2082,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate:op43",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 2082,
+      "source_binding": {
+        "function": "lc_dilate",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "dilate.cpp",
+        "source_line": 32
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L7",
+      "action_point_node": "action:L7",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 512,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate:op47",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 512,
+      "source_binding": {
+        "function": "lc_dilate",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "dilate.cpp",
+        "source_line": 36
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L8",
+      "action_point_node": "action:L8",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 32,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate:op52",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 32,
+      "source_binding": {
+        "function": "lc_dilate",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "dilate.cpp",
+        "source_line": 38
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L9",
+      "action_point_node": "action:L9",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        25
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lc_dilate:op12:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        25
+      ],
+      "source_binding": {
+        "array_name": "img_sample",
+        "function": "lc_dilate",
+        "kind": "array",
+        "source_column": 23,
+        "source_file": "dilate.cpp",
+        "source_line": 39,
+        "source_use_lines": [
+          49,
+          52,
+          56
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L10",
+      "action_point_node": "action:L10",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 5,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate:op54",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 5,
+      "source_binding": {
+        "function": "lc_dilate",
+        "kind": "loop",
+        "source_column": 18,
+        "source_file": "dilate.cpp",
+        "source_line": 41
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L11",
+      "action_point_node": "action:L11",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 5,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate:op64",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 5,
+      "source_binding": {
+        "function": "lc_dilate",
+        "kind": "loop",
+        "source_column": 22,
+        "source_file": "dilate.cpp",
+        "source_line": 42
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L12",
+      "action_point_node": "action:L12",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 2052,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate:op95",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 2052,
+      "source_binding": {
+        "function": "lc_dilate",
+        "kind": "loop",
+        "source_column": 14,
+        "source_file": "dilate.cpp",
+        "source_line": 59
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L13",
+      "action_point_node": "action:L13",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 32,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lc_dilate:op99",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 32,
+      "source_binding": {
+        "function": "lc_dilate",
+        "kind": "loop",
+        "source_column": 14,
+        "source_file": "dilate.cpp",
+        "source_line": 63
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L14",
+      "action_point_node": "action:L14",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 36,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:load_data_tile:op1",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 36,
+      "source_binding": {
+        "function": "load_data_tile",
+        "kind": "loop",
+        "source_column": 7,
+        "source_file": "dilate.cpp",
+        "source_line": 79
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L15",
+      "action_point_node": "action:L15",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 512,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:load_data_tile:op2",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 512,
+      "source_binding": {
+        "function": "load_data_tile",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "dilate.cpp",
+        "source_line": 80
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L16",
+      "action_point_node": "action:L16",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 32,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:store_result_tile:op1",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 32,
+      "source_binding": {
+        "function": "store_result_tile",
+        "kind": "loop",
+        "source_column": 7,
+        "source_file": "dilate.cpp",
+        "source_line": 89
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L17",
+      "action_point_node": "action:L17",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 512,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:store_result_tile:op2",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 512,
+      "source_binding": {
+        "function": "store_result_tile",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "dilate.cpp",
+        "source_line": 90
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L18",
+      "action_point_node": "action:L18",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        16384
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op1:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        16384
+      ],
+      "source_binding": {
+        "array_name": "result_inner_0",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 16,
+        "source_file": "dilate.cpp",
+        "source_line": 109,
+        "source_use_lines": [
+          114,
+          115
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L19",
+      "action_point_node": "action:L19",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        18432
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op0:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        18432
+      ],
+      "source_binding": {
+        "array_name": "img_inner_0",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 16,
+        "source_file": "dilate.cpp",
+        "source_line": 110,
+        "source_use_lines": [
+          113,
+          114
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L20",
+      "action_point_node": "action:L20",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 17,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op2",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 17,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 7,
+        "source_file": "dilate.cpp",
+        "source_line": 112
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "dilate.cpp"
+}

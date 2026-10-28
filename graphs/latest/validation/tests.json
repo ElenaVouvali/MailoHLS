@@ -1,0 +1,74 @@
+{
+  "builder_checks": {
+    "corrupt_file_rejected": true,
+    "spawn_worker_custom_output": {
+      "files": 2,
+      "spawn_custom_output": "pass",
+      "summary": {
+        "added_edges": 49,
+        "added_nodes": 5,
+        "compatibility": {
+          "not_applicable": 9,
+          "possible": 40
+        },
+        "compiler_evidence": {
+          "not_applicable": 4,
+          "proven": 45
+        },
+        "hardware_evidence": {
+          "documented": 49
+        },
+        "matched_actions": 5,
+        "program_edges": 255,
+        "program_nodes": 109,
+        "program_payload_sha256": "ca8f5259c53c83aeb9453b7ed88e63eb145c5a6d71be5e347f0bbc880a8012d9",
+        "registered_actions": 5,
+        "relations": {
+          "hardware:belongs_to": 4,
+          "target:action_resource_relevance": 10,
+          "target:arithmetic_compatible": 20,
+          "target:loop_resource_relevance": 10,
+          "target:requested_clock": 5
+        },
+        "schema": "salt-hls-target-enriched-v22-v1",
+        "source_only_actions": [],
+        "target_context_identity": "66915ac17beb7595a892a4a6b2ff2302681ac4dc417b2f3e0830ad485e57652d",
+        "unresolved_actions": []
+      }
+    },
+    "standard_library_verify_accepts_valid_inventory": true,
+    "unsafe_checksum_path_rejected": true
+  },
+  "commands": [
+    {
+      "command": "POLYGEIST_BUILD=/home/elvouvali/tools/Polygeist/build-mailohls-assertions MLIR_PYTHON=/home/elvouvali/.mlir-python311/bin/python /home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python -B -m pytest tests/test_mlir_graph_v2.py tests/test_mlir_graph_v22.py tests/test_target_graph_v22.py -q",
+      "cwd": "/home/elvouvali/MailoHLS",
+      "result": "176 passed in 135.96s; includes the updated development Kalman registration test",
+      "source_commit": "72b42ae5e95b40d7cd57f3eade9b4b4cdb258731"
+    },
+    {
+      "base_commit": "84e78a42b473469a96c2cb0a7994b380359ea0fc",
+      "command": "same pytest command",
+      "cwd": "isolated graph branch worktree",
+      "result": "163 passed, 12 skipped in 97.79s",
+      "skip_reason": "compiled historical fixtures and local external-analysis caches are absent in the isolated worktree; these checks ran in the main workspace"
+    }
+  ],
+  "hls_or_training": false,
+  "hotspot_previous_export": {
+    "all_bytes_identical": true,
+    "full_graphs_compared": 48
+  },
+  "independent_semantic_adjudication": "pending",
+  "published_cli_checks": {
+    "standard_library_inventory": "pass: 2218 files",
+    "unpack_kalman": "pass",
+    "validate_unpacked_zcu104_10ns_full": "pass: 541 compiler nodes, 1006 compiler edges; 5 added nodes, 123 added edges; L7/L8 unresolved"
+  },
+  "schema": "salt-hls-catalog-test-receipt-v1",
+  "whitespace_audit": {
+    "interpretation": "Original archived source whitespace is retained byte for byte; it is not normalized because source hashes are compiler provenance. The full diff whitespace check therefore reports inherited source formatting.",
+    "new_authored_files": "pass",
+    "sealed_source_warnings": 962
+  }
+}

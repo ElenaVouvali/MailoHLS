@@ -1,0 +1,240 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 1024,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:cfd_step_factor:op17",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 1024,
+      "source_binding": {
+        "function": "cfd_step_factor",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "cfd_step_factor.cpp",
+        "source_line": 35
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:cfd_step_factor:op13:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1
+      ],
+      "source_binding": {
+        "array_name": "density",
+        "function": "cfd_step_factor",
+        "kind": "array",
+        "source_column": 18,
+        "source_file": "cfd_step_factor.cpp",
+        "source_line": 37,
+        "source_use_lines": [
+          43,
+          51,
+          53,
+          54
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1,
+        3
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:cfd_step_factor:op12:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1
+      ],
+      "source_binding": {
+        "array_name": "momentum",
+        "function": "cfd_step_factor",
+        "kind": "array",
+        "source_column": 19,
+        "source_file": "cfd_step_factor.cpp",
+        "source_line": 38,
+        "source_use_lines": [
+          44,
+          45,
+          46,
+          51
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:cfd_step_factor:op11:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1
+      ],
+      "source_binding": {
+        "array_name": "density_energy",
+        "function": "cfd_step_factor",
+        "kind": "array",
+        "source_column": 18,
+        "source_file": "cfd_step_factor.cpp",
+        "source_line": 39,
+        "source_use_lines": [
+          47,
+          53
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": null,
+      "compiler_eliminated": null,
+      "compiler_matched": false,
+      "compiler_status": "not_registered",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": false,
+      "source_binding": {
+        "function": "cfd_step_factor",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "cfd_step_factor.cpp",
+        "source_line": 49
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1024
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op2:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1024
+      ],
+      "source_binding": {
+        "array_name": "result_inner",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "cfd_step_factor.cpp",
+        "source_line": 73,
+        "source_use_lines": [
+          82,
+          84
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L7",
+      "action_point_node": "action:L7",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        5120
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op1:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        5120
+      ],
+      "source_binding": {
+        "array_name": "variables_inner",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "cfd_step_factor.cpp",
+        "source_line": 74,
+        "source_use_lines": [
+          79,
+          82
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L8",
+      "action_point_node": "action:L8",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1024
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:workload:op0:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1024
+      ],
+      "source_binding": {
+        "array_name": "areas_inner",
+        "function": "workload",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "cfd_step_factor.cpp",
+        "source_line": 75,
+        "source_use_lines": [
+          80,
+          82
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L9",
+      "action_point_node": null,
+      "compiler_eliminated": null,
+      "compiler_matched": false,
+      "compiler_status": "not_registered",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": false,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "cfd_step_factor.cpp",
+        "source_line": 77
+      },
+      "source_labeled": true
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "cfd_step_factor.cpp"
+}

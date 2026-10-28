@@ -1,0 +1,1040 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:diagonal_load:op1",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "diagonal_load",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "lud.cpp",
+        "source_line": 13
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:diagonal_load:op2",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "diagonal_load",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "lud.cpp",
+        "source_line": 14
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:diagonal_store:op1",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "diagonal_store",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "lud.cpp",
+        "source_line": 22
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:diagonal_store:op2",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "diagonal_store",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "lud.cpp",
+        "source_line": 23
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        256
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lud_diagonal:op3:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        256
+      ],
+      "source_binding": {
+        "array_name": "buffer",
+        "function": "lud_diagonal",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "lud.cpp",
+        "source_line": 33,
+        "source_use_lines": [
+          35,
+          40,
+          41,
+          46,
+          50,
+          53,
+          57
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_diagonal:op6",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_diagonal",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "lud.cpp",
+        "source_line": 37
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L7",
+      "action_point_node": "action:L7",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": null,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_diagonal:op8",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_diagonal",
+        "kind": "loop",
+        "source_column": 16,
+        "source_file": "lud.cpp",
+        "source_line": 38
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "unknown"
+    },
+    {
+      "action_id": "L8",
+      "action_point_node": "action:L8",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_diagonal:op9",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_diagonal",
+        "kind": "loop",
+        "source_column": 16,
+        "source_file": "lud.cpp",
+        "source_line": 39
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L9",
+      "action_point_node": "action:L9",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": null,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_diagonal:op25",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_diagonal",
+        "kind": "loop",
+        "source_column": 20,
+        "source_file": "lud.cpp",
+        "source_line": 48
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "unknown"
+    },
+    {
+      "action_id": "L10",
+      "action_point_node": "action:L10",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_diagonal:op26",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_diagonal",
+        "kind": "loop",
+        "source_column": 20,
+        "source_file": "lud.cpp",
+        "source_line": 49
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L11",
+      "action_point_node": "action:L11",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:perimeter_load:op9",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "perimeter_load",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 69
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L12",
+      "action_point_node": "action:L12",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:perimeter_load:op10",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "perimeter_load",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 70
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L13",
+      "action_point_node": "action:L13",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:perimeter_load:op15",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "perimeter_load",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 75
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L14",
+      "action_point_node": "action:L14",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:perimeter_load:op16",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "perimeter_load",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 76
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L15",
+      "action_point_node": "action:L15",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:perimeter_store:op9",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "perimeter_store",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 91
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L16",
+      "action_point_node": "action:L16",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:perimeter_store:op10",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "perimeter_store",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 92
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L17",
+      "action_point_node": "action:L17",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:perimeter_store:op15",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "perimeter_store",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 97
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L18",
+      "action_point_node": "action:L18",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:perimeter_store:op16",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "perimeter_store",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 98
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L19",
+      "action_point_node": "action:L19",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        256
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lud_perimeter:op7:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        256
+      ],
+      "source_binding": {
+        "array_name": "diagonal_buffer",
+        "function": "lud_perimeter",
+        "kind": "array",
+        "source_column": 15,
+        "source_file": "lud.cpp",
+        "source_line": 106,
+        "source_use_lines": [
+          114,
+          134,
+          148,
+          152
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L20",
+      "action_point_node": "action:L20",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        256
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lud_perimeter:op6:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        256
+      ],
+      "source_binding": {
+        "array_name": "top_buffer",
+        "function": "lud_perimeter",
+        "kind": "array",
+        "source_column": 15,
+        "source_file": "lud.cpp",
+        "source_line": 107,
+        "source_use_lines": [
+          126,
+          134,
+          138,
+          156
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L21",
+      "action_point_node": "action:L21",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        256
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lud_perimeter:op5:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        256
+      ],
+      "source_binding": {
+        "array_name": "left_buffer",
+        "function": "lud_perimeter",
+        "kind": "array",
+        "source_column": 15,
+        "source_file": "lud.cpp",
+        "source_line": 108,
+        "source_use_lines": [
+          126,
+          148,
+          152,
+          156
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L22",
+      "action_point_node": "action:L22",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_perimeter:op8",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_perimeter",
+        "kind": "loop",
+        "source_column": 18,
+        "source_file": "lud.cpp",
+        "source_line": 112
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L23",
+      "action_point_node": "action:L23",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_perimeter:op9",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_perimeter",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 113
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L24",
+      "action_point_node": "action:L24",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 100,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_perimeter:op18",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 100,
+      "source_binding": {
+        "function": "lud_perimeter",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 125
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L25",
+      "action_point_node": "action:L25",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_perimeter:op21",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_perimeter",
+        "kind": "loop",
+        "source_column": 29,
+        "source_file": "lud.cpp",
+        "source_line": 130
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L26",
+      "action_point_node": "action:L26",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_perimeter:op23",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_perimeter",
+        "kind": "loop",
+        "source_column": 33,
+        "source_file": "lud.cpp",
+        "source_line": 131
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L27",
+      "action_point_node": "action:L27",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_perimeter:op24",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_perimeter",
+        "kind": "loop",
+        "source_column": 37,
+        "source_file": "lud.cpp",
+        "source_line": 133
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L28",
+      "action_point_node": "action:L28",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_perimeter:op40",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_perimeter",
+        "kind": "loop",
+        "source_column": 29,
+        "source_file": "lud.cpp",
+        "source_line": 144
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L29",
+      "action_point_node": "action:L29",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_perimeter:op41",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_perimeter",
+        "kind": "loop",
+        "source_column": 33,
+        "source_file": "lud.cpp",
+        "source_line": 145
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L30",
+      "action_point_node": "action:L30",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_perimeter:op43",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_perimeter",
+        "kind": "loop",
+        "source_column": 38,
+        "source_file": "lud.cpp",
+        "source_line": 147
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L31",
+      "action_point_node": "action:L31",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:internal_load:op16",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "internal_load",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 169
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L32",
+      "action_point_node": "action:L32",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:internal_load:op17",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "internal_load",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 170
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L33",
+      "action_point_node": "action:L33",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:internal_load:op22",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "internal_load",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 174
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L34",
+      "action_point_node": "action:L34",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:internal_load:op23",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "internal_load",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 175
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L35",
+      "action_point_node": "action:L35",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:internal_load:op28",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "internal_load",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 180
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L36",
+      "action_point_node": "action:L36",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:internal_load:op29",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "internal_load",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 181
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L37",
+      "action_point_node": "action:L37",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:internal_store:op12",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "internal_store",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 194
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L38",
+      "action_point_node": "action:L38",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:internal_store:op13",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "internal_store",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 195
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L39",
+      "action_point_node": "action:L39",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        256
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lud_internal:op5:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        256
+      ],
+      "source_binding": {
+        "array_name": "top_buffer",
+        "function": "lud_internal",
+        "kind": "array",
+        "source_column": 15,
+        "source_file": "lud.cpp",
+        "source_line": 209,
+        "source_use_lines": [
+          216,
+          223
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L40",
+      "action_point_node": "action:L40",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        256
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lud_internal:op4:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        256
+      ],
+      "source_binding": {
+        "array_name": "left_buffer",
+        "function": "lud_internal",
+        "kind": "array",
+        "source_column": 15,
+        "source_file": "lud.cpp",
+        "source_line": 210,
+        "source_use_lines": [
+          216,
+          223
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L41",
+      "action_point_node": "action:L41",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        256
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:lud_internal:op3:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        256
+      ],
+      "source_binding": {
+        "array_name": "inner_buffer",
+        "function": "lud_internal",
+        "kind": "array",
+        "source_column": 15,
+        "source_file": "lud.cpp",
+        "source_line": 211,
+        "source_use_lines": [
+          216,
+          225,
+          229
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L42",
+      "action_point_node": "action:L42",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 100,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_internal:op10",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 100,
+      "source_binding": {
+        "function": "lud_internal",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 215
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L43",
+      "action_point_node": "action:L43",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_internal:op13",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_internal",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "lud.cpp",
+        "source_line": 218
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L44",
+      "action_point_node": "action:L44",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_internal:op14",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_internal",
+        "kind": "loop",
+        "source_column": 17,
+        "source_file": "lud.cpp",
+        "source_line": 219
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L45",
+      "action_point_node": "action:L45",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:lud_internal:op15",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "lud_internal",
+        "kind": "loop",
+        "source_column": 21,
+        "source_file": "lud.cpp",
+        "source_line": 222
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L46",
+      "action_point_node": "action:L46",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 15,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op2",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 240,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 9,
+        "source_file": "lud.cpp",
+        "source_line": 240
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "lud.cpp"
+}

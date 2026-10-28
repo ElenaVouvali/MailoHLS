@@ -1,0 +1,148 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1000
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:Stencil2D:op2:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1000
+      ],
+      "source_binding": {
+        "array_name": "above_buffer",
+        "function": "Stencil2D",
+        "kind": "array",
+        "source_column": 12,
+        "source_file": "Example3.cpp",
+        "source_line": 5,
+        "source_use_lines": [
+          9,
+          19
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        1000
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:Stencil2D:op1:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        1000
+      ],
+      "source_binding": {
+        "array_name": "center_buffer",
+        "function": "Stencil2D",
+        "kind": "array",
+        "source_column": 12,
+        "source_file": "Example3.cpp",
+        "source_line": 6,
+        "source_use_lines": [
+          13,
+          20
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 1000,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:Stencil2D:op3",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 1000,
+      "source_binding": {
+        "function": "Stencil2D",
+        "kind": "loop",
+        "source_column": 6,
+        "source_file": "Example3.cpp",
+        "source_line": 8
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 1000,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:Stencil2D:op7",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 1000,
+      "source_binding": {
+        "function": "Stencil2D",
+        "kind": "loop",
+        "source_column": 6,
+        "source_file": "Example3.cpp",
+        "source_line": 12
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 998,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:Stencil2D:op11",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 999,
+      "source_binding": {
+        "function": "Stencil2D",
+        "kind": "loop",
+        "source_column": 6,
+        "source_file": "Example3.cpp",
+        "source_line": 16
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 1000,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:Stencil2D:op12",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 1000,
+      "source_binding": {
+        "function": "Stencil2D",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "Example3.cpp",
+        "source_line": 17
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "Example3.cpp"
+}

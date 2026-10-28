@@ -1,0 +1,3531 @@
+{
+  "action_annotations": {
+    "L1": {
+      "absolute_slot": 0,
+      "all_evidence_query_sha256": "41cf29810d0044832f8edaa2f1749a0bf72d50d4dfa09b43054672cddb686d4c",
+      "compiler_target": "memory:Stencil2D:op2:r0",
+      "query_counts": {
+        "memory_access:proven": 3,
+        "memory_alias:proven:no_alias": 1
+      },
+      "supported_directives": [
+        "array_partition"
+      ]
+    },
+    "L2": {
+      "absolute_slot": 1,
+      "all_evidence_query_sha256": "f78fe466b2fbb958dfc6401834abaa5a9db8ef721d2a1f34296ea985ba45320d",
+      "compiler_target": "memory:Stencil2D:op1:r0",
+      "query_counts": {
+        "memory_access:proven": 3,
+        "memory_alias:proven:no_alias": 1
+      },
+      "supported_directives": [
+        "array_partition"
+      ]
+    },
+    "L3": {
+      "absolute_slot": 2,
+      "all_evidence_query_sha256": "15fe144a1b019a53cf4c70da6189ffb9207423cd233852cafd06c24263d12d86",
+      "compiler_target": "op:Stencil2D:op3",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 2
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 1000,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 2,
+          "proven": 1
+        },
+        "dependence_supporting_edges": [
+          "0c4e8c655adf64917d3af6bd",
+          "c17696853000368363962a65",
+          "d2aae1c5c1b1d35fe35cbd4c"
+        ],
+        "sha256": "86b69de57f46c2084726b7825a75ac5f59057abec3c1243741130961431670a8",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "memory_access:proven": 1,
+        "memory_dependence:possible": 2,
+        "memory_dependence:proven": 1
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    },
+    "L4": {
+      "absolute_slot": 3,
+      "all_evidence_query_sha256": "50114e624fb85a8a5c134bba148e2d99b7fb989aa5ee128b9da140b53dd8f92e",
+      "compiler_target": "op:Stencil2D:op7",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 2
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 1000,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 2,
+          "proven": 1
+        },
+        "dependence_supporting_edges": [
+          "1da5105b12a77a0719f8084e",
+          "2031f80c17f3b2861c6336d6",
+          "8aa2d4577210f3cabaebab7c"
+        ],
+        "sha256": "46acee9692f5b2a8637f105ce802b6d713829ebad2511ba5c1d315ce82aec0c1",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "memory_access:proven": 1,
+        "memory_dependence:possible": 2,
+        "memory_dependence:proven": 1
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    },
+    "L5": {
+      "absolute_slot": 4,
+      "all_evidence_query_sha256": "9c1c23bb6e09e31cb36d117151c4c6ea2e0ddfaa9958f559296698ec3d0d1f1a",
+      "compiler_target": "op:Stencil2D:op11",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 4
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 998,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 6,
+          "proven": 2
+        },
+        "dependence_supporting_edges": [
+          "0c4e8c655adf64917d3af6bd",
+          "1da5105b12a77a0719f8084e",
+          "2031f80c17f3b2861c6336d6",
+          "4c0546fa9469f3435072de74",
+          "8aa2d4577210f3cabaebab7c",
+          "be7426cb4e99947ce1aa2334",
+          "c17696853000368363962a65",
+          "d2aae1c5c1b1d35fe35cbd4c"
+        ],
+        "sha256": "771cab49d234fe4b8b5a3dd2d6877ec4767ba87db2b66c2ac94b76acd8427163",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 1,
+        "memory_access:proven": 2
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    },
+    "L6": {
+      "absolute_slot": 5,
+      "all_evidence_query_sha256": "5b7a6c1ab3c933918a5b2e1106bd7d770ce087518a4ebc55fc0d8cd9b1c3b8c9",
+      "compiler_target": "op:Stencil2D:op12",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 4
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 1000,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 6,
+          "proven": 2
+        },
+        "dependence_supporting_edges": [
+          "0c4e8c655adf64917d3af6bd",
+          "1da5105b12a77a0719f8084e",
+          "2031f80c17f3b2861c6336d6",
+          "4c0546fa9469f3435072de74",
+          "8aa2d4577210f3cabaebab7c",
+          "be7426cb4e99947ce1aa2334",
+          "c17696853000368363962a65",
+          "d2aae1c5c1b1d35fe35cbd4c"
+        ],
+        "sha256": "e8112d79fd01b542ca6fc2c48a3ab6d2d7e44d62219c5fd958254ae0c8cea83a",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 1,
+        "memory_access:proven": 2,
+        "memory_dependence:possible": 4,
+        "memory_dependence:proven": 2
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    }
+  },
+  "action_slots": {
+    "labels": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5",
+      "L6"
+    ],
+    "matched_mask": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "registered_mask": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "slot_rule": "Lk -> k-1; no renumbering",
+    "source_only_mask": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "unresolved_mask": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "context": {
+    "clock_period_ns": 10.0,
+    "full_physical_capacity": true,
+    "target": "zcu104"
+  },
+  "edges": [
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:414656942d7283187980d576",
+        "edges": [
+          "8208ba89b8737872ed7455dd"
+        ],
+        "nodes": [
+          "action:L1",
+          "memory:Stencil2D:op2:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:3b1466f5a1fddc4c773c5246",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:85f8a361540c8056da8fde62",
+        "edges": [
+          "8208ba89b8737872ed7455dd"
+        ],
+        "nodes": [
+          "action:L1",
+          "memory:Stencil2D:op2:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:43fb3bea5b323110b1772398",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:2adf718ca321313614f35b8b",
+        "edges": [
+          "8208ba89b8737872ed7455dd"
+        ],
+        "nodes": [
+          "action:L1",
+          "memory:Stencil2D:op2:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:37ec7799f1ac614bd9dc50d5",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:f6e3f177a2d783f7c9057615",
+        "edges": [
+          "24bd8b3c99c060f4c060e591"
+        ],
+        "nodes": [
+          "action:L2",
+          "memory:Stencil2D:op1:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:0d684b1349a1fb53072b2602",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L2",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:442ba28a2620503d73821b89",
+        "edges": [
+          "24bd8b3c99c060f4c060e591"
+        ],
+        "nodes": [
+          "action:L2",
+          "memory:Stencil2D:op1:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:aef9b6fd966ea82fcc55f52d",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L2",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:c4344976ae3cf756297b0e50",
+        "edges": [
+          "24bd8b3c99c060f4c060e591"
+        ],
+        "nodes": [
+          "action:L2",
+          "memory:Stencil2D:op1:r0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "array_partition"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:698bf8542c7be11ac132ccc2",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L2",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "bc4fb05bfacb9afd3f9eba75"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:Stencil2D:op3"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:2536148d1123cd09af45623d",
+      "relation_type": "target:requested_clock",
+      "source": "action:L3",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:0591af0b9253d187afedeabf",
+        "edges": [
+          "bc4fb05bfacb9afd3f9eba75"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:Stencil2D:op3"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:1e1b2670c44e72a64a2c272e",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L3",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:024d06ca5b00f58268a9837b",
+        "edges": [
+          "bc4fb05bfacb9afd3f9eba75"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:Stencil2D:op3"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:16801daf88bd44855a6c4b2f",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L3",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:10ab4433a0122c6f85aae744",
+        "edges": [
+          "bc4fb05bfacb9afd3f9eba75"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:Stencil2D:op3"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:ccde0acd51b66819aefca55b",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L3",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "5f55f1229fb38114067505eb"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:Stencil2D:op7"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:72b8d05c8ae435d3110c96db",
+      "relation_type": "target:requested_clock",
+      "source": "action:L4",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:7900cddd1e1f4a26cad1b86f",
+        "edges": [
+          "5f55f1229fb38114067505eb"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:Stencil2D:op7"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:9d70f029052a2347765213ad",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L4",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:0cc0dcb75889d99568db1a7b",
+        "edges": [
+          "5f55f1229fb38114067505eb"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:Stencil2D:op7"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:cb87cd11a11835943fce8bc0",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L4",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:3d71f57f9e3541c06d8a3c8d",
+        "edges": [
+          "5f55f1229fb38114067505eb"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:Stencil2D:op7"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:d4949e7ad1ab5adddd85ab43",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L4",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "275e70d85b778c84548171ea"
+        ],
+        "nodes": [
+          "action:L5",
+          "op:Stencil2D:op11"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:f735d91d977e73facac90fbf",
+      "relation_type": "target:requested_clock",
+      "source": "action:L5",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:6f11d535fba60612dc3c19db",
+        "edges": [
+          "275e70d85b778c84548171ea"
+        ],
+        "nodes": [
+          "action:L5",
+          "op:Stencil2D:op11"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:6fd5484635cc8fef0267043d",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L5",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:a6788899bc63eda549fc532a",
+        "edges": [
+          "275e70d85b778c84548171ea"
+        ],
+        "nodes": [
+          "action:L5",
+          "op:Stencil2D:op11"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:f81a66a491bb8058c3b573ac",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L5",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:85f2c087fb19e571c04d0415",
+        "edges": [
+          "275e70d85b778c84548171ea"
+        ],
+        "nodes": [
+          "action:L5",
+          "op:Stencil2D:op11"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:ed412f4e4e1dfb0200d64741",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L5",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:df0874d420dc382cf118398e",
+        "edges": [
+          "275e70d85b778c84548171ea"
+        ],
+        "nodes": [
+          "action:L5",
+          "op:Stencil2D:op11"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:c3fc37813aa5b9b7a47cdbd0",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L5",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "c16d671c8682112086ba1a87"
+        ],
+        "nodes": [
+          "action:L6",
+          "op:Stencil2D:op12"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:3e2c41e94bd5abb873e4ff32",
+      "relation_type": "target:requested_clock",
+      "source": "action:L6",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:3b1388c2e7714ccdd6e64140",
+        "edges": [
+          "c16d671c8682112086ba1a87"
+        ],
+        "nodes": [
+          "action:L6",
+          "op:Stencil2D:op12"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:f094ba05af2c398173f7af57",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L6",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:9ce054294b5b4815eaf293d9",
+        "edges": [
+          "c16d671c8682112086ba1a87"
+        ],
+        "nodes": [
+          "action:L6",
+          "op:Stencil2D:op12"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:d6b1f61dc7d9599ff5c57b32",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L6",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:799ee0b989766cdd791083c9",
+        "edges": [
+          "c16d671c8682112086ba1a87"
+        ],
+        "nodes": [
+          "action:L6",
+          "op:Stencil2D:op12"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:c10a0f90529d22a49fe9ddf3",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L6",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:2b45dee123dca25cae70f5de",
+        "edges": [
+          "c16d671c8682112086ba1a87"
+        ],
+        "nodes": [
+          "action:L6",
+          "op:Stencil2D:op12"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:985fb6e83230fe834d15839b",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L6",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:637e43e76d444e7ca91ca3c8",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:BRAM_18K",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:28f91c46b0dde87ced9b8e5f",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:DSP",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:aad8e4933de9cf6a3e0ebc86",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:FF",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:76f08dff7a3e76684a9c4b13",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:LUT",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "45b312139b7dd222ddcaa26c",
+          "d28f796f15f26d18117bccb8"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<1000xf32>",
+        "nodes": [
+          "memory:Stencil2D:op1:r0",
+          "op:Stencil2D:op1",
+          "value:Stencil2D:op1:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:f6e3f177a2d783f7c9057615",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:Stencil2D:op1:r0",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "45b312139b7dd222ddcaa26c",
+          "d28f796f15f26d18117bccb8"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<1000xf32>",
+        "nodes": [
+          "memory:Stencil2D:op1:r0",
+          "op:Stencil2D:op1",
+          "value:Stencil2D:op1:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:442ba28a2620503d73821b89",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:Stencil2D:op1:r0",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "45b312139b7dd222ddcaa26c",
+          "d28f796f15f26d18117bccb8"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<1000xf32>",
+        "nodes": [
+          "memory:Stencil2D:op1:r0",
+          "op:Stencil2D:op1",
+          "value:Stencil2D:op1:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "hls_partition",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:c4344976ae3cf756297b0e50",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:Stencil2D:op1:r0",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "a43e52b6bdfbe6e1f26520a3",
+          "eb112778dc68e0b24a0dfcd5"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<1000xf32>",
+        "nodes": [
+          "memory:Stencil2D:op2:r0",
+          "op:Stencil2D:op2",
+          "value:Stencil2D:op2:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:414656942d7283187980d576",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:Stencil2D:op2:r0",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "a43e52b6bdfbe6e1f26520a3",
+          "eb112778dc68e0b24a0dfcd5"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<1000xf32>",
+        "nodes": [
+          "memory:Stencil2D:op2:r0",
+          "op:Stencil2D:op2",
+          "value:Stencil2D:op2:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:85f8a361540c8056da8fde62",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:Stencil2D:op2:r0",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible local storage implementation; packing, banking, binding and element overlap unknown",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "a43e52b6bdfbe6e1f26520a3",
+          "eb112778dc68e0b24a0dfcd5"
+        ],
+        "hardware_exact": null,
+        "lowered_type": "memref<1000xf32>",
+        "nodes": [
+          "memory:Stencil2D:op2:r0",
+          "op:Stencil2D:op2",
+          "value:Stencil2D:op2:r0"
+        ],
+        "source_correspondence": "not_established",
+        "status": "proven",
+        "storage_identity": "exact_local_allocation"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "hls_partition",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:2adf718ca321313614f35b8b",
+      "relation_type": "target:storage_compatible",
+      "source": "memory:Stencil2D:op2:r0",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op11"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:414656942d7283187980d576",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "fbf1f125f48958323b5537e6c7caf82d8c4c8320a68bcc8ff026fc28f720dacc",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:414656942d7283187980d576",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "078fbf2ab64bbd33830632a67e9c767432abad58cf51cbd03f5dcb8b41135410",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:f6e3f177a2d783f7c9057615",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "ea6a3e8c974b16240d72b59fd6a85459a914f64c44ea6be470c6d298ca906d3c",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:f6e3f177a2d783f7c9057615",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "c645ee6c1b3dd66d758f3137de820a8f77895481b5cb36043660afa5edb72b00",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:6f11d535fba60612dc3c19db",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op11",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op11"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:1e10fb21e66d17a4ff47cc70",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:42df60bbb9447c9001c46590",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:e918c02be402e3815f3b84ed",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op17",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:a6788899bc63eda549fc532a",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op11",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op11"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:442ba28a2620503d73821b89",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "ea6a3e8c974b16240d72b59fd6a85459a914f64c44ea6be470c6d298ca906d3c",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:442ba28a2620503d73821b89",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "c645ee6c1b3dd66d758f3137de820a8f77895481b5cb36043660afa5edb72b00",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:85f8a361540c8056da8fde62",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "fbf1f125f48958323b5537e6c7caf82d8c4c8320a68bcc8ff026fc28f720dacc",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:85f8a361540c8056da8fde62",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "078fbf2ab64bbd33830632a67e9c767432abad58cf51cbd03f5dcb8b41135410",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:85f2c087fb19e571c04d0415",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op11",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op11"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:2adf718ca321313614f35b8b",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "fbf1f125f48958323b5537e6c7caf82d8c4c8320a68bcc8ff026fc28f720dacc",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:2adf718ca321313614f35b8b",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "078fbf2ab64bbd33830632a67e9c767432abad58cf51cbd03f5dcb8b41135410",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:c4344976ae3cf756297b0e50",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "ea6a3e8c974b16240d72b59fd6a85459a914f64c44ea6be470c6d298ca906d3c",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:c4344976ae3cf756297b0e50",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "c645ee6c1b3dd66d758f3137de820a8f77895481b5cb36043660afa5edb72b00",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:2819d166d7dced496a8b6029",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:58207f696c2fb0a855648dfa",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op17",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:e733b9f2f1f3324e337090ea",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:df0874d420dc382cf118398e",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op11",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op12"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:414656942d7283187980d576",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "7afc442f097d23006a12ba6076c4567840dbec1176f4117c40e59abfccb944a6",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:414656942d7283187980d576",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "39a4be68b61003576c428e6737a0f6e67e61bfe9ff4c03045e692157243fa023",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:f6e3f177a2d783f7c9057615",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "4644ae99c3332e79f53e9642591b35f1d2f6632533b59364bc2af6b3edd74b71",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:f6e3f177a2d783f7c9057615",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "c253e8083eba4fae7eef1320c7545df884c2cc0dac1f46170fd8b22f9c96e585",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:3b1388c2e7714ccdd6e64140",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op12",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op12"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:1e10fb21e66d17a4ff47cc70",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:42df60bbb9447c9001c46590",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:e918c02be402e3815f3b84ed",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op17",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:9ce054294b5b4815eaf293d9",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op12",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op12"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:442ba28a2620503d73821b89",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "4644ae99c3332e79f53e9642591b35f1d2f6632533b59364bc2af6b3edd74b71",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:442ba28a2620503d73821b89",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "c253e8083eba4fae7eef1320c7545df884c2cc0dac1f46170fd8b22f9c96e585",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:85f8a361540c8056da8fde62",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "7afc442f097d23006a12ba6076c4567840dbec1176f4117c40e59abfccb944a6",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:85f8a361540c8056da8fde62",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "39a4be68b61003576c428e6737a0f6e67e61bfe9ff4c03045e692157243fa023",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:799ee0b989766cdd791083c9",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op12",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op12"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:2adf718ca321313614f35b8b",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "7afc442f097d23006a12ba6076c4567840dbec1176f4117c40e59abfccb944a6",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:2adf718ca321313614f35b8b",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "39a4be68b61003576c428e6737a0f6e67e61bfe9ff4c03045e692157243fa023",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op13",
+            "supporting_edge": "4b8a88ae284e9f8352050a43"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:c4344976ae3cf756297b0e50",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "4644ae99c3332e79f53e9642591b35f1d2f6632533b59364bc2af6b3edd74b71",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "access": "read",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op12"
+              ],
+              "operand_positions": [
+                1
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b4:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:c4344976ae3cf756297b0e50",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "c253e8083eba4fae7eef1320c7545df884c2cc0dac1f46170fd8b22f9c96e585",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op14",
+            "supporting_edge": "e7e9a1c56d44f21b01b41ede"
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:2819d166d7dced496a8b6029",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:58207f696c2fb0a855648dfa",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op17",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:e733b9f2f1f3324e337090ea",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:Stencil2D:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:2b45dee123dca25cae70f5de",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op12",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "3faf5a6703f21e252bfeac77",
+          "480626189a7356489fa0cd51",
+          "df2c0677e84a93654a6c2cb0"
+        ],
+        "nodes": [
+          "op:Stencil2D:op16",
+          "value:Stencil2D:op13:r0",
+          "value:Stencil2D:op14:r0",
+          "value:Stencil2D:op16:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f32",
+          "f32"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f32"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:42df60bbb9447c9001c46590",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:Stencil2D:op16",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "3faf5a6703f21e252bfeac77",
+          "480626189a7356489fa0cd51",
+          "df2c0677e84a93654a6c2cb0"
+        ],
+        "nodes": [
+          "op:Stencil2D:op16",
+          "value:Stencil2D:op13:r0",
+          "value:Stencil2D:op14:r0",
+          "value:Stencil2D:op16:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f32",
+          "f32"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f32"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:2819d166d7dced496a8b6029",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:Stencil2D:op16",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "293449eefe7a6ce8edb6ea36",
+          "63baf3229c3d669b50cdcbe3",
+          "b805400bbbd3d48b8392c852"
+        ],
+        "nodes": [
+          "op:Stencil2D:op17",
+          "value:Stencil2D:op15:r0",
+          "value:Stencil2D:op16:r0",
+          "value:Stencil2D:op17:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f32",
+          "f32"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f32"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:e918c02be402e3815f3b84ed",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:Stencil2D:op17",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "293449eefe7a6ce8edb6ea36",
+          "63baf3229c3d669b50cdcbe3",
+          "b805400bbbd3d48b8392c852"
+        ],
+        "nodes": [
+          "op:Stencil2D:op17",
+          "value:Stencil2D:op15:r0",
+          "value:Stencil2D:op16:r0",
+          "value:Stencil2D:op17:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f32",
+          "f32"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f32"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:58207f696c2fb0a855648dfa",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:Stencil2D:op17",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "3cbe8a85a487c4407e23d71a",
+          "3cc5b0b368d6bdd10de37b85",
+          "9b44dd6b94967ca278301d5a"
+        ],
+        "nodes": [
+          "op:Stencil2D:op18",
+          "value:Stencil2D:op0:r0",
+          "value:Stencil2D:op17:r0",
+          "value:Stencil2D:op18:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f32",
+          "f32"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f32"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:1e10fb21e66d17a4ff47cc70",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:Stencil2D:op18",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "3cbe8a85a487c4407e23d71a",
+          "3cc5b0b368d6bdd10de37b85",
+          "9b44dd6b94967ca278301d5a"
+        ],
+        "nodes": [
+          "op:Stencil2D:op18",
+          "value:Stencil2D:op0:r0",
+          "value:Stencil2D:op17:r0",
+          "value:Stencil2D:op18:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f32",
+          "f32"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f32"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:e733b9f2f1f3324e337090ea",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:Stencil2D:op18",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op3"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op3"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b1:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:414656942d7283187980d576",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "11adad409b2f00ecadb4b3abeaa6e793d584dc757f51f744e8cfe5c400fb81ca",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op5",
+            "supporting_edge": "27556318281eabc5b51cfe74"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op3"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b1:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:414656942d7283187980d576",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "04c86dff5886d7d088b51a81ad6fa0a079d4b6407cae59dc337a401f8a9d089c",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op5",
+            "supporting_edge": "27556318281eabc5b51cfe74"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:0591af0b9253d187afedeabf",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op3",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op3"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op3"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b1:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:85f8a361540c8056da8fde62",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "11adad409b2f00ecadb4b3abeaa6e793d584dc757f51f744e8cfe5c400fb81ca",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op5",
+            "supporting_edge": "27556318281eabc5b51cfe74"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op3"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b1:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:85f8a361540c8056da8fde62",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "04c86dff5886d7d088b51a81ad6fa0a079d4b6407cae59dc337a401f8a9d089c",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op5",
+            "supporting_edge": "27556318281eabc5b51cfe74"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:024d06ca5b00f58268a9837b",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op3",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op3"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op3"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b1:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:2adf718ca321313614f35b8b",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "11adad409b2f00ecadb4b3abeaa6e793d584dc757f51f744e8cfe5c400fb81ca",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op5",
+            "supporting_edge": "27556318281eabc5b51cfe74"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op3"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b1:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:2adf718ca321313614f35b8b",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op2:r0",
+            "memory_root": "memory:Stencil2D:op2:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "04c86dff5886d7d088b51a81ad6fa0a079d4b6407cae59dc337a401f8a9d089c",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op5",
+            "supporting_edge": "27556318281eabc5b51cfe74"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:10ab4433a0122c6f85aae744",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op3",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op7"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op7"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b2:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:f6e3f177a2d783f7c9057615",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "ffe826282e486e69ff80e391a7d2c941086df3003cd49c519872a0d19848cfcc",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op9",
+            "supporting_edge": "3ae0054d356e22c123d650f5"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op7"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b2:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:f6e3f177a2d783f7c9057615",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "f6d5d9e37660798cbc5f6a6c508a073257f4f68b34d9b7dc476d6b06db876d1b",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op9",
+            "supporting_edge": "3ae0054d356e22c123d650f5"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_partition",
+          "ug573"
+        ],
+        "status": "documented"
+      },
+      "key": "target:7900cddd1e1f4a26cad1b86f",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op7",
+      "target": "hardware:resource:BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op7"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op7"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b2:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:442ba28a2620503d73821b89",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "ffe826282e486e69ff80e391a7d2c941086df3003cd49c519872a0d19848cfcc",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op9",
+            "supporting_edge": "3ae0054d356e22c123d650f5"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op7"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b2:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:442ba28a2620503d73821b89",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "f6d5d9e37660798cbc5f6a6c508a073257f4f68b34d9b7dc476d6b06db876d1b",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op9",
+            "supporting_edge": "3ae0054d356e22c123d650f5"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ],
+        "status": "documented"
+      },
+      "key": "target:0cc0dcb75889d99568db1a7b",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op7",
+      "target": "hardware:resource:FF"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:Stencil2D:op7"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op7"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b2:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:c4344976ae3cf756297b0e50",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_action_point_relations",
+            "query_record_sha256": "ffe826282e486e69ff80e391a7d2c941086df3003cd49c519872a0d19848cfcc",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op9",
+            "supporting_edge": "3ae0054d356e22c123d650f5"
+          },
+          {
+            "access": "write",
+            "access_indices": {
+              "affine_map": "affine_map<(d0) -> (d0)>",
+              "induction_loops": [
+                "op:Stencil2D:op7"
+              ],
+              "operand_positions": [
+                2
+              ],
+              "ssa_operands": [
+                "value:Stencil2D:b2:a0"
+              ],
+              "status": "compiler_recorded"
+            },
+            "access_path": "local",
+            "call_chain": [],
+            "callsite_bindings": [],
+            "compatibility_edge": "target:c4344976ae3cf756297b0e50",
+            "evidence_status": "proven",
+            "invocation_context": [],
+            "kind": "memory_access",
+            "memory_operand": "value:Stencil2D:op1:r0",
+            "memory_root": "memory:Stencil2D:op1:r0",
+            "memory_views": [],
+            "query": "get_loop_semantics.accesses",
+            "query_record_sha256": "f6d5d9e37660798cbc5f6a6c508a073257f4f68b34d9b7dc476d6b06db876d1b",
+            "root_candidates_complete": true,
+            "source_operation": "op:Stencil2D:op9",
+            "supporting_edge": "3ae0054d356e22c123d650f5"
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:3d71f57f9e3541c06d8a3c8d",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:Stencil2D:op7",
+      "target": "hardware:resource:LUT"
+    }
+  ],
+  "excluded_relationships": {
+    "storage_formal_parameter_not_eligible": 2,
+    "unsupported_or_untyped_arithmetic": 1
+  },
+  "nodes": [
+    {
+      "_target_overlay": true,
+      "category": "hardware_target",
+      "clock_meaning": "user_requested_constraint",
+      "clock_period_ns": 10.0,
+      "clock_unit": "ns",
+      "external_memory": {
+        "architecture": "PS/PL DDR4",
+        "bandwidth_bytes_per_second": null,
+        "bandwidth_known": false,
+        "kernel_binding": null,
+        "kernel_binding_known": false,
+        "sources": [
+          "ug1267"
+        ]
+      },
+      "family": "Zynq UltraScale+ MPSoC",
+      "id": "hardware:fpga",
+      "identity_sources": [
+        "ug1267",
+        "vendor_zcu104"
+      ],
+      "part": "xczu7ev-ffvc1156-2-e",
+      "platform_availability_known": false,
+      "profile_version": "1.0.0"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "18-Kibit RAM equivalent",
+        "value": 624
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "RAMB18/RAMB36 halves",
+        "properties": {
+          "physical_36k_block_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 36864
+          },
+          "sdp_max_port_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 36
+          },
+          "tdp_max_port_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 18
+          },
+          "unit_storage_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 18432
+          },
+          "units_per_36k_block": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "18-Kibit RAM equivalent",
+            "value": 2
+          }
+        },
+        "sources": [
+          "ug573",
+          "hls_partition"
+        ],
+        "supported_modes": [
+          "true_dual_port",
+          "simple_dual_port"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:BRAM_18K",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "18-Kibit RAM equivalent",
+        "value": 624,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "18-Kibit RAM equivalent",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "18-Kibit RAM equivalent",
+        "value": null
+      },
+      "resource_class": "BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "DSP slice",
+        "value": 1728
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "DSP48E2",
+        "properties": {
+          "alu_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 48
+          },
+          "multiplier_a_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 27
+          },
+          "multiplier_b_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 18
+          }
+        },
+        "sources": [
+          "ug579",
+          "hls_bind_op"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:DSP",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "DSP slice",
+        "value": 1728,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "DSP slice",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "DSP slice",
+        "value": null
+      },
+      "resource_class": "DSP"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "flip-flop",
+        "value": 460800
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "CLB flip-flop",
+        "properties": {},
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:FF",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "flip-flop",
+        "value": 460800,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "flip-flop",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "flip-flop",
+        "value": null
+      },
+      "resource_class": "FF"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "LUT",
+        "value": 230400
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "CLB LUT; distributed RAM on SLICEM subset",
+        "properties": {
+          "available_distributed_storage_luts": {
+            "known": false,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug574"
+            ],
+            "unit": "LUT",
+            "value": null
+          }
+        },
+        "sources": [
+          "ug574",
+          "hls_bind_op"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:LUT",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "LUT",
+        "value": 230400,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "LUT",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "LUT",
+        "value": null
+      },
+      "resource_class": "LUT"
+    }
+  ],
+  "notice": "Exact overlay excerpt, not a complete graph; actual synthesis bindings unknown."
+}

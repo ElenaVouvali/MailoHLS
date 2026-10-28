@@ -1,0 +1,69 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 60,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:kernel_trmm:op0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 60,
+      "source_binding": {
+        "function": "kernel_trmm",
+        "kind": "loop",
+        "source_column": 10,
+        "source_file": "kernel.cpp",
+        "source_line": 11
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 80,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:kernel_trmm:op1",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 80,
+      "source_binding": {
+        "function": "kernel_trmm",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "kernel.cpp",
+        "source_line": 12
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 60,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:kernel_trmm:op3",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 60,
+      "source_binding": {
+        "function": "kernel_trmm",
+        "kind": "loop",
+        "source_column": 14,
+        "source_file": "kernel.cpp",
+        "source_line": 14
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "kernel.cpp"
+}

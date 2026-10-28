@@ -1,0 +1,71 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": null,
+      "compiler_eliminated": null,
+      "compiler_matched": false,
+      "compiler_status": "not_registered",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": false,
+      "source_binding": {
+        "array_name": "ff_variable",
+        "function": "cfd_flux",
+        "kind": "array",
+        "source_column": 14,
+        "source_file": "cfd_flux.cpp",
+        "source_line": 36,
+        "source_use_lines": [
+          170,
+          177,
+          184
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 1024,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:cfd_flux:op48",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 1024,
+      "source_binding": {
+        "function": "cfd_flux",
+        "kind": "loop",
+        "source_column": 8,
+        "source_file": "cfd_flux.cpp",
+        "source_line": 46
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 4,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:cfd_flux:op90",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 4,
+      "source_binding": {
+        "function": "cfd_flux",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "cfd_flux.cpp",
+        "source_line": 97
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "cfd_flux.cpp"
+}

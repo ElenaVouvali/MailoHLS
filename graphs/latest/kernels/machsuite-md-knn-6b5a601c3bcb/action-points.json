@@ -1,0 +1,48 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 256,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:md_kernel:op4",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 256,
+      "source_binding": {
+        "function": "md_kernel",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "md.c",
+        "source_line": 24
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 16,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:md_kernel:op8",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 16,
+      "source_binding": {
+        "function": "md_kernel",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "md.c",
+        "source_line": 31
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "md.c"
+}

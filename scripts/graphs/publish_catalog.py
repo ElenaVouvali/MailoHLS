@@ -10,6 +10,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from functools import lru_cache
 import gzip
 import hashlib
+import html
 import io
 import json
 from pathlib import Path
@@ -23,6 +24,7 @@ sys.path.insert(0, str(ROOT))
 TARGETS = ('zcu104', 'u200', 'u50')
 CLOCKS = (3.33, 5.0, 6.67, 10.0)
 CATALOG = ROOT / 'graphs/latest'
+PUBLISHED = CATALOG
 ARCHIVE = ROOT / 'GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz'
 KALMAN = 'serrano-kalman-filter-96b4d608969f'
 
@@ -38,6 +40,41 @@ def save(path, value):
 
 def clock_name(clock):
     return f'{clock:g}'.replace('.', 'p') + 'ns_full'
+
+
+def initialize_worker(output):
+    # Explicit initialization also works with Python's spawn/forkserver modes.
+    global CATALOG
+    CATALOG = Path(output)
+
+
+def copy_review_evidence(destination):
+    """Keep the copied guide's links valid and retain prior, separately scoped receipts."""
+    guide = (ROOT / 'docs/target-aware-mlir-v22/README.md').read_text()
+    links = {'../V22_FINAL_RELEASE_REVIEW.md': '../../docs/V22_FINAL_RELEASE_REVIEW.md',
+             '../structural-graph-v22.md': '../../docs/structural-graph-v22.md',
+             '../graph-release-v22-rc3.json': 'release-manifest.json',
+             '../../mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1/training_contract.json':
+                 'validation/baseline-verification.json'}
+    for name in ('baseline-verification.json', 'corpus-validation.json',
+                 'final-verification.json', 'reproduction-verification.json'):
+        links[name] = 'validation/' + name
+        source = ROOT / 'docs/target-aware-mlir-v22' / name
+        target = destination / 'validation' / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+    for old, new in links.items():
+        guide = guide.replace('](' + old + ')', '](' + new + ')')
+    (destination / 'GUIDE.md').write_text(guide)
+    for name in ('hotspot-native-comparison.json', 'kalman.json'):
+        source = PUBLISHED / 'validation' / name
+        target = destination / 'validation' / name
+        if source.resolve() != target.resolve():
+            shutil.copy2(source, target)
+    for source in (PUBLISHED / 'kernels').glob('*/native-verification'):
+        target = destination / 'kernels' / source.parent.name / source.name
+        if source.resolve() != target.resolve():
+            shutil.copytree(source, target)
 
 
 def compressed(path, data):
@@ -99,12 +136,45 @@ def materialize(job):
             'validation': 'pass; original restored, overlay rederived, canonical/compact semantics equal, deterministic serialization, gzip round trip'}
 
 
+def neighborhood(directory):
+    """A small literal graph excerpt; never invent diagram edges."""
+    program = json.loads(gzip.decompress((directory / 'canonical.json.gz').read_bytes()))
+    overlay = json.loads((directory / 'hardware-review.json').read_text())
+    edges = []
+    for relation in ('target:arithmetic_compatible', 'target:storage_compatible',
+                     'target:action_resource_relevance', 'target:requested_clock'):
+        match = next((e for e in overlay['edges'] if e['relation_type'] == relation), None)
+        if match is not None:
+            edges.append(match)
+    actions = {e['source'] for e in edges if e['source'].startswith('action:')}
+    edges += [e for e in program['edges'] if e['source'] in actions and e['relation_type'] == 'targets'][:2]
+    resources = {e['target'] for e in edges if e['target'].startswith('hardware:resource:')}
+    edges += [e for e in overlay['edges'] if e['source'] in resources and e['relation_type'] == 'hardware:belongs_to']
+    used = {e[side] for e in edges for side in ('source', 'target')}
+    nodes = [n for n in program['nodes'] + overlay['nodes'] if n['id'] in used]
+    save(directory / 'graph-neighborhood.json', {'notice': 'Literal subset of canonical program plus ZCU104/10ns/full overlay; no inferred diagram edges.',
+                                               'nodes': nodes, 'edges': edges})
+    ids = {name: f'n{i}' for i, name in enumerate(sorted(used))}
+    diagram = ['```mermaid', 'flowchart LR']
+    for name in sorted(used):
+        label = html.escape(name.replace('"', "'"))
+        diagram.append(f'  {ids[name]}["{label}"]')
+    for edge in edges:
+        status = edge.get('compatibility', {}).get('status', edge.get('evidence_status', 'unknown'))
+        diagram.append(f'  {ids[edge["source"]]} -->|"{edge["relation_type"]} ({status})"| {ids[edge["target"]]}')
+    diagram.append('```')
+    return diagram
+
+
 def pages(manifest):
     rows = []
     for row in manifest['snapshots']:
         name = row['snapshot']
         directory = CATALOG / 'kernels' / name
         contexts = [c for c in manifest['contexts'] if c['snapshot'] == name]
+        sources = [d for d in (CATALOG / 'sources').iterdir() if d.name.startswith(name.rsplit('-', 1)[-1])]
+        if len(sources) != 1:
+            raise ValueError(f'No unique source snapshot for {name}')
         baseline = next(c for c in contexts if c['target'] == 'zcu104' and c['clock_period_ns'] == 10)
         s = baseline['summary']
         status = ('Recommended development Kalman (13 registrations)' if name == KALMAN else
@@ -118,9 +188,15 @@ def pages(manifest):
             lines.append(f'| MLIR + hardware {view} | {v["nodes"]+5:,} | {v["edges"]+s["added_edges"]:,} | Select a target below |')
         lines += ['', f'Actions: **{s["matched_actions"]}/{s["registered_actions"]} compiler-matched/registered**. '
                   + 'Unresolved: ' + (', '.join(s['unresolved_actions']) or 'none') + '.', '',
-                  'Review [raw MLIR](module.mlir), [exact action registrations](action-points.json), '
+                  f'Review [sealed source, headers and metadata](../../sources/{sources[0].name}/), '
+                  '[raw MLIR](module.mlir), [exact action registrations](action-points.json), '
                   '[hardware nodes and every added edge, including evidence](hardware-review.json). '
                   'The hardware excerpt uses ZCU104, 10 ns, full capacity. Actual mappings remain unknown.', '',
+                  'A small, exact neighborhood (all node IDs and edges are copied from the stored graphs):', '']
+        lines += neighborhood(directory)
+        lines += ['', '[Exact nodes, edges and evidence behind this diagram](graph-neighborhood.json). '
+                  '`proven` describes a compiler relationship; `possible` describes hardware compatibility. '
+                  'The clock edge is a requested constraint, not a mapping or feasibility result.', '',
                   '| Device | Clock (ns) | Full canonical graph | Full compact graph |', '| --- | ---: | --- | --- |']
         for c in contexts:
             base = f'hardware/{c["target"]}/{clock_name(c["clock_period_ns"])}'
@@ -131,6 +207,15 @@ def pages(manifest):
                   'Independent human semantic adjudication remains pending.', '',
                   'Decompress with `gzip -dk canonical.json.gz`, or use the catalog unpack command. '
                   'See the [catalog guide](../../GUIDE.md) for schemas and the evidence contract.', '']
+        if (directory / 'native-verification').is_dir():
+            lines += ['The latest independent Hotspot regeneration is also retained here: '
+                      '[fresh raw MLIR](native-verification/module.mlir), '
+                      '[fresh canonical graph](native-verification/canonical.json.gz), '
+                      '[fresh compact graph](native-verification/compact.json.gz). '
+                      'Its compiler nodes and edges match the primary authenticated graph; '
+                      'its compilation-context provenance and graph identity are intentionally distinct. '
+                      'Hardware graphs above use the authenticated primary context. '
+                      'See the [native comparison receipt](../../validation/hotspot-native-comparison.json).', '']
         (directory / 'README.md').write_text('\n'.join(lines))
         rows.append(f'| [{name}](kernels/{name}/) | {row["canonical"]["nodes"]:,} / {row["canonical"]["edges"]:,} | '
                     f'{s["added_nodes"]} / {s["added_edges"]} | {s["matched_actions"]}/{s["registered_actions"]} | {status} |')
@@ -142,6 +227,7 @@ def pages(manifest):
 - **1,512 full MLIR + hardware graphs**: 63 snapshots × ZCU104/U200/U50 × 3.33/5/6.67/10 ns × canonical/compact.
 - Full physical resource availability in the published contexts. Arbitrary clocks and restricted budgets remain supported by the existing composition CLI.
 - Corrected development **[Kalman](kernels/serrano-kalman-filter-96b4d608969f/)** and latest **[Hotspot pipeline](kernels/rodinia-hotspot-2-pipeline-c448680ca9be/)** / **[Hotspot unroll](kernels/rodinia-hotspot-3-unroll-7c11a20afd22/)** are easy to find here. Historical Kalman alternatives are explicitly marked below.
+- The fresh Hotspot native MLIR and four independently regenerated compiler graphs are retained inside the corresponding kernel folders, alongside the primary authenticated compilation context.
 
 RC3 is technically frozen; **independent human semantic adjudication remains pending**. Hardware edges express documented capabilities and possible compatibility, not measured resource bindings or QoR. Production GNN checkpoints still consume V1 tensors. No synthesis, training, or QoR inference was performed for this catalog.
 
@@ -209,7 +295,7 @@ def build(args):
             'manifest_sha256': h.file_hash(h.RELEASE), 'authenticated_members': len(release['files_sha256'])}
         shutil.copytree(root / 'source_snapshots', CATALOG / 'sources')
         shutil.copy2(h.PROFILES, CATALOG / 'profiles.json')
-        shutil.copy2(ROOT / 'docs/target-aware-mlir-v22/README.md', CATALOG / 'GUIDE.md')
+        copy_review_evidence(CATALOG)
         shutil.copy2(h.RELEASE, CATALOG / 'release-manifest.json')
         paths = sorted((root / 'canonical').glob('*.json'))
         for path in paths:
@@ -228,7 +314,8 @@ def build(args):
                 raise ValueError('Raw MLIR differs from compiler provenance')
             manifest['snapshots'].append(row)
         jobs = [(str(root), path.name, target, clock) for path in paths for target in TARGETS for clock in CLOCKS]
-        with ProcessPoolExecutor(max_workers=args.workers) as pool:
+        with ProcessPoolExecutor(max_workers=args.workers, initializer=initialize_worker,
+                                 initargs=(str(CATALOG),)) as pool:
             futures = {pool.submit(materialize, job): job for job in jobs}
             for i, future in enumerate(as_completed(futures), 1):
                 try:

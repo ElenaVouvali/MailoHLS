@@ -1,0 +1,418 @@
+{
+  "edges": [
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "9241d75a9191d5e9f4b58493",
+          "9e237a01bcf5f68c1a40324f",
+          "a6b50ac50502d43abccc8f03"
+        ],
+        "nodes": [
+          "op:workload:op10",
+          "value:workload:op10:r0",
+          "value:workload:op9:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f32",
+          "f32"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f32"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:9af8bc19137ca13a4729c3a2",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:workload:op10",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:c7a760af144866d54574d568",
+        "edges": [
+          "57e51f56094d6ac83376b7b3"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:workload:op3"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:680999865e5ce45b31d749ad",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "57e51f56094d6ac83376b7b3"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:workload:op3"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:a165d0e4eb95316aff28870d",
+      "relation_type": "target:requested_clock",
+      "source": "action:L1",
+      "target": "hardware:fpga"
+    },
+    {
+      "access_path": "not_applicable",
+      "evidence_status": "proven",
+      "is_reverse": false,
+      "key": "57e51f56094d6ac83376b7b3",
+      "relation_type": "targets",
+      "source": "action:L1",
+      "source_binding": {
+        "action_id": "L1",
+        "action_resolution": "source_location",
+        "action_source_column": 20,
+        "action_source_file": "kmeans.cpp",
+        "action_source_line": 16,
+        "block": 0,
+        "compiler_effect_analysis_unknown": 1,
+        "compiler_operation_effect_allocate": 0,
+        "compiler_operation_effect_count": 0,
+        "compiler_operation_effect_free": 0,
+        "compiler_operation_effect_read": 0,
+        "compiler_operation_effect_unknown": 0,
+        "compiler_operation_effect_write": 0,
+        "compiler_operation_effects": "",
+        "full_text": "affine.for %arg3 = 0 to 409600 {",
+        "function": 0,
+        "is_loop": 1,
+        "kernel_info_loop_value": 409600,
+        "kernel_info_loop_value_relation": "equal",
+        "loop_depth": 0,
+        "loop_lower": 0,
+        "loop_ordinal": 0,
+        "loop_step": 1,
+        "loop_upper": 409600,
+        "mlir_attrs": {
+          "lower_bound": "affine_map<() -> (0)>",
+          "step": "1 : index",
+          "upper_bound": "affine_map<() -> (409600)>"
+        },
+        "op_ordinal": 3,
+        "op_uid": "workload:op3",
+        "operand_count": 0,
+        "operand_types": [],
+        "result_count": 0,
+        "result_types": [],
+        "source_column": 38,
+        "source_file": "kmeans.cpp",
+        "source_line": 16,
+        "source_location": "loc(\"kmeans.cpp\":16:38)",
+        "text": "affine.for",
+        "trip_count": 409600,
+        "trip_count_source": "mlir_affine_analysis",
+        "trip_count_static": 1,
+        "type": 0
+      },
+      "target": "op:workload:op3"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:28f91c46b0dde87ced9b8e5f",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:DSP",
+      "target": "hardware:fpga"
+    }
+  ],
+  "nodes": [
+    {
+      "absolute_index": 1,
+      "action_id": "L1",
+      "action_kind": "loop",
+      "category": "action_point",
+      "compiler_proven_trip_count": 409600,
+      "function": 0,
+      "id": "action:L1",
+      "metadata_value": 409600,
+      "source_column": 20,
+      "source_file": "kmeans.cpp",
+      "source_line": 16,
+      "source_loop_metadata_value": 409600,
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ],
+      "target_binding_rule": "exact_compiler_loop_source_binding",
+      "tcad_trip_count": 409600,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "block": 3,
+      "block_order": 3,
+      "category": "operation",
+      "compiler_effect_analysis_unknown": 0,
+      "compiler_operation_effect_allocate": 0,
+      "compiler_operation_effect_count": 0,
+      "compiler_operation_effect_free": 0,
+      "compiler_operation_effect_read": 0,
+      "compiler_operation_effect_unknown": 0,
+      "compiler_operation_effect_write": 0,
+      "compiler_operation_effects": "",
+      "full_text": "%9 = arith.mulf %8, %8 : f32",
+      "function": 0,
+      "id": "op:workload:op10",
+      "is_loop": 0,
+      "legacy_node_id": "43",
+      "loop_context": [
+        "op:workload:op3",
+        "op:workload:op4",
+        "op:workload:op6"
+      ],
+      "loop_depth": 3,
+      "mlir_attrs": {
+        "fastmath": "#arith.fastmath<none>"
+      },
+      "op_ordinal": 10,
+      "op_uid": "workload:op10",
+      "operand_count": 2,
+      "operand_types": [
+        "f32",
+        "f32"
+      ],
+      "operation_family": "arithmetic",
+      "parent_operation": "op:workload:op6",
+      "result_count": 1,
+      "result_types": [
+        "f32"
+      ],
+      "source_column": 18,
+      "source_file": "kmeans.cpp",
+      "source_line": 26,
+      "source_location": "loc(\"kmeans.cpp\":26:18)",
+      "text": "arith.mulf",
+      "type": 0
+    },
+    {
+      "action_id": "L1",
+      "action_resolution": "source_location",
+      "action_source_column": 20,
+      "action_source_file": "kmeans.cpp",
+      "action_source_line": 16,
+      "block": 0,
+      "block_order": 3,
+      "category": "operation",
+      "compiler_effect_analysis_unknown": 1,
+      "compiler_operation_effect_allocate": 0,
+      "compiler_operation_effect_count": 0,
+      "compiler_operation_effect_free": 0,
+      "compiler_operation_effect_read": 0,
+      "compiler_operation_effect_unknown": 0,
+      "compiler_operation_effect_write": 0,
+      "compiler_operation_effects": "",
+      "full_text": "affine.for %arg3 = 0 to 409600 {",
+      "function": 0,
+      "id": "op:workload:op3",
+      "is_loop": 1,
+      "kernel_info_loop_value": 409600,
+      "kernel_info_loop_value_relation": "equal",
+      "legacy_node_id": "42",
+      "loop_context": [],
+      "loop_depth": 0,
+      "loop_lower": 0,
+      "loop_ordinal": 0,
+      "loop_step": 1,
+      "loop_upper": 409600,
+      "memory_effect_status": "not_established",
+      "mlir_attrs": {
+        "lower_bound": "affine_map<() -> (0)>",
+        "step": "1 : index",
+        "upper_bound": "affine_map<() -> (409600)>"
+      },
+      "op_ordinal": 3,
+      "op_uid": "workload:op3",
+      "operand_count": 0,
+      "operand_types": [],
+      "operation_family": "loop",
+      "parent_operation": "op:workload:function",
+      "result_count": 0,
+      "result_types": [],
+      "source_column": 38,
+      "source_file": "kmeans.cpp",
+      "source_line": 16,
+      "source_location": "loc(\"kmeans.cpp\":16:38)",
+      "text": "affine.for",
+      "trip_count": 409600,
+      "trip_count_source": "mlir_affine_analysis",
+      "trip_count_static": 1,
+      "type": 0
+    },
+    {
+      "_target_overlay": true,
+      "category": "hardware_target",
+      "clock_meaning": "user_requested_constraint",
+      "clock_period_ns": 10.0,
+      "clock_unit": "ns",
+      "external_memory": {
+        "architecture": "PS/PL DDR4",
+        "bandwidth_bytes_per_second": null,
+        "bandwidth_known": false,
+        "kernel_binding": null,
+        "kernel_binding_known": false,
+        "sources": [
+          "ug1267"
+        ]
+      },
+      "family": "Zynq UltraScale+ MPSoC",
+      "id": "hardware:fpga",
+      "identity_sources": [
+        "ug1267",
+        "vendor_zcu104"
+      ],
+      "part": "xczu7ev-ffvc1156-2-e",
+      "platform_availability_known": false,
+      "profile_version": "1.0.0"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "DSP slice",
+        "value": 1728
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "DSP48E2",
+        "properties": {
+          "alu_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 48
+          },
+          "multiplier_a_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 27
+          },
+          "multiplier_b_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 18
+          }
+        },
+        "sources": [
+          "ug579",
+          "hls_bind_op"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:DSP",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "DSP slice",
+        "value": 1728,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "DSP slice",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "DSP slice",
+        "value": null
+      },
+      "resource_class": "DSP"
+    }
+  ],
+  "notice": "Literal subset of canonical program plus ZCU104/10ns/full overlay; no inferred diagram edges."
+}

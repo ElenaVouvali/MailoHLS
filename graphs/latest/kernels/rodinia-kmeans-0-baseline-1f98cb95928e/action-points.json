@@ -1,0 +1,69 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 409600,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op3",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 409600,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 20,
+        "source_file": "kmeans.cpp",
+        "source_line": 16
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 5,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op4",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 5,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 11,
+        "source_file": "kmeans.cpp",
+        "source_line": 21
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 34,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:workload:op6",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 34,
+      "source_binding": {
+        "function": "workload",
+        "kind": "loop",
+        "source_column": 13,
+        "source_file": "kmeans.cpp",
+        "source_line": 24
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "kmeans.cpp"
+}

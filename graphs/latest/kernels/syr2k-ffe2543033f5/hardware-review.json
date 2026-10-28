@@ -1,0 +1,2272 @@
+{
+  "action_annotations": {
+    "L1": {
+      "absolute_slot": 0,
+      "all_evidence_query_sha256": "1e3dbe34050f37f70fb6f166d3bafa9a4759d94f87a2cc06716468b1ec1399aa",
+      "compiler_target": "op:kernel_syr2k:op0",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 8
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 80,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 16,
+          "proven": 7
+        },
+        "dependence_supporting_edges": [
+          "08a129aeb522863f02334f01",
+          "0eaff37a55a5016a9b8aad46",
+          "255658de3025b60746a4a40e",
+          "262c8c188f22a393b2a11512",
+          "45e588f8b94a2a71351378df",
+          "542857851440781428b94476",
+          "55021d28f7780f4a9b4a7634",
+          "5f9527acd7d0a04dedc5464e",
+          "656d545759162ab8ac6f7d0f",
+          "6ac9baf2e11f44190925509b",
+          "7c9e1b738e44840980634f93",
+          "87ea1d7de277c3b2911e1454",
+          "92943933b5d496465e80e52d",
+          "96f72b20fc875dacceee7ae3",
+          "a026a1cc7079015e91e5a581",
+          "a471e2c89b905744336bc8c7",
+          "abae7e561b215c16a1b9d853",
+          "afe8d6cbceb5e0b670ac3860",
+          "b5e5f9fe8cae4e15e8141701",
+          "c84813ce719ff46888c0f6e3",
+          "d6febd24b88ddb1b6115d644",
+          "ed668af13b85e32405200d61",
+          "fc7bb6e5b23872e30d695479"
+        ],
+        "sha256": "41cc111a1e70e15eb110e36cbf4ab66b1e74fbfe20cb78097025cb941228af1f",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 2
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    },
+    "L2": {
+      "absolute_slot": 1,
+      "all_evidence_query_sha256": "db5fde855e58d9ff7e1c6492f4572ecca3dac8f8923ab26ebea45f187892ba70",
+      "compiler_target": "op:kernel_syr2k:op1",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 2
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 80,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 8,
+          "proven": 4
+        },
+        "dependence_supporting_edges": [
+          "08a129aeb522863f02334f01",
+          "0eaff37a55a5016a9b8aad46",
+          "45e588f8b94a2a71351378df",
+          "5f9527acd7d0a04dedc5464e",
+          "87ea1d7de277c3b2911e1454",
+          "92943933b5d496465e80e52d",
+          "a471e2c89b905744336bc8c7",
+          "abae7e561b215c16a1b9d853",
+          "b5e5f9fe8cae4e15e8141701",
+          "d6febd24b88ddb1b6115d644",
+          "ed668af13b85e32405200d61",
+          "fc7bb6e5b23872e30d695479"
+        ],
+        "sha256": "d160b4df8e0e8e0adb45b1472c28e9c37e40a82c98c186e7f07e293ae9774464",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 1,
+        "memory_dependence:possible": 8,
+        "memory_dependence:proven": 3
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    },
+    "L3": {
+      "absolute_slot": 2,
+      "all_evidence_query_sha256": "7411cd95b4fdacb2134c9efe4c77fc6bfb94292a094cbdb92cc6cd024db56c1a",
+      "compiler_target": "op:kernel_syr2k:op8",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 6
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 60,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 16,
+          "proven": 6
+        },
+        "dependence_supporting_edges": [
+          "08a129aeb522863f02334f01",
+          "255658de3025b60746a4a40e",
+          "262c8c188f22a393b2a11512",
+          "45e588f8b94a2a71351378df",
+          "542857851440781428b94476",
+          "55021d28f7780f4a9b4a7634",
+          "5f9527acd7d0a04dedc5464e",
+          "656d545759162ab8ac6f7d0f",
+          "6ac9baf2e11f44190925509b",
+          "7c9e1b738e44840980634f93",
+          "87ea1d7de277c3b2911e1454",
+          "92943933b5d496465e80e52d",
+          "96f72b20fc875dacceee7ae3",
+          "a026a1cc7079015e91e5a581",
+          "a471e2c89b905744336bc8c7",
+          "abae7e561b215c16a1b9d853",
+          "afe8d6cbceb5e0b670ac3860",
+          "b5e5f9fe8cae4e15e8141701",
+          "c84813ce719ff46888c0f6e3",
+          "d6febd24b88ddb1b6115d644",
+          "ed668af13b85e32405200d61",
+          "fc7bb6e5b23872e30d695479"
+        ],
+        "sha256": "d732dc82303bf5b6fb512f597d38c8ff892a89be48569dadc9a76b6a130181db",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 2,
+        "memory_dependence:proven": 3
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    },
+    "L4": {
+      "absolute_slot": 3,
+      "all_evidence_query_sha256": "d6d75d5c0a222e3ad6b21eb9b1593ebb4564ad2b05a38aa66608700a2fdfb867",
+      "compiler_target": "op:kernel_syr2k:op9",
+      "loop_semantics": {
+        "access_evidence_counts": {
+          "proven": 6
+        },
+        "achievable_ii": null,
+        "compiler_proven_trip_count": 80,
+        "dependence_completeness": "not_established",
+        "dependence_counts": {
+          "possible": 16,
+          "proven": 6
+        },
+        "dependence_supporting_edges": [
+          "08a129aeb522863f02334f01",
+          "255658de3025b60746a4a40e",
+          "262c8c188f22a393b2a11512",
+          "45e588f8b94a2a71351378df",
+          "542857851440781428b94476",
+          "55021d28f7780f4a9b4a7634",
+          "5f9527acd7d0a04dedc5464e",
+          "656d545759162ab8ac6f7d0f",
+          "6ac9baf2e11f44190925509b",
+          "7c9e1b738e44840980634f93",
+          "87ea1d7de277c3b2911e1454",
+          "92943933b5d496465e80e52d",
+          "96f72b20fc875dacceee7ae3",
+          "a026a1cc7079015e91e5a581",
+          "a471e2c89b905744336bc8c7",
+          "abae7e561b215c16a1b9d853",
+          "afe8d6cbceb5e0b670ac3860",
+          "b5e5f9fe8cae4e15e8141701",
+          "c84813ce719ff46888c0f6e3",
+          "d6febd24b88ddb1b6115d644",
+          "ed668af13b85e32405200d61",
+          "fc7bb6e5b23872e30d695479"
+        ],
+        "sha256": "3644f8e9fd7b90e3e4689766dba1b1110b53e991308d450799dcfcca1817e540",
+        "ssa_state_supporting_edges": [],
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      "query_counts": {
+        "loop_hierarchy:proven": 1,
+        "memory_dependence:possible": 8,
+        "memory_dependence:proven": 3
+      },
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ]
+    }
+  },
+  "action_slots": {
+    "labels": [
+      "L1",
+      "L2",
+      "L3",
+      "L4"
+    ],
+    "matched_mask": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "registered_mask": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "slot_rule": "Lk -> k-1; no renumbering",
+    "source_only_mask": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "unresolved_mask": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "context": {
+    "clock_period_ns": 10.0,
+    "full_physical_capacity": true,
+    "target": "zcu104"
+  },
+  "edges": [
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "9d63d6befe6cf55b196e7a0a"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:kernel_syr2k:op0"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:04bc96374b0ef2cd4d6b60fa",
+      "relation_type": "target:requested_clock",
+      "source": "action:L1",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:25786c6c12951b140932a08a",
+        "edges": [
+          "9d63d6befe6cf55b196e7a0a"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:kernel_syr2k:op0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:9f4bcc9e8ff2edfd2225a2c2",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:c93e93546e988a83ff28aeaa",
+        "edges": [
+          "9d63d6befe6cf55b196e7a0a"
+        ],
+        "nodes": [
+          "action:L1",
+          "op:kernel_syr2k:op0"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:7d975a27eb3ad4263fa48047",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L1",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "ee3f494525a351af2928e19f"
+        ],
+        "nodes": [
+          "action:L2",
+          "op:kernel_syr2k:op1"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:b0d66d5ee85f97b22e7c045e",
+      "relation_type": "target:requested_clock",
+      "source": "action:L2",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:c5070cbafb08782f31b420a8",
+        "edges": [
+          "ee3f494525a351af2928e19f"
+        ],
+        "nodes": [
+          "action:L2",
+          "op:kernel_syr2k:op1"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:c2762e3fdf093ea879af6e53",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L2",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:8b55d32116ef0c1a8840b36d",
+        "edges": [
+          "ee3f494525a351af2928e19f"
+        ],
+        "nodes": [
+          "action:L2",
+          "op:kernel_syr2k:op1"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:7da8f915d9cc43c63772e643",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L2",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "9f2ae2338bab62c9557dd73a"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:kernel_syr2k:op8"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:476353bc13c269d392875a2d",
+      "relation_type": "target:requested_clock",
+      "source": "action:L3",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:9f73add252bafc5151188c26",
+        "edges": [
+          "9f2ae2338bab62c9557dd73a"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:kernel_syr2k:op8"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:e62ef30f5b90f8714c5ba690",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L3",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:13646c575377697b5d043b5f",
+        "edges": [
+          "9f2ae2338bab62c9557dd73a"
+        ],
+        "nodes": [
+          "action:L3",
+          "op:kernel_syr2k:op8"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:85a4ba4951ed4a30c6483a6f",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L3",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Requested global clock constrains this loop action; feasibility and achievable II unknown",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "b7382371efd5c56954f46523"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:kernel_syr2k:op9"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_clock"
+        ],
+        "status": "documented"
+      },
+      "key": "target:b4238ede65425c4e8a443da0",
+      "relation_type": "target:requested_clock",
+      "source": "action:L4",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:db2812b1f8b877f53bd0e0d2",
+        "edges": [
+          "b7382371efd5c56954f46523"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:kernel_syr2k:op9"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:73423ae1a31b05cd064ffbf1",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L4",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible relevance for a registered action; directive values and synthesis binding absent",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "compatibility_support": "target:6c95312c67b42a3424fc66b8",
+        "edges": [
+          "b7382371efd5c56954f46523"
+        ],
+        "nodes": [
+          "action:L4",
+          "op:kernel_syr2k:op9"
+        ],
+        "status": "proven",
+        "supported_directives": [
+          "pipeline",
+          "unroll"
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:bd1bbab51f2ff48cbd9726c9",
+      "relation_type": "target:action_resource_relevance",
+      "source": "action:L4",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:637e43e76d444e7ca91ca3c8",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:BRAM_18K",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:28f91c46b0dde87ced9b8e5f",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:DSP",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:aad8e4933de9cf6a3e0ebc86",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:FF",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Documented resource class belongs to this physical FPGA; no program binding",
+        "status": "not_applicable"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [],
+        "status": "not_applicable"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "ds891",
+          "vendor_zcu104"
+        ],
+        "status": "documented"
+      },
+      "key": "target:76f08dff7a3e76684a9c4b13",
+      "relation_type": "hardware:belongs_to",
+      "source": "hardware:resource:LUT",
+      "target": "hardware:fpga"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:kernel_syr2k:op0"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:036d56e066a444d7c4d1595e",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:0b6ffae14544b16fe4eda094",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:5f194b1eca374f4db3bff0d0",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op19",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:843cecd75288e403a5d8176c",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op21",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:8953e8d06e62d30ca306ff15",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op4",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:ce3286bd10051a8384e2dbb5",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:f16c4857eb601fe82ecb5cb7",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op14",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:25786c6c12951b140932a08a",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:kernel_syr2k:op0",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:kernel_syr2k:op0"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:1151eacfeec4ba0e8632a0f4",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op4",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:230f25ba4ff0ff4c282cc633",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op21",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:26cf4184069bf5228eee1e4d",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:78445e1d79c63bd968699dfd",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:850a2aac4741359e0cb81f0c",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op14",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:852d1799676a58ec5bc1a63e",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op19",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:e13b5fd73acc8b5244e30382",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:c93e93546e988a83ff28aeaa",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:kernel_syr2k:op0",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:kernel_syr2k:op1"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:8953e8d06e62d30ca306ff15",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op4",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:c5070cbafb08782f31b420a8",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:kernel_syr2k:op1",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:kernel_syr2k:op1"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:1151eacfeec4ba0e8632a0f4",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op4",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:8b55d32116ef0c1a8840b36d",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:kernel_syr2k:op1",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "06bb08d94df028e7e1771d9e",
+          "717b8d4a94eac5e311f0b125",
+          "be6cc9e12eec98aa03723ae5"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op12",
+          "value:kernel_syr2k:b0:a0",
+          "value:kernel_syr2k:op11:r0",
+          "value:kernel_syr2k:op12:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:036d56e066a444d7c4d1595e",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op12",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "06bb08d94df028e7e1771d9e",
+          "717b8d4a94eac5e311f0b125",
+          "be6cc9e12eec98aa03723ae5"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op12",
+          "value:kernel_syr2k:b0:a0",
+          "value:kernel_syr2k:op11:r0",
+          "value:kernel_syr2k:op12:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:26cf4184069bf5228eee1e4d",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op12",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "00aeac1ab4189d71546ab554",
+          "9b56b9a179e57d1eeda8d1c1",
+          "b5400dc8b843258551a83a43"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op14",
+          "value:kernel_syr2k:op12:r0",
+          "value:kernel_syr2k:op13:r0",
+          "value:kernel_syr2k:op14:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:f16c4857eb601fe82ecb5cb7",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op14",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "00aeac1ab4189d71546ab554",
+          "9b56b9a179e57d1eeda8d1c1",
+          "b5400dc8b843258551a83a43"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op14",
+          "value:kernel_syr2k:op12:r0",
+          "value:kernel_syr2k:op13:r0",
+          "value:kernel_syr2k:op14:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:850a2aac4741359e0cb81f0c",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op14",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "2ec6c0d72452afd30fd51206",
+          "63ff241c0ba54c57c4733c2d",
+          "81190d205954ef465fd32aea"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op16",
+          "value:kernel_syr2k:b0:a0",
+          "value:kernel_syr2k:op15:r0",
+          "value:kernel_syr2k:op16:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:0b6ffae14544b16fe4eda094",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op16",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "2ec6c0d72452afd30fd51206",
+          "63ff241c0ba54c57c4733c2d",
+          "81190d205954ef465fd32aea"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op16",
+          "value:kernel_syr2k:b0:a0",
+          "value:kernel_syr2k:op15:r0",
+          "value:kernel_syr2k:op16:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:e13b5fd73acc8b5244e30382",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op16",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "af9adf1a7ee17805b3eb0b94",
+          "ea04188c25e278174910b674",
+          "f3316157395618da9326e523"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op18",
+          "value:kernel_syr2k:op16:r0",
+          "value:kernel_syr2k:op17:r0",
+          "value:kernel_syr2k:op18:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:ce3286bd10051a8384e2dbb5",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op18",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "af9adf1a7ee17805b3eb0b94",
+          "ea04188c25e278174910b674",
+          "f3316157395618da9326e523"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op18",
+          "value:kernel_syr2k:op16:r0",
+          "value:kernel_syr2k:op17:r0",
+          "value:kernel_syr2k:op18:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:78445e1d79c63bd968699dfd",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op18",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "8e77ebca0bfb6ae4c64f8821",
+          "b7f0e4bf9571379fcdbe4c4f",
+          "cd11abedf0e7df98e2aa0e6b"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op19",
+          "value:kernel_syr2k:op14:r0",
+          "value:kernel_syr2k:op18:r0",
+          "value:kernel_syr2k:op19:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:5f194b1eca374f4db3bff0d0",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op19",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "8e77ebca0bfb6ae4c64f8821",
+          "b7f0e4bf9571379fcdbe4c4f",
+          "cd11abedf0e7df98e2aa0e6b"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op19",
+          "value:kernel_syr2k:op14:r0",
+          "value:kernel_syr2k:op18:r0",
+          "value:kernel_syr2k:op19:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:852d1799676a58ec5bc1a63e",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op19",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "1ca6e5a0b2777805dc2d2f91",
+          "9eff0c1508c0eabd5fc314da",
+          "df44dbbd31e8ee3a690829e4"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op21",
+          "value:kernel_syr2k:op19:r0",
+          "value:kernel_syr2k:op20:r0",
+          "value:kernel_syr2k:op21:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:843cecd75288e403a5d8176c",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op21",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "1ca6e5a0b2777805dc2d2f91",
+          "9eff0c1508c0eabd5fc314da",
+          "df44dbbd31e8ee3a690829e4"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op21",
+          "value:kernel_syr2k:op19:r0",
+          "value:kernel_syr2k:op20:r0",
+          "value:kernel_syr2k:op21:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.addf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:230f25ba4ff0ff4c282cc633",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op21",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "34b01e473655052e1f9abbca",
+          "943e70554eb29abbe2b1af17",
+          "e2f39d651c56fee894ee5560"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op4",
+          "value:kernel_syr2k:b0:a1",
+          "value:kernel_syr2k:op3:r0",
+          "value:kernel_syr2k:op4:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:8953e8d06e62d30ca306ff15",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op4",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Possible implementation compatibility; no resource cost or binding inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [
+          "34b01e473655052e1f9abbca",
+          "943e70554eb29abbe2b1af17",
+          "e2f39d651c56fee894ee5560"
+        ],
+        "nodes": [
+          "op:kernel_syr2k:op4",
+          "value:kernel_syr2k:b0:a1",
+          "value:kernel_syr2k:op3:r0",
+          "value:kernel_syr2k:op4:r0"
+        ],
+        "numerical_fidelity": {
+          "hardware_exact": null,
+          "interpretation": "Native lowered types only; no width-to-DSP-count inference",
+          "source_correspondence": "not_established"
+        },
+        "operand_types": [
+          "f64",
+          "f64"
+        ],
+        "operation": "arith.mulf",
+        "result_types": [
+          "f64"
+        ],
+        "status": "proven"
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:1151eacfeec4ba0e8632a0f4",
+      "relation_type": "target:arithmetic_compatible",
+      "source": "op:kernel_syr2k:op4",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:kernel_syr2k:op8"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:036d56e066a444d7c4d1595e",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:0b6ffae14544b16fe4eda094",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:5f194b1eca374f4db3bff0d0",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op19",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:843cecd75288e403a5d8176c",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op21",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:ce3286bd10051a8384e2dbb5",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:f16c4857eb601fe82ecb5cb7",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op14",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:9f73add252bafc5151188c26",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:kernel_syr2k:op8",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:kernel_syr2k:op8"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:230f25ba4ff0ff4c282cc633",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op21",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:26cf4184069bf5228eee1e4d",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:78445e1d79c63bd968699dfd",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:850a2aac4741359e0cb81f0c",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op14",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:852d1799676a58ec5bc1a63e",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op19",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:e13b5fd73acc8b5244e30382",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:13646c575377697b5d043b5f",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:kernel_syr2k:op8",
+      "target": "hardware:resource:LUT"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:kernel_syr2k:op9"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:036d56e066a444d7c4d1595e",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:0b6ffae14544b16fe4eda094",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:5f194b1eca374f4db3bff0d0",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op19",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:843cecd75288e403a5d8176c",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op21",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:ce3286bd10051a8384e2dbb5",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:f16c4857eb601fe82ecb5cb7",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op14",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug579"
+        ],
+        "status": "documented"
+      },
+      "key": "target:db2812b1f8b877f53bd0e0d2",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:kernel_syr2k:op9",
+      "target": "hardware:resource:DSP"
+    },
+    {
+      "_target_overlay": true,
+      "compatibility": {
+        "actual_binding": "unknown",
+        "interpretation": "Resource relevance through compiler-supported computation/access; no demand, II or throughput inferred",
+        "status": "possible"
+      },
+      "compiler_evidence": {
+        "edges": [],
+        "nodes": [
+          "op:kernel_syr2k:op9"
+        ],
+        "status": "proven",
+        "witnesses": [
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:230f25ba4ff0ff4c282cc633",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op21",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:26cf4184069bf5228eee1e4d",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op12",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:78445e1d79c63bd968699dfd",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op18",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:850a2aac4741359e0cb81f0c",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op14",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:852d1799676a58ec5bc1a63e",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op19",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          },
+          {
+            "call_chain": [],
+            "compatibility_edge": "target:e13b5fd73acc8b5244e30382",
+            "evidence_status": "proven",
+            "kind": "contained_or_invoked_computation",
+            "operation": "op:kernel_syr2k:op16",
+            "scope": "compiler_loop_context",
+            "supporting_call_edges": []
+          }
+        ]
+      },
+      "hardware_evidence": {
+        "sources": [
+          "hls_bind_op",
+          "ug574"
+        ],
+        "status": "documented"
+      },
+      "key": "target:6c95312c67b42a3424fc66b8",
+      "relation_type": "target:loop_resource_relevance",
+      "source": "op:kernel_syr2k:op9",
+      "target": "hardware:resource:LUT"
+    }
+  ],
+  "excluded_relationships": {
+    "storage_formal_parameter_not_eligible": 3
+  },
+  "nodes": [
+    {
+      "_target_overlay": true,
+      "category": "hardware_target",
+      "clock_meaning": "user_requested_constraint",
+      "clock_period_ns": 10.0,
+      "clock_unit": "ns",
+      "external_memory": {
+        "architecture": "PS/PL DDR4",
+        "bandwidth_bytes_per_second": null,
+        "bandwidth_known": false,
+        "kernel_binding": null,
+        "kernel_binding_known": false,
+        "sources": [
+          "ug1267"
+        ]
+      },
+      "family": "Zynq UltraScale+ MPSoC",
+      "id": "hardware:fpga",
+      "identity_sources": [
+        "ug1267",
+        "vendor_zcu104"
+      ],
+      "part": "xczu7ev-ffvc1156-2-e",
+      "platform_availability_known": false,
+      "profile_version": "1.0.0"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "18-Kibit RAM equivalent",
+        "value": 624
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "RAMB18/RAMB36 halves",
+        "properties": {
+          "physical_36k_block_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 36864
+          },
+          "sdp_max_port_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 36
+          },
+          "tdp_max_port_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 18
+          },
+          "unit_storage_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "bit",
+            "value": 18432
+          },
+          "units_per_36k_block": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug573"
+            ],
+            "unit": "18-Kibit RAM equivalent",
+            "value": 2
+          }
+        },
+        "sources": [
+          "ug573",
+          "hls_partition"
+        ],
+        "supported_modes": [
+          "true_dual_port",
+          "simple_dual_port"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:BRAM_18K",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "18-Kibit RAM equivalent",
+        "value": 624,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "18-Kibit RAM equivalent",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "18-Kibit RAM equivalent",
+        "value": null
+      },
+      "resource_class": "BRAM_18K"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "DSP slice",
+        "value": 1728
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "DSP48E2",
+        "properties": {
+          "alu_width_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 48
+          },
+          "multiplier_a_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 27
+          },
+          "multiplier_b_bits": {
+            "known": true,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug579"
+            ],
+            "unit": "bit",
+            "value": 18
+          }
+        },
+        "sources": [
+          "ug579",
+          "hls_bind_op"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:DSP",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "DSP slice",
+        "value": 1728,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "DSP slice",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "DSP slice",
+        "value": null
+      },
+      "resource_class": "DSP"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "flip-flop",
+        "value": 460800
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "CLB flip-flop",
+        "properties": {},
+        "sources": [
+          "ds891",
+          "hls_partition"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:FF",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "flip-flop",
+        "value": 460800,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "flip-flop",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "flip-flop",
+        "value": null
+      },
+      "resource_class": "FF"
+    },
+    {
+      "_target_overlay": true,
+      "available_capacity": {
+        "known": true,
+        "meaning": "deployment_available_capacity",
+        "source": "physical_full_capacity_convention",
+        "unit": "LUT",
+        "value": 230400
+      },
+      "available_fraction": {
+        "known": true,
+        "meaning": "deployment_available_over_physical",
+        "unit": "fraction",
+        "value": 1.0
+      },
+      "capability": {
+        "primitive": "CLB LUT; distributed RAM on SLICEM subset",
+        "properties": {
+          "available_distributed_storage_luts": {
+            "known": false,
+            "meaning": "physical_primitive_characteristic",
+            "sources": [
+              "ug574"
+            ],
+            "unit": "LUT",
+            "value": null
+          }
+        },
+        "sources": [
+          "ug574",
+          "hls_bind_op"
+        ]
+      },
+      "category": "hardware_resource",
+      "id": "hardware:resource:LUT",
+      "physical_capacity": {
+        "known": true,
+        "meaning": "physical_device_capacity",
+        "sources": [
+          "vendor_zcu104",
+          "ds891"
+        ],
+        "unit": "LUT",
+        "value": 230400,
+        "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+      },
+      "platform_available": {
+        "known": false,
+        "meaning": "platform_available_capacity",
+        "unit": "LUT",
+        "value": null
+      },
+      "requested_budget": {
+        "known": false,
+        "meaning": "user_requested_budget",
+        "unit": "LUT",
+        "value": null
+      },
+      "resource_class": "LUT"
+    }
+  ],
+  "notice": "Exact overlay excerpt, not a complete graph; actual synthesis bindings unknown."
+}

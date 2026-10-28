@@ -1,0 +1,53 @@
+#loc1 = loc("kernel.cpp":6:6)
+#loc2 = loc("kernel.cpp":14:24)
+#loc3 = loc("kernel.cpp":15:26)
+#loc6 = loc("kernel.cpp":21:26)
+#loc7 = loc("kernel.cpp":22:28)
+#set = affine_set<(d0, d1) : (-d0 + d1 >= 0)>
+module attributes {dlti.dl_spec = #dlti.dl_spec<#dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<"dlti.endianness", "little">, #dlti.dl_entry<"dlti.stack_alignment", 128 : i32>>, llvm.data_layout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128", llvm.target_triple = "x86_64-unknown-linux-gnu", "polygeist.target-cpu" = "x86-64", "polygeist.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "polygeist.tune-cpu" = "generic"} {
+  func.func @kernel_syr2k(%arg0: f64 loc("kernel.cpp":6:6), %arg1: f64 loc("kernel.cpp":6:6), %arg2: memref<80x80xf64> loc("kernel.cpp":6:6), %arg3: memref<80x60xf64> loc("kernel.cpp":6:6), %arg4: memref<80x60xf64> loc("kernel.cpp":6:6)) attributes {llvm.linkage = #llvm.linkage<external>} {
+    affine.for %arg5 loc("kernel.cpp":14:24) = 0 to 80 {
+      affine.for %arg6 loc("kernel.cpp":15:26) = 0 to 80 {
+        affine.if #set(%arg6, %arg5) {
+          %0 = affine.load %arg2[%arg5, %arg6] : memref<80x80xf64> loc(#loc5)
+          %1 = arith.mulf %0, %arg1 : f64 loc(#loc5)
+          affine.store %1, %arg2[%arg5, %arg6] : memref<80x80xf64> loc(#loc5)
+        } loc(#loc4)
+      } loc(#loc3)
+      affine.for %arg6 loc("kernel.cpp":21:26) = 0 to 60 {
+        affine.for %arg7 loc("kernel.cpp":22:28) = 0 to 80 {
+          affine.if #set(%arg7, %arg5) {
+            %0 = affine.load %arg3[%arg7, %arg6] : memref<80x60xf64> loc(#loc9)
+            %1 = arith.mulf %0, %arg0 : f64 loc(#loc10)
+            %2 = affine.load %arg4[%arg5, %arg6] : memref<80x60xf64> loc(#loc11)
+            %3 = arith.mulf %1, %2 : f64 loc(#loc12)
+            %4 = affine.load %arg4[%arg7, %arg6] : memref<80x60xf64> loc(#loc13)
+            %5 = arith.mulf %4, %arg0 : f64 loc(#loc14)
+            %6 = affine.load %arg3[%arg5, %arg6] : memref<80x60xf64> loc(#loc15)
+            %7 = arith.mulf %5, %6 : f64 loc(#loc16)
+            %8 = arith.addf %3, %7 : f64 loc(#loc17)
+            %9 = affine.load %arg2[%arg5, %arg7] : memref<80x80xf64> loc(#loc18)
+            %10 = arith.addf %9, %8 : f64 loc(#loc18)
+            affine.store %10, %arg2[%arg5, %arg7] : memref<80x80xf64> loc(#loc18)
+          } loc(#loc8)
+        } loc(#loc7)
+      } loc(#loc6)
+    } loc(#loc2)
+    return loc(#loc19)
+  } loc(#loc1)
+} loc(#loc)
+#loc = loc(unknown)
+#loc4 = loc("kernel.cpp":16:7)
+#loc5 = loc("kernel.cpp":17:17)
+#loc8 = loc("kernel.cpp":23:9)
+#loc9 = loc("kernel.cpp":24:22)
+#loc10 = loc("kernel.cpp":24:30)
+#loc11 = loc("kernel.cpp":24:40)
+#loc12 = loc("kernel.cpp":24:38)
+#loc13 = loc("kernel.cpp":25:22)
+#loc14 = loc("kernel.cpp":25:30)
+#loc15 = loc("kernel.cpp":25:40)
+#loc16 = loc("kernel.cpp":25:38)
+#loc17 = loc("kernel.cpp":25:20)
+#loc18 = loc("kernel.cpp":24:19)
+#loc19 = loc("kernel.cpp":30:1)

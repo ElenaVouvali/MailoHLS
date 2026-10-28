@@ -1,0 +1,148 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": null,
+      "compiler_eliminated": null,
+      "compiler_matched": false,
+      "compiler_status": "not_registered",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": false,
+      "source_binding": {
+        "array_name": "d",
+        "function": "lavaMD_baseline_padded",
+        "kind": "array",
+        "source_column": 13,
+        "source_file": "lavaMD.cpp",
+        "source_line": 17,
+        "source_use_lines": [
+          65,
+          66,
+          67,
+          68,
+          69,
+          70
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        27,
+        3
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:_Z22lavaMD_baseline_paddedPfS_S_:op14:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        27,
+        3
+      ],
+      "source_binding": {
+        "array_name": "neighborOffset",
+        "function": "lavaMD_baseline_padded",
+        "kind": "array",
+        "source_column": 12,
+        "source_file": "lavaMD.cpp",
+        "source_line": 19,
+        "source_use_lines": [
+          40,
+          41,
+          42
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 8,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:_Z22lavaMD_baseline_paddedPfS_S_:op96",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 8,
+      "source_binding": {
+        "function": "lavaMD_baseline_padded",
+        "kind": "loop",
+        "source_column": 15,
+        "source_file": "lavaMD.cpp",
+        "source_line": 21
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 27,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:_Z22lavaMD_baseline_paddedPfS_S_:op105",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 27,
+      "source_binding": {
+        "function": "lavaMD_baseline_padded",
+        "kind": "loop",
+        "source_column": 12,
+        "source_file": "lavaMD.cpp",
+        "source_line": 38
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 100,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:_Z22lavaMD_baseline_paddedPfS_S_:op117",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 100,
+      "source_binding": {
+        "function": "lavaMD_baseline_padded",
+        "kind": "loop",
+        "source_column": 29,
+        "source_file": "lavaMD.cpp",
+        "source_line": 48
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 100,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:_Z22lavaMD_baseline_paddedPfS_S_:op118",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 100,
+      "source_binding": {
+        "function": "lavaMD_baseline_padded",
+        "kind": "loop",
+        "source_column": 33,
+        "source_file": "lavaMD.cpp",
+        "source_line": 51
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "lavaMD.cpp"
+}

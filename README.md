@@ -7,46 +7,28 @@ to condition an LLM. The paper also refers to this system as SALT-HLS.
 
 ## Latest structural representation: V2.2
 
-**Available on `main`: V2.2 RC3, technically frozen; independent adjudication
-pending.** This is the latest compiler-semantic graph representation. Existing
-pretrained GNNs, structural memory and SALT inference still use V1; V2.2 does
-not claim checkpoint compatibility or improved QoR prediction.
+**[Open the complete MLIR and MLIR + hardware graph catalog](graphs/latest/)**.
+This is the single starting point for reviewing all current graphs in GitHub.
+Each kernel has raw MLIR, canonical/compact compiler graphs, action registrations,
+hardware-evidence details, and full target-enriched graph downloads.
 
-| Start here | Location |
-| --- | --- |
-| Representation and consumer contract | [V2.2 guide](docs/structural-graph-v22.md) |
-| Verification, limitations and review status | [Final release review](docs/V22_FINAL_RELEASE_REVIEW.md) |
-| All 63 canonical and 63 compact graphs, source/metadata/raw MLIR and evidence | [Graph archive](GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz) |
-| Exact artifact identities | [Manifest](docs/graph-release-v22-rc3.json) and [checksum](docs/graph-release-v22-rc3.sha256) |
-| Graph builder and semantic annotations | [mlir_graph_v2.py](GNN_branch/mlir_graph_v2.py), [mlir_semantics.py](GNN_branch/mlir_semantics.py), [mlir_semantics_v22.py](GNN_branch/mlir_semantics_v22.py) |
-| Current typed action-point queries | [action_point_relations.py](GNN_branch/action_point_relations.py) |
+The catalog contains all **63 authenticated V2.2 RC3 snapshots** and **1,512
+MLIR + hardware graphs** covering ZCU104, Alveo U200 and Alveo U50 at 3.33, 5,
+6.67 and 10 ns, with full resource availability. Corrected development Kalman
+and the latest Hotspot pipeline/unroll exports are indexed there; historical
+Kalman alternatives are explicitly identified. The same folder contains the
+architecture guide, target profiles, manifest, checksums and validation records.
 
-To inspect the published graphs, extract into a fresh directory:
+V2.2 RC3 is technically frozen; **independent human semantic adjudication is
+pending**. Hardware edges describe possible compatibility, not actual synthesis
+bindings. Production GNN checkpoints and structural memory still use V1; a
+V2.2 target-aware tensor encoder and training remain future work.
 
-```bash
-V22_GRAPH_DIR=$(mktemp -d /tmp/mailohls-v22-rc3.XXXXXX)
-tar -xzf GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz -C "$V22_GRAPH_DIR"
-# Graphs are in "$V22_GRAPH_DIR/canonical" and "$V22_GRAPH_DIR/compact".
-```
-
-For new graphs, use the pinned compiler environment and select the revision
-explicitly; older default modes remain available for reproduction:
-
-```bash
-python -m GNN_branch.mlir_graph_v2 --revision 2.2 --semantic-revision rc3 \
-  --source path/to/kernel.cpp --metadata path/to/kernel_info.txt \
-  --cgeist /path/to/pinned/cgeist --output /fresh/graph.json
-```
-
-Use the current checkout's query module for downstream work. The archive's
-bundled code is a frozen reproduction snapshot; its historical completeness
-query is superseded by the documented loop-forwarding correction on `main`.
-
-V2.2 describes target-independent compiler facts. FPGA characteristics, clock,
-resource budgets, optimization objectives and QoR belong in separate
-conditioning inputs linked to these graphs. A separate V2.2 tensor encoder and
-controlled learning comparison remain future work; no retraining is required
-to read, query or validate the release.
+The catalog preserves the original compiler payloads and uses the current
+repository's semantic queries. The immutable
+[historical RC3 archive](GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz)
+and its historical manifest/checksums are unchanged. Start with the catalog
+rather than searching release archives and experiment folders.
 
 ## Versions and ongoing development
 

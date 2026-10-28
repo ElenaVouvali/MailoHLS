@@ -1,0 +1,190 @@
+{
+  "records": [
+    {
+      "action_id": "L1",
+      "action_point_node": "action:L1",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_memory_shape": [
+        140,
+        64
+      ],
+      "compiler_status": "compiler_matched",
+      "compiler_target": "memory:viterbi:op4:r0",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": [
+        140,
+        64
+      ],
+      "source_binding": {
+        "array_name": "llike",
+        "function": "viterbi",
+        "kind": "array",
+        "source_column": 17,
+        "source_file": "viterbi.c",
+        "source_line": 5,
+        "source_use_lines": [
+          14,
+          22,
+          26,
+          33,
+          39,
+          41,
+          52,
+          54
+        ]
+      },
+      "source_labeled": true
+    },
+    {
+      "action_id": "L2",
+      "action_point_node": "action:L2",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 64,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:viterbi:op8",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 64,
+      "source_binding": {
+        "function": "viterbi",
+        "kind": "loop",
+        "source_column": 18,
+        "source_file": "viterbi.c",
+        "source_line": 13
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L3",
+      "action_point_node": "action:L3",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 139,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:viterbi:op20",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 139,
+      "source_binding": {
+        "function": "viterbi",
+        "kind": "loop",
+        "source_column": 22,
+        "source_file": "viterbi.c",
+        "source_line": 18
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L4",
+      "action_point_node": "action:L4",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 64,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:viterbi:op24",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 64,
+      "source_binding": {
+        "function": "viterbi",
+        "kind": "loop",
+        "source_column": 26,
+        "source_file": "viterbi.c",
+        "source_line": 19
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L5",
+      "action_point_node": "action:L5",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 63,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:viterbi:op41",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 63,
+      "source_binding": {
+        "function": "viterbi",
+        "kind": "loop",
+        "source_column": 28,
+        "source_file": "viterbi.c",
+        "source_line": 25
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L6",
+      "action_point_node": "action:L6",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 63,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:viterbi:op56",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 63,
+      "source_binding": {
+        "function": "viterbi",
+        "kind": "loop",
+        "source_column": 17,
+        "source_file": "viterbi.c",
+        "source_line": 40
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L7",
+      "action_point_node": "action:L7",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 139,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:viterbi:op64",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 139,
+      "source_binding": {
+        "function": "viterbi",
+        "kind": "loop",
+        "source_column": 23,
+        "source_file": "viterbi.c",
+        "source_line": 50
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    {
+      "action_id": "L8",
+      "action_point_node": "action:L8",
+      "compiler_eliminated": false,
+      "compiler_matched": true,
+      "compiler_proven_trip_count": 63,
+      "compiler_status": "compiler_matched",
+      "compiler_target": "op:viterbi:op73",
+      "elimination_note": "Absence of a match does not establish compiler elimination",
+      "metadata_registered": true,
+      "metadata_value": 63,
+      "source_binding": {
+        "function": "viterbi",
+        "kind": "loop",
+        "source_column": 21,
+        "source_file": "viterbi.c",
+        "source_line": 53
+      },
+      "source_labeled": true,
+      "trip_count_provenance": "mlir_affine_analysis"
+    }
+  ],
+  "registration_metadata": "kernel_info.txt",
+  "source": "viterbi.c"
+}
