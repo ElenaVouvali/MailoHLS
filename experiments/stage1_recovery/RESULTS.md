@@ -98,3 +98,14 @@ Two additional defensive tests verified optional weighting/accounting: changed w
 The final isolation check also omits Stage-1-specific metadata entirely from Stage-2 contracts, rather than adding a null field that would change a historical resume hash. This does not change the Stage-1 branch or the running CE optimization. Full validation uses a fixed evaluation seed and records dataset/selection hashes; the `finalize --full-run` command requires completed root artifacts and matching reference/candidate lineage before reporting a recovery.
 
 Fresh reproductions can now set `STAGE1_RECOVERY_PREPARED` to authenticate the complete selected train/validation multisets and automatically seal the protocol/source snapshot before model loading. A CPU integration check accepted all 2,187/383 authenticated contexts regardless of row ordering, while a changed-label test failed closed. This replaces the manual protocol-sealing step used to launch the already running initial experiment; it does not restart or alter that experiment.
+
+### Live execution versus this recorded audit
+
+The section above is a launch-time record, not a completed full-data model result. The single full run is executing independently of the documentation. Its exact initial code is in its `source_snapshot/`; a mechanical AST comparison confirmed unchanged loss construction, dataset, Trainer, selection callback, decision metrics and contrast-query definitions across the later optional/metadata safeguards.
+
+For this execution, monitor `/tmp/stage1-full-data-ce-recovery.log` and `mailohls_runs/stage1_full_data_ce_recovery_s123/postprocess.status`. A waiting, detached postprocessor checks successful training completion and code hashes, then calls the existing full-validation evaluator for the reference and selected checkpoint and the read-only full-run finalizer. It launches no additional training variant. Its outputs will be:
+
+- `artifacts/diagnostics/stage1_full_data_recovery_validation/report.json` — matched full-validation predictions and metrics.
+- `mailohls_runs/stage1_full_data_ce_recovery_s123/full_run_report.json` — authenticated optimizer/schedule/checkpoint and promotion assessment.
+
+`WAITING_FOR_TRAINING` is not a successful learning result. A failure or source-code mismatch stops postprocessing; no checkpoint is promoted. Generated artifacts remain ignored by Git. The final classification must be taken from completed measurements, not the launch-time snapshot.

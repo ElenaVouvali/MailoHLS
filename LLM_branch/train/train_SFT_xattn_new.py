@@ -7402,6 +7402,12 @@ def run_single_training(args):
             "full_validation": args.stage1_full_validation,
             "training_constant_modes": training_constant_modes,
             "initialization": "explicit_adapter" if args.init_adapter_dir else "fresh_adapter_from_pinned_backbone",
+            "initial_adapter_lineage": ({
+                "path": os.path.abspath(args.init_adapter_dir),
+                "weights_sha256": _file_sha256(frozen_stage1.adapter_weights_path(args.init_adapter_dir)),
+                "contract_sha256": (_file_sha256(Path(args.init_adapter_dir)/"training_contract.json")
+                    if (Path(args.init_adapter_dir)/"training_contract.json").is_file() else None),
+            } if args.init_adapter_dir else None),
         }} if args.disable_structural_memory else {}),
         "semantic_domain_policy": mailohls_contract.SEMANTIC_DOMAIN_POLICY,
         "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",

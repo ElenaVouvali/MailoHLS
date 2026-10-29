@@ -891,12 +891,14 @@
   "full_run": {
     "frozen_source_snapshot": "mailohls_runs/stage1_full_data_ce_recovery_s123/source_snapshot",
     "initialized_from": "fresh LoRA/pinned backbone",
+    "live_status_file": "mailohls_runs/stage1_full_data_ce_recovery_s123/postprocess.status",
     "output": "mailohls_runs/stage1_full_data_ce_recovery_s123",
     "post_freeze_optional_safeguards": [
       "Contrast emphasis rejects changed winners without a measured feasibility boundary; disabled in this CE run.",
       "Resume audit archives abandoned post-checkpoint history; this CE run starts fresh.",
       "Stage-1-only contract metadata is omitted entirely from Stage-2 contracts, preserving historical resume hashes; Stage-1 branch is unchanged."
     ],
+    "postprocessing": "queued_after_successful_training; existing full evaluator/reference comparison and read-only assessment; no automatic promotion",
     "status": "launched_not_completed_at_recording",
     "supervision": "legacy"
   },
