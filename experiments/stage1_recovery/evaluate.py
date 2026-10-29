@@ -66,18 +66,26 @@ def main():
     ap.add_argument('--adapters', nargs='+', default=[DEFAULT_PARENT])
     ap.add_argument('--output', required=True)
     ap.add_argument('--joint', action='store_true')
+    ap.add_argument('--prepared', default=str(AUDIT))
+    ap.add_argument('--full-validation', action='store_true', help='All selected validation contexts via production callback')
+    ap.add_argument('--saved-metrics', nargs='+', help='CPU-only reanalysis of saved selection predictions on identical cases')
     args = ap.parse_args()
     out = Path(args.output)
     if out.exists():
         raise FileExistsError(out)
     out.mkdir(parents=True)
     start = time.perf_counter()
-    prepare(DEFAULT_PARENT)
+    prepared = Path(args.prepared)
+    prepare(DEFAULT_PARENT, prepared)
     sources = json.loads(Path('artifacts/llm/mailohls_sft.sources.json').read_text())['templates']
     split = json.loads(Path('mailohls_runs/mailohls_final_family_split_s123.json').read_text())
-    all_train = [json.loads(l) for l in (AUDIT / 'train_reconstructed_selected.jsonl').read_text().splitlines()]
-    all_val = [json.loads(l) for l in (AUDIT / 'val_reconstructed_selected.jsonl').read_text().splitlines()]
-    rows = validation_pairs(all_val, sources)
+    all_train = [json.loads(l) for l in (prepared / 'train_reconstructed_selected.jsonl').read_text().splitlines()]
+    all_val = [json.loads(l) for l in (prepared / 'val_reconstructed_selected.jsonl').read_text().splitlines()]
+    if args.saved_metrics:
+        evaluate_saved(args.saved_metrics, all_train, all_val, sources, out)
+        return
+    rows = ([dict(r,input=sources[r['source_key']]) for r in all_val]
+            if args.full_validation else validation_pairs(all_val, sources))
     assert {r['_jsonl_idx'] for r in rows} <= set(split['val_jsonl_idx'])
     modes = decisions.modes_from_train(all_train)
     registry = inference.load_directive_domain_registry(str(Path(DEFAULT_PARENT).parent / 'directive_domain_registry.json'))
@@ -85,7 +93,9 @@ def main():
                      prediction=decisions.constant_baseline(r, registry, modes)) for r in rows]
     result = dict(schema='mailohls-stage1-recovery-validation-pilot-v1', heldout_test_used=False,
                   cases=len(rows), kernels=sorted({r['kernel_name'] for r in rows}),
-                  baseline=summarize(baseline, registry), adapters={}, train_modes=modes)
+                  baseline=(decisions.decision_report([
+                      dict(r,reference_target=r['target'],prediction=b['prediction']) for r,b in zip(rows,baseline)], registry)
+                      if args.full_validation else summarize(baseline, registry)), adapters={}, train_modes=modes)
     dump(out / 'cases.json', [{k: v for k, v in r.items() if k != 'input'} for r in rows])
     for index, path in enumerate(args.adapters):
         root = Path(path)
@@ -95,6 +105,25 @@ def main():
             model_revision=contract['model_revision'], no_4bit=False, device_map='auto', stage='stage1',
             embedding_weights_tied=False, lora_adapter_dir='', adapter_dir=str(root)), tok)
         model.eval()
+        if args.full_validation:
+            from LLM_branch.train import train_SFT_xattn_new as production
+            cases = [production.SelectionCase(r['kernel_name'],r['obj_mode'],r['input'],r['target'],r) for r in rows]
+            callback = production.StageValSelectionCallback(tok,cases,registry,str(out/f'callback_{index}'),
+                max_prompt_tokens=contract['max_length'],candidate_batch_size=4)
+            generated = [callback._run_case(model,case) for case in cases]
+            ordinary_report = decisions.decision_report(generated,registry)
+            record = dict(path=str(root),adapter_sha256=sha(root/'adapter_model.safetensors'),
+                          field_greedy=ordinary_report)
+            dump(out/f'adapter_{index}_field_greedy.json',generated)
+            result['adapters'][str(index)] = record
+            if index>0:
+                reference = result['adapters']['0']['field_greedy']
+                record['promotion'] = decisions.promotion_assessment(ordinary_report,reference,result['baseline'])
+            dump(out/'report.json',result)
+            del model
+            gc.collect()
+            torch.cuda.empty_cache()
+            continue
         generated = evaluate_greedy(model, tok, rows, registry)
         ordinary = [dict(r, prediction=r['candidates'][0]['prediction']) for r in generated]
         record = dict(path=str(root), adapter_sha256=sha(root / 'adapter_model.safetensors'),
@@ -121,6 +150,36 @@ def main():
         gc.collect()
         torch.cuda.empty_cache()
     dump(out / 'report.json', result)
+
+
+def evaluate_saved(paths, train, val, sources, output):
+    """Reanalyze saved predictions without loading any model or test labels."""
+    import hashlib
+    registry = inference.load_directive_domain_registry(str(Path(DEFAULT_PARENT).parent/'directive_domain_registry.json'))
+    modes = decisions.modes_from_train(train)
+    bank = {(r['kernel_name'],r['device'],r['selected_clock_period'],r['resource_budget_id'],r['_jsonl_idx']):r for r in val}
+    result = dict(schema='stage1-saved-decision-review-v1',test_labels_used=False,training_modes=modes,checkpoints={})
+    identity = None
+    for path in paths:
+        saved = json.loads(Path(path).read_text())['rows']
+        enriched = []
+        for row in saved:
+            key=(row['kernel_name'],row['device'],row['selected_clock_period'],row['resource_budget_id'],row['jsonl_idx'])
+            original=bank[key]
+            if decisions.parse(row['reference_target']) != decisions.parse(original['target']):
+                raise ValueError('Saved reference differs from authenticated validation selection')
+            enriched.append(dict(original,**row))
+        case_hash=hashlib.sha256(json.dumps([(r['kernel_name'],r['device'],r['selected_clock_period'],r['resource_budget_id'],r['jsonl_idx'],r['reference_target']) for r in enriched],sort_keys=True).encode()).hexdigest()
+        if identity is not None and case_hash!=identity:
+            raise ValueError('Checkpoint comparison requires identical ordered validation cases')
+        identity=case_hash
+        baseline=[dict(r,prediction=decisions.constant_baseline(dict(r,input=sources[r['source_key']]),registry,modes)) for r in enriched]
+        record=dict(prediction_file_sha256=sha(path),report=decisions.decision_report(enriched,registry),
+                    constant_baseline=decisions.decision_report(baseline,registry))
+        result['checkpoints'][str(path)]=record
+    result['case_identity_sha256']=identity
+    dump(Path(output)/'report.json',result)
+    return result
 
 
 if __name__ == '__main__':

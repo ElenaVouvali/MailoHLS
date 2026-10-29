@@ -21,16 +21,31 @@ if [[ -e "$OUT" ]]; then
   echo "Refusing to overwrite existing Stage-1 output: $OUT" >&2
   exit 2
 fi
-# if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
-#   echo "Tracked git tree is dirty. Commit the final patch before this run." >&2
-#   git status --short --untracked-files=no >&2
-#   exit 2
-# fi
+# Optional controls are explicit; historical entry-point defaults remain intact.
+EXTRA=()
+if [[ -n "${STAGE1_DOMAIN_REGISTRY:-}" ]]; then
+  EXTRA+=(--directive_domain_registry_json "$STAGE1_DOMAIN_REGISTRY")
+fi
+if [[ "${STAGE1_DECISION_DIAGNOSTICS:-0}" == 1 ]]; then
+  EXTRA+=(--stage1_decision_diagnostics)
+fi
+if [[ "${STAGE1_FULL_VALIDATION:-0}" == 1 ]]; then
+  EXTRA+=(--stage1_full_validation)
+fi
+if [[ "${STAGE1_EVAL_ON_START:-1}" == 1 ]]; then
+  EXTRA+=(--eval_on_start)
+else
+  EXTRA+=(--no-eval_on_start)
+fi
 CUDA_VISIBLE_DEVICES="$GPU" \
-python -u -m LLM_branch.train.train_SFT_xattn_new \
+"${PYTHON:-python}" -u -m LLM_branch.train.train_SFT_xattn_new \
   --run_mode single \
   --disable_structural_memory \
   --objective "$OBJECTIVE" \
+  --stage1_supervision_policy "${STAGE1_SUPERVISION_POLICY:-legacy}" \
+  --stage1_balance_min "${STAGE1_BALANCE_MIN:-0.5}" \
+  --stage1_balance_max "${STAGE1_BALANCE_MAX:-2.0}" \
+  --stage1_contrast_weight "${STAGE1_CONTRAST_WEIGHT:-1.0}" \
   --dataset artifacts/llm/mailohls_sft.jsonl \
   --split_json mailohls_runs/mailohls_final_family_split_s123.json \
   --minimum_validation_families 3 \
@@ -81,9 +96,9 @@ python -u -m LLM_branch.train.train_SFT_xattn_new \
   --eval_steps 50 \
   --save_steps 50 \
   --early_stopping_patience 3 \
-  --eval_on_start \
   --best_dir_name best_custom_stage1 \
-  --epochs 2 \
-  --max_steps -1 \
+  --epochs "${STAGE1_EPOCHS:-2}" \
+  --max_steps "${STAGE1_MAX_STEPS:--1}" \
   --seed 123 \
-  --output_dir "$OUT"
+  --output_dir "$OUT" \
+  "${EXTRA[@]}"

@@ -144,27 +144,8 @@ def teacher_metrics(model, data, rows, tok, registry):
                 teacher_forced_exact_examples=exact_examples, examples=len(rows), by_kind=dict(by_kind))
 
 
-class UpdateAudit(TrainerCallback):
-    def __init__(self, output):
-        self.output = output
-        self.records = []
-        self.trainer = None
-
-    def on_pre_optimizer_step(self, args, state, control, model=None, **kwargs):
-        if state.global_step % 10 == 0:
-            groups = collections.defaultdict(float)
-            for name, param in model.named_parameters():
-                if param.requires_grad and param.grad is not None:
-                    if not torch.isfinite(param.grad).all():
-                        raise FloatingPointError(f'Nonfinite gradient: {name}')
-                    groups['embedding' if 'trainable_tokens_delta' in name else 'lora'] += float(param.grad.float().square().sum())
-            self.records.append(dict(step=state.global_step + 1, gradient_norms={k: v ** .5 for k, v in groups.items()}))
-
-    def on_step_end(self, args, state, control, **kwargs):
-        record = dict(step=state.global_step,
-                      optimizer_step_skipped=bool(self.trainer.accelerator.optimizer_step_was_skipped))
-        self.records.append(record)
-        dump(self.output / 'optimizer_audit.json', self.records)
+# Shared audit implementation; the historical optimization path is unchanged.
+from LLM_branch.train.stage1_decision_loss import UpdateAudit
 
 
 class JointChoiceTrainer(production.LengthGroupedTrainer):

@@ -208,3 +208,112 @@ def metrics(rows, registry=None):
                 decision_macro_kind_balanced_accuracy=(
                     sum(v['balanced_accuracy'] for v in decision_kinds.values()) / len(decision_kinds)
                     if decision_kinds else None))
+
+
+def decision_report(rows, registry):
+    """Generated decision metrics, strata and correctly paired target responses.
+
+    Field forcedness uses the GOLD prefix; legality remains checked separately by
+    the constrained decoder. Responsiveness alone never receives correctness credit.
+    """
+    from experiments.stage1_recovery.prepare import target_contrasts
+    import hashlib
+    import json
+    result = metrics(rows, registry)
+    result['case_identity_sha256'] = hashlib.sha256(json.dumps([
+        (r['kernel_name'],r.get('device'),r.get('selected_clock_period'),r.get('resource_budget_id'),
+         r.get('jsonl_idx',r.get('_jsonl_idx')),sorted(parse(r['reference_target']).items())) for r in rows
+    ],sort_keys=True).encode()).hexdigest()
+    action_counts = collections.Counter()
+    forced_right = forced_total = decision_right = decision_total = 0
+    positive = collections.defaultdict(lambda: [0, 0])
+    binary_positive = collections.defaultdict(lambda: [0, 0])
+    illegal = 0
+    strata = collections.defaultdict(list)
+    for row in rows:
+        gold, pred = parse(row['reference_target']), parse(row['prediction'])
+        groups, prior, predicted_prior = collections.defaultdict(list), {}, {}
+        for key, value in gold.items():
+            kind = production.lhs_kind(key)
+            legal = production.constrained_rhs_candidates(row['kernel_name'], key, registry, prior)[1]
+            predicted_legal = production.constrained_rhs_candidates(row['kernel_name'], key, registry, predicted_prior)[1]
+            illegal += pred[key] not in predicted_legal
+            predicted_prior[key] = pred[key]
+            if len(legal) == 1:
+                forced_total += 1
+                forced_right += value == pred[key]
+            else:
+                decision_total += 1
+                decision_right += value == pred[key]
+                if kind in ('PIPE', 'UNROLL') and int(value) > 0:
+                    positive[kind][1] += 1
+                    positive[kind][0] += value == pred[key]
+                    binary_positive[kind][1] += 1
+                    binary_positive[kind][0] += str(pred[key]).isdigit() and int(pred[key]) > 0
+            prior[key] = value
+            groups[re.search(r'_(L\d+)\}', key).group(1)].append(key)
+        for keys in groups.values():
+            category = 'loop' if any(production.lhs_kind(k) == 'PIPE' for k in keys) else 'array'
+            action_counts[category + '_total'] += 1
+            action_counts[category + '_correct'] += all(gold[k] == pred[k] for k in keys)
+        fractions = [row.get(k) for k in ('budget_frac_bram_18k','budget_frac_dsp','budget_frac_ff','budget_frac_lut')]
+        tightness = ('unknown' if any(v is None for v in fractions) else
+                     'tight_min_fraction_below_0.25' if min(fractions)<.25 else
+                     'full' if min(fractions)==1 else 'intermediate')
+        for dimension, value in [('kernel',row['kernel_name']),('family',row.get('_family','unknown')),
+                                 ('device',row.get('device','unknown')),('clock',row.get('selected_clock_period','unknown')),
+                                 ('device_clock',(row.get('device','unknown'),row.get('selected_clock_period','unknown'))),
+                                 ('budget',tightness)]:
+            strata[f'{dimension}:{value}'].append(row)
+    result.update(complete_action_accuracy=result['joint_action_accuracy'],
+                  complete_loop_action_accuracy=(action_counts['loop_correct']/action_counts['loop_total'] if action_counts['loop_total'] else None),
+                  complete_array_action_accuracy=(action_counts['array_correct']/action_counts['array_total'] if action_counts['array_total'] else None),
+                  forced_accuracy=forced_right/forced_total if forced_total else None,
+                  nonforced_decision_accuracy=decision_right/decision_total if decision_total else None,
+                  positive_reference_value_recall={k: a/b for k,(a,b) in positive.items()},
+                  positive_binary_recall={k: a/b for k,(a,b) in binary_positive.items()},
+                  illegal_predicted_fields=illegal,
+                  core_decision_balanced_accuracy=core_balanced(result))
+    result['by_context'] = {k: metrics(v,registry) for k,v in sorted(strata.items())}
+    requests = [dict(r, target=r['reference_target']) for r in rows]
+    contrasts = target_contrasts(requests)
+    transitions = collections.defaultdict(collections.Counter)
+    for pair in contrasts:
+        kind, left, right = pair['kind'], rows[pair['left']], rows[pair['right']]
+        if not pair['comparable']:
+            transitions[kind]['unsupported'] += 1
+            continue
+        ga,gb,pa,pb = [parse(t) for t in [left['reference_target'],right['reference_target'],left['prediction'],right['prediction']]]
+        changed = pair['changed_fields']
+        group = 'changed' if changed else 'invariant'
+        transitions[kind][group+'_pairs'] += 1
+        transitions[kind][group+'_complete_correct'] += ga==pa and gb==pb
+        if changed:
+            transitions[kind]['changed_only_groups_correct'] += all(pa[k]==ga[k] and pb[k]==gb[k] for k in changed)
+            transitions[kind]['changed_fields'] += len(changed)
+            transitions[kind]['changed_fields_both_endpoints_correct'] += sum(pa[k]==ga[k] and pb[k]==gb[k] for k in changed)
+        else:
+            transitions[kind]['invariant_prediction_pairs'] += pa==pb
+            # Equal but wrong predictions are explicitly not correct invariance.
+    result['target_transitions'] = {k: dict(v) for k,v in transitions.items()}
+    return result
+
+
+def promotion_assessment(candidate, historical, constant):
+    """Report-only gate; never moves or overwrites a checkpoint."""
+    if not (candidate['case_identity_sha256']==historical['case_identity_sha256']==constant['case_identity_sha256']):
+        raise ValueError('Promotion requires identical validation cases')
+    checks = dict(complete_action_better_than_reference=candidate['complete_action_accuracy']>historical['complete_action_accuracy'],
+                  complete_action_better_than_constant=candidate['complete_action_accuracy']>constant['complete_action_accuracy'],
+                  positive_unroll_recall=candidate['positive_reference_value_recall'].get('UNROLL',0)>0,
+                  positive_pipeline_recall=candidate['positive_reference_value_recall'].get('PIPE',0)>0,
+                  correct_budget_transition=candidate.get('target_transitions',{}).get('budget',{}).get('changed_complete_correct',0)>0,
+                  legal_fields=candidate['illegal_predicted_fields']==0,
+                  no_device_clock_default_collapse=all(
+                      len(kind['prediction_counts'])>1
+                      for key,context in candidate['by_context'].items() if key.startswith('device_clock:')
+                      for name,kind in context['decision_by_kind'].items()
+                      if name in ('PIPE','UNROLL','ARRAY_T','ARRAY_F') and len(kind['per_value_recall'])>1))
+    return dict(eligible_on_measured_decisions=all(checks.values()), checks=checks,
+                remaining_checks=['No automatic promotion; inspect per-kernel and joint device/clock behavior before Stage 2'],
+                automatic_checkpoint_replacement=False)

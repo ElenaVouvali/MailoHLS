@@ -67,3 +67,30 @@ No adapter was promoted, no gold directives were manually inserted into inferenc
 - Preserved parent tokenizer SHA-256: `eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891`.
 
 The first two controls' inherited metadata was normalized to the explicit experimental schema, with backups and hashes, without changing their weights. Experimental model cards label their limited purpose. No original graph archive, structural memory, measurement, checkpoint, main branch or unrelated worktree change was overwritten.
+
+## Full-data recovery implementation and supervision audit — 2026-10-29
+
+The new [full-data evidence summary](results/full_data_20261029.json) records the authenticated audit and new checks. This section does not revise the historical 20-example results above.
+
+The historical selection was reproduced exactly: 2,187 training contexts, 905 distinct selected measured rows, 772 distinct program/directive assignments, 50 kernels and 18 families. Validation has 383 selected contexts from 87 measured rows and four kernels. All 62 historical saved selection references match. No test labels informed this audit, weighting or validation.
+
+Training target contrasts include 6,560 changed budget pairs, 1,491 changed fixed-budget clock pairs and 117 changed full-budget device pairs. These overlapping pairs are not independent measurements. All 6,560 changed budget pairs have measured cross-budget infeasibility; 1,695 contexts participate and 492 do not. A different feasible measured assignment is within 1% latency in 1,862/2,187 training contexts. Exact winner labels therefore often express weak measured preferences rather than a robust hardware-policy boundary. The original labels and compaction are preserved for the initial controlled recovery.
+
+Production now offers opt-in `decision` and `decision_balanced` loss policies alongside unchanged default `legacy`. The new objective normalizes value-only CE by complete action and excludes forced values/delimiters. Optional training-only bounded frequency and budget-contrast emphasis remain disabled in the first recovery. Stage 2 is unchanged.
+
+Executed validation:
+
+- CPU: `python -B -m pytest -q LLM_branch/tests tests/test_directive_domains.py` — **163 passed, one CUDA smoke skipped** in the sandbox.
+- V100: `python -B -m pytest -q LLM_branch/tests/test_stage1_fp16_smoke.py` — **one passed**, separately.
+- Token preflight: **2,187/2,187 examples under each of three policies**, identical target IDs, no supervised input-special tokens, no code truncation; 480–6,656 tokens.
+- Fresh rank-8 DeepSeek production smoke: **two attempted and two successful updates**, finite nonzero LoRA and input-token gradients, finite validation CE, adapter/tokenizer/checkpoint saved. This is an interface check, not a recovery result.
+
+The first smoke attempt was stopped during redundant serialization preprocessing. The successful model smoke used bounded pure-function serialization caches already used by reconstruction. Its outer Bash command returned 127 after Python completed because the launcher was edited while Bash was waiting, shifting the trailing read position. The model finished both updates and all saves; no optimizer failure occurred. The launcher was corrected, syntax/stub tested, and frozen before the full run. Both attempts and logs are preserved locally.
+
+A **single optimized legacy-CE full-data run has been launched** in `mailohls_runs/stage1_full_data_ce_recovery_s123`, using fresh LoRA, LR `1e-4`/`2e-5`, historical invariant compaction, seed 123 and unchanged QLoRA architecture. The sealed `recovery_protocol.json` records input hashes and implementation hashes. Transformers 4.51.0 plans **546** steps; the conservative one-epoch early-stopping guard remains **274**. Actual updates, AMP skips and scheduler progress are recorded independently. Full-data learning and promotion are not yet established while this run is in progress.
+
+On the **same 62 stored reference cases**, the new all-fields complete-action reanalysis finds historical adapter 8.32% versus legal constant 6.56%; core nonforced balanced recall is 25.00% versus 26.74%. Both have zero exact complete designs and zero correct complete budget pairs. These are not the eight-case metrics above, and neither set substitutes for full 383-context evaluation.
+
+The reference adapter SHA256 remains `a15a0af1022370b08ee1e64cb9934a12e9f1c7ef1b96aaaf4ccfc406f4e0cc86`; its contract and tokenizer hashes also remain unchanged. No full-data decision-aware, balanced, contrast-weighted, joint-action or DPO variant has been launched.
+
+Two additional defensive tests verified optional weighting/accounting: changed winners that both fit both budgets are not emphasized, and resuming an older checkpoint archives later abandoned audit receipts instead of double-counting their updates. Both were reproduced as failing cases before correction. These optional/resume safeguards do not change the fresh, contrast-disabled CE run; its exact earlier implementation bytes are archived under its `source_snapshot/`.
