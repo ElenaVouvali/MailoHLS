@@ -118,6 +118,8 @@ The frozen protocol SHA-256 is `2d8fae40dedcf141268f6190f94073492eb3eecd244e9640
 
 At the latest follow-up, 2026-10-29 20:03:15 UTC, it had advanced to **100/546** successful updates, still with zero skipped updates; selection files remained at steps 0 and 50 and the postprocessor was still waiting. Progress is reported from the append-only update audit and training log, not inferred from adapter files.
 
+At 20:06:12 UTC, the host process was still alive on the assigned V100S at 100% utilization, with **100/546** successful updates, zero skipped updates, finite recorded gradient norms, teacher-forced validation loss `0.53197` at step 100, and postprocessing still waiting. The step-100 constrained-selection receipt had not yet been written at that instant; the best selected checkpoint remained step 0. This state is explicitly time-stamped because it is live and will change.
+
 The latest periodic decision selection is step 50; the best-selection record is still step 0. The step-50 key has lower primary core nonforced balanced recall than step 0, although its complete-action component is higher; both show zero correct complete budget transitions so far. This is an interim selection trajectory, not a completed validation comparison or a promotion decision.
 
 On the same 62 periodic cases, the current intermediate checkpoint metrics are:
