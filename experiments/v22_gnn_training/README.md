@@ -186,6 +186,23 @@ to train without CUDA or into a nonempty output directory. Candidate count can
 be reduced with the existing `--candidates` option if measured A2 memory
 requires it.
 
+The repository's prior graph-readiness environment used Python 3.10.20,
+PyTorch 2.6.0+cu124, PyG 2.6.1, and SciPy 1.15.3. If liono has that CUDA
+PyTorch environment but lacks the Python-level dependencies, isolate the
+additions without modifying the base environment:
+
+```bash
+BASE=/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python
+test -x "$BASE"
+"$BASE" -m venv --system-site-packages /tmp/mailohls-v22-a2-env
+PY=/tmp/mailohls-v22-a2-env/bin/python
+"$PY" -m pip install torch-geometric==2.6.1 scipy==1.15.3
+```
+
+Do not install or upgrade PyTorch in this fallback environment. First confirm
+that the inherited PyTorch build is CUDA-enabled and passes the A2 check above;
+otherwise stop and choose a separately provisioned compatible CUDA environment.
+
 ```bash
 # Extract to a fresh temporary directory. The audit checks the release manifest
 # and each graph member hash before admitting measured rows.
