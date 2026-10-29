@@ -7,6 +7,10 @@ to condition an LLM. The paper also refers to this system as SALT-HLS.
 
 ## Production and research extensions
 
+The V2.2 overlay, tensor-readiness encoder and Stage-1 recovery material in this
+consolidation branch are proposed additions; they are not yet merged into the
+remote `main` branch.
+
 The production path uses the V1 GNN and its structural memory with the existing
 Stage-1/2/3 checkpoints and inference contracts. Checkpoint weights and selected
 artifact paths remain governed by [`FINAL_ARTIFACTS.json`](FINAL_ARTIFACTS.json);
