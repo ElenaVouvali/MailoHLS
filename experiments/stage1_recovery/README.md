@@ -236,6 +236,23 @@ Without the full validation argument, this command authenticates provenance and 
 
 The historical eight-case evaluation and 20-example controls remain available through `evaluate.py` without `--full-validation` and `scripts/experiments/stage1_recovery_controls.sh`; their results remain separate.
 
+### Measured-candidate quality (validation only)
+
+Exact agreement with the selected training label measures imitation. It does not tell us whether a different generated design is good. After the full constrained-decoder evaluation has written both `adapter_0_field_greedy.json` (historical checkpoint) and `adapter_1_field_greedy.json` (recovery checkpoint), the same evaluator can match predictions to raw measurements from validation-family rows:
+
+```bash
+"$PYTHON" -B -m experiments.stage1_recovery.evaluate \
+  --prepared "$PREPARED" \
+  --measured-quality-predictions \
+    artifacts/diagnostics/stage1_full_data_recovery_validation/adapter_0_field_greedy.json \
+    artifacts/diagnostics/stage1_full_data_recovery_validation/adapter_1_field_greedy.json \
+  --output artifacts/diagnostics/stage1_full_data_recovery_measured_quality
+```
+
+This CPU-only pass also generates the legal constant baseline from training labels. Each output is aligned to its full request identity (kernel/source, device, clock, budget, objective and measured-row ID), so one measured row reused under two budgets is not conflated. A predicted design is measured only on exact source/kernel, device, measured clock and complete directive assignment. For each request, the comparison pool is every raw measured configuration in the validation split at that same source/device/clock; its denominator is the minimum-latency candidate feasible under the request budget. Latency retains the source dataset's `Latency_msec` unit (milliseconds). Fractional budgets use the same reported-utilization fraction rule as `design_fits_shared_budget`; rounded integer resource counts are only the prompt representation. Exact duplicate design receipts are collapsed only when latency and all four resource-utilization fields agree. Conflicting duplicate receipts fail closed.
+
+An unmatched prediction has `measured_qor: null` and unknown regret. Regret and the within-1%/5% rates use only matched feasible outputs; the report separately gives match coverage, infeasible matches and per kernel/device/clock/budget-group coverage. These are selected, measured-only diagnostics: low match coverage cannot support a claim about the full generated policy. The selected-label match remains reported separately. Budget/clock/device transition reports give overlapping pair counts, participating request counts and separate descriptive macro-averages for complete transitions, changed fields and invariant pairs by fixed-context group; those pairs are not independent observations.
+
 ## Evidence boundaries and deferred work
 
 See [RESULTS.md](RESULTS.md) for newly executed tests, smoke/training status and authenticated receipts. The full-data implementation does not establish recovery until a completed adapter beats the reference and legal baseline on meaningful generated decisions and correct target transitions.

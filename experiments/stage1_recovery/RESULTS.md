@@ -109,3 +109,31 @@ For this execution, monitor `/tmp/stage1-full-data-ce-recovery.log` and `mailohl
 - `mailohls_runs/stage1_full_data_ce_recovery_s123/full_run_report.json` — authenticated optimizer/schedule/checkpoint and promotion assessment.
 
 `WAITING_FOR_TRAINING` is not a successful learning result. A failure or source-code mismatch stops postprocessing; no checkpoint is promoted. Generated artifacts remain ignored by Git. The final classification must be taken from completed measurements, not the launch-time snapshot.
+
+## Assessment follow-up — 2026-10-29 19:58:52 UTC
+
+The full-data run is **still executing**; this is a progress receipt, not its final result. The host GPU process is PID `2893110` on the assigned V100S, using about 18.8 GiB at 99% GPU utilization when checked. The audit records 88 successful updates out of the Trainer's 546-step plan, zero AMP-skipped updates, finite recorded embedding/LoRA gradient norms, and scheduler epoch 88. The postprocessor remains `WAITING_FOR_TRAINING`. The 274-step one-effective-epoch guard has not been reached. The final adapter and all-383-context assessment therefore remain pending.
+
+The frozen protocol SHA-256 is `2d8fae40dedcf141268f6190f94073492eb3eecd244e9640b4691503d13895da`. Its selected context counts (2,187 train / 383 validation), dataset, split, source-sidecar, dataset-manifest and training-code snapshot hashes were rechecked successfully. The contract confirms a fresh adapter from the pinned DeepSeek backbone and `legacy` supervision with the stronger learning rates; this run does not test decision-aware CE. The historical reference adapter remains unchanged.
+
+At the latest follow-up, 2026-10-29 20:03:15 UTC, it had advanced to **100/546** successful updates, still with zero skipped updates; selection files remained at steps 0 and 50 and the postprocessor was still waiting. Progress is reported from the append-only update audit and training log, not inferred from adapter files.
+
+The latest periodic decision selection is step 50; the best-selection record is still step 0. The step-50 key has lower primary core nonforced balanced recall than step 0, although its complete-action component is higher; both show zero correct complete budget transitions so far. This is an interim selection trajectory, not a completed validation comparison or a promotion decision.
+
+On the same 62 periodic cases, the current intermediate checkpoint metrics are:
+
+| Snapshot | Core nonforced balanced recall | Complete loop actions | Complete array actions | All complete actions | Positive PIPE recall | Positive UNROLL recall | Exact designs | Correct changed budget pairs |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Fresh adapter, step 0 | 26.16% | 0.00% | 10.57% | 2.84% | 100.00% | 12.92% | 0/62 | 0/67 |
+| Step 50 | 19.32% | 24.85% | 0.81% | 18.38% | 54.48% | 2.25% | 0/62 | 0/67 |
+| Training-derived constant | 26.74% | 3.29% | 15.45% | 6.56% | 0.00% | 0.00% | 0/62 | 0/67 |
+
+All outputs in this table were legal under the source domains. Step 50 improves complete loop decisions on this small bank but loses array decisions, has lower core-balanced recall than both alternatives, and has no correct budget transition. The lexicographic predeclared selector therefore retains step 0; this is not evidence that a trained checkpoint is ready for Stage 2. The step-50 output has an exact measured-design match for **0/62** cases, leaving its measured QoR unknown throughout; this low coverage cannot be repaired by calculating regret on unmatched outputs. At 20:00:15 UTC the optimizer audit had advanced to **92/546** successful updates, still with zero skips; the job remained active.
+
+Teacher-forced validation CE on that bank decreased from **1.1767** at step 0 to **0.5481** at step 50, while the predeclared core decision score decreased. This is why the final assessment uses constrained complete outputs and transitions rather than CE alone.
+
+To validate the new measured-candidate evaluator before the full report exists, the step-50 saved predictions were checked against the authenticated 62-case periodic bank. They matched **0/62** raw measured complete designs, so their measured QoR/regret is unknown for every case. This subset is deliberately not accepted by the final full-validation CLI, which requires all 383 unique selected validation contexts. It is not used as the final model assessment.
+
+The read-only measured-candidate evaluator was added on a separate worktree/branch. It reuses the validation split and measured rows only, checks exact source/device/clock/full-assignment identity, uses the production fractional resource-feasibility rule, and emits unknown QoR for unmatched outputs. CPU tests cover context mismatches, repeated measured rows under distinct budget requests, feasibility, regret, duplicate receipts, held-out row exclusion and overlapping target-pair accounting. Focused evaluation/recovery/domain tests pass **58 tests**; the complete `LLM_branch/tests` plus directive-domain suite passes **172 tests, one CUDA-only skip**. The earlier separate V100 FP16 smoke remains **1 passed**. The command and metric boundaries are documented in the canonical [README](README.md). No second training run was launched.
+
+The authenticated validation split contains **13,011** raw measurement rows; the exact kernel/source/device/clock/directive identities were unique across all 13,011 in the validation-pool audit, so no duplicate aggregation was needed for this dataset. The evaluator still rejects conflicting duplicates if a future authenticated input contains them.
