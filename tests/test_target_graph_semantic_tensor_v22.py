@@ -122,10 +122,44 @@ def test_affine_unknown_or_wrong_ssa_binding_is_masked_not_zero_stride():
     assert row[_idx('affine_map_supported')] == 0
     assert row[_idx('affine_map_overflow')] == 0  # malformed binding is unknown, not truncation
 
-    over_cap = _affine_fixture('affine_map<(d0, d1, d2, d3, d4) -> (d0+d1+d2+d3+d4)>')
-    edge = _one_edge(over_cap, 'memory_access')
-    row = semantic.edge_features(over_cap, *edge[:2], edge[2], semantic._index_bindings(over_cap))
+    # Quasi-affine operations stay unsupported instead of being mislabeled as
+    # linear coefficients or zero stride.
+    for operator in ('mod', 'floordiv', 'ceildiv'):
+        assert semantic.parse_linear_affine_map(
+            f'affine_map<(d0) -> (d0 {operator} 4)>') is None
+
+    wide_map = 'affine_map<(d0, d1, d2, d3, d4)[s0, s1] -> (-2*d0 + d1 + d2 + d3 + d4 + s0 - s1)>'
+    wide = _affine_fixture(wide_map)
+    edge = _one_edge(wide, 'memory_access')
+    row = semantic.edge_features(wide, *edge[:2], edge[2], semantic._index_bindings(wide))
     assert row[_idx('affine_map_known')] == 1
+    assert row[_idx('affine_map_supported')] == 1
+    assert row[_idx('affine_map_overflow')] == 0
+    assert _pair(row, 'affine_input_count_value') == semantic._pair(7)
+    bindings = semantic._index_bindings(wide)
+    for value, _, attrs in wide.edges(data=True):
+        if attrs.get('relation_type') != 'operand':
+            continue
+        bound = bindings[(value, 'op:kernel:op1', attrs['legacy_evidence']['position'])]
+        assert bound['input_ordinal'] == attrs['legacy_evidence']['position'] - 1
+        assert bound['supported']
+
+    repeated = _affine_fixture('affine_map<(d0)[s0] -> (d0 + d0 - 3*s0 + 2)>')
+    parsed = semantic.parse_linear_affine_map(
+        'affine_map<(d0)[s0] -> (d0 + d0 - 3*s0 + 2)>')
+    assert parsed['results'][0]['coefficients'] == {'d0': 2, 's0': -3}
+    assert parsed['results'][0]['offset'] == 2
+
+    three_results = _affine_fixture('affine_map<(d0) -> (d0, d0 + 1, -d0)>')
+    edge = _one_edge(three_results, 'memory_access')
+    row = semantic.edge_features(three_results, *edge[:2], edge[2],
+                                 semantic._index_bindings(three_results))
+    assert row[_idx('affine_map_supported')] == 1
+    assert _idx('affine_offset_2_value') < len(row)
+    four_results = _affine_fixture('affine_map<(d0) -> (d0, d0, d0, d0)>')
+    edge = _one_edge(four_results, 'memory_access')
+    row = semantic.edge_features(four_results, *edge[:2], edge[2],
+                                 semantic._index_bindings(four_results))
     assert row[_idx('affine_map_supported')] == 0
     assert row[_idx('affine_map_overflow')] == 1
 
@@ -271,7 +305,7 @@ def test_authenticated_coverage_target_independence_compaction_and_kalman_masks(
     repeated = tensors.tensorize(overlay.enrich(original, 'zcu104', 10))
     assert torch.equal(zcu.edge_attr, repeated.edge_attr)
     assert torch.equal(zcu.action_semantic, repeated.action_semantic)
-    assert zcu.audit['schema'] == 'salt-hls-target-tensors-v3-semantic-experimental'
+    assert zcu.audit['schema'] == 'salt-hls-target-tensors-v4-semantic-wide-affine-experimental'
     assert zcu.audit['previous_tensor_schema'] == tensors.LEGACY_SCHEMA
     assert compiler.canonical_json(compiler.graph_payload(original)) == before
     for profile, clock in [('u200', 10), ('u50', 10), ('zcu104', 6.67)]:

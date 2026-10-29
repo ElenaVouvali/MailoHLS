@@ -10,7 +10,9 @@ import math
 import re
 
 SIGNED_SCALE = 24.0
-MAX_AFFINE_INPUTS = 4
+# Input operands are represented by one edge per verified SSA operand, so an
+# input-count cap would discard valid map bindings without saving tensor width.
+MAX_AFFINE_INPUTS = None
 MAX_AFFINE_RESULTS = 3
 MAX_VIEW_DIMS = 4
 
@@ -126,7 +128,7 @@ def _index_context(graph):
             continue
         parsed, values, positions = valid
         map_row = {'parsed': parsed, 'values': values, 'positions': positions,
-                   'supported': len(values) <= MAX_AFFINE_INPUTS and len(parsed['results']) <= MAX_AFFINE_RESULTS,
+                   'supported': len(parsed['results']) <= MAX_AFFINE_RESULTS,
                    'witness': str(key)}
         prior_map = access_maps.get(operation)
         if prior_map is not None and prior_map.get('conflict'):
@@ -138,7 +140,7 @@ def _index_context(graph):
             access_maps[operation] = map_row
         if not map_row['supported']:
             continue
-        if len(values) > MAX_AFFINE_INPUTS or len(parsed['results']) > MAX_AFFINE_RESULTS:
+        if len(parsed['results']) > MAX_AFFINE_RESULTS:
             continue
         # One map may be repeated on multiple resolved-root edges. A conflict
         # invalidates the binding instead of selecting one arbitrary witness.
@@ -317,7 +319,7 @@ def edge_features(graph, source, target, attrs, bindings=None, access_maps=None)
                         and len(info.get('operand_positions') or []) == len(parsed['inputs']))
         values['affine_map_supported'] = float(is_bound)
         values['affine_map_overflow'] = float(parsed is not None and
-            (len(parsed['results']) > MAX_AFFINE_RESULTS or len(parsed['inputs']) > MAX_AFFINE_INPUTS))
+            len(parsed['results']) > MAX_AFFINE_RESULTS)
         if is_bound:
             for name, number in [('affine_input_count', len(parsed['inputs'])),
                                  ('affine_result_count', len(parsed['results'])),
@@ -397,10 +399,10 @@ def edge_features(graph, source, target, attrs, bindings=None, access_maps=None)
 
 
 def semantic_metadata():
-    return {'schema': 'salt-hls-semantic-edge-features-v1', 'feature_names': list(FEATURE_NAMES),
+    return {'schema': 'salt-hls-semantic-edge-features-v2', 'feature_names': list(FEATURE_NAMES),
             'signed_log_scale': SIGNED_SCALE, 'max_affine_inputs': MAX_AFFINE_INPUTS,
             'max_affine_results': MAX_AFFINE_RESULTS, 'max_view_dimensions': MAX_VIEW_DIMS,
-            'affine_parser': 'additive integer-linear dN/sN expressions with exact SSA operand binding'}
+            'affine_parser': 'additive integer-linear dN/sN expressions with exact SSA operand binding; arbitrary verified input count'}
 
 
 def action_edge_summary(graph, action_node, action_target, semantic_rows, edge_records):

@@ -29,7 +29,7 @@ def test_action_demand_tensor_is_aligned_masked_and_gradient_connected(tmp_path)
     graph=_graph(tmp_path)
     joint=overlay.enrich(graph,'zcu104',10)
     data=tensors.tensorize(joint)
-    assert tensors.SCHEMA=='salt-hls-target-tensors-v3-semantic-experimental'
+    assert tensors.SCHEMA=='salt-hls-target-tensors-v4-semantic-wide-affine-experimental'
     assert data.action_demand.shape==(1,64,tensors.ACTION_DEMAND_DIM)
     assert data.action_demand_known_mask.shape==(1,64,len(tensors.demand.NUMERIC_FEATURES))
     assert data.action_demand_mask[0,6].item() is False  # unresolved absolute L7 remains slot 6

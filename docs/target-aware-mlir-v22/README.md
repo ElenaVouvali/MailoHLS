@@ -1657,3 +1657,54 @@ SSA binding of affine dimensions/symbols and the distinct view behavior of
 `TransformerConv`](https://pytorch-geometric.readthedocs.io/en/2.6.1/generated/torch_geometric.nn.conv.TransformerConv.html)
 uses edge features through its `edge_dim` projection; the implementation
 keeps that path and does not add GNN depth or attention heads.
+
+## Affine and Dependence Coverage Refinement
+
+The V3 tensor design above documents the previous experimental schema. The
+current derived tensor schema is
+`salt-hls-target-tensors-v4-semantic-wide-affine-experimental`; the prior V3
+schema and its pilot results remain historical. The change removes the fixed
+four-input cap because every map input is already represented by a separate
+SSA-bound operand edge. The 108 semantic edge channels, action feature width,
+two TransformerConv layers, and 128D action memory are unchanged.
+
+The authenticated 63-snapshot audit found 2,995 unique memory-access
+operations, 2,741 recorded affine maps, and 2,719 maps with verified SSA input
+bindings. No map exceeded four inputs or three results (the observed maxima
+were four and two). Thus, this cap removal causes no graph-specific tensor
+value changes in RC3, but future verified maps are not unnecessarily rejected.
+The three-result cap remains because increasing it has no observed coverage
+benefit. The audit also found 757 view mappings, with shape rank at most three;
+none supplied static offset/size/stride vectors, so no dimension vector was
+truncated.
+
+Twenty-two recorded maps use operators outside the additive linear parser: 21
+map records contain `floordiv`, 17 contain `mod` (overlap is possible), and
+none contain `ceildiv`. Some are visible to registered actions, including AES
+`L6`, KNN coalescing `L2`–`L4`, and LavaMD loop actions. These remain unknown in
+linear tensor channels. They are not approximated as strides or offsets. The
+focused [audit report](semantic-coverage-repair.md) gives the per-snapshot
+counts and exact examples.
+
+The native RC3 dependence analyzer still records the first positive query
+depth and stops. The audit found 1,409 relationships with more than one common
+affine-loop level; for 385 positive relationships, later levels were not
+queried, leaving 863 possible query slots without results. This derived count
+does not establish whether any omitted depth has or lacks dependence. The
+historical graph edges and patch were left unchanged. A separately versioned
+native toolchain emitting depth-indexed `dependence`/`no_dependence`/`failure`
+evidence is needed before those features can be consumed. AES scope failures
+and Kalman pointer-derived unknowns remain unknown. Details and reproduction
+commands are in the [coverage audit](semantic-coverage-repair.md).
+
+Verification: the semantic-tensor/action-demand tests passed (12 tests), and
+the V2.2 graph tests passed (59 tests); all 63 RC3 graph members authenticated.
+The broader overlay test invocation had 37 passes and 21 setup errors because
+the local Python 3.8.10 lacks `pathlib.Path.is_relative_to`, required by the
+archive-extraction helper. No dependence-depth reanalysis, GNN training, HLS
+synthesis, or QoR evaluation was run. This is a bounded representation
+correction, not evidence of improved prediction or target generalization.
+For the AES graph at ZCU104/10 ns, V3 and V4 produced identical tensors
+(`60,297,588` bytes across 25 tensor fields); CPU tensorization took 22.7475 s
+and 22.4770 s respectively in this single comparison. This does not estimate
+GPU training memory or throughput.

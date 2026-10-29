@@ -499,3 +499,12 @@ graphs, canonical/compact equality, action masks and gradient flow. This
 validates information preservation and model connectivity only. No new
 training run or QoR experiment was performed, and the pilot's CONDITIONAL GO
 result is unchanged.
+
+The later semantic-coverage repair introduces tensor schema
+`salt-hls-target-tensors-v4-semantic-wide-affine-experimental`, which removes
+the former fixed affine-input cap without changing feature dimensions. This
+does not change the tensors, checkpoints, measurements, or conclusions recorded
+in this pilot; the pilot remains tied to its original V2/V3 schema provenance.
+See [`docs/target-aware-mlir-v22/semantic-coverage-repair.md`](../../docs/target-aware-mlir-v22/semantic-coverage-repair.md)
+for the authenticated corpus audit and remaining quasi-affine/dependence
+limitations.

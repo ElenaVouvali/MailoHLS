@@ -24,7 +24,7 @@ from GNN_branch import action_demand_v22 as demand
 from GNN_branch import semantic_tensor_features_v22 as semantic
 
 LEGACY_SCHEMA = 'salt-hls-target-tensors-v2-action-demand-experimental'
-SCHEMA = 'salt-hls-target-tensors-v3-semantic-experimental'
+SCHEMA = 'salt-hls-target-tensors-v4-semantic-wide-affine-experimental'
 NODE_TYPES = tuple(sorted(compiler.NODE_KINDS)) + ('hardware_target', 'hardware_resource')
 FORWARD_RELATIONS = tuple(sorted(compiler.EDGE_KINDS | overlay.RELATIONS))
 RELATIONS = FORWARD_RELATIONS + tuple('reverse:' + r for r in FORWARD_RELATIONS)
