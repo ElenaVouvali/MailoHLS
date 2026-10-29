@@ -1,14 +1,22 @@
 # V2.2 target-aware GNN training
 
-**Status: A2 execution pending.** The experiment implementation and data
-correspondence audit are prepared, but neither model arm has been trained and
-no QoR or ranking result is claimed. The Codex execution environment does not
-have a working NVIDIA driver. An SSH attempt from this environment could not
-verify liono's host key, so no command has been run there. The user reports
-liono's physical GPU 0 is an idle 15 GB NVIDIA A2 and GPU 1 is a V100S running
-another job; only physical GPU 0 is to be used. The liono driver/runtime and
-PyTorch/PyG stack still need verification from the user's existing liono
-terminal.
+**Status: paired training in progress; no QoR or ranking conclusion yet.** The
+experiment is running on liono's Tesla V100S because the NVIDIA A2 was occupied
+by a VLLM process. CUDA ordinal mapping is reversed relative to `nvidia-smi`'s
+physical indices on this host: `CUDA_VISIBLE_DEVICES=1` exposes the A2 as
+visible `cuda:0`, while `CUDA_VISIBLE_DEVICES=0` exposes the V100S. The A2
+process was not interrupted. The V100S already had a Stage-1 training process;
+the user requested trying the V100, so this GNN run is sharing it and may slow
+that job, but has not stopped or altered it.
+
+The V100 preflight passed on authenticated Stencil2D, GEMM and AES graphs and
+completed one measured-candidate optimizer update for each model arm. There
+were no OOMs; AES used 60,297,588 CPU tensor bytes and peaked at 656,113,664
+CUDA allocated bytes (about 626 MiB). The measured update was finite for both
+arms. The training output is at
+`/tmp/v22-target-aware-gnn-s123-v100-20261029`; at the latest report, only the
+authenticated data audit and initial protocol had been written, so no model
+arm had completed or produced evaluation metrics.
 
 ## What the experiment is meant to test
 
@@ -159,13 +167,14 @@ metrics are not results for this training implementation.
 ## Reproduction
 
 Requirements are the repository-compatible Python/PyTorch/PyG environment,
-CUDA driver/runtime, and authenticated V2.2 RC3 release. On liono, expose the
-idle physical A2 as the only visible GPU. Verify the device and environment
-first; do not select physical GPU 1, which is the active V100S.
+CUDA driver/runtime, and authenticated V2.2 RC3 release. On the current liono
+host, select the A2 with `CUDA_VISIBLE_DEVICES=1` or the V100S with
+`CUDA_VISIBLE_DEVICES=0`; verify the visible device name before running. The
+V100S was used for the current experiment only after the user requested it.
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 nvidia-smi
-CUDA_VISIBLE_DEVICES=0 python - <<'PY'
+CUDA_VISIBLE_DEVICES=1 nvidia-smi
+CUDA_VISIBLE_DEVICES=1 python - <<'PY'
 import torch
 import torch_geometric
 assert torch.cuda.is_available()
@@ -221,14 +230,25 @@ PYTHONPATH=. python -m experiments.v22_gnn_training.audit \
 # update per model arm on real measured training candidates. No checkpoint is
 # written by this preflight.
 test ! -e /tmp/v22-a2-memory-profile.json
-CUDA_VISIBLE_DEVICES=0 PYTHONPATH=. python -m experiments.v22_gnn_training.profile_memory \
+CUDA_VISIBLE_DEVICES=1 PYTHONPATH=. python -m experiments.v22_gnn_training.profile_memory \
   --release-dir /tmp/salt-v22-training-release \
   --output /tmp/v22-a2-memory-profile.json
 
 # Train the numerical and hardware-message arms. The output must be fresh.
-CUDA_VISIBLE_DEVICES=0 PYTHONPATH=. python -m experiments.v22_gnn_training.train \
+CUDA_VISIBLE_DEVICES=1 PYTHONPATH=. python -m experiments.v22_gnn_training.train \
   --release-dir /tmp/salt-v22-training-release \
   --output mailohls_runs/v22_target_aware_gnn_s123_a2 \
+  --steps 8000 --candidates 8
+```
+
+For a verified V100S context on this liono host, use `CUDA_VISIBLE_DEVICES=0`
+and add `--expected-gpu V100` to the memory preflight. The current paired run
+was launched with:
+
+```bash
+CUDA_VISIBLE_DEVICES=0 PYTHONPATH=. python -m experiments.v22_gnn_training.train \
+  --release-dir /tmp/salt-v22-training-release \
+  --output /tmp/v22-target-aware-gnn-s123-v100-20261029 \
   --steps 8000 --candidates 8
 ```
 

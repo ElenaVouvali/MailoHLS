@@ -190,6 +190,7 @@ class PreparedData:
         self.graphs = {}
         self.actions = {}
         self.profile_names = {}
+        self.preprocessed_action_cache = {}
         from LLM_branch.common.directive_domains import tcad
         for kernel in sorted({row['kernel_name'] for row in self.examples}):
             item = next((x for x in self.audit['kernels']
@@ -250,7 +251,6 @@ class PreparedData:
             values.sort(key=lambda row: row['config_hash'])
         self.graph_tensor_cache = OrderedDict()
         self.demand_cache = OrderedDict()
-        self.preprocessed_action_cache = {}
 
     def _preprocess_actions(self, kernel):
         if kernel not in self.preprocessed_action_cache:

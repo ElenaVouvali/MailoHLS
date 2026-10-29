@@ -70,7 +70,7 @@ def profile_one(path: Path, expected_sha: str, name: str, device: torch.device):
 
     result = {
         'case': name,
-        'graph_member': str(path.relative_to(ROOT)),
+        'graph_member': str(path),
         'graph_identity': base.graph['graph_identity'],
         'graph_member_sha256': expected_sha,
         'nodes': graph.num_nodes,
@@ -150,15 +150,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--release-dir', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--expected-gpu', default='A2',
+                        help='Required substring in the visible CUDA device name (default: A2)')
     args = parser.parse_args()
     if not torch.cuda.is_available():
         raise RuntimeError('CUDA is unavailable; no memory profile was produced')
     if torch.cuda.device_count() != 1:
-        raise RuntimeError('Expose only the assigned A2 with CUDA_VISIBLE_DEVICES=0')
+        raise RuntimeError('Expose only the assigned A2 and verify its visible device name')
     device = torch.device('cuda:0')
     gpu_name = torch.cuda.get_device_name(device)
-    if 'A2' not in gpu_name:
-        raise RuntimeError('Expected the A2 at visible cuda:0, found ' + gpu_name)
+    if args.expected_gpu.casefold() not in gpu_name.casefold():
+        raise RuntimeError(f'Expected {args.expected_gpu!r} at visible cuda:0, found {gpu_name}')
     audit_path = args.output.with_name(args.output.stem + '.data-audit.json')
     if args.output.exists() or audit_path.exists():
         raise FileExistsError('Refusing to overwrite memory-profile output or audit')
