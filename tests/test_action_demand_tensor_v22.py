@@ -53,4 +53,3 @@ def test_candidate_head_has_a_separate_optional_demand_path(tmp_path):
     extra=torch.zeros(1,64,CANDIDATE_DEMAND_DIM,requires_grad=True)
     model(batch,candidate,torch.tensor([0]),'enriched',candidate_demand=extra).sum().backward()
     assert extra.grad is not None and torch.isfinite(extra.grad).all() and extra.grad.abs().sum()>0
-
