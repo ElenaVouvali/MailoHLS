@@ -403,3 +403,17 @@ def test_optimizer_audit_resume_preserves_abandoned_receipts_without_double_coun
     assert audit.completed==1
     assert [r['step'] for r in audit.records]==[1]
     assert len(list(tmp_path.glob('optimizer_audit_before_resume_*.json')))==1
+
+
+def test_recovery_freeze_rejects_changed_selection_before_loading_model(tmp_path,monkeypatch):
+    from experiments.stage1_recovery import prepare as preparation
+    prepared=tmp_path/'prepared';prepared.mkdir()
+    row=dict(_context(_decision_row(),100),resource_budget_id='full')
+    for split in ['train','val']:
+        (prepared/f'{split}_reconstructed_selected.jsonl').write_text(json.dumps(row)+'\n')
+    monkeypatch.setattr(preparation,'prepare',lambda *args:{})
+    args=SimpleNamespace(disable_structural_memory=True,init_adapter_dir='',resume_from_checkpoint='')
+    changed=dict(row,target=row['target'].replace('_UNROLL_L3} = 2','_UNROLL_L3} = 0'))
+    with pytest.raises(ValueError,match='train selection differs'):
+        preparation.freeze_full_run(tmp_path/'run',prepared,[changed],[row],args)
+    assert not (tmp_path/'run/recovery_protocol.json').exists()

@@ -80,7 +80,7 @@ Production now offers opt-in `decision` and `decision_balanced` loss policies al
 
 Executed validation:
 
-- CPU: `python -B -m pytest -q LLM_branch/tests tests/test_directive_domains.py` — **163 passed, one CUDA smoke skipped** in the sandbox.
+- CPU: `python -B -m pytest -q LLM_branch/tests tests/test_directive_domains.py` — **164 passed, one CUDA smoke skipped** in the sandbox.
 - V100: `python -B -m pytest -q LLM_branch/tests/test_stage1_fp16_smoke.py` — **one passed**, separately.
 - Token preflight: **2,187/2,187 examples under each of three policies**, identical target IDs, no supervised input-special tokens, no code truncation; 480–6,656 tokens.
 - Fresh rank-8 DeepSeek production smoke: **two attempted and two successful updates**, finite nonzero LoRA and input-token gradients, finite validation CE, adapter/tokenizer/checkpoint saved. This is an interface check, not a recovery result.
@@ -96,3 +96,5 @@ The reference adapter SHA256 remains `a15a0af1022370b08ee1e64cb9934a12e9f1c7ef1b
 Two additional defensive tests verified optional weighting/accounting: changed winners that both fit both budgets are not emphasized, and resuming an older checkpoint archives later abandoned audit receipts instead of double-counting their updates. Both were reproduced as failing cases before correction. These optional/resume safeguards do not change the fresh, contrast-disabled CE run; its exact earlier implementation bytes are archived under its `source_snapshot/`.
 
 The final isolation check also omits Stage-1-specific metadata entirely from Stage-2 contracts, rather than adding a null field that would change a historical resume hash. This does not change the Stage-1 branch or the running CE optimization. Full validation uses a fixed evaluation seed and records dataset/selection hashes; the `finalize --full-run` command requires completed root artifacts and matching reference/candidate lineage before reporting a recovery.
+
+Fresh reproductions can now set `STAGE1_RECOVERY_PREPARED` to authenticate the complete selected train/validation multisets and automatically seal the protocol/source snapshot before model loading. A CPU integration check accepted all 2,187/383 authenticated contexts regardless of row ordering, while a changed-label test failed closed. This replaces the manual protocol-sealing step used to launch the already running initial experiment; it does not restart or alter that experiment.

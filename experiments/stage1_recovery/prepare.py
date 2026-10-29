@@ -223,6 +223,65 @@ def audit_prepared(parent, output):
     return audit
 
 
+def freeze_full_run(output, prepared, train, val, args,
+                    parent='mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1'):
+    """Seal existing selected data and code, not a second selection pipeline."""
+    import subprocess
+    from collections import Counter
+    from experiments.stage1_recovery.decisions import parse
+    output, prepared, parent = Path(output), Path(prepared), Path(parent)
+    manifest = prepare(parent, prepared)
+    if not args.disable_structural_memory or args.init_adapter_dir:
+        raise ValueError('Recovery freeze requires fresh Stage-1 lineage, not an existing adapter')
+    def identity(row):
+        return (row['kernel_name'], row['_jsonl_idx'], row['device'], row['selected_clock_period'],
+                row['resource_budget_id'], row['obj_mode'], tuple(sorted(parse(row['target']).items())))
+    for name,actual in [('train',train),('val',val)]:
+        expected=[json.loads(line) for line in (prepared/f'{name}_reconstructed_selected.jsonl').read_text().splitlines()]
+        if Counter(map(identity,actual)) != Counter(map(identity,expected)):
+            raise ValueError(f'{name} selection differs from authenticated historical reconstruction')
+    names=['LLM_branch/train/train_SFT_xattn_new.py','LLM_branch/train/stage1_decision_loss.py',
+           'experiments/stage1_recovery/decisions.py','experiments/stage1_recovery/prepare.py',
+           'scripts/training/train_stage1.sh']
+    hashes={name:sha(name) for name in names}
+    existing=output/'recovery_protocol.json'
+    if existing.exists():
+        if not args.resume_from_checkpoint:
+            raise FileExistsError('Recovery protocol is already sealed; use a fresh output')
+        previous=json.loads(existing.read_text())
+        if previous['input_manifest_sha256'] != sha(prepared/'manifest.json'):
+            raise ValueError('Resume selection manifest differs from frozen protocol')
+        if previous['implementation_sha256'] != hashes:
+            raise ValueError('Resume implementation differs; use the authenticated source snapshot')
+        for name,digest in hashes.items():
+            if sha(output/'source_snapshot'/name)!=digest:
+                raise ValueError('Resume source snapshot changed')
+        return sha(existing)
+    if args.resume_from_checkpoint:
+        raise FileNotFoundError('Resume requires the original sealed recovery protocol')
+    protocol=dict(schema='mailohls-stage1-full-data-recovery-protocol-v1',
+        git_head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+        implementation_sha256=hashes,input_manifest=manifest,input_manifest_sha256=sha(prepared/'manifest.json'),
+        initialization='fresh rank-8 attention LoRA from pinned backbone',objective=args.objective,seed=args.seed,
+        supervision=args.stage1_supervision_policy,contrast_weight=args.stage1_contrast_weight,
+        lora_lr=args.lr_lora,embedding_lr=args.lr_embed,epochs=args.epochs,
+        gradient_accumulation=args.grad_accum,batch_size=args.batch_size,max_steps=args.max_steps,
+        reconstructed_train_contexts=len(train),distinct_selected_measured_rows=len({r['_jsonl_idx'] for r in train}),
+        selected_validation_contexts=len(val),
+        historical_compaction=dict(target_cap=args.budget_target_max_duplicates,invariant_cap=args.budget_invariant_max_duplicates),
+        reference_hashes={name:sha(parent/name) for name in ['adapter_model.safetensors','training_contract.json','tokenizer.json']},
+        automatic_promotion=False,stage2_gnn_dpo_hls=False)
+    for name in names:
+        destination=output/'source_snapshot'/name
+        destination.parent.mkdir(parents=True,exist_ok=True)
+        with destination.open('xb') as handle:
+            handle.write(Path(name).read_bytes())
+    with (output/'recovery_protocol.json').open('x') as handle:
+        json.dump(protocol,handle,indent=2,sort_keys=True)
+        handle.write('\n')
+    return sha(output/'recovery_protocol.json')
+
+
 def validate_prepared_tokens(parent, output):
     """CPU preflight using the pinned checkpoint tokenizer, never model weights."""
     from LLM_branch.inference.eval_stage1_stage2_stage3 import load_checkpoint_tokenizer

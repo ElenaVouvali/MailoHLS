@@ -59,6 +59,11 @@ def finalize_full_run(run, prepared, validation_report=None):
     run, prepared = Path(run), Path(prepared)
     manifest = prepare(DEFAULT_PARENT, prepared)
     protocol = json.loads((run/'recovery_protocol.json').read_text())
+    if (run/'training_contract.json').is_file():
+        contract=json.loads((run/'training_contract.json').read_text())
+        sealed=(contract.get('stage1_supervision') or {}).get('recovery_protocol_sha256')
+        if sealed and sealed != sha(run/'recovery_protocol.json'):
+            raise ValueError('Recovery protocol differs from the training contract')
     if protocol['input_manifest_sha256'] != sha(prepared/'manifest.json'):
         raise ValueError('Recovery selection manifest changed')
     for name,digest in protocol['reference_hashes'].items():

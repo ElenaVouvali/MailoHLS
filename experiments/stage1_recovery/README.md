@@ -140,6 +140,8 @@ With batch size one, historical division by the batch sum cancels sample weights
 
 Keep the original QLoRA architecture, dropout 0.10, paged AdamW8bit, LoRA weight decay 0.01, embedding weight decay zero, gradient checkpointing, clipping norm 1, batch size 1 and accumulation 8. Historical launcher defaults remain LoRA LR `1.5e-5` and embedding LR `5e-6`. The optimized-CE experiment explicitly uses `1e-4` and `2e-5`, with cosine scheduling, 5% warmup and two epochs. These rates are a starting point, not a demonstrated full-data optimum.
 
+Setting `STAGE1_RECOVERY_PREPARED` authenticates the complete selected train/validation context multisets against reconstruction and seals code/input hashes and a source snapshot before loading model weights. A selection mismatch fails before training.
+
 Fresh recovery starts from the pinned backbone and **fresh LoRA**, not the collapsed adapter. Existing-adapter initialization remains explicitly opt-in via production arguments. Output paths refuse overwrites. The reference checkpoint is never a recovery output path.
 
 For 2,187 examples, covering one epoch needs `ceil(2187/8)=274` update opportunities. The Stage-1 early-stopping guard remains 274. Installed Transformers 4.51.0 computes epoch-based `max_steps` using **floor**, giving 546 total planned steps for two epochs, rather than 548. The existing scheduler is retained. `schedule_audit.json` records the actual Trainer schedule; `optimizer_audit.json` records AMP-skipped versus successful updates, scheduler position, group rates and periodic gradient norms. A saved best step alone does not reveal when training ended. On resume, audit history beyond the restored checkpoint is archived and excluded from the retained trajectory; abandoned physical work remains visible in that receipt.
@@ -179,6 +181,7 @@ export OBJECTIVE=PARETO_LATENCY
 export STAGE1_LR_LORA=1e-4 STAGE1_LR_EMBED=2e-5
 export STAGE1_BUDGET_INVARIANT_MAX_DUPLICATES=-1
 export STAGE1_DOMAIN_REGISTRY=mailohls_runs/stage1_final_final_latency_s123/directive_domain_registry.json
+export STAGE1_RECOVERY_PREPARED="$PREPARED"
 export STAGE1_DECISION_DIAGNOSTICS=1
 export STAGE1_SUPERVISION_POLICY=legacy STAGE1_CONTRAST_WEIGHT=1
 ```

@@ -897,8 +897,16 @@
       "Resume audit archives abandoned post-checkpoint history; this CE run starts fresh.",
       "Stage-1-only contract metadata is omitted entirely from Stage-2 contracts, preserving historical resume hashes; Stage-1 branch is unchanged."
     ],
-    "status": "in_progress",
+    "status": "launched_not_completed_at_recording",
     "supervision": "legacy"
+  },
+  "protocol_freeze_integration": {
+    "changed_label_rejected": true,
+    "immutable_resume_reuse": true,
+    "model_loaded": false,
+    "order_independent_multiset_match": true,
+    "training_contexts": 2187,
+    "validation_contexts": 383
   },
   "reference_saved_predictions": {
     "mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1/best_selection_metrics.json": {
@@ -1349,7 +1357,7 @@
     "shell_exit_reason": "Launcher edited while Bash waited for Python; final trailing read resumed at a shifted byte offset. Training completed and saved correctly; current launcher syntax/stub tests pass. Full run uses frozen launcher."
   },
   "tests": {
-    "cpu": "163 passed, 1 CUDA skip",
+    "cpu": "164 passed, 1 CUDA skip",
     "v100_fp16": "1 passed"
   },
   "token_preflight": {

@@ -7031,6 +7031,11 @@ def run_single_training(args):
             )
         )
 
+    recovery_protocol_sha256 = None
+    if args.stage1_recovery_prepared:
+        from experiments.stage1_recovery.prepare import freeze_full_run
+        recovery_protocol_sha256 = freeze_full_run(
+            args.output_dir, args.stage1_recovery_prepared, train_rows, val_rows, args)
     decision_balance = None
     if args.stage1_supervision_policy == "decision_balanced":
         from experiments.stage1_recovery.decisions import parse
@@ -7380,6 +7385,7 @@ def run_single_training(args):
         "directive_supervision_policy": mailohls_contract.DIRECTIVE_SUPERVISION_POLICY,
         **({"stage1_supervision": {
             "mode": args.stage1_supervision_policy,
+            "recovery_protocol_sha256": recovery_protocol_sha256,
             "version": stage1_decision_loss.VERSION,
             "implementation_sha256": {
                 name: _file_sha256(REPOSITORY_ROOT / name) for name in (
@@ -8615,6 +8621,8 @@ def main():
             "created atomically by the first arm and verified by later arms."
         ),
     )
+    ap.add_argument("--stage1_recovery_prepared", default=os.environ.get("STAGE1_RECOVERY_PREPARED", ""),
+                    help="Optional authenticated recovery selection; seals protocol before model loading")
     ap.add_argument("--stage1_supervision_policy", choices=stage1_decision_loss.POLICIES, default="legacy")
     ap.add_argument("--stage1_balance_min", type=float, default=.5)
     ap.add_argument("--stage1_balance_max", type=float, default=2.)
