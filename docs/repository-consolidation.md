@@ -86,7 +86,10 @@ remain. Do not retire branches until each selected artifact is on main or in a
 verified durable release and preservation tags are verified remotely.
 
 The original dirty-worktree snapshot remains byte-identical to the captured
-status and patch hashes. The clean maintenance branch includes the logical
-integration commits plus this inventory and README update. The integration
-branch has not yet been pushed or merged; the GitHub app previously returned
-HTTP 403 when asked to create a PR. Branch retirement is intentionally deferred.
+status and patch hashes. The clean maintenance branch
+`maintenance/repository-consolidation-clean-20261029` is published at
+`a082b614a64a065220ba3963e0ad2065bdc5d774`. GitHub PR creation was rejected by
+the connected integration with HTTP 403. `main` remains at
+`d488681f68e58ab1b1e666f6911f5257d6462dc2`; no merge or branch retirement has
+occurred. Branch retirement is deferred until the remaining audit and artifact
+publication work is complete.
