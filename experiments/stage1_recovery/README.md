@@ -40,6 +40,7 @@ The latency audit reproduced:
 | Quantity | Training | Validation, reported separately |
 |---|---:|---:|
 | Raw measured rows in split | 130,310 | 13,011 |
+| Objective-selected request contexts before compaction | 4,608 | 383 |
 | Selected request contexts after training compaction | 2,187 | 383 |
 | Distinct selected measured-row IDs | 905 | 87 |
 | Distinct complete assignments, keyed by program | 772 | 78 |
