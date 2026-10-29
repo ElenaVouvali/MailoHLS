@@ -1,13 +1,15 @@
 # V2.2 target-aware GNN training
 
-**Status: paired training in progress; no QoR or ranking conclusion yet.** The
-experiment is running on liono's Tesla V100S because the NVIDIA A2 was occupied
-by a VLLM process. CUDA ordinal mapping is reversed relative to `nvidia-smi`'s
-physical indices on this host: `CUDA_VISIBLE_DEVICES=1` exposes the A2 as
-visible `cuda:0`, while `CUDA_VISIBLE_DEVICES=0` exposes the V100S. The A2
-process was not interrupted. The V100S already had a Stage-1 training process;
-the user requested trying the V100, so this GNN run is sharing it and may slow
-that job, but has not stopped or altered it.
+**Status: interrupted before either model arm completed; no QoR or ranking
+conclusion.** A paired run was launched on liono's Tesla V100S because the
+NVIDIA A2 was occupied by a VLLM process. CUDA ordinal mapping is reversed
+relative to `nvidia-smi`'s physical indices on this host:
+`CUDA_VISIBLE_DEVICES=1` exposes the A2 as visible `cuda:0`, while
+`CUDA_VISIBLE_DEVICES=0` exposes the V100S. Neither other process was stopped
+or altered. The GNN process is no longer present, and its termination cause was
+not captured. Its output directory contains the authenticated data audit and
+initial protocol only; no model checkpoints or validation/test results were
+written.
 
 The V100 preflight passed on authenticated Stencil2D, GEMM and AES graphs and
 completed one measured-candidate optimizer update for each model arm. There
