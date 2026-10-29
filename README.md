@@ -5,6 +5,29 @@ optimization objectives, target FPGA, clock period, and available resources.
 The current implementation uses MLIR semantic graphs and GNN structural memory
 to condition an LLM. The paper also refers to this system as SALT-HLS.
 
+## Production and research extensions
+
+The production path uses the V1 GNN and its structural memory with the existing
+Stage-1/2/3 checkpoints and inference contracts. Checkpoint weights and selected
+artifact paths remain governed by [`FINAL_ARTIFACTS.json`](FINAL_ARTIFACTS.json);
+weights are supplied separately and are not changed by the experimental work.
+
+The MLIR V2.2 compiler graph and FPGA overlay are validated research extensions,
+not inputs compatible with the production V1 checkpoints. See the
+[V2.2 hardware-aware graph guide](docs/target-aware-mlir-v22/README.md). The
+[target graph tensor encoder](GNN_branch/target_graph_tensor_v22.py) and its
+[readiness experiment](experiments/target_graph_readiness/README.md) are
+experimental; their pilot was a conditional readiness result, not evidence of
+improved target generalization. Stage-1 decision-learning work is isolated under
+[`experiments/stage1_recovery/`](experiments/stage1_recovery/README.md) and does
+not replace selected checkpoints.
+
+The full 1,512-graph hardware catalog is preserved on the
+[`graphs/latest-v22-catalog` branch](https://github.com/ElenaVouvali/MailoHLS/tree/graphs/latest-v22-catalog).
+The authenticated 63-snapshot compiler release and checksums remain linked
+below. For repository integration and branch history see
+[`docs/repository-consolidation.md`](docs/repository-consolidation.md).
+
 ## Latest structural representation: V2.2
 
 **Available on `main`: V2.2 RC3, technically frozen; independent adjudication
@@ -52,7 +75,7 @@ to read, query or validate the release.
 
 | Branch | Implementation |
 | --- | --- |
-| [`main`](https://github.com/ElenaVouvali/MailoHLS/tree/main) | Latest framework development, V2.2 structural graphs and their verification; pretrained production models remain on V1. |
+| [`main`](https://github.com/ElenaVouvali/MailoHLS/tree/main) | Authoritative production framework plus clearly identified MLIR and learning experiments. |
 | [`mlir-target`](https://github.com/ElenaVouvali/MailoHLS/tree/mlir-target) | Preserved organized MLIR + target-conditioning baseline: multiscale GNN memory, target-aware SFT, structural cross-attention, DPO, clock selection, and device adaptation. |
 | [`llvm-ir`](https://github.com/ElenaVouvali/MailoHLS/tree/llvm-ir) | Original LLVM IR / ProGraML / GNN implementation, based on the `MailoHLS_paper_v1` snapshot (`c9b2f43`). |
 
