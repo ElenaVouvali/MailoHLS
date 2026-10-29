@@ -1657,3 +1657,14 @@ SSA binding of affine dimensions/symbols and the distinct view behavior of
 `TransformerConv`](https://pytorch-geometric.readthedocs.io/en/2.6.1/generated/torch_geometric.nn.conv.TransformerConv.html)
 uses edge features through its `edge_dim` projection; the implementation
 keeps that path and does not add GNN depth or attention heads.
+
+### Supervised V2.2 GNN training
+
+The source-audited measured-data training path, numerical-conditioning
+baseline, hardware-message arm, loss and evaluation protocol are documented in
+[`experiments/v22_gnn_training/README.md`](../../experiments/v22_gnn_training/README.md).
+That experiment package is experimental and currently **TRAINING BLOCKED**
+because no CUDA device/driver is exposed in its runtime. It has not produced a
+QoR result or selected checkpoint. Its historical seed-123 data audit is
+separate from the graph representation release and does not change the frozen
+RC3 graphs or the earlier readiness pilot.

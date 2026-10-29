@@ -499,3 +499,10 @@ graphs, canonical/compact equality, action masks and gradient flow. This
 validates information preservation and model connectivity only. No new
 training run or QoR experiment was performed, and the pilot's CONDITIONAL GO
 result is unchanged.
+
+The subsequent supervised-training protocol is documented in
+[`experiments/v22_gnn_training/README.md`](../v22_gnn_training/README.md). It
+uses the same V3 encoder but supplies candidate-demand features to the
+candidate-conditioned head and evaluates the original seed-123 family split.
+Its measurements, if/when run, are separate from this pilot; no new model
+results or changed conclusions are implied by that follow-on package.
