@@ -476,3 +476,26 @@ regression receipts are authenticated inherited evidence, not newly run tests.
 - [Alon and Yahav](https://arxiv.org/abs/2006.05205) explain long-range message
   bottlenecks. Passing a short hardware-path test does not establish that two
   layers capture every relevant program dependency.
+
+## Follow-on semantic tensor schema
+
+The committed pilot and its results use the recorded
+`salt-hls-target-tensors-v2-action-demand-experimental` schema. They remain
+unchanged and are not results for the later semantic encoder. The current
+`GNN_branch/target_graph_tensor_v22.py` emits
+`salt-hls-target-tensors-v3-semantic-experimental`: it preserves the same
+two-layer `TransformerConv`, hidden/output widths, typed relations, target
+context, static action-demand vectors and absolute action slots, while adding
+compiler-derived semantic channels to edge messages and a static
+action-neighborhood summary. V3 edge-input dimensions and learned feature
+projections differ, so V2 pilot model states are not compatible and must not be
+loaded as if they had received these features.
+
+Candidate-dependent workload/banking features remain a separate optional input
+to `CandidatePredictor`; neither V3 static semantic vectors nor the 128D action
+memory include proposed directive assignments. The V3 implementation has been
+checked for deterministic tensorization, authenticated representative RC3
+graphs, canonical/compact equality, action masks and gradient flow. This
+validates information preservation and model connectivity only. No new
+training run or QoR experiment was performed, and the pilot's CONDITIONAL GO
+result is unchanged.

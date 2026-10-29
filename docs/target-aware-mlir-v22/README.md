@@ -1284,17 +1284,19 @@ scheduler logic.
 
 ### Tensor integration and versions
 
-`GNN_branch/target_graph_tensor_v22.py` now declares
+The preceding action-demand pilot schema was
 `salt-hls-target-tensors-v2-action-demand-experimental`, distinct from the
-historical `salt-hls-target-tensors-v1-experimental`. There are 40 ordered
-static scalar features in `action_demand_v22.NUMERIC_FEATURES`; each is encoded
-as a normalized value plus a knownness bit (80 values per action slot).
+historical `salt-hls-target-tensors-v1-experimental`. The current semantic
+encoder is V3, detailed below. There are 40 ordered static scalar features in
+`action_demand_v22.NUMERIC_FEATURES`; each is encoded as a normalized value
+plus a knownness bit (80 values per action slot).
 Counts use `sign(x)*log2(1+abs(x))/24`; flags use the same transform. Tensor
 fields `action_demand_mask` and `action_demand_known_mask` distinguish absent
 descriptors from unknown individual fields. `SmallGraphEncoder` projects these
 features into the action-node state before message passing. The output still
 has 128 dimensions and retains exact absolute action slots; this is not a
-production GNN or a V1 checkpoint-compatible model.
+production GNN or a V1 checkpoint-compatible model. Historical V2 pilot
+results retain their original schema and are not measurements of V3.
 
 `experiments/target_graph_readiness/experiment.py` exposes
 `candidate_demand_tensor(graph, assignments, actions)` and accepts optional
@@ -1385,3 +1387,273 @@ unresolved-slot masks. It must export pragma-free `[max_slots,128]` action
 memory. Candidate descriptors can then be supplied separately to a future
 QoR/ranking head. Stage-2 integration, training and evaluation are not part of
 this task.
+
+## Semantic-Preserving Tensor Encoding for Hardware-Aware GNNs
+
+### Motivation and audit
+
+V2.2 RC3 retains semantic evidence beyond the first tensor view. The previous
+`salt-hls-target-tensors-v2-action-demand-experimental` encoded relation types,
+relation direction, read/write mode, dependence kind and a subset of evidence
+and root-completeness flags. It did not put access-map coefficients on the
+operand messages, dependence distance bounds on dependence messages, view
+offset/stride fields on view messages, or forwarding roles on loop-carried
+messages. Static action demand already counts workloads and dependence/access
+records; this extension adds relationship detail rather than recreating those
+counts.
+
+The field-level inventory was committed before implementation in
+[`semantic-tensorization-audit.md`](semantic-tensorization-audit.md). It records
+the source field, whether the overlay preserves it, prior tensor use, evidence
+meaning, directive relevance, and planned encoding. The authenticated RC3
+archive contains 3,011 access-index records across 63 canonical snapshots; all
+have equal-length `ssa_operands` and `operand_positions`. Of those, 2,837 are
+marked `compiler_recorded`; 174 are marked
+`compiler_recorded_pointer_SSA; affine_form_not_established` and remain unknown
+to the affine encoder.
+
+### Architecture and schemas
+
+```mermaid
+flowchart TD
+  A[Authenticated MLIR V2.2 RC3] --> B[Compiler semantic extraction]
+  B --> I[Affine maps and SSA index operands]
+  B --> D[Dependence kind distance and carrying loop]
+  B --> V[Memory views and root evidence]
+  B --> S[SSA forwarding roles]
+  B --> C[Call and argument binding evidence]
+  I --> T[Semantic tensor graph V3]
+  D --> T
+  V --> T
+  S --> T
+  C --> T
+  H[Existing FPGA target overlay] --> T
+  W[Existing static action workload] --> T
+  T --> G[Existing two-layer TransformerConv]
+  G --> M[128D action-aligned structural memory]
+  M -. future; not implemented .-> X[Stage-2 cross-attention]
+  Q[Complete candidate directives] --> R[Separate candidate-demand analysis]
+  T -. no candidate values .-> G
+```
+
+The tensor schema is
+`salt-hls-target-tensors-v3-semantic-experimental`. It does not alter the
+authenticated compiler graph or `salt-hls-target-enriched-v22-v1` overlay.
+Tensorization expands compact graphs using the existing lossless reconstruction
+and then reads compiler evidence. The original V2 tensor schema remains named
+`LEGACY_SCHEMA` in the encoder for historical-result identification; V2
+tensors or model weights are not silently treated as V3-compatible.
+
+The existing eight node categories, 28 forward relation types, and 28 distinct
+reverse-message relation IDs are unchanged. The node numeric width remains 36.
+The original edge block remains 24 channels and the new fixed semantic block
+has 108 channels, for 132 `edge_attr` channels total. No compiler relation or
+node is added. The existing `TransformerConv` path applies
+`edge_input: Linear(132,16)` and adds the existing 16D relation embedding;
+therefore these attributes enter the same two edge-aware convolution layers.
+The 64D hidden size, two layers, two heads, residual/norm behavior and 128D
+output remain unchanged.
+
+Each action slot additionally receives `action_semantic[1,64,108]`: the mean
+of supported semantic edge vectors in its compiler-bound neighborhood. A loop
+neighborhood uses existing `loop_context` membership and exact `carrying_loop`
+identity; an array neighborhood begins at its compiler-bound memory object and
+its recorded access operations. This small projection is added to the existing
+static action-demand projection before message passing. Audit metadata records
+the source edge keys that contributed to each action summary. A false
+`action_semantic_mask` means no supported semantic edge was available for that
+action neighborhood; it does not prove that the program has no such behavior.
+Unresolved Kalman L7/L8 remain in absolute slots 6/7 and receive no summary.
+
+### Semantic edge feature layout
+
+All 108 appended channels are ordered by
+`GNN_branch/semantic_tensor_features_v22.py::FEATURE_NAMES` and copied into
+`data.audit['semantic_edge_features']['feature_names']`. The values use signed
+log scaling `sign(x) * log2(1 + abs(x)) / 24` unless they are categorical or
+boolean indicators. Knownness masks and explicit status categories are not
+normalized. No fitted statistics, device IDs, SSA names, graph hashes, paths,
+source lines, pragma values or QoR labels become neural features.
+
+| Ordered block | Channels and derivation | Knownness / limitation |
+|---|---|---|
+| Operand and index role | `operand_position_value/known`, index-role value/known, supported/overflow flags, dimension-vs-symbol role, input ordinal/count, symbol count, result rank, and one coefficient value per output result. Derived by matching an `operand` edge's value ID and `legacy_evidence.position` against the memory-access edge's ordered `ssa_operands` and `operand_positions`. | A successful map binding makes a literal zero coefficient known. Unsupported maps and position/SSA mismatches leave role/coefficient unknown. A non-index operand is marked as such only when the operation's map binding is validated. |
+| Affine access map | Map known/supported/overflow flags; input, result and symbol counts; one offset value per result. Coefficients are carried on each corresponding operand edge, associated with its exact compiler input order. | Parser supports only integer additive linear terms in `dN` and `sN` (`A[i]`, `A[i+1]`, `A[2*i]`, and simple multidimensional maps). It requires exact compiler operand binding. It does not accept floor/ceil division, modulo, min/max, pointer-expression reconstruction or arbitrary MLIR syntax. Current bounds are at most four map inputs and three results; overflow is explicit. |
+| Dependence | Signed lower/upper bounds, exact distance, bounds-known flag, dependence depth, carrying-loop known/action-target flags and depth, plus carrying-loop-status one-hot. Existing base edge channels retain RAW/WAR/WAW kind, evidence status and loop-carried state. | A bound interval is not replaced by its midpoint. An absent exact value stays unknown even when bounds are present. Missing deeper components are not zero. Existing analysis-limit evidence still means absent dependence edges do not prove independence. |
+| SSA forwarding | One-hot `forwarding_role` for `iter_init`, `loop_backedge`, `loop_result`, or unknown; one-hot `state_kind` for scalar, memory, or unknown; verified native-region-SSA evidence flag. | Vocabularies reflect observed V2.2 fields; unseen roles map to an explicit unknown category. No SSA identifier is embedded. |
+| Memory view | One-hot view-operation category, one-hot `offset_semantics`, source/result rank, per-dimension offsets/sizes/strides with independent knownness, and rank-overflow flag. | Dynamic sentinels and absent attributes are unknown, not negative dimensions. Maximum encoded rank is four; larger views set overflow and are not described as fully represented. No view-chain offset composition is performed. |
+| Call / binding | Call-resolution category. Existing base edge channels retain `argument_index` and its knownness; `calls`, `actual_to_formal`, and `returns_to` relation IDs and directions remain distinct. | Call/function names and literal call-site IDs are not features. Shared helper nodes remain shared and caller-specific root mappings are not collapsed. The existing through-call channel is retained without duplication. |
+| Root / alias evidence | Existing base channels retain proven/possible/not-established status, alias kind and memory-access root-candidate completeness/knownness. Explicit `no_alias` remains in `negative_edge_index` and is not passed as positive message connectivity. | A proven root relation is not a proof of overlapping elements; possible roots and incomplete candidate sets remain distinct. Existing action-demand root counts are not duplicated. |
+
+The affine map binding follows the V2.2 native annotation contract: it records
+index SSA values in operation-operand order and records those operand positions;
+the V2.2 semantic validator checks these values against actual SSA operands and
+against the operation's map. Tensorization additionally requires each value
+and position to match the corresponding existing `operand` edge exactly. It
+does not infer an induction-variable edge through intermediate SSA operations.
+
+For `memref.subview`, V2.2 records
+`relative_to_source_view`; for `memref.reinterpret_cast`, it records
+`relative_to_underlying_storage`. These categories remain distinct. Dynamic
+offset, size or stride items are individually masked. The source and result
+ranks can differ, including rank-reducing views. No offsets are summed across
+view chains, and same-root evidence does not assert element overlap.
+
+### Evidence and action alignment
+
+Semantic channels are appended to both forward and reverse messages with the
+same values. A reverse message is a propagation route, not a second compiler
+claim that reverses dependence meaning. Relation IDs remain as before.
+`no_alias` stays outside positive `edge_index`. Unknown dependence, unknown
+roots, unsupported maps and unknown forwarding roles use explicit masks or
+unknown categories; missing edge evidence is never converted to independence.
+
+Action slots retain the absolute `Lk -> k-1` rule, `registered_mask`,
+`matched_mask`, `unresolved_mask`, and `source_only_mask`. Static action-demand
+features remain separate in `action_demand`; the new static semantic summary is
+in `action_semantic`. The candidate-dependent demand tensor remains an optional
+input only to the experimental candidate head and is not a field in this graph
+tensor or its action memory. Hardware context remains the existing four
+resource capacities/budgets, fractions and clock; none of the new compiler
+semantic vectors depend on target, clock or budget.
+
+The output memory still uses action node outputs and has shape
+`[batch, max_slots, 128]`. It is a conceptual interface for future Stage-2
+cross-attention; Stage-2 integration and training are not implemented here.
+No V1 production GNN weights are loaded or interpreted as V3-compatible.
+
+### Verified examples and coverage
+
+Synthetic tests verify that `A[i]` and `A[2*i]` yield different operand-edge
+coefficients, `A[i+1]` changes the map offset, and two-input maps preserve
+input-operand order. An unsupported floor-division map and a wrong SSA/position
+binding remain unsupported. A bounded dependence interval remains two bounds;
+only a compiler-provided exact distance gets an exact-distance-known bit.
+Subview-relative and underlying-storage-relative view semantics produce
+different categories. These are tensor-semantic checks, not inferred synthesis
+behavior.
+
+The authenticated benchmark set is selected by exact member names and hashes
+in `docs/graph-release-v22-rc3.json`:
+
+| Snapshot | Structural coverage checked |
+|---|---|
+| MachSuite Stencil2D `machsuite-stencil2d-624ee88fef89.json` | Affine index operands, action summaries and target invariance. |
+| MachSuite GEMM-ncubed `machsuite-gemm-ncubed-8692fbcbe7b2.json` | Nested-loop affine accesses and dependence annotations. |
+| Rodinia LUD `rodinia_lud_1_tiling_0-e35f0c4cd5d4.json` | Large interprocedural graph, argument bindings, calls and compiler root evidence. |
+| CHStone AES `chstone-aes-883c223fddcf.json` | Dependence-heavy graph and tensor memory/runtime sizing. |
+| Kalman `serrano-kalman-filter-96b4d608969f.json` | Unresolved action slot integrity and missing semantic summary masks. |
+
+The authenticated graph identities and file hashes observed for these exact
+members were:
+
+| Snapshot | Graph identity | Member SHA-256 |
+|---|---|---|
+| Stencil2D | `eb0af2b7440f4b3402205f8d4283d82d6a7ba4691a3b637be8131e06b762aa26` | `9f3fbec062a53a25f7210230ab5e6199e01026245f9e71d7308b1589e7744cc0` |
+| GEMM-ncubed | `35fc4418a294b918646226e15eaed4c7acec9be36b65ede20bd6fd7af1b08154` | `a57ff324bb8d61b6726e5246c39c072e4514c7153001e98e4bc98f1cb7b31865` |
+| Rodinia LUD | `c13fca96737077af7268083fbd006dc5ca2cf463445daf6a6dda22963fc9fe78` | `4079ef94df30fcb07cf07223cf11a0b24a1a981764c8bda67298c644f4440a2e` |
+| CHStone AES | `2c607cd8cd723adbd044e37aa751f238eaff36beed958bf88d2e1887feb5cb0` | `2f3db58eeb805dc32e993004d6d9eb428bdc4341a8a5dc73c227caeff07e7120` |
+| Kalman | `2af7dd9c674a09e810b6ce4149ac25649bdf8680cf0ce651b0041bd48b9616e4` | `2a5cbd64ca7716e8d7c24b70af9fc63a5007962dd1b0e7c834ced9d11b9ddfa9` |
+
+Under the stated ZCU104/10 ns tensorization context, the V3 static summary was
+available for every matched action in these five graphs. `affine-map supported`
+counts below are directed message edges (forward and reverse), not unique
+access operations; action summary availability is a slot count, not evidence
+that all fields within that slot are known.
+
+| Snapshot | Nodes / source edges | Matched / semantic-summary slots | Directed access-map messages supported |
+|---|---:|---:|---:|
+| Stencil2D | 76 / 124 | 4 / 4 | 6 |
+| GEMM-ncubed | 67 / 106 | 3 / 3 | 6 |
+| Rodinia LUD | 1,479 / 2,790 | 46 / 46 | 100 |
+| CHStone AES | 4,204 / 53,788 | 6 / 6 | 1,266 |
+| Kalman | 541 / 1,006 | 11 / 11 | 42 |
+
+The previous encoder at the action-demand branch commit and V3 were measured
+once each on the same authenticated graphs using Python 3.8.10, PyTorch
+2.3.0+cu121 and PyG 2.6.1, one CPU thread, and one graph per tensorization.
+Times include tensorization only, not archive extraction or target-overlay
+construction. This is an implementation-size/runtime check, not a learned
+performance comparison.
+
+| Snapshot | Tensor bytes V2 → V3 | Increase | Tensorization seconds V2 → V3 |
+|---|---:|---:|---:|
+| Stencil2D | 75,948 → 234,988 | 209.4% | 0.047 → 0.056 |
+| GEMM-ncubed | 68,756 → 207,924 | 202.4% | 0.035 → 0.043 |
+| Rodinia LUD | 1,068,572 → 3,869,292 | 262.1% | 3.496 → 3.725 |
+| CHStone AES | 13,727,492 → 60,297,588 | 339.2% | 19.309 → 23.219 |
+| Kalman | 395,260 → 1,395,404 | 253.0% | 0.398 → 0.467 |
+
+The V3 edge block is dense: its 108 additional channels increase memory per
+graph, most noticeably for AES. A future training loader should account for
+this measured graph-size increase when choosing batch size. No graph edges
+were added, no tensor rows were truncated, and the measured largest graph
+tensorized successfully as a single graph.
+
+Each member is checked against the authenticated manifest before loading. The
+tensor audit records graph identity, program-payload hash, overlay identity,
+tensor and semantic schemas, implementation source hashes, exact feature
+ordering, action slots, and source-edge-key witnesses for action summaries.
+The tensorizer does not rewrite canonical or compact archive members.
+
+### Reproduction and verification
+
+Using the existing Python 3.8.10 / PyTorch 2.3.0 / PyG 2.6.1 environment:
+
+```bash
+PY=/home/elvouvali/.hls-llm/bin/python
+"$PY" -m pytest -q tests/test_target_graph_semantic_tensor_v22.py
+"$PY" -m pytest -q tests/test_action_demand_tensor_v22.py
+"$PY" -m pytest -q tests/test_target_graph_readiness.py
+```
+
+The semantic test module covers affine forms and operand binding, unsupported
+maps, interval/exact dependence fields, loop-carried forwarding roles, view
+categories and dynamic masks, call binding position/status, negative alias
+separation, authentic five-kernel graph identities, target invariance,
+canonical/compact equality, Kalman unresolved slots, determinism, forward and
+backward gradients, action-memory shape, and semantic information affecting an
+action-aligned embedding. The experiment is representation-only; it does not
+train or score QoR.
+
+**Final validation executed:** combined semantic/action-demand/readiness PyG
+tests: **32 passed** in 113.06 s using Python 3.8.10, PyTorch 2.3.0+cu121 and
+PyG 2.6.1. The five authenticated representative graphs each completed finite
+GNN forward/backward passes and action-memory export. The related compiler and
+overlay regressions also passed: `tests/test_target_graph_v22.py`,
+`tests/test_mlir_graph_v22.py`, and `tests/test_action_demand_v22.py`: **127
+passed** in 86.97 s using Python 3.11.15. `py_compile`, `git diff --check`,
+authenticated member-hash checks and local links in the touched Markdown files
+passed. An NVML initialization warning appeared in the CPU-oriented PyTorch
+environment; it did not affect the CPU tests. No training or synthesis was
+run.
+
+### Limits and research interpretation
+
+This is a tensorization change, not a new compiler analysis. The current RC3
+edge fields do not provide a validated numeric call-depth attribute; none is
+invented from function names or arbitrary traversal order. Exact affine
+numerics are limited to supported additive maps and validated input binding.
+Dependence information is bounded by the native analyzer's first-successful
+depth; missing components do not prove independence. Root identity does not
+prove overlap. V2.2 stores helper functions as shared nodes, so this is not an
+invocation-specific graph; call evidence remains qualified and no full helper
+subgraph is duplicated. No achieved initiation interval, memory-port schedule,
+synthesis resource use, timing closure, or routing estimate is made. Lowered
+arithmetic widths can lack source-type correspondence. The new features have
+not been trained against QoR, and no predictive or target-generalization
+improvement has been demonstrated.
+
+Methodologically, [ProGraML (Cummins et al., ICML 2021)](https://proceedings.mlr.press/v139/cummins21a.html)
+supports compiler-grounded graphs as an avenue for learned program analysis;
+it does not validate these particular V2.2 channels. [Ferretti et al.
+(TODAES)](https://doi.org/10.1145/3570925) studies graph-based HLS prediction
+conditioned on directive configurations, but its reported accuracy does not
+establish the benefit of this feature vector. The implementation relies on the
+official MLIR [Affine](https://mlir.llvm.org/docs/Dialects/Affine/) and
+[MemRef](https://mlir.llvm.org/docs/Dialects/MemRef/) semantics, especially
+SSA binding of affine dimensions/symbols and the distinct view behavior of
+`memref.subview` and `memref.reinterpret_cast`. [PyG 2.6.1
+`TransformerConv`](https://pytorch-geometric.readthedocs.io/en/2.6.1/generated/torch_geometric.nn.conv.TransformerConv.html)
+uses edge features through its `edge_dim` projection; the implementation
+keeps that path and does not add GNN depth or attention heads.
