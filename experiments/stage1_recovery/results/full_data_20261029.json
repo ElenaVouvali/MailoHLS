@@ -5,8 +5,8 @@
       "max_duplicates": 4
     },
     "implementation_sha256": {
-      "LLM_branch/train/stage1_decision_loss.py": "f10c96c8a619f305b73518789f0c5f4ede88661b347c696897fe6fe1b957e055",
-      "experiments/stage1_recovery/prepare.py": "66c8e1c08f430c28fd3fbcfd7b339ed198f7f43441d78c8360a93aa52296e8b4"
+      "LLM_branch/train/stage1_decision_loss.py": "a772b2fc11558dda013a401924484fa72aca7e951ff6bc4d807b3eaf899a0f7d",
+      "experiments/stage1_recovery/prepare.py": "4090472174223225fd7a7509fb32e3bea3da78c8c955bdbca727e38288c0d89c"
     },
     "schema": "mailohls-full-supervision-audit-v1",
     "selection_manifest": {
@@ -342,6 +342,7 @@
         "eligibility": "measured_cross_budget_infeasibility_v1",
         "factor": 1.25,
         "feasibility_boundary_pairs": 6560,
+        "hypothetical_only": true,
         "incomplete_feasibility_pairs": 0,
         "invariant_or_other_contexts": 492,
         "mean_weight": 1.0,
@@ -893,7 +894,8 @@
     "output": "mailohls_runs/stage1_full_data_ce_recovery_s123",
     "post_freeze_optional_safeguards": [
       "Contrast emphasis rejects changed winners without a measured feasibility boundary; disabled in this CE run.",
-      "Resume audit archives abandoned post-checkpoint history; this CE run starts fresh."
+      "Resume audit archives abandoned post-checkpoint history; this CE run starts fresh.",
+      "Stage-1-only contract metadata is omitted entirely from Stage-2 contracts, preserving historical resume hashes; Stage-1 branch is unchanged."
     ],
     "status": "in_progress",
     "supervision": "legacy"

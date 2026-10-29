@@ -7378,7 +7378,7 @@ def run_single_training(args):
         "response_prefix_policy": mailohls_contract.RESPONSE_PREFIX_POLICY,
         "clock_supervision_policy": mailohls_contract.CLOCK_SUPERVISION_POLICY,
         "directive_supervision_policy": mailohls_contract.DIRECTIVE_SUPERVISION_POLICY,
-        "stage1_supervision": {
+        **({"stage1_supervision": {
             "mode": args.stage1_supervision_policy,
             "version": stage1_decision_loss.VERSION,
             "implementation_sha256": {
@@ -7396,7 +7396,7 @@ def run_single_training(args):
             "full_validation": args.stage1_full_validation,
             "training_constant_modes": training_constant_modes,
             "initialization": "explicit_adapter" if args.init_adapter_dir else "fresh_adapter_from_pinned_backbone",
-        } if args.disable_structural_memory else None,
+        }} if args.disable_structural_memory else {}),
         "semantic_domain_policy": mailohls_contract.SEMANTIC_DOMAIN_POLICY,
         "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",
         "utilization_policy": "reported_percentages_unchanged",

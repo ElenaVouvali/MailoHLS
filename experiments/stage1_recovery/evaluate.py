@@ -93,6 +93,9 @@ def main():
                      prediction=decisions.constant_baseline(r, registry, modes)) for r in rows]
     result = dict(schema='mailohls-stage1-recovery-validation-pilot-v1', heldout_test_used=False,
                   cases=len(rows), kernels=sorted({r['kernel_name'] for r in rows}),
+                  evaluation_seed=123 if args.full_validation else None,
+                  dataset_sha256=sha('artifacts/llm/mailohls_sft.jsonl'),
+                  prepared_manifest_sha256=sha(prepared/'manifest.json'),
                   baseline=(decisions.decision_report([
                       dict(r,reference_target=r['target'],prediction=b['prediction']) for r,b in zip(rows,baseline)], registry)
                       if args.full_validation else summarize(baseline, registry)), adapters={}, train_modes=modes)
@@ -100,6 +103,9 @@ def main():
     for index, path in enumerate(args.adapters):
         root = Path(path)
         contract = json.loads((root / 'training_contract.json').read_text())
+        if args.full_validation:
+            from transformers import set_seed
+            set_seed(123)  # identical initialization of any frozen resized rows
         tok = inference.load_checkpoint_tokenizer(str(root), contract)
         model = inference.load_stage_model(SimpleNamespace(model=contract['model'],
             model_revision=contract['model_revision'], no_4bit=False, device_map='auto', stage='stage1',

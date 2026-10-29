@@ -184,6 +184,11 @@ def audit_prepared(parent, output):
                  implementation_sha256={p:sha(p) for p in ['experiments/stage1_recovery/prepare.py','LLM_branch/train/stage1_decision_loss.py']},
                  train=supervision_audit(selected['train'], registry),
                  validation_reporting_only=supervision_audit(selected['val'], registry, fit_balance=False))
+    from LLM_branch.train.stage1_decision_loss import emphasize_budget_contrasts
+    audit['train']['contrast_feasibility'] = emphasize_budget_contrasts(
+        [dict(row) for row in selected['train']], 1.25)
+    audit['train']['contrast_feasibility']['hypothetical_only'] = True
+    # This reports eligibility; the default/initial recovery does not use weights.
     # Only training membership is read; test labels never enter audit statistics.
     membership = set(json.loads(Path('mailohls_runs/mailohls_final_family_split_s123.json').read_text())['train_jsonl_idx'])
     raw, configs, feasible_bank = 0, set(), defaultdict(list)
