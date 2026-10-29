@@ -1041,11 +1041,11 @@ memory-port pressure or a recommended directive assignment.
 
 ## Limitations and the next integration steps
 
-This is a graph representation with possible resource relevance. It does not
-implement a V2.2 tensor encoder, GNN training, learned target-aware action
-embeddings, Stage-2 integration, hardware-exact resource binding, full HLS
-scheduling, timing closure, synthesis-verified bank conflicts, or new QoR
-measurements. Physical capacity is not deployment feasibility. Unsupported
+This graph representation now has a separate experimental tensor encoder with
+static action workload features. It does not implement V2.2 GNN training,
+Stage-2 integration, hardware-exact resource binding, full HLS scheduling,
+timing closure, synthesis-verified bank conflicts, or new QoR measurements.
+Physical capacity is not deployment feasibility. Unsupported
 operators, formal/global/dynamic/aggregate storage and uncertain roots deliberately
 receive fewer links. All RC3 numerical and semantic limitations remain, including
 pending independent adjudication and 14 unresolved registrations.
@@ -1066,7 +1066,8 @@ subject to the semantic-review boundary below. It requires these explicit steps:
    require a learned device embedding.
 3. Produce target-aware action vectors at exact slot `k-1`, with separate
    registered/matched/unresolved masks and explicit handling of missing targets.
-   Preserve sparse and trailing slots. The conceptual memory shape is
+   Preserve sparse and trailing slots and include the versioned action workload
+   vector. The conceptual memory shape is
    `[max_slots,128]` (normally 64 slots); shape alone is insufficient for
    compatibility: relation masks, labels, identities and provenance must agree.
 4. Train and evaluate that new encoder under a declared family/target split;
@@ -1088,3 +1089,299 @@ learning pilot. Its outcome is **CONDITIONAL GO**: the interfaces work, but the
 pilot does not show an enriched-graph advantage and the candidate head needs
 better calibration before a full-corpus run. It changes none of the graph,
 hardware-profile or production-checkpoint contracts documented above.
+
+## Compiler-Grounded Action Workload and Candidate Hardware-Demand Features
+
+### Motivation and semantic boundary
+
+The original FPGA overlay says which resource classes an operation or action
+could be relevant to. That does not say how much computation, memory traffic,
+or dependence evidence occurs within a directive's exact compiler scope. This
+extension adds compiler-observed **static workload** per matched action, then a
+separate analysis of how one complete legal pragma assignment changes nominal
+lane and bank-index scenarios.
+
+| Layer | Depends on | Meaning | Does not mean |
+|---|---|---|---|
+| Hardware compatibility | V2.2 facts and target profile | A resource class is a possible implementation | Actual synthesis binding |
+| Static workload `q_static` | V2.2 graph and action binding only | Observed static operations, accesses, roots, indices and dependencies | Dynamic executions or resource use |
+| Candidate demand `q_candidate` | Static facts plus a complete legal assignment; target context is identified | Repeated-body lane assumptions and mathematical bank-index scenarios | Concurrent physical ports, achieved II, resource count or timing |
+| Actual hardware cost | Synthesis/implementation reports | Outside this representation | An input feature |
+
+This is compiler-grounded analytical feature engineering, proposed as an
+inductive bias for a future encoder. It is not evidence that target
+generalization or QoR prediction improved. The implementation reuses the
+current V2.2 `get_loop_semantics()` and `get_action_point_relations()` queries;
+it adds neither compiler passes nor an alias analysis nor a scheduler.
+
+```mermaid
+flowchart LR
+  P["Authenticated MLIR V2.2 graph"] --> O["Existing possible resource compatibility overlay"]
+  P --> S["Static per-action workload q_static<br/>pragma-free and target-independent"]
+  O --> S
+  G["Experimental heterogeneous GNN<br/>static action-feature projection"] --> M["Pragma-free action memory<br/>Lk → k−1; 128 dimensions"]
+  O --> G
+  S --> G
+  M -. "future integration only" .-> X["Stage-2 cross-attention"]
+  C["Complete legal directive assignment p"] --> D["Candidate-demand analysis q_candidate<br/>unroll lanes and bank-index scenarios"]
+  P --> D
+  O --> D
+  D -. "future QoR/ranking head input" .-> Q["Experimental optional candidate-head interface"]
+```
+
+Candidate-dependent information is not attached to the graph tensor or
+`SmallGraphEncoder`; candidate pragmas cannot leak into reusable structural
+memory. Stage-2 remains future work.
+
+### Static action descriptors
+
+The API is:
+
+```python
+from GNN_branch.action_demand_v22 import static_action_descriptors
+descriptors = static_action_descriptors(program_or_target_overlay)
+```
+
+The schema is `salt-hls-action-workload-v22-v1`. An overlay is stripped to its
+exact compiler graph. Compact inputs are losslessly expanded first. Each result
+records the compiler graph identity, implementation version and source hash,
+action coverage, and the V2.2 `numerical_fidelity` record; it does not duplicate
+the compiler graph. Static descriptors are reusable across target profiles,
+clock values and resource budgets.
+
+Every scalar descriptor distinguishes value, knownness, evidence status,
+witness references and interpretation. A known zero has knownness 1; unknown
+has knownness 0. Unresolved and source-only registrations remain in JSON with
+no guessed target or workload. Tensor action slots preserve the absolute
+`Lk -> k-1` mapping and existing registration/match masks.
+
+| Feature family | Fields and units | Evidence and interpretation |
+|---|---|---|
+| Arithmetic | Integer add/sub, float add/sub, integer/float multiply, division, other arithmetic, unsupported/unclassified arithmetic; unique compiler operation nodes | Exact operation names and lowered result types. Constants and recognized comparisons, casts and bitwise ops are excluded. These counts are never converted to DSP/LUT counts. `numerical_fidelity` remains attached: lowered types do not establish source-template or hardware-exact arithmetic. |
+| Memory | Unique static read/write/readwrite operation IDs; call-scoped access witnesses; distinct compiler roots; proven/possible op-root relations; incomplete-root accesses | Existing action-query memory edges. Operation count, invocation-context witness count, edge count, root count and root-alternative count are distinct units. They are not cycles, ports or dynamic executions. Formal parameter accesses remain analyzable without a local-storage binding. |
+| Scope | Direct-body, nested-descendant and through-call witnesses; child loop action IDs | Unique `(operation, invocation context, scope)` witnesses. Nested-loop operations are not multiplied by nested bounds. Dynamic execution multiplicity remains unknown. |
+| Loop | Compiler-proven trip count, lexical depth, direct and descendant arithmetic counts, source metadata trip count | Compiler and source metadata trip counts are separate records; metadata never becomes compiler proof. |
+| Dependence | RAW/WAR/WAW counts by evidence status, loop-carried evidence, distances/intervals, SSA loop-carried state | Native V2.2 dependence and forwarding edges with carrying-loop IDs. Completeness is unknown: no edge does not prove independence; no achieved II is inferred. |
+| Access indices | Known/unknown compiler-recorded maps, map result rank, referenced induction loops and whether the current loop is referenced | Structured `access_indices` and SSA witnesses. Arbitrary SSA expressions are not reconstructed; unusable maps remain unknown. |
+| Numerical fidelity | Analysis-header count, `source_type_correspondence_not_established`, `hardware_exactness_not_established` | Copied from the graph's fidelity contract. A header inventory is not a complete transitive include closure. |
+| Array target | Exact memory-object target, compiler shape/rank, source dimensions when recorded, accessing loop actions, roots/aliases, view mappings, storage binding | Source dimensions and compiler shape remain separate. Actual local/distributed/external storage binding is unknown. View records come from current semantic queries; shared roots do not prove element overlap. |
+
+The fixed static tensor feature order is the exported `NUMERIC_FEATURES` tuple:
+
+```text
+trip_count, loop_depth, direct_arithmetic, descendant_arithmetic,
+integer_add_sub, floating_add_sub, integer_multiply, floating_multiply,
+division, other_arithmetic, unsupported_arithmetic,
+static_reads, static_writes, static_readwrites, invocation_access_witnesses,
+resolved_roots, proven_root_relations, possible_root_relations,
+unestablished_root_relations, incomplete_root_accesses,
+direct_accesses, nested_accesses, interprocedural_accesses,
+proven_RAW, possible_RAW, proven_WAR, possible_WAR, proven_WAW, possible_WAW,
+loop_carried_proven, loop_carried_possible, ssa_loop_carried_state,
+known_affine_accesses, unknown_index_accesses, access_dimensions,
+current_loop_index_accesses, other_loop_index_accesses,
+unknown_loop_index_accesses, analysis_stub_header_count,
+source_type_correspondence_not_established,
+hardware_exactness_not_established
+```
+
+Counts are operation/root/edge/witness counts as defined above; `trip_count`
+and `loop_depth` are loop properties; `access_dimensions` is the result rank
+of a recorded access map. Features not applicable to an action kind are masked
+unknown, not silently set to zero. The two fidelity flags are dimensionless
+indicators of recorded evidence state.
+
+Array workload analysis does not reuse the overlay's restrictive
+`_storage_eligible()` filter. It follows compiler-supported access queries for
+formal parameters, globals, views and local allocations alike. The existence
+of an access pattern does not claim BRAM implementation. V2.2 view evidence
+keeps `memref.subview` mappings distinct from reinterpretation mappings; when
+offsets or strides cannot be established they remain unknown.
+
+### Candidate-dependent descriptors
+
+The API is:
+
+```python
+from GNN_branch.action_demand_v22 import candidate_demand_descriptors
+result = candidate_demand_descriptors(target_overlay, complete_assignments, source_actions)
+```
+
+The caller must provide every action field and the authoritative source-derived
+action mapping. The function calls `directive_domains.validate_assignments()`;
+partial assignments, illegal factors, or invalid array dimensions fail. The
+target overlay is required so the FPGA, clock and deployment context are
+identified; static workload remains independent of them. The
+schema `salt-hls-candidate-demand-v22-v1` records program/target-context
+identity, clock and available/requested resource context, a complete-assignment
+SHA-256 and implementation source hash. It computes no capacity utilization
+ratio. Recompute candidate descriptors when the assignment changes.
+
+The fixed exported `CANDIDATE_FEATURES` order is:
+
+```text
+pipeline_requested, unroll_factor, nominal_lanes,
+nominal_arithmetic_occurrences, nominal_read_occurrences,
+nominal_write_occurrences, nominal_readwrite_occurrences,
+nominal_memory_access_occurrences, known_dependence_count,
+array_partitioned, partition_factor, partition_dimension,
+nominal_bank_count, distinct_banks_touched, bank_index_collisions,
+bank_analysis_access_count
+```
+
+Directive values, factors and dimensions are exact candidate values. All
+`nominal_*` counts are call-scoped static operation/witness counts multiplied
+by nominal lanes, not runtime counts. `known_dependence_count` means observed
+dependence edges; their compiler evidence is retained separately. Bank counts
+are logical partition counts; touched-bank and collision fields refer only to
+the explicit affine lane scenarios.
+
+| Feature | Definition / knownness |
+|---|---|
+| Pipeline, factor and lanes | Exact requested pipeline/unroll fields. UNROLL 0 (rolled) has one nominal lane; factor `u > 0` has `u` lanes. |
+| Arithmetic occurrences | Observed static arithmetic operations in the queried loop scope times nominal lanes. Nested dynamic loop counts are excluded; no operator instances or DSP count is asserted. |
+| Memory occurrences | Call-scoped static read, write, readwrite and total memory-access witnesses times nominal lanes. Repeated-body assumption only; not simultaneous accesses or ports. |
+| Dependence context | Observed dependence edges and original evidence/carrying-loop/distance. Missing edges are not independence; no II bound is computed. |
+| Partition context | Candidate type, factor, dimension and nominal bank count. Complete partition uses known selected extent or product for dimension zero. Storage binding/ports remain unknown. |
+| Lane/bank scenario | Compiler-recorded affine access map evaluated for lanes `0..u-1`, only if the map is in the supported affine subset and linked to a matched array action by current V2.2 memory-access relations. |
+
+For one-dimensional accesses, the calculation uses:
+
+\[
+bank_{cyclic}(i)=i\bmod F,\qquad
+bank_{block}(i)=\min(\lfloor i/\lceil N/F\rceil\rfloor,F-1).
+\]
+
+Block formula inputs must be in range. Complete partition treats valid selected
+dimension elements as individual banks. The current parser accepts only a
+strict simple subset of compiler-recorded maps, such as `d0`, `2*d0+1`, and
+`d0+d1*64`; unsupported floor division, opaque maps, missing extents and
+multi-dimensional dimension-zero bank tuples return unknown. It does not parse
+raw MLIR or evaluate arbitrary expressions. The lane display assumes an
+induction-variable origin of zero. Cyclic pairwise collision patterns are
+invariant under a uniform origin shift; block bank IDs are scenario-only unless
+that origin is established.
+
+`distinct_banks_touched` is a per-array union over examined lanes.
+`bank_index_collisions` sums repeated bank IDs **within each individual static
+access pattern's lane vector**, rather than across different operations. A
+repeated ID is not a proven memory-port conflict: accesses may be scheduled in
+different cycles, use different storage, or be transformed by Vitis. No
+port-scheduling, resource binding, operator sharing, achieved II or timing
+model exists here. AMD documentation describes block/cyclic/complete partition
+semantics and explains their interaction with parallel accesses, but does not
+make these feature calculations synthesis results: see Vitis 2021.1
+[UG1393 Array Configuration](https://docs.amd.com/r/2021.1-English/ug1393-vitis-application-acceleration/Array-Configuration),
+[UG1393 Apply Array Partitioning](https://docs.amd.com/r/2021.1-English/ug1393-vitis-application-acceleration/Apply-Array-Partitioning),
+[UG1399 Array Accesses and Performance](https://docs.amd.com/r/2021.1-English/ug1399-vitis-hls/Array-Accesses-and-Performance),
+[UG1399 Array Interfaces](https://docs.amd.com/r/2021.1-English/ug1399-vitis-hls/Array-Interfaces),
+[UG1399 BIND_STORAGE](https://docs.amd.com/r/2021.1-English/ug1399-vitis-hls/pragma-HLS-bind_storage), and
+[UG1399 Loops](https://docs.amd.com/r/2021.1-English/ug1399-vitis-hls/Loops).
+BIND_STORAGE and array-interface directives explicitly choose memory
+organization/ports; because this graph has no synthesis binding, such facts
+remain unknown. The formula is our bounded analysis policy, not copied HLS
+scheduler logic.
+
+### Tensor integration and versions
+
+`GNN_branch/target_graph_tensor_v22.py` now declares
+`salt-hls-target-tensors-v2-action-demand-experimental`, distinct from the
+historical `salt-hls-target-tensors-v1-experimental`. There are 40 ordered
+static scalar features in `action_demand_v22.NUMERIC_FEATURES`; each is encoded
+as a normalized value plus a knownness bit (80 values per action slot).
+Counts use `sign(x)*log2(1+abs(x))/24`; flags use the same transform. Tensor
+fields `action_demand_mask` and `action_demand_known_mask` distinguish absent
+descriptors from unknown individual fields. `SmallGraphEncoder` projects these
+features into the action-node state before message passing. The output still
+has 128 dimensions and retains exact absolute action slots; this is not a
+production GNN or a V1 checkpoint-compatible model.
+
+`experiments/target_graph_readiness/experiment.py` exposes
+`candidate_demand_tensor(graph, assignments, actions)` and accepts optional
+`candidate_demand` in the experimental `CandidatePredictor`. Its 16 scalar
+features are value/known pairs; head schema is
+`salt-hls-target-candidate-head-v2-demand-input-experimental`. Candidate
+features remain separate from the static graph and memory. Prior pilot reports
+and conclusions retain the old tensor/head schema; there has been no retraining
+or rescoring, and no old head checkpoint is claimed compatible.
+
+### Authenticated examples
+
+These counts were re-derived from exact members of the unchanged
+`salt-hls-graphs-v22-20261027-rc3.tar.gz` and checked against the RC3 manifest.
+They are compiler-query facts, not measurements or predictions.
+
+| Snapshot/action | Arithmetic | Memory/dependence evidence | What it says |
+|---|---|---|---|
+| MachSuite stencil2d `L3` loop | 1 integer add/sub; 1 integer multiply | 2 reads; 2 roots; 4 dependence edges, possible loop-carried | Observed operations in the queried loop scope; no II claim. |
+| MachSuite gemm-ncubed `L1` loop | 1 floating add; 1 floating multiply | 2 reads, 1 write, 3 roots; 4 dependence edges, possible loop-carried | Operation IDs are counted once; nested trip counts are not multiplied. |
+| Rodinia LUD `L5` array | Not a loop arithmetic summary | Shape `[256]`; 13 access operation IDs (9 reads, 4 writes); 13 affine maps | Exact compiler target; actual storage is unknown. |
+| Rodinia LUD `L46` loop | 0 supported arithmetic operations under current classifier | 55 access operation IDs (32 reads, 19 writes, 4 readwrite); 10 proven roots, 9 possible root candidates, 2 unestablished root relations; 5 incomplete accesses; 50 affine and 5 unknown maps | 55 call-scoped `through_call` witnesses in this snapshot; possible and incomplete roots remain separate. |
+| Kalman `L3`; `L7`/`L8` | `L3`: 4 integer add/sub, 2 integer multiply | `L3`: 10 access IDs (5 reads, 5 writes), 6 proven roots, 1 unestablished root relation, 1 incomplete access; `L7`/`L8` unresolved | The two unresolved arrays receive no fabricated workload and keep their IDs. |
+
+In authenticated LUD, one complete candidate uses `L6` unroll factor 4 and
+compares `L5` with no partition versus cyclic factor 4. Both retain four nominal
+lanes and 32 nominal read occurrences. Under the zero-based lane scenario,
+one of the 11 `L5` access witnesses is supported and has cyclic bank IDs
+`[0,1,2,3]`; ten access patterns are unknown under the strict affine subset,
+so whole-array bank coverage remains unknown. The no-partition scenario gives
+one logical bank for the examined accesses. This does not say
+four physical ports exist or that any access is concurrent. Synthetic unit
+checks separately confirm `A[i]` cyclic factor four has four distinct IDs,
+`A[2*i]` gives `[0,2,0,2]`, and block extent 10/factor 4 yields
+`[0,0,0,1,1,1,2,2,2,3]`. Unsupported maps remain unknown.
+
+### Reproduction and verification
+
+Using Python with the project graph dependencies and PyTorch/PyG for tensor tests:
+
+```bash
+python -m pytest -q tests/test_action_demand_v22.py
+python -m pytest -q tests/test_action_demand_tensor_v22.py
+python -m pytest -q tests/test_target_graph_readiness.py
+python -m pytest -q tests/test_target_graph_v22.py
+python -m pytest -q tests/test_mlir_graph_v22.py
+python -m pytest -q tests/test_directive_domains.py
+python -m py_compile GNN_branch/action_demand_v22.py GNN_branch/target_graph_tensor_v22.py experiments/target_graph_readiness/experiment.py
+```
+
+The static test extracts the four named canonical members from the archive,
+verifies their SHA-256 against `docs/graph-release-v22-rc3.json`, then parses
+and validates them. It checks static invariance across target contexts, formal
+root access analysis, LUD array details, unresolved Kalman actions, candidate
+legality and coupling, bank arithmetic, unsupported expressions and
+determinism and compact/canonical static equivalence. The PyG tests additionally
+verify tensor dimensions, action-slot masks, gradient connectivity through the
+new action projection, and the separate candidate-head demand path.
+
+**Executed in this worktree:** combined action-demand tests: 12 passed in
+49.50 s under the existing Python 3.8.10 / PyTorch 2.3.0 / PyG 2.6.1
+environment. The related existing suites also passed: readiness 20 tests,
+target overlay 58 tests, V2.2 graph semantics 59 tests, and directive domains
+21 tests. A separate Python 3.11 run of the tensor test was skipped because that
+environment lacks PyG; the integration was executed successfully in the
+compatible existing environment. The first overlay-suite attempt under Python
+3.8 hit the repository validator's use of `Path.is_relative_to` (Python 3.9+);
+the same 58-test suite passed under Python 3.11. `py_compile` and
+`git diff --check` passed.
+Historical readiness measurements remain unchanged and are not receipts for
+the new schema. No training or HLS synthesis was run.
+
+### Status, limitations and next step
+
+Status: **READY** for feature extraction, tensorization, and basic numerical
+integration: authenticated static/candidate extraction, assignment validation,
+mathematical fixtures, real graph examples, encoder gradients and the separate
+candidate-head gradient path passed in the existing PyG environment. Static
+operation counts are not synthesized DSP/LUT counts. Nominal lanes are not
+guaranteed concurrent operators. Banking is not complete memory-port
+scheduling. No exact II, critical path, routing or timing closure is predicted.
+Analysis-stub and source-type fidelity remain limited by the V2.2 evidence.
+No target-generalization or QoR improvement has been demonstrated.
+
+The next independent step is training and evaluating a new versioned
+heterogeneous V2.2 GNN using this static action-feature pathway and the existing
+unresolved-slot masks. It must export pragma-free `[max_slots,128]` action
+memory. Candidate descriptors can then be supplied separately to a future
+QoR/ranking head. Stage-2 integration, training and evaluation are not part of
+this task.

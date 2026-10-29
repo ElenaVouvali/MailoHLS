@@ -21,6 +21,7 @@ from scipy.stats import spearmanr, kendalltau
 
 from GNN_branch import mlir_graph_v2 as program, target_graph_v22 as overlay
 from GNN_branch import target_graph_tensor_v22 as tensors
+from GNN_branch import action_demand_v22 as action_demand
 from GNN_branch.action_point_relations import get_loop_semantics
 from LLM_branch.common import directive_domains as domains
 from LLM_branch.common.directive_domains import tcad
@@ -35,6 +36,8 @@ AUDIT_GRAPHS = ('spcl_example_03-fdea84258953.json', 'rodinia_lud_1_tiling_0-e35
 DEVICE = {'xczu7ev-ffvc1156-2-e':'zcu104', 'xcu200-fsgd2104-2-e':'u200'}
 SEED = 123
 CANDIDATE_DIM = 8
+CANDIDATE_DEMAND_DIM = 2 * len(action_demand.CANDIDATE_FEATURES)
+CANDIDATE_HEAD_SCHEMA = 'salt-hls-target-candidate-head-v2-demand-input-experimental'
 
 
 def save(path, obj, immutable=False):
@@ -266,19 +269,39 @@ class CandidatePredictor(nn.Module):
         super().__init__()
         self.graph=tensors.SmallGraphEncoder()
         self.kind=nn.Embedding(3,4)
-        self.local=nn.Sequential(nn.Linear(128+CANDIDATE_DIM+5,64),nn.ReLU(),nn.Linear(64,32),nn.ReLU())
+        self.local=nn.Sequential(nn.Linear(128+CANDIDATE_DIM+CANDIDATE_DEMAND_DIM+5,64),nn.ReLU(),nn.Linear(64,32),nn.ReLU())
         self.head=nn.Sequential(nn.Linear(128+32+tensors.CONTEXT_DIM,64),nn.ReLU(),nn.Linear(64,5))
 
-    def forward(self,batch,candidates,context_index,mode):
+    def forward(self,batch,candidates,context_index,mode,candidate_demand=None):
         memory,pooled=self.graph.memories(batch)
         memory=memory[context_index]
+        if candidate_demand is None:
+            candidate_demand=candidates.new_zeros((*candidates.shape[:2],CANDIDATE_DEMAND_DIM))
+        if candidate_demand.shape != (*candidates.shape[:2],CANDIDATE_DEMAND_DIM):
+            raise ValueError('Candidate-demand tensor must align with candidate action slots')
         kind=self.kind(batch.action_kind_slot[context_index])
         matched=batch.matched_mask[context_index].float().unsqueeze(-1)
-        local=self.local(torch.cat([memory,candidates,kind,matched],dim=-1))
+        local=self.local(torch.cat([memory,candidates,candidate_demand,kind,matched],dim=-1))
         registered=batch.registered_mask[context_index].float().unsqueeze(-1)
         local=(local*registered).sum(1)/registered.sum(1).clamp(min=1)
         context=batch.hardware_context[context_index] if mode=='numerical' else torch.zeros_like(batch.hardware_context[context_index])
         return self.head(torch.cat([pooled[context_index],local,context],dim=-1))
+
+
+def candidate_demand_tensor(target_overlay, assignments, actions, slots=64):
+    """Create separate candidate-only features for the experimental QoR head.
+
+    `assignments` must be a complete source-legal map. This tensor is never
+    attached to graph tensors or reusable pragma-free structural memory.
+    """
+    if slots < 1: raise ValueError('slots must be positive')
+    result=action_demand.candidate_demand_descriptors(target_overlay,assignments,actions)
+    out=torch.zeros(slots,CANDIDATE_DEMAND_DIM,dtype=torch.float32)
+    for label,row in result['actions'].items():
+        slot=int(label[1:])-1
+        if slot>=slots: raise ValueError('Candidate action slot exceeds tensor contract')
+        out[slot]=torch.tensor(action_demand.candidate_feature_vector(row),dtype=torch.float32)
+    return out,result
 
 
 def tensors_for_rows(rows,graphs):

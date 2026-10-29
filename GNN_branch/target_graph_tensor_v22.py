@@ -18,8 +18,9 @@ from torch_geometric.nn import TransformerConv, global_mean_pool
 from GNN_branch import mlir_graph_v2 as compiler
 from GNN_branch import target_graph_v22 as overlay
 from GNN_branch import action_point_relations as queries
+from GNN_branch import action_demand_v22 as demand
 
-SCHEMA = 'salt-hls-target-tensors-v1-experimental'
+SCHEMA = 'salt-hls-target-tensors-v2-action-demand-experimental'
 NODE_TYPES = tuple(sorted(compiler.NODE_KINDS)) + ('hardware_target', 'hardware_resource')
 FORWARD_RELATIONS = tuple(sorted(compiler.EDGE_KINDS | overlay.RELATIONS))
 RELATIONS = FORWARD_RELATIONS + tuple('reverse:' + r for r in FORWARD_RELATIONS)
@@ -42,6 +43,7 @@ EDGE_NUMERICAL = ('read', 'write', 'readwrite', 'RAW', 'WAR', 'WAW',
 NODE_DIM = 2 * len(NUMERICAL)
 EDGE_DIM = len(EVIDENCE) + len(EDGE_NUMERICAL)
 CONTEXT_DIM = 13
+ACTION_DEMAND_DIM = 2 * len(demand.NUMERIC_FEATURES)
 
 
 def _op(attrs):
@@ -191,6 +193,19 @@ def tensorize(joint, max_slots=64):
     for name in ('registered_mask', 'matched_mask', 'unresolved_mask', 'source_only_mask'):
         masks[name] = torch.tensor([slots[name] + [False]*(max_slots-len(slots['labels']))], dtype=torch.bool)
     active = sorted((int(a['action_id'][1:])-1, index[n]) for n,a in joint.nodes(data=True) if a['category']=='action_point')
+    descriptors = demand.static_action_descriptors(original)
+    action_demand = torch.zeros(1,max_slots,ACTION_DEMAND_DIM,dtype=torch.float32)
+    action_demand_mask = torch.zeros(1,max_slots,dtype=torch.bool)
+    action_demand_known_mask = torch.zeros(1,max_slots,len(demand.NUMERIC_FEATURES),dtype=torch.bool)
+    for label,descriptor in descriptors['actions'].items():
+        if not descriptor.get('matched'):
+            continue
+        slot=int(label[1:])-1
+        if slot>=max_slots: raise ValueError('Action-demand slot exceeds contract; truncation forbidden')
+        vector=demand.action_feature_vector(descriptor)
+        action_demand[0,slot]=torch.tensor(vector,dtype=torch.float32)
+        action_demand_mask[0,slot]=True
+        action_demand_known_mask[0,slot]=torch.tensor([bool(vector[i*2+1]) for i in range(len(demand.NUMERIC_FEATURES))])
     action_kind = torch.zeros(1,max_slots,dtype=torch.long)
     for record in original.graph['action_point_coverage']['records']:
         slot = int(record['action_id'][1:])-1
@@ -208,11 +223,15 @@ def tensorize(joint, max_slots=64):
         negative_edge_attr=torch.tensor(negative_features,dtype=torch.float32).reshape(-1,EDGE_DIM),
         action_node_index=torch.tensor([n for s,n in active],dtype=torch.long),
         action_slot=torch.tensor([s for s,n in active],dtype=torch.long), action_kind_slot=action_kind,
+        action_demand=action_demand, action_demand_mask=action_demand_mask,
+        action_demand_known_mask=action_demand_known_mask,
         hardware_context=torch.tensor([context],dtype=torch.float32), **masks,
         **{name:torch.tensor(values,dtype=torch.long) for name,values in categorical.items()})
     data.audit = {'schema':SCHEMA, 'node_ids':nodes, 'source_edge_keys':source_keys,
                   'negative_edge_keys':negative_keys, 'program_payload_sha256':joint.graph['program_payload_sha256'],
-                  'overlay_identity':joint.graph['overlay_identity']}
+                  'overlay_identity':joint.graph['overlay_identity'],
+                  'action_demand_schema':descriptors['schema'],
+                  'action_demand_implementation':descriptors['implementation']}
     validate_tensors(data)
     return data
 
@@ -227,6 +246,13 @@ def validate_tensors(data):
     if len(set(data.action_slot.tolist())) != data.action_slot.numel(): raise ValueError('Duplicate action slot')
     if not torch.equal(data.registered_mask & ~data.matched_mask,data.unresolved_mask): raise ValueError('Action mask mismatch')
     if data.action_node_index.numel() != int(data.matched_mask.sum()): raise ValueError('Action mapping mismatch')
+    if data.action_demand.shape != (data.registered_mask.shape[0],data.registered_mask.shape[1],ACTION_DEMAND_DIM):
+        raise ValueError('Action-demand tensor shape mismatch')
+    if data.action_demand_mask.shape != data.registered_mask.shape or data.action_demand_known_mask.shape != (*data.registered_mask.shape,len(demand.NUMERIC_FEATURES)):
+        raise ValueError('Action-demand mask shape mismatch')
+    if not torch.isfinite(data.action_demand).all(): raise ValueError('Nonfinite action-demand features')
+    if (data.action_demand_mask & ~data.matched_mask).any(): raise ValueError('Unresolved action has fabricated demand features')
+    if data.action_demand_known_mask.any(-1).logical_and(~data.action_demand_mask).any(): raise ValueError('Unmatched action has known demand features')
     if data.action_node_index.numel() and not (data.node_type[data.action_node_index]==NODE_TYPES.index('action_point')).all():
         raise ValueError('Wrong action node category')
     return True
@@ -253,6 +279,7 @@ class SmallGraphEncoder(nn.Module):
         vocab = (len(NODE_TYPES),len(OP_TYPES),len(VALUE_TYPES),len(RESOURCE_TYPES),len(ROOT_TYPES))
         self.embeddings = nn.ModuleList([nn.Embedding(n,8) for n in vocab])
         self.input = nn.Linear(NODE_DIM+40,hidden)
+        self.action_demand_input = nn.Linear(ACTION_DEMAND_DIM,hidden,bias=False)
         self.relation = nn.Embedding(len(RELATIONS),16)
         self.edge_input = nn.Linear(EDGE_DIM,16)
         self.layers = nn.ModuleList([TransformerConv(hidden,hidden,heads=2,concat=False,edge_dim=16,dropout=0) for _ in range(2)])
@@ -262,6 +289,12 @@ class SmallGraphEncoder(nn.Module):
     def forward(self, data):
         cats = (data.node_type,data.op_type,data.value_type,data.resource_type,data.root_type)
         x = torch.relu(self.input(torch.cat([data.x]+[e(c) for e,c in zip(self.embeddings,cats)],dim=-1)))
+        if data.action_node_index.numel():
+            batch=getattr(data,'batch',None)
+            if batch is None: rows=torch.zeros_like(data.action_slot)
+            else: rows=batch[data.action_node_index]
+            features=data.action_demand[rows,data.action_slot]
+            x=x.index_add(0,data.action_node_index,self.action_demand_input(features))
         edge = self.relation(data.edge_type) + self.edge_input(data.edge_attr)
         for conv,norm in zip(self.layers,self.norms): x = norm(x+torch.relu(conv(x,data.edge_index,edge)))
         return self.output(x)

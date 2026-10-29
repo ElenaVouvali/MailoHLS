@@ -277,6 +277,22 @@ divided by 100. Label mean/std are fitted on training rows only; std has a
 `1e-4` numerical floor. Fractions retain each device's physical denominator;
 they are not raw resource counts. Zero percentages are not replaced by 1%.
 
+### Subsequent action-demand interface (not part of this pilot)
+
+The later compiler-grounded feature work introduces tensor schema
+`salt-hls-target-tensors-v2-action-demand-experimental`, with a fixed static
+per-action workload vector and knownness masks projected into the action node.
+It also exposes `candidate_demand_tensor(target_overlay, complete_assignments, actions)`
+and an optional separate candidate-demand input to the experimental head.
+Candidate features are not added to pragma-free structural memory. This changed
+experimental head has schema
+`salt-hls-target-candidate-head-v2-demand-input-experimental`; old head weights
+are not dimension-compatible. The measurements, model results, and
+`salt-hls-target-tensors-v1-experimental` provenance reported above remain
+unchanged and describe only the earlier pilot. The action-demand work did not
+retrain or rescore either pilot model and has not demonstrated improved QoR
+prediction or target generalization.
+
 ### Tiny same-context fit: eight stencil configurations
 
 Both models pass the predeclared gate: final/initial MSE below 0.25, within-context
