@@ -14,6 +14,7 @@ from experiments.v22_gnn_training.train import (
     measured_objective,
     physical_targets,
     ranking_loss,
+    fit_ranking_scales,
     validation_selection_score,
 )
 
@@ -70,6 +71,39 @@ class TrainingContractsTest(unittest.TestCase):
         loss = ranking_loss(prediction, records, 'PARETO_LATENCY', [1., 1., 1., 1.])
         self.assertEqual(loss.item(), 0.0)
 
+    def test_objective_score_normalization_restores_unit_consistent_rank_gradient(self):
+        records = [
+            {'physical':[1.0,10.,10.,10.,10.],'capacities':[100.,100.,100.,100.]},
+            {'physical':[2.0,90.,90.,90.,90.],'capacities':[100.,100.,100.,100.]},
+        ]
+        prediction = torch.tensor([
+            [torch.log1p(torch.tensor(2.)).item(), *([torch.log1p(torch.tensor(90.)).item()]*4)],
+            [torch.log1p(torch.tensor(1.)).item(), *([torch.log1p(torch.tensor(10.)).item()]*4)],
+        ], requires_grad=True)
+        scale = {'PARETO_LATENCY':0.5,'PARETO_AREA':0.01,'PARETO_ADP':0.02}
+        for objective in ('PARETO_LATENCY','PARETO_AREA','PARETO_ADP'):
+            raw_prediction = prediction.detach().clone().requires_grad_(True)
+            normalized_prediction = prediction.detach().clone().requires_grad_(True)
+            raw = ranking_loss(raw_prediction,records,objective,[100.]*4)
+            normalized = ranking_loss(normalized_prediction,records,objective,[100.]*4,
+                                      objective_scales=scale)
+            raw.backward(); normalized.backward()
+            self.assertGreater(float(normalized_prediction.grad.norm()), 0.0)
+            self.assertNotAlmostEqual(float(normalized_prediction.grad.norm()),
+                                      float(raw_prediction.grad.norm()), places=6)
+            self.assertTrue(torch.isfinite(normalized_prediction.grad).all())
+
+    def test_ranking_scales_are_fit_from_only_the_supplied_training_records(self):
+        train = [
+            {'kernel':'k','profile':'zcu104','clock':10.,
+             'physical':[1.0,10.,10.,10.,10.],'capacities':[100.,100.,100.,100.]},
+            {'kernel':'k','profile':'zcu104','clock':10.,
+             'physical':[2.0,90.,90.,90.,90.],'capacities':[100.,100.,100.,100.]},
+        ]
+        scales = fit_ranking_scales(train)
+        self.assertEqual(set(scales),{'PARETO_LATENCY','PARETO_AREA','PARETO_ADP'})
+        self.assertTrue(all(value > 0 for value in scales.values()))
+
     def test_conditioning_arms_keep_identical_late_numeric_context(self):
         data = Data()
         data.action_kind_slot = torch.zeros((1, 64), dtype=torch.long)
@@ -90,7 +124,7 @@ class TrainingContractsTest(unittest.TestCase):
         baseline = {
             'macro_feasibility_accuracy': 0.7,
             'macro_rank_spearman': 0.3,
-            'macro_measured_pool_regret_fraction': 0.2,
+            'macro_evaluated_pool_regret_fraction': 0.2,
             'macro_latency_mape': 0.2,
             'macro_resource_mae_fraction': 0.1,
         }

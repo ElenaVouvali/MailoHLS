@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 import subprocess
 import time
@@ -25,6 +26,8 @@ from experiments.v22_gnn_training.train import (
     PreparedData,
     SEED,
     _fit_normalization,
+    fit_ranking_scales,
+    ranking_loss,
     _train_step,
 )
 
@@ -92,43 +95,95 @@ def profile_one(path: Path, expected_sha: str, name: str, device: torch.device):
 
 
 def profile_measured_update(release_dir: Path, audit_path: Path, device: torch.device):
-    """Run one disposable labeled optimizer update per arm on real training rows."""
+    """Measure per-objective losses and gradient paths on real training rows."""
     dataset = PreparedData(release_dir, audit_path)
     groups = {key: rows for key, rows in dataset.groups.items()
               if rows and rows[0]['split'] == 'train'}
     if not groups:
         raise ValueError('Authenticated dataset contains no eligible training groups')
+    train_records = [record for record in dataset.records if record['split'] == 'train']
     mean, std = _fit_normalization(dataset.records)
+    rank_scales = fit_ranking_scales(train_records)
     group_key = sorted(groups)[0]
     group = groups[group_key]
     count = min(8, len(group))
     selected = sorted(__import__('random').Random(SEED).sample(range(len(group)), count))
     outcomes = {}
+    records = [group[index] for index in selected]
+    candidate_pairs = [dataset.candidate_inputs(record) for record in records]
+    candidates_cpu = torch.stack([pair[0] for pair in candidate_pairs])
+    demands_cpu = torch.stack([pair[1] for pair in candidate_pairs])
+    target = torch.tensor([record['transformed'] for record in records],
+                          dtype=torch.float32,device=device)
+    target = (target-mean.to(device))/std.to(device)
     for arm in ('numerical', 'hardware'):
-        torch.manual_seed(SEED)
-        model = CandidateQoRModel().to(device)
-        optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4, weight_decay=1e-4)
-        model.train()
-        torch.cuda.synchronize(device)
-        torch.cuda.reset_peak_memory_stats(device)
-        started = time.perf_counter()
-        loss, regression, ranking = _train_step(
-            model, optimizer, dataset, group_key, selected, 'PARETO_LATENCY', 1.0,
-            mean, std, arm, device)
-        torch.cuda.synchronize(device)
-        outcomes[arm] = {
-            'parameters': sum(parameter.numel() for parameter in model.parameters()),
-            'finite_loss': all(torch.isfinite(torch.tensor(value)).item()
-                               for value in (loss, regression, ranking)),
-            'total_loss': loss,
-            'qor_loss': regression,
-            'ranking_loss': ranking,
-            'forward_backward_optimizer_update_seconds': time.perf_counter() - started,
-            'cuda_peak_allocated_bytes': torch.cuda.max_memory_allocated(device),
-            'cuda_peak_reserved_bytes': torch.cuda.max_memory_reserved(device),
-        }
-        del optimizer, model
-        torch.cuda.empty_cache()
+        outcomes[arm] = {'parameters':None,'objectives':{}}
+        for objective in ('PARETO_LATENCY','PARETO_AREA','PARETO_ADP'):
+            torch.manual_seed(SEED)
+            torch.cuda.manual_seed_all(SEED)
+            model = CandidateQoRModel().to(device)
+            optimizer = torch.optim.AdamW(model.parameters(),lr=3e-4,weight_decay=1e-4)
+            model.train()
+            graph = dataset.graph_tensor(group[0],1.0,arm).to(device)
+            candidates = candidates_cpu.to(device).detach().requires_grad_(True)
+            demands = demands_cpu.to(device).detach().requires_grad_(True)
+            torch.cuda.synchronize(device)
+            torch.cuda.reset_peak_memory_stats(device)
+            started=time.perf_counter()
+            prediction=model(graph,candidates,demands,arm=arm)
+            regression=F.smooth_l1_loss(prediction,target)
+            budget=[capacity for capacity in records[0]['capacities']]
+            ranking,pair_count=ranking_loss(
+                prediction,records,objective,budget,mean,std,return_pair_count=True,
+                objective_scales=rank_scales)
+            weighted_rank=0.1*ranking
+            loss=regression+weighted_rank
+            parameters=tuple(parameter for parameter in model.parameters() if parameter.requires_grad)
+            reg_grads=torch.autograd.grad(regression,parameters,retain_graph=True,allow_unused=True)
+            if pair_count:
+                rank_grads=torch.autograd.grad(ranking,parameters,retain_graph=True,allow_unused=True)
+            else:
+                rank_grads=tuple(None for _ in parameters)
+            input_grads=torch.autograd.grad(loss,(candidates,demands),retain_graph=True,allow_unused=True)
+            optimizer.zero_grad(set_to_none=True)
+            loss.backward()
+            preclip_norm=torch.nn.utils.clip_grad_norm_(model.parameters(),1.0)
+            clipped=bool(preclip_norm.detach().item()>1.0)
+            relation_grad=model.graph.relation.weight.grad
+            hardware_ids=[i for i,name in enumerate(tensors.RELATIONS)
+                          if name.startswith('hardware:') or name.startswith('reverse:hardware:')]
+            if relation_grad is not None and hardware_ids:
+                hardware_relation_grad_norm=float(relation_grad[hardware_ids].norm().detach())
+            else:
+                hardware_relation_grad_norm=0.0
+            optimizer.step()
+            torch.cuda.synchronize(device)
+            def norm(grads):
+                return math.sqrt(sum(float(grad.detach().square().sum())
+                                     for grad in grads if grad is not None))
+            item={
+                'objective':objective,'finite_loss':bool(torch.isfinite(loss).item()),
+                'finite_gradients':all(parameter.grad is None or bool(torch.isfinite(parameter.grad).all())
+                                        for parameter in model.parameters()),
+                'qor_loss':float(regression.detach()),'ranking_loss':float(ranking.detach()),
+                'weighted_ranking_loss':float(weighted_rank.detach()),
+                'informative_pair_count':pair_count,'regression_gradient_norm':norm(reg_grads),
+                'ranking_gradient_norm':norm(rank_grads),
+                'weighted_ranking_gradient_norm':0.1*norm(rank_grads),
+                'weighted_rank_to_qor_gradient_ratio':(0.1*norm(rank_grads)/max(norm(reg_grads),1e-30)),
+                'total_gradient_norm_before_clip':float(preclip_norm.detach()),
+                'gradient_clipped':clipped,
+                'candidate_input_gradient_norm':float(input_grads[0].norm().detach()) if input_grads[0] is not None else 0.0,
+                'candidate_demand_gradient_norm':float(input_grads[1].norm().detach()) if input_grads[1] is not None else 0.0,
+                'hardware_relation_embedding_gradient_norm':hardware_relation_grad_norm,
+                'forward_backward_optimizer_update_seconds':time.perf_counter()-started,
+                'cuda_peak_allocated_bytes':torch.cuda.max_memory_allocated(device),
+                'cuda_peak_reserved_bytes':torch.cuda.max_memory_reserved(device),
+            }
+            outcomes[arm]['parameters']=sum(parameter.numel() for parameter in model.parameters())
+            outcomes[arm]['objectives'][objective]=item
+            del optimizer,model,graph,candidates,demands,prediction,loss
+            torch.cuda.empty_cache()
     return {
         'dataset_sha256': dataset.audit['dataset']['dataset_sha256'],
         'split_sha256': dataset.audit['dataset']['split_sha256'],
@@ -142,6 +197,8 @@ def profile_measured_update(release_dir: Path, audit_path: Path, device: torch.d
             'selected_candidate_count': count,
             'objective': 'PARETO_LATENCY', 'resource_budget_fraction': 1.0,
         },
+        'gradient_diagnostic_method':'For each arm/objective, one update on the same eight real measured candidates; component gradients are measured separately before global norm clipping at 1.0. Not a QoR experiment.',
+        'ranking_objective_scales_training_only':rank_scales,
         'arms': outcomes,
     }
 
@@ -199,7 +256,7 @@ def main():
                               'status':'cuda_out_of_memory', 'message':str(exc)})
 
     result = {
-        'schema': 'salt-hls-v22-a2-memory-preflight-v1',
+        'schema': 'salt-hls-v22-a2-memory-preflight-v2',
         'git_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
         'graph_archive_sha256': repo_manifest['archive_sha256'],
         'tensor_schema': tensors.SCHEMA,
