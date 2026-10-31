@@ -68,7 +68,7 @@ def test_restore_fresh_and_refuse_existing(tmp_path):
         artifacts.extract(archive, tmp_path / 'output')
 
 
-@pytest.mark.parametrize('legacy,canonical', [('data.py','GNN_branch/data.py'), ('cpp_to_gnn_emb.py','GNN_branch/cpp_to_gnn_emb.py'), ('filter_jsonl.py','Preprocessing/filter_jsonl.py'), ('inference_qLoRA.py','LLM_branch/inference/inference_qLoRA.py')])
+@pytest.mark.parametrize('legacy,canonical', [('data.py','GNN_branch/data.py'), ('cpp_to_gnn_emb.py','GNN_branch/cpp_to_gnn_emb.py'), ('filter_jsonl.py','Preprocessing/filter_jsonl.py'), ('inference_qLoRA.py','LLM_branch/inference/inference_qLoRA.py'), ('cpp_to_gexf_deterministic.py','GNN_branch/cpp_to_gexf_deterministic.py'), ('filter_pt.py','Preprocessing/filter_pt.py'), ('gexf_to_pt_zero.py','GNN_branch/gexf_to_pt_zero.py'), ('parameter.py','GNN_branch/parameter.py'), ('pragma_free_pts.py','GNN_branch/pragma_free_pts.py'), ('pt_to_gnn_emb.py','GNN_branch/pt_to_gnn_emb.py'), ('result.py','GNN_branch/result.py'), ('server.py','GNN_branch/server.py')])
 def test_legacy_namespace_and_script_contract(tmp_path, legacy, canonical):
     src = tmp_path / 'src'
     src.mkdir()
@@ -77,7 +77,7 @@ def test_legacy_namespace_and_script_contract(tmp_path, legacy, canonical):
     target.parent.mkdir(parents=True)
     target.write_text('class Payload: pass\nif __name__ == "__main__":\n    print("legacy CLI")\n')
     module = legacy[:-3]
-    result = subprocess.check_output([sys.executable, '-c', f'import {module}; print({module}.Payload.__module__)'], cwd=src, text=True)
+    result = subprocess.check_output([sys.executable, '-c', f'import {module}, pickle; obj = {module}.Payload(); assert type(pickle.loads(pickle.dumps(obj))) is {module}.Payload; print({module}.Payload.__module__)'], cwd=src, text=True)
     assert result.strip() == module
     assert subprocess.check_output([sys.executable, str(src / legacy)], text=True).strip() == 'legacy CLI'
 
@@ -88,3 +88,53 @@ def test_artifact_path_escape_and_symlink(tmp_path):
     for name in ('../escape', '/absolute', 'link/item'):
         with pytest.raises(ValueError, match='escapes'):
             artifacts.destination(tmp_path, name)
+
+
+def test_internal_symlink_also_rejected(tmp_path):
+    (tmp_path/'real').mkdir()
+    (tmp_path/'alias').symlink_to(tmp_path/'real', target_is_directory=True)
+    with pytest.raises(ValueError, match='symlink'):
+        artifacts.destination(tmp_path, 'alias/file')
+
+
+def test_extraction_destination_race_does_not_replace(tmp_path, monkeypatch):
+    archive = tmp_path/'data.tar'
+    with tarfile.open(archive, 'w') as tar:
+        item = tarfile.TarInfo('file'); item.size = 1
+        tar.addfile(item, io.BytesIO(b'x'))
+    target = tmp_path/'output'
+    original_open = artifacts.tarfile.open
+    def concurrent_open(*args, **kwargs):
+        target.mkdir()
+        (target/'sentinel').write_text('concurrent work')
+        return original_open(*args, **kwargs)
+    monkeypatch.setattr(artifacts.tarfile, 'open', concurrent_open)
+    with pytest.raises(FileExistsError):
+        artifacts.extract(archive, target)
+    assert (target/'sentinel').read_text() == 'concurrent work'
+
+
+def test_sealed_package_determinism_and_restore(tmp_path, monkeypatch):
+    repo = tmp_path/'repo'; repo.mkdir()
+    subprocess.run(['git','init','-q',str(repo)],check=True)
+    (repo/'inputs').mkdir()
+    script=repo/'inputs/run.sh'; script.write_text('#!/bin/sh\necho original\n');script.chmod(0o755)
+    subprocess.run(['git','-C',str(repo),'add','inputs'],check=True)
+    subprocess.run(['git','-C',str(repo),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture'],check=True)
+    commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
+    script.write_text('uncommitted local state')
+    monkeypatch.chdir(repo)
+    row=dict(id='fixture',source_commit=commit,restore_roots=['inputs'])
+    a,b=tmp_path/'a.tar.gz',tmp_path/'b.tar.gz'
+    artifacts.package(row,a);artifacts.package(row,b)
+    assert a.read_bytes()==b.read_bytes()
+    row.update(size=a.stat().st_size,sha256=artifacts.sha256(a))
+    root=tmp_path/'restored'
+    assert artifacts.restore(a,row,root)==1
+    assert (root/'inputs/run.sh').read_text()=='#!/bin/sh\necho original\n'
+    assert (root/'inputs/run.sh').stat().st_mode & 0o111
+    assert artifacts.restore(a,row,root)==1  # identical files are safe no-ops
+    (root/'inputs/run.sh').write_text('user work')
+    with pytest.raises(ValueError,match='Restore conflict'):
+        artifacts.restore(a,row,root)
+    assert (root/'inputs/run.sh').read_text()=='user work'
