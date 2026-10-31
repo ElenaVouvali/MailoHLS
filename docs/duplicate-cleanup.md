@@ -61,3 +61,12 @@ module names, script guards and caller-selected sibling imports. Other `src/`
 files and historical checkpoint snapshots are retained. See the
 [maintenance report](REPOSITORY_CONSOLIDATION_REPORT.md) for exact measurements
 and deferred artifact cleanup.
+
+## Final verified artifact migration
+
+The next maintenance branch externalizes 304,472,276 bytes across 1,460 paths
+only after GitHub Release publication, independent download, complete restoration
+and consumer checks. Eight additional exact `src/` duplicates now delegate, for
+twelve total. The [final report](REPOSITORY_CONSOLIDATION_REPORT.md) records releases,
+policies, selected contracts and exact restoration commands. Previous measurements
+above remain historical; no Git history shrink is claimed.

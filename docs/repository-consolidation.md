@@ -1,5 +1,10 @@
 # MailoHLS repository consolidation
 
+This is the historical 2026-10-29 audit receipt. Subsequent verified Release
+publication and tracked artifact migration are recorded in
+[the final consolidation report](REPOSITORY_CONSOLIDATION_REPORT.md). Statements
+below about unavailable Release publication describe that original audit date.
+
 ## Audit snapshot
 
 Audit date: 2026-10-29. Main began at `d488681f68e58ab1b1e666f6911f5257d6462dc2`.

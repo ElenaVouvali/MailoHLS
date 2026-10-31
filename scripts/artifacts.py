@@ -130,25 +130,28 @@ def package(record, output):
     entries = subprocess.check_output(['git', 'ls-tree', '-rz', ref, '--', *record['restore_roots']]).split(b'\0')
     rows = []
     output.parent.mkdir(parents=True, exist_ok=True)
-    with output.open('xb') as raw, gzip.GzipFile(fileobj=raw, mode='wb', filename='', mtime=0) as gz, tarfile.open(fileobj=gz, mode='w|') as tar:
-        for entry in entries:
-            if not entry:
-                continue
-            meta, name = entry.split(b'\t', 1)
-            mode, kind, blob = meta.split()
-            if mode not in (b'100644', b'100755') or kind != b'blob':
-                raise ValueError('Package requires regular committed files: ' + name.decode())
-            if name.decode().endswith(('.pth', '.pt', '.safetensors', '.bin', '.ckpt')):
-                raise ValueError('Weights need a separate redistribution review')
-            data = subprocess.check_output(['git', 'cat-file', 'blob', blob.decode()])
-            info = tarfile.TarInfo(name.decode())
-            info.size, info.mode = len(data), int(mode, 8) & 0o777
-            tar.addfile(info, io.BytesIO(data))
-            rows.append(dict(path=name.decode(), size=len(data), sha256=hashlib.sha256(data).hexdigest(), mode=info.mode, git_blob=blob.decode()))
-        manifest = json.dumps(dict(schema='mailohls-sealed-tree-v1', source_commit=ref, artifact_id=record['id'], files=rows), sort_keys=True, indent=2).encode()
-        info = tarfile.TarInfo('MAILOHLS_ARTIFACT.json')
-        info.size = len(manifest)
-        tar.addfile(info, io.BytesIO(manifest))
+    with tempfile.TemporaryDirectory(dir=output.parent) as temp:
+        staged = Path(temp) / 'archive.tar.gz'
+        with staged.open('xb') as raw, gzip.GzipFile(fileobj=raw, mode='wb', filename='', mtime=0) as gz, tarfile.open(fileobj=gz, mode='w|') as tar:
+            for entry in entries:
+                if not entry:
+                    continue
+                meta, name = entry.split(b'\t', 1)
+                mode, kind, blob = meta.split()
+                if mode not in (b'100644', b'100755') or kind != b'blob':
+                    raise ValueError('Package requires regular committed files: ' + name.decode())
+                if name.decode().endswith(('.pth', '.pt', '.safetensors', '.bin', '.ckpt')):
+                    raise ValueError('Weights need a separate redistribution review')
+                data = subprocess.check_output(['git', 'cat-file', 'blob', blob.decode()])
+                info = tarfile.TarInfo(name.decode())
+                info.size, info.mode = len(data), int(mode, 8) & 0o777
+                tar.addfile(info, io.BytesIO(data))
+                rows.append(dict(path=name.decode(), size=len(data), sha256=hashlib.sha256(data).hexdigest(), mode=info.mode, git_blob=blob.decode()))
+            manifest = json.dumps(dict(schema='mailohls-sealed-tree-v1', source_commit=ref, artifact_id=record['id'], files=rows), sort_keys=True, indent=2).encode()
+            info = tarfile.TarInfo('MAILOHLS_ARTIFACT.json')
+            info.size = len(manifest)
+            tar.addfile(info, io.BytesIO(manifest))
+        os.link(staged, output)
     return rows
 
 

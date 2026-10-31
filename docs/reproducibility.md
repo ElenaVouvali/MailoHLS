@@ -8,27 +8,65 @@ remain required as explained in [repository layout](repository-layout.md).
 
 ## Artifacts
 
-The standard-library registry is [`configs/artifacts.json`](../configs/artifacts.json),
-schema `mailohls-artifact-registry-v1`. Each record has an ID, path, SHA256, byte
-size, source commit, graph/dataset identity, dependencies, reproduction guide and
-public URL where available. Current entries are tracked compiler graph releases.
-Their URLs reference immutable published Git commits. RC3 was independently
-downloaded and checksum-verified during maintenance; the other entries were
-verified locally. No GitHub Release download is asserted. No scientific artifact was removed in this refactor.
+The registry is [`configs/artifacts.json`](../configs/artifacts.json). Frozen
+compiler archives stay tracked; raw Git URLs for those copies are not considered
+independent archival preservation. The following genuine Releases have been
+published, downloaded independently over public HTTPS, restored and validated:
+
+- [Complete V2.2 catalog](https://github.com/ElenaVouvali/MailoHLS/releases/tag/archive/v22-graph-catalog-20261029): all 1,512 overlays, source/MLIR/profile/action provenance and 2,218 verified checksums.
+- [Research evidence v1](https://github.com/ElenaVouvali/MailoHLS/releases/tag/artifacts/research-evidence-v1-20261031): historical checkpoint evidence, generated HARP graphs, full synthesis snapshots and derived training CSVs. Includes public checksum and artifact manifests. No local model weights are included.
+
+Restore only the groups needed for an experiment:
 
 ```bash
 python scripts/artifacts.py list
-python scripts/artifacts.py verify --artifact salt-hls-graphs-v22-20261027-rc3
-python scripts/artifacts.py fetch --artifact salt-hls-graphs-v22-20261027-rc3 --root /tmp/mailohls-restored
-python scripts/artifacts.py verify --artifact salt-hls-graphs-v22-20261027-rc3 --root /tmp/mailohls-restored --extract-to /tmp/mailohls-graphs
+python scripts/artifacts.py fetch --artifact harp-generated-graphs-v1
+python scripts/artifacts.py restore --artifact harp-generated-graphs-v1
+python scripts/artifacts.py fetch --artifact derived-training-tables-v1
+python scripts/artifacts.py restore --artifact derived-training-tables-v1
 ```
 
-Choose fresh restore/extraction paths. Fetch requires HTTPS; verification is
-offline. Existing files are never overwritten. Downloaded bytes are checked before
-publication. Extraction rejects absolute/traversing paths, links, devices and
-special files, validates all members before writing, and stages content in the
-destination filesystem. Restoring a registry entry does not establish that its
-scientific interpretation has been independently adjudicated.
+The other exact-path groups are `checkpoint-evidence-v1` and
+`synthesis-evidence-v1`. Both use the same fetch/restore commands. Archives are
+cached at ignored `artifacts/releases/`. `--root /fresh/reproduction` explicitly
+chooses a different restoration root, including the cache. Existing identical
+files are verified and left alone; differing files, modes or symlink paths are
+rejected rather than overwritten. A conflict must be reviewed by the user, not
+resolved with a force flag. A failed concurrent publication may leave a subset
+of verified files; rerun safely after resolving the conflict. Individual file
+publication is atomic, while a multi-file restore is not a filesystem transaction.
+
+Each sealed tree records its immutable source commit, every original file path,
+Git blob, SHA256, size and Git executable mode in `MAILOHLS_ARTIFACT.json`.
+Archive checksums bind that manifest. Offline `verify` checks an existing cache;
+`restore` verifies every member and original path. Links, devices, traversal and
+unexpected members are rejected. The [migration manifest](../configs/artifact-migration.json)
+records exactly which indexed copies were externalized and which contracts remain.
+Only files from already-public committed Git trees were packaged; existing rights
+are unchanged and HARP's BSD license is included. Raw GNΩSIS redistribution terms
+were not re-licensed, and its original CSVs remain tracked.
+
+The legacy catalog uses its own frozen checksum layout and extracts to a fresh
+review directory rather than installing into a source checkout:
+
+```bash
+python scripts/artifacts.py fetch --artifact v22-complete-target-catalog-v1
+python scripts/artifacts.py verify --artifact v22-complete-target-catalog-v1 --extract-to /fresh/catalog
+# From /fresh/catalog/graphs/latest: sha256sum -c SHA256SUMS
+```
+
+Maintainers can reproduce any sealed tree using only committed blobs:
+
+```bash
+python scripts/artifacts.py package --artifact checkpoint-evidence-v1 --output /fresh/checkpoint-evidence-v1.tar.gz
+python -m scripts.maintenance.validate_restored_research --root /fresh/restored --report /fresh/consumer-report.json
+```
+
+Packaging refuses existing outputs, symlinks and model-weight extensions; ignored
+local files are not read. Publishing never uses overwrite/clobber flags. Versioned
+assets and preservation tags must not be rewritten; create a new version instead.
+After a download, verify the registered checksum even if GitHub reports a digest.
+No externalized scientific content is regenerated or relabeled during restoration.
 
 ## Dataset and compiler
 

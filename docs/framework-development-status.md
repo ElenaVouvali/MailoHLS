@@ -47,8 +47,9 @@ established for these extensions.
 | Stage-1 measured-quality assessment | [`research/stage1-measured-quality`](https://github.com/ElenaVouvali/MailoHLS/tree/research/stage1-measured-quality) | Validation-only assessment; not a promoted model. |
 | Historical baselines | [`mlir-target`](https://github.com/ElenaVouvali/MailoHLS/tree/mlir-target), [`llvm-ir`](https://github.com/ElenaVouvali/MailoHLS/tree/llvm-ir) | Preserved historical branches, not modified by these experiments. |
 
-The full 1,512-graph catalog remains on the
-[`graphs/latest-v22-catalog` branch](https://github.com/ElenaVouvali/MailoHLS/tree/graphs/latest-v22-catalog).
+The full 1,512-graph catalog is available as a
+[checksum-verified Release](https://github.com/ElenaVouvali/MailoHLS/releases/tag/archive/v22-graph-catalog-20261029).
+Its historical branch remains preserved; no branch retirement was performed.
 The focused Hotspot export is a separate smaller artifact and does not replace
 the frozen corpus release.
 

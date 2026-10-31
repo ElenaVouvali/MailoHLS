@@ -138,3 +138,13 @@ def test_sealed_package_determinism_and_restore(tmp_path, monkeypatch):
     with pytest.raises(ValueError,match='Restore conflict'):
         artifacts.restore(a,row,root)
     assert (root/'inputs/run.sh').read_text()=='user work'
+
+
+def test_externalization_manifest_preserves_selected_contracts():
+    import json
+    manifest=json.loads((ROOT/'configs/artifact-migration.json').read_text())
+    paths=[p for row in manifest['artifacts'] for p in row['externalized_paths']]
+    assert len(paths)==len(set(paths))
+    forbidden=('Data/', 'mailohls_runs/', 'GNN_branch/MLIR_graphs/', 'GNN_branch/targets/', 'Checkpoints/gnn_final_absolute_direct_rank_s123/')
+    assert not any(p.startswith(forbidden) or p=='FINAL_ARTIFACTS.json' for p in paths)
+    assert all(row['removed_paths']==len(row['externalized_paths']) for row in manifest['artifacts'])

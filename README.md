@@ -65,11 +65,13 @@ flags documented by that module. Existing checkpoint policies are not relabeled.
 
 For model training and inference, follow [reproducibility](docs/reproducibility.md)
 and [maintained launcher choices](docs/shell-scripts.md). Cloning the source
-repository does not download pretrained model weights. The authenticated graph
-archives and original measurements remain tracked; large runtime outputs are
-ignored. The full hardware graph catalog remains on the
-[`catalog branch`](https://github.com/ElenaVouvali/MailoHLS/tree/graphs/latest-v22-catalog)
-until a complete external release is independently verified.
+repository does not download pretrained model weights. Frozen compiler graph archives and original measurements remain tracked. Historical
+checkpoint evidence, generated HARP graphs, synthesis workspaces and derived CSVs
+are distributed as [verified research assets](https://github.com/ElenaVouvali/MailoHLS/releases/tag/artifacts/research-evidence-v1-20261031).
+The full hardware graph catalog is a [verified Release](https://github.com/ElenaVouvali/MailoHLS/releases/tag/archive/v22-graph-catalog-20261029).
+Use the artifact tool to restore the exact original paths before reproducing an
+experiment that needs them; the source repository contains their contracts and
+restoration manifest. Large runtime outputs remain ignored.
 
 ## Repository map
 

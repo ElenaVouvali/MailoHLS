@@ -5,8 +5,7 @@ Keep research-specific methods/configurations/reports under `experiments/` and
 launchers under `scripts/`; use existing modules before adding another entry
 point. Preserve source-legal directive domains, tokenizer IDs and checkpoint schemas.
 
-Four legacy `src/` entries (`data`, `cpp_to_gnn_emb`, `filter_jsonl`,
-`inference_qLoRA`) execute the canonical source in their original module namespace.
+Twelve legacy `src/` entries (the mapping is in [legacy-entrypoints.json](legacy-entrypoints.json)) execute the canonical source in their original module namespace.
 This keeps old imports, pickle class names, `__main__` behavior and caller-selected
 LLVM-era sibling imports. The rest of `src/` contains distinct historical code.
 Do not change its import resolution merely to modernize syntax. The original
