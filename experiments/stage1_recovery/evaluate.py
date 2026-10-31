@@ -61,6 +61,30 @@ def summarize(rows, registry):
     return dict(**decisions.metrics(rows, registry), budget_transitions=transition_metrics(rows))
 
 
+def combine_full_validation_reports(reference_dir, candidate_dir, output):
+    """Reuse an authenticated reference decoding on the identical case sequence.
+
+    This saves repeated 6.7B-model inference without altering the selected
+    candidates or the downstream measured-QoR evaluator.
+    """
+    reference_dir, candidate_dir, output = map(Path, (reference_dir, candidate_dir, output))
+    if output.exists():
+        raise FileExistsError(output)
+    if sha(reference_dir / 'cases.json') != sha(candidate_dir / 'cases.json'):
+        raise ValueError('Candidate was not decoded on the exact reference case sequence')
+    reference = json.loads((reference_dir / 'report.json').read_text())
+    candidate = json.loads((candidate_dir / 'report.json').read_text())
+    for key in ('cases', 'dataset_sha256', 'prepared_manifest_sha256', 'baseline'):
+        if reference[key] != candidate[key]:
+            raise ValueError(f'Full-validation identity differs: {key}')
+    if reference['cases'] != 383 or len(reference['adapters']) != 2 or len(candidate['adapters']) != 1:
+        raise ValueError('Expected complete 383-case reference pair and one new candidate')
+    combined = dict(candidate, adapters={'0': reference['adapters']['0'],
+                                         '1': candidate['adapters']['0']})
+    dump(output, combined)
+    return combined
+
+
 def _assignment_key(text):
     """Canonical complete directive assignment; formatting/order do not matter."""
     return tuple(sorted(decisions.parse(text).items()))

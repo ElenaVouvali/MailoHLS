@@ -120,14 +120,24 @@ for policy in decision decision_balanced; do
   test -f "$full/best_custom_stage1/adapter_model.safetensors"
   status "VALIDATE_${policy}"
   "$PYTHON" -B -m experiments.stage1_recovery.evaluate --prepared "$PREPARED" \
-    --full-validation --adapters "$REFERENCE" "$full/best_custom_stage1" \
+    --full-validation --adapters "$full/best_custom_stage1" \
     --output "$validation" > "$STUDY/${policy}_validation.log" 2>&1
+  # The historical model was already decoded on these exact 383 cases. Reuse
+  # its authenticated prediction/report instead of loading it a second time.
+  "$PYTHON" - "$BASELINE" "$validation" <<'PY'
+import sys
+from pathlib import Path
+from experiments.stage1_recovery.evaluate import combine_full_validation_reports
+combine_full_validation_reports(Path(sys.argv[1]).parent, sys.argv[2],
+                                Path(sys.argv[2]) / 'combined_report.json')
+PY
   "$PYTHON" -B -m experiments.stage1_recovery.evaluate --prepared "$PREPARED" \
-    --measured-quality-predictions "$validation/adapter_0_field_greedy.json" \
-    "$validation/adapter_1_field_greedy.json" --output "$measured" \
+    --measured-quality-predictions \
+    artifacts/diagnostics/stage1_conditional_ce_full_validation_20261101/adapter_0_field_greedy.json \
+    "$validation/adapter_0_field_greedy.json" --output "$measured" \
     > "$STUDY/${policy}_measured.log" 2>&1
   "$PYTHON" -B -m experiments.stage1_recovery.finalize --full-run "$full" \
-    --prepared "$PREPARED" --full-validation-report "$validation/report.json" \
+    --prepared "$PREPARED" --full-validation-report "$validation/combined_report.json" \
     > "$STUDY/${policy}_assessment.log" 2>&1
   status "COMPLETE_${policy}"
 done

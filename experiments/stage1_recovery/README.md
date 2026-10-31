@@ -69,6 +69,10 @@ requires a complete 383-case CE/reference report, evaluates their exact
 measured-candidate quality first, runs a two-update smoke for each policy,
 then trains and evaluates the two arms in fresh output directories. It refuses
 existing output paths and any V100S compute process. It does not use the A2.
+The historical 383-case predictions are reused for the two later comparisons;
+each new adapter is decoded on the same authenticated case sequence, and the
+combiner rejects different case bytes, datasets, selected contexts or baselines.
+This avoids repeating expensive historical inference without changing outcomes.
 
 After the baseline report exists, the exact command on `liono` is:
 
@@ -95,6 +99,7 @@ promoted automatically.
 |---|---|---|---|---|
 | `d4b7a10` | `ambiguity.py`, focused tests, compact JSON | Add authenticated train-only feasible-set sensitivity audit | Read-only; original selected labels and losses unchanged | 130,310 train rows; 2,187 requests; synthetic feasibility/duplicate/held-out tests passed. |
 | `be78077` | Study launcher, root/method/results docs | Guard a sequential V100 comparison behind matched full baseline validation | Research outputs only; no checkpoint promotion | Launcher syntax and 176 CPU tests passed; model arms remain pending until actual completion. |
+| `d679108` | Domain audit, focused tests, launcher gate | Verify every measured training assignment and wait on the durable baseline user service | Frozen domain registry; no target or loss changes | 117,905 distinct measured assignments legal; 63 focused CPU tests passed. |
 
 ## Model and output
 

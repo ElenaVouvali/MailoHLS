@@ -3,6 +3,7 @@ import json
 import pytest
 
 from experiments.stage1_recovery.evaluate import (
+    combine_full_validation_reports,
     load_validation_measurements,
     measured_candidate_quality,
     target_transition_support,
@@ -13,6 +14,28 @@ from LLM_branch.common.mailohls_contract import DEVICE_RESOURCES
 DEVICE = 'xcu200-fsgd2104-2-e'
 CAP = DEVICE_RESOURCES[DEVICE]
 SOURCE = 'Data/ApplicationDataset/toy/kernel.cpp'
+
+
+def test_full_validation_reuses_only_identical_reference_cases(tmp_path):
+    reference, candidate = tmp_path / 'reference', tmp_path / 'candidate'
+    reference.mkdir()
+    candidate.mkdir()
+    for folder in (reference, candidate):
+        (folder / 'cases.json').write_text('[{"case": 1}]')
+    shared = dict(cases=383, dataset_sha256='dataset',
+                  prepared_manifest_sha256='selection', baseline={'score': 1})
+    (reference / 'report.json').write_text(json.dumps(dict(shared, adapters={
+        '0': {'path': 'historical'}, '1': {'path': 'legacy_ce'}})))
+    (candidate / 'report.json').write_text(json.dumps(dict(shared, adapters={
+        '0': {'path': 'new_decision'}})))
+    output = candidate / 'combined_report.json'
+    result = combine_full_validation_reports(reference, candidate, output)
+    assert [result['adapters'][str(i)]['path'] for i in (0, 1)] == ['historical', 'new_decision']
+    with pytest.raises(FileExistsError):
+        combine_full_validation_reports(reference, candidate, output)
+    (candidate / 'cases.json').write_text('[{"case": 2}]')
+    with pytest.raises(ValueError, match='exact reference case sequence'):
+        combine_full_validation_reports(reference, candidate, candidate / 'other.json')
 
 
 def assignment(pipe, unroll):
