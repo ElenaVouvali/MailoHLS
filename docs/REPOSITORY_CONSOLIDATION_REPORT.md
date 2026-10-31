@@ -151,3 +151,45 @@ part of this maintenance validation.
    source materialization. Potential upper bounds above are not promised savings.
 5. Version any Kalman dataset corrections separately, with checkpoint compatibility
    notes and unchanged original datasets.
+
+### Executed regression evidence
+
+- Complete CPU suite (`CUDA_VISIBLE_DEVICES='' python -m pytest -q tests LLM_branch/tests`):
+  **468 passed, 21 skipped, 0 failed**, 408.18 seconds. Collection preceded one
+  additional path-escape regression; the focused final maintenance suite includes
+  that case and passed all 11 tests. A thread-limited rerun records skip reasons.
+- Changed/new Python and production GNN/Stage-1/Stage-2/Stage-3 entry-point syntax
+  passed. Maintained training/reproduction shell scripts passed `bash -n`.
+- New documentation relative links passed, and no broken symlinks were found.
+- Public HTTPS RC3 fetch into `/tmp/mailohls-public-restore-20261031` passed size
+  and SHA256 verification; local verified extraction passed in a fresh directory.
+  `gh release list` returned no releases. Catalog externalization remains deferred.
+- Original porcelain/index patch comparison passed byte-for-byte; the staged
+  patch SHA256 is `dbd65d851ef0bf35d222b3ad4ccc05992894d0d76ca481cbb88aa4bcb0bd5a17`.
+- `git bundle verify /tmp/mailohls-consolidation-preflight.bundle` passed again.
+- Zero diff against base for Data, selected runtime metadata, checkpoint sources,
+  FPGA profiles, graph archives and graph-release manifests. No runtime weights
+  were migrated. Full checkpoint inference and Vitis execution are unexecuted;
+  isolated environments still need their documented external assets.
+
+### Measurement snapshot
+
+At implementation/documentation commit `009e6b9`: 3,733 paths, 566,677,814 bytes,
+458 Python files, 468 duplicate groups and 1,136 repeated paths. Relative to the
+consolidation base this is 10 extra documentation/tool/test paths, 36,037 fewer
+tracked bytes and four fewer exact implementation copies. Final report additions
+slightly change bytes; final working-tree measurements are recorded below.
+Main alone has 3,696 paths, 565,985,079 bytes and 441 Python files. Comparing this
+branch to main also includes the 12 already-prepared consolidation commits;
+that is a different scope from the simplification-only measurement.
+
+No claim of smaller Git history or object storage is made. New guides and tests
+increase file count while reducing redundant implementation responsibility.
+
+Clean-checkout smoke: a fresh `git archive` export (no `.git`, runtime caches or
+weights) passed **96 tests in 45.00 seconds** for artifact/delegate, graph-overlay,
+tensor readiness and tokenizer behavior, plus RC3 verification and artifact CLI
+help. Installed Python dependencies were reused; no environment installation or
+model download was performed. Before/after five-part inventories are available
+outside Git under `/tmp/mailohls-simplification-before/` and
+`/tmp/mailohls-simplification-after/` (the latter at `009e6b9`).
