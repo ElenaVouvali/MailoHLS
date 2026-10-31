@@ -1,0 +1,228 @@
+{
+  "schema": "mailohls-artifact-registry-v1",
+  "artifacts": [
+    {
+      "id": "salt-hls-graphs-v21-20261027",
+      "type": "compiler-graph-release",
+      "schema": "salt-hls-mlir-structural-v2.1",
+      "path": "GNN_branch/MLIR_graphs/salt-hls-graphs-v21-20261027.tar.gz",
+      "sha256": "b26d98d2ba653072d6182eb19672a78d6b6c69c0c1f5aa37ba335aa6518395f2",
+      "size": 13211001,
+      "source_commit": "7c6844f7ca26b53cfb0d6b54c25aba95f61b950a",
+      "dataset_identity": "sealed source snapshots in archive",
+      "graph_identity": "per-snapshot manifest in archive",
+      "download_url": "https://raw.githubusercontent.com/ElenaVouvali/MailoHLS/7c6844f7ca26b53cfb0d6b54c25aba95f61b950a/GNN_branch/MLIR_graphs/salt-hls-graphs-v21-20261027.tar.gz",
+      "publication_status": "Tracked immutable Git object; external Release download not independently verified",
+      "reproduction_command": "See docs/structural-graph-v22.md and toolchain/README.md",
+      "dependencies": [
+        "Python standard library for verification; pinned Polygeist only for regeneration"
+      ]
+    },
+    {
+      "id": "salt-hls-graphs-v22-20261027-rc2",
+      "type": "compiler-graph-release",
+      "schema": "salt-hls-mlir-structural-v2.2",
+      "path": "GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc2.tar.gz",
+      "sha256": "5a37b5a9a2747121d4f04687dade3e1e164a6b54343aaeaadcb30d62441eecb1",
+      "size": 13698314,
+      "source_commit": "7c6844f7ca26b53cfb0d6b54c25aba95f61b950a",
+      "dataset_identity": "sealed source snapshots in archive",
+      "graph_identity": "per-snapshot manifest in archive",
+      "download_url": "https://raw.githubusercontent.com/ElenaVouvali/MailoHLS/7c6844f7ca26b53cfb0d6b54c25aba95f61b950a/GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc2.tar.gz",
+      "publication_status": "Tracked immutable Git object; external Release download not independently verified",
+      "reproduction_command": "See docs/structural-graph-v22.md and toolchain/README.md",
+      "dependencies": [
+        "Python standard library for verification; pinned Polygeist only for regeneration"
+      ]
+    },
+    {
+      "id": "salt-hls-graphs-v22-20261027-rc3",
+      "type": "compiler-graph-release",
+      "schema": "salt-hls-mlir-structural-v2.2",
+      "path": "GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz",
+      "sha256": "feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73",
+      "size": 14004404,
+      "source_commit": "7c6844f7ca26b53cfb0d6b54c25aba95f61b950a",
+      "dataset_identity": "sealed source snapshots in archive",
+      "graph_identity": "per-snapshot manifest in archive",
+      "download_url": "https://raw.githubusercontent.com/ElenaVouvali/MailoHLS/7c6844f7ca26b53cfb0d6b54c25aba95f61b950a/GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz",
+      "publication_status": "Immutable Git URL downloaded independently and SHA256/size verified on 2026-10-31; not a GitHub Release",
+      "reproduction_command": "See docs/structural-graph-v22.md and toolchain/README.md",
+      "dependencies": [
+        "Python standard library for verification; pinned Polygeist only for regeneration"
+      ]
+    },
+    {
+      "id": "checkpoint-evidence-v1",
+      "type": "immutable-research-evidence",
+      "schema": "mailohls-sealed-tree-v1",
+      "path": "artifacts/releases/checkpoint-evidence-v1.tar.gz",
+      "source_commit": "4d707ca8079a79e4bbd22dff0b6849d7f7332cd3",
+      "restore_roots": [
+        "Checkpoints",
+        "HARP-rep/LICENSE"
+      ],
+      "size": 22250468,
+      "sha256": "4b0bc4476b87893836e2a6cd8613fc8c02100de20a41e3d6416e16a52c62c841",
+      "dataset_identity": "Exact original committed labels/splits; no data transformation",
+      "graph_identity": "Original per-run graph/schema metadata inside sealed tree",
+      "toolchain_version": "Original per-run provenance; no compiler execution",
+      "download_url": null,
+      "publication_status": "Verified Git payload recovery; original compressed archive preserved offline",
+      "reproduction_command": "python scripts/artifacts.py restore-git --artifact checkpoint-evidence-v1",
+      "dependencies": [
+        "Python standard library; original consumer dependencies for use"
+      ],
+      "license": "Existing rights unchanged; UCLA-VAST BSD-3-Clause notice included at HARP-rep/LICENSE. Only already-public tracked source/data; no local model weights.",
+      "experiment": "Historical MailoHLS/SALT-HLS configurations and evidence",
+      "git_roots": [
+        "Checkpoints",
+        "HARP-rep/LICENSE"
+      ],
+      "git_objects": {
+        "Checkpoints": "60b0d51274ff5c7139fa1fb1c6936989471c2c9c",
+        "HARP-rep/LICENSE": "cfe0028efad551e450983d7ac720840a2984a087"
+      },
+      "member_manifest_sha256": "d4813126e73e23c91a86861268859a6d449fce023086c99416b4524e4805b2d9",
+      "recovery_method": "restore-git; exact original payload from immutable Git objects, plus durable offline archive"
+    },
+    {
+      "id": "harp-generated-graphs-v1",
+      "type": "immutable-research-evidence",
+      "schema": "mailohls-sealed-tree-v1",
+      "path": "artifacts/releases/harp-generated-graphs-v1.tar.gz",
+      "source_commit": "4d707ca8079a79e4bbd22dff0b6849d7f7332cd3",
+      "restore_roots": [
+        "GNN_branch/HARP_graphs",
+        "HARP-rep/dse_database/generated_graphs",
+        "HARP-rep/LICENSE"
+      ],
+      "size": 6485008,
+      "sha256": "91dff537e68587a7b77d741bf368f90c913f2b1884d8a7e236bdfac3a902f289",
+      "dataset_identity": "Exact original committed labels/splits; no data transformation",
+      "graph_identity": "Original per-run graph/schema metadata inside sealed tree",
+      "toolchain_version": "Original per-run provenance; no compiler execution",
+      "download_url": null,
+      "publication_status": "Verified Git payload recovery; original compressed archive preserved offline",
+      "reproduction_command": "python scripts/artifacts.py restore-git --artifact harp-generated-graphs-v1",
+      "dependencies": [
+        "Python standard library; original consumer dependencies for use"
+      ],
+      "license": "Existing rights unchanged; UCLA-VAST BSD-3-Clause notice included at HARP-rep/LICENSE. Only already-public tracked source/data; no local model weights.",
+      "experiment": "Historical MailoHLS/SALT-HLS configurations and evidence",
+      "git_roots": [
+        "GNN_branch/HARP_graphs",
+        "HARP-rep/dse_database/generated_graphs",
+        "HARP-rep/LICENSE"
+      ],
+      "git_objects": {
+        "GNN_branch/HARP_graphs": "c10e85caf92360fcd3982a29017ad0900cea5bbc",
+        "HARP-rep/dse_database/generated_graphs": "5833b8d70c22b9c7cb293ed3c6575d083e2be742",
+        "HARP-rep/LICENSE": "cfe0028efad551e450983d7ac720840a2984a087"
+      },
+      "member_manifest_sha256": "9cfdd436614ed491cf9b4ea06435b573b30cc9a6de1a048106d65b47bdfebd48",
+      "recovery_method": "restore-git; exact original payload from immutable Git objects, plus durable offline archive"
+    },
+    {
+      "id": "synthesis-evidence-v1",
+      "type": "immutable-research-evidence",
+      "schema": "mailohls-sealed-tree-v1",
+      "path": "artifacts/releases/synthesis-evidence-v1.tar.gz",
+      "source_commit": "4d707ca8079a79e4bbd22dff0b6849d7f7332cd3",
+      "restore_roots": [
+        "plots/ta_synthesis",
+        "artifacts/final_salt_probes_20260907",
+        "HARP-rep/LICENSE"
+      ],
+      "size": 13425522,
+      "sha256": "e00089c2075f423644f432ed4eec29ccbb5001dac385cb32249106bb87520568",
+      "dataset_identity": "Exact original committed labels/splits; no data transformation",
+      "graph_identity": "Original per-run graph/schema metadata inside sealed tree",
+      "toolchain_version": "Original per-run provenance; no compiler execution",
+      "download_url": null,
+      "publication_status": "Verified Git payload recovery; original compressed archive preserved offline",
+      "reproduction_command": "python scripts/artifacts.py restore-git --artifact synthesis-evidence-v1",
+      "dependencies": [
+        "Python standard library; original consumer dependencies for use"
+      ],
+      "license": "Existing rights unchanged; UCLA-VAST BSD-3-Clause notice included at HARP-rep/LICENSE. Only already-public tracked source/data; no local model weights.",
+      "experiment": "Historical MailoHLS/SALT-HLS configurations and evidence",
+      "git_roots": [
+        "plots/ta_synthesis",
+        "artifacts/final_salt_probes_20260907",
+        "HARP-rep/LICENSE"
+      ],
+      "git_objects": {
+        "plots/ta_synthesis": "3daad572e0337828d63f2da4e844d9693feaa84d",
+        "artifacts/final_salt_probes_20260907": "1e72864e9bad4fa0a69534be2bddc296cd38d692",
+        "HARP-rep/LICENSE": "cfe0028efad551e450983d7ac720840a2984a087"
+      },
+      "member_manifest_sha256": "cf3a3aec6430955e546eef88e5998cd169655b645e0cebc117e41e9ce4961e17",
+      "recovery_method": "restore-git; exact original payload from immutable Git objects, plus durable offline archive"
+    },
+    {
+      "id": "derived-training-tables-v1",
+      "type": "immutable-research-evidence",
+      "schema": "mailohls-sealed-tree-v1",
+      "path": "artifacts/releases/derived-training-tables-v1.tar.gz",
+      "source_commit": "4d707ca8079a79e4bbd22dff0b6849d7f7332cd3",
+      "restore_roots": [
+        "LLM_branch/Data",
+        "artifacts/gnn_datasets",
+        "HARP-rep/LICENSE"
+      ],
+      "size": 7113453,
+      "sha256": "e5c4e1b4d824164b68c537e30c1b607e00e446f49918268675604eda6ebf1328",
+      "dataset_identity": "Exact original committed labels/splits; no data transformation",
+      "graph_identity": "Original per-run graph/schema metadata inside sealed tree",
+      "toolchain_version": "Original per-run provenance; no compiler execution",
+      "download_url": null,
+      "publication_status": "Verified Git payload recovery; original compressed archive preserved offline",
+      "reproduction_command": "python scripts/artifacts.py restore-git --artifact derived-training-tables-v1",
+      "dependencies": [
+        "Python standard library; original consumer dependencies for use"
+      ],
+      "license": "Existing rights unchanged; UCLA-VAST BSD-3-Clause notice included at HARP-rep/LICENSE. Only already-public tracked source/data; no local model weights.",
+      "experiment": "Historical MailoHLS/SALT-HLS configurations and evidence",
+      "git_roots": [
+        "LLM_branch/Data",
+        "artifacts/gnn_datasets",
+        "HARP-rep/LICENSE"
+      ],
+      "git_objects": {
+        "LLM_branch/Data": "ad2624b2fc3f6f8c384eb0665982040aaeacdb60",
+        "artifacts/gnn_datasets": "25dafdca3c7fab03ab61cb76be708141009d7773",
+        "HARP-rep/LICENSE": "cfe0028efad551e450983d7ac720840a2984a087"
+      },
+      "member_manifest_sha256": "cf012070b1e81ed43429147c7b51136fd0b34235e184905be2acc23be3b11577",
+      "recovery_method": "restore-git; exact original payload from immutable Git objects, plus durable offline archive"
+    },
+    {
+      "id": "v22-complete-target-catalog-v1",
+      "type": "complete-graph-catalog",
+      "schema": "salt-hls-target-enriched-v22-v1",
+      "source_commit": "42f52df75c73496f4c21b7809415cf4e0d64b787",
+      "path": "artifacts/releases/salt-hls-v22-target-graph-catalog-20261029.tar.gz",
+      "size": 227618613,
+      "sha256": "bba4b870b568da18265567797eb9610762d357825f1aa6507d85b4b3f4cb36cd",
+      "download_url": null,
+      "publication_status": "Verified Git payload recovery; original compressed archive preserved offline",
+      "dataset_identity": "63 authenticated RC3 snapshots; 1512 overlays",
+      "graph_identity": "Frozen per-snapshot manifests and 2218 checksums",
+      "reproduction_command": "python scripts/artifacts.py restore-git --artifact v22-complete-target-catalog-v1",
+      "dependencies": [
+        "Python standard library"
+      ],
+      "license": "Original source licenses and rights unchanged; see catalog provenance",
+      "git_roots": [
+        "graphs/latest"
+      ],
+      "git_objects": {
+        "graphs/latest": "b32d3a179a186ce4e728a8cc27c968e998004150"
+      },
+      "catalog_checksums_sha256": "1bb23e3c63ce69536da9862f70fd5bcca763a43c7f5f5abaa7004dd825f0f272",
+      "catalog_file_count": 2218,
+      "recovery_method": "restore-git; exact original payload from immutable Git objects, plus durable offline archive"
+    }
+  ]
+}

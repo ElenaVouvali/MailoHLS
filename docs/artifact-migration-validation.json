@@ -1,0 +1,74 @@
+{
+  "schema": "mailohls-artifact-validation-v1",
+  "source_commit": "4d707ca8079a79e4bbd22dff0b6849d7f7332cd3",
+  "implementation_commit": "9396168",
+  "catalog": {
+    "sha256": "bba4b870b568da18265567797eb9610762d357825f1aa6507d85b4b3f4cb36cd",
+    "checksums_verified": 2218,
+    "release_url": "https://github.com/ElenaVouvali/MailoHLS/releases/tag/archive/v22-graph-catalog-20261029",
+    "original_unpack_and_compiler_overlay_consumer": "passed; rodinia_dilate_3_pipeline_0-fc753e2f66aa, ZCU104 10ns full"
+  },
+  "independent_release_restore": {
+    "schema": "mailohls-restored-consumers-v1",
+    "counts": {
+      "files": 1514,
+      "csv_files": 179,
+      "csv_rows": 689286,
+      "json_files": 431,
+      "gexf_files": 186,
+      "graph_nodes": 95045,
+      "graph_edges": 278887
+    },
+    "artifacts": [
+      {
+        "id": "checkpoint-evidence-v1",
+        "sha256": "4b0bc4476b87893836e2a6cd8613fc8c02100de20a41e3d6416e16a52c62c841",
+        "files": 557
+      },
+      {
+        "id": "harp-generated-graphs-v1",
+        "sha256": "91dff537e68587a7b77d741bf368f90c913f2b1884d8a7e236bdfac3a902f289",
+        "files": 437
+      },
+      {
+        "id": "synthesis-evidence-v1",
+        "sha256": "e00089c2075f423644f432ed4eec29ccbb5001dac385cb32249106bb87520568",
+        "files": 404
+      },
+      {
+        "id": "derived-training-tables-v1",
+        "sha256": "e5c4e1b4d824164b68c537e30c1b607e00e446f49918268675604eda6ebf1328",
+        "files": 116
+      }
+    ],
+    "limitations": "Original graph/table reader validation; no model-weight loading, HLS execution or new QoR measurement."
+  },
+  "clean_export_restore_identical": true,
+  "cpu_full": {
+    "passed": 480,
+    "skipped": 21,
+    "failed": 0,
+    "seconds": 402.51
+  },
+  "focused_final": {
+    "passed": 23,
+    "failed": 0
+  },
+  "limitations": [
+    "No model weights loaded or redistributed",
+    "No new training, synthesis, QoR or generalization evaluation",
+    "Historical/external fixtures and CUDA-only check remain unavailable"
+  ],
+  "clean_smoke": {
+    "passed": 108,
+    "failed": 0,
+    "seconds": 39.86
+  },
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.6.0+cu124",
+    "pyg": "2.6.1",
+    "networkx": "3.4.2",
+    "cuda_visible_devices": ""
+  }
+}

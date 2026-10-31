@@ -7,13 +7,13 @@ historical snapshot also contains experimental MLIR builders, but its active
 GNN entry point imports the original `data` backend. No historical source has
 been removed merely because it uses a different IR.
 
-The repository has three branches: `llvm-ir` for the original implementation,
+The intended permanent baselines are: `llvm-ir` for the original implementation,
 `mlir-target` for the preserved organized MLIR + target-conditioning baseline,
 and `main` for further framework extensions. After the shared file, launcher,
 and artifact cleanup, `main` and `mlir-target` were synchronized to the same
 commit. Develop future extensions on `main` and keep `mlir-target` at that
 baseline. The initial pre-cleanup snapshot (`26db8ec`) remains in Git history.
-No additional worktree is required. The reorganization does not rewrite
+Use an isolated worktree when other research sessions have local changes. The reorganization does not rewrite
 history or immediately shrink GitHub's historical repository storage.
 
 ## What belongs in Git
@@ -97,3 +97,9 @@ python .local-archive/mailohls-runs-20261026T132025Z/restore.py
 The recovery script refuses to overwrite existing paths. Historical run metadata
 also remains in Git history. This cleanup does not automatically commit or push
 the working-tree removals of previously tracked experiment metadata.
+
+## Current maintenance navigation
+
+See [architecture](architecture.md), [development status](framework-development-status.md),
+[reproduction](reproducibility.md), and [the measured consolidation report](REPOSITORY_CONSOLIDATION_REPORT.md).
+Research branches coexist with the three intended permanent branches; none were retired here.

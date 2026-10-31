@@ -1,0 +1,114 @@
+{
+  "archive_sha256": "feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73",
+  "base_commit": "d488681f68e58ab1b1e666f6911f5257d6462dc2",
+  "baseline_documentation_commit": "afe131c571af2c855adc1b56e5d3069ddc89559b",
+  "branch": "research/target-aware-mlir-v22",
+  "changed_protected_files": [],
+  "checksum_file_sha256": "4e708594f64764808223443f7b08e93fcf1267b23e497b3a2a7160df3edd9c33",
+  "corpus": {
+    "aggregates": {
+      "added_edges": 6655,
+      "added_nodes": 315,
+      "compatibility": {
+        "not_applicable": 632,
+        "possible": 6023
+      },
+      "compiler_evidence": {
+        "not_applicable": 252,
+        "proven": 6403
+      },
+      "hardware_evidence": {
+        "documented": 6655
+      },
+      "matched_actions": 592,
+      "program_edges": 115783,
+      "program_nodes": 30634,
+      "registered_actions": 606,
+      "relations": {
+        "hardware:belongs_to": 252,
+        "target:action_resource_relevance": 1862,
+        "target:arithmetic_compatible": 2044,
+        "target:loop_resource_relevance": 1226,
+        "target:requested_clock": 380,
+        "target:storage_compatible": 891
+      },
+      "serialized_bytes": 199637711,
+      "source_only_labels": 13,
+      "unresolved_registrations": 14
+    },
+    "blocked": 0,
+    "failed": 0,
+    "passed": 63,
+    "profile_variations_passed": 10,
+    "seconds": 1026.8496698759845
+  },
+  "existing_tests": {
+    "failed": 0,
+    "passed": 117,
+    "seconds": 104.25,
+    "skipped": 0
+  },
+  "files_created": [
+    "GNN_branch/target_graph_v22.py",
+    "GNN_branch/targets/fpga_profiles.json",
+    "tests/test_target_graph_v22.py",
+    "docs/target-aware-mlir-v22/README.md",
+    "docs/target-aware-mlir-v22/baseline-verification.json",
+    "docs/target-aware-mlir-v22/corpus-validation.json",
+    "docs/target-aware-mlir-v22/reproduction-verification.json",
+    "docs/target-aware-mlir-v22/final-verification.json"
+  ],
+  "implementation": {
+    "source_sha256": {
+      "action_point_relations.py": "39aab15de84fecb46d108df194a6ebcad9e0db9963fba7bd155dbdcd036aba7c",
+      "mlir_graph_v2.py": "ae12ae568905d3375f145e31ccab4cab73dcf16a6cb10aef1c50f49fe6d1ea5b",
+      "mlir_semantics.py": "6167ab0bcf84f8aab0e7a60d7e896f546c8430f98165f166031bf95b1eb81d8d",
+      "mlir_semantics_v22.py": "522135be66558874905bd133b2d6396514c0437482788bfe2989d895a389c855",
+      "target_graph_v22.py": "d528c62be0cad9b8eec46898de7d3f6873d28bdf46d8d6d59a49401009dddfdf"
+    },
+    "version": "1.0.0"
+  },
+  "implementation_commit": "1b9748750fc977638cd869fcaeac345472b94c87",
+  "independent_semantic_adjudication": "pending; unchanged",
+  "limitations": [
+    "No V2.2 tensor encoder or trained GNN",
+    "No Stage-2 integration",
+    "Actual hardware bindings unknown",
+    "No timing/II, cost, bandwidth or banking predictor",
+    "Unsupported memory/operator classes deliberately excluded"
+  ],
+  "main_pointer_unchanged": true,
+  "manifest_sha256": "1c75bf22bd1bc6263e68118a8438ccf3bbf1eb8e7d675149f010d6f2a0a1a6e3",
+  "native_test_toolchain_file_checks": {
+    "analysis_extension": {
+      "matches_release": true,
+      "path": "/home/elvouvali/tools/Polygeist/build-mailohls-assertions/tools/mlir/python_packages/mlir_core/mlir/_mlir_libs/_mailohls_analysis.cpython-311-x86_64-linux-gnu.so",
+      "sha256": "4d4932f962968118da6f8faee07402b62b2a99b29e996c53ede9939baba71e98"
+    },
+    "cgeist": {
+      "matches_release": true,
+      "path": "/home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist",
+      "sha256": "29271acd6b365b0d828a637e908e5aa74eee2c21d402e64a8139f550e03fbc89"
+    },
+    "lock_file": {
+      "matches_release": true,
+      "path": "/home/elvouvali/MailoHLS/toolchain/lock.env",
+      "sha256": "9b46a4dd124a4e92cb99fdc87414e8e026bf2fe43ebdadeb56e6923a9a5451b3"
+    }
+  },
+  "new_test_source_sha256": "dc2c4b11e4fde51784bc150bd8ef07b09669c3981011bcc38b7968956e69eb0e",
+  "overlay_tests": {
+    "failed": 0,
+    "passed": 58,
+    "seconds": 14.27,
+    "skipped": 0
+  },
+  "preexisting_status_sha256": "2893b42acda3c5338402247e6714268809da8b90265ea1f769cf83317396eecb",
+  "preexisting_tracked_status_unchanged": true,
+  "protected_file_count": 65,
+  "protected_files_unchanged": true,
+  "registry_sha256": "d005abae28531fed2f43b0cae68a5c3d9f86a0d641a48423c01f05516a418269",
+  "reproduction_commands_passed": 5,
+  "schema": "salt-hls-target-overlay-final-verification-v1",
+  "training_synthesis_qor_or_gpu_inference_performed": false
+}

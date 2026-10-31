@@ -4,6 +4,7 @@ import json
 import os
 import re
 import warnings
+from pathlib import Path
 import math
 import copy
 from collections import defaultdict
@@ -1077,23 +1078,71 @@ def evaluate_prediction(reference_target: str, raw_generation: str) -> Dict[str,
 def build_tokenizer(
     tokenizer_source: str,
     revision: str = "main",
+    special_tokens: Optional[List[str]] = None,
 ) -> AutoTokenizer:
     tok = AutoTokenizer.from_pretrained(
         tokenizer_source,
         revision=revision,
         trust_remote_code=True,
     )
-    special_tokens = (
+    special_tokens = special_tokens if special_tokens is not None else (
         [spec["token"] for spec in mailohls_contract.GOALS.values()]
-        + list(mailohls_contract.DEVICE_TOKEN_MAP.values())
-        + [mailohls_contract.UNKNOWN_DEVICE_TOKEN, mailohls_contract.ADAPTED_DEVICE_TOKEN]
-        + list(mailohls_contract.PERIOD_TOKEN_MAP.values())
-        + [mailohls_contract.AUTO_PERIOD_TOKEN, mailohls_contract.CLOCK_ANCHOR_TOKEN]
+        + mailohls_contract.TARGET_PLATFORM_TOKENS
         + SOURCE_PLACEHOLDER_TOKENS
         + TARGET_PLACEHOLDER_TOKENS
     )
     tok.add_special_tokens({"additional_special_tokens": special_tokens})
 
+    if tok.pad_token is None:
+        tok.pad_token = tok.eos_token
+    tok.padding_side = "right"
+    return tok
+
+
+def validate_tokenizer_mapping(tok, contract: dict, expected_mapping: dict) -> None:
+    """Validate identities, not only the unordered set of special-token IDs."""
+    tokens = contract.get("special_tokens")
+    if not isinstance(tokens, list) or not tokens or len(tokens) != len(set(tokens)):
+        raise ValueError("Checkpoint has no valid ordered special_tokens contract")
+    actual = {token: tok.convert_tokens_to_ids(token) for token in tokens}
+    mismatches = {
+        token: {"expected": expected_mapping.get(token), "actual": actual[token]}
+        for token in tokens if actual[token] != expected_mapping.get(token)
+    }
+    if (len(tok) != contract.get("tokenizer_size")
+            or sorted(set(actual.values())) != contract.get("special_token_ids")
+            or mismatches):
+        raise ValueError(f"Tokenizer does not match checkpoint token-to-ID mapping: {mismatches}")
+
+
+def load_checkpoint_tokenizer(adapter_dir: str, contract: dict):
+    """Load saved tokenizer; reconstruct legacy expectations from recorded order.
+
+    Historical special_token_ids are a sorted set, not an ordered mapping.
+    Rebuild with the *recorded token strings* and pinned base tokenizer instead
+    of assuming that zipping the two arrays recovers the mapping.
+    """
+    tokens = contract.get("special_tokens")
+    if not isinstance(tokens, list) or not tokens:
+        raise ValueError("Checkpoint is missing ordered special_tokens")
+    expected_mapping = contract.get("special_token_to_id")
+    reconstructed = None
+    if expected_mapping is None:
+        reconstructed = build_tokenizer(
+            contract.get("tokenizer", contract["model"]),
+            revision=contract["model_revision"], special_tokens=tokens,
+        )
+        expected_mapping = {token: reconstructed.convert_tokens_to_ids(token) for token in tokens}
+    root = Path(adapter_dir)
+    saved = any((root / name).is_file() for name in ("tokenizer.json", "tokenizer_config.json", "tokenizer.model"))
+    if saved:
+        tok = AutoTokenizer.from_pretrained(root, local_files_only=True, trust_remote_code=True)
+    else:
+        tok = reconstructed or build_tokenizer(
+            contract.get("tokenizer", contract["model"]),
+            revision=contract["model_revision"], special_tokens=tokens,
+        )
+    validate_tokenizer_mapping(tok, contract, expected_mapping)
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     tok.padding_side = "right"
@@ -2058,16 +2107,7 @@ def main():
             args.application_dataset_dir,
         )
         print(f"[DOMAINS] source-derived registries: {len(directive_domain_registry)}")
-    tok = build_tokenizer(
-        args.model,
-        revision=args.model_revision,
-    )
-    expected_tokens = training_contract.get("special_tokens")
-    expected_ids = training_contract.get("special_token_ids")
-    actual_ids = (sorted(set(tok.convert_tokens_to_ids(expected_tokens)))
-                  if isinstance(expected_tokens, list) else None)
-    if len(tok) != training_contract.get("tokenizer_size") or actual_ids != expected_ids:
-        raise ValueError("Tokenizer does not match the checkpoint training contract")
+    tok = load_checkpoint_tokenizer(args.lora_adapter_dir or args.adapter_dir, training_contract)
     model = load_stage_model(args, tok)
     clock_selector = None
     if args.frequency_mode == "auto" or any(str(c.platform_row.get("frequency_mode", "specified")).lower() == "auto" for c in cases):
