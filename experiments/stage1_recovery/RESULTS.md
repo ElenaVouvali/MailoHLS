@@ -47,6 +47,18 @@ review are pending until their actual output is verified. Full-data `decision`
 and `decision_balanced` training have not been counted as completed. No adapter
 has been promoted; no Kalman test labels informed this audit.
 
+At **2026-10-31 22:44 UTC**, the persistent `mailohls-stage1-baseline-20261101`
+user service was actively decoding on the V100S UUID
+`GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb`. The
+`mailohls-stage1-conditional-20261101` user service was at `PREFLIGHT`, waiting
+for that full baseline report. It is configured to compute matched measured
+quality before either new training arm, then smoke/train/evaluate `decision` and
+`decision_balanced` sequentially. The A2 is assigned to separate GNN research.
+User-systemd linger is enabled. The first interactive baseline attempt was
+stopped after producing only `cases.json`; its partial output was preserved as
+`stage1_conditional_ce_full_validation_20261101_attempt1` before restarting
+durably. Neither attempt is counted as a completed 383-case result.
+
 The tokenizer defect is repaired. Four V100 training controls and all planned validation comparisons completed. **No experimental adapter qualifies as a production replacement.** The original checkpoint's adapter, training contract and tokenizer hashes remain unchanged.
 
 See [measured results JSON](results/20261028.json), [method and reproduction guide](README.md), and the local detailed artifacts under `artifacts/diagnostics/stage1_recovery_20261028`.
