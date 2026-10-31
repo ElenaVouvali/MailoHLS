@@ -1,0 +1,650 @@
+{
+  "archive": "GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz",
+  "archive_scope": "existing immutable 63-snapshot RC3 release; no new archive or unique source/metadata snapshot",
+  "archive_sha256": "feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73",
+  "canonical": "canonical/serrano-kalman-filter-96b4d608969f.json",
+  "compact": "compact/serrano-kalman-filter-96b4d608969f.json",
+  "files_sha256": {
+    "canonical/serrano-kalman-filter-96b4d608969f.json": "2a5cbd64ca7716e8d7c24b70af9fc63a5007962dd1b0e7c834ced9d11b9ddfa9",
+    "compact/serrano-kalman-filter-96b4d608969f.json": "e7ad69ab21fe3f07250bf363de8cb1fc304ef4e822e1692d72911377827b45a7"
+  },
+  "graph_schema": "salt-hls-mlir-structural-v2.2",
+  "schema": "salt-hls-single-graph-update-v1",
+  "semantic_revision": "rc3",
+  "validation": {
+    "authenticated_target_overlay_check": {
+      "added_edges": 123,
+      "added_nodes": 5,
+      "authentication": "existing default immutable RC3 manifest; selected canonical snapshot 96b4d608969f",
+      "clock_period_ns": 10,
+      "matched_actions": 11,
+      "registered_actions": 13,
+      "scope": "CPU graph composition/validation only; no HLS synthesis or QoR evaluation",
+      "status": "pass",
+      "target": "zcu104",
+      "unresolved_actions": [
+        "L7",
+        "L8"
+      ]
+    },
+    "checks": {
+      "canonical_compact_reconstruction_and_all_public_queries_equal": true,
+      "csv_columns_present_for_all_mapped_actions": true,
+      "fresh_generation_matches_released_source_metadata_headers_semantics": true,
+      "previous_native_alias_and_dependence_outcomes_identical": true,
+      "previous_operation_nodes_and_semantic_edges_identical": true,
+      "registered_action_mapping_matches_metadata": true,
+      "same_raw_mlir_two_native_interpreters_byte_identical": true,
+      "schema_and_graph_valid": true
+    },
+    "code_sha256": {
+      "GNN_branch/action_point_relations.py": "39aab15de84fecb46d108df194a6ebcad9e0db9963fba7bd155dbdcd036aba7c",
+      "GNN_branch/mlir_graph_gen.py": "3111cf3fb09d363d6a89a6ec79ac043fc729ef3851aaa5980b5df45790e7397f",
+      "GNN_branch/mlir_graph_v2.py": "ae12ae568905d3375f145e31ccab4cab73dcf16a6cb10aef1c50f49fe6d1ea5b",
+      "GNN_branch/mlir_semantics.py": "6167ab0bcf84f8aab0e7a60d7e896f546c8430f98165f166031bf95b1eb81d8d",
+      "GNN_branch/mlir_semantics_v22.py": "522135be66558874905bd133b2d6396514c0437482788bfe2989d895a389c855",
+      "toolchain/lock.env": "9b46a4dd124a4e92cb99fdc87414e8e026bf2fe43ebdadeb56e6923a9a5451b3"
+    },
+    "coverage": [
+      {
+        "action_id": "L1",
+        "action_point_node": "action:L1",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_memory_shape": [
+          262144
+        ],
+        "compiler_status": "compiler_matched",
+        "compiler_target": "memory:krnl_KALMAN:op19:r0",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": [
+          262144
+        ],
+        "source_binding": {
+          "array_name": "in_local",
+          "function": "krnl_KALMAN",
+          "kind": "array",
+          "source_column": 16,
+          "source_file": "kernel.cpp",
+          "source_line": 44,
+          "source_use_lines": [
+            55,
+            67,
+            78
+          ]
+        },
+        "source_labeled": true
+      },
+      {
+        "action_id": "L2",
+        "action_point_node": "action:L2",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_memory_shape": [
+          262144
+        ],
+        "compiler_status": "compiler_matched",
+        "compiler_target": "memory:krnl_KALMAN:op18:r0",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": [
+          262144
+        ],
+        "source_binding": {
+          "array_name": "out_local",
+          "function": "krnl_KALMAN",
+          "kind": "array",
+          "source_column": 16,
+          "source_file": "kernel.cpp",
+          "source_line": 45,
+          "source_use_lines": [
+            69,
+            82,
+            92
+          ]
+        },
+        "source_labeled": true
+      },
+      {
+        "action_id": "L3",
+        "action_point_node": "action:L3",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_proven_trip_count": 32768,
+        "compiler_status": "compiler_matched",
+        "compiler_target": "op:krnl_KALMAN:op23",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": 32768,
+        "source_binding": {
+          "function": "krnl_KALMAN",
+          "kind": "loop",
+          "source_column": 10,
+          "source_file": "kernel.cpp",
+          "source_line": 49
+        },
+        "source_labeled": true,
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      {
+        "action_id": "L4",
+        "action_point_node": "action:L4",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_proven_trip_count": 8,
+        "compiler_status": "compiler_matched",
+        "compiler_target": "op:krnl_KALMAN:op30",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": 8,
+        "source_binding": {
+          "function": "krnl_KALMAN",
+          "kind": "loop",
+          "source_column": 11,
+          "source_file": "kernel.cpp",
+          "source_line": 52
+        },
+        "source_labeled": true,
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      {
+        "action_id": "L5",
+        "action_point_node": "action:L5",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_memory_shape": [
+          64
+        ],
+        "compiler_status": "compiler_matched",
+        "compiler_target": "memory:krnl_KALMAN:op13:r0",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": [
+          64
+        ],
+        "source_binding": {
+          "array_name": "u_hat_arr",
+          "function": "krnl_KALMAN",
+          "kind": "array",
+          "source_column": 16,
+          "source_file": "kernel.cpp",
+          "source_line": 61,
+          "source_use_lines": [
+            67,
+            69,
+            78,
+            82
+          ]
+        },
+        "source_labeled": true
+      },
+      {
+        "action_id": "L6",
+        "action_point_node": "action:L6",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_memory_shape": [
+          64
+        ],
+        "compiler_status": "compiler_matched",
+        "compiler_target": "memory:krnl_KALMAN:op12:r0",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": [
+          64
+        ],
+        "source_binding": {
+          "array_name": "p_arr_1",
+          "function": "krnl_KALMAN",
+          "kind": "array",
+          "source_column": 16,
+          "source_file": "kernel.cpp",
+          "source_line": 62,
+          "source_use_lines": [
+            68,
+            74,
+            76,
+            80
+          ]
+        },
+        "source_labeled": true
+      },
+      {
+        "action_id": "L7",
+        "action_point_node": null,
+        "compiler_eliminated": null,
+        "compiler_matched": false,
+        "compiler_status": "compiler_unresolved",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": [
+          64
+        ],
+        "resolution_diagnostic": {
+          "disposition": "compiler_unresolved; no independent storage target established",
+          "elimination_proven": false,
+          "explanation": "Scalar computation may survive without a separate array. Shared use-line overlap cannot identify a declaration; no transformation receipt proves elimination.",
+          "source_declaration": {
+            "array": "k_arr",
+            "file": "kernel.cpp",
+            "line": 63
+          },
+          "source_line_context_not_object_identity": [
+            "op:krnl_KALMAN:op67",
+            "op:krnl_KALMAN:op61",
+            "op:krnl_KALMAN:op66",
+            "op:krnl_KALMAN:op60",
+            "op:krnl_KALMAN:op59",
+            "op:krnl_KALMAN:op65",
+            "op:krnl_KALMAN:op69",
+            "op:krnl_KALMAN:op63",
+            "op:krnl_KALMAN:op68",
+            "op:krnl_KALMAN:op64",
+            "op:krnl_KALMAN:op4",
+            "op:krnl_KALMAN:op3",
+            "op:krnl_KALMAN:op62"
+          ]
+        },
+        "resolution_evidence": "Array action L7/k_arr: no unique compiler-evidence target; candidates=[]",
+        "source_binding": {
+          "array_name": "k_arr",
+          "function": "krnl_KALMAN",
+          "kind": "array",
+          "source_column": 16,
+          "source_file": "kernel.cpp",
+          "source_line": 63,
+          "source_use_lines": [
+            76,
+            78,
+            80
+          ]
+        },
+        "source_labeled": true
+      },
+      {
+        "action_id": "L8",
+        "action_point_node": null,
+        "compiler_eliminated": null,
+        "compiler_matched": false,
+        "compiler_status": "compiler_unresolved",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": [
+          64
+        ],
+        "resolution_diagnostic": {
+          "disposition": "compiler_unresolved; no independent storage target established",
+          "elimination_proven": false,
+          "explanation": "Scalar computation may survive without a separate array. Shared use-line overlap cannot identify a declaration; no transformation receipt proves elimination.",
+          "source_declaration": {
+            "array": "calc_temp_arr",
+            "file": "kernel.cpp",
+            "line": 64
+          },
+          "source_line_context_not_object_identity": [
+            "op:krnl_KALMAN:op67",
+            "op:krnl_KALMAN:op58",
+            "op:krnl_KALMAN:op60",
+            "op:krnl_KALMAN:op59",
+            "op:krnl_KALMAN:op69",
+            "op:krnl_KALMAN:op5",
+            "op:krnl_KALMAN:op57",
+            "op:krnl_KALMAN:op68",
+            "op:krnl_KALMAN:op4",
+            "op:krnl_KALMAN:op3"
+          ]
+        },
+        "resolution_evidence": "Array action L8/calc_temp_arr: no unique compiler-evidence target; candidates=[]",
+        "source_binding": {
+          "array_name": "calc_temp_arr",
+          "function": "krnl_KALMAN",
+          "kind": "array",
+          "source_column": 16,
+          "source_file": "kernel.cpp",
+          "source_line": 64,
+          "source_use_lines": [
+            74,
+            76,
+            80
+          ]
+        },
+        "source_labeled": true
+      },
+      {
+        "action_id": "L9",
+        "action_point_node": "action:L9",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_proven_trip_count": 64,
+        "compiler_status": "compiler_matched",
+        "compiler_target": "op:krnl_KALMAN:op49",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": 64,
+        "source_binding": {
+          "function": "krnl_KALMAN",
+          "kind": "loop",
+          "source_column": 10,
+          "source_file": "kernel.cpp",
+          "source_line": 66
+        },
+        "source_labeled": true,
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      {
+        "action_id": "L10",
+        "action_point_node": "action:L10",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_proven_trip_count": 4095,
+        "compiler_status": "compiler_matched",
+        "compiler_target": "op:krnl_KALMAN:op55",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": 4096,
+        "source_binding": {
+          "function": "krnl_KALMAN",
+          "kind": "loop",
+          "source_column": 11,
+          "source_file": "kernel.cpp",
+          "source_line": 72
+        },
+        "source_labeled": true,
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      {
+        "action_id": "L11",
+        "action_point_node": "action:L11",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_proven_trip_count": 64,
+        "compiler_status": "compiler_matched",
+        "compiler_target": "op:krnl_KALMAN:op56",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": 64,
+        "source_binding": {
+          "function": "krnl_KALMAN",
+          "kind": "loop",
+          "source_column": 12,
+          "source_file": "kernel.cpp",
+          "source_line": 73
+        },
+        "source_labeled": true,
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      {
+        "action_id": "L12",
+        "action_point_node": "action:L12",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_proven_trip_count": 32768,
+        "compiler_status": "compiler_matched",
+        "compiler_target": "op:krnl_KALMAN:op75",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": 32768,
+        "source_binding": {
+          "function": "krnl_KALMAN",
+          "kind": "loop",
+          "source_column": 11,
+          "source_file": "kernel.cpp",
+          "source_line": 87
+        },
+        "source_labeled": true,
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      {
+        "action_id": "L13",
+        "action_point_node": "action:L13",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_proven_trip_count": 8,
+        "compiler_status": "compiler_matched",
+        "compiler_target": "op:krnl_KALMAN:op81",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": 8,
+        "source_binding": {
+          "function": "krnl_KALMAN",
+          "kind": "loop",
+          "source_column": 11,
+          "source_file": "kernel.cpp",
+          "source_line": 90
+        },
+        "source_labeled": true,
+        "trip_count_provenance": "mlir_affine_analysis"
+      }
+    ],
+    "csv_directive_distributions": {
+      "L7": {
+        "block_16_1": 1007,
+        "block_2_1": 1595,
+        "block_32_1": 401,
+        "block_4_1": 1476,
+        "block_8_1": 1462,
+        "complete_1": 1310,
+        "cyclic_16_1": 407,
+        "cyclic_2_1": 613,
+        "cyclic_32_1": 831,
+        "cyclic_4_1": 585,
+        "cyclic_8_1": 862
+      },
+      "L8": {
+        "block_16_1": 244,
+        "block_2_1": 972,
+        "block_32_1": 698,
+        "block_4_1": 817,
+        "block_8_1": 601,
+        "complete_1": 1612,
+        "cyclic_16_1": 1753,
+        "cyclic_2_1": 1432,
+        "cyclic_32_1": 870,
+        "cyclic_4_1": 1308,
+        "cyclic_8_1": 242
+      }
+    },
+    "csv_provenance": "user-supplied repair; directive-column consistency checked; QoR measurements not reauthenticated",
+    "csv_rows": 10549,
+    "csv_sha256": "0804fd4db4141cb4f4a46d9a9b10f9122840682d3f7241f7ccb1e38b6a24ac25",
+    "frontend_repeat": {
+      "observation": "Separate fresh compilations reordered dlti.dl_spec entries; frozen raw MLIR is retained. Same-IR native graph serialization was byte-identical.",
+      "raw_mlir_byte_identical": false
+    },
+    "generation_code_commit": "10ce2da8dbc6da7ade5565ebe1d41adb770d470c",
+    "generation_command": "PYTHONPATH=/home/elvouvali/tools/Polygeist/build-mailohls-assertions/tools/mlir/python_packages/mlir_core PYTHONHASHSEED=0 /home/elvouvali/.mlir-python311/bin/python -B -m GNN_branch.mlir_graph_v2 --revision 2.2 --semantic-revision rc3 --source Data/ApplicationDataset/serrano-kalman-filter/kernel.cpp --metadata Data/ApplicationDataset/serrano-kalman-filter/kernel_info.txt --cgeist /home/elvouvali/tools/Polygeist/build-mailohls-assertions/bin/cgeist --mlir-output /fresh/raw_mlir/serrano-kalman-filter.mlir --output /fresh/canonical/serrano-kalman-filter.json",
+    "graph_schema": "salt-hls-mlir-structural-v2.2",
+    "independent_semantic_adjudication": "pending; unchanged",
+    "limitations": [
+      "L7 and L8 registered but no compiler-proven unique storage target; no elimination proof",
+      "Two not-established concrete access relationships in this snapshot remain loaded-pointer accesses",
+      "Analysis AP headers are not hardware-exact vendor arithmetic",
+      "Independent human semantic adjudication remains pending",
+      "CSV repair does not authenticate new hardware measurements or modify old checkpoint/data contracts"
+    ],
+    "mapping_sha256": "000233cb9c147f543f40da62c6b8ec3321e99ddf7629fb78a2a5cce128ba5618",
+    "metadata_sha256": "0921349a2f8eeccb1943237b51e62af9429b4b8b0210e566dd72eb0ba6f2e122",
+    "native_correspondence": {
+      "blocks": 15,
+      "cfg_successors": 0,
+      "compiler_module_attributes": {
+        "dlti.dl_spec": "#dlti.dl_spec<#dlti.dl_entry<i1, dense<8> : vector<2xi32>>, #dlti.dl_entry<i8, dense<8> : vector<2xi32>>, #dlti.dl_entry<i16, dense<16> : vector<2xi32>>, #dlti.dl_entry<i32, dense<32> : vector<2xi32>>, #dlti.dl_entry<f16, dense<16> : vector<2xi32>>, #dlti.dl_entry<f64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f128, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr<270>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<271>, dense<32> : vector<4xi32>>, #dlti.dl_entry<!llvm.ptr<272>, dense<64> : vector<4xi32>>, #dlti.dl_entry<i64, dense<64> : vector<2xi32>>, #dlti.dl_entry<f80, dense<128> : vector<2xi32>>, #dlti.dl_entry<!llvm.ptr, dense<64> : vector<4xi32>>, #dlti.dl_entry<\"dlti.endianness\", \"little\">, #dlti.dl_entry<\"dlti.stack_alignment\", 128 : i32>>",
+        "llvm.data_layout": "\"e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128\"",
+        "llvm.target_triple": "\"x86_64-unknown-linux-gnu\"",
+        "polygeist.target-cpu": "\"x86-64\"",
+        "polygeist.target-features": "\"+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87\"",
+        "polygeist.tune-cpu": "\"generic\""
+      },
+      "concrete_effect_occurrences": 27,
+      "global_definitions": 0,
+      "graph_witness_sha256": "324f1395f58f430c6b4c4313c0cc774c6eea4aa7fea5146acb7bea693ba2d746",
+      "loop_state_occurrences": 6,
+      "operand_occurrences": 157,
+      "operations": 135,
+      "oracle": "independent native MLIR Python traversal, plus native MemoryEffectOpInterface records",
+      "result_occurrences": 88,
+      "scope_limit": "Function operations/SSA/regions checked occurrence by occurrence; global definitions checked as symbol-keyed attributes. Native dependence truth beyond recorded outcomes is not exhaustively independently proven.",
+      "ssa_values": 114,
+      "status": "pass"
+    },
+    "native_tool_sha256": {
+      "analysis_extension": "4d4932f962968118da6f8faee07402b62b2a99b29e996c53ede9939baba71e98",
+      "cgeist": "29271acd6b365b0d828a637e908e5aa74eee2c21d402e64a8139f550e03fbc89"
+    },
+    "old_metadata_sha256": "b5d1ccb00e427d3b20bf70baa709a21a083c9279c4853047e534df16094ba1e8",
+    "parent_rc3_archive_sha256": "feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73",
+    "previous_development_graph": "canonical/serrano-kalman-filter-41c8975cabb3.json",
+    "previous_statistics": {
+      "access_status": {
+        "not_established": 2,
+        "proven": 25
+      },
+      "active": 11,
+      "alias_kinds": {
+        "may_alias": 16,
+        "must_alias": 11,
+        "no_alias": 7
+      },
+      "cfg_successors": 0,
+      "dependence_reasons": {
+        "aliased_storage_not_canonicalized": 4,
+        "non_affine_access": 35
+      },
+      "dependence_status": {
+        "possible": 39,
+        "proven": 11
+      },
+      "distinct_access_pairs": 131,
+      "duplicate_native_queries": 0,
+      "edges": 1006,
+      "native_dependence_outcomes": {
+        "dependence": 11,
+        "no_dependence": 15,
+        "not_applicable": 101,
+        "unknown": 4
+      },
+      "native_dependence_reasons": {
+        "aliased_storage_not_canonicalized": 4,
+        "non_affine_access": 35,
+        "proven_affine_dependence": 11,
+        "proven_affine_independence": 15,
+        "proven_no_alias": 66
+      },
+      "native_negative_conclusions": 81,
+      "nodes": 541,
+      "registered": 11,
+      "relation_types": {
+        "actual_to_formal": 21,
+        "alias": 34,
+        "analysis_summary": 39,
+        "calls": 9,
+        "contains_block": 15,
+        "contains_operation": 135,
+        "declares_argument": 26,
+        "defines": 88,
+        "depends_on": 50,
+        "feature": 193,
+        "literal": 11,
+        "loop_carried": 6,
+        "loop_child": 3,
+        "memory_access": 27,
+        "next_operation": 112,
+        "operand": 157,
+        "owns_region": 15,
+        "references": 10,
+        "resolves_to": 39,
+        "returns_to": 5,
+        "targets": 11
+      },
+      "source_only": 2,
+      "unresolved_registrations": 0
+    },
+    "regression_checks": {
+      "corrected_test_command": "python -B -m pytest -q -p no:cacheprovider tests/test_mlir_graph_v22.py::test_updated_development_kalman_archive_accounts_for_repaired_directive_columns --tb=short",
+      "corrected_test_run": {
+        "failed": 0,
+        "passed": 1,
+        "seconds": 5.28
+      },
+      "initial_run": {
+        "failed": 1,
+        "failure": "New test assumed compiler_target key exists on unresolved records. Changed to supported absent/null handling; no graph implementation changes.",
+        "passed": 183,
+        "seconds": 448.35
+      },
+      "scope": "183 other tests passed in suite; current added integration test passed on targeted rerun. Not reported as one fresh all-pass full-suite execution.",
+      "suite_command": "python -B -m pytest -q -p no:cacheprovider tests/test_mlir_graph_v22.py tests/test_mlir_graph_v2.py tests/test_structural_audit.py tests/test_v21_refinement.py tests/test_directive_domains.py"
+    },
+    "schema": "salt-hls-single-graph-update-v1",
+    "scope": "corrected development metadata selects an existing frozen 13-action snapshot; cohort and release unchanged",
+    "selected_snapshot": "96b4d608969f",
+    "semantic_revision": "rc3",
+    "source_sha256": "3c36824db4be6be09b110a20cd5c5b655d14a4973bf4a0ec1820d544b98b81b1",
+    "statistics": {
+      "access_status": {
+        "not_established": 2,
+        "proven": 25
+      },
+      "active": 11,
+      "alias_kinds": {
+        "may_alias": 16,
+        "must_alias": 11,
+        "no_alias": 7
+      },
+      "cfg_successors": 0,
+      "dependence_reasons": {
+        "aliased_storage_not_canonicalized": 4,
+        "non_affine_access": 35
+      },
+      "dependence_status": {
+        "possible": 39,
+        "proven": 11
+      },
+      "distinct_access_pairs": 131,
+      "duplicate_native_queries": 0,
+      "edges": 1006,
+      "native_dependence_outcomes": {
+        "dependence": 11,
+        "no_dependence": 15,
+        "not_applicable": 101,
+        "unknown": 4
+      },
+      "native_dependence_reasons": {
+        "aliased_storage_not_canonicalized": 4,
+        "non_affine_access": 35,
+        "proven_affine_dependence": 11,
+        "proven_affine_independence": 15,
+        "proven_no_alias": 66
+      },
+      "native_negative_conclusions": 81,
+      "nodes": 541,
+      "registered": 13,
+      "relation_types": {
+        "actual_to_formal": 21,
+        "alias": 34,
+        "analysis_summary": 39,
+        "calls": 9,
+        "contains_block": 15,
+        "contains_operation": 135,
+        "declares_argument": 26,
+        "defines": 88,
+        "depends_on": 50,
+        "feature": 193,
+        "literal": 11,
+        "loop_carried": 6,
+        "loop_child": 3,
+        "memory_access": 27,
+        "next_operation": 112,
+        "operand": 157,
+        "owns_region": 15,
+        "references": 10,
+        "resolves_to": 39,
+        "returns_to": 5,
+        "targets": 11
+      },
+      "source_only": 0,
+      "unresolved_registrations": 2
+    }
+  }
+}

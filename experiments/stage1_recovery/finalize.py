@@ -54,10 +54,92 @@ def normalize_metadata(run):
     dump(run / 'report.json', report)
 
 
+def finalize_full_run(run, prepared, validation_report=None):
+    """Read-only model assessment; never rewrites contracts or promotes weights."""
+    run, prepared = Path(run), Path(prepared)
+    manifest = prepare(DEFAULT_PARENT, prepared)
+    protocol = json.loads((run/'recovery_protocol.json').read_text())
+    if (run/'training_contract.json').is_file():
+        contract=json.loads((run/'training_contract.json').read_text())
+        sealed=(contract.get('stage1_supervision') or {}).get('recovery_protocol_sha256')
+        if sealed and sealed != sha(run/'recovery_protocol.json'):
+            raise ValueError('Recovery protocol differs from the training contract')
+    if protocol['input_manifest_sha256'] != sha(prepared/'manifest.json'):
+        raise ValueError('Recovery selection manifest changed')
+    for name,digest in protocol['reference_hashes'].items():
+        if sha(Path(DEFAULT_PARENT)/name)!=digest:
+            raise ValueError(f'Historical checkpoint changed: {name}')
+    for name,digest in protocol['implementation_sha256'].items():
+        if sha(run/'source_snapshot'/name)!=digest:
+            raise ValueError(f'Frozen experiment implementation changed: {name}')
+    rows = [json.loads(line) for line in (prepared/'train_reconstructed_selected.jsonl').read_text().splitlines()]
+    result = dict(schema='stage1-full-recovery-assessment-v1',test_labels_used=False,
+        examples=manifest['counts'],distinct_training_measured_rows=len({r['_jsonl_idx'] for r in rows}),
+        protocol_sha256=sha(run/'recovery_protocol.json'),historical_checkpoint_unchanged=True,
+        automatic_promotion=False)
+    if not (run/'adapter_model.safetensors').is_file():
+        result.update(status='training_not_completed',classification='CONDITIONAL',
+                      reason='Final root adapter not saved; best/checkpoint subdirectories alone do not establish completion')
+        return result
+    records = json.loads((run/'optimizer_audit.json').read_text())
+    updates = [r for r in records if 'optimizer_step_skipped' in r]
+    result.update(status='training_completed_validation_pending',classification='CONDITIONAL',
+        actual_updates=sum(not r['optimizer_step_skipped'] for r in updates),
+        skipped_updates=sum(r['optimizer_step_skipped'] for r in updates),
+        attempted_updates=max(r['step'] for r in updates),
+        schedule=json.loads((run/'schedule_audit.json').read_text()),
+        final_adapter_sha256=sha(run/'adapter_model.safetensors'))
+    best = json.loads((run/'best_custom_stage1/best_selection_metrics.json').read_text())
+    result['selected_best'] = dict(step=best['step'],decision_key=best['decision_key'],
+        report=best.get('decision_report'),constant_baseline=best.get('constant_baseline_report'))
+    result['validation_curve'] = [dict(step=r['step'],ce=r['eval_loss'],
+        core_balanced=r.get('decision_report',{}).get('core_decision_balanced_accuracy'),
+        complete_actions=r.get('decision_report',{}).get('complete_action_accuracy'))
+        for r in (json.loads(path.read_text()) for path in sorted(run.glob('val_selection_step_*.json')))]
+    result['validation_curve'].sort(key=lambda r:r['step'])
+    # Re-score the original and selected checkpoint on the exact same saved bank.
+    from experiments.stage1_recovery.evaluate import evaluate_saved
+    val = [json.loads(line) for line in (prepared/'val_reconstructed_selected.jsonl').read_text().splitlines()]
+    sources=json.loads(Path('artifacts/llm/mailohls_sft.sources.json').read_text())['templates']
+    review=run/'saved_decision_review'
+    review.mkdir(exist_ok=True)
+    comparison=evaluate_saved([str(Path(DEFAULT_PARENT)/'best_selection_metrics.json'),
+        str(run/'best_custom_stage1/best_selection_metrics.json')],rows,val,sources,review)
+    reports=list(comparison['checkpoints'].values())
+    result['saved_bank_promotion']=decisions.promotion_assessment(reports[1]['report'],reports[0]['report'],reports[1]['constant_baseline'])
+    if validation_report:
+        full=json.loads(Path(validation_report).read_text())
+        if full['cases'] != len(val):
+            raise ValueError('Full validation report does not cover the selected validation split')
+        result['full_validation_report_sha256']=sha(validation_report)
+        result['full_validation']=full
+        comparisons=list(full['adapters'].values())
+        if len(comparisons)==2:
+            expected=[Path(DEFAULT_PARENT),run/'best_custom_stage1']
+            for record,path in zip(comparisons,expected):
+                if Path(record['path']).resolve()!=path.resolve() or record['adapter_sha256']!=sha(path/'adapter_model.safetensors'):
+                    raise ValueError('Validation report adapter lineage does not match the reference/recovery pair')
+            gate=decisions.promotion_assessment(comparisons[1]['field_greedy'],comparisons[0]['field_greedy'],full['baseline'])
+            result['full_validation_promotion']=gate
+            result['status']='evaluation_completed'
+            checks=gate['checks']
+            action_gain=(checks['complete_action_better_than_reference'] and checks['complete_action_better_than_constant'])
+            result['classification']=('VALIDATED RECOVERY' if gate['eligible_on_measured_decisions'] else
+                                      'CONDITIONAL' if action_gain else 'NO IMPROVEMENT')
+    dump(run/'full_run_report.json',result)
+    return result
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--root', default='artifacts/diagnostics/stage1_recovery_20261028')
+    ap.add_argument('--full-run', help='Assess a fresh full-data run without normalizing historical control metadata')
+    ap.add_argument('--prepared', default=str(DEFAULT_OUTPUT))
+    ap.add_argument('--full-validation-report')
     args = ap.parse_args()
+    if args.full_run:
+        print(json.dumps(finalize_full_run(args.full_run,args.prepared,args.full_validation_report),indent=2))
+        return
     root = Path(args.root)
     result = dict(schema='mailohls-stage1-recovery-summary-v1', training={}, heldout_test_used=False)
     initial, selections = set(), set()

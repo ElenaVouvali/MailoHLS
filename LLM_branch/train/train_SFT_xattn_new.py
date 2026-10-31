@@ -13,8 +13,10 @@ throughout Stage-2 training, validation, and inference.
 
 from __future__ import annotations
 
+from LLM_branch.train import stage1_decision_loss
 from LLM_branch.common import device_adaptation
 import argparse
+import functools
 import json
 import math
 import os
@@ -481,6 +483,8 @@ def build_deterministic_rhs_pack(
     supervise_eos: bool = False,
     directive_domain_registry: Optional[Dict[str, Dict[str, List[str]]]] = None,
     kernel_name: Optional[str] = None,
+    supervision_policy: str = "legacy",
+    decision_value_weights: Optional[dict] = None,
 ) -> DeterministicRHSPack:
     """
     Build the deterministic target sequence for RHS-only training.
@@ -561,13 +565,26 @@ def build_deterministic_rhs_pack(
         xattn_target_mask.extend([0] * len(eos_ids))
         site_keys.extend([None] * len(eos_ids))
 
-    return DeterministicRHSPack(
+    pack = DeterministicRHSPack(
         input_ids=input_ids,
         labels=labels,
         token_weights=token_weights,
         xattn_target_mask=xattn_target_mask,
         site_keys=site_keys,
     )
+    return stage1_decision_loss.apply_decision_policy(
+        pack, tok, rhs_map, supervision_policy, decision_value_weights
+    )
+
+
+def cache_stage1_serialization():
+    """Reuse the recovery reconstruction's bounded pure-function caches."""
+    for name, size in (("extract_ordered_lhs_plan", 256),
+                       ("reorder_target_by_source_order", 100000),
+                       ("canonical_completion_key", 100000)):
+        function = globals()[name]
+        if not hasattr(function, "cache_info"):
+            globals()[name] = functools.lru_cache(maxsize=size)(function)
 
 
 def build_clock_pack(
@@ -3075,7 +3092,8 @@ class StageValSelectionCallback(TrainerCallback):
                     if "decision_key" in previous
                     else previous["checkpoint_key"][:4]
                 )
-                if len(previous_key) != 6:
+                expected_key_size = (4 if (self.training_contract.get("stage1_supervision") or {}).get("diagnostics") else 6)
+                if len(previous_key) != expected_key_size:
                     raise RuntimeError(
                         "Existing custom-best metrics use the legacy "
                         "checkpoint-selection contract. Start this corrective "
@@ -3377,6 +3395,12 @@ class StageValSelectionCallback(TrainerCallback):
             "forced_site_count": (
                 len(ref_assign) - len(decision_keys)
             ),
+            "_family": case.row.get("_family", family_id_from_kernel_name(case.kernel_name)),
+            "source_key": case.row.get("source_key"),
+            **{key: case.row[key] for key in (
+                "avail_bram", "avail_dsp", "avail_ff", "avail_lut",
+                "budget_frac_bram_18k", "budget_frac_dsp", "budget_frac_ff", "budget_frac_lut"
+            ) if key in case.row},
             "jsonl_idx": case.row.get("_jsonl_idx"),
             "device": case.row.get("device"),
             "resource_budget_id": case.row.get("resource_budget_id"),
@@ -3412,6 +3436,18 @@ class StageValSelectionCallback(TrainerCallback):
         try:
             rows = [self._run_case(model, case) for case in self.selection_cases]
             summary = summarize_selection_rows(rows)
+            stage1_policy = self.training_contract.get("stage1_supervision") or {}
+            if stage1_policy.get("diagnostics"):
+                from experiments.stage1_recovery import decisions
+                summary["decision_report"] = decisions.decision_report(rows, self.directive_domain_registry)
+                baseline_rows = [dict(row, prediction=decisions.constant_baseline(
+                    dict(case.row, input=case.source_text), self.directive_domain_registry,
+                    stage1_policy["training_constant_modes"]))
+                    for row,case in zip(rows,self.selection_cases)]
+                summary["constant_baseline_report"] = decisions.decision_report(baseline_rows, self.directive_domain_registry)
+                summary["validation_case_identity_sha256"] = hashlib.sha256(json.dumps(
+                    [(r["kernel_name"],r["jsonl_idx"],r["device"],r["selected_clock_period"],r["resource_budget_id"],r["reference_target"]) for r in rows],
+                    sort_keys=True).encode()).hexdigest()
             mean_value_acc = summary["mean_value_acc"]
             schema_compliance = summary["schema_compliance"]
             expected_key_accuracy = summary["expected_key_accuracy"]
@@ -3469,6 +3505,14 @@ class StageValSelectionCallback(TrainerCallback):
                 joint_action_score,
                 float(summary["budget_counterfactual_decision_accuracy"] or 0.0),
             )
+            if stage1_policy.get("diagnostics"):
+                report = summary["decision_report"]
+                decision_key = (
+                    report["core_decision_balanced_accuracy"],
+                    report["complete_action_accuracy"],
+                    float(report.get("target_transitions", {}).get("budget", {}).get("changed_complete_correct", 0)),
+                    minimum_kernel_accuracy,
+                )
             checkpoint_key = decision_key + (
                 float(summary["candidate_margin_mean"] or float("-inf")),
             )
@@ -4249,6 +4293,7 @@ class LengthGroupedTrainer(Trainer):
         structural_routing: str = "exact_slot",
         xattn_diagnostic_steps: int = 20,
         stage2_trainable_contract: bool = False,
+        normalized_sample_weights: bool = False,
         **kwargs,
     ):
         self._group_by_length = group_by_length
@@ -4277,6 +4322,7 @@ class LengthGroupedTrainer(Trainer):
         self.ce_loss_weight = float(ce_loss_weight)
         self.xattn_diagnostic_steps = int(xattn_diagnostic_steps)
         self.stage2_trainable_contract = bool(stage2_trainable_contract)
+        self.normalized_sample_weights = bool(normalized_sample_weights)
 
         if self.ce_loss_weight < 0:
             raise ValueError("ce_loss_weight must be non-negative")
@@ -4924,7 +4970,8 @@ class LengthGroupedTrainer(Trainer):
                 # Change the relative contribution to loss of each example
                 if weights is not None:
                     w = weights.to(device=device, dtype=per_ex.dtype)
-                    ce_loss = (per_ex * w).sum() / w.sum().clamp(min=1e-8)
+                    ce_loss = ((per_ex * w).mean() if getattr(self, "normalized_sample_weights", False)
+                               else (per_ex * w).sum() / w.sum().clamp(min=1e-8))
                 else:
                     ce_loss = per_ex.mean()
             
@@ -6164,6 +6211,8 @@ class SFTDataset(Dataset):
         clock_class_weights: Optional[Dict[float, float]] = None,
         candidate_kind_priority: Optional[Dict[str, float]] = None,
         directive_domain_registry: Optional[Dict[str, Dict[str, List[str]]]] = None,
+        supervision_policy: str = "legacy",
+        decision_value_weights: Optional[dict] = None,
     ):
         self.samples, self.lengths = [], []
         truncated = 0
@@ -6193,6 +6242,8 @@ class SFTDataset(Dataset):
                 supervise_eos=supervise_eos,
                 directive_domain_registry=directive_domain_registry,
                 kernel_name=example["kernel_name"],
+                supervision_policy=supervision_policy,
+                decision_value_weights=decision_value_weights,
             )
             clock_weight = value_loss_weight * clock_loss_weight
             if str(example.get("frequency_mode", "specified")).lower() == "auto":
@@ -6483,6 +6534,17 @@ def configure_target_policy(args) -> None:
     ):
         raise ValueError("The shared training-only effective-area floor must be positive")
 
+    if not args.disable_structural_memory and (
+        args.stage1_supervision_policy != "legacy" or args.stage1_contrast_weight != 1.0
+        or args.stage1_decision_diagnostics or args.stage1_full_validation
+    ):
+        raise ValueError("Decision supervision/diagnostics are Stage-1-only")
+    if args.stage1_supervision_policy != "legacy" and (args.auto_frequency_fraction != 0 or args.supervise_eos):
+        raise ValueError("Decision policy currently requires specified-clock, no-EOS supervision")
+    if not 1 <= args.stage1_contrast_weight <= 2:
+        raise ValueError("Contrast emphasis must be between 1 and 2")
+    if args.stage1_full_validation and not args.stage1_decision_diagnostics:
+        raise ValueError("Full validation requires explicit Stage-1 decision diagnostics")
     if args.top_k < 1:
         raise ValueError("--top_k must be >= 1")
     if args.selection_num_val_kernels < 0:
@@ -6672,6 +6734,8 @@ def run_single_training(args):
         dump_root = os.path.join(args.output_dir, "selected_debug")
         os.makedirs(dump_root, exist_ok=True)
 
+    if args.disable_structural_memory:
+        cache_stage1_serialization()
     rows = filter_rows_for_device_mode(load_rows(args.dataset))
     print(f"[INFO] Loaded {len(rows)} raw rows from {args.dataset}")
     fam_counts = Counter(r["_family"] for r in rows)
@@ -6966,6 +7030,22 @@ def run_single_training(args):
                 directive_domain_registry,
             )
         )
+
+    recovery_protocol_sha256 = None
+    if args.stage1_recovery_prepared:
+        from experiments.stage1_recovery.prepare import freeze_full_run
+        recovery_protocol_sha256 = freeze_full_run(
+            args.output_dir, args.stage1_recovery_prepared, train_rows, val_rows, args)
+    decision_balance = None
+    if args.stage1_supervision_policy == "decision_balanced":
+        from experiments.stage1_recovery.decisions import parse
+        decision_balance = stage1_decision_loss.fit_value_weights(
+            train_rows, directive_domain_registry, constrained_rhs_candidates, parse,
+            args.stage1_balance_min, args.stage1_balance_max)
+    contrast_information = None
+    if args.stage1_contrast_weight != 1.0:
+        contrast_information = stage1_decision_loss.emphasize_budget_contrasts(
+            train_rows, args.stage1_contrast_weight)
 
     validation_budget_bank_path = write_validation_resource_budget_bank(
         val_rows,
@@ -7282,6 +7362,14 @@ def run_single_training(args):
     if any(token_id < 0 for token_id in special_ids):
         raise RuntimeError("A MailoHLS special token was not added correctly.")
 
+    if args.stage1_full_validation:
+        selection_cases = [SelectionCase(row["kernel_name"], row["obj_mode"], row["input"],
+                             reorder_target_by_source_order(row["input"], row["target"]), row)
+                           for row in val_rows]
+    training_constant_modes = {}
+    if args.stage1_decision_diagnostics and train_rows:
+        from experiments.stage1_recovery.decisions import modes_from_train
+        training_constant_modes = modes_from_train(train_rows)
     training_contract = {
         "schema": "mailohls-training-contract-v1",
         "stage": "stage1" if args.disable_structural_memory else "stage2",
@@ -7295,6 +7383,32 @@ def run_single_training(args):
         "response_prefix_policy": mailohls_contract.RESPONSE_PREFIX_POLICY,
         "clock_supervision_policy": mailohls_contract.CLOCK_SUPERVISION_POLICY,
         "directive_supervision_policy": mailohls_contract.DIRECTIVE_SUPERVISION_POLICY,
+        **({"stage1_supervision": {
+            "mode": args.stage1_supervision_policy,
+            "recovery_protocol_sha256": recovery_protocol_sha256,
+            "version": stage1_decision_loss.VERSION,
+            "implementation_sha256": {
+                name: _file_sha256(REPOSITORY_ROOT / name) for name in (
+                    "LLM_branch/train/train_SFT_xattn_new.py",
+                    "LLM_branch/train/stage1_decision_loss.py",
+                    "experiments/stage1_recovery/decisions.py",
+                    "experiments/stage1_recovery/prepare.py",
+                )
+            },
+            "balance": decision_balance,
+            "contrast_weight": args.stage1_contrast_weight,
+            "contrast_information": contrast_information,
+            "diagnostics": args.stage1_decision_diagnostics,
+            "full_validation": args.stage1_full_validation,
+            "training_constant_modes": training_constant_modes,
+            "initialization": "explicit_adapter" if args.init_adapter_dir else "fresh_adapter_from_pinned_backbone",
+            "initial_adapter_lineage": ({
+                "path": os.path.abspath(args.init_adapter_dir),
+                "weights_sha256": _file_sha256(frozen_stage1.adapter_weights_path(args.init_adapter_dir)),
+                "contract_sha256": (_file_sha256(Path(args.init_adapter_dir)/"training_contract.json")
+                    if (Path(args.init_adapter_dir)/"training_contract.json").is_file() else None),
+            } if args.init_adapter_dir else None),
+        }} if args.disable_structural_memory else {}),
         "semantic_domain_policy": mailohls_contract.SEMANTIC_DOMAIN_POLICY,
         "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",
         "utilization_policy": "reported_percentages_unchanged",
@@ -7318,7 +7432,10 @@ def run_single_training(args):
         ),
         "directive_loss_weighting": args.directive_loss_weighting,
         "directive_loss_weights": directive_loss_weights,
-        "directive_site_weighting": "equal_total_weight_per_decision_site",
+        "directive_site_weighting": (
+            "equal_total_weight_per_decision_site" if args.stage1_supervision_policy == "legacy"
+            else "equal_actions_equal_nonforced_fields_value_tokens_only"
+        ),
         "directive_domain_registry_policy": registry_policy,
         "directive_domain_search_space": (
             {
@@ -7388,6 +7505,8 @@ def run_single_training(args):
         ),
         "selection_eval_steps": args.selection_eval_steps,
         "selection_metric": (
+            "core_nonforced_balanced_recall_complete_actions_correct_budget_pairs"
+            if args.stage1_decision_diagnostics else
             "kernel_macro_decision_accuracy_joint_actions_and_correct_budget_transitions"
         ),
         "early_stopping_patience": args.early_stopping_patience,
@@ -7841,6 +7960,8 @@ def run_single_training(args):
             candidate_kind_priority=(
                 candidate_kind_priority
             ),
+            supervision_policy=args.stage1_supervision_policy,
+            decision_value_weights=decision_balance["weights"] if decision_balance else None,
             directive_domain_registry=directive_domain_registry,
         )
 
@@ -7939,6 +8060,8 @@ def run_single_training(args):
         input_only_special_ids=special_ids,
         kind_loss_weights=directive_loss_weights,
         clock_loss_weight=args.clock_loss_weight,
+        supervision_policy=args.stage1_supervision_policy,
+        decision_value_weights=decision_balance["weights"] if decision_balance else None,
         clock_class_weights=auto_clock_weights if not args.selection_eval_only else {},
         directive_domain_registry=directive_domain_registry,
     ) if val_rows else None
@@ -8128,10 +8251,16 @@ def run_single_training(args):
         candidate_keep_head_tokens=args.candidate_keep_head_tokens,
         ce_loss_weight=args.ce_loss_weight,
         xattn_diagnostic_steps=args.xattn_diagnostic_steps,
+        normalized_sample_weights=(args.disable_structural_memory and args.stage1_contrast_weight != 1.0),
         stage2_trainable_contract=(
             not args.disable_structural_memory and not args.selection_eval_only
         ),
     )
+
+    if args.disable_structural_memory and not args.selection_eval_only:
+        update_audit = stage1_decision_loss.UpdateAudit(args.output_dir)
+        update_audit.trainer = trainer
+        trainer.add_callback(update_audit)
 
     trainer.add_callback(
         SaveMailoHLSCheckpointCallback(
@@ -8498,6 +8627,14 @@ def main():
             "created atomically by the first arm and verified by later arms."
         ),
     )
+    ap.add_argument("--stage1_recovery_prepared", default=os.environ.get("STAGE1_RECOVERY_PREPARED", ""),
+                    help="Optional authenticated recovery selection; seals protocol before model loading")
+    ap.add_argument("--stage1_supervision_policy", choices=stage1_decision_loss.POLICIES, default="legacy")
+    ap.add_argument("--stage1_balance_min", type=float, default=.5)
+    ap.add_argument("--stage1_balance_max", type=float, default=2.)
+    ap.add_argument("--stage1_contrast_weight", type=float, default=1.)
+    ap.add_argument("--stage1_decision_diagnostics", action="store_true")
+    ap.add_argument("--stage1_full_validation", action="store_true")
     ap.add_argument("--value_loss_weight", type=float, default=1.0)
     ap.add_argument(
         "--directive_loss_weighting",
