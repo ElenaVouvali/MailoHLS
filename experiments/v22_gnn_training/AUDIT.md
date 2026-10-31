@@ -153,10 +153,11 @@ tests actual process interruption and resume before the full run.
 Using the isolated Python 3.10 environment with CUDA PyTorch 2.6.0+cu124, PyG
 2.6.1 and SciPy 1.15.3:
 
-- `tests/test_v22_gnn_resume.py` and `tests/test_v22_gnn_training_contracts.py`:
-  15 passed after the rank-scale and launcher-resume-lock fixes.
-- Final full relevant suite: **115 passed** in 181.12 s after the ranking,
-  resume-lock, and busy-GPU-output handling changes.
+- Full relevant suite: **115 passed** in 181.12 s after the ranking-scale and
+  resume-lock fixes.
+- After the final launcher change that avoids creating empty run directories
+  when a GPU is busy, the focused resumability/trainer contract suite reported
+  **16 passed** in 6.34 s.
 - A first attempt with the Python 3.8 `.hls-llm` environment produced 21 setup
   errors because existing graph-release code uses `Path.is_relative_to()`;
   this environment mismatch was avoided by using an isolated Python 3.10 venv,
@@ -167,4 +168,5 @@ Using the isolated Python 3.10 environment with CUDA PyTorch 2.6.0+cu124, PyG
 - A real measured-candidate update completed on both arms for all three
   objectives with finite losses and gradients.
 
-Exact final test totals and smoke outcomes are updated after their execution.
+The GPU interruption/resume smoke did not run because both GPUs were occupied;
+that limitation is recorded in `RESULTS.md`.

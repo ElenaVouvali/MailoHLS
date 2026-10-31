@@ -5,9 +5,11 @@
 - Authenticated data audit: **PASS WITH EXPLICIT EXCLUSIONS**. 104,147 eligible
   configurations: 88,466 train, 8,976 validation and 6,705 test. Exclusions and
   identities are in [`AUDIT.md`](AUDIT.md).
-- Focused regression tests: **115 passed in 181.12 s** in the compatible Python
-  3.10 environment (including archive authentication, graph semantics,
-  tensorization, demand features, trainer contracts and resume/launcher tests).
+- Full relevant regression suite: **115 passed in 181.12 s** in the compatible
+  Python 3.10 environment (archive authentication, graph semantics,
+  tensorization, demand features, trainer contracts and resume tests). After
+  the final no-empty-output-directory launcher guard, its focused contract
+  suite reported **16 passed in 6.34 s**.
 - A2 CUDA operation: succeeded on NVIDIA A2 using GPU UUID
   `GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`.
 - A2 small/medium/AES forward/backward memory profiles: passed without OOM.
@@ -49,8 +51,9 @@ correctly declined both. Re-run the smoke then full launch commands in
 [`RUN_PROTOCOL.md`](RUN_PROTOCOL.md) once a compatible GPU is idle; the launcher
 will select the named GPU by UUID, verify availability, and refuse to share.
 
-No run PID or active output directory exists. Failed safe-launch attempts
-produced no training data or checkpoint. The standalone audit, per-kernel CSV,
+No run PID, log or training state exists. The two refused launch attempts left
+empty directories only; they contain no experiment artifacts. Failed
+safe-launch attempts produced no training data or checkpoint. The standalone audit, per-kernel CSV,
 memory profile and gradient diagnostics are under
 `/tmp/v22-gnn-resumable-preflight-20261030/`. Validation and test metrics remain
 unreported. No QoR advantage or target-generalization claim is made from
