@@ -44,7 +44,6 @@ and the boundary between implemented, evaluated and planned functionality.
 | Inspect FPGA graph enrichment | [Target-aware graph guide](docs/target-aware-mlir-v22/README.md) |
 | Verify or restore registered graph artifacts | [Artifact policy](docs/reproducibility.md#artifacts) |
 | Contribute without breaking historical results | [Developer guide](docs/development.md) |
-| Review this maintenance change | [Consolidation report](docs/REPOSITORY_CONSOLIDATION_REPORT.md) |
 
 ## Installation and a small example
 
@@ -65,13 +64,16 @@ flags documented by that module. Existing checkpoint policies are not relabeled.
 
 For model training and inference, follow [reproducibility](docs/reproducibility.md)
 and [maintained launcher choices](docs/shell-scripts.md). Cloning the source
-repository does not download pretrained model weights. Frozen compiler graph archives and original measurements remain tracked. Historical
-checkpoint evidence, generated HARP graphs, synthesis workspaces and derived CSVs
-are distributed as [verified research assets](https://github.com/ElenaVouvali/MailoHLS/releases/tag/artifacts/research-evidence-v1-20261031).
-The full hardware graph catalog is a [verified Release](https://github.com/ElenaVouvali/MailoHLS/releases/tag/archive/v22-graph-catalog-20261029).
-Use the artifact tool to restore the exact original paths before reproducing an
-experiment that needs them; the source repository contains their contracts and
-restoration manifest. Large runtime outputs remain ignored.
+repository does not download pretrained model weights. Frozen compiler graph archives and original measurements remain tracked. Historical checkpoint evidence, generated graphs, synthesis snapshots and derived
+CSV tables can be restored directly from their sealed original Git objects:
+
+```bash
+python scripts/artifacts.py restore-git --artifact harp-generated-graphs-v1
+```
+
+See [reproducibility](docs/reproducibility.md) for the other artifact IDs and
+catalog recovery. Normal development does not require GitHub Releases. Generated
+outputs remain ignored; selected model weights are supplied separately.
 
 ## Repository map
 
@@ -84,8 +86,20 @@ guides and pinned compiler provenance. `HARP-rep/` preserves the modified baseli
 Do not infer production status from directory or checkpoint names containing
 `final`.
 
-`main` is the integration target. The protected
-[`mlir-target`](https://github.com/ElenaVouvali/MailoHLS/tree/mlir-target) and
-[`llvm-ir`](https://github.com/ElenaVouvali/MailoHLS/tree/llvm-ir) branches preserve
-historical baselines. Research branches remain available for review; this
-maintenance branch does not merge or retire them.
+## Six-branch development structure
+
+| Branch | Responsibility |
+|---|---|
+| `main` | Finalized framework and selectively integrated, validated improvements. |
+| `mlir-target` | Immutable historical MLIR baseline. |
+| `llvm-ir` | Immutable historical LLVM baseline. |
+| `research/stage1-refinement` | Stage-1 supervision, recovery and measured-quality research. |
+| `research/gnn-refinement` | Graphs, semantic tensors, hardware awareness and GNN research. |
+| `research/refinement-mechanism` | HLS feedback, directive refinement and search research. |
+
+Use configurations and result directories for experiment variants within these
+three research branches. Keep unfinished work there and selectively integrate
+validated improvements into `main`. Update a shared research branch with
+`git fetch origin` followed by `git merge origin/main`; preserve local work first.
+Do not force-rewrite shared history. Detailed conventions are in
+[development](docs/development.md).

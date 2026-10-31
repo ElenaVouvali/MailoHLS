@@ -4,16 +4,19 @@ import csv
 import json
 from pathlib import Path
 import tarfile
+import tempfile
+import hashlib
 
 import networkx as nx
 
-from scripts.artifacts import MANIFEST, sha256, verify
+from scripts.artifacts import MANIFEST, sha256, verify, package
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--root', type=Path, required=True)
     ap.add_argument('--report', type=Path, required=True)
+    ap.add_argument('--git-source', action='store_true', help='verify against sealed original Git payloads without cached release archives')
     args = ap.parse_args()
     counts = dict(files=0, csv_files=0, csv_rows=0, json_files=0, gexf_files=0, graph_nodes=0, graph_edges=0)
     summaries=[]
@@ -21,9 +24,18 @@ def main():
         if not record.get('restore_roots'):
             continue
         archive=args.root/record['path']
-        verify(archive,record)
-        with tarfile.open(archive) as tar:
-            manifest=json.load(tar.extractfile('MAILOHLS_ARTIFACT.json'))
+        if args.git_source:
+            with tempfile.TemporaryDirectory() as temp:
+                sealed=Path(temp)/'sealed.tar.gz'
+                package(record,sealed)
+                with tarfile.open(sealed) as tar:
+                    raw=tar.extractfile('MAILOHLS_ARTIFACT.json').read()
+                assert hashlib.sha256(raw).hexdigest()==record['member_manifest_sha256']
+                manifest=json.loads(raw)
+        else:
+            verify(archive,record)
+            with tarfile.open(archive) as tar:
+                manifest=json.load(tar.extractfile('MAILOHLS_ARTIFACT.json'))
         for row in manifest['files']:
             path=args.root/row['path']
             verify(path,row)
@@ -43,7 +55,7 @@ def main():
                 counts['gexf_files']+=1
                 counts['graph_nodes']+=graph.number_of_nodes()
                 counts['graph_edges']+=graph.number_of_edges()
-        summaries.append(dict(id=record['id'],sha256=sha256(archive),files=len(manifest['files'])))
+        summaries.append(dict(id=record['id'],sha256=record['sha256'],files=len(manifest['files'])))
     result=dict(schema='mailohls-restored-consumers-v1',counts=counts,artifacts=summaries,limitations='Original graph/table reader validation; no model-weight loading, HLS execution or new QoR measurement.')
     args.report.write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(counts,indent=2))

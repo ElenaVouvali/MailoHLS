@@ -40,7 +40,7 @@ def destination(root, name):
 
 def verify(path, record):
     if not Path(path).is_file():
-        raise ValueError('Missing artifact: ' + str(path) + '; use fetch only if a verified public URL is registered')
+        raise ValueError('Missing artifact: ' + str(path) + '; restore the registered Git payload or provide the original offline archive')
     if Path(path).stat().st_size != record['size'] or sha256(path) != record['sha256']:
         raise ValueError('Artifact size/SHA256 mismatch: ' + str(path))
 
@@ -127,7 +127,7 @@ def package(record, output):
     if output.exists():
         raise ValueError('Archive already exists: ' + str(output))
     ref = record['source_commit']
-    entries = subprocess.check_output(['git', 'ls-tree', '-rz', ref, '--', *record['restore_roots']]).split(b'\0')
+    entries = subprocess.check_output(['git', '-C', str(ROOT), 'ls-tree', '-rz', ref, '--', *record['restore_roots']]).split(b'\0')
     rows = []
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=output.parent) as temp:
@@ -142,7 +142,7 @@ def package(record, output):
                     raise ValueError('Package requires regular committed files: ' + name.decode())
                 if name.decode().endswith(('.pth', '.pt', '.safetensors', '.bin', '.ckpt')):
                     raise ValueError('Weights need a separate redistribution review')
-                data = subprocess.check_output(['git', 'cat-file', 'blob', blob.decode()])
+                data = subprocess.check_output(['git', '-C', str(ROOT), 'cat-file', 'blob', blob.decode()])
                 info = tarfile.TarInfo(name.decode())
                 info.size, info.mode = len(data), int(mode, 8) & 0o777
                 tar.addfile(info, io.BytesIO(data))
@@ -155,13 +155,65 @@ def package(record, output):
     return rows
 
 
+def restore_git(record, root):
+    """Recover sealed scientific payloads without a Release or local runtime cache."""
+    roots = record.get('git_roots')
+    if not roots:
+        raise ValueError('This artifact has no registered Git recovery contract')
+    ref = record['source_commit']
+    try:
+        for name in roots:
+            destination(Path(root), name)
+            actual = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', ref + ':' + name], stderr=subprocess.DEVNULL).decode().strip()
+            if actual != record['git_objects'][name]:
+                raise ValueError('Git source identity mismatch: ' + name)
+    except subprocess.CalledProcessError as exc:
+        raise ValueError('Original Git objects missing. Fetch origin and preservation tags before restoring.') from exc
+    root = Path(root).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=root) as temp:
+        if record.get('restore_roots'):
+            archive = Path(temp) / 'recovered.tar.gz'
+            package(record, archive)
+            with tarfile.open(archive) as tar:
+                sealed = tar.extractfile('MAILOHLS_ARTIFACT.json').read()
+            if hashlib.sha256(sealed).hexdigest() != record['member_manifest_sha256']:
+                raise ValueError('Original sealed member manifest mismatch')
+            # Explicit payload recovery: gzip implementation differences do not
+            # change original file hashes, modes, source or manifest identity.
+            local = dict(record, size=archive.stat().st_size, sha256=sha256(archive))
+            return restore(archive, local, root)
+        archive = Path(temp) / 'catalog.tar'
+        with archive.open('xb') as stream:
+            subprocess.run(['git', '-C', str(ROOT), 'archive', '--format=tar', ref, '--', *roots], stdout=stream, check=True)
+        stage = Path(temp) / 'catalog'
+        extract(archive, stage)
+        catalog = stage / 'graphs/latest'
+        checksum = catalog / 'SHA256SUMS'
+        if sha256(checksum) != record['catalog_checksums_sha256']:
+            raise ValueError('Original catalog checksum manifest mismatch')
+        names = set()
+        for line in checksum.read_text().splitlines():
+            digest, name = line.split(None, 1)
+            name = name.lstrip('*')
+            path = destination(catalog, name)
+            if sha256(path) != digest:
+                raise ValueError('Catalog payload mismatch: ' + name)
+            names.add(name)
+        actual = {str(p.relative_to(catalog)) for p in catalog.rglob('*') if p.is_file() and p.name != 'SHA256SUMS'}
+        if len(names) != record['catalog_file_count'] or names != actual:
+            raise ValueError('Catalog member set mismatch')
+        publish_tree(stage, root)
+        return len(names)
+
+
 def fetch(record, root):
     path = destination(root, record['path'])
     if path.exists() or path.is_symlink():
         raise ValueError('Refusing to overwrite ' + str(path) + '; verify the existing artifact first')
     url = record.get('download_url')
     if not url or not url.startswith('https://'):
-        raise ValueError('No public HTTPS download registered; preserve the original artifact')
+        raise ValueError('No download needed for Git-backed evidence. Use restore-git --artifact ' + record.get('id', '<id>'))
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as stream:
         temp = Path(stream.name)
@@ -180,7 +232,7 @@ def fetch(record, root):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('command', choices=('list', 'verify', 'fetch', 'restore', 'package'))
+    ap.add_argument('command', choices=('list', 'verify', 'fetch', 'restore', 'package', 'restore-git'))
     ap.add_argument('--artifact')
     ap.add_argument('--root', type=Path, default=ROOT)
     ap.add_argument('--extract-to', type=Path)
@@ -196,6 +248,9 @@ def main():
         ap.error('Select exactly one registered --artifact ID (see list)')
     row = selected[0]
     try:
+        if args.command == 'restore-git':
+            print('Restored original Git payload:', restore_git(row, args.root), 'verified members')
+            return
         if args.command == 'package':
             if args.output is None:
                 ap.error('package requires --output')
@@ -209,7 +264,7 @@ def main():
         if args.extract_to:
             extract(path, args.extract_to)
         print('Verified', row['id'], row['sha256'])
-    except (ValueError, OSError, tarfile.TarError) as exc:
+    except (ValueError, OSError, tarfile.TarError, subprocess.CalledProcessError) as exc:
         ap.exit(1, str(exc)+'\n')
 
 if __name__ == '__main__':

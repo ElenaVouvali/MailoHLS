@@ -124,6 +124,7 @@ def test_sealed_package_determinism_and_restore(tmp_path, monkeypatch):
     commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
     script.write_text('uncommitted local state')
     monkeypatch.chdir(repo)
+    monkeypatch.setattr(artifacts, "ROOT", repo)
     row=dict(id='fixture',source_commit=commit,restore_roots=['inputs'])
     a,b=tmp_path/'a.tar.gz',tmp_path/'b.tar.gz'
     artifacts.package(row,a);artifacts.package(row,b)
@@ -134,6 +135,14 @@ def test_sealed_package_determinism_and_restore(tmp_path, monkeypatch):
     assert (root/'inputs/run.sh').read_text()=='#!/bin/sh\necho original\n'
     assert (root/'inputs/run.sh').stat().st_mode & 0o111
     assert artifacts.restore(a,row,root)==1  # identical files are safe no-ops
+    row['git_roots']=['inputs']
+    row['git_objects']={'inputs':subprocess.check_output(['git','rev-parse',commit+':inputs'],text=True).strip()}
+    with tarfile.open(a) as tar:
+        row['member_manifest_sha256']=hashlib.sha256(tar.extractfile('MAILOHLS_ARTIFACT.json').read()).hexdigest()
+    assert artifacts.restore_git(row,tmp_path/'git-restored')==1
+    bad=dict(row,member_manifest_sha256='0'*64)
+    with pytest.raises(ValueError,match='manifest mismatch'):
+        artifacts.restore_git(bad,tmp_path/'bad-git-restore')
     (root/'inputs/run.sh').write_text('user work')
     with pytest.raises(ValueError,match='Restore conflict'):
         artifacts.restore(a,row,root)
@@ -148,3 +157,25 @@ def test_externalization_manifest_preserves_selected_contracts():
     forbidden=('Data/', 'mailohls_runs/', 'GNN_branch/MLIR_graphs/', 'GNN_branch/targets/', 'Checkpoints/gnn_final_absolute_direct_rank_s123/')
     assert not any(p.startswith(forbidden) or p=='FINAL_ARTIFACTS.json' for p in paths)
     assert all(row['removed_paths']==len(row['externalized_paths']) for row in manifest['artifacts'])
+
+
+def test_git_catalog_recovery_and_checksum_rejection(tmp_path, monkeypatch):
+    repo=tmp_path/'repo';repo.mkdir()
+    subprocess.run(['git','init','-q',str(repo)],check=True)
+    catalog=repo/'graphs/latest';catalog.mkdir(parents=True)
+    payload=b'{"compiler":"evidence"}'
+    (catalog/'graph.json').write_bytes(payload)
+    checks=hashlib.sha256(payload).hexdigest()+'  graph.json\n'
+    (catalog/'SHA256SUMS').write_text(checks)
+    subprocess.run(['git','-C',str(repo),'add','.'],check=True)
+    subprocess.run(['git','-C',str(repo),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture'],check=True)
+    ref=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
+    obj=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD:graphs/latest'],text=True).strip()
+    monkeypatch.setattr(artifacts,'ROOT',repo)
+    row=dict(id='catalog',source_commit=ref,git_roots=['graphs/latest'],git_objects={'graphs/latest':obj},catalog_checksums_sha256=hashlib.sha256(checks.encode()).hexdigest(),catalog_file_count=1)
+    assert artifacts.restore_git(row,tmp_path/'restore')==1
+    assert (tmp_path/'restore/graphs/latest/graph.json').read_bytes()==payload
+    bad=dict(row,catalog_file_count=2)
+    with pytest.raises(ValueError,match='member set'):
+        artifacts.restore_git(bad,tmp_path/'bad')
+    assert not (tmp_path/'bad/graphs').exists()
