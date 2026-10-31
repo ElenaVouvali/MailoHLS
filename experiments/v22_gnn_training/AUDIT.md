@@ -37,6 +37,16 @@ actions and exclusions are in the machine-readable audit:
 
 `/tmp/v22-gnn-resumable-preflight-20261030/data_audit.json`
 
+The derived per-kernel training disposition (all 55 kernels, measured/eligible/
+excluded design-point counts and exclusion reasons) is:
+
+`/tmp/v22-gnn-resumable-preflight-20261030/kernel_disposition.csv`
+
+Its eligible-count column sums to 104,147. Rows from a kernel with an
+unmeasured APL action are excluded in full; otherwise the per-kernel eligible
+count is the audit's validated complete-assignment count. Invalid joint tuples
+are separately recorded as source-aware TCAD exclusions.
+
 The dataset SHA256 is
 `afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`; the
 seed-123 split SHA256 is
@@ -145,7 +155,8 @@ Using the isolated Python 3.10 environment with CUDA PyTorch 2.6.0+cu124, PyG
 
 - `tests/test_v22_gnn_resume.py` and `tests/test_v22_gnn_training_contracts.py`:
   15 passed after the rank-scale and launcher-resume-lock fixes.
-- Earlier full relevant suite: 112 passed after correcting the test runtime.
+- Final full relevant suite: **115 passed** in 181.12 s after the ranking,
+  resume-lock, and busy-GPU-output handling changes.
 - A first attempt with the Python 3.8 `.hls-llm` environment produced 21 setup
   errors because existing graph-release code uses `Path.is_relative_to()`;
   this environment mismatch was avoided by using an isolated Python 3.10 venv,

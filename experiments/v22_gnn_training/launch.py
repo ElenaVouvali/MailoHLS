@@ -178,7 +178,6 @@ def main():
     else:
         if output.exists() and any(output.iterdir()):
             raise FileExistsError('Refusing to overwrite nonempty run directory: '+str(output))
-        output.mkdir(parents=True,exist_ok=True)
     gpus=gpu_inventory()
     matching=[gpu for gpu in gpus if args.gpu_name.casefold() in gpu['name'].casefold()]
     if len(matching)!=1:
@@ -191,6 +190,8 @@ def main():
         raise RuntimeError(f'Refusing GPU with only {gpu["free_mib"]} MiB free; minimum is {args.minimum_free_mib} MiB')
     if not processes and gpu['utilization_percent']>15 and not args.allow_shared_gpu:
         raise RuntimeError(f'Refusing apparently busy GPU at {gpu["utilization_percent"]}% utilization')
+    if not args.resume:
+        output.mkdir(parents=True,exist_ok=True)
     lock_path=_reserve_lock(output)
     env=os.environ.copy()
     env.update({'CUDA_VISIBLE_DEVICES':gpu['uuid'],'PYTHONPATH':str(ROOT),

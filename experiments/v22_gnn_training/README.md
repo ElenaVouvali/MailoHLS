@@ -193,9 +193,10 @@ integration is included here.
 The previous V100S attempt produced no model checkpoints; it remains preserved
 and is not resumed because it used the pre-resumability protocol. The current
 branch has passed data authentication, focused regression tests and A2 memory
-and measured-update preflight. Whether the fresh paired training has launched
-or completed is tracked in [`RESULTS.md`](RESULTS.md), which is updated only
-from run status and measured output.
+and measured-update preflight. Training is currently blocked because an
+unrelated VLLM process occupies both the A2 and V100S; the safe launcher
+refused to share either. See [`RESULTS.md`](RESULTS.md) for the verified PIDs
+and exact current status.
 
 Even after that run, Kalman is one test family; U50 and 6.67 ns remain outside
 the training contexts and are needed for claims about target generalization.

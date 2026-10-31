@@ -9,6 +9,7 @@ import numpy as np
 import torch
 
 from experiments.v22_gnn_training import checkpointing
+from experiments.v22_gnn_training import launch
 from experiments.v22_gnn_training import train
 
 
@@ -114,6 +115,27 @@ class CheckpointingTest(unittest.TestCase):
         self.assertEqual(4,len(calls))
         self.assertEqual([1.,2.,3.,4.],[float(value[0,0]) for value in features])
         self.assertTrue(torch.equal(features[0],repeated))
+
+    def test_busy_gpu_refusal_does_not_create_an_empty_run_directory(self):
+        import json
+        import sys
+        with TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            release=root/'release'; release.mkdir()
+            (release/'release.json').write_text(json.dumps({'schema':'fixture'}))
+            output=root/'run'
+            gpu={'index':0,'uuid':'GPU-fixture','name':'NVIDIA A2','total_mib':15000,
+                 'used_mib':10000,'free_mib':5000,'utilization_percent':90}
+            args=['launch.py','--gpu-name','A2','--release-dir',str(release),
+                  '--output',str(output)]
+            with mock.patch.object(sys,'argv',args), \
+                 mock.patch.object(launch.subprocess,'check_output',return_value=''), \
+                 mock.patch.object(launch,'gpu_inventory',return_value=[gpu]), \
+                 mock.patch.object(launch,'compute_processes',return_value=[
+                     {'uuid':'GPU-fixture','pid':42,'name':'other-job','used_mib':'10000'}]):
+                with self.assertRaisesRegex(RuntimeError,'Refusing to share'):
+                    launch.main()
+            self.assertFalse(output.exists())
 
 
 if __name__=='__main__':
