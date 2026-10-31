@@ -277,6 +277,22 @@ divided by 100. Label mean/std are fitted on training rows only; std has a
 `1e-4` numerical floor. Fractions retain each device's physical denominator;
 they are not raw resource counts. Zero percentages are not replaced by 1%.
 
+### Subsequent action-demand interface (not part of this pilot)
+
+The later compiler-grounded feature work introduces tensor schema
+`salt-hls-target-tensors-v2-action-demand-experimental`, with a fixed static
+per-action workload vector and knownness masks projected into the action node.
+It also exposes `candidate_demand_tensor(target_overlay, complete_assignments, actions)`
+and an optional separate candidate-demand input to the experimental head.
+Candidate features are not added to pragma-free structural memory. This changed
+experimental head has schema
+`salt-hls-target-candidate-head-v2-demand-input-experimental`; old head weights
+are not dimension-compatible. The measurements, model results, and
+`salt-hls-target-tensors-v1-experimental` provenance reported above remain
+unchanged and describe only the earlier pilot. The action-demand work did not
+retrain or rescore either pilot model and has not demonstrated improved QoR
+prediction or target generalization.
+
 ### Tiny same-context fit: eight stencil configurations
 
 Both models pass the predeclared gate: final/initial MSE below 0.25, within-context
@@ -460,3 +476,42 @@ regression receipts are authenticated inherited evidence, not newly run tests.
 - [Alon and Yahav](https://arxiv.org/abs/2006.05205) explain long-range message
   bottlenecks. Passing a short hardware-path test does not establish that two
   layers capture every relevant program dependency.
+
+## Follow-on semantic tensor schema
+
+The committed pilot and its results use the recorded
+`salt-hls-target-tensors-v2-action-demand-experimental` schema. They remain
+unchanged and are not results for the later semantic encoder. The current
+`GNN_branch/target_graph_tensor_v22.py` emits
+`salt-hls-target-tensors-v3-semantic-experimental`: it preserves the same
+two-layer `TransformerConv`, hidden/output widths, typed relations, target
+context, static action-demand vectors and absolute action slots, while adding
+compiler-derived semantic channels to edge messages and a static
+action-neighborhood summary. V3 edge-input dimensions and learned feature
+projections differ, so V2 pilot model states are not compatible and must not be
+loaded as if they had received these features.
+
+Candidate-dependent workload/banking features remain a separate optional input
+to `CandidatePredictor`; neither V3 static semantic vectors nor the 128D action
+memory include proposed directive assignments. The V3 implementation has been
+checked for deterministic tensorization, authenticated representative RC3
+graphs, canonical/compact equality, action masks and gradient flow. This
+validates information preservation and model connectivity only. No new
+training run or QoR experiment was performed, and the pilot's CONDITIONAL GO
+result is unchanged.
+
+The subsequent supervised-training protocol is documented in
+[`experiments/v22_gnn_training/README.md`](../v22_gnn_training/README.md). It
+uses the same V3 encoder but supplies candidate-demand features to the
+candidate-conditioned head and evaluates the original seed-123 family split.
+Its measurements, if/when run, are separate from this pilot; no new model
+results or changed conclusions are implied by that follow-on package.
+
+The later semantic-coverage repair introduces tensor schema
+`salt-hls-target-tensors-v4-semantic-wide-affine-experimental`, which removes
+the former fixed affine-input cap without changing feature dimensions. This
+does not change the tensors, checkpoints, measurements, or conclusions recorded
+in this pilot; the pilot remains tied to its original V2/V3 schema provenance.
+See [`docs/target-aware-mlir-v22/semantic-coverage-repair.md`](../../docs/target-aware-mlir-v22/semantic-coverage-repair.md)
+for the authenticated corpus audit and remaining quasi-affine/dependence
+limitations.

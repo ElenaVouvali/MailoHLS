@@ -57,7 +57,7 @@ class ReadinessTests(unittest.TestCase):
         for data in self.data:
             self.assertTrue(enc.validate_tensors(data))
             self.assertEqual(data.x.shape[1],36)
-            self.assertEqual(data.edge_attr.shape[1],24)
+            self.assertEqual(data.edge_attr.shape[1],enc.EDGE_DIM)
             present.update(data.node_type.tolist())
         self.assertEqual(present,set(range(8)))
 
