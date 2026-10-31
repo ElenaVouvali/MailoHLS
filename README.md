@@ -5,6 +5,9 @@ optimization objectives, target FPGA, clock period, and available resources.
 The current implementation uses MLIR semantic graphs and GNN structural memory
 to condition an LLM. The paper also refers to this system as SALT-HLS.
 
+For the current implementation boundary, active research branches, and training
+status, see the [framework development status](docs/framework-development-status.md).
+
 ## Latest structural representation: V2.2
 
 **Available on `main`: V2.2 RC3, technically frozen; independent adjudication
