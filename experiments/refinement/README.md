@@ -159,3 +159,13 @@ python -B -m pytest -q -p no:cacheprovider \
 
 Tests use synthetic vendor reports and a test-only executable; they need neither
 Vitis nor a GPU. Ordinary prepare/audit/test commands never launch synthesis.
+
+## Independent refinement research branch
+
+Develop feedback/search changes on `research/refinement-mechanism`. Stable
+`experiments/refinement`, `refinement_search` and `v21_refinement` remain on main.
+Reuse their shared configuration, materialization, cache and report utilities;
+use modules/configurations for policy variants rather than new remote branches.
+Stage-1/GNN proposals may become optional inputs, but no new algorithm or
+synthesis run is introduced by this branch setup. Preserve objective/feasibility
+definitions and measured-report identities when comparing policies.
