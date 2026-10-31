@@ -1,196 +1,166 @@
-# Final artifact consolidation and compatibility report
+# MailoHLS six-branch finalization
 
-Current branch: `maintenance/mailohls-final-consolidation`, isolated at
-`/tmp/MailoHLS-final-consolidation`, based on PR #2 commit
-`4d707ca8079a79e4bbd22dff0b6849d7f7332cd3`. PR #2 and its branch are unchanged.
-The earlier maintenance receipt is linked below; its statements about blocked
-Release publication and only 31 KB savings describe the previous phase.
+**SIX_BRANCH_CONSOLIDATION_COMPLETE**
 
-## Substantive artifact migration
+## Final GitHub state
 
-The complete chain was executed: tracked Git blobs → deterministic archive →
-SHA256 seal → GitHub Release → independent public HTTPS download → checksum
-verification → original-path restoration → graph/table reader validation →
-removal of only the authenticated indexed copies.
+Default branch: `main`. Exactly six remote branches, zero open PRs and zero
+Releases were verified after cutover. PR #3 merged through GitHub's normal
+workflow; PR #2 was automatically marked merged because its commits were included.
+No new PR, Release or tag was created for this finalization.
 
-| Group | Indexed files externalized | Indexed bytes externalized | Preserved in source |
-|---|---:|---:|---|
-| Historical checkpoint evidence | 524 | 106,944,229 | Selected `gnn_final_absolute_direct_rank_s123` source/configuration/schema/split/metrics; `FINAL_ARTIFACTS.json` unchanged. |
-| Generated HARP graphs | 436 | 100,961,929 | Baseline source, local modifications, license and generation scripts. |
-| Materialized synthesis evidence | 391 | 32,860,763 | Python/shell tools, guides, canonical benchmark sources and manifests. |
-| Derived training CSVs | 109 | 63,705,355 | Raw measurements, source/APL mapping, JSON schemas/manifests and family splits. |
-| Total | **1,460** | **304,472,276** | Every removed byte is available through the authenticated restore contract. |
+| Branch | Verified code/consolidation head | Role |
+|---|---|---|
+| `main` | `304d4c909206979aef3fd7f66770c46b71444cc7` | Finalized framework; final report commit follows the validated framework merge shown here |
+| `mlir-target` | `bf82c648273a5cd5eb30363059a3809e7b3979db` | Immutable historical MLIR baseline |
+| `llvm-ir` | `0b5581b2b22becf1d20f476e22e92ea3fd533a64` | Immutable historical LLVM baseline |
+| `research/stage1-refinement` | `6d64b47eceb031e081f9f38533dfa3cab5c4d3e3` | Stage-1 recovery, supervision and measured-quality work |
+| `research/gnn-refinement` | `f9baf69cfd6c98f455b79e4cfa61bb3e278dba46` | Versioned graph/tensor and resumable GNN research |
+| `research/refinement-mechanism` | `285c78bd369aacc15107a59ae92cd58d8096c5d8` | Independent refinement/search development over stable main |
 
-This reduces the latest tracked tree; it does not shrink Git history or reclaim
-space occupied by retained local copies. Removal used an exact, reviewed path
-list with `git rm --cached` in the isolated worktree. The original dirty checkout
-and all local experiment outputs remain untouched. Source-copies retained in this
-worktree are ignored runtime artifacts, not evidence that a clean clone works;
-a separate clean-export restoration check is required and reported below.
+`304d4c9` is the exact validated framework merge. The final main HEAD also
+includes this documentation/disposition commit; obtain its exact SHA with
+`git log -1 --format=%H -- docs/REPOSITORY_CONSOLIDATION_REPORT.md` or the main
+commit view. Final live refs are also recorded outside Git in the backup's
+`final-remote-heads.json`. No runtime behavior changes in the report commit.
 
-Published Releases:
+## Production and research boundaries
 
-- [Complete catalog](https://github.com/ElenaVouvali/MailoHLS/releases/tag/archive/v22-graph-catalog-20261029), source `42f52df`: the pre-existing 218 MB archive has SHA256 `bba4b870b568da18265567797eb9610762d357825f1aa6507d85b4b3f4cb36cd`; all **2,218** checksums passed after independent download and extraction. All 63 snapshots and 1,512 overlays are preserved. The catalog branch was not deleted.
-- [Research evidence v1](https://github.com/ElenaVouvali/MailoHLS/releases/tag/artifacts/research-evidence-v1-20261031), source `4d707ca`: four sealed trees, public `SHA256SUMS` and `ARTIFACTS.json`. Packages contain only already-public tracked blobs; no ignored/private model weights were read. HARP's existing BSD license is included. No new benchmark license is granted.
+Main integrates the reviewed maintenance tree, tokenizer-ID correctness fix,
+stable graph/refinement interfaces, deduplication and verified artifact recovery.
+`FINAL_ARTIFACTS.json`, selected adapters, V1 GNN/memory contracts, raw Data,
+source/APL mappings, family splits, frozen RC3 identities, FPGA capacities and
+objective definitions are unchanged. V2.2 remains experimental; no checkpoint is
+promoted and no QoR/generalization improvement is claimed.
 
-[Artifact migration manifest](../configs/artifact-migration.json) records every
-externalized path, group, source commit, archive identity, policy and retained
-contracts. [Artifact registry](../configs/artifacts.json) records actual published
-URLs, SHA256, size, schemas, dependencies and original restoration roots. Raw Git
-URLs for frozen compiler archives are explicitly not treated as independent
-archival replacements.
+Stage-1 consolidates original heads `72b42ae`, `f577a1a` and `0b592a9`: the
+decision-loss module, full-data controls, recovery, measured-quality evaluation,
+configuration/results and regression tests. Canonical Kalman data remains main's
+version. Earlier changes are an explicit patch plus input/variant SHA256 manifest
+under `experiments/stage1_recovery/dataset_variants/kalman-registration-v1`; they
+are not silently applied or relabeled as verified measurements. Historical
+incomplete runs remain incomplete and no new training was launched.
 
-## Compatibility review and implemented repairs
+GNN consolidates overlay/readiness, action demand, semantic tensorization,
+coverage repair, resumable training, Hotspot and complete catalog histories.
+The current encoder has explicit V4 schema identity while retaining the two-layer
+architecture, 128D action slots and static/candidate separation. Original V3
+preflight/pilot reports remain historical; incompatible resume is rejected. No
+V4 GPU training or target-generalization result is claimed. Frozen compiler
+semantics are unchanged; quasi-affine/dependence uncertainty remains explicit.
 
-- PR #2's special-token correction checks token-to-ID identity, rejecting a
-  permutation even when vocabulary size and ID set match. Training records an
-  explicit mapping. Legacy reconstruction follows the recorded token order;
-  checkpoint weights, tokenizer identities and directive domains are unchanged.
-- Its Stage-1 launcher adds environment overrides with the same original learning
-  rate defaults (`1.5e-5`, `5e-6`). No training settings changed in this mission.
-- Its graph overlay/readiness code remains experimental and does not claim V1
-  checkpoint interchangeability or improved target generalization. No graph,
-  target capacity, model architecture or learning objective changed here.
-- The existing four `exec` compatibility delegates were retained. Eight further
-  byte-identical implementations now use the same namespace-preserving pattern:
-  `cpp_to_gexf_deterministic`, `filter_pt`, `gexf_to_pt_zero`, `parameter`,
-  `pragma_free_pts`, `pt_to_gnn_emb`, `result`, `server`. Canonical implementations
-  stay unchanged. Their original bodies remain at the immutable source commit.
-  [Every src file is classified](legacy-entrypoints.json); nonidentical code is
-  retained, not declared obsolete from an import search. There are twelve delegates;
-  all other source files retain distinct historical behavior.
-- Namespace/CLI/pickle fixtures cover all twelve delegates. Actual legacy
-  `result.Result` and `parameter.DesignParameter` pickle round trips also passed.
-- PR #2 extraction's check-then-rename could replace a concurrently created empty
-  destination. Extraction now reserves the destination exclusively and publishes
-  regular files with non-overwriting links. It preserves Git executable bits.
-- The same artifact module now packages committed blobs atomically and restores
-  into existing roots. It verifies archive/member/schema/source identity, rejects
-  symlink traversal (including internal links), refuses conflicting content or
-  executable modes, and leaves identical files alone. A multi-file restore is
-  resumable/idempotent but not a filesystem transaction; concurrent conflicts may
-  leave a subset of verified files. It never silently overwrites user work.
+Refinement keeps stable `refinement`, `refinement_search` and `v21_refinement`
+functionality on main and starts independent development with a focused README
+scope. No algorithm or duplicate HLS utility was added just to distinguish it.
 
-## Validation and reproduction
+Each research branch starts from finalized main `304d4c9`. Code was selected by
+file/content review; provenance-only merges then retained original heads as
+parents without changing the selected tree (tree identity was asserted). This
+preserves earlier algorithms, configurations, graph catalogs and evidence in
+public reachable history. [The disposition manifest](../configs/branch-preservation.json)
+records every original branch/head and its destination. Seventeen redundant
+remote refs were retired only after exact-head, ancestry, backup and PR checks.
+Local branches/worktrees were not deleted or switched.
 
-Initial targeted PR review baseline: **30 passed in 5.43 s**. Initial new artifact
-and delegate tests: **22 passed in 1.75 s**. Actual restored consumer report:
-1,514 verified paths across four packages, 186 graphs (95,045 nodes / 278,887
-edges), 179 CSV files (689,286 data rows), and 431 JSON files. These use the same
-NetworkX/CSV/JSON readers as the existing consumers; this is not checkpoint
-inference, new synthesis or a QoR claim. The selected `.pth` was not part of the
-tracked source and remains separately supplied.
+## Protected history and active local work
 
-```bash
-python scripts/artifacts.py fetch --artifact checkpoint-evidence-v1
-python scripts/artifacts.py restore --artifact checkpoint-evidence-v1
-# Repeat for harp-generated-graphs-v1, synthesis-evidence-v1,
-# derived-training-tables-v1 when required by the selected experiment.
-python -m scripts.maintenance.validate_restored_research --root . --report /tmp/restored-consumers.json
-CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest -q -rs tests LLM_branch/tests
-```
+| Branch | Before | After |
+|---|---|---|
+| `mlir-target` | `bf82c648273a5cd5eb30363059a3809e7b3979db` | identical |
+| `llvm-ir` | `0b5581b2b22becf1d20f476e22e92ea3fd533a64` | identical |
 
-The full CPU and clean-source results, final metrics and publication status are
-recorded below. No GPU training, HLS synthesis, production memory
-migration or Stage-2 integration is performed.
+The original `/home/elvouvali/MailoHLS` stays on local `72b42ae`, with its 464
+staged paths intact. Staged/unstaged patches and porcelain status were compared
+byte-for-byte after work; no output directory, model weight or process was
+modified. Process visibility was limited to the execution namespace; no claim
+that external jobs were idle was made. Existing old worktrees may finish running
+locally. When idle, preserve additional changes and transfer them deliberately
+into fresh canonical research worktrees; do not push/recreate retired names.
 
-## Remaining independent candidates and blockers
+## Artifact recovery without Releases
 
-- `Data/CSVS/`: protected raw scientific input. No independently reviewed dataset
-  redistribution/version license was established; no CSV, label or split is removed.
-- Frozen `GNN_branch/MLIR_graphs/`: retained as required historical compiler releases.
-  Catalog publication does not authorize changing their provenance or semantics.
-- Selected checkpoint source/metadata remains tracked; weights remain local and
-  were not part of any package. Shared initial states and automatic-clock assets
-  remain protected. No experimental adapter is promoted.
-- Unique `src/` behavior remains available. No new context-sensitive compiler/GNN
-  implementation or generic workflow abstraction is introduced. Existing
-  `refinement_search` already shares configuration, materialization, report parsing
-  and synthesis helpers with `refinement`; no unnecessary utility layer was added.
-- Later Stage-1/V3 GNN research branches retain their own contracts and outputs.
-  No branch retirement or PR #2 merge is performed. Protected historical refs stay
-  exactly at their original SHA. Branch dispositions in the earlier receipt remain
-  review recommendations, not deletion authorization.
+Both former Releases were retired only after all seven assets (five archives,
+checksums and registry metadata) were preserved durably and their authoritative
+SHA256 verified against the published digests. Git-only recovery then passed in
+a separate clone: **1,514 original evidence paths**, 186 GEXF graphs, 179 CSVs
+(689,286 rows), 431 JSON files, and **2,218 catalog checksums**. The ordinary
+catalog unpack plus compiler/overlay consumer also passed.
 
-## Earlier audit and branch records
+Normal reproduction uses `scripts/artifacts.py restore-git`: source Git object
+IDs, original sealed member SHA256 identities, sizes and executable modes are
+checked; existing conflicts and unsafe links are refused. Original compressed
+archives remain offline for exact container-byte verification. The catalog
+generator is retained, but runtime/provenance receipts need not be byte-identical
+when rebuilt; exact published payload recovery uses its original Git tree.
+Raw measurements and frozen compiler archives remain tracked. Local weights and
+HLS tools are still separately supplied, exactly as before. See
+[reproducibility](reproducibility.md) for actual commands and limitations.
 
-The [unaltered PR #2 report](https://github.com/ElenaVouvali/MailoHLS/blob/4d707ca8079a79e4bbd22dff0b6849d7f7332cd3/docs/REPOSITORY_CONSOLIDATION_REPORT.md)
-contains the original full branch matrix, checkpoint/hash audit and previous
-measurements. All existing branch heads remain unchanged in this mission;
-only this new maintenance branch and the evidence preservation tag are added.
-Catalog preservation status is updated above: the Release is verified and the
-branch still remains for review. Local original status/index identity was checked
-again against `/tmp/mailohls-final-original-status.txt` and
-`/tmp/mailohls-final-original-index.patch` and passed byte-for-byte.
+## Simplification measurements
 
-## Final mission validation and current integration status
-
-- Full CPU suite: **480 passed, 21 skipped, 0 failed in 402.51 s**. One additional
-  migration-policy guard added after collection is covered by the final focused
-  suite: **23 passed**, including all twelve delegates, pickle/CLI behavior,
-  deterministic packaging, traversal/links, concurrent destination creation,
-  executable bits, idempotency and conflicting-file protection.
-- The repaired packager regenerated the real HARP archive with the **same SHA256**
-  as the published asset, confirming deterministic packaging of committed blobs.
-- Clean export `9396168` actually omits the 1,460 externalized paths. From that
-  export, four public HTTPS downloads and restores passed again; the complete
-  graph/table consumer report is identical to the first independent restoration.
-  See [machine-readable evidence](artifact-migration-validation.json).
-- Protected sources/contracts have zero diff from PR #2: `FINAL_ARTIFACTS.json`,
-  raw Data, family splits, selected checkpoint source/metadata, profiles, frozen
-  compiler archives, training/inference implementations and model architecture.
-  New code is artifact plumbing and compatibility delegates only.
-- Maintained launcher syntax, changed Python compilation and maintained relative
-  documentation links pass. No dependency installation/upgrade was performed.
-- New preservation tag `artifacts/research-evidence-v1-20261031` points to original
-  source `4d707ca`; the existing catalog tag was used without rewriting it. The
-  complete catalog's archival gate now passes, but its branch remains untouched
-  pending separate retirement review. All other branch dispositions retain their
-  previous dependencies; no research branch was integrated or deleted here.
-- PR #2 remains an open draft at its original head. This new maintenance branch
-  carries the final migration; its draft PR and final clean-checkout smoke receipt
-  are recorded below. Nothing is merged into main.
-
-The final size comparison uses the committed source tree, excluding restored
-ignored caches. Extra manifest/receipt bytes are included. Publication of assets
-is not a claim that Git history has shrunk or that scientific results improved.
-
-## Final result
-
-**SIMPLIFICATION_IMPLEMENTED_AND_VALIDATED** for the source/artifact boundary and
-compatibility changes in this mission. Full paired GNN learning, checkpoint
-inference and FPGA synthesis remain separate research work, not maintenance
-validation results.
-
-Clean-source smoke: **108 passed in 39.86 s**, after fresh public downloads and
-restoration from the clean export. Frozen RC3 verification passed there as well.
-No invisible model/tensor cache or original checkout source files were required;
-the already-installed Python dependencies were reused.
-
-The new draft PR is [#3](https://github.com/ElenaVouvali/MailoHLS/pull/3); PR #2 is not modified or merged. The source
-implementation commits are `42859ad` and `9396168`; the final report commit is
-the published branch/PR head. No branch is retired and no history is rewritten.
-
-| Metric | PR #2 baseline | Final source tree |
+| Metric | Initial live main / GitHub | Final |
 |---|---:|---:|
-| Tracked files | 3,733 | 2,277 |
-| Tracked bytes | 566,683,112 | 262,321,258 |
-| Python files (including historical snapshots) | 458 | 304 |
-| Exact duplicate groups | 468 | 311 |
-| Repeated file paths | 1,136 | 584 |
+| Remote branches | 20 | 6 |
+| Open PRs | 2 | 0 |
+| Releases | 2 | 0 |
+| Tracked files | 3,696 | 2,278 |
+| Tracked bytes | 565,985,079 | 262,318,268 |
+| Exact duplicate src implementation bodies | 12 | 0 |
+| Duplicate blob groups | 472 | 311 |
+| Repeated paths | 1,140 | 584 |
+| Top-level directories | 31 | 32 |
 
-Python-file reductions primarily move historical snapshots into the sealed
-release; they are not claims that unique algorithms were eliminated. Eight exact
-active copies were separately consolidated through compatibility delegates.
+The five primary entry points are README, architecture, reproduction, experiments
+and development. Specialized schema/evidence guides remain; the earlier
+maintenance audit is now a short pointer to its immutable original snapshot.
+Twelve legacy delegates identify one canonical implementation per exact copy.
+Unique historical implementations remain recoverable. Earlier verified artifact
+migration removed 304,472,276 indexed bytes; this is not a Git-history shrink or
+a claim of deleting unique research capabilities.
 
-Restore instructions are in [reproducibility](reproducibility.md); source and
-artifact ownership rules are in [development](development.md). Remaining work is
-review/merge of the prepared changes, followed by separately reviewed integration
-of active research branches. Raw data externalization and branch retirement are
-not prerequisites to using the new artifact interface.
+## Executed validation
 
-The independently downloaded catalog also passed the existing catalog `unpack`
-consumer and current compiler/target-overlay readers for the Rodinia dilate
-snapshot at ZCU104/10ns/full, with exact program restoration. No corpus was
-regenerated. The process namespace exposed only this tool session; no claim of
-live research-job inactivity was made, and no process was signaled.
+| Scope | Passed | Skipped | Failed |
+|---|---:|---:|---:|
+| Main full CPU suite | 482 | 21 | 0 |
+| Stage-1 branch LLM/contract suite | 151 | 1 | 0 |
+| GNN branch overlay/tensor/demand/resume suite | 116 | 0 | 0 |
+| Refinement branch suites | 105 | 5 | 0 |
+
+Skipped checks require unavailable historical/external fixtures or CUDA. CPU
+tests use the existing compatible Python/PyTorch/PyG environment and explicitly
+hide CUDA. No dependency upgrades, model training or HLS synthesis were performed.
+Main syntax and relevant relative documentation links were checked. All research
+branches retain canonical Data, selected contracts, graph releases and profiles.
+No unfinished Stage-1/GNN changes were merged into production.
+
+## Backup and recovery
+
+Durable location: `/home/elvouvali/MailoHLS-preservation/six-branches-20261031/`.
+Bundle: `all-refs.bundle` (3.1 GB), SHA256:
+`d889fa76567572c5fe238e4f8bc914063693fbbdbb2d88f28bd9258049fb841f`.
+
+`git bundle verify` passed; a separate mirror clone recovered every original
+remote head exactly. Another clone recovered all scientific payloads without
+Releases or invisible runtime caches. Original staged patch application passed
+`git apply --check` in a separate original-HEAD worktree. `SHA256.json`,
+`worktree-SHA256.json`, `remote-heads.txt`, `tags.txt`, `prs.json`,
+`retirement-plan.json`, `RECOVERY.txt`, per-worktree patches/untracked source,
+original archives and Release metadata are preserved there. Ignored live model
+weights are not in a Git bundle; they remain untouched at their original paths.
+
+To recover, verify the bundle checksum, clone it into a **fresh** mirror directory
+with `git clone --mirror /path/all-refs.bundle /fresh/recovery.git`, and inspect
+its original refs. For uncommitted work, use the recorded original HEAD, apply
+`staged.patch` with `git apply --index`, then a nonempty `unstaged.patch`, then
+restore the saved untracked files. Do this in a new recovery worktree, never over
+the original dirty checkout. `RECOVERY.txt` records the paths and distinctions.
+
+## Final state
+
+**SIX_BRANCH_CONSOLIDATION_COMPLETE**. Main is authoritative, the two historical
+heads are unchanged, three independent research branches are published, and no
+redundant remote branch, open PR or Release remains. There is no GitHub permission
+blocker. Continuing experiments and integration of mature improvements use the
+simple workflow in [development](development.md), without automatic merges of
+unfinished research or a new branch/Release for each experiment.

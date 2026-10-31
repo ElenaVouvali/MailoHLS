@@ -7,14 +7,15 @@ historical snapshot also contains experimental MLIR builders, but its active
 GNN entry point imports the original `data` backend. No historical source has
 been removed merely because it uses a different IR.
 
-The intended permanent baselines are: `llvm-ir` for the original implementation,
-`mlir-target` for the preserved organized MLIR + target-conditioning baseline,
-and `main` for further framework extensions. After the shared file, launcher,
-and artifact cleanup, `main` and `mlir-target` were synchronized to the same
-commit. Develop future extensions on `main` and keep `mlir-target` at that
-baseline. The initial pre-cleanup snapshot (`26db8ec`) remains in Git history.
-Use an isolated worktree when other research sessions have local changes. The reorganization does not rewrite
-history or immediately shrink GitHub's historical repository storage.
+The repository has six remote branches: finalized `main`, immutable `mlir-target`
+and `llvm-ir`, and the Stage-1, GNN and refinement-mechanism research branches.
+See [development](development.md) for the short shared-history workflow. Existing
+local worktrees are preserved and may still use retired local branch names; move
+new development to the canonical branches only when those worktrees are idle.
+
+The local-runtime preservation notes below describe earlier storage decisions.
+Ignored model files and old `.local-archive` directories are not supplied by a
+fresh clone. No model weights or active outputs were moved in this finalization.
 
 ## What belongs in Git
 
