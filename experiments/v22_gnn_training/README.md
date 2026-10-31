@@ -1,24 +1,17 @@
 # V2.2 target-aware GNN training
 
-**Status: interrupted before either model arm completed; no QoR or ranking
-conclusion.** A paired run was launched on liono's Tesla V100S because the
-NVIDIA A2 was occupied by a VLLM process. CUDA ordinal mapping is reversed
-relative to `nvidia-smi`'s physical indices on this host:
-`CUDA_VISIBLE_DEVICES=1` exposes the A2 as visible `cuda:0`, while
-`CUDA_VISIBLE_DEVICES=0` exposes the V100S. Neither other process was stopped
-or altered. The GNN process is no longer present, and its termination cause was
-not captured. Its output directory contains the authenticated data audit and
-initial protocol only; no model checkpoints or validation/test results were
-written.
+**Experiment state:** the previous V100S attempt remains an incomplete
+historical run with no trained checkpoints or QoR conclusion. Its output is
+preserved at `/tmp/v22-target-aware-gnn-s123-v100-20261029`. This task repairs
+resume safety, verifies the complete data contract, and runs the A2 preflight
+before starting a fresh detached comparison. Current outcomes are recorded in
+[`RESULTS.md`](RESULTS.md); the audit and exact configuration are in
+[`AUDIT.md`](AUDIT.md) and [`RUN_PROTOCOL.md`](RUN_PROTOCOL.md).
 
-The V100 preflight passed on authenticated Stencil2D, GEMM and AES graphs and
-completed one measured-candidate optimizer update for each model arm. There
-were no OOMs; AES used 60,297,588 CPU tensor bytes and peaked at 656,113,664
-CUDA allocated bytes (about 626 MiB). The measured update was finite for both
-arms. The training output is at
-`/tmp/v22-target-aware-gnn-s123-v100-20261029`; at the latest report, only the
-authenticated data audit and initial protocol had been written, so no model
-arm had completed or produced evaluation metrics.
+The active Stage-1 diagnostics and prior run are not overwritten. The A2 is
+selected by its GPU UUID because CUDA ordinal mappings can differ from
+`nvidia-smi` indices. The detached launcher checks model identity, free memory,
+utilization and existing compute processes and refuses to share a busy device.
 
 ## What the experiment is meant to test
 
@@ -72,13 +65,15 @@ The objective is:
 
 The pairwise logistic term is formed only among candidates from one
 kernel/device/clock group and only when measured scores differ by more than 5%
-relative. It is minimized for the repository objectives `PARETO_LATENCY`,
-`PARETO_AREA`, and `PARETO_ADP`. Area is the existing arithmetic mean of the
-four physical utilization fractions; ADP ordering within a fixed clock is
-equivalent to latency times that area proxy. Feasibility comes only from
-measured resource counts against an explicit budget. The implemented budget
-contexts are 100% and 50% of physical capacities; QoR labels are repeated
-unchanged across them.
+relative. Its predicted monotonic `log1p` score is divided by a robust
+within-training-context score spread, fitted on training records only. This
+fixes the mismatch between physical units and a shared pairwise-loss
+coefficient without changing ranking direction or using validation/test data.
+The coefficient remains 0.1. Area is the existing arithmetic mean of the four
+physical utilization fractions; ADP ordering within a fixed clock uses latency
+times that area proxy. Feasibility comes only from measured resource counts
+against an explicit budget. Budget contexts are 100% and 50% of physical
+capacities; QoR labels remain unchanged across them.
 
 ## Authenticated data audit
 
@@ -115,16 +110,14 @@ their compiler-derived action embeddings remain masked. The eligible split is
 kernels respectively. The test remains Kalman alone, so this is a narrow
 held-out-family evaluation even after it becomes runnable.
 
-The full machine-readable report is [data-audit.json](data-audit.json). Its
+The machine-readable fresh audit is in the preflight output directory linked
+from [`AUDIT.md`](AUDIT.md). Its
 graph archive SHA256 is
 `feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`; the
 reconstructed selected dataset SHA256 is
 `afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`.
-The audit was executed on base commit
-`21ed70492e74e167354c1cb21d5a499e2f434014`; its code hashes are embedded in
-the report. A real training protocol additionally records the then-current
-commit, dirty-tree state and source hashes for the encoder, demand analysis,
-overlay and training entry point.
+The audit verifies source/metadata/APL/CSV/graph correspondence. The training
+protocol rechecks it and binds the resulting identities to the experiment.
 
 ## Candidate and target inputs
 
@@ -168,102 +161,21 @@ metrics are not results for this training implementation.
 
 ## Reproduction
 
-Requirements are the repository-compatible Python/PyTorch/PyG environment,
-CUDA driver/runtime, and authenticated V2.2 RC3 release. On the current liono
-host, select the A2 with `CUDA_VISIBLE_DEVICES=1` or the V100S with
-`CUDA_VISIBLE_DEVICES=0`; verify the visible device name before running. The
-V100S was used for the current experiment only after the user requested it.
+The complete versioned protocol, isolated runtime, authenticated graph release,
+safe detached launch, monitoring and exact resume commands are in
+[`RUN_PROTOCOL.md`](RUN_PROTOCOL.md). The verified runtime is an isolated
+Python 3.10.20 environment using existing CUDA PyTorch 2.6.0+cu124, PyG 2.6.1
+and SciPy 1.15.3. The launcher selects and pins a GPU by UUID, not by assumed
+CUDA ordinal, and refuses a busy GPU. It requires a clean source branch and a
+new output directory.
 
-```bash
-CUDA_VISIBLE_DEVICES=1 nvidia-smi
-CUDA_VISIBLE_DEVICES=1 python - <<'PY'
-import torch
-import torch_geometric
-assert torch.cuda.is_available()
-assert torch.cuda.device_count() == 1
-assert 'A2' in torch.cuda.get_device_name(0)
-x = torch.ones(1024, device='cuda:0')
-torch.cuda.synchronize()
-print({'torch': torch.__version__, 'pyg': torch_geometric.__version__,
-       'cuda_runtime': torch.version.cuda,
-       'device': torch.cuda.get_device_name(0), 'gpu_sum': x.sum().item()})
-PY
-```
-
-If PyTorch/PyG is missing or incompatible, create a separate experiment
-environment and match project-supported versions; do not alter the environment
-used by the active Stage-1 job. The trainer records actual versions and refuses
-to train without CUDA or into a nonempty output directory. Candidate count can
-be reduced with the existing `--candidates` option if measured A2 memory
-requires it.
-
-The repository's prior graph-readiness environment used Python 3.10.20,
-PyTorch 2.6.0+cu124, PyG 2.6.1, and SciPy 1.15.3. If liono has that CUDA
-PyTorch environment but lacks the Python-level dependencies, isolate the
-additions without modifying the base environment:
-
-```bash
-BASE=/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python
-test -x "$BASE"
-"$BASE" -m venv --system-site-packages /tmp/mailohls-v22-a2-env
-PY=/tmp/mailohls-v22-a2-env/bin/python
-"$PY" -m pip install torch-geometric==2.6.1 scipy==1.15.3
-```
-
-Do not install or upgrade PyTorch in this fallback environment. First confirm
-that the inherited PyTorch build is CUDA-enabled and passes the A2 check above;
-otherwise stop and choose a separately provisioned compatible CUDA environment.
-
-```bash
-# Extract to a fresh temporary directory. The audit checks the release manifest
-# and each graph member hash before admitting measured rows.
-test ! -e /tmp/salt-v22-training-release
-mkdir /tmp/salt-v22-training-release
-tar -xzf GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz \
-  -C /tmp/salt-v22-training-release
-
-# Recheck the dataset, split, action correspondence, and graph release.
-test ! -e /tmp/v22-gnn-data-audit-a2.json
-PYTHONPATH=. python -m experiments.v22_gnn_training.audit \
-  --release-dir /tmp/salt-v22-training-release \
-  --output /tmp/v22-gnn-data-audit-a2.json
-
-# Profile small, medium, and AES graphs, then take one disposable optimizer
-# update per model arm on real measured training candidates. No checkpoint is
-# written by this preflight.
-test ! -e /tmp/v22-a2-memory-profile.json
-CUDA_VISIBLE_DEVICES=1 PYTHONPATH=. python -m experiments.v22_gnn_training.profile_memory \
-  --release-dir /tmp/salt-v22-training-release \
-  --output /tmp/v22-a2-memory-profile.json
-
-# Train the numerical and hardware-message arms. The output must be fresh.
-CUDA_VISIBLE_DEVICES=1 PYTHONPATH=. python -m experiments.v22_gnn_training.train \
-  --release-dir /tmp/salt-v22-training-release \
-  --output mailohls_runs/v22_target_aware_gnn_s123_a2 \
-  --steps 8000 --candidates 8
-```
-
-For a verified V100S context on this liono host, use `CUDA_VISIBLE_DEVICES=0`
-and add `--expected-gpu V100` to the memory preflight. The current paired run
-was launched with:
-
-```bash
-CUDA_VISIBLE_DEVICES=0 PYTHONPATH=. python -m experiments.v22_gnn_training.train \
-  --release-dir /tmp/salt-v22-training-release \
-  --output /tmp/v22-target-aware-gnn-s123-v100-20261029 \
-  --steps 8000 --candidates 8
-```
-
-The Codex CPU-only run audited the data and exercised one Stencil2D
-candidate-conditioned forward/backward. Its tensor had 81 nodes, 304 positive
-messages and 234,988 bytes; CPU tensorization plus candidate-demand
-construction took 0.24 s. CHStone AES tensorization took 50.7 s and produced
-60,297,588 CPU tensor bytes (4,209 nodes, 107,732 positive messages). These
-are not GPU memory or update-time measurements. The new `profile_memory` entry
-point measures A2 allocation for small/medium/AES graphs and performs one
-disposable labeled optimizer update per arm using real measured candidates.
-It refuses a non-A2 device, records OOM instead of dropping a graph, and
-creates no model checkpoint. No A2 measurements exist yet.
+The A2 profile completed forward/backward/update checks for Stencil2D, GEMM,
+and AES without OOM. AES tensorization is 60,297,588 CPU bytes; full measured
+candidate update peaked at 656,113,664 allocated CUDA bytes (about 626 MiB).
+The real-candidate preflight exercised all three objectives on both arms and
+recorded finite loss, candidate/demand gradients, hardware-relation gradients,
+and ranking-gradient ratios. See [`AUDIT.md`](AUDIT.md) and the raw JSON paths
+there for actual figures.
 
 ## Checkpoint and Stage-2 memory contract
 
@@ -278,15 +190,12 @@ integration is included here.
 
 ## Current outcome and limitations
 
-No baseline or hardware-aware V2.2 GNN checkpoint, selected validation model,
-held-out test metric, or prediction-quality comparison exists yet. The current
-result is therefore **TRAINING BLOCKED**, not a competitive or positive
-scientific result. The A2 GPU and NVIDIA driver are not accessible in this
-runtime, so CUDA forward/backward, GPU memory measurement, and model training
-could not be performed. The exact next step is to run the commands above from
-the liono terminal with the compatible isolated PyTorch/PyG environment,
-inspect peak memory on AES, and then complete both arms' validation-selected
-training and final Kalman-family test evaluation.
+The previous V100S attempt produced no model checkpoints; it remains preserved
+and is not resumed because it used the pre-resumability protocol. The current
+branch has passed data authentication, focused regression tests and A2 memory
+and measured-update preflight. Whether the fresh paired training has launched
+or completed is tracked in [`RESULTS.md`](RESULTS.md), which is updated only
+from run status and measured output.
 
 Even after that run, Kalman is one test family; U50 and 6.67 ns remain outside
 the training contexts and are needed for claims about target generalization.
