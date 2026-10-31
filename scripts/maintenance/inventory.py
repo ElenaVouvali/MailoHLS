@@ -74,13 +74,13 @@ def main():
             except (SyntaxError, UnicodeDecodeError) as exc:
                 dependencies.append(dict(path=row['path'], parse_error=str(exc)))
     branches = []
-    for ref in git('for-each-ref', '--format=%(refname)', 'refs/remotes/origin/').decode().splitlines():
+    for ref in git('for-each-ref', '--format=%(refname)', 'refs/remotes/origin/', 'refs/heads/').decode().splitlines():
         if ref.endswith('/HEAD'):
             continue
         other = tree(ref)
         base = {r['path']: r['blob'] for r in rows}
         unique = [r for r in other if base.get(r['path']) != r['blob']]
-        branches.append(dict(branch=ref.removeprefix('refs/remotes/origin/'), head=git('rev-parse', ref).decode().strip(),
+        branches.append(dict(scope='local' if ref.startswith('refs/heads/') else 'remote', branch=ref.removeprefix('refs/remotes/origin/').removeprefix('refs/heads/'), head=git('rev-parse', ref).decode().strip(),
             merge_base=git('merge-base', 'origin/main', ref).decode().strip(),
             unique_commits=git('rev-list', ref, '--not', 'origin/main').decode().splitlines(),
             differing_files=unique, preservation='Published branch; no retirement in this task',

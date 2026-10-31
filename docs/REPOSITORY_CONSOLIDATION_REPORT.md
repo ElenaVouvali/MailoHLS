@@ -200,7 +200,7 @@ and no branch retirement is authorized by this PR. Implementation commits are
 `b75a2e9` (code/tooling), `009e6b9` (guides), and `d13719b` (validation receipt).
 The final audit commit is the branch/PR head, discoverable via `git rev-parse HEAD`.
 
-Final reviewed tree: 3733 files; 566681835 bytes; 458 Python files; 468 duplicate groups; 1136 redundant paths.
+Final reviewed tree: 3733 files; 566683112 bytes; 458 Python files; 468 duplicate groups; 1136 redundant paths.
 
 Manifest resolution in the clean export: the selected family split, memory path
 and selected Stage-1/2/3 metadata directories exist. The selected GNN `.pth` is
@@ -208,3 +208,20 @@ not supplied in source; directory existence does not establish weight availabili
 Full checkpoint deserialization/inference therefore remains an external-asset
 check, not a passed test here. The 21 skipped checks concern unavailable historical
 or external graph/source fixtures and the explicitly CUDA-only FP16 smoke.
+
+Local-only `maintenance/repository-consolidation` is an alias at main `d488681`;
+local `feature/v22-structural-semantic-finalization` also points to main while its
+remote head remains `cc00a6e`. They introduce no missing source. Other research
+local heads match their published refs. Inventory tooling records both local and
+remote refs explicitly; detached worktrees are preserved in the original worktree
+audit and are never treated as disposable branches. Final inventories can be
+regenerated with `--ref HEAD`; report scope and commit are embedded in each run.
+
+Final thread-limited CPU rerun: **469 passed, 21 skipped, 0 failed in 405.90 s**,
+including the added path-escape case. Command:
+`CUDA_VISIBLE_DEVICES='' OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest -q -rs tests LLM_branch/tests`.
+Skips: 20 unavailable historical/external/compiled fixtures and one CUDA-only
+FP16 smoke. PyTorch Geometric tests ran; PyG was not a missing dependency.
+Full logs remain `/tmp/mailohls-simplification-cpu-bounded.log`; final inventory
+output is `/tmp/mailohls-simplification-reviewed/`. Current installed project
+Python/PyG dependencies were reused without upgrades.
