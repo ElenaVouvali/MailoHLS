@@ -6,6 +6,83 @@ The historical latency checkpoint remains immutable:
 `mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1`.
 New runs use fresh directories. Nothing here promotes an adapter automatically, changes Stage 2, loads structural memory, or generates HLS measurements.
 
+## Conditional-learning study (2026-11-01)
+
+The selected measured winner is one legal complete design, not necessarily the
+only useful design. Ordinary selected-target CE penalizes another feasible design
+even when its measured latency is close to the best. The current study separates
+three possible causes of weak conditional learning: near-optimal label ambiguity,
+uneven directive-value support, and insufficiently learned device/clock/budget
+contrasts. A lower teacher-forced CE does not establish a better optimization
+policy; complete constrained outputs and exact measured-candidate quality are the
+decision criteria.
+
+The reproducible training-only audit is
+`python -B -m experiments.stage1_recovery.ambiguity --prepared artifacts/diagnostics/stage1_full_data_recovery_data --output artifacts/diagnostics/stage1_training_ambiguity.json`.
+It authenticates the original dataset and seed-123 split, parses only train rows,
+uses complete source/device/clock/directive identity, rejects conflicting repeated
+measurements and applies the production fractional resource-budget feasibility
+rule. For each request, it compares the feasible measured pool with the minimum
+measured latency using fixed engineering tolerances 0, 0.5%, 1% and 2%.
+`0` means equal recorded latency, not proven physical equivalence. A negative
+selected-winner replacement is never performed. The compact audited output is
+[conditional_ambiguity_20261101.json](results/conditional_ambiguity_20261101.json).
+
+| Tolerance | Contexts with another accepted complete design | Contexts with PIPE disagreement | UNROLL disagreement | Array disagreement |
+|---|---:|---:|---:|---:|
+| Exact recorded latency | 1,287 / 2,187 | 833 | 963 | 891 |
+| 0.5% | 1,832 / 2,187 | 1,381 | 1,681 | 1,349 |
+| 1% | 1,862 / 2,187 | 1,433 | 1,721 | 1,371 |
+| 2% | 1,904 / 2,187 | 1,477 | 1,761 | 1,405 |
+
+These request counts reuse 905 selected measured rows and are **not** independent
+hardware measurements. The raw train partition contains 130,310 rows and no
+conflicting or exact repeated design identities under the audited key. Alternative
+sets are descriptive; they are not yet a new supervision policy.
+
+| Decision | Alternatives considered | Reason | Scientific consequence |
+|---|---|---|---|
+| Retain seed-123 family split and all 2,187 selected train contexts | New split or target relabeling | Preserve the CE comparison and checkpoint contract | Validation/test labels do not fit supervision or balancing. |
+| Audit tolerances 0, 0.5%, 1%, 2% before new training | Pick a favorable threshold afterward | Establish sensitivity of measured ambiguity | No tolerance is a noise confidence interval. |
+| Compare existing `decision` and `decision_balanced` with `legacy` first | Immediately implement set-valued loss or DPO | Isolate decision weighting and class support using existing code | Quality-aware supervision remains a separate hypothesis. |
+| Keep selection by the existing 62-case decision key; evaluate all 383 afterward | Select each arm by its best CE or use test labels | Match the historical CE run's selection rule | All full-validation metrics are post-selection evidence. |
+
+The full-data legacy CE run was found in the older isolated worktree. Its frozen
+protocol and selected data authenticate; it performed 400 successful updates,
+zero skipped optimizer steps, early-stopped and retained step 100. The detached
+postprocessor marked `TRAINING_DID_NOT_COMPLETE`, yet the root adapter and final
+`[DONE]` receipt exist. A new read-only finalizer assessment from a copy reports
+`training_completed_validation_pending`. The stale postprocessor status is not
+evidence that the selected model passed full validation. See [RESULTS.md](RESULTS.md)
+for the dated evaluation state and limitations.
+
+The existing `legacy`, `decision` and `decision_balanced` loss code is reused;
+the ambiguity audit does not change any loss. The two new full-data arms use the
+same 2,187 selected contexts, rates, tokenizer/backbone, rank-8 QLoRA, seed,
+62-case periodic decision selector and 383-case post-selection evaluator as the
+authenticated CE run. They execute sequentially on the verified V100S UUID.
+The [study launcher](../../scripts/experiments/stage1_conditional_study.sh)
+requires a complete 383-case CE/reference report, evaluates their exact
+measured-candidate quality first, runs a two-update smoke for each policy,
+then trains and evaluates the two arms in fresh output directories. It refuses
+existing output paths and any V100S compute process. It does not use the A2.
+
+After the baseline report exists, the exact command is:
+
+```bash
+mkdir -p artifacts/diagnostics/stage1_conditional_study_20261101
+nohup bash scripts/experiments/stage1_conditional_study.sh \
+  > artifacts/diagnostics/stage1_conditional_study_20261101/supervisor.log 2>&1 &
+```
+
+Read `artifacts/diagnostics/stage1_conditional_study_20261101/status` and the
+policy-specific logs and reports. An interrupted run is preserved; this launcher
+does not call an adapter-only save a valid optimizer-state resume and refuses a
+second launch with an existing status file. The same historical evaluation
+functions provide source-domain legality, complete actions, target transitions
+and measured-pool QoR. Unmeasured outputs retain unknown QoR. No checkpoint is
+promoted automatically.
+
 ## Model and output
 
 The pinned backbone is `deepseek-ai/deepseek-coder-6.7b-base`, revision

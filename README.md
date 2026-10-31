@@ -33,6 +33,20 @@ the latest recorded full paired run has no selected checkpoint or QoR result.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
+## Stage-1 research status on this branch
+
+The current Stage-1 study asks whether exact imitation of one selected measured
+design weakens learning across FPGA, clock and budget requests. The existing
+full-data legacy CE run completed 400 updates and selected its step-100 adapter;
+full matched validation and decision-aware comparisons determine whether it
+improves conditional decisions. A training-only audit found another feasible
+measured design within 1% latency for 1,862 of 2,187 selected requests, but this
+tolerance does not establish measurement noise or policy quality. `legacy`,
+`decision` and `decision_balanced` are separate opt-in supervision policies.
+No experimental Stage-1 adapter has been promoted. See the
+[methodology](experiments/stage1_recovery/README.md) and
+[results](experiments/stage1_recovery/RESULTS.md).
+
 ## Start here
 
 | Need | Guide |

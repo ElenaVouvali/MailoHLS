@@ -1,5 +1,50 @@
 # Completed Stage-1 recovery experiments — 2026-10-28
 
+## Conditional-learning follow-up — 2026-11-01
+
+This section records new evidence separately from the 2026-10-29 launch-time
+receipts below. The full-data legacy CE run's postprocessor wrote
+`TRAINING_DID_NOT_COMPLETE`, but its final log contains the `[DONE]` adapter-save
+receipt and the root adapter exists. From a preserved copy, the current
+`finalize --full-run` authenticated its original protocol, dataset/split,
+selected contexts, source snapshot and historical checkpoint. It reports
+`training_completed_validation_pending`: 400 actual updates, zero AMP skips,
+early stopping after step 400, best checkpoint at step 100. Protocol SHA256 is
+`2d8fae40dedcf141268f6190f94073492eb3eecd244e9640b4691503d13895da`.
+The original run and production adapter remain unchanged. The stale postprocess
+status is a reporting failure, not an independently validated model result.
+
+On its saved **62-case periodic selection bank**, step 100 has core nonforced
+balanced recall 27.83%, complete-action accuracy 19.69%, zero exact complete
+designs and zero correct complete budget transitions. Its teacher-forced CE was
+0.5320. These are selected-bank diagnostics, not the all-383-context comparison
+or measured hardware-quality result.
+
+The new [authenticated training-only ambiguity audit](results/conditional_ambiguity_20261101.json)
+used 130,310 training measurements, 2,187 selected contexts, 905 selected row
+identities and 772 distinct selected program/directive assignments. It found
+another distinct feasible complete assignment at the same recorded latency for
+1,287 requests, within 0.5% for 1,832, within 1% for 1,862 and within 2% for
+1,904. At 1%, the alternative set disagrees with the selected assignment in
+PIPELINE for 1,433 requests, UNROLL for 1,721 and an array field for 1,371.
+These requests overlap and can reuse the same measurement; the tolerance is an
+engineering sensitivity, not a measured noise model. The audit supports the
+*presence of ambiguous exact labels*, but it does not establish that ambiguity
+causes model collapse or that a new loss improves conditional optimization.
+
+The earlier authenticated training-value audit provides a distinct class-support
+finding: among nonforced selected-context fields, `UNROLL=0` appears 7,172 times,
+`UNROLL=2` 2,498 times and `UNROLL=27` only twice. The balancing fit correctly
+deduplicates winner row IDs: its corresponding counts are 3,265, 1,239 and one.
+This imbalance is a separate hypothesis from near-optimal ambiguity. Budget
+transitions include 6,560 changed pairs with measured cross-budget infeasibility,
+but the pairs overlap and do not prove the model learned that conditional rule.
+
+The 383-context constrained-decoder comparison and measured-candidate QoR
+review are pending until their actual output is verified. Full-data `decision`
+and `decision_balanced` training have not been counted as completed. No adapter
+has been promoted; no Kalman test labels informed this audit.
+
 The tokenizer defect is repaired. Four V100 training controls and all planned validation comparisons completed. **No experimental adapter qualifies as a production replacement.** The original checkpoint's adapter, training contract and tokenizer hashes remain unchanged.
 
 See [measured results JSON](results/20261028.json), [method and reproduction guide](README.md), and the local detailed artifacts under `artifacts/diagnostics/stage1_recovery_20261028`.
