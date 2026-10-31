@@ -14,9 +14,9 @@ No new PR, Release or tag was created for this finalization.
 | `main` | `304d4c909206979aef3fd7f66770c46b71444cc7` | Finalized framework; final report commit follows the validated framework merge shown here |
 | `mlir-target` | `bf82c648273a5cd5eb30363059a3809e7b3979db` | Immutable historical MLIR baseline |
 | `llvm-ir` | `0b5581b2b22becf1d20f476e22e92ea3fd533a64` | Immutable historical LLVM baseline |
-| `research/stage1-refinement` | `6d64b47eceb031e081f9f38533dfa3cab5c4d3e3` | Stage-1 recovery, supervision and measured-quality work |
-| `research/gnn-refinement` | `f9baf69cfd6c98f455b79e4cfa61bb3e278dba46` | Versioned graph/tensor and resumable GNN research |
-| `research/refinement-mechanism` | `285c78bd369aacc15107a59ae92cd58d8096c5d8` | Independent refinement/search development over stable main |
+| `research/stage1-refinement` | `ef4bdea18342ee27df9b075e476f307b8cfcb8c7` | Stage-1 recovery, supervision and measured-quality work |
+| `research/gnn-refinement` | `958c99b9fab2ee29b2b61f863b5654c5fc1fe409` | Versioned graph/tensor and resumable GNN research |
+| `research/refinement-mechanism` | `49a32d07fa2630e570447aae08d0a22de5daa044` | Independent refinement/search development over stable main |
 
 `304d4c9` is the exact validated framework merge. The final main HEAD also
 includes this documentation/disposition commit; obtain its exact SHA with
@@ -104,7 +104,7 @@ HLS tools are still separately supplied, exactly as before. See
 | Open PRs | 2 | 0 |
 | Releases | 2 | 0 |
 | Tracked files | 3,696 | 2,278 |
-| Tracked bytes | 565,985,079 | 262,318,268 |
+| Tracked bytes | 565,985,079 | 262,318,574 |
 | Exact duplicate src implementation bodies | 12 | 0 |
 | Duplicate blob groups | 472 | 311 |
 | Repeated paths | 1,140 | 584 |
@@ -164,3 +164,8 @@ redundant remote branch, open PR or Release remains. There is no GitHub permissi
 blocker. Continuing experiments and integration of mature improvements use the
 simple workflow in [development](development.md), without automatic merges of
 unfinished research or a new branch/Release for each experiment.
+
+The research heads above also include a normal merge of the finalized main
+documentation/disposition update. A path-level check proved that only the five
+report/layout/disposition files changed; tested research code and data are
+identical. No additional algorithm, training or checkpoint change occurred.
