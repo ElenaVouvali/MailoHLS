@@ -1,3 +1,10 @@
+> Current development branch: `research/gnn-refinement`. This document retains
+> the original V3 preflight host paths and measurements as provenance. Start
+> new work in a clean checkout of the consolidated branch and use your installed
+> compatible Python environment. The current V4 schema requires a fresh protocol
+> identity; do not resume V3 states as V4 or reuse old output directories.
+> `python -m experiments.v22_gnn_training.train --help` exposes the actual CLI.
+
 # V2.2 target-aware GNN run protocol
 
 ## Frozen inputs
