@@ -1,162 +1,197 @@
-> Current development branch: `research/gnn-refinement`. This document retains
-> the original V3 preflight host paths and measurements as provenance. Start
-> new work in a clean checkout of the consolidated branch and use your installed
-> compatible Python environment. The current V4 schema requires a fresh protocol
-> identity; do not resume V3 states as V4 or reuse old output directories.
-> `python -m experiments.v22_gnn_training.train --help` exposes the actual CLI.
+# V4 target-aware GNN run protocol
 
-# V2.2 target-aware GNN run protocol
+## Current frozen contract
 
-## Frozen inputs
-
-- Source branch: `research/v22-gnn-resumable-20261030`.
-- Base implementation: `research/v22-target-aware-gnn-training` at
-  `43431de1e77efaf42692db3cfece7773541bb37c`.
-- Resumability/loss-scale fix: `53f293c8b1755252db061f8ba7077ae551048971`.
-- Graph schema: `salt-hls-mlir-structural-v2.2`, semantic revision RC3.
+- Research branch: `research/gnn-refinement`.
+- Graph schema/release: `salt-hls-mlir-structural-v2.2`, RC3.
+- RC3 archive SHA256: `feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`.
 - Overlay schema: `salt-hls-target-enriched-v22-v1`.
-- Tensor schema: `salt-hls-target-tensors-v3-semantic-experimental`.
-- Candidate head schema: `salt-hls-v22-candidate-qor-head-v1-experimental`.
-- Archive SHA256:
-  `feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`.
-- Dataset SHA256:
-  `afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`.
-- Seed-123 split SHA256:
-  `d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c`.
-- Eligible rows: 88,466 train / 8,976 validation / 6,705 test.
+- Tensor schema: `salt-hls-target-tensors-v4-semantic-wide-affine-experimental`.
+- Candidate QoR head: `salt-hls-v22-candidate-qor-head-v1-experimental`.
+- Selected data SHA256: `afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`.
+- Seed-123 family split SHA256: `d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c`.
+- Eligible measured records: 88,466 train / 8,976 validation / 6,705 test.
+- CUDA runtime: isolated Python 3.10.20, PyTorch 2.6.0+cu124, PyG 2.6.1, SciPy 1.15.3 at `/tmp/mailohls-v22-gnn-env-20261030/bin/python`.
+- Intended GPU: NVIDIA A2 UUID `GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`.
 
-The launch refuses a dirty source worktree. `protocol.json` fingerprints the
-source hashes, dataset/split/release identities, feature schemas, normalization
-statistics, hardware/software context, optimizer, loss, sampling and command
-configuration. Resume is refused if this identity changes.
+V4 uses a fresh protocol identity. Never label V3 weights or training state as
+V4, or resume V3 state as V4. The experiment fingerprints code, environment,
+data, split, graph archive, feature schemas and training arguments. The
+detached launcher refuses dirty source worktrees, mismatched resume identities,
+active runs and busy GPUs. Do not use `--allow-shared-gpu`; it must not fall
+back to the reserved V100S.
 
-## Model arms
+## Frozen matched experiment
 
-Both arms use the existing two-layer, edge-aware V3 `TransformerConv` encoder,
-64-wide hidden state, typed forward/reverse relations, semantic edge features,
-static action-demand projection, semantic action summary and 128D absolute
-action slots. Both use the same candidate head, complete legal assignment,
-candidate-demand descriptor, target numerical context, labels and training
-examples.
+The numerical arm removes all edges incident to hardware nodes but retains the
+same numerical device/clock/budget vector. The hardware arm retains those
+typed messages. Both arms use the same two-layer 64-wide TransformerConv,
+128D absolute action slots, complete directive candidate, demand descriptor,
+QoR labels and candidate head. Candidate directives and measurements enter
+only the candidate-conditioned prediction pathway.
 
-1. `numerical`: remove FPGA hardware-resource message edges; keep late numeric
-   device, clock and deployment-budget context.
-2. `hardware`: retain hardware-resource nodes and their messages, while keeping
-   the identical late numeric context.
+Frozen settings: seed 123; AdamW at `3e-4`, weight decay `1e-4`; 8 candidate
+designs per update; maximum 8,000 updates per arm; ranking coefficient 0.1;
+gradient clipping 1.0; validation every 500 updates, at most 256 candidates
+per context; patience 8; checkpoint interval 250; budget fractions 1.0 and
+0.5; latency, area and ADP objectives. Do not tune these settings after
+observing validation or test outcomes.
 
-Each arm is initialized with the same seed and follows the same RNG sampling
-sequence. The numerical baseline is not target-free; the comparison isolates
-the added hardware-relational message pathway as closely as this architecture
-allows. Candidate directives and candidate-demand descriptors do not enter
-candidate-independent structural memory.
+The selected validation score is unchanged: 0.4 feasibility error, 0.2
+ranking error, 0.2 bounded evaluated-pool regret and 0.2 bounded QoR error.
+After both arm checkpoints are selected, run the complete validation report
+and only then the held-out test report. The test split is Kalman alone and is
+not an untouched benchmark; no broad family, U50 or unseen-clock claim follows.
 
-## Labels and losses
+## Restore and verify the authenticated graph release
 
-The five measured targets are latency in ms and physical BRAM_18K, DSP, FF and
-LUT counts. CSV resource utilization percentage is converted using the
-authenticated physical capacity from the selected device profile. The
-transformed target is `log1p([latency_ms, physical_counts])`, standardized by
-means and standard deviations fit on eligible training rows only. Prediction
-inversion is `expm1` followed by a zero lower bound; resource predictions are
-not capped at physical capacity.
-
-The base QoR loss is mean SmoothL1 over the five standardized outputs. Ranking
-is pairwise logistic within the same kernel/device/clock group and only among
-measured-feasible candidates. Relative measured objective gaps of at most 5%
-are ignored. `PARETO_LATENCY` uses measured latency; `PARETO_AREA` uses the
-existing mean of four physical utilization fractions; `PARETO_ADP` uses
-latency-ms times that area proxy. Predicted objective scores use monotonic
-`log1p` forms and are divided by the median within-training-context standard
-deviation of the corresponding `log1p` measured objective. This ranking scale
-is fitted only from training groups. The coefficient remains 0.1:
-
-`L = SmoothL1(QoR) + 0.1 * pairwise_logistic(rank)`.
-
-Budgets are 100% or 50% of physical capacities. They change measured
-feasibility and the requested graph context, never the underlying physical QoR
-labels. Objective and feasibility comparisons never cross device/clock
-contexts.
-
-## Optimizer and sampling
-
-- Seed: 123.
-- Optimizer: AdamW, learning rate `3e-4`, weight decay `1e-4`.
-- Maximum: 8,000 updates per arm.
-- Candidate configurations per update: 8.
-- One kernel/device/clock graph context per update; one shared encoder forward
-  is reused across those candidates without detaching embeddings.
-- Kernel/context is sampled uniformly; candidates are sampled without
-  replacement within that context.
-- One of the three existing optimization objectives and one of the two budget
-  fractions is sampled per update.
-- Gradient norm clipping: 1.0.
-- Validation every 500 updates; deterministic configuration-hash prefix of at
-  most 256 candidates per context.
-- Early stopping patience: 8 validation events.
-- Periodic atomic checkpoint: every 250 updates, as well as validation,
-  interruption and arm completion.
-
-Validation selection uses the deterministic bounded score already implemented
-by the trainer: 0.4 feasibility error, 0.2 normalized ranking error, 0.2
-bounded evaluated-pool regret and 0.2 bounded QoR error. Validation subset
-regret is explicitly marked as subset regret. Test evaluation occurs only
-after both arms have validation-selected checkpoints. Test metrics never
-select checkpoints.
-
-## Runtime
-
-Use `/tmp/mailohls-v22-gnn-env-20261030/bin/python`, an isolated Python 3.10.20
-venv inheriting the existing CUDA-enabled PyTorch 2.6.0+cu124 and adding PyG
-2.6.1 and SciPy 1.15.3. This did not modify the environment used by the
-concurrent Stage-1 run. The tested GPU is the NVIDIA A2, selected by UUID
-`GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35` (15,356 MiB). The launcher checks
-the device name, utilization, free memory and compute processes immediately
-before detaching. It refuses busy devices by default. It does not fall back to
-the V100S.
-
-## Detached launch and operations
-
-The output directory must be new and empty:
+From a clean `research/gnn-refinement` worktree:
 
 ```bash
-cd /tmp/MailoHLS-v22-gnn-resumable-20261030
-PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m \
-  experiments.v22_gnn_training.launch \
-  --gpu-name A2 \
+python scripts/artifacts.py verify --artifact salt-hls-graphs-v22-20261027-rc3 --extract-to /tmp/salt-v22-training-release
+sha256sum GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz
+```
+
+The extracted release must contain `release.json`; do not regenerate RC3 graphs.
+Before the audit, ensure the authenticated preprocessed CSV tables are present
+under `LLM_branch/Data/preprocessed_CSVS/`. These tables are ignored generated
+inputs; restore only copies whose hashes match the committed preprocessing
+manifest.
+
+```bash
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m experiments.v22_gnn_training.audit \
   --release-dir /tmp/salt-v22-training-release \
-  --output /tmp/v22-target-aware-gnn-s123-a2-20261030 \
-  --steps 8000 --candidates 8 --checkpoint-every 250 --progress-every 25
+  --output /tmp/v22-gnn-v4-audit/data-audit.json
 ```
 
-The launcher writes `launcher_pid.json`, `trainer_pid.json`, `launcher_spec.json`,
-`run.log`, `status.json`, `progress.jsonl` and `exit_status.json`. Inspect the
-latest status and progress without attaching to the process:
+Expected audit identity and explicit exclusions are documented in `AUDIT.md`.
+
+## Required preflight before GPU launch
+
+Run CPU tests and the data audit first. Then verify available memory, disk,
+threads and active host processes. Inspect GPU state immediately before each
+GPU operation:
 
 ```bash
-cat /tmp/v22-target-aware-gnn-s123-a2-20261030/status.json
-tail -n 20 /tmp/v22-target-aware-gnn-s123-a2-20261030/progress.jsonl
-tail -f /tmp/v22-target-aware-gnn-s123-a2-20261030/run.log
+nvidia-smi -L
+nvidia-smi --query-gpu=index,uuid,name,memory.total,memory.used,memory.free,utilization.gpu --format=csv
+nvidia-smi --query-compute-apps=pid,process_name,used_gpu_memory --format=csv
 ```
 
-Resume only after the launcher has exited and the checkpoint is present:
+The selected A2 must match the UUID above and be idle. Never touch or share the
+V100S. Run V4 tensorization, memory profiling and the paired optimizer smoke
+only on an idle A2. The real graceful interruption/resume smoke must complete
+on a disposable V4 output before full training. If A2 is occupied, stop at CPU
+validation; do not launch, wait indefinitely, or use another GPU.
+
+The current CPU test command is:
 
 ```bash
-PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m \
-  experiments.v22_gnn_training.launch \
-  --gpu-name A2 \
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m pytest -q \
+  tests/test_v22_gnn_resume.py tests/test_v22_gnn_training_contracts.py \
+  tests/test_target_graph_semantic_tensor_v22.py tests/test_action_demand_tensor_v22.py \
+  tests/test_target_graph_v22.py tests/test_mlir_graph_v2.py \
+  tests/test_structural_audit.py tests/test_directive_domains.py
+```
+
+The actual V4 profiling CLI is:
+
+```bash
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m experiments.v22_gnn_training.profile_memory \
   --release-dir /tmp/salt-v22-training-release \
-  --output /tmp/v22-target-aware-gnn-s123-a2-20261030 \
-  --resume --steps 8000 --candidates 8 --checkpoint-every 250 --progress-every 25
+  --output /home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-memory-profile.json \
+  --expected-gpu A2
 ```
 
-The exact resume arguments must match the run. A fingerprint mismatch or live
-launcher/trainer is rejected. The launcher creates a new session and redirects
-stdout/stderr to the run log, so it survives the interactive terminal closing.
+## Fresh smoke and full training commands
 
-## Preflight outputs
+Run from the clean, committed research worktree. Use a new, durable output
+directory and verify sufficient free space first.
 
-The authenticated audit and A2 profiling reports are kept outside the source
-tree at `/tmp/v22-gnn-resumable-preflight-20261030/`. Their hashes and outcomes
-are summarized in `AUDIT.md`; the experiment's own output directory receives a
-fresh audit and protocol record at launch. No checkpoint/cache files are
-committed.
+```bash
+cd /tmp/MailoHLS-gnn-refinement
+mkdir -p /home/elvouvali/MailoHLS-GNN-runs
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m experiments.v22_gnn_training.launch \
+  --gpu-name A2 --release-dir /tmp/salt-v22-training-release \
+  --output /home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-smoke-s123 --steps 10 --candidates 8 \
+  --val-every 5 --checkpoint-every 5 --progress-every 1 --skip-test
+```
+
+Only after that two-arm smoke and a separate graceful interruption/resume
+smoke pass, launch the predeclared full comparison in a different empty
+directory:
+
+```bash
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m experiments.v22_gnn_training.launch \
+  --gpu-name A2 --release-dir /tmp/salt-v22-training-release \
+  --output /home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-s123 --steps 8000 --candidates 8 \
+  --checkpoint-every 250 --progress-every 25
+```
+
+The launcher applies its default validation cadence and patience when omitted.
+No Stage-1, HLS synthesis, or second GNN run is part of this protocol.
+
+For the disposable resume smoke, use a separate empty output and the same
+arguments in both invocations:
+
+```bash
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m experiments.v22_gnn_training.launch \
+  --gpu-name A2 --release-dir /tmp/salt-v22-training-release \
+  --output /home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-resume-smoke-s123 \
+  --steps 100 --candidates 8 --val-every 5 --checkpoint-every 5 \
+  --progress-every 1 --skip-test
+```
+
+Wait until `progress.jsonl` records an atomic checkpoint at update 5, then
+send SIGTERM only to this smoke's detached launcher PID from its
+`launcher_pid.json`:
+
+```bash
+python -c "import json,os,signal; p=json.load(open('/home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-resume-smoke-s123/launcher_pid.json'))['pid']; os.kill(p,signal.SIGTERM)"
+```
+
+Confirm an `interrupted` status and a completed
+`training_state.pt`. Resume with:
+
+```bash
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m experiments.v22_gnn_training.launch \
+  --gpu-name A2 --release-dir /tmp/salt-v22-training-release \
+  --output /home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-resume-smoke-s123 \
+  --steps 100 --candidates 8 --val-every 5 --checkpoint-every 5 \
+  --progress-every 1 --skip-test --resume
+```
+
+Verify
+the completed update count and sample-identity trace continue without
+duplicating update 5. Do not signal another PID or interrupt a production run.
+
+## Monitor, resume, and verify completion
+
+```bash
+cat /home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-s123/status.json
+tail -n 20 /home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-s123/progress.jsonl
+cat /home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-s123/exit_status.json
+```
+
+Resume only after both launcher and trainer have exited, the last atomic
+`training_state.pt` is valid, the original source commit and protocol
+fingerprint still match, and the A2 is idle:
+
+```bash
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python -m experiments.v22_gnn_training.launch \
+  --gpu-name A2 --release-dir /tmp/salt-v22-training-release \
+  --output /home/elvouvali/MailoHLS-GNN-runs/v22-gnn-v4-s123 --resume --steps 8000 \
+  --candidates 8 --checkpoint-every 250 --progress-every 25
+```
+
+Completion requires both `numerical_selected.pt` and `hardware_selected.pt`,
+matching protocol fingerprints, recorded validation-selected steps, completed
+test evaluation, and `exit_status.json` with return code zero. Keep model
+weights and large run logs outside Git.
+
+## Historical V3 provenance
+
+Earlier V3 runs used the same RC3 graph archive but a different tensor schema.
+Their A2 profiling and the previous V100S pre-resumability attempt are
+historical only. Neither is a V4 training result or V4 checkpoint. V4 begins
+from a fresh initialization and a new empty output directory.

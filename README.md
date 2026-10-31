@@ -33,6 +33,13 @@ the latest recorded full paired run has no selected checkpoint or QoR result.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
+On `research/gnn-refinement`, the V4 data audit has been freshly reproduced,
+but the controlled numerical-versus-hardware-message training experiment is
+still incomplete: the A2 was occupied and no V4 model was trained. Historical
+V3 GPU receipts are not V4 evidence. The research branch documents the exact
+blocker and commands; no hardware-message benefit or Stage-2 integration
+readiness has been established.
+
 ## Start here
 
 | Need | Guide |

@@ -1,12 +1,13 @@
-# V2.2 target-aware GNN training
+# V4 target-aware GNN training
 
-**Experiment state:** the previous V100S attempt remains an incomplete
-historical run with no trained checkpoints or QoR conclusion. Its output is
-preserved at `/tmp/v22-target-aware-gnn-s123-v100-20261029`. This task repairs
-resume safety, verifies the complete data contract, and runs the A2 preflight
-before starting a fresh detached comparison. Current outcomes are recorded in
-[`RESULTS.md`](RESULTS.md); the audit and exact configuration are in
-[`AUDIT.md`](AUDIT.md) and [`RUN_PROTOCOL.md`](RUN_PROTOCOL.md).
+**Current state (2026-11-01):** the fresh V4 data audit reproduced the
+authenticated dataset and split identities. CPU-side contract, graph-tensor,
+resume and evaluator tests completed in this worktree. No V4 GPU smoke, interruption/
+resume smoke, training arm, selected checkpoint or QoR comparison has been
+completed. The A2 is occupied by an unrelated compute process and the V100S is
+reserved and occupied by Stage-1; neither was touched. Full experiment status
+is in [`RESULTS.md`](RESULTS.md), identities and checks in [`AUDIT.md`](AUDIT.md),
+and the current V4 commands in [`RUN_PROTOCOL.md`](RUN_PROTOCOL.md).
 
 The active Stage-1 diagnostics and prior run are not overwritten. The A2 is
 selected by its GPU UUID because CUDA ordinal mappings can differ from
@@ -25,8 +26,10 @@ The experiment compares two matched candidate-conditioned regressors:
    target context as arm 1.
 
 Both arms use the same complete directive assignments, candidate-demand input,
-loss, measured records, optimizer and seed. The existing V3 encoder remains a
+loss, measured records, optimizer and seed. The V4 encoder remains a
 two-layer `TransformerConv` and returns 128D absolute-slot action memories.
+V4 widens affine-map semantic support without changing tensor dimensions or
+frozen graph contents.
 Candidate directives and candidate-demand descriptors enter only the QoR
 head; they are never attached to the static graph memory.
 
@@ -37,7 +40,7 @@ retains identical numeric context in both arms.
 
 ```mermaid
 flowchart LR
-  G[Authenticated V2.2 RC3 graph] --> T[Target-aware V3 tensor]
+  G[Authenticated V2.2 RC3 graph] --> T[Target-aware V4 tensor]
   H[FPGA profile, clock, budget] --> T
   T --> E[Two-layer edge-aware GNN]
   E --> M[128D candidate-independent action memory]
@@ -150,9 +153,15 @@ error uses both budget levels; ranking error is normalized Spearman error over
 PARETO_LATENCY/AREA/ADP; QoR error combines latency MAPE and normalized
 physical-resource MAE. Test metrics are computed once after validation
 checkpoint selection. The selected validation step and metrics are saved with
-the checkpoint. The evaluator reports objective-specific Spearman/Kendall
-correlation, measured-pool regret/top-1, and feasibility accuracy/false-feasible
-rate at both budget levels. These paths have not run on an A2.
+the checkpoint. The V4 evaluator reports objective-specific Spearman/Kendall
+correlations and undefined reasons, top-1/3/5/10 measured-pool feasible
+selection and regret, false-feasible selections, empty-pool outcomes and
+budget-induced QoR shifts. Periodic validation remains a deterministic subset
+and labels subset regret explicitly. The frozen checkpoint-selection score is
+unchanged. If every ranking correlation is undefined, its predeclared score
+uses an explicit neutral zero correlation fallback; the report marks that
+fallback and gives defined/undefined counts and reasons. These V4 evaluation
+paths have not run on an A2.
 
 The readiness pilot's historic three-kernel results are not modified or
 reinterpreted. That pilot did not include family-held-out evaluation and did
@@ -169,13 +178,11 @@ and SciPy 1.15.3. The launcher selects and pins a GPU by UUID, not by assumed
 CUDA ordinal, and refuses a busy GPU. It requires a clean source branch and a
 new output directory.
 
-The A2 profile completed forward/backward/update checks for Stencil2D, GEMM,
-and AES without OOM. AES tensorization is 60,297,588 CPU bytes; full measured
-candidate update peaked at 656,113,664 allocated CUDA bytes (about 626 MiB).
-The real-candidate preflight exercised all three objectives on both arms and
-recorded finite loss, candidate/demand gradients, hardware-relation gradients,
-and ranking-gradient ratios. See [`AUDIT.md`](AUDIT.md) and the raw JSON paths
-there for actual figures.
+Previous V3 A2 profiling completed forward/backward/update checks for
+Stencil2D, GEMM and AES without OOM. AES tensorization was 60,297,588 CPU
+bytes; its measured-candidate update peaked at 656,113,664 allocated CUDA
+bytes. These are historical V3-compatible results, not V4 GPU validation.
+See [`AUDIT.md`](AUDIT.md) for provenance.
 
 ## Checkpoint and Stage-2 memory contract
 
@@ -190,13 +197,13 @@ integration is included here.
 
 ## Current outcome and limitations
 
-The previous V100S attempt produced no model checkpoints; it remains preserved
-and is not resumed because it used the pre-resumability protocol. The current
-branch has passed data authentication, focused regression tests and A2 memory
-and measured-update preflight. Training is currently blocked because an
-unrelated VLLM process occupies both the A2 and V100S; the safe launcher
-refused to share either. See [`RESULTS.md`](RESULTS.md) for the verified PIDs
-and exact current status.
+The previous V100S attempt produced no model checkpoints and remains
+preserved. The fresh V4 CPU audit passes with explicit historical exclusions.
+GPU training is blocked because an unrelated Ray worker occupies the A2; the
+V100S remains reserved for independent Stage-1 work. The safe launcher has not
+been run and neither process was interrupted. This work therefore cannot yet
+answer whether hardware messages improve QoR learning. See [`RESULTS.md`](RESULTS.md)
+for current evidence and the blocker.
 
 Even after that run, Kalman is one test family; U50 and 6.67 ns remain outside
 the training contexts and are needed for claims about target generalization.
@@ -204,9 +211,9 @@ The graph does not provide a synthesis-exact resource-binding or schedule
 model, and Stage-2 remains future work. Nothing here establishes improved QoR
 or target generalization.
 
-## Consolidated GNN research branch
+## Branch provenance
 
-Continue work on `research/gnn-refinement`. The resumable trainer comes from
+The consolidated branch `research/gnn-refinement` includes the resumable trainer from
 `bf93db9`; semantic coverage corrections/audits from `26c2247` are incorporated
 without changing the frozen RC3 program graph or hardware-overlay schemas.
 The current tensor schema is `salt-hls-target-tensors-v4-semantic-wide-affine-experimental`.
@@ -215,12 +222,27 @@ encoder. Existing corpus values are unchanged where the earlier cap was never
 exceeded; new verified wider affine maps are no longer masked unnecessarily.
 
 Original V3 GPU preflight receipts above remain historical; they are not V4 GPU
-measurements. Do not reinterpret a V3 checkpoint or an active old worktree as V4.
-Schema/source/protocol checks must reject incompatible resume. No new training
-was launched during branch consolidation and no QoR advantage is claimed.
+measurements. A V3 checkpoint or old worktree is not a V4 checkpoint. The
+schema/source/protocol checks reject incompatible resume. The current V4 run
+status and any QoR conclusion are reported only in `RESULTS.md`.
 
 The complete catalog is recovered with `scripts/artifacts.py restore-git` from
 original commit `42f52df`; its history is retained here. The Hotspot export is
 retained at commit `4a308a0`, including its authenticated archive and guide.
 Original research heads are preserved as provenance parents after deliberately
 selecting their current modules, not by importing their old runtime/data trees.
+
+## Design decisions and rationale
+
+| Decision | Alternatives considered | Why selected | What remains unchanged | Validation |
+|---|---|---|---|---|
+| Keep numerical device, clock and budget context in both arms | Make the numerical arm target-free | Isolates hardware-resource relational messages as the experimental variable | Candidate head, labels and all other inputs | CPU tensor-equivalence and model-path tests |
+| Keep hardware nodes but remove every edge touching them in the numerical arm | Remove nodes or zero their features | Preserves IDs while blocking hardware-node information; pooling includes compiler nodes only | Program-node features and absolute action slots | CPU test mutates a hardware feature and verifies numerical action memories stay fixed |
+| Record initial parameter hashes and per-update sampled identities | Assume equal seed means identical training | Makes initialization and sampling parity auditable and fails fast on divergence | Seed, sampler and optimizer settings | Deterministic unit test plus run-time pair checks |
+| Preserve the existing validation-selection score | Select a new metric after observing results | Avoids outcome-driven checkpoint selection | Existing 0.4/0.2/0.2/0.2 score | Selection-score regression; expanded metrics are report-only |
+| Count false-feasible and empty-pool outcomes; retain undefined correlations | Average only successful picks or silently substitute a rank score | Keeps failures and undefined populations visible | Physical feasibility and measured-pool objective definitions | Focused empty-pool, tie and false-feasible tests |
+
+V4 checkpoints and optimizer states are incompatible with V3 and must use a
+fresh protocol identity. This experiment does not change the frozen compiler
+graphs, target overlay, candidate-demand contract, training split or production
+V1 GNN. Prior V3 GPU measurements remain historical and are not V4 results.

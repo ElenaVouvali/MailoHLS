@@ -46,6 +46,7 @@ OBJECTIVES = ('PARETO_LATENCY', 'PARETO_AREA', 'PARETO_ADP')
 BUDGET_FRACTIONS = (1.0, 0.5)
 SEED = 123
 HEAD_SCHEMA = 'salt-hls-v22-candidate-qor-head-v1-experimental'
+TOP_K_VALUES = (1, 3, 5, 10)
 
 
 def sha256_json(value):
@@ -181,7 +182,7 @@ def ranking_loss(prediction, records, objective, budget, target_mean=None, targe
 
 
 class CandidateQoRModel(nn.Module):
-    """V3 encoder plus a small candidate-conditioned multi-output head."""
+    """V4 encoder plus a small candidate-conditioned multi-output head."""
     def __init__(self):
         super().__init__()
         self.graph = tensors.SmallGraphEncoder(hidden=64)
@@ -387,6 +388,143 @@ def _train_step(model, optimizer, dataset, group_key, sampled, objective, fracti
     return result
 
 
+def _rank_statistic(fn, measured, predicted):
+    measured = np.asarray(measured, dtype=np.float64)
+    predicted = np.asarray(predicted, dtype=np.float64)
+    if len(measured) < 2:
+        return None, 'fewer_than_two_candidates'
+    if np.ptp(measured) == 0:
+        return None, 'constant_measured_scores'
+    if np.ptp(predicted) == 0:
+        return None, 'constant_predicted_scores'
+    value = float(fn(measured, predicted)[0])
+    if not math.isfinite(value):
+        return None, 'nonfinite_statistic'
+    return value, None
+
+
+def _feasibility_metrics(measured_feasible, predicted_feasible):
+    measured_feasible = np.asarray(measured_feasible, dtype=bool)
+    predicted_feasible = np.asarray(predicted_feasible, dtype=bool)
+    tp = int(np.sum(measured_feasible & predicted_feasible))
+    fp = int(np.sum(~measured_feasible & predicted_feasible))
+    fn = int(np.sum(measured_feasible & ~predicted_feasible))
+    tn = int(np.sum(~measured_feasible & ~predicted_feasible))
+    predicted_count = tp + fp
+    measured_count = tp + fn
+    return {
+        'true_positive': tp, 'false_positive': fp,
+        'false_negative': fn, 'true_negative': tn,
+        'candidate_count': int(len(measured_feasible)),
+        'measured_feasible_candidates': measured_count,
+        'predicted_feasible_candidates': predicted_count,
+        'feasibility_accuracy': float((tp + tn) / max(1, len(measured_feasible))),
+        'precision_among_predicted_feasible': tp / predicted_count if predicted_count else None,
+        'recall_of_measured_feasible': tp / measured_count if measured_count else None,
+        'false_feasible_rate_among_predicted_feasible': fp / predicted_count if predicted_count else None,
+        'false_infeasible_rate_among_measured_feasible': fn / measured_count if measured_count else None,
+        'false_positive_rate_among_measured_infeasible': fp / (fp + tn) if fp + tn else None,
+        'no_measured_feasible_candidate': measured_count == 0,
+        'no_predicted_feasible_candidate': predicted_count == 0,
+    }
+
+
+def _topk_feasible_selection(predicted_score, measured_score, predicted_feasible,
+                             measured_feasible, k_values=TOP_K_VALUES):
+    predicted_score = np.asarray(predicted_score, dtype=np.float64)
+    measured_score = np.asarray(measured_score, dtype=np.float64)
+    predicted_feasible = np.asarray(predicted_feasible, dtype=bool)
+    measured_feasible = np.asarray(measured_feasible, dtype=bool)
+    if not (predicted_score.shape == measured_score.shape == predicted_feasible.shape == measured_feasible.shape):
+        raise ValueError('Candidate scores and feasibility masks must have identical shapes')
+    if not np.isfinite(predicted_score).all() or not np.isfinite(measured_score).all():
+        raise ValueError('Candidate ranking scores must be finite')
+    eligible = np.flatnonzero(predicted_feasible)
+    # Stable sorting makes score ties deterministic in authenticated config order.
+    ranked = eligible[np.argsort(predicted_score[eligible], kind='stable')]
+    reference_exists = bool(measured_feasible.any())
+    best = float(np.min(measured_score[measured_feasible])) if reference_exists else None
+    result = {}
+    for k in k_values:
+        shortlist = ranked[:k]
+        hits = int(measured_feasible[shortlist].sum())
+        if not reference_exists:
+            status, success, regret = 'no_measured_feasible_reference', None, None
+        elif not len(shortlist):
+            status, success, regret = 'no_predicted_feasible_candidate', False, None
+        elif not hits:
+            status, success, regret = 'shortlist_contains_no_measured_feasible_candidate', False, None
+        else:
+            selected_best = float(np.min(measured_score[shortlist][measured_feasible[shortlist]]))
+            status, success = 'measured_feasible_candidate_found', True
+            regret = float((selected_best - best) / max(abs(best), 1e-12))
+        result[str(k)] = {
+            'status': status,
+            'success': success,
+            'pool_size': int(len(predicted_score)),
+            'predicted_feasible_pool_size': int(len(eligible)),
+            'effective_shortlist_size': int(len(shortlist)),
+            'shortlist_indices': shortlist.tolist(),
+            'measured_feasible_in_shortlist': hits,
+            'reference_measured_feasible_candidates': int(measured_feasible.sum()),
+            'best_feasible_pool_objective': best,
+            'measured_pool_regret_fraction': regret,
+        }
+    return result
+
+
+def _feasible_selection(predicted_score, measured_score, predicted_feasible, measured_feasible):
+    predicted_score = np.asarray(predicted_score, dtype=np.float64)
+    measured_score = np.asarray(measured_score, dtype=np.float64)
+    predicted_feasible = np.asarray(predicted_feasible, dtype=bool)
+    measured_feasible = np.asarray(measured_feasible, dtype=bool)
+    if not (predicted_score.shape == measured_score.shape == predicted_feasible.shape == measured_feasible.shape):
+        raise ValueError('Candidate scores and feasibility masks must have identical shapes')
+    if not np.isfinite(predicted_score).all() or not np.isfinite(measured_score).all():
+        raise ValueError('Candidate ranking scores must be finite')
+    eligible = np.flatnonzero(predicted_feasible)
+    reference = np.flatnonzero(measured_feasible)
+    if not len(reference):
+        return {'status':'no_measured_feasible_reference','selected_index':None,
+                'selected_measured_feasible':None,'measured_pool_regret_fraction':None}
+    if not len(eligible):
+        return {'status':'no_predicted_feasible_candidate','selected_index':None,
+                'selected_measured_feasible':False,'measured_pool_regret_fraction':None}
+    selected = int(eligible[np.argmin(predicted_score[eligible])])
+    is_feasible = bool(measured_feasible[selected])
+    best = float(np.min(measured_score[reference]))
+    regret = ((float(measured_score[selected]) - best) / max(abs(best), 1e-12)
+              if is_feasible else None)
+    return {'status':'selected_feasible' if is_feasible else 'false_feasible_selection',
+            'selected_index':selected,'selected_measured_feasible':is_feasible,
+            'measured_pool_regret_fraction':regret}
+
+
+def _sample_identity(group_key, records, sampled, objective, budget_fraction):
+    """Audit one optimizer update without exposing labels or QoR as features."""
+    return {
+        'context': [group_key[0], group_key[1], float(group_key[2])],
+        'candidate_hashes': [records[index]['config_hash'] for index in sampled],
+        'objective': str(objective),
+        'budget_fraction': float(budget_fraction),
+    }
+
+
+def _sample_trace_sha256(trace):
+    return sha256_json(trace)
+
+
+def model_state_sha256(model):
+    digest = hashlib.sha256()
+    for name, value in sorted(model.state_dict().items()):
+        tensor = value.detach().cpu().contiguous()
+        digest.update(name.encode())
+        digest.update(str(tensor.dtype).encode())
+        digest.update(json.dumps(list(tensor.shape), separators=(',', ':')).encode())
+        digest.update(tensor.numpy().tobytes())
+    return digest.hexdigest()
+
+
 def evaluate(model, dataset, groups, mean, std, arm, device, max_candidates=None):
     """Evaluate QoR and measured-pool ranking without test-based selection."""
     model.eval()
@@ -401,6 +539,7 @@ def evaluate(model, dataset, groups, mean, std, arm, device, max_candidates=None
             capacities = np.asarray(records[0]['capacities'], dtype=np.float64)
             measured_area = np.mean(true[:, 1:] / capacities[None, :], axis=1)
             budgets = {}
+            prediction_by_budget = {}
             for fraction in BUDGET_FRACTIONS:
                 graph_cpu = dataset.graph_tensor(records[0], fraction, arm)
                 graph = graph_cpu.to(device)
@@ -415,6 +554,7 @@ def evaluate(model, dataset, groups, mean, std, arm, device, max_candidates=None
                     raw = torch.expm1(z * std.to(device) + mean.to(device)).clamp_min(0)
                     predictions.extend(raw.cpu().tolist())
                 pred = np.asarray(predictions, dtype=np.float64)
+                prediction_by_budget[float(fraction)] = pred
                 lat_mape = np.mean(np.abs(pred[:, 0] - true[:, 0]) / np.maximum(true[:, 0], 1e-12))
                 resource_mae_fraction = np.mean(np.abs(pred[:, 1:] - true[:, 1:]) / capacities[None, :])
                 predicted_area = np.mean(pred[:, 1:] / capacities[None, :], axis=1)
@@ -427,11 +567,13 @@ def evaluate(model, dataset, groups, mean, std, arm, device, max_candidates=None
                 for name, measured_score, predicted_score in score_vectors:
                     chosen = int(np.argmin(predicted_score))
                     best = float(np.min(measured_score))
+                    spearman, spearman_reason = _rank_statistic(spearmanr, measured_score, predicted_score)
+                    kendall, kendall_reason = _rank_statistic(kendalltau, measured_score, predicted_score)
                     objectives[name] = {
-                        'spearman':float(spearmanr(measured_score, predicted_score)[0])
-                            if len(set(measured_score.tolist())) > 1 and len(set(predicted_score.tolist())) > 1 else None,
-                        'kendall':float(kendalltau(measured_score, predicted_score)[0])
-                            if len(set(measured_score.tolist())) > 1 and len(set(predicted_score.tolist())) > 1 else None,
+                        'spearman': spearman,
+                        'spearman_undefined_reason': spearman_reason,
+                        'kendall': kendall,
+                        'kendall_undefined_reason': kendall_reason,
                         # Validation may use a deterministic prefix. Record
                         # regret against the evaluated set, not as though the
                         # complete measured pool had been searched.
@@ -441,31 +583,28 @@ def evaluate(model, dataset, groups, mean, std, arm, device, max_candidates=None
                 limits = capacities * fraction
                 measured_feasible = np.all(true[:, 1:] <= limits[None, :], axis=1)
                 predicted_feasible = np.all(pred[:, 1:] <= limits[None, :], axis=1)
-                fp = int(np.sum(predicted_feasible & ~measured_feasible))
-                predicted_count = int(predicted_feasible.sum())
                 feasible_result = {
                     'fraction_of_physical_capacity':fraction,
-                    'measured_feasible_candidates':int(measured_feasible.sum()),
-                    'predicted_feasible_candidates':predicted_count,
-                    'feasibility_accuracy':float(np.mean(predicted_feasible == measured_feasible)),
-                    'false_feasible_rate_among_predicted_feasible':fp / max(1, predicted_count),
-                    'no_measured_feasible_candidate':not bool(measured_feasible.any()),
+                    **_feasibility_metrics(measured_feasible, predicted_feasible),
                 }
                 for name, measured_score, predicted_score in score_vectors:
-                    selected = np.flatnonzero(predicted_feasible)
-                    if len(selected) and measured_feasible.any():
-                        chosen = int(selected[np.argmin(predicted_score[selected])])
-                        best_feasible = float(np.min(measured_score[measured_feasible]))
-                        selected_is_feasible = bool(measured_feasible[chosen])
-                        feasible_result[name] = {
-                            'selected_measured_feasible':selected_is_feasible,
-                            'feasible_pool_regret_fraction':float(
-                                (measured_score[chosen] - best_feasible) / max(abs(best_feasible),1e-12))
-                                if selected_is_feasible else None,
-                        }
-                    else:
-                        feasible_result[name] = {'selected_measured_feasible':False,
-                                                  'feasible_pool_regret_fraction':None}
+                    selection = _feasible_selection(
+                        predicted_score, measured_score, predicted_feasible, measured_feasible)
+                    if selection['selected_index'] is not None:
+                        chosen_record = records[selection['selected_index']]
+                        selection['selected_config_hash'] = chosen_record['config_hash']
+                        selection['selected_assignment'] = chosen_record['assignment']
+                    top_k = _topk_feasible_selection(
+                        predicted_score, measured_score, predicted_feasible,
+                        measured_feasible)
+                    for summary in top_k.values():
+                        shortlist_records = [records[index] for index in summary['shortlist_indices']]
+                        summary['shortlist_config_hashes'] = [row['config_hash'] for row in shortlist_records]
+                        summary['shortlist_assignments'] = [row['assignment'] for row in shortlist_records]
+                    feasible_result[name] = {
+                        'selection': selection,
+                        'top_k_measured_pool': top_k,
+                    }
                 scenario = {'fraction':fraction,'latency_mape':float(lat_mape),
                             'resource_mae_fraction':float(resource_mae_fraction),
                             'latency_mae_ms':float(np.mean(np.abs(pred[:,0] - true[:,0]))),
@@ -484,8 +623,103 @@ def evaluate(model, dataset, groups, mean, std, arm, device, max_candidates=None
                                                       else 'deterministic_hash_prefix_subset'),
                              'primary_full_budget':primary,'budget_scenarios':budgets}
             per_group.append(group_metrics)
+            full = prediction_by_budget.get(1.0)
+            half = prediction_by_budget.get(0.5)
+            if full is not None and half is not None:
+                normalization = np.asarray([max(float(np.mean(true[:, 0])), 1e-12), *capacities], dtype=np.float64)
+                shift = np.mean(np.abs(full - half), axis=0)
+                group_metrics['budget_qor_prediction_shift'] = {
+                    'same_candidate_physical_qor_should_be_budget_invariant': True,
+                    'mean_absolute_shift_by_target': shift.tolist(),
+                    'mean_absolute_shift_normalized_by_latency_mean_and_resource_capacity': (shift / normalization).tolist(),
+                }
     if not per_group:
         raise ValueError('No measured contexts available for evaluation')
+    ranking_counts = {}
+    for name in OBJECTIVES:
+        rows = [row['primary_full_budget']['objectives'][name] for row in per_group]
+        ranking_counts[name] = {
+            'contexts':len(rows),
+            'defined_spearman':sum(row['spearman'] is not None for row in rows),
+            'undefined_spearman':sum(row['spearman'] is None for row in rows),
+            'defined_kendall':sum(row['kendall'] is not None for row in rows),
+            'undefined_kendall':sum(row['kendall'] is None for row in rows),
+            'undefined_spearman_reasons':dict(sorted(Counter(
+                row['spearman_undefined_reason'] for row in rows
+                if row['spearman_undefined_reason'] is not None).items())),
+            'undefined_kendall_reasons':dict(sorted(Counter(
+                row['kendall_undefined_reason'] for row in rows
+                if row['kendall_undefined_reason'] is not None).items())),
+        }
+    feasibility_cases = [scenario['feasibility'] for row in per_group
+                         for scenario in row['budget_scenarios'].values()]
+    predicted_feasible_total = sum(item['predicted_feasible_candidates'] for item in feasibility_cases)
+    measured_feasible_total = sum(item['measured_feasible_candidates'] for item in feasibility_cases)
+    fp_total = sum(item['false_positive'] for item in feasibility_cases)
+    fn_total = sum(item['false_negative'] for item in feasibility_cases)
+    feasibility_totals = {
+        'candidate_count': sum(item['candidate_count'] for item in feasibility_cases),
+        'true_positive': sum(item['true_positive'] for item in feasibility_cases),
+        'false_positive': fp_total,
+        'false_negative': fn_total,
+        'true_negative': sum(item['true_negative'] for item in feasibility_cases),
+        'precision_among_predicted_feasible': (
+            (predicted_feasible_total - fp_total) / predicted_feasible_total
+            if predicted_feasible_total else None),
+        'recall_of_measured_feasible': (
+            (measured_feasible_total - fn_total) / measured_feasible_total
+            if measured_feasible_total else None),
+        'false_feasible_rate_among_predicted_feasible': (
+            fp_total / predicted_feasible_total if predicted_feasible_total else None),
+        'false_infeasible_rate_among_measured_feasible': (
+            fn_total / measured_feasible_total if measured_feasible_total else None),
+        'contexts_without_predicted_feasible_candidate': sum(item['no_predicted_feasible_candidate'] for item in feasibility_cases),
+        'contexts_without_measured_feasible_candidate': sum(item['no_measured_feasible_candidate'] for item in feasibility_cases),
+    }
+    topk_summary = {}
+    for objective in OBJECTIVES:
+        topk_summary[objective] = {}
+        selections = [scenario['feasibility'][objective]['selection']
+                      for row in per_group for scenario in row['budget_scenarios'].values()]
+        for k in TOP_K_VALUES:
+            entries = [scenario['feasibility'][objective]['top_k_measured_pool'][str(k)]
+                       for row in per_group for scenario in row['budget_scenarios'].values()]
+            reference = [item for item in entries if item['status'] != 'no_measured_feasible_reference']
+            successful = [item for item in reference if item['success']]
+            regrets = [item['measured_pool_regret_fraction'] for item in successful]
+            topk_summary[objective][str(k)] = {
+                'context_budget_groups': len(entries),
+                'groups_with_measured_feasible_reference': len(reference),
+                'groups_with_no_measured_feasible_reference': len(entries) - len(reference),
+                'feasible_success_count': len(successful),
+                'feasible_success_rate_when_reference_exists': (
+                    len(successful) / len(reference) if reference else None),
+                'failure_count_when_reference_exists': len(reference) - len(successful),
+                'macro_measured_pool_regret_fraction_on_successes': (
+                    float(np.mean(regrets)) if regrets else None),
+                'regret_denominator': 'successful groups only; failures are reported separately',
+            }
+        topk_summary[objective]['single_candidate_selection'] = {
+            'context_budget_groups':len(selections),
+            'selected_feasible_count':sum(item['status']=='selected_feasible' for item in selections),
+            'false_feasible_selection_count':sum(item['status']=='false_feasible_selection' for item in selections),
+            'no_predicted_feasible_candidate_count':sum(item['status']=='no_predicted_feasible_candidate' for item in selections),
+            'no_measured_feasible_reference_count':sum(item['status']=='no_measured_feasible_reference' for item in selections),
+            'selection_success_rate_when_reference_exists':(
+                sum(item['status']=='selected_feasible' for item in selections) /
+                sum(item['status']!='no_measured_feasible_reference' for item in selections)
+                if any(item['status']!='no_measured_feasible_reference' for item in selections) else None),
+            'macro_measured_pool_regret_on_feasible_selections':(
+                float(np.mean([item['measured_pool_regret_fraction'] for item in selections
+                               if item['measured_pool_regret_fraction'] is not None]))
+                if any(item['measured_pool_regret_fraction'] is not None for item in selections) else None),
+        }
+    budget_shifts = [row['budget_qor_prediction_shift'] for row in per_group
+                     if 'budget_qor_prediction_shift' in row]
+    defined_rank_values = [metric['spearman'] for row in per_group
+                           for metric in row['primary_full_budget']['objectives'].values()
+                           if metric['spearman'] is not None]
+    macro_rank = float(np.mean(defined_rank_values)) if defined_rank_values else 0.0
     return {
         'contexts':per_group,
         'macro_latency_mape':float(np.mean([row['primary_full_budget']['latency_mape'] for row in per_group])),
@@ -497,15 +731,25 @@ def evaluate(model, dataset, groups, mean, std, arm, device, max_candidates=None
         'macro_feasibility_accuracy':float(np.mean([
             scenario['feasibility']['feasibility_accuracy']
             for row in per_group for scenario in row['budget_scenarios'].values()])),
-        'macro_rank_spearman':float(np.mean([
-            metric['spearman'] for row in per_group
-            for metric in row['primary_full_budget']['objectives'].values()
-            if metric['spearman'] is not None])) if any(
-                metric['spearman'] is not None for row in per_group
-                for metric in row['primary_full_budget']['objectives'].values()) else 0.0,
+        'macro_rank_spearman':macro_rank,
+        'macro_rank_spearman_defined':bool(defined_rank_values),
+        'macro_rank_spearman_selection_fallback':(
+            None if defined_rank_values else '0.0 neutral fallback for predeclared validation score; see undefined counts'),
+        'ranking_definedness': ranking_counts,
         'macro_evaluated_pool_regret_fraction':float(np.mean([
             metric['evaluated_pool_regret_fraction'] for row in per_group
             for metric in row['primary_full_budget']['objectives'].values()])),
+        'feasibility_candidate_weighted_counts': feasibility_totals,
+        'top_k_measured_pool_selection': topk_summary,
+        'budget_qor_prediction_shift': {
+            'context_count': len(budget_shifts),
+            'macro_mean_absolute_shift_by_target': (
+                np.mean([row['mean_absolute_shift_by_target'] for row in budget_shifts], axis=0).tolist()
+                if budget_shifts else None),
+            'macro_mean_absolute_shift_normalized_by_target': (
+                np.mean([row['mean_absolute_shift_normalized_by_latency_mean_and_resource_capacity']
+                         for row in budget_shifts], axis=0).tolist() if budget_shifts else None),
+        },
     }
 
 
@@ -749,15 +993,29 @@ def run(args):
                 best_state = state['best_model_state']
                 stale_checks = int(state['stale_checks'])
                 arm_started = time.time()
+                initial_model_sha256 = arm_report.get('initial_model_sha256')
+                sample_identity_trace = arm_report.setdefault('sample_identity_trace', [])
+                if not initial_model_sha256 or len(sample_identity_trace) != current_step:
+                    raise ValueError('Resume checkpoint lacks a complete initialization/sampling audit')
+                if arm == 'hardware':
+                    numerical = report.get('models', {}).get('numerical', {})
+                    numerical_trace = numerical.get('sample_identity_trace', [])
+                    if initial_model_sha256 != numerical.get('initial_model_sha256'):
+                        raise ValueError('Resumed arms do not share identical initial parameters')
+                    if len(numerical_trace) < current_step or sample_identity_trace != numerical_trace[:current_step]:
+                        raise ValueError('Resumed hardware sampling prefix differs from the numerical arm')
             else:
                 # Reset before each arm to match the initial weights and the
                 # kernel/context/candidate/objective/budget sampling sequence.
                 random.seed(SEED); np.random.seed(SEED)
                 torch.manual_seed(SEED); torch.cuda.manual_seed_all(SEED)
                 model = CandidateQoRModel().to(device)
+                initial_model_sha256 = model_state_sha256(model)
                 optimizer = torch.optim.AdamW(model.parameters(),lr=args.lr,weight_decay=args.weight_decay)
                 arm_report = {'parameters':sum(p.numel() for p in model.parameters()),
-                              'train_curve':[],'validation_history':[],'status':'training'}
+                              'train_curve':[],'validation_history':[],'status':'training',
+                              'initial_model_sha256':initial_model_sha256,
+                              'sample_identity_trace':[]}
                 current_step = 0
                 best_validation = float('inf')
                 best_validation_metrics = None
@@ -765,6 +1023,11 @@ def run(args):
                 best_state = None
                 stale_checks = 0
                 arm_started = time.time()
+                sample_identity_trace = arm_report['sample_identity_trace']
+                if arm == 'hardware':
+                    reference = report.get('models', {}).get('numerical', {})
+                    if initial_model_sha256 != reference.get('initial_model_sha256'):
+                        raise ValueError('Matched arms do not share identical initial parameters')
             model.train()
             while current_step < args.steps:
                 step = current_step + 1
@@ -775,6 +1038,13 @@ def run(args):
                 sampled = sorted(random.sample(range(len(group)),count))
                 objective = random.choice(OBJECTIVES)
                 fraction = random.choice(BUDGET_FRACTIONS)
+                sample_identity = _sample_identity(group_key, group, sampled, objective, fraction)
+                if arm == 'hardware':
+                    numerical_trace = report.get('models', {}).get('numerical', {}).get(
+                        'sample_identity_trace', [])
+                    if step <= len(numerical_trace) and sample_identity != numerical_trace[step - 1]:
+                        raise ValueError(f'Matched-arm sampling diverged at update {step}')
+                sample_identity_trace.append(sample_identity)
                 loss, reg, rank, details = _train_step(
                     model,optimizer,dataset,group_key,sampled,objective,fraction,
                     mean,std,arm,device,rank_weight=args.rank_weight,
@@ -787,6 +1057,7 @@ def run(args):
                 if step % args.progress_every == 0 or step == 1:
                     _append_progress(output,'optimizer_update',arm=arm,step=step,
                                      objective=objective,budget_fraction=fraction,
+                                     sample_identity=sample_identity,
                                      loss=loss,qor_loss=reg,ranking_loss=rank,**details,
                                      **_gpu_memory(device))
                     _write_status(output,'training',protocol_fingerprint=fingerprint,
@@ -864,6 +1135,14 @@ def run(args):
 
             if best_state is None or best_validation_step is None:
                 raise RuntimeError(f'{arm} arm reached completion without a validation-selected state')
+            arm_report['sample_identity_trace_sha256'] = _sample_trace_sha256(sample_identity_trace)
+            arm_report['sample_identity_trace_length'] = len(sample_identity_trace)
+            if arm == 'hardware':
+                numerical = report['models']['numerical']
+                common_steps = min(len(sample_identity_trace), len(numerical['sample_identity_trace']))
+                if sample_identity_trace[:common_steps] != numerical['sample_identity_trace'][:common_steps]:
+                    raise ValueError('Matched-arm sampled training identities differ')
+                arm_report['matched_sampling_prefix_updates'] = common_steps
             arm_report.update({'seconds':time.time()-arm_started,
                                'best_validation_selection_score':best_validation,
                                'validation_selected_at_step':best_validation_step,
