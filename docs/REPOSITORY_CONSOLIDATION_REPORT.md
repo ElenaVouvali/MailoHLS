@@ -193,3 +193,18 @@ help. Installed Python dependencies were reused; no environment installation or
 model download was performed. Before/after five-part inventories are available
 outside Git under `/tmp/mailohls-simplification-before/` and
 `/tmp/mailohls-simplification-after/` (the latter at `009e6b9`).
+
+Draft PR: https://github.com/ElenaVouvali/MailoHLS/pull/2 . The new maintenance
+branch is published. `main` is not merged, all original research branches remain,
+and no branch retirement is authorized by this PR. Implementation commits are
+`b75a2e9` (code/tooling), `009e6b9` (guides), and `d13719b` (validation receipt).
+The final audit commit is the branch/PR head, discoverable via `git rev-parse HEAD`.
+
+Final reviewed tree: 3733 files; 566681835 bytes; 458 Python files; 468 duplicate groups; 1136 redundant paths.
+
+Manifest resolution in the clean export: the selected family split, memory path
+and selected Stage-1/2/3 metadata directories exist. The selected GNN `.pth` is
+not supplied in source; directory existence does not establish weight availability.
+Full checkpoint deserialization/inference therefore remains an external-asset
+check, not a passed test here. The 21 skipped checks concern unavailable historical
+or external graph/source fixtures and the explicitly CUDA-only FP16 smoke.

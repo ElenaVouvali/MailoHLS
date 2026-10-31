@@ -25,13 +25,17 @@ def tree(ref):
 
 
 def classify(path):
-    if path.startswith(('Data/', 'evaluation_set/', 'toolchain/', 'mailohls_runs/')) or path == 'FINAL_ARTIFACTS.json':
+    if path.startswith(('Data/', 'evaluation_set/', 'toolchain/', 'mailohls_runs/', 'GNN_branch/targets/')) or path == 'FINAL_ARTIFACTS.json':
         return 'PROTECTED'
-    if path.startswith(('Checkpoints/', 'old_', 'src/')):
+    if path.startswith('Checkpoints/'):
         return 'REQUIRED_PROVENANCE'
     if path.startswith(('plots/ta_synthesis/', 'artifacts/', 'GNN_branch/MLIR_graphs/')):
         return 'EXTERNAL_ARTIFACT_CANDIDATE'
-    return 'UNIQUE_ACTIVE_IMPLEMENTATION'
+    if path.startswith(('src/', 'old_', 'HARP-rep/', 'LIFT_')):
+        return 'UNIQUE_HISTORICAL_IMPLEMENTATION'
+    if path.startswith(('GNN_branch/', 'LLM_branch/', 'Preprocessing/', 'experiments/', 'scripts/', 'tests/')):
+        return 'UNIQUE_ACTIVE_IMPLEMENTATION'
+    return 'UNKNOWN_DEPENDENCY'
 
 
 def main():
