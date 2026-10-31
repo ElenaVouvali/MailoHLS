@@ -48,3 +48,16 @@ The retained tree also includes the external-kernel experiments and unseen-kerne
 checkpoints. No callers outside the HARP trees referenced either directory;
 the repository map and upstream provenance now point to `HARP-rep/`. Removing
 the duplicate directory reclaims approximately 576 MiB in this checkout.
+
+## Legacy entry points (2026-10-31 maintenance branch)
+
+Four additional exact copies now delegate to their canonical implementation:
+`src/data.py` → `GNN_branch/data.py`, `src/cpp_to_gnn_emb.py` →
+`GNN_branch/cpp_to_gnn_emb.py`, `src/filter_jsonl.py` →
+`Preprocessing/filter_jsonl.py`, and `src/inference_qLoRA.py` →
+`LLM_branch/inference/inference_qLoRA.py`. Original source is recoverable at
+`7c6844f`; canonical code is unchanged. The compatibility entries preserve legacy
+module names, script guards and caller-selected sibling imports. Other `src/`
+files and historical checkpoint snapshots are retained. See the
+[maintenance report](REPOSITORY_CONSOLIDATION_REPORT.md) for exact measurements
+and deferred artifact cleanup.
