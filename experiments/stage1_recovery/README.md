@@ -38,7 +38,10 @@ selected-winner replacement is never performed. The compact audited output is
 These request counts reuse 905 selected measured rows and are **not** independent
 hardware measurements. The raw train partition contains 130,310 rows and no
 conflicting or exact repeated design identities under the audited key. Alternative
-sets are descriptive; they are not yet a new supervision policy.
+sets are descriptive; they are not yet a new supervision policy. All 117,905
+distinct measured training assignments were also checked against the frozen
+source-domain registry, including complete field sets and sequential array-tuple
+legality. The registry SHA256 is recorded in the result JSON.
 
 | Decision | Alternatives considered | Reason | Scientific consequence |
 |---|---|---|---|
@@ -67,21 +70,31 @@ measured-candidate quality first, runs a two-update smoke for each policy,
 then trains and evaluates the two arms in fresh output directories. It refuses
 existing output paths and any V100S compute process. It does not use the A2.
 
-After the baseline report exists, the exact command is:
+After the baseline report exists, the exact command on `liono` is:
 
 ```bash
 mkdir -p artifacts/diagnostics/stage1_conditional_study_20261101
-nohup bash scripts/experiments/stage1_conditional_study.sh \
-  > artifacts/diagnostics/stage1_conditional_study_20261101/supervisor.log 2>&1 &
+systemd-run --user --unit=mailohls-stage1-conditional-20261101 --collect \
+  --working-directory="$(pwd)" /bin/bash -lc \
+  'bash scripts/experiments/stage1_conditional_study.sh >> artifacts/diagnostics/stage1_conditional_study_20261101/supervisor.log 2>&1'
 ```
 
 Read `artifacts/diagnostics/stage1_conditional_study_20261101/status` and the
-policy-specific logs and reports. An interrupted run is preserved; this launcher
+policy-specific logs and reports. `systemctl --user status
+mailohls-stage1-conditional-20261101.service` reports service state. An
+interrupted run is preserved; this launcher
 does not call an adapter-only save a valid optimizer-state resume and refuses a
 second launch with an existing status file. The same historical evaluation
 functions provide source-domain legality, complete actions, target transitions
 and measured-pool QoR. Unmeasured outputs retain unknown QoR. No checkpoint is
 promoted automatically.
+
+### Implementation change log
+
+| Commit | Files | Nature and motivation | Scientific contract | Verification and evidence |
+|---|---|---|---|---|
+| `d4b7a10` | `ambiguity.py`, focused tests, compact JSON | Add authenticated train-only feasible-set sensitivity audit | Read-only; original selected labels and losses unchanged | 130,310 train rows; 2,187 requests; synthetic feasibility/duplicate/held-out tests passed. |
+| `be78077` | Study launcher, root/method/results docs | Guard a sequential V100 comparison behind matched full baseline validation | Research outputs only; no checkpoint promotion | Launcher syntax and 176 CPU tests passed; model arms remain pending until actual completion. |
 
 ## Model and output
 

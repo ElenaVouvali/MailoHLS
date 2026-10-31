@@ -2,7 +2,8 @@
 import pytest
 import json
 
-from experiments.stage1_recovery.ambiguity import audit, candidate_banks, load_training_rows, near_optimal
+from experiments.stage1_recovery.ambiguity import (
+    audit, candidate_banks, load_training_rows, near_optimal, validate_measurement_domains)
 from experiments.stage1_recovery.prepare import sha
 
 
@@ -59,3 +60,13 @@ def test_training_loader_never_parses_heldout_labels(tmp_path):
     split.write_text(json.dumps(dict(train_jsonl_idx=[0], val_jsonl_idx=[0], test_jsonl_idx=[])))
     with pytest.raises(ValueError, match='overlaps'):
         load_training_rows(dataset, split, sha(dataset))
+
+
+def test_complete_legal_assignment_validation():
+    registry = {'example': {'AUTO{_UNROLL_L1}': ['0', '1']}}
+    candidates = lambda kernel, field, registry, prefix: (None, registry[kernel][field])
+    assert validate_measurement_domains([row(0, 1, 100)], registry, candidates, str) == 1
+    with pytest.raises(ValueError, match='Illegal measured directive'):
+        validate_measurement_domains([row(0, 2, 100)], registry, candidates, str)
+    with pytest.raises(ValueError, match='Incomplete or extra'):
+        validate_measurement_domains([row(0, 1, 100)], {'example': {}}, candidates, str)

@@ -22,7 +22,9 @@ or measured hardware-quality result.
 
 The new [authenticated training-only ambiguity audit](results/conditional_ambiguity_20261101.json)
 used 130,310 training measurements, 2,187 selected contexts, 905 selected row
-identities and 772 distinct selected program/directive assignments. It found
+identities and 772 distinct selected program/directive assignments. All 117,905
+distinct measured training assignments passed the frozen source-domain and
+complete-tuple checks. It found
 another distinct feasible complete assignment at the same recorded latency for
 1,287 requests, within 0.5% for 1,832, within 1% for 1,862 and within 2% for
 1,904. At 1%, the alternative set disagrees with the selected assignment in

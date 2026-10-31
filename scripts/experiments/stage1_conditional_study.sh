@@ -24,10 +24,9 @@ on_exit() {
 }
 trap on_exit EXIT
 status PREFLIGHT
-if [[ -n "${BASELINE_EVAL_PID:-}" ]]; then
+if [[ -n "${BASELINE_EVAL_UNIT:-}" ]]; then
   # The first supervised comparison must finish before any new training.
-  for ((minute=0; minute<240; minute++)); do
-    if ! kill -0 "$BASELINE_EVAL_PID" 2>/dev/null; then break; fi
+  while systemctl --user is-active --quiet "$BASELINE_EVAL_UNIT"; do
     sleep 60
   done
 fi

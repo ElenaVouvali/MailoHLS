@@ -67,6 +67,33 @@ def candidate_banks(rows):
     return banks, repeats
 
 
+def validate_measurement_domains(rows, registry, candidates, normalize):
+    """Check every distinct measured assignment against source-registered sites.
+
+    The passed candidate function is the authoritative sequential domain
+    implementation, including ARRAY_PARTITION tuple constraints.
+    """
+    seen = set()
+    for row in rows:
+        kernel = row["kernel_name"]
+        design = assignment(row["target"])
+        key = (kernel, design)
+        if key in seen:
+            continue
+        seen.add(key)
+        expected = registry[normalize(kernel)]
+        actual = parse(row["target"])
+        if set(actual) != set(expected):
+            raise ValueError(f"Incomplete or extra measured directive fields: {kernel}")
+        prefix = {}
+        for field, value in actual.items():
+            legal = candidates(kernel, field, registry, prefix)[1]
+            if value not in legal:
+                raise ValueError(f"Illegal measured directive: {kernel}/{field}={value}")
+            prefix[field] = value
+    return len(seen)
+
+
 def feasible_designs(request, bank):
     limits = tuple(float(request[k]) for k in BUDGET)
     return {design: receipt for design, receipt in bank.items()
@@ -156,9 +183,16 @@ def main():
     manifest = prepare(Path("mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1"), args.prepared)
     selected = [json.loads(line) for line in (Path(args.prepared) / "train_reconstructed_selected.jsonl").read_text().splitlines()]
     raw = load_training_rows(args.dataset, args.split, manifest["dataset_sha256"])
+    from LLM_branch.train import train_SFT_xattn_new as production
+    registry = production.load_directive_domain_registry(
+        "mailohls_runs/stage1_final_final_latency_s123/directive_domain_registry.json")
+    legal_count = validate_measurement_domains(
+        raw, registry, production.constrained_rhs_candidates, production.normalize_kname)
     result = audit(selected, raw)
     result.update(dataset_sha256=manifest["dataset_sha256"], split_sha256=manifest["split_sha256"],
-                  prepared_manifest_sha256=sha(Path(args.prepared) / "manifest.json"))
+                  prepared_manifest_sha256=sha(Path(args.prepared) / "manifest.json"),
+                  legal_distinct_training_measurements=legal_count,
+                  domain_registry_sha256=sha("mailohls_runs/stage1_final_final_latency_s123/directive_domain_registry.json"))
     path = Path(args.output)
     if path.exists():
         raise FileExistsError(path)
