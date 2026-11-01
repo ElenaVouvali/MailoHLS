@@ -8,7 +8,7 @@ measured-data experiment.
 from __future__ import annotations
 
 import argparse
-from collections import OrderedDict, defaultdict
+from collections import Counter, OrderedDict, defaultdict
 import hashlib
 import json
 import math
@@ -223,7 +223,7 @@ class CandidateQoRModel(nn.Module):
 
 class PreparedData:
     """Authenticated rows/graphs; expensive graph tensors are cached on CPU."""
-    def __init__(self, release_dir, audit_path):
+    def __init__(self, release_dir, audit_path, selected_kernels=None):
         self.release_dir = Path(release_dir)
         self.audit = audit_dataset(self.release_dir, audit_path)
         if self.audit['gate'] not in ('pass', 'pass_with_explicit_exclusions'):
@@ -231,6 +231,12 @@ class PreparedData:
         self.split = json.loads(SPLIT.read_text())
         self.examples, self.kernel_manifest, _ = build_examples(PREPROCESSED)
         self.index_split, self.kernel_split = _family_split(self.split, len(self.examples))
+        selected = None if selected_kernels is None else set(selected_kernels)
+        if selected is not None:
+            unknown = selected - set(self.kernel_split)
+            if unknown:
+                raise ValueError('Selected probe kernels are absent from the authenticated split: '
+                                 + ', '.join(sorted(unknown)))
         self.registry = overlay.load_registry()
         # The exact per-kernel action inventory is joined to the audited graph
         # member using its full kernel-name prefix, then rechecked by identity.
@@ -239,7 +245,8 @@ class PreparedData:
         self.profile_names = {}
         self.preprocessed_action_cache = {}
         from LLM_branch.common.directive_domains import tcad
-        for kernel in sorted({row['kernel_name'] for row in self.examples}):
+        graph_kernels = ({row['kernel_name'] for row in self.examples} if selected is None else selected)
+        for kernel in sorted(graph_kernels):
             item = next((x for x in self.audit['kernels']
                          if Path(x['graph_member']).name.startswith(kernel + '-')), None)
             if item is None:
@@ -256,6 +263,8 @@ class PreparedData:
         device_map = {'xczu7ev-ffvc1156-2-e': 'zcu104', 'xcu200-fsgd2104-2-e': 'u200'}
         for row_index, row in enumerate(self.examples):
             kernel = row['kernel_name']
+            if selected is not None and kernel not in selected:
+                continue
             if self.index_split[row_index] != self.kernel_split[kernel]:
                 raise ValueError('Family split index/kernel mismatch')
             profile_name = device_map.get(row['device'].lower())
