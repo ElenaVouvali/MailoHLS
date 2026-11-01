@@ -434,7 +434,13 @@ def _candidate_access_bank(row, loop_target, lane_count, mode, factor, dimension
     if mode=='block':
         # Zero-based lane scenario is stated explicitly; unknown base is not inferred.
         if len(loops)>1:return None
-        return [block_bank(coeff*i+offset,shape[dim],factor) for i in range(lane_count)]
+        # A requested unroll factor can exceed the remaining loop trip count,
+        # so the final nominal lanes may not execute. Likewise, affine offsets
+        # can place a displayed lane outside the declared extent. Such a lane
+        # has no bank identity; it is not a malformed source assignment and
+        # must not abort candidate-demand construction.
+        return [block_bank(index,shape[dim],factor) if 0<=index<shape[dim] else None
+                for index in (coeff*i+offset for i in range(lane_count))]
     if mode=='complete':
         extent=shape[dim]
         return [coeff*i+offset if 0<=coeff*i+offset<extent else None for i in range(lane_count)]
@@ -491,7 +497,8 @@ def candidate_demand_descriptors(graph, assignments, actions):
                         'root_candidates_complete':row.get('root_candidates_complete',False),
                         'banks':banks,'witness':row.get('supporting_edge')})
                 allbanks=[b for rec in known_patterns for b in rec['banks'] if b is not None]
-                collisions=sum(len(rec['banks'])-len(set(rec['banks'])) for rec in known_patterns)
+                collisions=sum(len(valid)-len(set(valid)) for rec in known_patterns
+                               for valid in ([bank for bank in rec['banks'] if bank is not None],))
                 bank_records.append({'array_action':array,'memory_object':atarget,'partition':{'type':mode,'factor':ff,'dimension':dd},
                     'lane_scenario':{'induction_variable_values':list(range(lanes)),
                         'base_iteration_assumption':'zero for displayed bank IDs; cyclic pairwise collision pattern is invariant to a uniform base-index shift; block mapping is scenario-only'},

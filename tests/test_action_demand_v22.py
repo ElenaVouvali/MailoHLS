@@ -143,6 +143,18 @@ def test_candidate_bank_scenarios_are_explicit_and_unknown_when_unsupported():
     assert demand._candidate_access_bank(row,'inner',4,'complete',4,0,[32,64]) is None
 
 
+def test_block_partition_marks_nonexecuting_or_out_of_extent_lanes_unknown():
+    row={'access_indices':{'status':'compiler_recorded','affine_map':'affine_map<(d0)->(d0)>',
+                           'induction_loops':['loop']}}
+    # A legal factor-four unroll can expose nominal lanes beyond a ten-element
+    # extent. Those tail lanes may not execute and have no valid bank ID.
+    assert demand._candidate_access_bank(row,'loop',12,'block',4,1,[10]) == [
+        0,0,0,1,1,1,2,2,2,3,None,None]
+    row['access_indices']['affine_map']='affine_map<(d0)->(d0-1)>'
+    assert demand._candidate_access_bank(row,'loop',3,'block',4,1,[10]) == [
+        None,0,0]
+
+
 def test_action_relations_and_static_vectors_are_repeatable(graphs):
     graph=graphs['lud']
     left=demand.static_action_descriptors(graph)
