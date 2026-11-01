@@ -33,13 +33,15 @@ the latest recorded full paired run has no selected checkpoint or QoR result.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
-On `research/gnn-refinement`, a V4 follow-up has now shown that the existing
-candidate-conditioned model can partially memorize a fixed 24-design training
-context. A 100-update, three-arm family-held-out probe across two devices and
-three clocks remains weak: explicit hardware messages do not consistently
-improve ranking or selection, and the measured budget behavior is not reliable.
+On `research/gnn-refinement`, the V4 follow-up now includes a corrected
+300-update three-arm comparison and a separately versioned physical-QoR /
+feasibility ablation. The models show some candidate-ranking signal, but
+resource feasibility remains at the always-feasible baseline, device-pair
+coverage is too small for a conditioning claim, and hardware-message gains are
+inconsistent. Separating resource budget from physical-QoR prediction enforces
+the expected invariance but does not establish better candidate selection.
 This is not evidence for Stage-2 integration or broad target generalization.
-The detailed results and bounded next step are in
+The detailed results and next research step are in
 [`experiments/v22_gnn_training/RESULTS.md`](experiments/v22_gnn_training/RESULTS.md).
 V4 remains experimental; production still uses the V1 GNN.
 

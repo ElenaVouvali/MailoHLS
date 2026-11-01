@@ -419,3 +419,49 @@ The first attempt selected Sort-Radix, whose L6 registration has no
 authenticated measured column; it failed explicitly and was preserved. The
 final manifest instead uses Viterbi and PathFinder baseline validation graphs.
 No test-split measurements were loaded into the cohort cache.
+
+## Corrected 300-update evidence and design decisions
+
+The follow-up corrected target-difference scoring: a latency delta is
+meaningful only when it exceeds `max(1e-5 ms, 1% of the larger paired
+latency)`. The absolute tolerance corresponds to one 10 ns cycle expressed in
+milliseconds. Exact complete-assignment hashes are required. Near-zero pairs
+are excluded from sign accuracy but retained in error summaries. The
+zero-area/ADP audit traced nine Viterbi/U200/5 ns measurements to source CSV
+rows whose four utilization fields are present and literally zero. Conversion
+is consistent with those recorded percentages; unavailable sub-percent raw
+counts prevent deciding whether the values are exact or rounded. The labels
+were preserved and relative regret at zero optimum remains undefined.
+
+The matched 300-update models improved some ranking measures, but not
+consistently. Hardware latency Spearman improved from 0.147 at 100 updates to
+0.392 at 300; its top-1 regret remained 2.345, and latency MAPE rose from
+0.607 to 1.001. All arms predict every 50%-budget candidate feasible, matching
+the always-feasible baseline (149/180 correct). Meaningful device evidence is
+only 3 of 45 exact pairs; the remaining 42 are near-zero. The numerical GNN
+gets the direction of clock changes right in 0.958 of the meaningful pairs,
+but its paired-delta MAE is still 7.29 ms. The hardware arm's clock direction
+accuracy is 0.042. These results do not establish reliable target response.
+
+The original V4 model also lets the requested budget change predicted
+physical QoR. The separately versioned physical-QoR/budget-separation run
+reduced this drift below `5e-7 ms`, but did not consistently improve
+validation: hardware latency Spearman fell to 0.243 and top-1 regret rose to
+6.457. Budget separation fixes a semantic inconsistency; it does not prove
+better learning.
+
+| Problem | Evidence | Decision | Alternatives | Test/result |
+|---|---|---|---|---|
+| Target-difference threshold compared a delta with itself | Any nonzero delta almost always passed | Threshold against original paired latency and one-cycle absolute tolerance | Keep defective test | Synthetic boundary tests; 91/91 clock pairs meaningful, only 3/45 device pairs |
+| Zero area/ADP optimum | Nine raw rows have present, literal zero utilization values | Preserve labels; use null relative regret and report absolute regret | Add an arbitrary epsilon or infer hidden counts | Provenance audit found no conversion defect |
+| Physical QoR changed with budget | Original V4 shifts latency by 0.412 ms (numerical) and 0.629 ms (hardware) between 100% and 50% budget | Test a separately versioned budget-independent QoR pathway | Rewrite historical V4 | Drift < `5e-7 ms`; selection did not improve consistently |
+| Hardware messages may be undertrained | 300-step hardware ranking improves, while other metrics and edge ablation are mixed | Keep current graph and encoder | Add layers, relations, or gates | Edge ablation results differ between formulations; utility is unproven |
+
+Exact receipts are in `RESULTS.md`. The original 300-update run used seed 123,
+the frozen cohort, and 20.66 GPU seconds on A2; data loading and feature
+preparation took 94.28 s and 144.47 s. The budget-independent run took 18.70
+GPU seconds and preserved the same sample trace and initial graph-model
+parameters under a separate schema. Checkpoints and raw reports remain
+outside Git. The model remains experimental; candidate-conditioned QoR
+prediction does not validate V4's candidate-independent action memory for
+Stage-2.

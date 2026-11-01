@@ -82,3 +82,38 @@ directive generation.
 
 Production remains on the V1 GNN. Do not export V4 checkpoints or action
 memories into Stage-2.
+
+## Superseding status after corrected 300-step study
+
+The recommendation above has been executed and superseded. Original V4 was
+trained for 300 matched updates/arm in
+`/home/elvouvali/mailohls-gnn-runs/v4-corrected-300-s123-20261101/attempt-03`;
+a separate physical-QoR/budget-independent 300-step ablation is in
+`attempt-04-budget-independent`. Both used the A2, same frozen seed-123 cohort,
+and less than 21 seconds of GPU work. See `RESULTS.md` for run and checkpoint
+hashes.
+
+The key corrected facts are: (1) the numerical GNN correctly predicts the
+direction of clock changes in 95.8% of meaningful paired observations, but
+paired-delta MAE is 7.29 ms; (2) only 3/45 device contrasts are meaningful, so
+device dependence cannot be assessed; (3) all models predict every 50% and
+10% candidate feasible, equal to the always-feasible baseline; (4) the
+hardware arm's 300-step ranking improves over its 100-step ranking, but
+top-1 regret stays 2.345 and the result is not consistent across all metrics;
+(5) separating feasibility budgets from physical prediction enforces
+budget-invariant QoR (drift below `5e-7 ms`) but does not improve hardware-arm
+selection.
+
+The 300-step aggregate objective fell and held-out latency ranking improved,
+while the fixed-context regression diagnostic worsened and other validation
+metrics were mixed. A 600-step fresh-from-initialization run is therefore a
+bounded convergence check, not a resume; it is justified only if launched from
+a clean, frozen source tree and within the same preparation/GPU caps. An
+initial attempt was refused by the source-cleanliness guard before training
+started; its audit files are preserved in `attempt-05-600-updates`. Do not
+disable that guard. After the documentation commit, repeat once from a fresh
+output directory with the same cohort/seed/protocol, then compare fixed-context
+and held-out trends. If training does not improve fixed-context fit and
+validation ranking together, stop and diagnose loss/sampling before considering
+paired target-difference supervision. Do not change the encoder or graph.
+V4 remains unsuitable for Stage-2 integration.

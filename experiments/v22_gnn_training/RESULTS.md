@@ -345,3 +345,152 @@ is 300–600 updates on this same frozen three-arm cohort when the A2 is free,
 with no simultaneous change to graph features, loss or selection. If
 budget-induced QoR drift persists, test a separately versioned
 physical-QoR/feasibility separation.
+
+## Corrected 300-update continuation and budget separation (2026-11-01)
+
+This section supersedes the earlier target-difference **sign** summary only;
+it does not alter historical raw receipts or weights. Target differences are
+now considered meaningful only when
+`abs(ΔL) > max(1e-5 ms, 0.01 * max(abs(L1),abs(L2)))`. The `1e-5 ms` absolute
+tolerance is one 10 ns cycle expressed in milliseconds. Near-zero pairs remain
+in paired-delta MAE/RMSE but are excluded from sign accuracy. Exact assignment
+hashes are required. Pair observations overlap across device/clock groups and
+are descriptive, not independent samples.
+
+The Viterbi/U200/5 ns zero area/ADP optimum comes from nine source CSV rows
+whose four utilization fields are present and literally `0`. Preprocessing
+preserves those values; percentage-to-capacity conversion consequently yields
+zero resource counts, area proxy and ADP. The CSV contains no sub-percent raw
+counts or precision metadata, so exact zero cannot be distinguished from
+rounded/truncated sub-percent use. No conversion defect is evidenced. Labels
+remain unchanged; relative regret at zero optimum is undefined, with absolute
+measured-pool regret reported separately. See
+[`results/zero_area_measurement_audit.json`](results/zero_area_measurement_audit.json).
+
+### Matched validation: historical 100 updates vs new 300 updates
+
+The three arms used the frozen 480-row train / 180-row validation cohort, seed
+123, same candidate sampling trace, 300 updates, and the existing optimizer
+and `SmoothL1 + 0.1 ranking` loss. Numerical and hardware GNNs shared initial
+parameter SHA256 `f4f5f98a…e2f89956`. The new run was freshly initialized, not
+resumed from step 100. All 180 validation rows are from Viterbi and PathFinder;
+the Kalman test split was not loaded. Table values are macro averages over 12
+program/device/clock contexts. Relative area/ADP regrets omit the one
+zero-optimum context.
+
+| Arm/checkpoint | Latency MAE ms | MAPE | Latency Spearman | Top-1 regret | Top-3 regret | Area Spearman | ADP Spearman |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Candidate + target, 100 | 6.4723 | 0.6888 | 0.2360 | 7.3810 | 0.2755 | 0.2831 | −0.2787 |
+| Numerical GNN, 100 | 6.5538 | 0.6126 | 0.0791 | 0.2865 | 0.0605 | 0.3308 | 0.3879 |
+| Hardware GNN, 100 | 6.3968 | 0.6066 | 0.1473 | 2.3451 | 0.0029 | 0.3571 | 0.3275 |
+| Candidate + target, 300 | 17.9620 | 6.9100 | 0.0996 | 5.5892 | 0.2028 | −0.1157 | −0.1616 |
+| Numerical GNN, 300 | 5.9332 | 1.0676 | 0.3131 | 2.7901 | 0.3575 | 0.5101 | 0.2171 |
+| Hardware GNN, 300 | 5.8389 | 1.0013 | 0.3916 | 2.3451 | 0.1775 | 0.5372 | 0.2880 |
+
+More updates improved mean latency Spearman for both GNNs, but did not
+consistently improve all metrics. Hardware top-1 regret remained unchanged;
+its MAPE rose. Predicted latency ranges remain compressed against measured
+ranges, especially on Viterbi. Candidate-only's 300-update result was worse
+than its 100-update result and is reported rather than omitted. Fixed
+Stencil2D training diagnostics show the regression SmoothL1 at step 300 was
+0.423 (numerical) and 0.445 (hardware), versus 0.387 for both near
+initialization; training does not show a clear fixed-context fit improvement.
+The 300-update training/evaluation took 20.66 GPU seconds; peak allocation was
+121.6 MB. Data load was 94.28 CPU seconds and feature preparation 144.47 CPU
+seconds.
+
+### Corrected target contrasts at full budget
+
+There are 91 exact clock-pair observations across 10 overlapping groups and
+two kernels. All 91 exceed the meaningful-difference threshold. Device
+comparisons have 45 observations, but only 3 are meaningful (all Viterbi); 42
+PathFinder device pairs are negligible. Per-kernel macro results:
+
+| Arm, 300 updates | Clock Δ MAE ms | Clock sign accuracy | Device Δ MAE ms | Meaningful device pairs | Device sign accuracy |
+|---|---:|---:|---:|---:|---:|
+| Candidate + target | 7.795 | 0.042 | 8.865 | 3/45 | 0.000 |
+| Numerical GNN | 7.292 | 0.958 | 8.313 | 3/45 | 0.000 |
+| Hardware GNN | 7.400 | 0.042 | 8.319 | 3/45 | 0.000 |
+
+The numerical GNN often predicts the clock-change direction correctly, but
+its delta magnitude error remains large. Hardware GNN's clock sign result is
+poor at 300 updates. There is insufficient meaningful device-pair coverage to
+claim device conditioning. Corrected historical 100-update clock sign
+accuracy is 0.083 / 0.917 / 0.042 (candidate/numerical/hardware); device sign
+accuracy is zero for the three meaningful pairs in all arms. These replace
+the old uncorrected sign rates.
+
+### Feasibility and physical-QoR/budget separation
+
+At 50% capacity, 149/180 rows are feasible and 31 are infeasible. Every arm
+predicts all rows feasible: accuracy 0.8278, exactly the always-feasible
+baseline, with 31 false-feasible and zero false-infeasible. At exploratory
+10%, 83/180 are feasible; all arms still predict every row feasible (accuracy
+0.4611). Feasibility is not learned.
+
+For an identical program, candidate, device and clock, changing only the
+requested budget changes original-V4 mean latency predictions by 0.4121 ms
+(numerical) and 0.6291 ms (hardware) for 100% vs 50%, and 0.7577/1.0978 ms for
+100% vs 10%. The measurements themselves do not change with this external
+feasibility request. This confirms budget/QoR conflation.
+
+A separately versioned 300-update ablation feeds full-capacity graph context
+to the physical-QoR model and uses budgets only for feasibility/ranking. The
+resulting budget-only latency drift is below `5e-7 ms`, numerical roundoff
+from batched calls. This enforces the physical invariant but does not reliably
+improve selection:
+
+| Formulation | Arm | 100%-50% latency drift | Latency MAE ms | Spearman | Top-1 regret | 50% accuracy |
+|---|---|---:|---:|---:|---:|---:|
+| Original V4 | Numerical | 0.4121 | 5.9332 | 0.3131 | 2.7901 | 0.8278 |
+| Original V4 | Hardware | 0.6291 | 5.8389 | 0.3916 | 2.3451 | 0.8278 |
+| Budget-independent | Numerical | <0.0000005 | 6.0124 | 0.2860 | 0.4514 | 0.8278 |
+| Budget-independent | Hardware | <0.0000005 | 5.9024 | 0.2426 | 6.4573 | 0.8278 |
+
+The hardware-edge inference ablation for original V4 changes mean latency
+Spearman from 0.3916 (enabled) to 0.3486 (disabled), and top-1 regret from
+2.3451 to 2.7901. In the separated model, disabling edges changes Spearman
+from 0.2426 to 0.2568 and top-1 regret from 6.4573 to 2.6183. The relation
+path is active (mean relation-gradient norm `2.57e-4`, max `1.32e-3`) but not
+consistently useful. The ablation is inference-only, not a separately trained
+numerical model.
+
+The completed original-V4 attempt-03 source commit is `dd31514`; its results,
+manifest and checkpoints are stored outside Git at
+`/home/elvouvali/mailohls-gnn-runs/v4-corrected-300-s123-20261101/attempt-03`.
+Results SHA256:
+`fec061f0dde2a72db6e99ca8d2eded3a3c7be1e908e268763c2ee57f6229107e`; manifest
+SHA256: `d52e8fd7f161e42205ce0c66d78c44f3e40dbbf8b3b6d6c75cffb5680c13a225`.
+The budget-independent attempt-04 is in the adjacent
+`attempt-04-budget-independent` directory; result SHA256
+`338b978fca62482c951be145e1811dd7c829c1b014eff350dce97b8e7c936c90`, manifest
+SHA256 `b1dda912241fc10e5db2b2f449bc13d053fec7d2fbe23cf9e69d974649dd3209`.
+Both used the A2 UUID `GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`; each CPU
+preparation was under four minutes and GPU work under 21 seconds. No test data
+were used.
+
+A conditional 600-update launch was initially refused before feature
+preparation or GPU training because the research worktree had pending
+documentation edits; the clean-source guard behaved as intended. The attempt
+directory `/home/elvouvali/mailohls-gnn-runs/v4-corrected-300-s123-20261101/attempt-05-600-updates`
+contains its data-audit receipt and must be preserved. It has zero optimizer
+updates and is not a training result. A fresh retry is only valid after the
+documentation is committed, in a new output directory, with a new recorded
+source commit.
+
+Attempt-02 trained and saved weights but failed before producing an
+authenticated results report. Its model files differ from attempt-03 because
+CUDA execution was not bitwise reproducible; only attempt-03 is treated as the
+complete original-V4 run. No metrics are inferred from attempt-02.
+
+**Conclusion:** there is partial candidate-ranking signal, and hardware
+messages sometimes affect predictions, but reliable QoR calibration,
+feasibility and device conditioning are not demonstrated. The budget split
+fixes an input-contract inconsistency but does not prove better learning. V4
+remains unsuitable for Stage-2 integration. The next single experiment should
+be a clean-source 600-update convergence check, justified by falling aggregate
+training loss and improved 300-step latency ranking, with the original cohort,
+seed, loss, optimizer and schedule unchanged. The first launch was blocked
+before training by the clean-source guard. Do not add graph depth or relations.
+Paired target-difference supervision is deferred until this convergence check
+and fixed-context fit are understood.

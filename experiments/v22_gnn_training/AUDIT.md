@@ -305,3 +305,80 @@ focused suite passed **120 tests** and `git diff --check` passed. No graph,
 target overlay, V4 feature schema, production GNN, Stage-2,
 measurements or training split changed. This one-seed, 100-update, two-family
 validation does not establish broad transfer or Stage-2 benefit.
+
+## Follow-up audit: corrected 300-step runs (2026-11-01)
+
+The metric fix uses exact candidate-assignment identity and paired source
+latencies. Meaningful latency change is
+`abs(ΔL) > max(1e-5 ms, .01 * max(abs(L1),abs(L2)))`; `1e-5 ms` is one 10 ns
+cycle. The corrected complete-pool report contains 91 clock-pair observations
+across 10 overlapping groups and 45 device-pair observations across 5 groups.
+These correspond to only two validation kernels. Clock: 91 meaningful, 0
+negligible. Device: 3 meaningful, 42 negligible. The three meaningful device
+pairs are from Viterbi; PathFinder's measured changes are below threshold.
+Overlapping assignments are not independent observations. The previous
+historical sign summary was computed with a defective threshold and must not
+be cited; corrected historical 100-step evaluations are included in the
+attempt-03 `results.json`.
+
+Zero-area provenance audit: 9 Viterbi/U200/5 ns source CSV rows have all four
+utilization columns present and literally equal to zero. The preprocessed
+table preserves these values and the established percentage/capacity
+conversion yields the zero area proxy and ADP. Raw CSV provides no count-level
+resource precision, so rounding versus true zero is unresolved. No conversion
+bug was found and source labels were not changed. Audit receipt:
+`results/zero_area_measurement_audit.json` (raw CSV SHA256
+`2e074830a6ad6597eab08d88264d5a8cbf51c47dbebe9369578a22c307cf507d`,
+preprocessed CSV SHA256
+`8fa65d6659b5d42fdf0826b2af38e26c1bef56ae5da835de6cbabedd2d6be4de`).
+
+### New 300-update original V4 run
+
+- Branch source: commit `dd31514eaeef933c12032c8cd93ca8ae6d339fa2`.
+- Dataset SHA256: `afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`.
+- Split SHA256: `d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c`.
+- RC3 archive SHA256: `feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`.
+- Cohort: same seed-123 480 training / 180 validation rows, five train and two validation families; test/Kalman excluded.
+- Manifest SHA256: `d52e8fd7f161e42205ce0c66d78c44f3e40dbbf8b3b6d6c75cffb5680c13a225`.
+- Result SHA256: `fec061f0dde2a72db6e99ca8d2eded3a3c7be1e908e268763c2ee57f6229107e`.
+- Output: `/home/elvouvali/mailohls-gnn-runs/v4-corrected-300-s123-20261101/attempt-03`.
+- A2 UUID `GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`; 300 updates/arm, 20.66 s GPU total, 121.6 MB maximum allocation; 94.28 s dataset loading and 144.47 s features.
+- Numerical/hardware initial parameter hash and sampled training trace matched. CUDA output checkpoints were not bitwise identical across retry attempts; attempt-02 has no completed report and contributes no results.
+
+The new run still predicts every validation candidate feasible at 50% and
+10%, matching always-feasible accuracy (149/180 and 83/180 respectively).
+Budget-only physical latency drift at 100%-to-50% was 0.412 ms numerical and
+0.629 ms hardware. Hardware edge inference ablation shifts latency Spearman
+0.392 to 0.349 and top-1 regret 2.345 to 2.790, a modest effect on these
+contexts, not a stable benefit.
+
+### Separately versioned physical-QoR/budget ablation
+
+The next run used schema
+`salt-hls-v4-physical-qor-budget-independent-v1`, same candidate cohort,
+sample trace and matched initial graph-model hash. It used a separate output
+directory and fresh initialization. Budget is excluded from the physical
+prediction graph path; resource feasibility still uses requested budgets.
+Result SHA256 `338b978fca62482c951be145e1811dd7c829c1b014eff350dce97b8e7c936c90`,
+manifest SHA256 `b1dda912241fc10e5db2b2f449bc13d053fec7d2fbe23cf9e69d974649dd3209`,
+output `/home/elvouvali/mailohls-gnn-runs/v4-corrected-300-s123-20261101/attempt-04-budget-independent`.
+Feature prep was 142.71 s and GPU work 18.70 s. Budget-only latency drift was
+at most `4.61e-7 ms`, attributable to batch floating-point variation. This
+correctness property is achieved, but held-out hardware selection worsened
+(latency Spearman 0.243, top-1 regret 6.457); no predictive improvement is
+claimed.
+
+Both runs kept the graph archive, source/action registry, measured labels,
+family split, model architecture and production artifacts unchanged. No
+Stage-2, test, synthesis or full-corpus regeneration was performed.
+
+Focused verification after the metric fix passed **49 tests** across
+`test_v22_target_contrasts.py`, `test_v22_gnn_training_contracts.py`,
+`test_v22_gnn_resume.py`, `test_target_graph_semantic_tensor_v22.py`, and
+`test_action_demand_tensor_v22.py` using the pinned Python 3.10 environment.
+Python compilation and `git diff --check` also passed. A 600-step launch was
+blocked by the code's clean-source guard because documentation edits were
+uncommitted; it made no optimizer updates. This is preserved as a failed
+preflight receipt, not an experiment. It should be retried only from a new
+output directory after committing the documentation and recording the new
+source commit.
