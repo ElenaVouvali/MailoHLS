@@ -364,10 +364,25 @@ def boolean(value: Any) -> bool:
 
 def build_examples(
     preprocessed_dir: Path,
+    selected_kernels: set[str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, str]]:
     tables = sorted(preprocessed_dir.glob("preprocessed-*.csv"))
     if not tables:
         raise FileNotFoundError(f"No preprocessed CSV files in {preprocessed_dir}")
+    all_table_kernels = {
+        kernel_name_from_preprocessed_path(path)
+        for path in tables
+    }
+    if selected_kernels is not None:
+        selected_kernels = set(selected_kernels)
+        unknown = selected_kernels - all_table_kernels
+        if unknown:
+            raise ValueError("Selected kernels are absent from preprocessed tables: "
+                             + ", ".join(sorted(unknown)))
+        # Filter before pd.read_csv: callers can construct a family-disjoint
+        # training/validation view without loading held-out measurement labels.
+        tables = [path for path in tables
+                  if kernel_name_from_preprocessed_path(path) in selected_kernels]
     table_kernels = {
         kernel_name_from_preprocessed_path(path)
         for path in tables

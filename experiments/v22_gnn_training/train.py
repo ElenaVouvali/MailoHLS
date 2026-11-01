@@ -223,20 +223,87 @@ class CandidateQoRModel(nn.Module):
 
 class PreparedData:
     """Authenticated rows/graphs; expensive graph tensors are cached on CPU."""
-    def __init__(self, release_dir, audit_path, selected_kernels=None):
+    def __init__(self, release_dir, audit_path, selected_kernels=None, authenticated_audit_path=None):
         self.release_dir = Path(release_dir)
-        self.audit = audit_dataset(self.release_dir, audit_path)
+        if authenticated_audit_path is None:
+            self.audit = audit_dataset(self.release_dir, audit_path)
+        else:
+            # Reuse a prior full audit only when its data, split, graph release,
+            # and data-validation implementation are still byte-identical.
+            self.audit = json.loads(Path(authenticated_audit_path).read_text())
+            if self.audit.get('schema') != 'salt-hls-v22-training-data-audit-v1':
+                raise ValueError('Cached audit has an unsupported schema')
+            if self.audit.get('gate') not in ('pass', 'pass_with_explicit_exclusions'):
+                raise ValueError('Cached audit did not pass its authenticated gate')
+            selected_manifest_path = ROOT / 'artifacts/llm/mailohls_sft.manifest.json'
+            selected_manifest = json.loads(selected_manifest_path.read_text())
+            release_manifest_path = ROOT / 'docs/graph-release-v22-rc3.json'
+            release_manifest = json.loads(release_manifest_path.read_text())
+            if self.audit['dataset']['split_sha256'] != overlay.file_hash(SPLIT):
+                raise ValueError('Cached audit family split identity changed')
+            if self.audit['dataset']['dataset_sha256'] != selected_manifest.get('output_sha256'):
+                raise ValueError('Cached audit selected dataset identity changed')
+            if self.audit['graph_release']['archive_sha256'] != release_manifest.get('archive_sha256'):
+                raise ValueError('Cached audit graph release identity changed')
+            if self.audit['graph_release']['release_manifest_sha256'] != overlay.file_hash(release_manifest_path):
+                raise ValueError('Cached audit graph manifest identity changed')
+            tracked = {
+                'audit.py': ROOT / 'experiments/v22_gnn_training/audit.py',
+                'directive_domains.py': ROOT / 'LLM_branch/common/directive_domains.py',
+                'mlir_graph_v2.py': ROOT / 'GNN_branch/mlir_graph_v2.py',
+                'target_graph_v22.py': ROOT / 'GNN_branch/target_graph_v22.py',
+            }
+            for name,path in tracked.items():
+                expected=self.audit.get('implementation',{}).get('working_tree_code_sha256',{}).get(name)
+                if expected is None or overlay.file_hash(path)!=expected:
+                    raise ValueError(f'Cached audit validator changed: {name}')
         if self.audit['gate'] not in ('pass', 'pass_with_explicit_exclusions'):
             raise ValueError('Authenticated data audit did not pass; see ' + str(audit_path))
         self.split = json.loads(SPLIT.read_text())
-        self.examples, self.kernel_manifest, _ = build_examples(PREPROCESSED)
-        self.index_split, self.kernel_split = _family_split(self.split, len(self.examples))
         selected = None if selected_kernels is None else set(selected_kernels)
         if selected is not None:
-            unknown = selected - set(self.kernel_split)
+            split_kernels = {kernel for name in ('train', 'val', 'test')
+                             for kernel in self.split.get(name + '_kernels', [])}
+            unknown = selected - split_kernels
             if unknown:
                 raise ValueError('Selected probe kernels are absent from the authenticated split: '
                                  + ', '.join(sorted(unknown)))
+        self.examples, self.kernel_manifest, _ = build_examples(
+            PREPROCESSED, selected_kernels=selected)
+        selected_names = (selected if selected is not None else
+                          {item['kernel'] for item in self.kernel_manifest})
+        audited_by_kernel = {}
+        for audit_row in self.audit['kernels']:
+            member = Path(audit_row['graph_member']).name
+            matches = [name for name in selected_names if member.startswith(name + '-')]
+            if matches:
+                audited_by_kernel[max(matches, key=len)] = audit_row
+        for item in self.kernel_manifest:
+            expected = audited_by_kernel.get(item['kernel'])
+            if expected is None:
+                raise ValueError('Selected kernel has no authenticated measurement provenance: '
+                                 + item['kernel'])
+            if item['table_sha256'] != expected['preprocessed_csv_sha256']:
+                raise ValueError('Selected preprocessed measurement table changed: ' + item['kernel'])
+            if item['source_sha256'] != expected['source_sha256']:
+                raise ValueError('Selected source snapshot changed: ' + item['kernel'])
+        if selected is None:
+            self.index_split, self.kernel_split = _family_split(self.split, len(self.examples))
+        else:
+            # The frozen full-data audit authenticates the row split. Restrict
+            # reconstruction to the selected train/validation kernels so test
+            # QoR values are never parsed; family membership assigns each
+            # selected row without consulting held-out labels.
+            self.kernel_split = {}
+            for name in ('train', 'val', 'test'):
+                for kernel in self.split.get(name + '_kernels', []):
+                    if kernel in self.kernel_split:
+                        raise ValueError('Kernel crosses authenticated split boundaries: ' + kernel)
+                    self.kernel_split[kernel] = name
+            self.index_split = {
+                index: self.kernel_split[row['kernel_name']]
+                for index, row in enumerate(self.examples)
+            }
         self.registry = overlay.load_registry()
         # The exact per-kernel action inventory is joined to the audited graph
         # member using its full kernel-name prefix, then rechecked by identity.
@@ -292,6 +359,7 @@ class PreparedData:
             signature = sha256_json(assignment)
             self.records.append({
                 'row_index': row_index, 'kernel': kernel,
+                'preprocessed_row': int(row.get('preprocessed_row', row_index)),
                 'family': self.kernel_split[kernel], 'split': self.index_split[row_index],
                 'profile': profile_name, 'device': target,
                 'clock': float(row['clock_period']), 'assignment': assignment,
