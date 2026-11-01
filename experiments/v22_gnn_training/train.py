@@ -817,6 +817,38 @@ def _verify_resume_lock(output):
         raise RuntimeError(f'Resume refused: launcher process {pid} is still active')
 
 
+def _prepare_new_output(output):
+    """Accept an empty output or this run's trusted detached-launch metadata."""
+    if not output.exists():
+        output.mkdir(parents=True, exist_ok=True)
+        return
+    entries = list(output.iterdir())
+    if not entries:
+        return
+    launcher_files = {
+        'launcher.lock', 'launcher_spec.json', 'launcher_pid.json',
+        'trainer_pid.json', 'run.log',
+    }
+    unexpected = sorted(path.name for path in entries if path.name not in launcher_files)
+    if unexpected:
+        raise FileExistsError('Refusing to overwrite experiment output: ' + str(output))
+    lock_path = output / 'launcher.lock'
+    if not lock_path.is_file():
+        raise FileExistsError('Nonempty output lacks a safe-launch lock: ' + str(output))
+    _verify_resume_lock(output)
+    lock = json.loads(lock_path.read_text())
+    if int(lock.get('pid', -1)) != os.getppid():
+        raise RuntimeError('Fresh training output is not owned by its direct detached launcher')
+    spec_path = output / 'launcher_spec.json'
+    if not spec_path.is_file():
+        raise RuntimeError('Fresh training output lacks launcher provenance')
+    spec = json.loads(spec_path.read_text())
+    if (Path(spec.get('output', '')).resolve() != output.resolve()
+            or spec.get('commit') != __import__('subprocess').check_output(
+                ['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()):
+        raise RuntimeError('Fresh training output launcher identity mismatch')
+
+
 def _source_hashes():
     names = (
         'experiments/v22_gnn_training/train.py',
@@ -873,9 +905,7 @@ def run(args):
         if status.get('status') == 'completed':
             raise RuntimeError('Resume refused: experiment is already marked completed')
     else:
-        if output.exists() and any(output.iterdir()):
-            raise FileExistsError('Refusing to overwrite experiment output: ' + str(output))
-        output.mkdir(parents=True, exist_ok=True)
+        _prepare_new_output(output)
 
     old_handlers = {sig:signal.getsignal(sig) for sig in (signal.SIGINT, signal.SIGTERM)}
     signal.signal(signal.SIGINT, _request_stop)

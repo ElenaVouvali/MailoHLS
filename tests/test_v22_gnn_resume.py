@@ -54,6 +54,36 @@ class CheckpointingTest(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError,'still active'):
                     train._verify_resume_lock(output)
 
+    def test_new_run_accepts_only_authenticated_detached_launcher_metadata(self):
+        import json
+        import os
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            empty = root / 'empty'
+            train._prepare_new_output(empty)
+            self.assertTrue(empty.is_dir())
+
+            launched = root / 'launched'
+            launched.mkdir()
+            current_commit = __import__('subprocess').check_output(
+                ['git', 'rev-parse', 'HEAD'], cwd=train.ROOT, text=True).strip()
+            (launched / 'launcher.lock').write_text(json.dumps({'pid':os.getpid()}))
+            (launched / 'launcher_spec.json').write_text(json.dumps({
+                'output':str(launched), 'commit':current_commit}))
+            for name in ('launcher_pid.json','trainer_pid.json','run.log'):
+                (launched / name).write_text('{}')
+            with mock.patch.object(train.os, 'getppid', return_value=os.getpid()):
+                train._prepare_new_output(launched)
+
+            with self.assertRaisesRegex(RuntimeError, 'still active'):
+                train._prepare_new_output(launched)
+            unrelated = root / 'unrelated'
+            unrelated.mkdir()
+            (unrelated / 'launcher.lock').write_text(json.dumps({'pid':os.getpid()}))
+            (unrelated / 'user-data.json').write_text('{}')
+            with self.assertRaisesRegex(FileExistsError, 'Refusing to overwrite'):
+                train._prepare_new_output(unrelated)
+
     def test_interrupted_optimizer_resume_matches_uninterrupted_sequence(self):
         def initialize():
             random.seed(123); np.random.seed(123); torch.manual_seed(123)
