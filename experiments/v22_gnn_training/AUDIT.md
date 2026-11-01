@@ -105,19 +105,19 @@ and true GPU interruption/resume test have not run in this task.
 
 ## Current GPU availability evidence
 
-The most recent host-level GPU inventory available to this task showed:
+The fresh host-level inventory at 2026-11-01 09:05 UTC showed:
 
 | GPU | UUID | State |
 |---|---|---|
-| A2 | `GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35` | occupied by unrelated `ray::RayWorkerWrapper.__ray_call__`, PID 1110073, using about 9,552 MiB; utilization 98% |
-| V100S | `GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb` | occupied by Stage-1 Python process PID 1100139, using about 6,972 MiB; utilization 100% |
+| A2 | `GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35` | occupied by `./cudaa`, PID 1181701, using 1,220 MiB; 13,650 MiB free but utilization 100% |
+| V100S | `GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb` | occupied by the independent Stage-1 Python process PID 1128864, using 13,402 MiB; utilization 100% |
 
-No process was signaled or modified. The sandbox's direct `nvidia-smi` call
-cannot access the host driver; the table is inherited from the just-prior
-authorized host-level inventory and is not a fresh sandbox observation. The
-training launcher was not invoked. Host RAM and disk were adequate at that
-inventory time, but shared CPU/I/O availability does not make the occupied A2
-safe to use.
+The safe V4 smoke launcher was retried with no shared-GPU override. It refused
+to start because the A2 had active compute process PID 1181701. It exited
+before creating the requested run directory; no trainer, checkpoint or
+training state was created. Neither GPU process was signaled or modified.
+Although free memory exceeded the launcher threshold, active compute and
+100% utilization independently make the A2 unavailable under this protocol.
 
 ## Historical V3 receipts (not V4 validation)
 

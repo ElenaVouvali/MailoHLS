@@ -199,9 +199,10 @@ integration is included here.
 
 The previous V100S attempt produced no model checkpoints and remains
 preserved. The fresh V4 CPU audit passes with explicit historical exclusions.
-GPU training is blocked because an unrelated Ray worker occupies the A2; the
-V100S remains reserved for independent Stage-1 work. The safe launcher has not
-been run and neither process was interrupted. This work therefore cannot yet
+GPU training is blocked because `./cudaa` (PID 1181701) occupies the A2; the
+V100S remains reserved for independent Stage-1 work. The V4 launcher was
+retried and refused to share the active A2; neither process was interrupted.
+This work therefore cannot yet
 answer whether hardware messages improve QoR learning. See [`RESULTS.md`](RESULTS.md)
 for current evidence and the blocker.
 

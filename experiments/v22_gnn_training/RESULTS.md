@@ -28,16 +28,17 @@ and is not counted as a test result.
 
 ## GPU blocker observed
 
-The latest available host-level inventory showed the designated NVIDIA A2
-(`GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`) occupied by an unrelated
-`ray::RayWorkerWrapper.__ray_call__` process, PID 1110073, at 98% utilization
-and about 9,552 MiB allocated. The reserved V100S
+The fresh inventory at 2026-11-01 09:05 UTC showed the designated NVIDIA A2
+(`GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`) occupied by `./cudaa`, PID
+1181701. It had 13,650 MiB free but was at 100% utilization. The reserved V100S
 (`GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb`) was occupied by the independent
-Stage-1 Python process, PID 1100139, at 100% utilization and about 6,972 MiB.
-No process was touched. The V4 launcher and profiler were not run because the
-A2 availability gate failed. Direct sandbox `nvidia-smi` access is blocked;
-these figures are from the just-prior authorized host inventory rather than a
-new direct sandbox query.
+Stage-1 Python process PID 1128864, at 100% utilization and 13,402 MiB used.
+
+The V4 smoke launcher was retried with `--gpu-name A2` and without
+`--allow-shared-gpu`. It exited before creating the requested output directory
+with `Refusing to share requested GPU NVIDIA A2; processes are active`. No
+trainer or checkpoint was created, and neither GPU process was touched. Free
+memory alone does not override the active-process and utilization safeguards.
 
 The GPU interruption/resume smoke and both-arm short smoke therefore remain
 outstanding. Full 8,000-update-per-arm training was not launched. There is no
