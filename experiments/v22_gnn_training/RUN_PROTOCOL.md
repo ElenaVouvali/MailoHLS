@@ -205,9 +205,12 @@ target coverage receipts are beside it. Data identities are the authenticated
 seed-123 split, RC3 graph release and dataset hashes recorded in
 `v4b/receipts/eligibility.json`. Kalman is not loaded by the V4b runner.
 
-Before launching, verify A2 UUID, driver and zero active compute processes;
-verify durable disk capacity and use a new empty output path. Do not use or
-fall back to the V100S. The pinned environment is Python 3.10.20, PyTorch
+Before launching, verify the selected GPU UUID, driver and zero active compute
+processes; verify durable disk capacity and use a new empty output path. A2 is
+the default and no automatic fallback occurs. The V100S is accepted only by
+an explicit `--gpu-name V100S --gpu-uuid GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb`
+request; use it only when a user has authorized it and live inspection shows
+it is idle. The pinned environment is Python 3.10.20, PyTorch
 2.6.0+cu124 and PyG 2.6.1. The CPU-only audit command is:
 
 ```bash
@@ -230,14 +233,14 @@ PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python \
   --authenticated-audit experiments/v22_gnn_training/data-audit.json \
   --manifest experiments/v22_gnn_training/v4b/receipts/preference_cohort_manifest.json \
   --output /durable/path/v4b-run-<unique-id> \
-  --gpu-name A2 --gpu-uuid GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+  --gpu-name V100S --gpu-uuid GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb \
   --updates 1500 --validate-every 250 --seed 123
 ```
 
 First run a separate one-update smoke (`--updates 1 --validate-every 1`) in a
-fresh output directory. The V4b entry point verifies the A2 inventory/UUID,
-active compute processes, utilization, free memory, and the UUID environment;
-it aborts rather than sharing or falling back.
+fresh output directory. The V4b entry point verifies the explicitly selected
+GPU inventory/UUID, active compute processes, utilization, free memory, and
+the UUID environment; it aborts rather than sharing or falling back.
 
 The runner refuses an existing output directory and refuses to run without
 CUDA. All arms share a family-balanced sampled pair trace, fixed candidate

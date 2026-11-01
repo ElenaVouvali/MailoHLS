@@ -19,6 +19,7 @@ from experiments.v22_gnn_training.v4b.models import (
 )
 from experiments.v22_gnn_training.v4b.preferences import preference_pairs
 from experiments.v22_gnn_training.v4b.train_probe import _initial_models, _pair_schedule
+from experiments.v22_gnn_training.v4b.train_probe import require_isolated_gpu
 
 
 def _fake_graph():
@@ -152,6 +153,32 @@ def test_feasibility_and_pairwise_pool_ties():
     assert feasibility_from_physical(resources, capacity, 0.5).tolist() == [True, False]
     scores = torch.tensor([[0., 2., -1.], [-2., 0., 1.], [1., -1., 0.]])
     assert pairwise_pool_order(scores, ['b', 'a', 'c']) == [1, 0, 2]
+
+
+def test_explicit_v100s_gpu_selection_requires_matching_idle_uuid(monkeypatch):
+    from experiments.v22_gnn_training import launch
+
+    expected = 'GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb'
+    monkeypatch.setattr(launch, 'gpu_inventory', lambda: [{
+        'index': 1, 'uuid': expected, 'name': 'Tesla V100S-PCIE-32GB',
+        'total_mib': 32768, 'used_mib': 1, 'free_mib': 32495,
+        'utilization_percent': 0,
+    }])
+    monkeypatch.setattr(launch, 'compute_processes', lambda: [])
+    monkeypatch.setenv('CUDA_VISIBLE_DEVICES', expected)
+    monkeypatch.setenv('SALT_HLS_GPU_UUID', expected)
+    result = require_isolated_gpu('V100S', expected, 6000)
+    assert result['uuid'] == expected
+
+    monkeypatch.setattr(launch, 'compute_processes', lambda: [{
+        'uuid': expected, 'pid': 17, 'name': 'other-job', 'used_mib': '1000',
+    }])
+    try:
+        require_isolated_gpu('V100S', expected, 6000)
+    except RuntimeError as exc:
+        assert 'occupied V100S' in str(exc)
+    else:
+        raise AssertionError('Occupied V100S must be rejected')
 
 
 def test_full_assignment_target_coverage_detects_real_winner_reversal():

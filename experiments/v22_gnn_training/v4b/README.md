@@ -124,22 +124,24 @@ updates, validation-selected checkpoints, or model comparisons were produced.
 The completed CPU coverage audit is not a learning result. The previous V4
 metrics remain historical and are not V4b outcomes.
 
-The next run, once an isolated A2 is visible, should first execute one update
-per arm as a bounded end-to-end smoke, then use a separate fresh path for the
-1,500-update comparison. The script verifies `nvidia-smi`, the assigned A2
-UUID, no active compute process, free memory, utilization, and UUID-based
-`CUDA_VISIBLE_DEVICES`; it refuses V100S or shared-GPU use.
+The default target is the isolated A2; there is no automatic fallback. For
+the current user-authorized V100S attempt, select it explicitly by its verified
+UUID after confirming that no process is using it. The script checks
+`nvidia-smi`, device name/UUID, active compute processes, free memory,
+utilization, and UUID-based `CUDA_VISIBLE_DEVICES`; it refuses to share either
+GPU. The historical V4 protocol's V100S reservation remains in force outside
+this explicit V4b request.
 
 ```bash
-CUDA_VISIBLE_DEVICES=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
-SALT_HLS_GPU_UUID=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+CUDA_VISIBLE_DEVICES=GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb \
+SALT_HLS_GPU_UUID=GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb \
 PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python \
   -m experiments.v22_gnn_training.v4b.train_probe \
   --release-dir /path/to/authenticated-rc3-release \
   --authenticated-audit experiments/v22_gnn_training/data-audit.json \
   --manifest experiments/v22_gnn_training/v4b/receipts/preference_cohort_manifest.json \
   --output /durable/path/v4b-run-<unique-id> \
-  --gpu-name A2 --gpu-uuid GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+  --gpu-name V100S --gpu-uuid GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb \
   --updates 1 --validate-every 1 --seed 123
 ```
 

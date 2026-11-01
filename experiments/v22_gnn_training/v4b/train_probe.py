@@ -32,25 +32,32 @@ from experiments.v22_gnn_training.v4b.preferences import preference_pairs
 ARMS = ('no_graph', 'compiler', 'target_film', 'hardware', 'compiler_difference')
 BUDGETS = (1.0, 0.75, 0.5, 0.25, 0.1)
 PAIR_WEIGHT = 0.1
-ASSIGNED_A2_UUID = 'GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35'
+ASSIGNED_GPU_UUIDS = {
+    'A2': 'GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35',
+    # Explicitly selectable for a user-authorized run when the V100S is idle.
+    # The default remains the A2; there is no automatic fallback.
+    'V100S': 'GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb',
+}
 
 
 def _json_sha(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 
-def require_isolated_a2(gpu_name, gpu_uuid, minimum_free_mib):
-    """Refuse anything except the assigned, idle A2 selected by UUID."""
+def require_isolated_gpu(gpu_name, gpu_uuid, minimum_free_mib):
+    """Refuse unrecognized, occupied, or insufficiently free selected GPUs."""
     from experiments.v22_gnn_training.launch import compute_processes, gpu_inventory
+    if gpu_name not in ASSIGNED_GPU_UUIDS:
+        raise RuntimeError(f'GPU name must be one of {sorted(ASSIGNED_GPU_UUIDS)}')
     devices = [gpu for gpu in gpu_inventory() if gpu_name.casefold() in gpu['name'].casefold()]
     if len(devices) != 1:
         raise RuntimeError(f'Expected exactly one {gpu_name}; found {devices}')
     gpu = devices[0]
-    if gpu['uuid'] != gpu_uuid or gpu_uuid != ASSIGNED_A2_UUID:
-        raise RuntimeError(f'Refusing unassigned GPU UUID: requested={gpu_uuid}, found={gpu["uuid"]}')
+    if gpu['uuid'] != gpu_uuid or gpu_uuid != ASSIGNED_GPU_UUIDS[gpu_name]:
+        raise RuntimeError(f'Refusing unapproved GPU UUID for {gpu_name}: requested={gpu_uuid}, found={gpu["uuid"]}')
     active = [row for row in compute_processes() if row['uuid'] == gpu_uuid]
     if active:
-        raise RuntimeError(f'Refusing to share occupied A2: {active}')
+        raise RuntimeError(f'Refusing to share occupied {gpu_name}: {active}')
     if gpu['free_mib'] < minimum_free_mib or gpu['utilization_percent'] > 15:
         raise RuntimeError(f'A2 does not meet free-memory/utilization guard: {gpu}')
     if os.environ.get('CUDA_VISIBLE_DEVICES') != gpu_uuid:
@@ -431,14 +438,14 @@ def main(argv=None):
     parser.add_argument('--updates', type=int, default=1500)
     parser.add_argument('--validate-every', type=int, default=250)
     parser.add_argument('--seed', type=int, default=123)
-    parser.add_argument('--gpu-name', default='A2')
-    parser.add_argument('--gpu-uuid', default=ASSIGNED_A2_UUID)
+    parser.add_argument('--gpu-name', choices=tuple(ASSIGNED_GPU_UUIDS), default='A2')
+    parser.add_argument('--gpu-uuid', default=ASSIGNED_GPU_UUIDS['A2'])
     parser.add_argument('--minimum-free-mib', type=int, default=6000)
     args = parser.parse_args(argv)
     output = Path(args.output)
     if output.exists():
         raise FileExistsError(f'Refusing to overwrite V4b run directory: {output}')
-    require_isolated_a2(args.gpu_name, args.gpu_uuid, args.minimum_free_mib)
+    require_isolated_gpu(args.gpu_name, args.gpu_uuid, args.minimum_free_mib)
     if not torch.cuda.is_available():
         raise RuntimeError('V4b training requires the independently available A2; CUDA is unavailable')
     if args.updates < 1 or args.validate_every < 1 or args.updates % args.validate_every:
