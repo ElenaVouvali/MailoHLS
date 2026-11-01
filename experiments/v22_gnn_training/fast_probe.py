@@ -184,10 +184,23 @@ def prepare(release_dir: Path, output: Path, timeout_seconds=PREPARATION_LIMIT_S
         if set(dataset.graphs) != set(TRAIN_KERNELS + VALIDATION_KERNELS):
             raise ValueError('Prepared graph set differs from the frozen pilot roster')
 
-        family_by_kernel = {kernel: dataset.kernel_split[kernel]
-                            for kernel in TRAIN_KERNELS + VALIDATION_KERNELS}
+        family_by_kernel = {
+            'machsuite-gemm-ncubed': 'machsuite_gemm',
+            'machsuite-spmv-ellpack': 'machsuite_spmv_ellpack',
+            'machsuite-stencil2d': 'machsuite_stencil2d',
+            'machsuite-md-knn': 'machsuite_md_knn',
+            'rodinia_dilate_0_baseline_0': 'rodinia_dilate',
+            'machsuite-sort-radix': 'machsuite_sort_radix',
+            'rodinia_pathfinder_0_baseline_0': 'rodinia_pathfinder',
+        }
         if any(kernel not in dataset.kernel_split for kernel in family_by_kernel):
             raise ValueError('Pilot kernel is absent from the authenticated family split')
+        declared_families = set(dataset.split['train_families'] + dataset.split['val_families'])
+        if not set(family_by_kernel.values()) <= declared_families:
+            raise ValueError('Pilot family labels do not match the authenticated family list')
+        if any(dataset.kernel_split[kernel] != ('train' if kernel in TRAIN_KERNELS else 'val')
+               for kernel in family_by_kernel):
+            raise ValueError('Pilot kernels are assigned to an unexpected split')
         if set(family_by_kernel[k] for k in TRAIN_KERNELS) & set(
                 family_by_kernel[k] for k in VALIDATION_KERNELS):
             raise ValueError('Training and validation families are not disjoint')
