@@ -1,0 +1,4374 @@
+{
+  "arms": {
+    "candidate_target": {
+      "checkpoint_sha256": "f0efa2e85356e723a7a63dc2725adbef5e0159a0bae393dae16021f4892abb79",
+      "feasibility": {
+        "0.5": {
+          "accuracy_macro": 0.8162202380952381,
+          "always_feasible_accuracy_macro": 0.8162202380952381,
+          "contexts_with_measured_feasible": 12,
+          "false_feasible_total": 31,
+          "false_infeasible_total": 0,
+          "no_predicted_feasible_contexts": 0,
+          "selected_actually_feasible_contexts": 9
+        },
+        "1.0": {
+          "accuracy_macro": 1.0,
+          "always_feasible_accuracy_macro": 1.0,
+          "contexts_with_measured_feasible": 12,
+          "false_feasible_total": 0,
+          "false_infeasible_total": 0,
+          "no_predicted_feasible_contexts": 0,
+          "selected_actually_feasible_contexts": 12
+        }
+      },
+      "final_model_sha256": "eb3035ec12229c9c708cc536c4bc2a01c8ae16430d6b328c94db413269c29b93",
+      "hardware_relation_gradient_norm_mean": 0.0,
+      "initial_model_sha256": null,
+      "latency_mae_ms_macro": {
+        "defined": 12,
+        "total_contexts": 12,
+        "value": 6.472316353196257
+      },
+      "latency_mape_macro": {
+        "defined": 12,
+        "total_contexts": 12,
+        "value": 0.6887905230576931
+      },
+      "loss_first": 0.358879417181015,
+      "loss_last": 0.38671714067459106,
+      "loss_min": 0.21558129787445068,
+      "mean_abs_budget_prediction_change_by_target": [
+        0.012627573295806846,
+        2.4393360155879526e-09,
+        0.038578422429660954,
+        3.4330562353134155,
+        26.299589157104492
+      ],
+      "per_context": [
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.3621290081193699
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.3621290081193699
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 5.112826450071754,
+          "latency_mape": 1.7025778798208642,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.0051670074462890625,
+            0.0,
+            0.026133641600608826,
+            3.55904483795166,
+            37.46721649169922
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.25210974204480535,
+              "pool_size": 16,
+              "spearman": -0.3490430884056707,
+              "top1_regret": 1.8067343173431736,
+              "top3_regret": 0.8807283429977157
+            },
+            "area": {
+              "kendall": 0.1405456737852613,
+              "pool_size": 16,
+              "spearman": 0.13414023361671457,
+              "top1_regret": 3.0,
+              "top3_regret": 3.0
+            },
+            "latency": {
+              "kendall": -0.17722938923964163,
+              "pool_size": 16,
+              "spearman": -0.29476859063719857,
+              "top1_regret": 0.3621290081193699,
+              "top3_regret": 0.00019187167622302206
+            }
+          },
+          "resource_mae_fraction": [
+            0.0037500000000000003,
+            0.0001620319045600835,
+            0.014341916830731043,
+            0.04288193971931023
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 26.038326016635864
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 26.038326016635864
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 6.230206450572014,
+          "latency_mape": 0.8087942888057802,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.008209764957427979,
+            1.0943831951770733e-10,
+            0.02895922213792801,
+            3.6931161880493164,
+            32.58056640625
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.2833333333333333,
+              "pool_size": 16,
+              "regret_undefined_reason": "near_zero_measured_optimum",
+              "spearman": -0.4058823529411764,
+              "top1_regret": null,
+              "top3_regret": null
+            },
+            "area": {
+              "kendall": -0.11066334899863732,
+              "pool_size": 16,
+              "regret_undefined_reason": "near_zero_measured_optimum",
+              "spearman": -0.08271868512773672,
+              "top1_regret": null,
+              "top3_regret": null
+            },
+            "latency": {
+              "kendall": 0.09999999999999999,
+              "pool_size": 16,
+              "spearman": 0.10294117647058824,
+              "top1_regret": 26.038326016635864,
+              "top3_regret": 0.0003882984185665619
+            }
+          },
+          "resource_mae_fraction": [
+            0.003125,
+            0.00016410412560952342,
+            0.01247190045764311,
+            0.04371639491644097
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0010233346801167777
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0010233346801167777
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 5.332584794874191,
+          "latency_mape": 0.30258878832516184,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.011408358812332153,
+            9.880825047048347e-10,
+            0.03162330389022827,
+            3.787574291229248,
+            28.667762756347656
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.00836827408755723,
+              "pool_size": 16,
+              "spearman": -0.011773365954105204,
+              "top1_regret": 2.4185244307147458,
+              "top3_regret": 0.19407077329731454
+            },
+            "area": {
+              "kendall": 0.2810913475705226,
+              "pool_size": 16,
+              "spearman": 0.3068004553224049,
+              "top1_regret": 5.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.10878756313824399,
+              "pool_size": 16,
+              "spearman": 0.1456954036820519,
+              "top1_regret": 0.0010233346801167777,
+              "top3_regret": 0.0005762467130754528
+            }
+          },
+          "resource_mae_fraction": [
+            0.0037500000000011127,
+            0.00017063919215174446,
+            0.0062383811959702135,
+            0.029799939879772225
+          ]
+        },
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.9375,
+              "always_feasible_baseline_accuracy": 0.9375,
+              "false_feasible": 1,
+              "false_infeasible": 0,
+              "measured_feasible_count": 15,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 5.926698591759605e-06
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 5.926698591759605e-06
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 2.7758938549300387,
+          "latency_mape": 0.7250229691560053,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.0057259052991867065,
+            8.152797881244567e-12,
+            0.02804829180240631,
+            3.8298096656799316,
+            33.749610900878906
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.11666666666666665,
+              "pool_size": 16,
+              "spearman": 0.18235294117647058,
+              "top1_regret": 1.2625116544717767,
+              "top3_regret": 0.9989540218806179
+            },
+            "area": {
+              "kendall": 0.09205101496312953,
+              "pool_size": 16,
+              "spearman": 0.14422373293778876,
+              "top1_regret": 0.9199999999999999,
+              "top3_regret": 0.20000000000000018
+            },
+            "latency": {
+              "kendall": -0.15,
+              "pool_size": 16,
+              "spearman": -0.17941176470588235,
+              "top1_regret": 5.926698591759605e-06,
+              "top3_regret": 5.926698591759605e-06
+            }
+          },
+          "resource_mae_fraction": [
+            0.06000000000000002,
+            0.0006519137338424722,
+            0.08164535993606678,
+            0.1697761693927977
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 39.29162397745371
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 39.29162397745371
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 11.469062197232246,
+          "latency_mape": 0.6942375928929243,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.00871935486793518,
+            1.2010568928300103e-10,
+            0.029956713318824768,
+            3.642996311187744,
+            30.261474609375
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": -0.18333333333333335,
+              "pool_size": 16,
+              "spearman": -0.3205882352941176,
+              "top1_regret": 19.00115502714076,
+              "top3_regret": 0.8654493486246119
+            },
+            "area": {
+              "kendall": 0.04184137043778616,
+              "pool_size": 16,
+              "spearman": 0.07358353721315752,
+              "top1_regret": 2.7272727272727275,
+              "top3_regret": 1.261617073437678e-16
+            },
+            "latency": {
+              "kendall": -0.2833333333333333,
+              "pool_size": 16,
+              "spearman": -0.5294117647058824,
+              "top1_regret": 39.29162397745371,
+              "top3_regret": 2.016542668466795
+            }
+          },
+          "resource_mae_fraction": [
+            0.06625000000000002,
+            0.0012047346734821245,
+            0.05414742320465545,
+            0.1641595991783672
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 22.866088399506797
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 22.866088399506797
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 19.57687736210346,
+          "latency_mape": 0.4727957895019762,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.011761501431465149,
+            8.390252936862908e-10,
+            0.032464876770973206,
+            3.7938332557678223,
+            27.878997802734375
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": -0.21666666666666667,
+              "pool_size": 16,
+              "spearman": -0.27941176470588236,
+              "top1_regret": 0.881610954227831,
+              "top3_regret": 0.881610954227831
+            },
+            "area": {
+              "kendall": 0.10084389681792215,
+              "pool_size": 16,
+              "spearman": 0.16789414379006945,
+              "top1_regret": 2.1249999999999996,
+              "top3_regret": 1.375
+            },
+            "latency": {
+              "kendall": -0.11666666666666665,
+              "pool_size": 16,
+              "spearman": -0.18529411764705883,
+              "top1_regret": 22.866088399506797,
+              "top3_regret": 1.288506609633305
+            }
+          },
+          "resource_mae_fraction": [
+            0.07124999999973809,
+            0.000689468622483589,
+            0.04794336723474164,
+            0.18583840754297046
+          ]
+        },
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.001924886162646288
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.001924886162646288
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 1.4449052454736766,
+          "latency_mape": 0.38868658711607573,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.0158921480178833,
+            4.646924178786094e-09,
+            0.045747432857751846,
+            2.8743786811828613,
+            22.665666580200195
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.17471413945365305,
+              "pool_size": 14,
+              "spearman": -0.31959796173138705,
+              "top1_regret": 13.14813231096621,
+              "top3_regret": 13.14813231096621
+            },
+            "area": {
+              "kendall": 0.676587614893994,
+              "pool_size": 14,
+              "spearman": 0.8060669608506562,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.5325292295842303,
+              "pool_size": 14,
+              "spearman": 0.6288008869193453,
+              "top1_regret": 0.001924886162646288,
+              "top3_regret": 0.0
+            }
+          },
+          "resource_mae_fraction": [
+            1.0569562979108025e-11,
+            0.0003647442051242966,
+            0.017106639155493767,
+            0.10246110054746117
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 3.2921151761409213,
+          "latency_mape": 0.5921463700659333,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.015479599125683308,
+            4.584476354096978e-09,
+            0.04535174369812012,
+            3.016218900680542,
+            20.84783935546875
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.06862635163075163,
+              "pool_size": 14,
+              "spearman": -0.24418532343801091,
+              "top1_regret": 12.275171853351809,
+              "top3_regret": 11.425946525631463
+            },
+            "area": {
+              "kendall": 0.7871931211061948,
+              "pool_size": 14,
+              "spearman": 0.9154492230777936,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.5325292295842303,
+              "pool_size": 14,
+              "spearman": 0.6288008869193453,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0
+            }
+          },
+          "resource_mae_fraction": [
+            1.091317142474341e-11,
+            0.0003671657795097395,
+            0.011404358286607122,
+            0.10246987663749763
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 8.828338417483737,
+          "latency_mape": 0.7955997296758907,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.016357779502868652,
+            4.47171233375343e-09,
+            0.049726452678442,
+            3.3590753078460693,
+            19.04758071899414
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.18929799651846663,
+              "pool_size": 14,
+              "spearman": -0.34308807360813326,
+              "top1_regret": 11.436539636216972,
+              "top3_regret": 11.436539636216972
+            },
+            "area": {
+              "kendall": -0.06403418801472845,
+              "pool_size": 14,
+              "spearman": -0.10614713278680385,
+              "top1_regret": 13.0,
+              "top3_regret": 13.0
+            },
+            "latency": {
+              "kendall": 0.5325292295842303,
+              "pool_size": 14,
+              "spearman": 0.6288008869193453,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0
+            }
+          },
+          "resource_mae_fraction": [
+            1.154694852374029e-11,
+            0.00037115140317775053,
+            0.007118339156720979,
+            0.1024820264884837
+          ]
+        },
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.2857142857142857,
+              "always_feasible_baseline_accuracy": 0.2857142857142857,
+              "false_feasible": 10,
+              "false_infeasible": 0,
+              "measured_feasible_count": 4,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": false,
+              "top1_regret": null
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.002887329243969432
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 1.4592374226179718,
+          "latency_mape": 0.39216377870147545,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.017181532457470894,
+            4.75356154439055e-09,
+            0.04630395397543907,
+            3.0870471000671387,
+            23.140947341918945
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": -0.3268228676411533,
+              "pool_size": 14,
+              "spearman": -0.4237005410616035,
+              "top1_regret": 7.956942766380256,
+              "top3_regret": 7.683385741368966
+            },
+            "area": {
+              "kendall": 0.6899593872424348,
+              "pool_size": 14,
+              "spearman": 0.824498350173931,
+              "top1_regret": 0.12499999999999993,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.5325292295842303,
+              "pool_size": 14,
+              "spearman": 0.6288008869193453,
+              "top1_regret": 0.002887329243969432,
+              "top3_regret": 0.0
+            }
+          },
+          "resource_mae_fraction": [
+            0.026428571351873053,
+            0.001463081796096746,
+            0.1061771625114812,
+            0.5422201174781437
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.2857142857142857,
+              "always_feasible_baseline_accuracy": 0.2857142857142857,
+              "false_feasible": 10,
+              "false_infeasible": 0,
+              "measured_feasible_count": 4,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": false,
+              "top1_regret": null
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 3.3046419856262204,
+          "latency_mape": 0.5942304818664039,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.016638603061437607,
+            4.6203987302817495e-09,
+            0.046874742954969406,
+            3.0967724323272705,
+            21.647104263305664
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": -0.3656179018212133,
+              "pool_size": 14,
+              "spearman": -0.45734758631651257,
+              "top1_regret": 7.571993359294999,
+              "top3_regret": 7.496789363168993
+            },
+            "area": {
+              "kendall": 0.3336862071474647,
+              "pool_size": 14,
+              "spearman": 0.4098361485311777,
+              "top1_regret": 9.75,
+              "top3_regret": 0.12499999999999993
+            },
+            "latency": {
+              "kendall": 0.5325292295842303,
+              "pool_size": 14,
+              "spearman": 0.6288008869193453,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0
+            }
+          },
+          "resource_mae_fraction": [
+            0.026428571349500777,
+            0.001472451068736889,
+            0.10188974043443089,
+            0.5415482305345081
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.2857142857142857,
+              "always_feasible_baseline_accuracy": 0.2857142857142857,
+              "false_feasible": 10,
+              "false_infeasible": 0,
+              "measured_feasible_count": 4,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": false,
+              "top1_regret": null
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 8.841106881228855,
+          "latency_mape": 0.7966420207638251,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.01898932456970215,
+            4.13015444067355e-09,
+            0.05175069347023964,
+            3.456807851791382,
+            17.640302658081055
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": -0.247676643169209,
+              "pool_size": 14,
+              "spearman": -0.37173572286810136,
+              "top1_regret": 6.909155712670321,
+              "top3_regret": 6.909155712670321
+            },
+            "area": {
+              "kendall": -0.15332363624760556,
+              "pool_size": 14,
+              "spearman": -0.19600610842136248,
+              "top1_regret": 9.375,
+              "top3_regret": 8.875
+            },
+            "latency": {
+              "kendall": 0.5325292295842303,
+              "pool_size": 14,
+              "spearman": 0.6288008869193453,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0
+            }
+          },
+          "resource_mae_fraction": [
+            0.026428571345260277,
+            0.0014885404989832924,
+            0.05617180135278475,
+            0.5408963596253169
+          ]
+        }
+      ],
+      "ranking": {
+        "adp": {
+          "kendall": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": -0.18332504858612303
+          },
+          "spearman": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": -0.27866675626235254
+          },
+          "top1_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 7.697133820252623
+          },
+          "top3_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 5.6291602482773655
+          }
+        },
+        "area": {
+          "kendall": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.2346482050586449
+          },
+          "spearman": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.2831350715981492
+          },
+          "top1_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 4.183842975206612
+          },
+          "top3_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 2.415909090909091
+          }
+        },
+        "latency": {
+          "kendall": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.22306112928366537
+          },
+          "spearman": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.2360463053310575
+          },
+          "top1_regret": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 7.380975701929304
+          },
+          "top3_regret": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.2755176351338797
+          }
+        }
+      },
+      "resource_mae_fraction_by_resource_macro": [
+        0.023950892839950253,
+        0.0007141689169798543,
+        0.043054699146443914,
+        0.21402084682842248
+      ],
+      "training_and_validation_seconds": 1.279463722021319
+    },
+    "hardware": {
+      "checkpoint_sha256": "516b23054d5737a14b2dc97dad37539af56d3e7c095fb9ab456c155dc6dae26c",
+      "feasibility": {
+        "0.5": {
+          "accuracy_macro": 0.8162202380952381,
+          "always_feasible_accuracy_macro": 0.8162202380952381,
+          "contexts_with_measured_feasible": 12,
+          "false_feasible_total": 31,
+          "false_infeasible_total": 0,
+          "no_predicted_feasible_contexts": 0,
+          "selected_actually_feasible_contexts": 9
+        },
+        "1.0": {
+          "accuracy_macro": 1.0,
+          "always_feasible_accuracy_macro": 1.0,
+          "contexts_with_measured_feasible": 12,
+          "false_feasible_total": 0,
+          "false_infeasible_total": 0,
+          "no_predicted_feasible_contexts": 0,
+          "selected_actually_feasible_contexts": 12
+        }
+      },
+      "final_model_sha256": "50422d6d833807ead9626439f46dfdd32b6100114b5c41b737f18f0abf3d3dda",
+      "hardware_edge_ablation": {
+        "embedding_shifts": [
+          {
+            "clock_ns": 3.33,
+            "kernel": "machsuite-viterbi",
+            "pooled_memory_l2": 0.15928004682064056,
+            "profile": "zcu104",
+            "relative_action_memory_l2": 0.4947485029697418
+          },
+          {
+            "clock_ns": 5.0,
+            "kernel": "machsuite-viterbi",
+            "pooled_memory_l2": 0.15964987874031067,
+            "profile": "zcu104",
+            "relative_action_memory_l2": 0.4952000677585602
+          },
+          {
+            "clock_ns": 10.0,
+            "kernel": "machsuite-viterbi",
+            "pooled_memory_l2": 0.16022445261478424,
+            "profile": "zcu104",
+            "relative_action_memory_l2": 0.4951110780239105
+          },
+          {
+            "clock_ns": 3.33,
+            "kernel": "machsuite-viterbi",
+            "pooled_memory_l2": 0.15911728143692017,
+            "profile": "u200",
+            "relative_action_memory_l2": 0.4942387044429779
+          },
+          {
+            "clock_ns": 5.0,
+            "kernel": "machsuite-viterbi",
+            "pooled_memory_l2": 0.1594870537519455,
+            "profile": "u200",
+            "relative_action_memory_l2": 0.49468177556991577
+          },
+          {
+            "clock_ns": 10.0,
+            "kernel": "machsuite-viterbi",
+            "pooled_memory_l2": 0.16006030142307281,
+            "profile": "u200",
+            "relative_action_memory_l2": 0.49458011984825134
+          },
+          {
+            "clock_ns": 3.33,
+            "kernel": "rodinia_pathfinder_0_baseline_0",
+            "pooled_memory_l2": 0.07377724349498749,
+            "profile": "zcu104",
+            "relative_action_memory_l2": 0.5232701897621155
+          },
+          {
+            "clock_ns": 5.0,
+            "kernel": "rodinia_pathfinder_0_baseline_0",
+            "pooled_memory_l2": 0.07388880848884583,
+            "profile": "zcu104",
+            "relative_action_memory_l2": 0.5236030220985413
+          },
+          {
+            "clock_ns": 10.0,
+            "kernel": "rodinia_pathfinder_0_baseline_0",
+            "pooled_memory_l2": 0.07403858006000519,
+            "profile": "zcu104",
+            "relative_action_memory_l2": 0.5236563086509705
+          },
+          {
+            "clock_ns": 3.33,
+            "kernel": "rodinia_pathfinder_0_baseline_0",
+            "pooled_memory_l2": 0.07369311153888702,
+            "profile": "u200",
+            "relative_action_memory_l2": 0.522540807723999
+          },
+          {
+            "clock_ns": 5.0,
+            "kernel": "rodinia_pathfinder_0_baseline_0",
+            "pooled_memory_l2": 0.07380411773920059,
+            "profile": "u200",
+            "relative_action_memory_l2": 0.5228690505027771
+          },
+          {
+            "clock_ns": 10.0,
+            "kernel": "rodinia_pathfinder_0_baseline_0",
+            "pooled_memory_l2": 0.07395336776971817,
+            "profile": "u200",
+            "relative_action_memory_l2": 0.5229164361953735
+          }
+        ],
+        "latency_spearman_disabled_macro": -0.21983496276152242,
+        "latency_spearman_enabled_macro": 0.14734254548847084,
+        "latency_top1_regret_disabled_macro": 0.6969984145429372,
+        "latency_top1_regret_enabled_macro": 2.345101810311104,
+        "mean_relative_action_memory_l2_shift": 0.5089513386289278,
+        "selected_latency_candidate_changed_contexts": 10,
+        "validation_contexts": 12
+      },
+      "hardware_relation_gradient_norm_mean": 0.00010376213986091898,
+      "initial_model_sha256": "f4f5f98a5777fc6e8155c04d9a62c407cf24c4b108696a37a9eed0f8e2f89956",
+      "latency_mae_ms_macro": {
+        "defined": 12,
+        "total_contexts": 12,
+        "value": 6.396771726371449
+      },
+      "latency_mape_macro": {
+        "defined": 12,
+        "total_contexts": 12,
+        "value": 0.606622354753463
+      },
+      "loss_first": 0.353965163230896,
+      "loss_last": 0.39606690406799316,
+      "loss_min": 0.19765764474868774,
+      "mean_abs_budget_prediction_change_by_target": [
+        0.1410392733911673,
+        9.117299600476988e-09,
+        0.014848459308268502,
+        3.6054824392000833,
+        91.12949911753337
+      ],
+      "per_context": [
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0004029305200683676
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0004029305200683676
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 4.647035029412308,
+          "latency_mape": 1.209870403983413,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.16273455321788788,
+            1.444885100454485e-08,
+            0.01165027916431427,
+            4.896703720092773,
+            44.512603759765625
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.06722926454528144,
+              "pool_size": 16,
+              "spearman": -0.066274004127659,
+              "top1_regret": 122.65025478826217,
+              "top3_regret": 1.40494311193112
+            },
+            "area": {
+              "kendall": 0.05270462766947299,
+              "pool_size": 16,
+              "spearman": 0.07303190496910014,
+              "top1_regret": 7.000000000000001,
+              "top3_regret": 3.0
+            },
+            "latency": {
+              "kendall": 0.22786635759382495,
+              "pool_size": 16,
+              "spearman": 0.3080331772158725,
+              "top1_regret": 0.0004029305200683676,
+              "top3_regret": 0.0002846096530640747
+            }
+          },
+          "resource_mae_fraction": [
+            0.0037500000040877673,
+            0.0004108766279025384,
+            0.014360779821066044,
+            0.04199335308129159
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 26.038326016635864
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 26.038326016635864
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 6.070006897797585,
+          "latency_mape": 0.6007009588770537,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.15928423404693604,
+            1.154456796825798e-08,
+            0.017480790615081787,
+            3.4907402992248535,
+            112.93211364746094
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.2833333333333333,
+              "pool_size": 16,
+              "regret_undefined_reason": "near_zero_measured_optimum",
+              "spearman": -0.3411764705882353,
+              "top1_regret": null,
+              "top3_regret": null
+            },
+            "area": {
+              "kendall": -0.314964916380737,
+              "pool_size": 16,
+              "regret_undefined_reason": "near_zero_measured_optimum",
+              "spearman": -0.44313581318430384,
+              "top1_regret": null,
+              "top3_regret": null
+            },
+            "latency": {
+              "kendall": -0.15,
+              "pool_size": 16,
+              "spearman": -0.25588235294117645,
+              "top1_regret": 26.038326016635864,
+              "top3_regret": 0.0016462569316082298
+            }
+          },
+          "resource_mae_fraction": [
+            0.003125000007231773,
+            0.0004152045830299979,
+            0.01248823911282348,
+            0.04290580138767793
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.019032700345085644
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.019032700345085644
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 5.723449320487976,
+          "latency_mape": 0.37401769467730284,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.12220515310764313,
+            4.62448435101237e-09,
+            0.008560538291931152,
+            2.190617561340332,
+            141.9610137939453
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": 0.1924703040138163,
+              "pool_size": 16,
+              "spearman": 0.22516562387226202,
+              "top1_regret": 1.9828802424814285,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.03513641844631533,
+              "pool_size": 16,
+              "spearman": 0.05957290394609804,
+              "top1_regret": 5.0,
+              "top3_regret": 3.0
+            },
+            "latency": {
+              "kendall": -0.1924703040138163,
+              "pool_size": 16,
+              "spearman": -0.31640921001657735,
+              "top1_regret": 0.019032700345085644,
+              "top3_regret": 0.019032700345085644
+            }
+          },
+          "resource_mae_fraction": [
+            0.0037500000083424247,
+            0.0004158353008199157,
+            0.006245217848120949,
+            0.028818481025587386
+          ]
+        },
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.9375,
+              "always_feasible_baseline_accuracy": 0.9375,
+              "false_feasible": 1,
+              "false_infeasible": 0,
+              "measured_feasible_count": 15,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 3.0864350972911074,
+          "latency_mape": 0.6809399957791904,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.17090435326099396,
+            1.570546181994814e-08,
+            0.0021742582321166992,
+            5.199715614318848,
+            61.090972900390625
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.25,
+              "pool_size": 16,
+              "spearman": 0.34705882352941175,
+              "top1_regret": 1.129253667746879,
+              "top3_regret": 0.13157224088081448
+            },
+            "area": {
+              "kendall": 0.1924703040138163,
+              "pool_size": 16,
+              "spearman": 0.28108911215426174,
+              "top1_regret": 0.28,
+              "top3_regret": 0.20000000000000018
+            },
+            "latency": {
+              "kendall": -0.35,
+              "pool_size": 16,
+              "spearman": -0.3941176470588235,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            }
+          },
+          "resource_mae_fraction": [
+            0.059999999880660695,
+            0.0016353978965155506,
+            0.0817748463050359,
+            0.16500566025575003
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 2.070125211052277
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 2.070125211052277
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 11.6860938996315,
+          "latency_mape": 0.6246106935557498,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.1632969081401825,
+            1.2024918838449139e-08,
+            0.023700997233390808,
+            3.630566120147705,
+            117.48017883300781
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.21666666666666667,
+              "pool_size": 16,
+              "spearman": 0.2676470588235294,
+              "top1_regret": 0.8654493486246119,
+              "top3_regret": 0.8654493486246119
+            },
+            "area": {
+              "kendall": 0.24267994853915967,
+              "pool_size": 16,
+              "spearman": 0.303164173318209,
+              "top1_regret": 2.7272727272727275,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.26666666666666666,
+              "pool_size": 16,
+              "spearman": 0.34705882352941175,
+              "top1_regret": 2.070125211052277,
+              "top3_regret": 0.0
+            }
+          },
+          "resource_mae_fraction": [
+            0.06624999986239354,
+            0.002068895407848888,
+            0.05427499637576854,
+            0.1593441638681624
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0008231051227551627
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0008231051227551627
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 20.027928817234038,
+          "latency_mape": 0.5321058319266407,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.12457284331321716,
+            5.254256585374151e-09,
+            0.007110312581062317,
+            2.4549918174743652,
+            137.93948364257812
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.03333333333333333,
+              "pool_size": 16,
+              "spearman": -0.02647058823529412,
+              "top1_regret": 1.5701665458154417,
+              "top3_regret": 0.6532556376059644
+            },
+            "area": {
+              "kendall": 0.3529536388627275,
+              "pool_size": 16,
+              "spearman": 0.5081006983120523,
+              "top1_regret": 2.25,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": -0.08333333333333334,
+              "pool_size": 16,
+              "spearman": -0.07058823529411765,
+              "top1_regret": 0.0008231051227551627,
+              "top3_regret": 0.0008231051227551627
+            }
+          },
+          "resource_mae_fraction": [
+            0.07124999984006566,
+            0.001655709852154056,
+            0.04804902450647205,
+            0.18078159378634562
+          ]
+        },
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.001924886162646288
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.001924886162646288
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 1.165071298564453,
+          "latency_mape": 0.31234556228665145,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.15898792445659637,
+            1.410491901054911e-08,
+            0.009726609103381634,
+            4.912868022918701,
+            54.88433074951172
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": 0.3610758882042163,
+              "pool_size": 14,
+              "spearman": 0.5050988765824719,
+              "top1_regret": 0.1089341764506712,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.4009408088260705,
+              "pool_size": 14,
+              "spearman": 0.5104320869570058,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.26626461479211516,
+              "pool_size": 14,
+              "spearman": 0.35827027277962703,
+              "top1_regret": 0.001924886162646288,
+              "top3_regret": 0.001924886162646288
+            }
+          },
+          "resource_mae_fraction": [
+            1.46517101802105e-11,
+            0.0003916157541816794,
+            0.017134908748180543,
+            0.10140306282386405
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 3.0110813536725725,
+          "latency_mape": 0.5410872729945605,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.14045171439647675,
+            7.787268607728492e-09,
+            0.003346783807501197,
+            3.269439458847046,
+            91.9915771484375
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": 0.2973808570665904,
+              "pool_size": 14,
+              "spearman": 0.49281038002944016,
+              "top1_regret": 0.10902696365767883,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.3009856051288392,
+              "pool_size": 14,
+              "spearman": 0.4521561856077667,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.26626461479211516,
+              "pool_size": 14,
+              "spearman": 0.35827027277962703,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0019248861626462877
+            }
+          },
+          "resource_mae_fraction": [
+            1.676503838752744e-11,
+            0.0003927191173223624,
+            0.011423265085630033,
+            0.1014145586456198
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 8.564948302154539,
+          "latency_mape": 0.7716819539904485,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.09233122318983078,
+            7.427430337436647e-10,
+            0.04590548947453499,
+            2.365201950073242,
+            99.65089416503906
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": 0.44169532520975546,
+              "pool_size": 14,
+              "spearman": 0.6203784344695012,
+              "top1_regret": 0.1091199090667425,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.4226256408972078,
+              "pool_size": 14,
+              "spearman": 0.5731945170487408,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.26626461479211516,
+              "pool_size": 14,
+              "spearman": 0.35827027277962703,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0019248861626462877
+            }
+          },
+          "resource_mae_fraction": [
+            1.926033077881829e-11,
+            0.00039094432553551847,
+            0.00713747533112191,
+            0.10139190189717133
+          ]
+        },
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.2857142857142857,
+              "always_feasible_baseline_accuracy": 0.2857142857142857,
+              "false_feasible": 10,
+              "false_infeasible": 0,
+              "measured_feasible_count": 4,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": false,
+              "top1_regret": null
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.002887329243969432
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 1.1810811421003937,
+          "latency_mape": 0.31635382468951045,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.16173717379570007,
+            1.431974450127882e-08,
+            0.0028133222367614508,
+            4.942981719970703,
+            58.70619583129883
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.5447047794019221,
+              "pool_size": 14,
+              "spearman": 0.6664694997239277,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.5689138807086743,
+              "pool_size": 14,
+              "spearman": 0.6847916852833483,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.26626461479211516,
+              "pool_size": 14,
+              "spearman": 0.35827027277962703,
+              "top1_regret": 0.002887329243969432,
+              "top3_regret": 0.002887329243969432
+            }
+          },
+          "resource_mae_fraction": [
+            0.02642857132337866,
+            0.0015550241386764264,
+            0.10637236269161342,
+            0.5367970907120477
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.2857142857142857,
+              "always_feasible_baseline_accuracy": 0.2857142857142857,
+              "false_feasible": 10,
+              "false_infeasible": 0,
+              "measured_feasible_count": 4,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": false,
+              "top1_regret": null
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 3.024921032093593,
+          "latency_mape": 0.5434304646941386,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.14219294488430023,
+            8.540846252458323e-09,
+            0.000999501789920032,
+            3.4333388805389404,
+            85.49471282958984
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.4835591604732175,
+              "pool_size": 14,
+              "spearman": 0.5992830441388786,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.5408017839976152,
+              "pool_size": 14,
+              "spearman": 0.6748932228529719,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.26626461479211516,
+              "pool_size": 14,
+              "spearman": 0.35827027277962703,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0019248861626462877
+            }
+          },
+          "resource_mae_fraction": [
+            0.02642857130874809,
+            0.001559400132724217,
+            0.10208664634693711,
+            0.536141451805357
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.2857142857142857,
+              "always_feasible_baseline_accuracy": 0.2857142857142857,
+              "false_feasible": 10,
+              "false_infeasible": 0,
+              "measured_feasible_count": 4,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": false,
+              "top1_regret": null
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 8.573208526017325,
+          "latency_mape": 0.772323599586897,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.09377225488424301,
+            3.0953323237881136e-10,
+            0.04471262916922569,
+            2.478624105453491,
+            86.909912109375
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.5071474122036184,
+              "pool_size": 14,
+              "spearman": 0.6398360320881259,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.4835591604732175,
+              "pool_size": 14,
+              "spearman": 0.6082948192387112,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.26773977630083295,
+              "pool_size": 14,
+              "spearman": 0.35866462652892567,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0019248861626462877
+            }
+          },
+          "resource_mae_fraction": [
+            0.026428571289439186,
+            0.0015562021582530285,
+            0.05637177399640518,
+            0.5353688866751535
+          ]
+        }
+      ],
+      "ranking": {
+        "adp": {
+          "kendall": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.24812259405787682
+          },
+          "spearman": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.3274855591921967
+          },
+          "top1_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 11.684098694736875
+          },
+          "top3_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 0.27774730354931915
+          }
+        },
+        "area": {
+          "kendall": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.27323390843186496
+          },
+          "spearman": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.3571321247086635
+          },
+          "top1_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 1.5688429752066118
+          },
+          "top3_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 0.5636363636363636
+          }
+        },
+        "latency": {
+          "kendall": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.10981601976456257
+          },
+          "spearman": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.14734254548847084
+          },
+          "top1_regret": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 2.345101810311104
+          },
+          "top3_regret": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.0028582026758094984
+          }
+        }
+      },
+      "resource_mae_fraction_by_resource_macro": [
+        0.02395089279791874,
+        0.0010373187745803482,
+        0.043143294680764596,
+        0.210947167163669
+      ],
+      "training_and_validation_seconds": 2.9223657539114356
+    },
+    "numerical": {
+      "checkpoint_sha256": "8895f31cc36f0716075b9e246b08e654170eafe50c20858f35aa3edecae7f846",
+      "feasibility": {
+        "0.5": {
+          "accuracy_macro": 0.8162202380952381,
+          "always_feasible_accuracy_macro": 0.8162202380952381,
+          "contexts_with_measured_feasible": 12,
+          "false_feasible_total": 31,
+          "false_infeasible_total": 0,
+          "no_predicted_feasible_contexts": 0,
+          "selected_actually_feasible_contexts": 10
+        },
+        "1.0": {
+          "accuracy_macro": 1.0,
+          "always_feasible_accuracy_macro": 1.0,
+          "contexts_with_measured_feasible": 12,
+          "false_feasible_total": 0,
+          "false_infeasible_total": 0,
+          "no_predicted_feasible_contexts": 0,
+          "selected_actually_feasible_contexts": 12
+        }
+      },
+      "final_model_sha256": "a80a0abbcc4aea56c02834fc81c709247a340be96514405ef2002ff12649b6b2",
+      "hardware_relation_gradient_norm_mean": 0.0,
+      "initial_model_sha256": "f4f5f98a5777fc6e8155c04d9a62c407cf24c4b108696a37a9eed0f8e2f89956",
+      "latency_mae_ms_macro": {
+        "defined": 12,
+        "total_contexts": 12,
+        "value": 6.553826696323669
+      },
+      "latency_mape_macro": {
+        "defined": 12,
+        "total_contexts": 12,
+        "value": 0.6125632963682659
+      },
+      "loss_first": 0.3533949851989746,
+      "loss_last": 0.391634076833725,
+      "loss_min": 0.1969163417816162,
+      "mean_abs_budget_prediction_change_by_target": [
+        0.11002787264684837,
+        4.926055644412693e-09,
+        0.06968041136860847,
+        7.815377672513326,
+        39.743554989496864
+      ],
+      "per_context": [
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 4.493503820777931,
+          "latency_mape": 1.0379593640091742,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.11851394176483154,
+            8.936181572494206e-09,
+            0.02623865008354187,
+            8.144891738891602,
+            51.550323486328125
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.01680731613632036,
+              "pool_size": 16,
+              "spearman": -0.004418266941843933,
+              "top1_regret": 1.7479265506940784,
+              "top3_regret": 0.7176133368476543
+            },
+            "area": {
+              "kendall": 0.05270462766947299,
+              "pool_size": 16,
+              "spearman": 0.0432229641653858,
+              "top1_regret": 7.000000000000001,
+              "top3_regret": 4.0
+            },
+            "latency": {
+              "kendall": 0.3460192837535861,
+              "pool_size": 16,
+              "spearman": 0.4804728027386337,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            }
+          },
+          "resource_mae_fraction": [
+            0.0037500000042230285,
+            0.00042471175915316533,
+            0.014358388357220394,
+            0.04171515235689209
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.036188770794824486
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.036188770794824486
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 6.009552633514405,
+          "latency_mape": 0.5231432871585091,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.12021282315254211,
+            6.705350497071549e-09,
+            0.003088817000389099,
+            7.481341361999512,
+            102.19651794433594
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": -0.31666666666666665,
+              "pool_size": 16,
+              "regret_undefined_reason": "near_zero_measured_optimum",
+              "spearman": -0.39999999999999997,
+              "top1_regret": null,
+              "top3_regret": null
+            },
+            "area": {
+              "kendall": -0.1957890020745122,
+              "pool_size": 16,
+              "regret_undefined_reason": "near_zero_measured_optimum",
+              "spearman": -0.24815605538321014,
+              "top1_regret": null,
+              "top3_regret": null
+            },
+            "latency": {
+              "kendall": 0.13333333333333333,
+              "pool_size": 16,
+              "spearman": 0.18235294117647058,
+              "top1_regret": 0.036188770794824486,
+              "top3_regret": 0.02755314232902042
+            }
+          },
+          "resource_mae_fraction": [
+            0.0031250000074663775,
+            0.0004233842661157687,
+            0.012486246178103873,
+            0.04267048988440376
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 1.4377719785132834
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 1.4377719785132834
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 5.9553802171278,
+          "latency_mape": 0.4290537240162635,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.10929527878761292,
+            9.903287079282563e-10,
+            0.08075092732906342,
+            6.980190277099609,
+            7.0243377685546875
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": 0.42678197846541877,
+              "pool_size": 16,
+              "spearman": 0.6372334322659442,
+              "top1_regret": 1.9828802424814285,
+              "top3_regret": 0.9525700640132876
+            },
+            "area": {
+              "kendall": -0.17568209223157663,
+              "pool_size": 16,
+              "spearman": -0.25616348696822155,
+              "top1_regret": 5.0,
+              "top3_regret": 3.0
+            },
+            "latency": {
+              "kendall": -0.12552411131335847,
+              "pool_size": 16,
+              "spearman": -0.1486387451705782,
+              "top1_regret": 1.4377719785132834,
+              "top3_regret": 0.019032700345085644
+            }
+          },
+          "resource_mae_fraction": [
+            0.00375000000819162,
+            0.0004107029792683863,
+            0.00624442641435642,
+            0.02862061230670714
+          ]
+        },
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.9375,
+              "always_feasible_baseline_accuracy": 0.9375,
+              "false_feasible": 1,
+              "false_infeasible": 0,
+              "measured_feasible_count": 15,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.44568773410459434
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.44568773410459434
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 3.2042025802870944,
+          "latency_mape": 0.6646047752412918,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.12007981538772583,
+            9.470234374475694e-09,
+            0.01821298897266388,
+            8.016542434692383,
+            53.4544677734375
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.2833333333333333,
+              "pool_size": 16,
+              "spearman": 0.38823529411764707,
+              "top1_regret": 0.9989540218806179,
+              "top3_regret": 0.13157224088081448
+            },
+            "area": {
+              "kendall": 0.20920685218893076,
+              "pool_size": 16,
+              "spearman": 0.27373075843294603,
+              "top1_regret": 0.20000000000000018,
+              "top3_regret": 0.20000000000000018
+            },
+            "latency": {
+              "kendall": 0.31666666666666665,
+              "pool_size": 16,
+              "spearman": 0.3911764705882353,
+              "top1_regret": 0.44568773410459434,
+              "top3_regret": 0.44568773410459434
+            }
+          },
+          "resource_mae_fraction": [
+            0.05999999987487533,
+            0.0016826551873236897,
+            0.08175917512219814,
+            0.16379427267445457
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.008212287471553904
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.008212287471553904
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 11.772420692467689,
+          "latency_mape": 0.6025578232677175,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.12271654605865479,
+            6.8821357501747116e-09,
+            0.023007705807685852,
+            7.341825485229492,
+            57.673248291015625
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.21666666666666667,
+              "pool_size": 16,
+              "spearman": 0.2735294117647059,
+              "top1_regret": 0.8654493486246119,
+              "top3_regret": 0.8654493486246119
+            },
+            "area": {
+              "kendall": -0.17573375583870182,
+              "pool_size": 16,
+              "spearman": -0.2487123557804724,
+              "top1_regret": 3.5,
+              "top3_regret": 0.3636363636363638
+            },
+            "latency": {
+              "kendall": 0.5333333333333333,
+              "pool_size": 16,
+              "spearman": 0.7558823529411764,
+              "top1_regret": 0.008212287471553904,
+              "top3_regret": 0.007232430396634694
+            }
+          },
+          "resource_mae_fraction": [
+            0.06624999985728447,
+            0.0020874540797538228,
+            0.054259349195183146,
+            0.1582179809941186
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 1.2843563747673654
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 16,
+              "predicted_feasible_count": 16,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 1.2843563747673654
+            }
+          },
+          "kernel": "machsuite-viterbi",
+          "latency_mae_ms": 20.255220103225707,
+          "latency_mape": 0.5725672507914636,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.1089753806591034,
+            2.9032034554177244e-09,
+            0.09383359551429749,
+            6.7344770431518555,
+            17.384658813476562
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.06666666666666667,
+              "pool_size": 16,
+              "spearman": 0.08823529411764705,
+              "top1_regret": 1.5701665458154417,
+              "top3_regret": 0.6532556376059644
+            },
+            "area": {
+              "kendall": 0.26891705818112577,
+              "pool_size": 16,
+              "spearman": 0.3240062424018884,
+              "top1_regret": 3.75,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.5333333333333333,
+              "pool_size": 16,
+              "spearman": 0.6823529411764706,
+              "top1_regret": 1.2843563747673654,
+              "top3_regret": 0.0008231051227551627
+            }
+          },
+          "resource_mae_fraction": [
+            0.07124999984311026,
+            0.0016284906132905575,
+            0.04803787613184088,
+            0.17995568679438695
+          ]
+        },
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.001924886162646288
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.001924886162646288
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 1.4185083748605785,
+          "latency_mape": 0.3812802976600783,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.10396148264408112,
+            7.314688410531289e-09,
+            0.08886148035526276,
+            9.410804748535156,
+            35.38181686401367
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": 0.5241424183609592,
+              "pool_size": 14,
+              "spearman": 0.6526056281508044,
+              "top1_regret": 0.1089341764506712,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.5763524126874764,
+              "pool_size": 14,
+              "spearman": 0.6882749407836548,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.1597587688752691,
+              "pool_size": 14,
+              "spearman": 0.25103291221973867,
+              "top1_regret": 0.001924886162646288,
+              "top3_regret": 0.001924886162646288
+            }
+          },
+          "resource_mae_fraction": [
+            1.358912089263415e-11,
+            0.00039933673670218203,
+            0.017133332058109456,
+            0.1012531830489496
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.07218323109923595
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.07218323109923595
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 3.25394243724823,
+          "latency_mape": 0.5850854006672389,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.10939627140760422,
+            1.141695515904928e-09,
+            0.09564226120710373,
+            8.127196311950684,
+            38.13910675048828
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": 0.3202563076101743,
+              "pool_size": 14,
+              "spearman": 0.5061295794896954,
+              "top1_regret": 0.10902696365767883,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.4862075159773557,
+              "pool_size": 14,
+              "spearman": 0.5768889264650817,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": -0.45264984514659584,
+              "pool_size": 14,
+              "spearman": -0.5971171212993784,
+              "top1_regret": 0.07218323109923595,
+              "top3_regret": 0.07218323109923595
+            }
+          },
+          "resource_mae_fraction": [
+            1.5309476085445703e-11,
+            0.0003947963441722873,
+            0.011422224457075926,
+            0.10128250291700917
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 8.79598714503697,
+          "latency_mape": 0.7926151650076275,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.09506167471408844,
+            2.6276230080668483e-09,
+            0.10651048272848129,
+            7.462735652923584,
+            3.7064208984375
+          ],
+          "profile": "u200",
+          "ranking": {
+            "adp": {
+              "kendall": 0.41645559234062657,
+              "pool_size": 14,
+              "spearman": 0.5921794147208875,
+              "top1_regret": 0.1091199090667425,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.5506940169266648,
+              "pool_size": 14,
+              "spearman": 0.6675475239703442,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": -0.026626461479211518,
+              "pool_size": 14,
+              "spearman": -0.009748850959989851,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0019248861626462877
+            }
+          },
+          "resource_mae_fraction": [
+            1.6759687934936173e-11,
+            0.00038537505077339756,
+            0.007136404078481941,
+            0.10128004154744971
+          ]
+        },
+        {
+          "clock_ns": 3.33,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.2857142857142857,
+              "always_feasible_baseline_accuracy": 0.2857142857142857,
+              "false_feasible": 10,
+              "false_infeasible": 0,
+              "measured_feasible_count": 4,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": false,
+              "top1_regret": null
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.07410811726188234
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 1.4244532077807612,
+          "latency_mape": 0.38247896057068553,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.10757309943437576,
+            7.4240622538468415e-09,
+            0.09554069489240646,
+            9.19632625579834,
+            53.13631820678711
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.5447047794019221,
+              "pool_size": 14,
+              "spearman": 0.6664694997239277,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.6173320833221784,
+              "pool_size": 14,
+              "spearman": 0.7260166027920449,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": -0.45264984514659584,
+              "pool_size": 14,
+              "spearman": -0.5971171212993784,
+              "top1_regret": 0.07410811726188234,
+              "top3_regret": 0.07410811726188234
+            }
+          },
+          "resource_mae_fraction": [
+            0.026428571329080653,
+            0.0015799188345828384,
+            0.10636217488715098,
+            0.5361986347985647
+          ]
+        },
+        {
+          "clock_ns": 5.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.2857142857142857,
+              "always_feasible_baseline_accuracy": 0.2857142857142857,
+              "false_feasible": 10,
+              "false_infeasible": 0,
+              "measured_feasible_count": 4,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0731456741805591
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 3.2631522141919818,
+          "latency_mape": 0.5865800691468247,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.10838679224252701,
+            4.0716738314294787e-10,
+            0.09502838551998138,
+            7.829510688781738,
+            46.69189453125
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.5071474122036184,
+              "pool_size": 14,
+              "spearman": 0.6150536505635859,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.5868274677420932,
+              "pool_size": 14,
+              "spearman": 0.7016216673223966,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": -0.45264984514659584,
+              "pool_size": 14,
+              "spearman": -0.5971171212993784,
+              "top1_regret": 0.0731456741805591,
+              "top3_regret": 0.0731456741805591
+            }
+          },
+          "resource_mae_fraction": [
+            0.02642857131904367,
+            0.0015655416088602527,
+            0.10207631889375902,
+            0.5355975832257952
+          ]
+        },
+        {
+          "clock_ns": 10.0,
+          "feasibility_by_budget_fraction": {
+            "0.5": {
+              "accuracy": 0.2857142857142857,
+              "always_feasible_baseline_accuracy": 0.2857142857142857,
+              "false_feasible": 10,
+              "false_infeasible": 0,
+              "measured_feasible_count": 4,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": false,
+              "top1_regret": null
+            },
+            "1.0": {
+              "accuracy": 1.0,
+              "always_feasible_baseline_accuracy": 1.0,
+              "false_feasible": 0,
+              "false_infeasible": 0,
+              "measured_feasible_count": 14,
+              "predicted_feasible_count": 14,
+              "selected_is_measured_feasible": true,
+              "top1_regret": 0.0019248861626462877
+            }
+          },
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "latency_mae_ms": 8.799596929364885,
+          "latency_mape": 0.7928334388823163,
+          "mean_abs_budget_induced_physical_prediction_delta": [
+            0.0961613655090332,
+            4.30999680389732e-09,
+            0.10944894701242447,
+            7.058690071105957,
+            10.583548545837402
+          ],
+          "profile": "zcu104",
+          "ranking": {
+            "adp": {
+              "kendall": 0.5071474122036184,
+              "pool_size": 14,
+              "spearman": 0.6398360320881259,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "area": {
+              "kendall": 0.6250886708556227,
+              "pool_size": 14,
+              "spearman": 0.7209420079866208,
+              "top1_regret": 0.0,
+              "top3_regret": 0.0
+            },
+            "latency": {
+              "kendall": 0.07987938443763455,
+              "pool_size": 14,
+              "spearman": 0.15598161535983762,
+              "top1_regret": 0.0019248861626462877,
+              "top3_regret": 0.0019248861626462877
+            }
+          },
+          "resource_mae_fraction": [
+            0.02642857130737161,
+            0.0015323890185860727,
+            0.05636119664957125,
+            0.5349330219389901
+          ]
+        }
+      ],
+      "ranking": {
+        "adp": {
+          "kendall": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.2899857153708348
+          },
+          "spearman": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.3879240808384273
+          },
+          "top1_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 0.6811325235155701
+          },
+          "top3_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 0.30186005708839386
+          }
+        },
+        "area": {
+          "kendall": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.2855104879505108
+          },
+          "spearman": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.3307683113490383
+          },
+          "top1_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 1.7681818181818183
+          },
+          "top3_regret": {
+            "defined": 11,
+            "total_contexts": 12,
+            "value": 0.687603305785124
+          }
+        },
+        "latency": {
+          "kendall": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.049351999625066575
+          },
+          "spearman": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.07912608968098829
+          },
+          "top1_regret": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.2864524022234365
+          },
+          "top3_regret": {
+            "defined": 12,
+            "total_contexts": 12,
+            "value": 0.060461732777308874
+          }
+        }
+      },
+      "resource_mae_fraction_by_resource_macro": [
+        0.02395089279969211,
+        0.0010428963732152018,
+        0.043136426035254284,
+        0.21045993020731013
+      ],
+      "training_and_validation_seconds": 3.1510199720505625
+    }
+  },
+  "budget_prediction_delta": {
+    "candidate_target": [
+      0.012352311611175537,
+      2.299655873598076e-09,
+      0.03797526160875956,
+      3.452034420437283,
+      26.66412353515625
+    ],
+    "hardware": [
+      0.1416699555185106,
+      9.216169950655562e-09,
+      0.014643792311350505,
+      3.6080428653293186,
+      91.89763590494792
+    ],
+    "numerical": [
+      0.11046816110610962,
+      4.99640096210088e-09,
+      0.06775865554809571,
+      7.791009224785698,
+      40.308079698350696
+    ]
+  },
+  "cohort_manifest_sha256": "c3d6081fdd4e74c600cce54fe5a151bf7ae502e26afb488d1e035c7d0cdcb534",
+  "corrected_regret_rule_source_sha256": "b0ef3f8cdc72f27c5b30372e5f87a84a6e555500942fed6c4575523bdf758733",
+  "corrected_regret_rule_test": "tests/test_v22_gnn_learnability_probe.py::test_near_zero_objective_has_undefined_relative_regret",
+  "environment": {
+    "candidate_feature_preparation_seconds": 136.58727807796095,
+    "candidate_target_model_parameters": 338053,
+    "gpu_name": "NVIDIA A2",
+    "gpu_seconds": 7.556598179973662,
+    "gpu_uuid": "GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35",
+    "graph_model_parameters": 116081,
+    "peak_gpu_memory": "not instrumented",
+    "prep_seconds": 94.95657537493389
+  },
+  "metric_correction": {
+    "context": "machsuite-viterbi|u200|5ns",
+    "handling": "set per-context area/ADP relative regret to null and exclude from macro regret denominator; retain ranking correlations and all other metrics",
+    "reason": "authenticated measured area and ADP optima are exactly zero; relative regret is undefined"
+  },
+  "raw_results_path": "/tmp/v22-v4-target-conditioned-probe-s123-20261101-r2/results.json",
+  "raw_results_sha256": "8c569cb8842154ef839a575b0a78273f0f6792994ef3173908db19c53a8704a3",
+  "schema": "salt-hls-v4-learnability-target-probe-summary-v1",
+  "target_condition_probe_source_sha256": "e44660f138032db2e84c2624f07023f4e2c538c116f1ae7500c4f82c608c800f",
+  "target_contrasts": {
+    "candidate_target": {
+      "0.5": {
+        "clock": {
+          "comparison_groups": 10,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.887866017176777,
+          "macro_sign_accuracy_over_groups": 0.569047619047619,
+          "matched_assignment_observations_sum_over_overlapping_groups": 91,
+          "nontrivial_latency_contrasts": 91,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                11.394055932846072,
+                0.0,
+                0.024661660194396973,
+                4610.508354187012,
+                1136.27099609375
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.3333333333333333,
+              "matched_assignments": 3,
+              "mean_absolute_paired_error_by_target": [
+                1.217136960829266,
+                2.932598238321778e-10,
+                0.015540321667989096,
+                7883.056578572591,
+                9.073201497395834
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 3,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                8.70372470700775,
+                1.9896999603474796e-09,
+                0.03900390863418579,
+                23648.74288253784,
+                5913.310534667966
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                18.028590463180542,
+                0.0,
+                0.02442348003387451,
+                23647.271939086913,
+                16.1512451171875
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "u200:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.8448616328139393,
+                1.3471375126528073e-09,
+                0.016760894230433872,
+                1976.6098861694336,
+                499.32369559151783
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.7857142857142857,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.383677250457024,
+                3.5029660442173085e-09,
+                0.049439379147120883,
+                23045.283954075403,
+                342.12451171875
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.7857142857142857,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.538815617643084,
+                2.155828531564501e-09,
+                0.03267848491668701,
+                21068.67406790597,
+                173.40522112165178
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.8467973813759075,
+                1.421940914221003e-09,
+                0.016167879104614258,
+                13513.111211940219,
+                8.5576171875
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.3838988034950495,
+                4.0470935808960866e-09,
+                0.047804253441946845,
+                23650.05236729213,
+                21.12139892578125
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.7857142857142857,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.537101422119141,
+                2.6251526666750837e-09,
+                0.03163637433733259,
+                10136.941155351911,
+                12.56378173828125
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:5->10ns"
+            }
+          ]
+        },
+        "device": {
+          "comparison_groups": 5,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.619581290281808,
+          "macro_sign_accuracy_over_groups": 0.0,
+          "matched_assignment_observations_sum_over_overlapping_groups": 45,
+          "nontrivial_latency_contrasts": 21,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                13.475859791107176,
+                40.56,
+                0.01854562759399414,
+                2908.8847663879387,
+                8898.605480957034
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                19.57733927635193,
+                31.200000000000003,
+                0.01902472972869873,
+                17825.39083404541,
+                7415.319482421881
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "10ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.015621561849975572,
+                16.491428569122657,
+                0.03391150065830776,
+                9285.562289864674,
+                3920.328376116067
+              ],
+              "near_zero_measured_latency_contrast_count": 2,
+              "nontrivial_measured_latency_contrasts": 12,
+              "target_pair": "3.33ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.013685813288007458,
+                16.491428569197463,
+                0.034504515784127374,
+                20302.88260323661,
+                3755.555967494415
+              ],
+              "near_zero_measured_latency_contrast_count": 10,
+              "nontrivial_measured_latency_contrasts": 4,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.015400008811950678,
+                16.491428569666787,
+                0.03554662636348179,
+                9111.430822099957,
+                3588.8036394391697
+              ],
+              "near_zero_measured_latency_contrast_count": 12,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "10ns:zcu104->u200"
+            }
+          ]
+        }
+      },
+      "1.0": {
+        "clock": {
+          "comparison_groups": 10,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.886699875575942,
+          "macro_sign_accuracy_over_groups": 0.6214285714285714,
+          "matched_assignment_observations_sum_over_overlapping_groups": 91,
+          "nontrivial_latency_contrasts": 91,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                11.394373744812015,
+                0.0,
+                0.024123072624206543,
+                4610.452301025391,
+                1136.5096435546875
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 3,
+              "mean_absolute_paired_error_by_target": [
+                1.217816294833986,
+                0.0,
+                0.01386570930480957,
+                7883.001163736979,
+                12.278279622395834
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 3,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                8.696465338111265,
+                7.202103496917189e-11,
+                0.034194350242614746,
+                23648.535774993896,
+                5911.712634277341
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                18.027738116760254,
+                0.0,
+                0.023009538650512695,
+                23647.16734008789,
+                17.2451171875
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "u200:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.8571428571428571,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.845404563008249,
+                1.4803008342921332e-09,
+                0.016190103122166226,
+                1976.6001608712334,
+                500.2974155970982
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.7857142857142857,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.381869458610884,
+                4.126373655464834e-09,
+                0.04399263858795166,
+                23044.91419328962,
+                345.2170933314732
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.7857142857142857,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.536464895602635,
+                2.6460728211727005e-09,
+                0.027802535465785434,
+                21068.314032418388,
+                176.57781110491072
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.8472099306672458,
+                1.484388485144856e-09,
+                0.016563568796430315,
+                13512.96937168666,
+                10.375444684709821
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.383433172010064,
+                4.222305552811381e-09,
+                0.043825234685625346,
+                23649.567670767643,
+                24.739484514508927
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.7857142857142857,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.536223241342817,
+                2.7379170676665255e-09,
+                0.027261665889195034,
+                10136.598299080984,
+                14.364039829799108
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:5->10ns"
+            }
+          ]
+        },
+        "device": {
+          "comparison_groups": 5,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.618696696045706,
+          "macro_sign_accuracy_over_groups": 0.0,
+          "matched_assignment_observations_sum_over_overlapping_groups": 45,
+          "nontrivial_latency_contrasts": 21,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                13.475738793678282,
+                40.56,
+                0.018195629119873047,
+                2908.8436592102044,
+                8899.94215087891
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                19.578117236175537,
+                31.200000000000003,
+                0.019020557403564453,
+                17825.396533203126,
+                7415.147241210943
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "10ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.014332177144295815,
+                16.4914285692293,
+                0.03335498060498919,
+                9285.588805280411,
+                3919.861605398991
+              ],
+              "near_zero_measured_latency_contrast_count": 2,
+              "nontrivial_measured_latency_contrasts": 12,
+              "target_pair": "3.33ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.012526809485299242,
+                16.49142856923338,
+                0.0329815149307251,
+                20302.94052559989,
+                3755.1085274832544
+              ],
+              "near_zero_measured_latency_contrast_count": 10,
+              "nontrivial_measured_latency_contrasts": 4,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.012768463745117182,
+                16.49142856932523,
+                0.0335223845073155,
+                9111.626535688129,
+                3590.4542393275624
+              ],
+              "near_zero_measured_latency_contrast_count": 12,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "10ns:zcu104->u200"
+            }
+          ]
+        }
+      }
+    },
+    "hardware": {
+      "0.5": {
+        "clock": {
+          "comparison_groups": 10,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.849624392912287,
+          "macro_sign_accuracy_over_groups": 0.9666666666666667,
+          "matched_assignment_observations_sum_over_overlapping_groups": 91,
+          "nontrivial_latency_contrasts": 91,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                11.34871539482117,
+                2.0667222599968227e-08,
+                0.04092264175415039,
+                4607.431365966797,
+                1160.94580078125
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.6666666666666666,
+              "matched_assignments": 3,
+              "mean_absolute_paired_error_by_target": [
+                1.2068405365993262,
+                1.5353194271483517e-08,
+                0.0009627342224121094,
+                7882.182833607992,
+                53.005940755208336
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 3,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                8.636759007811888,
+                3.5089239958097096e-08,
+                0.032196044921875,
+                23642.54748802185,
+                5909.446948242185
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                17.989163421173096,
+                1.962707329994373e-08,
+                0.03127312660217285,
+                23644.30846862793,
+                18.39501953125
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "u200:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.824295697270334,
+                1.490836482836195e-08,
+                0.005747999463762555,
+                1975.7096138000488,
+                522.3857945033482
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.324162540575649,
+                3.51884385756713e-08,
+                0.04393509456089565,
+                23039.137352262223,
+                349.29246303013394
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.499866843305315,
+                2.028007374730935e-08,
+                0.03818709509713309,
+                21064.935509000505,
+                176.58408900669642
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.827473793958305,
+                1.5447230034786637e-08,
+                0.0011671270642961775,
+                13511.312785720822,
+                50.698172433035715
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.333220243783048,
+                3.475689831183055e-08,
+                0.03158642564501081,
+                23643.965711539127,
+                31.571934291294642
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.505746449824742,
+                1.9309668277043912e-08,
+                0.030419298580714633,
+                10133.5652646201,
+                19.126238141741073
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:5->10ns"
+            }
+          ]
+        },
+        "device": {
+          "comparison_groups": 5,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.617378667050737,
+          "macro_sign_accuracy_over_groups": 0.0,
+          "matched_assignment_observations_sum_over_overlapping_groups": 45,
+          "nontrivial_latency_contrasts": 21,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                13.47369614250183,
+                40.55999999797165,
+                0.004567980766296387,
+                2908.8211505889885,
+                8903.215283203128
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                19.569155797042846,
+                31.199999996972096,
+                0.014683008193969727,
+                17825.536921691895,
+                7428.627099609381
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "10ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.018759065201459597,
+                16.491428569298485,
+                0.0015164954321725027,
+                9285.713766860961,
+                3923.35943429129
+              ],
+              "near_zero_measured_latency_contrast_count": 2,
+              "nontrivial_measured_latency_contrasts": 12,
+              "target_pair": "3.33ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.015580968513488764,
+                16.49142856983735,
+                0.006097367831638881,
+                20303.279792240686,
+                3751.3846679687454
+              ],
+              "near_zero_measured_latency_contrast_count": 10,
+              "nontrivial_measured_latency_contrasts": 4,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.009701361994062145,
+                16.491428568866944,
+                0.013865164348057337,
+                9112.286052703857,
+                3591.8707345145044
+              ],
+              "near_zero_measured_latency_contrast_count": 12,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "10ns:zcu104->u200"
+            }
+          ]
+        }
+      },
+      "1.0": {
+        "clock": {
+          "comparison_groups": 10,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.888534594529937,
+          "macro_sign_accuracy_over_groups": 0.4666666666666667,
+          "matched_assignment_observations_sum_over_overlapping_groups": 91,
+          "nontrivial_latency_contrasts": 91,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                11.388171047058108,
+                1.3861978231943795e-08,
+                0.009654760360717773,
+                4608.595100402832,
+                1180.890380859375
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.6666666666666666,
+              "matched_assignments": 3,
+              "mean_absolute_paired_error_by_target": [
+                1.2084279274989844,
+                1.2390846867068225e-08,
+                0.029683430989583332,
+                7881.723100280761,
+                14.892008463541666
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 3,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                8.67757221543823,
+                2.5349905286020658e-08,
+                0.03511381149291992,
+                23645.217892456054,
+                5972.641406249997
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                18.02716567375183,
+                1.2738873067519307e-08,
+                0.004179477691650391,
+                23645.566330718993,
+                45.8232421875
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "u200:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.8438400092024891,
+                9.129464676301983e-09,
+                0.007561905043465751,
+                1974.8590804508754,
+                503.3611537388393
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.392127366887033,
+                2.1178213976164832e-08,
+                0.0020354815891810824,
+                23040.470297949654,
+                329.46219308035717
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.548287357684544,
+                1.204874929986285e-08,
+                0.005526423454284668,
+                21065.61121749878,
+                177.99874441964286
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.8460101743174098,
+                9.129559076979734e-09,
+                0.007547054971967425,
+                13511.316121128624,
+                13.590628487723214
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.399877173889075,
+                1.990923388055827e-08,
+                0.004592691149030413,
+                23645.41908176967,
+                13.1949462890625
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.553866999571665,
+                1.0779674803578537e-08,
+                0.012139746120997838,
+                10134.102960641043,
+                26.785574776785715
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:5->10ns"
+            }
+          ]
+        },
+        "device": {
+          "comparison_groups": 5,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.614937730825936,
+          "macro_sign_accuracy_over_groups": 0.0,
+          "matched_assignment_observations_sum_over_overlapping_groups": 45,
+          "nontrivial_latency_contrasts": 21,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                13.469794064826964,
+                40.559999997463976,
+                0.010655522346496582,
+                2908.8000514984124,
+                8898.929516601565
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                19.56678472427368,
+                31.199999996340374,
+                0.016143321990966797,
+                17825.801280212403,
+                7432.653710937506
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "10ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.016009945715332017,
+                16.491428569083677,
+                0.008429936000279017,
+                9285.723857007706,
+                3920.5257638113794
+              ],
+              "near_zero_measured_latency_contrast_count": 2,
+              "nontrivial_measured_latency_contrasts": 12,
+              "target_pair": "3.33ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.013839780600411546,
+                16.491428569083773,
+                0.008444786071777344,
+                20303.345489229476,
+                3755.8983049665135
+              ],
+              "near_zero_measured_latency_contrast_count": 10,
+              "nontrivial_measured_latency_contrasts": 4,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.008260138713291707,
+                16.491428567814697,
+                0.015058108738490514,
+                9112.356409072876,
+                3600.873856026781
+              ],
+              "near_zero_measured_latency_contrast_count": 12,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "10ns:zcu104->u200"
+            }
+          ]
+        }
+      }
+    },
+    "numerical": {
+      "0.5": {
+        "clock": {
+          "comparison_groups": 10,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.870481586836419,
+          "macro_sign_accuracy_over_groups": 0.9666666666666667,
+          "matched_assignment_observations_sum_over_overlapping_groups": 91,
+          "nontrivial_latency_contrasts": 91,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                11.37032732376099,
+                1.282840145222508e-08,
+                0.004402875900268555,
+                4607.637809753418,
+                1187.85986328125
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.6666666666666666,
+              "matched_assignments": 3,
+              "mean_absolute_paired_error_by_target": [
+                1.2068837698350032,
+                1.5046154544506862e-08,
+                0.03294245402018229,
+                7881.940128580729,
+                46.451741536458336
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 3,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                8.655222023368223,
+                2.9030641002236734e-08,
+                0.04097592830657959,
+                23643.995545196532,
+                5923.384570312497
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                18.007760785598755,
+                1.3884999816582422e-08,
+                0.009643316268920898,
+                23645.020455169677,
+                58.18115234375
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "u200:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.8395125587227092,
+                1.3279972930847959e-08,
+                0.025356156485421315,
+                1975.5825871058873,
+                517.2240687779018
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.363732003624312,
+                1.6660512969224328e-08,
+                0.06822323799133301,
+                23039.433064596993,
+                386.7586146763393
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.524219444901603,
+                3.3805400383763687e-09,
+                0.04286708150591169,
+                21065.10391998291,
+                205.3878173828125
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.8408688479580697,
+                1.3604930261733119e-08,
+                0.02427537100655692,
+                13511.31556799752,
+                31.905657087053573
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.3685789792762995,
+                1.8383909759579964e-08,
+                0.07784886019570487,
+                23644.359728622432,
+                70.84127371651786
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.527710131318229,
+                4.778979497846844e-09,
+                0.05357348918914795,
+                10133.679863575526,
+                38.935616629464285
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:5->10ns"
+            }
+          ]
+        },
+        "device": {
+          "comparison_groups": 5,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.60967645607945,
+          "macro_sign_accuracy_over_groups": 0.0,
+          "matched_assignment_observations_sum_over_overlapping_groups": 45,
+          "nontrivial_latency_contrasts": 21,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                13.463669210739134,
+                40.559999997181045,
+                0.011389493942260742,
+                2908.8103721618645,
+                8913.78327636719
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                19.56224714187622,
+                31.19999999826556,
+                0.017006635665893555,
+                17826.63939590454,
+                7452.249169921881
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "10ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.00955639755641391,
+                16.491428568160703,
+                0.005315678460257394,
+                9285.822949763706,
+                3935.9366350446385
+              ],
+              "near_zero_measured_latency_contrast_count": 2,
+              "nontrivial_measured_latency_contrasts": 12,
+              "target_pair": "3.33ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.008200108321053636,
+                16.491428568485663,
+                0.004234892981392997,
+                20303.625265393937,
+                3771.6002964564686
+              ],
+              "near_zero_measured_latency_contrast_count": 10,
+              "nontrivial_measured_latency_contrasts": 4,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.004709421904427659,
+                16.4914285698841,
+                0.014941300664629256,
+                9112.832385744367,
+                3613.416755022317
+              ],
+              "near_zero_measured_latency_contrast_count": 12,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "10ns:zcu104->u200"
+            }
+          ]
+        }
+      },
+      "1.0": {
+        "clock": {
+          "comparison_groups": 10,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.877859416842247,
+          "macro_sign_accuracy_over_groups": 0.8666666666666667,
+          "matched_assignment_observations_sum_over_overlapping_groups": 91,
+          "nontrivial_latency_contrasts": 91,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                11.383905500259402,
+                8.782180316302401e-09,
+                0.0737295150756836,
+                4608.234725952148,
+                1114.08544921875
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.6666666666666666,
+              "matched_assignments": 3,
+              "mean_absolute_paired_error_by_target": [
+                1.206478060886232,
+                1.2759670653395006e-08,
+                0.010064045588175455,
+                7881.7179835001625,
+                3.4584147135416665
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 3,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                8.664459074378355,
+                2.10789998789096e-08,
+                0.09645771980285645,
+                23645.153204727172,
+                5910.502246093747
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                18.0185070262146,
+                8.20838863546669e-09,
+                0.08683633804321289,
+                23645.497048187255,
+                37.237060546875
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "u200:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.838699091560713,
+                6.263065748563739e-09,
+                0.02484384604862758,
+                1974.9713491712298,
+                512.3417619977679
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.375143704554226,
+                1.354643686113377e-08,
+                0.08213155610220772,
+                23040.771223885673,
+                356.11778041294644
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.536444612993513,
+                7.2833711125700316e-09,
+                0.057287710053580146,
+                21065.79987471444,
+                174.46355329241072
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "zcu104:5->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                1.8354338239690733,
+                7.4319219984480304e-09,
+                0.03105630193437849,
+                13511.336218316212,
+                34.663242885044646
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->5ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 1.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                7.377478548787713,
+                1.3696840740960527e-08,
+                0.095497727394104,
+                23645.677646582462,
+                31.753313337053573
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:3.33->10ns"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                5.542044724818639,
+                6.264918742512496e-09,
+                0.06444142545972552,
+                10134.344351959227,
+                2.9099295479910716
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 14,
+              "target_pair": "u200:5->10ns"
+            }
+          ]
+        },
+        "device": {
+          "comparison_groups": 5,
+          "distinct_validation_kernels": 2,
+          "macro_paired_latency_delta_MAE_ms_over_groups": 6.608492976906607,
+          "macro_sign_accuracy_over_groups": 0.0,
+          "matched_assignment_observations_sum_over_overlapping_groups": 45,
+          "nontrivial_latency_contrasts": 21,
+          "per_group": [
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 2,
+              "mean_absolute_paired_error_by_target": [
+                13.461153656311033,
+                40.55999999698159,
+                0.008674025535583496,
+                2908.799456405639,
+                8958.16804199219
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "machsuite-viterbi",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 1,
+              "mean_absolute_paired_error_by_target": [
+                19.56254707244873,
+                31.19999999640779,
+                0.004431486129760742,
+                17826.404986572266,
+                7475.552148437506
+              ],
+              "near_zero_measured_latency_contrast_count": 0,
+              "nontrivial_measured_latency_contrasts": 1,
+              "target_pair": "10ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.005944577471705832,
+                16.491428568051322,
+                0.0013633966445922852,
+                9285.812753622871,
+                3948.5025530133885
+              ],
+              "near_zero_measured_latency_contrast_count": 2,
+              "nontrivial_measured_latency_contrasts": 12,
+              "target_pair": "3.33ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.009209845063345767,
+                16.491428569220176,
+                0.004849059241158622,
+                20303.507210867745,
+                3777.924794224326
+              ],
+              "near_zero_measured_latency_contrast_count": 10,
+              "nontrivial_measured_latency_contrasts": 4,
+              "target_pair": "5ns:zcu104->u200"
+            },
+            {
+              "kernel": "rodinia_pathfinder_0_baseline_0",
+              "latency_sign_accuracy": 0.0,
+              "matched_assignments": 14,
+              "mean_absolute_paired_error_by_target": [
+                0.003609733238220209,
+                16.491428568201723,
+                0.01200277464730399,
+                9112.598046711513,
+                3623.5944545200846
+              ],
+              "near_zero_measured_latency_contrast_count": 12,
+              "nontrivial_measured_latency_contrasts": 2,
+              "target_pair": "10ns:zcu104->u200"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "target_coverage_audit_sha256": "62f693436155d1f3720f1deb910b07a5c98c85645c348fc9d0835516e7bf5b36",
+  "target_feature_source_hashes": {
+    "GNN_branch/action_demand_v22.py": "4246a926c9b4bcfc5f90c58a7f3aee5122ab4c658742848a53a3d616cf2d9325",
+    "GNN_branch/action_point_relations.py": "39aab15de84fecb46d108df194a6ebcad9e0db9963fba7bd155dbdcd036aba7c",
+    "GNN_branch/semantic_tensor_features_v22.py": "567ea762e5ae46603611376992d4da2f5f12f4fac779a6cb086ceb7550ac515a",
+    "GNN_branch/target_graph_tensor_v22.py": "06cd45a1c3269497d2a0a2674d69c4021b1aa1e674591896d98fb1a5acbe7c80",
+    "GNN_branch/target_graph_v22.py": "d528c62be0cad9b8eec46898de7d3f6873d28bdf46d8d6d59a49401009dddfdf",
+    "LLM_branch/common/directive_domains.py": "7abe0900e1dd0e8dd4cc161efa4d2fa87da30dc1637f53279126047505be9bda",
+    "experiments/target_graph_readiness/experiment.py": "a525514ba20fa89b1a470968ecfd501f2328bfa78c2fc9ff001def86c8cd3638",
+    "experiments/v22_gnn_training/audit.py": "be560856e6cfb127334c0fd033a0155f56c92f35a611786f780a070562d045a9",
+    "experiments/v22_gnn_training/fast_probe.py": "14c44c02a6a9be61a30fb88573f236e176c1437a807dacd71c4384b7ce63bc2e",
+    "experiments/v22_gnn_training/train.py": "a4315daf2e5fd49e7528f81e3af5ee67c9e01a0c177b0a60cdc457578a39ab5b"
+  },
+  "training": {
+    "initial_graph_arm_state_sha256": "f4f5f98a5777fc6e8155c04d9a62c407cf24c4b108696a37a9eed0f8e2f89956",
+    "optimizer": "AdamW lr=3e-4, weight decay=1e-4; 0.1 pairwise rank term; 8 candidates/update",
+    "sampling_trace_sha256": "98296d7b7a8ade3e4b0e4f3763a2a63323eec71b0ee00693fa22c269c30131dd",
+    "selection": "fixed 100 updates; no checkpoint selection from test data",
+    "training_contexts": 30,
+    "training_rows": 480,
+    "updates_per_arm": 100,
+    "validation_contexts": 12,
+    "validation_rows": 180
+  },
+  "validation_protocol": "selected measured validation pools; source families MachSuite Viterbi and Rodinia PathFinder; no test rows"
+}

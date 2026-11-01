@@ -174,6 +174,111 @@ reinterpreted. That pilot did not include family-held-out evaluation and did
 not pass candidate-demand tensors during its original training loop. Its
 metrics are not results for this training implementation.
 
+## Learnability and target-conditioning follow-up (2026-11-01)
+
+The fixed-context diagnostic used the existing V4 model, RC3 graph and one
+training-family context (Stencil2D, ZCU104, 10 ns). It trained on 24 distinct
+measured assignments selected by complete-assignment Hamming diversity without
+using QoR for selection. Regression-only loss fell from standardized SmoothL1
+0.3363 for the constant predictor to 0.0940 after 1,000 updates. Latency MAE
+fell from 0.4023 ms to 0.2479 ms; within-set Spearman was 0.701. The model's
+predicted best was 1.05% above the best measured latency, but it did not select
+the exact best assignment. This establishes candidate-dependent memorization
+on this set, not held-out learning.
+The separate 200- and 1,000-update manifests/results, including selected
+assignment hashes and checkpoint identities, are in
+[`results/fixed_context_learnability_200_s123_manifest.json`](results/fixed_context_learnability_200_s123_manifest.json),
+[`results/fixed_context_learnability_s123_manifest.json`](results/fixed_context_learnability_s123_manifest.json),
+[`results/fixed_context_learnability_200_s123_results.json`](results/fixed_context_learnability_200_s123_results.json),
+and [`results/fixed_context_learnability_s123_results.json`](results/fixed_context_learnability_s123_results.json).
+
+A separate 100-update comparison used 5 training families and 2 held-out
+validation families, each across ZCU104/U200 and 3.33/5/10 ns. It compared the
+same V4 graph encoder with hardware-resource messages enabled or removed, plus
+a small candidate/demand/numerical-context MLP. The graph arms shared the exact
+initial weights and 100-update sampling trace. The fixed-step results were not
+selected on validation. The MLP is a simple control, not a parameter-matched
+ablation (338,053 parameters versus 116,081 for either graph model).
+
+The 480 training records use 16 directive assignments per kernel shared across
+all six target contexts. Validation contains 180 records: 16 hash-selected
+Viterbi assignments per context and the 14 PathFinder assignments shared
+across all six. Validation assignment selection did not inspect QoR. The test
+family (Kalman) was excluded from training, selection and evaluation. Exact
+identities and overlap counts are in
+[`results/target_coverage_audit_s123.json`](results/target_coverage_audit_s123.json)
+and [`results/target_condition_probe_s123_manifest.json`](results/target_condition_probe_s123_manifest.json).
+
+| Validation measure (12 kernel/device/clock groups) | Candidate + target | Numerical GNN | Hardware GNN |
+|---|---:|---:|---:|
+| Latency MAPE, macro | 0.6888 | 0.6126 | 0.6066 |
+| Latency MAE, ms, macro | 6.4723 | 6.5538 | 6.3968 |
+| Resource MAE / capacity `[BRAM,DSP,FF,LUT]` | `[.02395,.00071,.04305,.21402]` | `[.02395,.00104,.04314,.21046]` | `[.02395,.00104,.04314,.21095]` |
+| Latency Spearman, macro | 0.2360 | 0.0791 | 0.1473 |
+| Latency Kendall, macro | 0.2231 | 0.0494 | 0.1098 |
+| Latency top-1 measured-pool regret, macro | 7.3810 | 0.2865 | 2.3451 |
+| Latency top-3 measured-pool regret, macro | 0.2755 | 0.0605 | 0.0029 |
+| 100% budget accuracy / always-feasible baseline | 1.000 / 1.000 | 1.000 / 1.000 | 1.000 / 1.000 |
+| 50% budget accuracy / always-feasible baseline | .816 / .816 | .816 / .816 | .816 / .816 |
+| 50% false-feasible assignments / selected actually feasible | 31 / 9 of 12 | 31 / 10 of 12 | 31 / 9 of 12 |
+
+Latency top-1 regret is highly context-sensitive: the hardware arm is best on
+top-3 but has much worse macro top-1 regret than the numerical arm. Under the
+50% budget all arms have the same accuracy as predicting every candidate
+feasible, so that score is not evidence of a learned feasibility rule. At 100%
+all selected candidates are feasible by construction of the measured pool.
+Area/ADP regret is undefined in one Viterbi/U200/5 ns context because its
+measured optimum is exactly zero; the corrected summary excludes that one
+context (11/12 defined), rather than reporting a huge epsilon-denominator
+percentage. The raw output is preserved and the corrected, denominator-aware
+summary is in [`results/target_condition_probe_s123_summary.json`](results/target_condition_probe_s123_summary.json).
+
+Exact target pairing supports 91 assignment-pair observations across 10 clock
+comparison groups and 45 across 5 device comparison groups, from only two
+validation kernels. These pairs overlap and are not independent samples. On
+PathFinder, the hardware arm gets the clock-change sign right in many paired
+cases but has large absolute paired-delta errors; it gets the device-change
+latency sign wrong in all three device groups. Viterbi intersections are sparse
+(one to three selected assignments per nonempty pair). These are weak target
+response diagnostics, not evidence of cross-device generalization.
+
+The hardware relation rows receive finite nonzero mean gradient norm
+`1.04e-4`; the numerical arm receives zero for those rows. Disabling hardware
+edges in the trained hardware model changes action memories (mean relative
+L2 shift 0.509), selected latency candidates in 10/12 validation contexts, and
+macro latency Spearman from 0.147 enabled to -0.220 disabled. Yet enabled
+messages worsen mean top-1 latency regret from 0.697 to 2.345. Thus the path is
+used, but its contribution is mixed and does not show a reliable selection
+benefit. This ablation is distinct from the separately trained numerical arm.
+
+Predicted physical QoR changes when only the requested budget changes for the
+same candidate/device/clock. Mean absolute predicted latency shifts are 0.0124
+ms (candidate MLP), 0.1105 ms (numerical GNN), and 0.1417 ms (hardware GNN).
+This violates the desired physical-QoR budget invariance, even though measured
+labels are reused unchanged. It is evidence for a future, separately versioned
+model contract with physical QoR conditioned on program/candidate/device/clock
+and feasibility derived against the requested budget. No V4 schema or graph was
+changed in this diagnostic.
+
+**Interpretation:** V4 can memorize some candidate-dependent QoR on one fixed
+context. The 100-update cross-family experiment does not establish accurate
+QoR, target-aware device response, or a consistent incremental benefit from
+hardware messages. The hardware arm is not ready for Stage-2 use. The next
+smallest useful step is a predeclared 300–600 update continuation of the exact
+same deterministic three-arm cohort when the A2 is available, followed by the same
+validation protocol. Do not change graph features, loss or target semantics
+simultaneously.
+
+The run completed on the A2 UUID
+`GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35` in 7.56 seconds GPU time after
+94.96 seconds of authenticated data loading and 136.59 seconds of feature
+preparation. Selected graph, assignment and demand tensors were precomputed
+once in memory and shared across arms and validation; this follow-up did not
+write a reusable on-disk tensor cache. Peak CUDA allocation was not recorded.
+Model weights and raw run artifacts remain in `/tmp`; tracked receipts include
+raw output, corrected summary and exact cohort identities. Reproduction commands and
+checksums are in [`RESULTS.md`](RESULTS.md) and [`AUDIT.md`](AUDIT.md).
+
 ## Reproduction
 
 The complete versioned protocol, isolated runtime, authenticated graph release,
@@ -201,6 +306,13 @@ measured QoR are not exported. Target/context-specific memory cache keys must
 include graph identity, profile, clock and budget. No Stage-2 loader or training
 integration is included here.
 
+The V4 memory is not compatible with V1 memory checkpoints. It is trained for
+candidate-conditioned QoR, while Stage-2 needs candidate-independent memory
+that improves directive generation. Any future Stage-2 study must compare
+Stage-1 prompt-only, Stage-2 with production V1 memory, V4 numerical memory,
+and V4 hardware memory on identical directive-generation cases. The current
+probe gives no evidence to replace the production V1 memory.
+
 ## Current outcome and limitations
 
 The earlier V100S smoke is preserved and failed at its first validation because
@@ -209,7 +321,9 @@ updates and produced no selected checkpoint. That import defect is fixed. A
 separate early cohort attempt exposed missing measured action columns for
 Sort-Radix L6, so that validation kernel was excluded rather than assigned a
 fabricated label. The replacement Viterbi cohort is fully mapped. The A2 was
-verified idle for the completed pilot; no other GPU process was signaled.
+verified idle before completed probes. A later corrected-report retry was
+refused when an unrelated VLLM process occupied it; no GPU process was
+signalled.
 
 Even after that run, Kalman is one test family; U50 and 6.67 ns remain outside
 the training contexts and are needed for claims about target generalization.
@@ -247,6 +361,10 @@ selecting their current modules, not by importing their old runtime/data trees.
 | Record initial parameter hashes and per-update sampled identities | Assume equal seed means identical training | Makes initialization and sampling parity auditable and fails fast on divergence | Seed, sampler and optimizer settings | Deterministic unit test plus run-time pair checks |
 | Preserve the existing validation-selection score | Select a new metric after observing results | Avoids outcome-driven checkpoint selection | Existing 0.4/0.2/0.2/0.2 score | Selection-score regression; expanded metrics are report-only |
 | Count false-feasible and empty-pool outcomes; retain undefined correlations | Average only successful picks or silently substitute a rank score | Keeps failures and undefined populations visible | Physical feasibility and measured-pool objective definitions | Focused empty-pool, tie and false-feasible tests |
+| Add regression-only fixed-context memorization before target generalization | Treat validation failure as proof the GNN cannot learn | Separates candidate-head learnability from family generalization | V4 encoder, graph and output schema | 24-design training-only probe; constant baseline and train-set rank |
+| Freeze all-six-context assignment intersections for training; use hash-only validation selection | Select favorable validation QoR or use loose directive similarity | Makes true clock/device pairs observable without validation-label selection | RC3 graphs, dataset and family split | Exact SHA assignment intersections in target-coverage audit |
+| Add a non-graph candidate/demand/target MLP only as a diagnostic | Compare graph models only | Checks whether candidate plus numeric target can explain these labels | Candidate and target feature contract | Same selected measured validation pools; parameter-count difference disclosed |
+| Mark relative regret undefined at near-zero measured optima | Divide by an arbitrary epsilon | Avoids enormous meaningless area/ADP percentages | Raw predictions and measured labels | Authenticated zero area/ADP optimum in Viterbi/U200/5 ns; focused unit test |
 
 V4 checkpoints and optimizer states are incompatible with V3 and must use a
 fresh protocol identity. This experiment does not change the frozen compiler

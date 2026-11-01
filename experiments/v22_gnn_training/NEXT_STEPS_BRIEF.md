@@ -1,109 +1,84 @@
-# Next-step brief: clock-conditioned V4 GNN study
+# Next-step brief: continue the bounded V4 learnability study
 
-This note is a handoff for the next SALT-HLS GNN research session. It records
-the completed small pilot, its deliberate limits, and a bounded next experiment
-that directly tests device and clock conditioning. It is not authorization to
-run without first checking the current branch, worktrees, GPU processes, source
-hashes, and data identities.
+## Current evidence (2026-11-01)
 
-## Copy-ready task for the next ChatGPT session
+The existing V4 candidate-conditioned GNN can partially memorize a fixed
+24-design Stencil2D/ZCU104/10 ns training set. At 1,000 regression-only updates,
+standardized train SmoothL1 fell from the constant baseline 0.3363 to 0.0940;
+latency MAE fell from 0.4023 ms to 0.2479 ms; train Spearman reached 0.701.
+Its predicted best was 1.05% slower than the measured best and never selected
+the exact winner. This demonstrates limited in-sample candidate learnability,
+not generalization.
 
-> Work on `research/gnn-refinement` in a dedicated clean worktree. Read this
-> brief and `experiments/v22_gnn_training/{README.md,RESULTS.md,AUDIT.md}` before
-> changing anything. Do not touch `main`, the Stage-1 branch, the refinement
-> branch, production V1 GNN weights, Stage-2, frozen RC3 graphs, historical
-> measurements, or the completed fast-probe outputs. Do not run synthesis.
->
-> The completed V4 pilot compared the existing numerical-conditioned and
-> hardware-message models for 20 updates each. It used five training kernels,
-> two held-out kernels, two devices, **only the 10 ns clock**, and 8 measured
-> candidates per kernel/device context. Hardware messages affected action
-> embeddings and some ranking scores, but did not consistently improve
-> measured-pool selection. The models had high validation errors and the pilot
-> did not establish useful held-out learning. The pilot did not test whether
-> the model responds correctly to changing clock period.
->
-> Prepare a small, family-disjoint follow-up using the same authenticated GNΩSIS
-> dataset, seed-123 family split, RC3 graph release and V4 tensorizer. Include
-> ZCU104 and U200 at each authenticated clock of 3.33, 5 and 10 ns. Start from
-> the five existing training kernels and two validation kernels unless their
-> authenticated coverage fails: train on GEMM-NCubed, SpMV-ELLpack, Stencil2D,
-> MD-KNN and Rodinia Dilate; validate on MachSuite Viterbi and Rodinia PathFinder
-> baseline. This gives 30 training kernel/device/clock groups and 12 validation
-> groups before candidate selection. Keep the held-out test split unused.
->
-> For each validation kernel, first determine whether complete directive
-> assignments are measured in all six device/clock contexts. If so, choose a
-> small deterministic hash-ordered intersection of shared assignments, without
-> looking at their QoR labels during selection. This permits paired comparisons
-> of the same assignment across clock and device. If the intersection is too
-> small, report that and do not claim a paired target-response result. For
-> training contexts, use a fixed, deterministic assignment-diversity procedure
-> and only training labels for any feasibility balancing. Keep measured QoR
-> outcomes attached only as prediction labels. Preserve the source-aware
-> directive-domain validation and unresolved-action masks.
->
-> Reuse `fast_probe.py`, `CandidateQoRModel`, the V4 tensorizer, ranking loss,
-> and one-time feature cache. Do not create a second trainer or rebuild the
-> graph architecture. Keep numerical and hardware arms identical in source,
-> candidates, numerical device/clock/budget context, initialization, sample
-> sequence, optimizer, update count, and evaluation. The only model input
-> difference is hardware-resource message edges. Freeze a new manifest before
-> training. Bound CPU preparation at 10 minutes and total GPU work at 20
-> minutes; stop if either limit is reached.
->
-> A reasonable diagnostic is 100 updates per arm for two predeclared paired
-> seeds (123 and 456), if the first preflight fits the limits. Use the same
-> candidate sets per seed and arm. Do not tune on test data or select a favorable
-> seed. Report each seed separately and paired aggregates. If 100 updates do
-> not show useful learning, do not add loss balancing or architectural changes
-> in the same experiment.
->
-> Report latency/resource errors, per-context ranking, measured-pool top-1 and
-> top-3 regret, and feasibility at 100% and 50% budgets, with explicit empty or
-> undefined cases. For target conditioning, report same-assignment QoR and
-> feasibility predictions across 3.33/5/10 ns and across devices; distinguish
-> genuine measured changes from predicted changes. For budget changes, physical
-> QoR for a fixed candidate/device/clock should remain the same target label;
-> budget changes only feasibility. Include a hardware-edge ablation after
-> training, but do not treat it as a substitute for the separately trained
-> numerical arm. State that measured-pool ranking is not synthesis or global
-> optimization.
->
-> Do not claim clock generalization beyond represented clocks, unseen-device
-> transfer, Stage-2 benefit, or production readiness. Push only validated
-> research code and documentation to `research/gnn-refinement`; leave model
-> weights and large caches outside Git.
+A matched 100-update experiment trained candidate+target, numerical GNN and
+hardware-message GNN arms on 480 assignments across five training families
+and six target contexts. It evaluated 180 measured configurations across
+Viterbi and PathFinder, both held-out families, without using Kalman/test data.
+The hardware model slightly improved latency MAPE and latency top-3 regret
+over the numerical model, but had much worse top-1 latency regret. Feasibility
+at 50% capacity exactly matched the always-feasible baseline. Device-change
+latency signs were wrong in the paired validation groups. The hardware edge
+path changes embeddings and outputs, but its ablation is mixed and does not
+show a consistent selection benefit.
 
-## Why the first pilot used only 10 ns
+The probe also found budget-induced changes to predicted physical QoR for the
+same candidate/device/clock: mean latency shifts were 0.0124 ms for the
+candidate-only model, 0.1105 ms for the numerical GNN, and 0.1417 ms for the
+hardware GNN. Measured physical QoR is independent of a later request budget.
+If this persists, test a separately versioned physical-QoR/feasibility split;
+do not alter the current V4 schema retroactively.
 
-The request was to replace an impractical thousands-candidate validation loop
-with a genuinely inexpensive experiment. The pilot therefore held clock fixed
-at 10 ns while varying the two devices. It had 5 training kernels × 2 devices
-and 2 validation kernels × 2 devices: 10 training contexts, four validation
-contexts, 80 training candidates and 32 validation candidates. Both arms
-completed in 3.53 seconds on the A2 after a 248.84-second one-time preparation.
+The A2 was later observed occupied by `VLLM::EngineCore` (PID 1655798 at the
+last check). Do not signal or share it. The V100S is reserved for Stage-1.
+Check both GPUs immediately before any new run.
 
-This choice bounded the pilot and let it test the hardware-message pathway
-without simultaneously expanding the target-context grid. It also means the
-pilot cannot answer whether the learned representations or predictions respond
-appropriately to 3.33 ns versus 5 ns versus 10 ns. It tested device differences
-at 10 ns only. The next experiment should explicitly include all six
-device/clock combinations and paired measured designs where the data permits.
+## Single next experiment
 
-## Current evidence to carry forward
+When the A2 is actually idle, continue with **300–600 updates per arm** on the
+same frozen three-arm cohort and same seed 123. This tests whether the poor
+family-held-out results were mainly caused by only 100 updates. Reuse the
+authenticated graph release, cohort manifest, feature logic, candidate pools,
+optimizer, loss, and validation metrics. Do not tune the cohort or model on
+validation QoR. Preserve the completed 100-step run and all checkpoints.
 
-- Research branch commit after the pilot: `c39f600448f9d869b26590190f0ef6af9a32ff70`.
-- Graph archive SHA256: `feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`.
-- Dataset SHA256: `afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`.
-- Family split SHA256: `d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c`.
-- Pilot protocol SHA256: `a8e03450dd265432d1932ee8f0ea5e904545dea52128aa6d94f4101e1e212e90`.
-- Full numeric results and limitations: [`RESULTS.md`](RESULTS.md).
-- Implementation and data audit: [`AUDIT.md`](AUDIT.md).
-- Fixed pilot cohort and summary: `results/fast_probe_s123_cohort_manifest.json` and `results/fast_probe_s123_summary.json`.
+Use a fresh output directory and the existing V4 environment. First check
+`nvidia-smi`, disk/RAM, and process identity. Never use `--allow-shared-gpu` or
+fall back to the V100S. If the A2 is occupied, stop at CPU-only checks.
 
-The 3.33 ns and 5 ns contexts exist in the authenticated dataset according to
-the full data audit, but their complete shared-candidate coverage for this
-selected cohort has not yet been checked. Candidate intersections and QoR
-variation must be checked before freezing a follow-up manifest; do not assume
-the requested paired design pool exists.
+Example command (after confirming availability; `--output` must be new):
+
+```bash
+CUDA_VISIBLE_DEVICES=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 PYTHONPATH=. \
+  /tmp/mailohls-v22-gnn-env-20261030/bin/python \
+  -m experiments.v22_gnn_training.target_condition_probe \
+  --release-dir /tmp/salt-v22-training-release \
+  --output /tmp/v22-v4-target-conditioned-probe-s123-300step \
+  --gpu-name A2 --gpu-uuid GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+  --updates 300 --candidates-per-update 8 \
+  --preparation-limit-seconds 600 --gpu-limit-seconds 1200
+```
+
+This current entry point trains from the pinned seed at the requested update
+count rather than resuming the 100-step optimizer state. It is a deterministic
+longer-budget comparison, not an optimizer-state resume. Keep the 100-step
+results as the baseline and compare each arm on identical validation contexts.
+Do not run a second seed unless this continuation shows clear learning and
+resource limits permit it.
+
+If longer training improves rankings but hardware messages remain inconsistent,
+do not add graph layers. If the physical QoR budget drift remains, design one
+separately versioned physical-QoR/feasibility ablation after the continuation.
+Stage-2 integration remains deferred: V4 candidate-conditioned QoR prediction
+does not establish that its candidate-independent action memory improves LLM
+directive generation.
+
+## Reproducibility artifacts
+
+- Target coverage: [`results/target_coverage_audit_s123.json`](results/target_coverage_audit_s123.json)
+- Exact target cohort: [`results/target_condition_probe_s123_manifest.json`](results/target_condition_probe_s123_manifest.json)
+- Raw and corrected results: [`results/target_condition_probe_s123_raw.json`](results/target_condition_probe_s123_raw.json), [`results/target_condition_probe_s123_summary.json`](results/target_condition_probe_s123_summary.json)
+- Fixed-context learnability: [`results/fixed_context_learnability_s123_results.json`](results/fixed_context_learnability_s123_results.json)
+- Full methods and interpretation: [`README.md`](README.md), [`RESULTS.md`](RESULTS.md), [`AUDIT.md`](AUDIT.md)
+
+Production remains on the V1 GNN. Do not export V4 checkpoints or action
+memories into Stage-2.

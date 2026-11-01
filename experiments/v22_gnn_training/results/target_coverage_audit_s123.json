@@ -1,0 +1,1839 @@
+{
+  "audit_script_sha256": "7e6d2998409209ffd976568296082e2da46f7fe2f55d9b038cfd846461bee024",
+  "budget_semantics": {
+    "budget_is_not_part_of_physical_measurement_identity": true,
+    "evidence": "PreparedData.physical_targets stores measured QoR independent of budget; train.evaluate recomputes feasibility against capacities*fraction without changing labels.",
+    "feasibility_only": true,
+    "physical_measurement_keys": [
+      "kernel",
+      "complete_assignment",
+      "profile",
+      "clock_ns"
+    ]
+  },
+  "context_axis": {
+    "clock_ns": [
+      3.33,
+      5.0,
+      10.0
+    ],
+    "profiles": [
+      "zcu104",
+      "u200"
+    ]
+  },
+  "dataset_sha256": "afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820",
+  "exclusions": {},
+  "family_split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+  "graph_release_archive_sha256": "feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73",
+  "kernels": {
+    "machsuite-gemm-ncubed": {
+      "array_actions": 0,
+      "assignments_shared_across_all_six_contexts": 51,
+      "clock_pairs": {
+        "u200|3.33->10ns": {
+          "latency_delta_ms_range": [
+            -0.6860568499999999,
+            3.1113337100000003
+          ],
+          "matched_assignment_count": 128,
+          "mean_absolute_delta": [
+            0.9655581034374995,
+            0.0,
+            0.0,
+            77030.32499999998,
+            11776.218750000005
+          ],
+          "nonzero_delta_count_by_target": [
+            128,
+            0,
+            0,
+            59,
+            64
+          ]
+        },
+        "u200|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -2.14310185,
+            0.2581639100000004
+          ],
+          "matched_assignment_count": 129,
+          "mean_absolute_delta": [
+            0.24013503263565866,
+            0.0,
+            0.0,
+            43348.79999999999,
+            6506.902325581401
+          ],
+          "nonzero_delta_count_by_target": [
+            129,
+            0,
+            0,
+            58,
+            64
+          ]
+        },
+        "u200|5->10ns": {
+          "latency_delta_ms_range": [
+            0.020825000000000003,
+            4.086245
+          ],
+          "matched_assignment_count": 134,
+          "mean_absolute_delta": [
+            1.057152425373135,
+            0.0,
+            0.0,
+            36261.24179104482,
+            5955.313432835828
+          ],
+          "nonzero_delta_count_by_target": [
+            134,
+            0,
+            0,
+            61,
+            60
+          ]
+        },
+        "zcu104|3.33->10ns": {
+          "latency_delta_ms_range": [
+            -3.26134639,
+            5.301546830000003
+          ],
+          "matched_assignment_count": 100,
+          "mean_absolute_delta": [
+            1.9390066967999986,
+            0.0,
+            7.430399999999995,
+            8616.96,
+            4515.84
+          ],
+          "nonzero_delta_count_by_target": [
+            100,
+            0,
+            39,
+            92,
+            100
+          ]
+        },
+        "zcu104|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -1.4214455299999997,
+            2.6489018300000033
+          ],
+          "matched_assignment_count": 95,
+          "mean_absolute_delta": [
+            0.7843970815789472,
+            0.0,
+            6.9119999999999955,
+            5335.578947368422,
+            3783.4105263157894
+          ],
+          "nonzero_delta_count_by_target": [
+            95,
+            0,
+            35,
+            81,
+            94
+          ]
+        },
+        "zcu104|5->10ns": {
+          "latency_delta_ms_range": [
+            -2.49568,
+            2.6526449999999997
+          ],
+          "matched_assignment_count": 104,
+          "mean_absolute_delta": [
+            1.1878672596153845,
+            0.0,
+            0.996923076923077,
+            4076.3076923076924,
+            1085.5384615384612
+          ],
+          "nonzero_delta_count_by_target": [
+            104,
+            0,
+            5,
+            58,
+            40
+          ]
+        }
+      },
+      "contexts": {
+        "u200|10ns": {
+          "candidate_count": 164,
+          "distinct_assignments": 164,
+          "distinct_latency_values": 95,
+          "full_capacity_feasible": 164,
+          "half_capacity_feasible": 164,
+          "tenth_capacity_feasible": 109
+        },
+        "u200|3.33ns": {
+          "candidate_count": 146,
+          "distinct_assignments": 146,
+          "distinct_latency_values": 78,
+          "full_capacity_feasible": 146,
+          "half_capacity_feasible": 144,
+          "tenth_capacity_feasible": 92
+        },
+        "u200|5ns": {
+          "candidate_count": 155,
+          "distinct_assignments": 155,
+          "distinct_latency_values": 84,
+          "full_capacity_feasible": 155,
+          "half_capacity_feasible": 155,
+          "tenth_capacity_feasible": 95
+        },
+        "zcu104|10ns": {
+          "candidate_count": 148,
+          "distinct_assignments": 148,
+          "distinct_latency_values": 118,
+          "full_capacity_feasible": 148,
+          "half_capacity_feasible": 137,
+          "tenth_capacity_feasible": 67
+        },
+        "zcu104|3.33ns": {
+          "candidate_count": 126,
+          "distinct_assignments": 126,
+          "distinct_latency_values": 104,
+          "full_capacity_feasible": 126,
+          "half_capacity_feasible": 119,
+          "tenth_capacity_feasible": 72
+        },
+        "zcu104|5ns": {
+          "candidate_count": 121,
+          "distinct_assignments": 121,
+          "distinct_latency_values": 102,
+          "full_capacity_feasible": 121,
+          "half_capacity_feasible": 117,
+          "tenth_capacity_feasible": 64
+        }
+      },
+      "device_pairs": {
+        "10ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -7.864320000000001,
+            -0.005120000000000013
+          ],
+          "matched_assignment_count": 93,
+          "mean_absolute_delta": [
+            3.1401152688172047,
+            0.0,
+            8.36129032258064,
+            12743.845161290315,
+            6674.787096774195
+          ],
+          "nonzero_delta_count_by_target": [
+            93,
+            0,
+            37,
+            84,
+            91
+          ]
+        },
+        "3.33ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -6.151495680000001,
+            -0.0042623999999999995
+          ],
+          "matched_assignment_count": 69,
+          "mean_absolute_delta": [
+            2.9669423582608707,
+            0.0,
+            0.0,
+            14985.600000000002,
+            9031.721739130433
+          ],
+          "nonzero_delta_count_by_target": [
+            69,
+            0,
+            0,
+            67,
+            69
+          ]
+        },
+        "5ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -8.519680000000001,
+            -0.007040000000000046
+          ],
+          "matched_assignment_count": 82,
+          "mean_absolute_delta": [
+            3.943180487804878,
+            0.0,
+            8.218536585365849,
+            11555.648780487807,
+            6827.8829268292675
+          ],
+          "nonzero_delta_count_by_target": [
+            82,
+            0,
+            33,
+            77,
+            80
+          ]
+        }
+      },
+      "graph_identity": "35fc4418a294b918646226e15eaed4c7acec9be36b65ede20bd6fd7af1b08154",
+      "graph_member_sha256": "a57ff324bb8d61b6726e5246c39c072e4514c7153001e98e4bc98f1cb7b31865",
+      "matched_actions": 3,
+      "metadata_sha256": "405224200b619c6dda653aa8e3e42e600da312543c173b99cd6f4da07bfd521c",
+      "registered_actions": 3,
+      "six_context_latency_spread_ms": {
+        "max": 11.172325,
+        "mean": 4.2360372119607845,
+        "median": 1.695205
+      },
+      "source_sha256": "8aa81b54e905a6caac0b30fa6ede2236c9552efa6c05ca1321f760651d8d64b3",
+      "split": "train"
+    },
+    "machsuite-md-knn": {
+      "array_actions": 0,
+      "assignments_shared_across_all_six_contexts": 33,
+      "clock_pairs": {
+        "u200|3.33->10ns": {
+          "latency_delta_ms_range": [
+            0.012300750000000003,
+            0.28511770999999997
+          ],
+          "matched_assignment_count": 35,
+          "mean_absolute_delta": [
+            0.106126612,
+            0.0,
+            19.542857142857144,
+            10809.051428571425,
+            2533.371428571428
+          ],
+          "nonzero_delta_count_by_target": [
+            35,
+            0,
+            10,
+            13,
+            8
+          ]
+        },
+        "u200|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -0.02549436999999999,
+            0.0038101999999999997
+          ],
+          "matched_assignment_count": 35,
+          "mean_absolute_delta": [
+            0.011548948571428571,
+            0.0,
+            9.771428571428572,
+            9457.919999999998,
+            1182.2400000000007
+          ],
+          "nonzero_delta_count_by_target": [
+            35,
+            0,
+            5,
+            13,
+            5
+          ]
+        },
+        "u200|5->10ns": {
+          "latency_delta_ms_range": [
+            0.011445,
+            0.31040499999999993
+          ],
+          "matched_assignment_count": 35,
+          "mean_absolute_delta": [
+            0.11597900000000003,
+            0.0,
+            17.588571428571427,
+            1351.1314285714284,
+            2026.697142857142
+          ],
+          "nonzero_delta_count_by_target": [
+            35,
+            0,
+            9,
+            1,
+            7
+          ]
+        },
+        "zcu104|3.33->10ns": {
+          "latency_delta_ms_range": [
+            0.009543310000000006,
+            0.34027034999999994
+          ],
+          "matched_assignment_count": 33,
+          "mean_absolute_delta": [
+            0.1483444133333333,
+            0.0,
+            114.15272727272729,
+            30091.636363636364,
+            24192.0
+          ],
+          "nonzero_delta_count_by_target": [
+            33,
+            0,
+            33,
+            33,
+            33
+          ]
+        },
+        "zcu104|3.33->5ns": {
+          "latency_delta_ms_range": [
+            0.004067359999999999,
+            0.41898535000000003
+          ],
+          "matched_assignment_count": 33,
+          "mean_absolute_delta": [
+            0.16778607999999998,
+            0.0,
+            83.78181818181818,
+            23040.0,
+            25483.636363636364
+          ],
+          "nonzero_delta_count_by_target": [
+            33,
+            0,
+            28,
+            33,
+            33
+          ]
+        },
+        "zcu104|5->10ns": {
+          "latency_delta_ms_range": [
+            -0.07933499999999993,
+            0.011564999999999999
+          ],
+          "matched_assignment_count": 35,
+          "mean_absolute_delta": [
+            0.023846142857142864,
+            0.0,
+            30.610285714285713,
+            9084.342857142858,
+            2205.2571428571428
+          ],
+          "nonzero_delta_count_by_target": [
+            35,
+            0,
+            20,
+            24,
+            16
+          ]
+        }
+      },
+      "contexts": {
+        "u200|10ns": {
+          "candidate_count": 35,
+          "distinct_assignments": 35,
+          "distinct_latency_values": 31,
+          "full_capacity_feasible": 35,
+          "half_capacity_feasible": 35,
+          "tenth_capacity_feasible": 34
+        },
+        "u200|3.33ns": {
+          "candidate_count": 35,
+          "distinct_assignments": 35,
+          "distinct_latency_values": 31,
+          "full_capacity_feasible": 35,
+          "half_capacity_feasible": 35,
+          "tenth_capacity_feasible": 34
+        },
+        "u200|5ns": {
+          "candidate_count": 35,
+          "distinct_assignments": 35,
+          "distinct_latency_values": 31,
+          "full_capacity_feasible": 35,
+          "half_capacity_feasible": 35,
+          "tenth_capacity_feasible": 34
+        },
+        "zcu104|10ns": {
+          "candidate_count": 35,
+          "distinct_assignments": 35,
+          "distinct_latency_values": 31,
+          "full_capacity_feasible": 35,
+          "half_capacity_feasible": 34,
+          "tenth_capacity_feasible": 19
+        },
+        "zcu104|3.33ns": {
+          "candidate_count": 33,
+          "distinct_assignments": 33,
+          "distinct_latency_values": 29,
+          "full_capacity_feasible": 33,
+          "half_capacity_feasible": 31,
+          "tenth_capacity_feasible": 10
+        },
+        "zcu104|5ns": {
+          "candidate_count": 35,
+          "distinct_assignments": 35,
+          "distinct_latency_values": 31,
+          "full_capacity_feasible": 35,
+          "half_capacity_feasible": 34,
+          "tenth_capacity_feasible": 22
+        }
+      },
+      "device_pairs": {
+        "10ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.59392,
+            -0.0004599999999999986
+          ],
+          "matched_assignment_count": 35,
+          "mean_absolute_delta": [
+            0.2172245714285714,
+            0.0,
+            66.96,
+            12379.885714285716,
+            8367.42857142857
+          ],
+          "nonzero_delta_count_by_target": [
+            35,
+            0,
+            35,
+            35,
+            35
+          ]
+        },
+        "3.33ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.53876736,
+            0.01193472000000001
+          ],
+          "matched_assignment_count": 33,
+          "mean_absolute_delta": [
+            0.19247682545454545,
+            0.0,
+            72.98181818181817,
+            32294.400000000005,
+            32357.018181818185
+          ],
+          "nonzero_delta_count_by_target": [
+            33,
+            0,
+            33,
+            33,
+            33
+          ]
+        },
+        "5ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.98304,
+            -0.0007499999999999989
+          ],
+          "matched_assignment_count": 35,
+          "mean_absolute_delta": [
+            0.3516317142857143,
+            0.0,
+            38.87999999999999,
+            19538.742857142857,
+            7737.942857142859
+          ],
+          "nonzero_delta_count_by_target": [
+            35,
+            0,
+            35,
+            35,
+            35
+          ]
+        }
+      },
+      "graph_identity": "8e8ff73137d6297a89925c09ecf8a285da2efc8ca01d6624b2591aa4425b2ec6",
+      "graph_member_sha256": "1437f81ab62b577d2eae362e91716088e0ffd423f88ab407b680c8ffa86c8df7",
+      "matched_actions": 2,
+      "metadata_sha256": "1b122c38c613a90fde7d597b96cc0768f6f43258eefa7107df1457b3e317b6f7",
+      "registered_actions": 2,
+      "six_context_latency_spread_ms": {
+        "max": 0.98304,
+        "mean": 0.3706187578787879,
+        "median": 0.3072
+      },
+      "source_sha256": "a3b531ddc95581c597939738351bdc9b56d1d588fb68b0ef12438769d21d0bd0",
+      "split": "train"
+    },
+    "machsuite-spmv-ellpack": {
+      "array_actions": 0,
+      "assignments_shared_across_all_six_contexts": 28,
+      "clock_pairs": {
+        "u200|3.33->10ns": {
+          "latency_delta_ms_range": [
+            0.00783834,
+            0.07600935
+          ],
+          "matched_assignment_count": 28,
+          "mean_absolute_delta": [
+            0.04565172464285714,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "nonzero_delta_count_by_target": [
+            28,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "u200|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -0.01060593,
+            0.00412353
+          ],
+          "matched_assignment_count": 28,
+          "mean_absolute_delta": [
+            0.006590221071428569,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "nonzero_delta_count_by_target": [
+            28,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "u200|5->10ns": {
+          "latency_delta_ms_range": [
+            0.00954,
+            0.082425
+          ],
+          "matched_assignment_count": 28,
+          "mean_absolute_delta": [
+            0.050362767857142866,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "nonzero_delta_count_by_target": [
+            28,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "zcu104|3.33->10ns": {
+          "latency_delta_ms_range": [
+            0.002569089999999996,
+            0.11878695
+          ],
+          "matched_assignment_count": 28,
+          "mean_absolute_delta": [
+            0.05427642535714285,
+            0.0,
+            6.171428571428572,
+            5266.285714285715,
+            3209.1428571428573
+          ],
+          "nonzero_delta_count_by_target": [
+            28,
+            0,
+            10,
+            24,
+            27
+          ]
+        },
+        "zcu104|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -0.0028609099999999943,
+            0.049161949999999954
+          ],
+          "matched_assignment_count": 28,
+          "mean_absolute_delta": [
+            0.022297965357142853,
+            0.0,
+            6.171428571428572,
+            4608.0,
+            3168.0
+          ],
+          "nonzero_delta_count_by_target": [
+            28,
+            0,
+            10,
+            24,
+            27
+          ]
+        },
+        "zcu104|5->10ns": {
+          "latency_delta_ms_range": [
+            0.005250000000000005,
+            0.06962500000000005
+          ],
+          "matched_assignment_count": 28,
+          "mean_absolute_delta": [
+            0.03302875000000001,
+            0.0,
+            0.0,
+            987.4285714285714,
+            370.28571428571416
+          ],
+          "nonzero_delta_count_by_target": [
+            28,
+            0,
+            0,
+            7,
+            5
+          ]
+        }
+      },
+      "contexts": {
+        "u200|10ns": {
+          "candidate_count": 28,
+          "distinct_assignments": 28,
+          "distinct_latency_values": 25,
+          "full_capacity_feasible": 28,
+          "half_capacity_feasible": 28,
+          "tenth_capacity_feasible": 28
+        },
+        "u200|3.33ns": {
+          "candidate_count": 28,
+          "distinct_assignments": 28,
+          "distinct_latency_values": 25,
+          "full_capacity_feasible": 28,
+          "half_capacity_feasible": 28,
+          "tenth_capacity_feasible": 28
+        },
+        "u200|5ns": {
+          "candidate_count": 28,
+          "distinct_assignments": 28,
+          "distinct_latency_values": 25,
+          "full_capacity_feasible": 28,
+          "half_capacity_feasible": 28,
+          "tenth_capacity_feasible": 28
+        },
+        "zcu104|10ns": {
+          "candidate_count": 28,
+          "distinct_assignments": 28,
+          "distinct_latency_values": 25,
+          "full_capacity_feasible": 28,
+          "half_capacity_feasible": 28,
+          "tenth_capacity_feasible": 27
+        },
+        "zcu104|3.33ns": {
+          "candidate_count": 28,
+          "distinct_assignments": 28,
+          "distinct_latency_values": 25,
+          "full_capacity_feasible": 28,
+          "half_capacity_feasible": 28,
+          "tenth_capacity_feasible": 27
+        },
+        "zcu104|5ns": {
+          "candidate_count": 28,
+          "distinct_assignments": 28,
+          "distinct_latency_values": 25,
+          "full_capacity_feasible": 28,
+          "half_capacity_feasible": 28,
+          "tenth_capacity_feasible": 27
+        }
+      },
+      "device_pairs": {
+        "10ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.15619,
+            -0.0002500000000000002
+          ],
+          "matched_assignment_count": 28,
+          "mean_absolute_delta": [
+            0.08206142857142859,
+            0.0,
+            6.171428571428572,
+            2282.4,
+            3895.714285714286
+          ],
+          "nonzero_delta_count_by_target": [
+            28,
+            0,
+            10,
+            10,
+            23
+          ]
+        },
+        "3.33ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.11281374,
+            -0.00017648999999999963
+          ],
+          "matched_assignment_count": 28,
+          "mean_absolute_delta": [
+            0.07343672785714286,
+            0.0,
+            0.0,
+            7548.685714285714,
+            7083.257142857144
+          ],
+          "nonzero_delta_count_by_target": [
+            28,
+            0,
+            0,
+            25,
+            28
+          ]
+        },
+        "5ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.16938999999999999,
+            -0.00020500000000000032
+          ],
+          "matched_assignment_count": 28,
+          "mean_absolute_delta": [
+            0.09939544642857141,
+            0.0,
+            6.171428571428572,
+            2983.8857142857146,
+            3936.8571428571427
+          ],
+          "nonzero_delta_count_by_target": [
+            28,
+            0,
+            10,
+            14,
+            24
+          ]
+        }
+      },
+      "graph_identity": "35efa3e93321fdd3ffc494a03a06699e44dbf0cdd0027b1e192f8861f68cc4f4",
+      "graph_member_sha256": "15dba5133a7fe33c7c9cf7729a0f58a85d0b2217ecdae3231eacc68ea72af531",
+      "matched_actions": 2,
+      "metadata_sha256": "0e77799f93c2645ed361d0cf3845593793d1250e2a3fbbdd328494a093fb5a8f",
+      "registered_actions": 2,
+      "six_context_latency_spread_ms": {
+        "max": 0.236025,
+        "mean": 0.13336378535714286,
+        "median": 0.11895875
+      },
+      "source_sha256": "001e986b36e96b7e0740fde8c4323444cd0dfc945bb672f6ae291404ccd9b672",
+      "split": "train"
+    },
+    "machsuite-stencil2d": {
+      "array_actions": 0,
+      "assignments_shared_across_all_six_contexts": 34,
+      "clock_pairs": {
+        "u200|3.33->10ns": {
+          "latency_delta_ms_range": [
+            0.07777564,
+            0.88809393
+          ],
+          "matched_assignment_count": 71,
+          "mean_absolute_delta": [
+            0.28038613845070426,
+            0.0,
+            514.4450704225355,
+            21646.64788732394,
+            9158.197183098595
+          ],
+          "nonzero_delta_count_by_target": [
+            71,
+            0,
+            64,
+            22,
+            29
+          ]
+        },
+        "u200|3.33->5ns": {
+          "latency_delta_ms_range": [
+            0.02015708,
+            0.27223893
+          ],
+          "matched_assignment_count": 56,
+          "mean_absolute_delta": [
+            0.07787830303571429,
+            0.0,
+            536.207142857143,
+            7177.885714285713,
+            5066.742857142856
+          ],
+          "nonzero_delta_count_by_target": [
+            56,
+            0,
+            49,
+            12,
+            24
+          ]
+        },
+        "u200|5->10ns": {
+          "latency_delta_ms_range": [
+            0.060509999999999994,
+            0.615855
+          ],
+          "matched_assignment_count": 61,
+          "mean_absolute_delta": [
+            0.2112245081967214,
+            0.0,
+            3.3639344262295086,
+            10465.73114754098,
+            1162.8590163934425
+          ],
+          "nonzero_delta_count_by_target": [
+            61,
+            0,
+            3,
+            13,
+            6
+          ]
+        },
+        "zcu104|3.33->10ns": {
+          "latency_delta_ms_range": [
+            -0.6853860900000001,
+            0.90143391
+          ],
+          "matched_assignment_count": 66,
+          "mean_absolute_delta": [
+            0.337557761969697,
+            0.0,
+            231.1854545454545,
+            4747.636363636364,
+            14382.545454545454
+          ],
+          "nonzero_delta_count_by_target": [
+            66,
+            0,
+            63,
+            29,
+            59
+          ]
+        },
+        "zcu104|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -0.7459060900000001,
+            0.2855789099999999
+          ],
+          "matched_assignment_count": 62,
+          "mean_absolute_delta": [
+            0.17308737306451608,
+            0.0,
+            315.77806451612895,
+            13526.709677419354,
+            21256.25806451613
+          ],
+          "nonzero_delta_count_by_target": [
+            62,
+            0,
+            60,
+            34,
+            55
+          ]
+        },
+        "zcu104|5->10ns": {
+          "latency_delta_ms_range": [
+            0.060520000000000004,
+            0.615855
+          ],
+          "matched_assignment_count": 67,
+          "mean_absolute_delta": [
+            0.22178865671641793,
+            0.0,
+            0.7737313432835822,
+            4951.880597014925,
+            584.5970149253731
+          ],
+          "nonzero_delta_count_by_target": [
+            67,
+            0,
+            1,
+            23,
+            10
+          ]
+        }
+      },
+      "contexts": {
+        "u200|10ns": {
+          "candidate_count": 107,
+          "distinct_assignments": 107,
+          "distinct_latency_values": 66,
+          "full_capacity_feasible": 107,
+          "half_capacity_feasible": 107,
+          "tenth_capacity_feasible": 81
+        },
+        "u200|3.33ns": {
+          "candidate_count": 86,
+          "distinct_assignments": 86,
+          "distinct_latency_values": 42,
+          "full_capacity_feasible": 86,
+          "half_capacity_feasible": 86,
+          "tenth_capacity_feasible": 76
+        },
+        "u200|5ns": {
+          "candidate_count": 75,
+          "distinct_assignments": 75,
+          "distinct_latency_values": 37,
+          "full_capacity_feasible": 75,
+          "half_capacity_feasible": 75,
+          "tenth_capacity_feasible": 58
+        },
+        "zcu104|10ns": {
+          "candidate_count": 86,
+          "distinct_assignments": 86,
+          "distinct_latency_values": 37,
+          "full_capacity_feasible": 86,
+          "half_capacity_feasible": 83,
+          "tenth_capacity_feasible": 55
+        },
+        "zcu104|3.33ns": {
+          "candidate_count": 120,
+          "distinct_assignments": 120,
+          "distinct_latency_values": 16,
+          "full_capacity_feasible": 120,
+          "half_capacity_feasible": 120,
+          "tenth_capacity_feasible": 100
+        },
+        "zcu104|5ns": {
+          "candidate_count": 77,
+          "distinct_assignments": 77,
+          "distinct_latency_values": 34,
+          "full_capacity_feasible": 77,
+          "half_capacity_feasible": 70,
+          "tenth_capacity_feasible": 48
+        }
+      },
+      "device_pairs": {
+        "10ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.0012599999999999834,
+            0.00030999999999999084
+          ],
+          "matched_assignment_count": 67,
+          "mean_absolute_delta": [
+            0.0002837313432835767,
+            0.0,
+            35.70985074626866,
+            2141.086567164179,
+            4120.764179104479
+          ],
+          "nonzero_delta_count_by_target": [
+            36,
+            0,
+            67,
+            17,
+            62
+          ]
+        },
+        "3.33ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.76606317,
+            0.01376621999999994
+          ],
+          "matched_assignment_count": 70,
+          "mean_absolute_delta": [
+            0.0907133387142857,
+            0.0,
+            41.26628571428574,
+            29000.777142857147,
+            43654.42285714284
+          ],
+          "nonzero_delta_count_by_target": [
+            70,
+            0,
+            43,
+            32,
+            55
+          ]
+        },
+        "5ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            0.0,
+            0.0
+          ],
+          "matched_assignment_count": 56,
+          "mean_absolute_delta": [
+            0.0,
+            0.0,
+            39.291428571428575,
+            3304.8,
+            3902.9142857142865
+          ],
+          "nonzero_delta_count_by_target": [
+            0,
+            0,
+            56,
+            18,
+            50
+          ]
+        }
+      },
+      "graph_identity": "eb0af2b7440f4b3402205f8d4283d82d6a7ba4691a3b637be8131e06b762aa26",
+      "graph_member_sha256": "9f3fbec062a53a25f7210230ab5e6199e01026245f9e71d7308b1589e7744cc0",
+      "matched_actions": 4,
+      "metadata_sha256": "bb110c63ccdfe870f3bf3a73d863fb1ad04b18ced96416607d060112461345ab",
+      "registered_actions": 4,
+      "six_context_latency_spread_ms": {
+        "max": 0.90143391,
+        "mean": 0.3667272744117647,
+        "median": 0.309821535
+      },
+      "source_sha256": "3ef918250f199b53c924fad81c94b8ea3e655353b4f2e771c5f5fddba9b8a243",
+      "split": "train"
+    },
+    "machsuite-viterbi": {
+      "array_actions": 1,
+      "assignments_shared_across_all_six_contexts": 0,
+      "clock_pairs": {
+        "u200|3.33->10ns": {
+          "latency_delta_ms_range": [
+            0.5988580800000003,
+            16.5623256
+          ],
+          "matched_assignment_count": 61,
+          "mean_absolute_delta": [
+            3.113765462213115,
+            0.0,
+            0.0,
+            11822.400000000005,
+            290.71475409836063
+          ],
+          "nonzero_delta_count_by_target": [
+            61,
+            0,
+            0,
+            33,
+            2
+          ]
+        },
+        "u200|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -2.84597692,
+            1.3494821700000017
+          ],
+          "matched_assignment_count": 53,
+          "mean_absolute_delta": [
+            0.8207550108490564,
+            0.0,
+            0.0,
+            5799.6679245283,
+            223.06415094339619
+          ],
+          "nonzero_delta_count_by_target": [
+            53,
+            0,
+            0,
+            13,
+            1
+          ]
+        },
+        "u200|5->10ns": {
+          "latency_delta_ms_range": [
+            1.452075,
+            18.02702
+          ],
+          "matched_assignment_count": 41,
+          "mean_absolute_delta": [
+            3.3068503658536588,
+            0.0,
+            0.0,
+            4901.970731707316,
+            576.7024390243902
+          ],
+          "nonzero_delta_count_by_target": [
+            41,
+            0,
+            0,
+            10,
+            2
+          ]
+        },
+        "zcu104|3.33->10ns": {
+          "matched_assignment_count": 0
+        },
+        "zcu104|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -0.9027199999999995,
+            2.2127741100000007
+          ],
+          "matched_assignment_count": 16,
+          "mean_absolute_delta": [
+            0.7748142878125,
+            0.0,
+            0.0,
+            21312.0,
+            4463.999999999999
+          ],
+          "nonzero_delta_count_by_target": [
+            16,
+            0,
+            0,
+            16,
+            14
+          ]
+        },
+        "zcu104|5->10ns": {
+          "latency_delta_ms_range": [
+            0.2288800000000002,
+            11.762304999999998
+          ],
+          "matched_assignment_count": 54,
+          "mean_absolute_delta": [
+            2.3430052314814813,
+            0.11555555555555573,
+            0.0,
+            6912.0,
+            874.6666666666669
+          ],
+          "nonzero_delta_count_by_target": [
+            54,
+            1,
+            0,
+            47,
+            20
+          ]
+        }
+      },
+      "contexts": {
+        "u200|10ns": {
+          "candidate_count": 615,
+          "distinct_assignments": 615,
+          "distinct_latency_values": 423,
+          "full_capacity_feasible": 615,
+          "half_capacity_feasible": 615,
+          "tenth_capacity_feasible": 602
+        },
+        "u200|3.33ns": {
+          "candidate_count": 478,
+          "distinct_assignments": 478,
+          "distinct_latency_values": 299,
+          "full_capacity_feasible": 478,
+          "half_capacity_feasible": 478,
+          "tenth_capacity_feasible": 465
+        },
+        "u200|5ns": {
+          "candidate_count": 571,
+          "distinct_assignments": 571,
+          "distinct_latency_values": 421,
+          "full_capacity_feasible": 571,
+          "half_capacity_feasible": 571,
+          "tenth_capacity_feasible": 559
+        },
+        "zcu104|10ns": {
+          "candidate_count": 519,
+          "distinct_assignments": 519,
+          "distinct_latency_values": 393,
+          "full_capacity_feasible": 519,
+          "half_capacity_feasible": 480,
+          "tenth_capacity_feasible": 88
+        },
+        "zcu104|3.33ns": {
+          "candidate_count": 615,
+          "distinct_assignments": 615,
+          "distinct_latency_values": 520,
+          "full_capacity_feasible": 615,
+          "half_capacity_feasible": 553,
+          "tenth_capacity_feasible": 113
+        },
+        "zcu104|5ns": {
+          "candidate_count": 531,
+          "distinct_assignments": 531,
+          "distinct_latency_values": 414,
+          "full_capacity_feasible": 531,
+          "half_capacity_feasible": 508,
+          "tenth_capacity_feasible": 133
+        }
+      },
+      "device_pairs": {
+        "10ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -19.55979,
+            -0.0013899999999997803
+          ],
+          "matched_assignment_count": 38,
+          "mean_absolute_delta": [
+            1.6140389473684214,
+            34.825263157894746,
+            0.0,
+            8708.968421052632,
+            4679.24210526316
+          ],
+          "nonzero_delta_count_by_target": [
+            38,
+            38,
+            0,
+            38,
+            38
+          ]
+        },
+        "3.33ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -2.5983557100000003,
+            -0.06630029999999998
+          ],
+          "matched_assignment_count": 4,
+          "mean_absolute_delta": [
+            0.7436447775000001,
+            23.520000000000003,
+            0.0,
+            23436.0,
+            12916.8
+          ],
+          "nonzero_delta_count_by_target": [
+            4,
+            4,
+            0,
+            4,
+            4
+          ]
+        },
+        "5ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -26.194407499999997,
+            -0.0049000000000001265
+          ],
+          "matched_assignment_count": 36,
+          "mean_absolute_delta": [
+            2.827929791666667,
+            39.146666666666675,
+            0.0,
+            10749.600000000004,
+            5702.000000000004
+          ],
+          "nonzero_delta_count_by_target": [
+            36,
+            36,
+            0,
+            36,
+            36
+          ]
+        }
+      },
+      "graph_identity": "a6b1d034aba97bf92615a2d8a908370873b4697472a9e9d7144a5d1c14bdd3e2",
+      "graph_member_sha256": "e1394dd2ba2c64d9cdc9abb70e6785830c4dce4521847d8fa40fdfd4a3d8eb21",
+      "matched_actions": 8,
+      "metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+      "registered_actions": 8,
+      "six_context_latency_spread_ms": {
+        "max": null,
+        "mean": null,
+        "median": null
+      },
+      "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+      "split": "validation"
+    },
+    "rodinia_dilate_0_baseline_0": {
+      "array_actions": 1,
+      "assignments_shared_across_all_six_contexts": 34,
+      "clock_pairs": {
+        "u200|3.33->10ns": {
+          "latency_delta_ms_range": [
+            22.73783469,
+            224.80122027
+          ],
+          "matched_assignment_count": 104,
+          "mean_absolute_delta": [
+            41.22692861326921,
+            0.0,
+            0.0,
+            18301.984615384623,
+            2103.0230769230766
+          ],
+          "nonzero_delta_count_by_target": [
+            104,
+            0,
+            0,
+            45,
+            14
+          ]
+        },
+        "u200|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -3.1246394700000053,
+            47.41644213000001
+          ],
+          "matched_assignment_count": 121,
+          "mean_absolute_delta": [
+            11.927288623553718,
+            0.0,
+            0.0,
+            4299.0545454545445,
+            1856.4099173553736
+          ],
+          "nonzero_delta_count_by_target": [
+            121,
+            0,
+            0,
+            19,
+            19
+          ]
+        },
+        "u200|5->10ns": {
+          "latency_delta_ms_range": [
+            17.013984999999998,
+            142.053365
+          ],
+          "matched_assignment_count": 110,
+          "mean_absolute_delta": [
+            29.42414690909094,
+            0.0,
+            0.0,
+            16981.265454545464,
+            2095.789090909092
+          ],
+          "nonzero_delta_count_by_target": [
+            110,
+            0,
+            0,
+            46,
+            17
+          ]
+        },
+        "zcu104|3.33->10ns": {
+          "latency_delta_ms_range": [
+            17.289504430000008,
+            196.98323626999996
+          ],
+          "matched_assignment_count": 66,
+          "mean_absolute_delta": [
+            36.99736017090909,
+            0.0,
+            0.0,
+            12951.272727272728,
+            3682.909090909091
+          ],
+          "nonzero_delta_count_by_target": [
+            66,
+            0,
+            0,
+            61,
+            55
+          ]
+        },
+        "zcu104|3.33->5ns": {
+          "latency_delta_ms_range": [
+            -45.03556873,
+            47.01689078999999
+          ],
+          "matched_assignment_count": 74,
+          "mean_absolute_delta": [
+            10.927630099459462,
+            0.0,
+            0.0,
+            7908.324324324324,
+            2241.7297297297305
+          ],
+          "nonzero_delta_count_by_target": [
+            74,
+            0,
+            0,
+            66,
+            43
+          ]
+        },
+        "zcu104|5->10ns": {
+          "latency_delta_ms_range": [
+            18.090725,
+            174.084085
+          ],
+          "matched_assignment_count": 76,
+          "mean_absolute_delta": [
+            37.87585065789474,
+            0.0,
+            0.0,
+            6639.1578947368425,
+            1834.105263157896
+          ],
+          "nonzero_delta_count_by_target": [
+            76,
+            0,
+            0,
+            50,
+            40
+          ]
+        }
+      },
+      "contexts": {
+        "u200|10ns": {
+          "candidate_count": 172,
+          "distinct_assignments": 172,
+          "distinct_latency_values": 37,
+          "full_capacity_feasible": 172,
+          "half_capacity_feasible": 172,
+          "tenth_capacity_feasible": 121
+        },
+        "u200|3.33ns": {
+          "candidate_count": 168,
+          "distinct_assignments": 168,
+          "distinct_latency_values": 54,
+          "full_capacity_feasible": 168,
+          "half_capacity_feasible": 168,
+          "tenth_capacity_feasible": 123
+        },
+        "u200|5ns": {
+          "candidate_count": 189,
+          "distinct_assignments": 189,
+          "distinct_latency_values": 57,
+          "full_capacity_feasible": 189,
+          "half_capacity_feasible": 189,
+          "tenth_capacity_feasible": 138
+        },
+        "zcu104|10ns": {
+          "candidate_count": 112,
+          "distinct_assignments": 112,
+          "distinct_latency_values": 25,
+          "full_capacity_feasible": 112,
+          "half_capacity_feasible": 93,
+          "tenth_capacity_feasible": 50
+        },
+        "zcu104|3.33ns": {
+          "candidate_count": 167,
+          "distinct_assignments": 167,
+          "distinct_latency_values": 63,
+          "full_capacity_feasible": 167,
+          "half_capacity_feasible": 150,
+          "tenth_capacity_feasible": 85
+        },
+        "zcu104|5ns": {
+          "candidate_count": 143,
+          "distinct_assignments": 143,
+          "distinct_latency_values": 53,
+          "full_capacity_feasible": 143,
+          "half_capacity_feasible": 113,
+          "tenth_capacity_feasible": 46
+        }
+      },
+      "device_pairs": {
+        "10ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -13.926400000000001,
+            0.0
+          ],
+          "matched_assignment_count": 66,
+          "mean_absolute_delta": [
+            0.3165090909090905,
+            0.0,
+            0.0,
+            8214.109090909093,
+            5674.90909090909
+          ],
+          "nonzero_delta_count_by_target": [
+            2,
+            0,
+            0,
+            66,
+            66
+          ]
+        },
+        "3.33ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -65.04081408,
+            1.6376140799999916
+          ],
+          "matched_assignment_count": 82,
+          "mean_absolute_delta": [
+            9.993360538536574,
+            0.0,
+            0.0,
+            14146.243902439024,
+            7954.946341463412
+          ],
+          "nonzero_delta_count_by_target": [
+            82,
+            0,
+            0,
+            82,
+            82
+          ]
+        },
+        "5ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -34.816,
+            29.245440000000002
+          ],
+          "matched_assignment_count": 81,
+          "mean_absolute_delta": [
+            4.264929567901226,
+            0.0,
+            0.0,
+            9289.600000000002,
+            7117.777777777779
+          ],
+          "nonzero_delta_count_by_target": [
+            81,
+            0,
+            0,
+            81,
+            81
+          ]
+        }
+      },
+      "graph_identity": "f11cdf63187f8bd62d41891815f14b0b781511679271ad68351fe275ce05acaf",
+      "graph_member_sha256": "1e97ad2a3055589c862f60870ce4313d470b1b47e738bdc4bb16769780506d48",
+      "matched_actions": 5,
+      "metadata_sha256": "c7a74452f5fd93b12614a96e5401cfa25dc978c4a796fc694dccd40664c681cc",
+      "registered_actions": 5,
+      "six_context_latency_spread_ms": {
+        "max": 189.03543979000003,
+        "mean": 31.587484440000004,
+        "median": 24.19746667
+      },
+      "source_sha256": "f9d42cda91bac87e44d52a59534ed45245ffe5b84e095623a4084b5a07228ab2",
+      "split": "train"
+    },
+    "rodinia_pathfinder_0_baseline_0": {
+      "array_actions": 2,
+      "assignments_shared_across_all_six_contexts": 14,
+      "clock_pairs": {
+        "u200|3.33->10ns": {
+          "latency_delta_ms_range": [
+            7.089676400000001,
+            105.84891474
+          ],
+          "matched_assignment_count": 112,
+          "mean_absolute_delta": [
+            18.642961610982145,
+            0.0,
+            0.0,
+            16466.9142857143,
+            211.11428571428613
+          ],
+          "nonzero_delta_count_by_target": [
+            112,
+            0,
+            0,
+            59,
+            2
+          ]
+        },
+        "u200|3.33->5ns": {
+          "latency_delta_ms_range": [
+            0.5822713399999984,
+            25.847524739999997
+          ],
+          "matched_assignment_count": 105,
+          "mean_absolute_delta": [
+            3.8255906714285683,
+            0.0,
+            0.0,
+            10133.485714285722,
+            225.1885714285716
+          ],
+          "nonzero_delta_count_by_target": [
+            105,
+            0,
+            0,
+            40,
+            2
+          ]
+        },
+        "u200|5->10ns": {
+          "latency_delta_ms_range": [
+            5.3146,
+            80.00139
+          ],
+          "matched_assignment_count": 100,
+          "mean_absolute_delta": [
+            14.285781400000003,
+            0.0,
+            0.0,
+            6147.647999999998,
+            118.22399999999995
+          ],
+          "nonzero_delta_count_by_target": [
+            100,
+            0,
+            0,
+            19,
+            1
+          ]
+        },
+        "zcu104|3.33->10ns": {
+          "latency_delta_ms_range": [
+            7.089676400000001,
+            89.24377318
+          ],
+          "matched_assignment_count": 67,
+          "mean_absolute_delta": [
+            10.783890305671642,
+            0.1862686567164179,
+            0.0,
+            13824.0,
+            447.04477611940297
+          ],
+          "nonzero_delta_count_by_target": [
+            67,
+            2,
+            0,
+            34,
+            13
+          ]
+        },
+        "zcu104|3.33->5ns": {
+          "latency_delta_ms_range": [
+            1.7750764000000006,
+            25.845324139999995
+          ],
+          "matched_assignment_count": 61,
+          "mean_absolute_delta": [
+            3.1933684955737713,
+            1.1252459016393443,
+            0.0,
+            3248.262295081967,
+            491.0163934426229
+          ],
+          "nonzero_delta_count_by_target": [
+            61,
+            3,
+            0,
+            17,
+            11
+          ]
+        },
+        "zcu104|5->10ns": {
+          "latency_delta_ms_range": [
+            5.3146,
+            80.00139
+          ],
+          "matched_assignment_count": 162,
+          "mean_absolute_delta": [
+            13.07649,
+            0.07703703703703708,
+            0.0,
+            8476.444444444445,
+            227.55555555555554
+          ],
+          "nonzero_delta_count_by_target": [
+            162,
+            2,
+            0,
+            80,
+            17
+          ]
+        }
+      },
+      "contexts": {
+        "u200|10ns": {
+          "candidate_count": 227,
+          "distinct_assignments": 227,
+          "distinct_latency_values": 75,
+          "full_capacity_feasible": 227,
+          "half_capacity_feasible": 227,
+          "tenth_capacity_feasible": 110
+        },
+        "u200|3.33ns": {
+          "candidate_count": 234,
+          "distinct_assignments": 234,
+          "distinct_latency_values": 77,
+          "full_capacity_feasible": 234,
+          "half_capacity_feasible": 234,
+          "tenth_capacity_feasible": 124
+        },
+        "u200|5ns": {
+          "candidate_count": 265,
+          "distinct_assignments": 265,
+          "distinct_latency_values": 79,
+          "full_capacity_feasible": 265,
+          "half_capacity_feasible": 265,
+          "tenth_capacity_feasible": 136
+        },
+        "zcu104|10ns": {
+          "candidate_count": 388,
+          "distinct_assignments": 388,
+          "distinct_latency_values": 118,
+          "full_capacity_feasible": 388,
+          "half_capacity_feasible": 246,
+          "tenth_capacity_feasible": 166
+        },
+        "zcu104|3.33ns": {
+          "candidate_count": 261,
+          "distinct_assignments": 261,
+          "distinct_latency_values": 104,
+          "full_capacity_feasible": 261,
+          "half_capacity_feasible": 149,
+          "tenth_capacity_feasible": 73
+        },
+        "zcu104|5ns": {
+          "candidate_count": 360,
+          "distinct_assignments": 360,
+          "distinct_latency_values": 121,
+          "full_capacity_feasible": 360,
+          "half_capacity_feasible": 248,
+          "tenth_capacity_feasible": 150
+        }
+      },
+      "device_pairs": {
+        "10ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.010240000000003135,
+            0.0
+          ],
+          "matched_assignment_count": 98,
+          "mean_absolute_delta": [
+            0.0020885714285713898,
+            22.986122448979597,
+            0.0,
+            7312.5551020408175,
+            4417.861224489793
+          ],
+          "nonzero_delta_count_by_target": [
+            20,
+            93,
+            0,
+            71,
+            98
+          ]
+        },
+        "3.33ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -3.4951680000000014,
+            0.0
+          ],
+          "matched_assignment_count": 44,
+          "mean_absolute_delta": [
+            0.47971056681818214,
+            19.42909090909092,
+            0.0,
+            8918.836363636367,
+            4481.999999999997
+          ],
+          "nonzero_delta_count_by_target": [
+            39,
+            43,
+            0,
+            34,
+            44
+          ]
+        },
+        "5ns|zcu104->u200": {
+          "latency_delta_ms_range": [
+            -0.005120000000001568,
+            0.0
+          ],
+          "matched_assignment_count": 94,
+          "mean_absolute_delta": [
+            0.0018507978723404774,
+            24.097021276595747,
+            0.0,
+            13609.225531914894,
+            4228.697872340421
+          ],
+          "nonzero_delta_count_by_target": [
+            34,
+            83,
+            0,
+            73,
+            94
+          ]
+        }
+      },
+      "graph_identity": "f228a1db4a325bf2297200c64d158b89245be1cd496a4663fe4b37304e61f47f",
+      "graph_member_sha256": "af67c5ca9c0e87778620074a37776d6d97dfd357a290e7f6dda83903fbb22141",
+      "matched_actions": 4,
+      "metadata_sha256": "3cd8e10d3eeb2b1285deed26c5c8f1d8332173883a851080d733e5281968f5ab",
+      "registered_actions": 4,
+      "six_context_latency_spread_ms": {
+        "max": 8.870589970000001,
+        "mean": 7.392831997857144,
+        "median": 7.103323220000001
+      },
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+      "split": "validation"
+    }
+  },
+  "schema": "salt-hls-v4-authenticated-target-coverage-audit-v1",
+  "test_kernels_loaded_for_analysis": [],
+  "training_kernels": [
+    "machsuite-gemm-ncubed",
+    "machsuite-spmv-ellpack",
+    "machsuite-stencil2d",
+    "machsuite-md-knn",
+    "rodinia_dilate_0_baseline_0"
+  ],
+  "validation_kernels": [
+    "machsuite-viterbi",
+    "rodinia_pathfinder_0_baseline_0"
+  ]
+}

@@ -33,15 +33,15 @@ the latest recorded full paired run has no selected checkpoint or QoR result.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
-On `research/gnn-refinement`, a bounded V4 numerical-versus-hardware-message
-pilot has completed on the A2: 20 matched updates per arm and a small
-family-disjoint measured validation pool. Hardware messages altered embeddings
-and ranking scores but did not consistently improve measured-pool selection;
-the evidence is too small to justify Stage-2 integration or broad claims. Full
-results and limitations are in `experiments/v22_gnn_training/RESULTS.md`; a
-copy-ready follow-up plan is in `experiments/v22_gnn_training/NEXT_STEPS_BRIEF.md`
-on that research branch. V4 remains experimental; production still uses the V1
-GNN.
+On `research/gnn-refinement`, a V4 follow-up has now shown that the existing
+candidate-conditioned model can partially memorize a fixed 24-design training
+context. A 100-update, three-arm family-held-out probe across two devices and
+three clocks remains weak: explicit hardware messages do not consistently
+improve ranking or selection, and the measured budget behavior is not reliable.
+This is not evidence for Stage-2 integration or broad target generalization.
+The detailed results and bounded next step are in
+[`experiments/v22_gnn_training/RESULTS.md`](experiments/v22_gnn_training/RESULTS.md).
+V4 remains experimental; production still uses the V1 GNN.
 
 ## Start here
 

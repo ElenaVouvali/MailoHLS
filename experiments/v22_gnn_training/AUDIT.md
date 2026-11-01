@@ -181,3 +181,127 @@ However, primary matched-model ranking, QoR and top-k measured-pool results do
 not show consistent selection benefit; one validation context has very large
 latency regret. The one-seed, 20-update pilot is not evidence of broad
 generalization, training convergence, synthesis QoR, or Stage-2 improvement.
+
+## Learnability and target-conditioning follow-up (2026-11-01)
+
+The branch was fetched and verified at `c8f823f63c557e60bcf0057d7bfcd1363d77a1ae`
+in the clean `/tmp/MailoHLS-gnn-refinement` worktree. The original checkout,
+Stage-1 and refinement worktrees were not changed. The active implementation
+uses RC3 archive SHA256
+`feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`, dataset
+SHA256 `afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`,
+and split SHA256 `d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c`.
+The new coverage report authenticates exact graph/source/metadata identities
+for five train and two validation kernels and records an empty test-kernel
+list. Kalman/test measurements were not selected or used for fitting or
+evaluation.
+
+### Target coverage and leakage boundaries
+
+The new audit uses exact complete-assignment hashes to establish shared target
+designs. Every training kernel has at least 16 assignments shared across
+ZCU104/U200 at 3.33/5/10 ns. PathFinder has 14 assignments shared across all
+six contexts; Viterbi has none, so its candidates are hash-selected by context
+and paired calculations use exact overlaps only. The target coverage JSON
+reports per-context candidate counts, overlap, measured latency/resource
+variation, feasibility at 100/50/10%, action registration/match counts, and
+source/graph identities. Physical measurement identity excludes request
+budget; the evaluator changes feasibility limits while retaining the same
+physical QoR labels.
+
+The frozen cohort contains 480 training records (30 kernel/device/clock
+contexts) and 180 validation records (12 contexts). Training assignments are
+selected from the six-way intersection by directive Hamming diversity, with
+no QoR label used. Validation selection is hash-only and likewise QoR-blind.
+QoR normalization is fitted on selected training records. Static graph memory
+does not receive candidate directives, candidate demand, QoR or split
+membership. Candidate and analytical demand tensors enter only the QoR
+prediction pathway. Test rows do not enter the selected records or feature
+tensors.
+
+### Fixed-context learnability
+
+The reproduction runs use new output directories:
+
+```bash
+CUDA_VISIBLE_DEVICES=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 PYTHONPATH=. \
+  /tmp/mailohls-v22-gnn-env-20261030/bin/python \
+  -m experiments.v22_gnn_training.learnability_probe \
+  --release-dir /tmp/salt-v22-training-release \
+  --output /tmp/v22-v4-fixed-learnability-repro-200 \
+  --kernel machsuite-stencil2d --profile zcu104 --clock-ns 10 \
+  --candidates 24 --updates 200 --gpu-name A2 \
+  --gpu-uuid GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+  --preparation-limit-seconds 600 --gpu-limit-seconds 1200
+
+CUDA_VISIBLE_DEVICES=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 PYTHONPATH=. \
+  /tmp/mailohls-v22-gnn-env-20261030/bin/python \
+  -m experiments.v22_gnn_training.learnability_probe \
+  --release-dir /tmp/salt-v22-training-release \
+  --output /tmp/v22-v4-fixed-learnability-repro-1000 \
+  --kernel machsuite-stencil2d --profile zcu104 --clock-ns 10 \
+  --candidates 24 --updates 1000 --gpu-name A2 \
+  --gpu-uuid GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+  --preparation-limit-seconds 600 --gpu-limit-seconds 1200
+```
+
+The tracked manifests/results record exact selected assignment hashes, data
+identities, hashes for the V4 graph/feature implementation used by the run,
+baselines, checkpoint identities and update history. The learnability helper's
+own source hash was added to the script after these runs, so it is not claimed
+as an authenticated field in those historical receipts. Weights remain in
+`/tmp`. The 1,000-update run starts fresh with the same seed; its first 200
+updates match the separate 200-update trajectory. It is training-set
+memorization only.
+
+### Matched three-arm experiment
+
+The completed run used the A2 UUID
+`GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`; the V100S was not used. Authenticated
+data loading took 94.96 s, feature preparation 136.59 s, and all three
+100-update arms plus validation 7.56 s total GPU time. Peak CUDA memory was not
+instrumented. Numerical and hardware GNNs share a 116,081-parameter initial
+state and exact sample trace. The candidate+target MLP has 338,053 parameters,
+so it is a simple non-graph reference rather than a matched-capacity ablation.
+The 180 validation rows come only from Viterbi and PathFinder; Kalman was not
+used.
+
+Reproduction command (use a new output directory and verify A2 availability
+immediately before launching):
+
+```bash
+CUDA_VISIBLE_DEVICES=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 PYTHONPATH=. \
+  /tmp/mailohls-v22-gnn-env-20261030/bin/python \
+  -m experiments.v22_gnn_training.target_condition_probe \
+  --release-dir /tmp/salt-v22-training-release \
+  --output /tmp/v22-v4-target-conditioned-probe-reproduction \
+  --gpu-name A2 --gpu-uuid GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+  --updates 100 --candidates-per-update 8 \
+  --preparation-limit-seconds 600 --gpu-limit-seconds 1200
+```
+
+The completed raw result is preserved in `/tmp/v22-v4-target-conditioned-probe-s123-20261101-r2/`.
+Its SHA256, exact cohort and corrected, denominator-aware summary are tracked
+in `results/`. The raw result's near-zero area/ADP relative regrets in
+Viterbi/U200/5 ns must not be averaged: that measured optimum is exactly zero.
+The corrected summary marks those regrets undefined and reports 11/12 defined
+contexts. A focused test covers this rule.
+
+The first three-arm attempt trained and checkpointed all arms but failed while
+serializing a tuple-keyed intermediate prediction map; it is preserved in its
+original `/tmp` directory. The successful `-r2` attempt fixed the report
+boundary. A later corrected-report rerun was refused by the GPU guard because
+the A2 was occupied by `VLLM::EngineCore` (10,528 MiB, observed PID 1655798).
+No process was signalled, and the previous completed checkpoints/results were
+preserved.
+
+### Verification and limits
+
+The latest focused run of the new tests plus V4 training-contract tests passed
+23 tests. Semantic-tensor/action-demand tests passed separately (12 tests); a
+combined run before the near-zero helper change passed 34. Python compilation
+passed for the new probe modules. After the final changes, the complete relevant
+focused suite passed **120 tests** and `git diff --check` passed. No graph,
+target overlay, V4 feature schema, production GNN, Stage-2,
+measurements or training split changed. This one-seed, 100-update, two-family
+validation does not establish broad transfer or Stage-2 benefit.

@@ -207,3 +207,141 @@ Before the bounded pilot, the 8,000-update protocol had not run. An earlier
 V100S smoke and an A2 availability check were blocked; those records remain
 historical evidence only and are not the current experiment status. The
 historical full-data audit identity and exclusions remain unchanged.
+
+## Fixed-context learnability and six-context target probe — 2026-11-01
+
+This follow-up tests candidate-conditioned learnability, target response, and
+the incremental value of hardware-resource messages. It does not modify RC3,
+the V4 tensor schema, production checkpoints, or Stage-2.
+
+### Fixed-context learnability
+
+The context is `machsuite-stencil2d / zcu104 / 10 ns` in the training split.
+Twenty-four distinct measured assignments were chosen by deterministic
+complete-assignment Hamming diversity, without QoR-based selection. One
+hardware-enabled `CandidateQoRModel` was trained with regression-only
+SmoothL1, AdamW `3e-4`, weight decay `1e-4`, seed 123, and no ranking loss.
+This is an in-sample memorization diagnostic.
+
+| Step | Standardized train SmoothL1 | Latency MAE (ms) | Latency MAPE | Train Spearman | Predicted-best regret |
+|---:|---:|---:|---:|---:|---:|
+| Constant mean baseline | 0.3363 | 0.4023 | — | — | — |
+| 1 | 0.3293 | 0.3804 | — | 0.388 | 1.05% |
+| 100 | 0.3199 | 0.3761 | — | 0.397 | 1.05% |
+| 200 | 0.1925 | 0.2679 | 0.8013 | 0.510 | 1.05% |
+| 1,000 | 0.0940 | 0.2479 | 0.6848 | 0.701 | 1.05% |
+
+The 1,000-update run started fresh from the same seed; its first 200 updates
+match the separate 200-update trajectory at recorded checkpoints. Standardized
+loss fell 72% and latency MAE fell 38% relative to the constant baseline. The
+predicted best was 1.05% slower than the pool optimum, not the exact winner.
+The model therefore shows candidate-dependent memorization on this set, not
+held-out learning. The best-candidate identity did not change from step 1,
+which qualifies the top-1 result. GPU time: 3.57 s (200 updates) and 15.25 s
+(1,000); peak CUDA allocation: 23,386,112 bytes. Weights remain in
+`/tmp/v22-v4-fixed-learnability-s123-1000-20261101/`.
+
+### Authenticated coverage and frozen cohort
+
+The RC3 archive (`feb2c2d4…a1b73`), dataset (`afdf4af8…d5ab820`) and seed-123
+family split (`d0886fa8…ec360c`) match the previous audit. Only the five
+training kernels and two validation kernels entered this coverage analysis;
+Kalman/test measurements were excluded. Every training kernel has at least 28
+exact assignments shared across all six target contexts. PathFinder has 14
+six-way assignments; Viterbi has none, so its pool is selected independently
+by hash for each context and paired results use exact overlaps only.
+
+| Partition | Contexts | Configurations | Selection |
+|---|---:|---:|---|
+| Train: 5 kernels/families | 30 | 480 | 16 exact assignments/kernel shared across six targets; Hamming-diverse, QoR-blind |
+| Validation: Viterbi, PathFinder | 12 | 180 | 14 PathFinder assignments shared six ways; 16 Viterbi hashes/context; QoR-blind |
+
+Exact overlaps, context counts, QoR variation, feasibility and source/graph
+identities are in [`results/target_coverage_audit_s123.json`](results/target_coverage_audit_s123.json).
+The exact selection identities are in
+[`results/target_condition_probe_s123_manifest.json`](results/target_condition_probe_s123_manifest.json).
+
+### Three-arm held-out probe
+
+Each arm ran 100 matched updates, eight candidates/update, AdamW `3e-4`, weight
+decay `1e-4`, clipping at 1, and the existing `SmoothL1 + 0.1 * ranking_loss`.
+Numerical and hardware GNNs share the same 116,081 parameters, initial state
+SHA256 `f4f5f98a…e2f89956`, and sample trace. The candidate-only MLP uses
+candidate, analytical demand and numerical target inputs but no graph; its
+338,053 parameters make it a simple control, not a parameter-matched ablation.
+All checkpoints are fixed at update 100; validation did not select a model.
+
+| Validation metric, macro over 12 contexts | Candidate + target | Numerical GNN | Hardware GNN |
+|---|---:|---:|---:|
+| Latency MAPE | 0.6888 | 0.6126 | 0.6066 |
+| Latency MAE (ms) | 6.4723 | 6.5538 | 6.3968 |
+| Resource MAE / capacity `[BRAM,DSP,FF,LUT]` | `[.02395,.00071,.04305,.21402]` | `[.02395,.00104,.04314,.21046]` | `[.02395,.00104,.04314,.21095]` |
+| Latency Spearman / Kendall | .2360 / .2231 | .0791 / .0494 | .1473 / .1098 |
+| Latency top-1 / top-3 measured-pool regret | 7.3810 / .2755 | .2865 / .0605 | 2.3451 / .0029 |
+| Area / ADP Spearman | .2831 / −.2787 | .3308 / .3879 | .3571 / .3275 |
+| Area top-1 regret (11/12 defined) | 4.1838 | 1.7682 | 1.5688 |
+| ADP top-1 regret (11/12 defined) | 7.6971 | .6811 | 11.6841 |
+| 100% budget accuracy / always-feasible baseline | 1.000 / 1.000 | 1.000 / 1.000 | 1.000 / 1.000 |
+| 50% budget accuracy / always-feasible baseline | .816 / .816 | .816 / .816 | .816 / .816 |
+| 50% false-feasible / false-infeasible candidates | 31 / 0 | 31 / 0 | 31 / 0 |
+| 50% contexts selecting actually feasible design | 9/12 | 10/12 | 9/12 |
+
+Regret is measured-pool regret, not regret against every HLS design. The
+Viterbi/U200/5 ns measured area and ADP optima are exactly zero, so relative
+regret is undefined there. The corrected summary sets that context to null and
+uses 11/12 contexts; the raw report is retained separately and its original
+epsilon-denominator values must not be averaged. All arms match an
+always-feasible classifier at 50%, so feasibility accuracy is not learned
+evidence here.
+
+### Target contrasts, budget semantics and message ablation
+
+Exact paired validation comparisons contain 91 assignment-pair observations
+across 10 nonempty clock groups and 45 across 5 device groups. They overlap and
+come from only two kernels. Full-budget macro sign accuracy over comparison
+groups is 0.621/0.867/0.467 for clock changes (candidate-only/numerical/hardware)
+and 0/0/0 for device changes. Clock paired-latency-delta MAE remains about
+6.9 ms. Viterbi overlaps are sparse; PathFinder supplies most pairs. These are
+descriptive, not independent statistical trials.
+
+For the same candidate/device/clock, changing only the requested budget
+changed predicted physical latency by 0.0124 ms (candidate-only), 0.1105 ms
+(numerical), and 0.1417 ms (hardware) on average. Measured physical QoR labels
+are held constant across budget requests. This is a model-conditioning defect
+for the desired physical-QoR semantics. A future versioned experiment should
+predict QoR from program/candidate/device/clock and derive feasibility against
+the requested budget; no graph or V4 schema was changed here.
+
+Hardware relation rows received finite mean gradient norm `1.04e-4`; the
+numerical arm's corresponding relation-row gradient was zero. Disabling
+hardware edges changed action memories (mean relative L2 shift 0.509) and the
+selected latency candidate in 10/12 contexts. Macro latency Spearman changed
+from −0.220 without the edges to 0.147 with them, while top-1 latency regret
+worsened from 0.697 to 2.345. The path is active but its selection effect is
+mixed, not a reliable benefit. This is an inference-time ablation, not a
+separately trained numerical model.
+
+The run used Python 3.10 / PyTorch 2.6.0+cu124 / PyG 2.6.1 and A2 UUID
+`GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`. Data loading took 94.96 s,
+feature preparation 136.59 s and all GPU training/evaluation 7.56 s; peak CUDA
+memory was not instrumented. Weights and caches remain outside Git in
+`/tmp/v22-v4-target-conditioned-probe-s123-20261101-r2/`. The tracked corrected
+summary is [`results/target_condition_probe_s123_summary.json`](results/target_condition_probe_s123_summary.json);
+raw results are in [`results/target_condition_probe_s123_raw.json`](results/target_condition_probe_s123_raw.json).
+
+A later corrected-report rerun was refused by the safety guard because the A2
+had become occupied by `VLLM::EngineCore`; no process was signalled. The
+completed earlier checkpoints were preserved. The zero-optimum correction is
+unit-tested and applied in the tracked summary; it does not alter model
+weights. This remains one seed, 100 updates, two validation families and a
+small pool. It cannot establish broad generalization, synthesis QoR, or
+Stage-2 benefit.
+
+**Conclusion:** the existing model can partially memorize one fixed context.
+The 100-update cross-family models remain weak; target-conditioned device
+response is not reliable; hardware messages offer no consistent selection
+advantage. V4 embeddings are not ready for Stage-2. The next bounded experiment
+is 300–600 updates on this same frozen three-arm cohort when the A2 is free,
+with no simultaneous change to graph features, loss or selection. If
+budget-induced QoR drift persists, test a separately versioned
+physical-QoR/feasibility separation.
