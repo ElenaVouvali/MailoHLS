@@ -39,7 +39,7 @@ TRAIN_KERNELS = (
     'rodinia_dilate_0_baseline_0', # small graph with an array action
 )
 VALIDATION_KERNELS = (
-    'machsuite-sort-radix',
+    'machsuite-viterbi',
     'rodinia_pathfinder_0_baseline_0',
 )
 PROFILES = ('zcu104', 'u200')
@@ -190,7 +190,7 @@ def prepare(release_dir: Path, output: Path, timeout_seconds=PREPARATION_LIMIT_S
             'machsuite-stencil2d': 'machsuite_stencil2d',
             'machsuite-md-knn': 'machsuite_md_knn',
             'rodinia_dilate_0_baseline_0': 'rodinia_dilate',
-            'machsuite-sort-radix': 'machsuite_sort_radix',
+            'machsuite-viterbi': 'machsuite_viterbi',
             'rodinia_pathfinder_0_baseline_0': 'rodinia_pathfinder',
         }
         if any(kernel not in dataset.kernel_split for kernel in family_by_kernel):
@@ -204,7 +204,7 @@ def prepare(release_dir: Path, output: Path, timeout_seconds=PREPARATION_LIMIT_S
         if set(family_by_kernel[k] for k in TRAIN_KERNELS) & set(
                 family_by_kernel[k] for k in VALIDATION_KERNELS):
             raise ValueError('Training and validation families are not disjoint')
-        if family_by_kernel['machsuite-sort-radix'] == family_by_kernel['rodinia_pathfinder_0_baseline_0']:
+        if family_by_kernel['machsuite-viterbi'] == family_by_kernel['rodinia_pathfinder_0_baseline_0']:
             raise ValueError('Validation kernels must represent different held-out families')
 
         selected_groups = {}
