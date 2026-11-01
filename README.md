@@ -33,6 +33,20 @@ the latest recorded full paired run has no selected checkpoint or QoR result.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
+On `research/refinement-mechanism`, synthesis-feedback research compares random,
+coordinate, composition, structural and hybrid refinement plus a matched-pair
+control from fixed stored SALT predictions. Authenticated R11 completed 144
+logical evaluations on GAN, covariance and Kalman (seed 123, eight calls per
+context, ZCU104/10 ns). Best observed ADP improvements are 42.694%, 28.754% and
+0.142%; structural wins only one of three matched comparisons and hybrid does
+not outperform simpler exploitation overall. All three selected finalists passed
+the original finite C-simulation tests, reauthenticated on 2026-11-01. Historical
+relation-label quality limits attribution; no universal structural advantage,
+RTL equivalence or post-route gain is established. This optional experiment is
+independent of the parallel model-training work. See the
+[methodology](experiments/refinement_search/README.md#authenticated-r11-assessment)
+and [measured results](experiments/refinement_search/RESULTS.md).
+
 ## Start here
 
 | Need | Guide |

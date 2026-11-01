@@ -5,6 +5,13 @@ objective adapter and compiler memory. This optional experiment starts from that
 stored prediction and queries synthesis before choosing each next edit. It does
 not run the LLM or GNN, change checkpoints, or replace standard inference.
 
+The [authenticated R11 results](RESULTS.md) answer the current scientific question:
+measured refinement helps GAN and covariance, but structural and hybrid
+superiority is unproven. All 144 logical queries and the three final winners'
+existing C-simulation passes were reauthenticated on 2026-11-01. No additional
+synthesis, simulation, training or policy retuning was needed for that assessment.
+The supplementary stricter audit below qualifies historical relation labels.
+
 The search engine has two modules: `policies.py` selects candidates from source
 facts and one policy's observed history; `controller.py` validates, queries,
 records and summarizes them. `benchmark.py` seals and schedules controlled
@@ -351,3 +358,177 @@ hashes, output hashes, return codes, comparisons and runtime are recorded under
 `csim_pass` means agreement on those finite inputs; it does not verify generated
 RTL or establish post-route improvement. No equivalence checker is integrated,
 so `equivalence_verified` is never assigned by this benchmark.
+
+## Authenticated R11 assessment
+
+The scientific comparisons are H1: refinement versus the initial SALT assignment;
+H2: structural versus matched; H3: coordinate versus compose; H4: compose versus
+hybrid. Incumbent monotonicity follows from best-feasible selection and is not
+evidence of a superior policy. Each context has the same original assignment,
+legal space, target, tool/header identities and eight-query budget. Query one is
+the baseline, and cached, failed or infeasible queries still consume a query.
+
+For kernel `k`, policy `p` and paid prefix `b`, define `J*(k,p,b)` as the minimum
+ADP among successful feasible observations in the prefix, then
+`N(k,p,b) = J*(k,p,b) / ADP(original SALT,k)` and improvement `100*(1-N)`.
+The area/ADP formulas and four independent resource checks above are unchanged.
+Normalization is undefined for unavailable/infeasible baselines. Missing replay
+observations invalidate prefixes; pauses never extrapolate. Explicit completely
+observed neighborhood exhaustion may carry an incumbent forward.
+
+The separate [`experiments/refinement_analysis.py`](../refinement_analysis.py)
+strictly replays the paid journals, checks measured baseline equality and aggregate
+exports, reconstructs normalized curves/costs, computes only valid common-reference
+factorials and authenticates executed functional checks. It never launches
+synthesis or simulation. Its optional live-tool check uses only the existing
+version/identity probe. Its location is outside the directories globbed into the
+original core hash contract; frozen engine and benchmark files remain unchanged.
+
+Restore the ignored evidence roots from
+`/home/bonus24/mailohls_search_20261026_NqbK0V/` on Coroni at the recorded relative
+paths: `benchmark_r11`, `pilot`, `smoke`, including all copied reuse proofs.
+The optional covariance single-edit control also needs `local_refinement`.
+[RESULTS.md](RESULTS.md) records recovery locations and source/tool hashes.
+On the original Python/glibc environment, select a fresh assessment file outside
+the frozen archive:
+
+```bash
+python3.8 -B -m experiments.refinement_analysis \
+  --input-dir experiments/refinement/results/search/benchmark_r11 \
+  --output /tmp/r11-assessment-fresh.json \
+  --live-tool /opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls
+```
+
+Portable verification checks the committed Coroni assessment seal and restored
+input hashes without claiming exact foreign-libc policy replay:
+
+```bash
+python -B -m experiments.refinement_analysis \
+  --verify-export experiments/refinement_search/evidence/r11/assessment.json \
+  --compiler-output /tmp/r11-compiler-diagnostic-fresh.json \
+  --tables-dir /tmp/r11-tables --plot
+```
+
+Compiler diagnostics need CPU torch/networkx; plotting needs matplotlib. No model
+or GPU is used. The existing plot exporter reads the original sealed curve data.
+CSV exports preserve raw/normalized ADP, actual budgets, candidate identities,
+reference/baseline changes, matching distances, domain sizes and physical costs.
+
+The optional historical single-edit control is authenticated using
+`experiments.refinement.experiment.read_measurements` on `local_refinement`,
+selecting covariance signature
+`ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b`.
+All 33 archived observations authenticate; the selected single-edit result has
+identical comparison context and hardware metrics to the R11 structural winner.
+Its separate sealed receipt is retained with the assessment exports.
+
+### Actual conclusions and evidence limitations
+
+R11 completed 120 main-policy plus 24 control calls: 86 new syntheses, 58 reuses,
+99 distinct assignments, 137 feasible observations and seven BRAM-infeasible
+observations. No query is pending or unavailable. All selected winners passed the
+original finite C-simulation checks. The measured decision is
+`REFINEMENT_BENEFICIAL_BUT_STRUCTURAL_GAIN_UNPROVEN`.
+
+Best ADP improvements are GAN 42.694281% (matched), covariance 28.754456%
+(compose), Kalman 0.141797% (matched). Structural wins one of three matched
+contrasts. Hybrid wins GAN modestly, loses substantially on covariance, and ties
+Kalman. Only 0.453627 baseline percentage points of covariance's gain came from
+its explicit composition. Complete curves and physical interpretation are in
+[RESULTS.md](RESULTS.md); the three-kernel/one-seed result is not universal.
+
+All 21 paid matched controls have zero recorded magnitude distance, but endpoint
+legal action-tuple counts differ in 17 cases. Equal action kinds/field changes
+and novelty do not imply equal local opportunity or causal isolation.
+
+The separate diagnostic reexecutes the historical graph verifier, then the
+existing `strict_callsite_and_access_v1` auditor on the same snapshots. Nine GAN
+array–loop relations become unresolved when call summaries are excluded as
+concrete-access proof. These include all GAN structural/hybrid pairs. Seven
+Kalman pairs instead gain direct evidence under the native write-orientation
+correction; three nonimproving historical matched queries use those pairs.
+The control means no relation verified by R11's verifier, never semantic
+independence. No historical eligibility, relation, trace or QoR is rewritten.
+A stronger verifier requires a new sealed experiment.
+
+Original relation facts reproduce. Dependence-edge list iteration may vary with
+Python hash randomization; the supplementary diagnostic compares full edge
+multisets including multiplicity. This does not alter exact original policy
+replay or relax source/QoR authentication.
+
+The assessment verifies original source, materialized candidate, testbench/plan,
+header/tool identity, completion logs, return codes, output hashes, lengths and
+finite values, then reruns the binary-output comparator. Four prior design
+checks cover the three winners and an earlier GAN finalist, with zero error and
+mismatches. No new Vitis job is needed. Finite C simulation establishes neither
+exhaustive equivalence nor RTL correctness.
+
+Per-query overhead combines selection, authentication and persistence and excludes
+HLS runtime. Separate subphase timers and full end-to-end elapsed time were not
+recorded and remain unavailable. Physical counts depend on cache and order. The
+recorded-unique-candidate runtime sum is only a retrospective cold-cache workload
+proxy using historical runtimes, not a new physical-speed comparison.
+
+## Design Decisions and Rationale
+
+| Decision | Alternatives considered | Rationale | Scientific consequence | Validation |
+| --- | --- | --- | --- | --- |
+| Authenticate existing R11 before new execution | Rerun benchmark; add an algorithm | All required evidence exists | Zero new synthesis; historical measurements remain authoritative | Exact Coroni replay: 18 contexts / 144 queries |
+| Separate reporter; preserve frozen source | Modify sealed summarizer | Hash contracts protect historical decisions | No candidate-selection change | Frozen hashes; original 108-test baseline |
+| Equal logical budgets | Equal realized physical counts | Cache/order changes execution cost without changing paid knowledge | Physical cost is secondary | Existing accounting/cache-isolation tests |
+| Preserve matching; expose domain sizes | Retune matching after results | Avoid post hoc optimization and expose confounding | Zero distance is not causal isolation | Exact replay and cardinality exports |
+| Separate stronger-verifier diagnostic | Relabel or repair R11 eligibility | Call-summary evidence limits historical labels | A changed verifier needs a new experiment | Existing strict auditor; edge-fact/multiplicity tamper tests |
+| Common-reference feasible factorials only | Combine unrelated states; add single gains | ADP is not additive | Explicit composition gain separated from search ordering | New context/feasibility regressions |
+| Preserve ordering and domain policy | Retune from seed-123 winners | Avoid post hoc selection | Direction/expansion effects remain limitations | Actual reference-edit and domain audit |
+| Reauthenticate executed C simulations | Repeat identical completed checks | Matching passes exist for every winner | Functional evidence without extra runtime | Source/testbench/log/binary checks; original mismatch/nonfinite/dimension tests |
+| Leave missing costs/prefixes undefined | Estimate timers; carry paused results | Avoid invented precision/coverage | Incomplete curves cannot rank policies | Baseline/prefix/exhaustion/aggregate regressions |
+| No extra seeds or learned selector now | Two full seeds, LLM agent, RL/ranker | Current bounded conclusion supported; evidence quality needs attention first | Three-kernel/one-seed limitation remains | Complete gates; resource preflight; no model loading |
+
+### Implementation change log
+
+The implementation commit is recorded below after validation. The later
+documentation commit is discoverable with `git log --follow` for this file;
+a commit cannot embed its own content-derived SHA.
+
+| Commit SHA | Modified files | Category / reason | Scientific contract affected | Tests | Experiment / evidence |
+| --- | --- | --- | --- | --- | --- |
+| `b9687e59dce518c9735e18e4ee59b7d09425946b` | `experiments/refinement_analysis.py`, `tests/test_refinement_analysis.py`, `evidence/r11/*` | Reporting improvement and verifier-sensitivity evaluation; versioned reproducible assessment and explicit evidence-quality analysis were missing | No search-policy, source, metric, budget, historical protocol or functional threshold change | Before: 108 passed. After: 143 passed / 1 prerequisite skip, including 14 new tests | R11 and authenticated historical covariance single-edit control; no new synthesis or C simulation |
+
+The new reporter adds cross-policy/export consistency checks, normalized coverage
+semantics, common-reference composition calculations, actual cost and matching
+diagnostics, functional evidence verification and compact exports. Alternatives
+were changing the frozen summarizer or relying on ignored reports alone. The
+separate module preserves comparability and rejects changed code, inputs, seals,
+QoR and functional evidence. This is a reporting extension plus supplementary
+evaluation, not a search-policy change or new synthesis experiment.
+
+```bash
+python -B -m pytest -q -p no:cacheprovider \
+  tests/test_refinement_benchmark.py tests/test_refinement_search.py \
+  tests/test_refinement.py tests/test_directive_domains.py \
+  tests/test_refinement_analysis.py tests/test_structural_audit.py
+git diff --check
+```
+
+The existing optional saved-memory/encoder-artifact test skips when its local
+research tensors are absent. No threshold was changed to obtain passing tests.
+
+### Related work and scope
+
+[AutoDSE](https://arxiv.org/html/2009.14381v2) uses bottleneck-guided coordinate
+optimization, parameter ordering and space partitioning. R11's coordinate policy
+is a conceptual comparator, not a reproduction of that full system.
+[MPM-LLM4DSE](https://arxiv.org/html/2601.04801v1) combines multimodal QoR prediction
+and LLM optimization; R11 uses deterministic selection and actual HLS feedback.
+[HARP](https://github.com/UCLA-VAST/HARP) studies hierarchical GNN representations
+and surrogate-assisted exploration. [NLP-DSE](https://escholarship.org/content/qt072909j7/qt072909j7_noSplash_23f734e0aee37780cda8b8403d29c93c.pdf)
+uses analytical performance/resource models and constrained pragma optimization.
+These are conceptual comparisons; none is reproduced under R11's protocol.
+
+The supplied characterization of [Reflex-HLS](https://doi.org/10.1145/3849869)
+describes a training-free Planner–Actor–Critic feedback loop. Publisher full text
+was inaccessible during this assessment, so no independently verified detailed
+reproduction or numerical comparison is claimed. Feedback alone is not novel.
+The possible contribution is whether verified action relationships improve
+strict-budget refinement from an LLM starting point; R11 does not establish that
+general advantage.
