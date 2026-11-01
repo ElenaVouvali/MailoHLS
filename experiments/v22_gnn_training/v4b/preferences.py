@@ -76,4 +76,3 @@ def _ambiguous_zero_area(row):
     return (row.get('kernel') == 'machsuite-viterbi' and
             row.get('profile') == 'u200' and float(row.get('clock', -1)) == 5.0 and
             _area(row) == 0.0)
-
