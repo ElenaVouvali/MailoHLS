@@ -148,6 +148,61 @@ def test_target_film_is_zero_gated_candidate_independent_and_differentiable():
     assert torch.isfinite(model.modulation[0].weight.grad).all()
 
 
+def test_feature_preparation_reuses_one_demand_overlay_and_matches_uncached_path(monkeypatch):
+    class _GraphToken:
+        def cpu(self):
+            return self
+
+    class _Data:
+        graphs = {'toy': ('program', 'auth')}
+        actions = {'toy': {'L1': object()}}
+
+        def candidate_inputs(self, row):
+            return torch.tensor([row['assignment']['value']]), torch.tensor([row['assignment']['value'] + 10])
+
+    data = _Data()
+    rows = [{'kernel':'toy','profile':'zcu104','clock':10.0,'config_hash':str(i),
+             'assignment':{'value':i}} for i in (1, 2)]
+    counts = {'graph':0,'enrich':0,'demand':0,'reference':0}
+
+    def target_tensor(_data, _row):
+        counts['graph'] += 1
+        return _GraphToken()
+
+    def enrich(base, profile, clock, authentication=None):
+        counts['enrich'] += 1
+        assert (base,profile,clock,authentication) == ('program','zcu104',10.0,'auth')
+        return 'enriched'
+
+    def candidate_vector(assignment, actions):
+        assert actions is data.actions['toy']
+        return torch.tensor([assignment['value']])
+
+    def demand_tensor(graph, assignment, actions):
+        counts['demand'] += 1
+        assert graph == 'enriched' and actions is data.actions['toy']
+        return torch.tensor([assignment['value'] + 10]), None
+
+    original_inputs = data.candidate_inputs
+
+    def reference(row):
+        counts['reference'] += 1
+        return original_inputs(row)
+
+    monkeypatch.setattr(probe, '_target_tensor', target_tensor)
+    monkeypatch.setattr(probe.tensors, 'without_hardware_messages', lambda graph: graph)
+    monkeypatch.setattr(probe.overlay, 'enrich', enrich)
+    monkeypatch.setattr(probe.train, 'candidate_vector', candidate_vector)
+    monkeypatch.setattr(probe.train, 'candidate_demand_tensor', demand_tensor)
+    data.candidate_inputs = reference
+    graphs, candidates, demands, report = probe.prepare_features(data, rows)
+    assert counts == {'graph':1,'enrich':1,'demand':2,'reference':1}
+    assert len(graphs)==1 and len(candidates)==2 and len(demands)==2
+    assert report['uncached_equivalence_context_count']==1
+    assert torch.equal(candidates[('toy','zcu104',10.0,'1')],torch.tensor([1]))
+    assert torch.equal(demands[('toy','zcu104',10.0,'2')],torch.tensor([12]))
+
+
 def test_preference_scorer_has_finite_candidate_and_memory_gradients():
     model = probe.PreferenceMemoryModel('compiler')
     model.encoder = _FixedEncoder()

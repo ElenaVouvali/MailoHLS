@@ -516,20 +516,50 @@ def _target_tensor(data, row):
 
 def prepare_features(data, records, timeout_seconds=1800):
     started=time.perf_counter()
-    graph_cache={}; cand_cache={}; demand_cache={}; report={}
+    graph_cache={}; cand_cache={}; demand_cache={}; demand_graph_cache={}
+    graph_seconds=0.0; demand_enrichment_seconds=0.0
+    candidate_demand_seconds=0.0; equivalence_seconds=0.0
+    equivalence_checked=set()
     for i,row in enumerate(records):
         key=(row['kernel'],row['profile'],float(row['clock']))
         if key not in graph_cache:
+            graph_started=time.perf_counter()
             graph=_target_tensor(data,row)
             graph_cache[key]={'hardware':graph.cpu(), 'compiler':tensors.without_hardware_messages(graph).cpu()}
+            graph_seconds+=time.perf_counter()-graph_started
+        if key not in demand_graph_cache:
+            enrich_started=time.perf_counter()
+            base,auth=data.graphs[row['kernel']]
+            demand_graph_cache[key]=overlay.enrich(
+                base,row['profile'],row['clock'],authentication=auth)
+            demand_enrichment_seconds+=time.perf_counter()-enrich_started
         identity=(row['kernel'],row['profile'],float(row['clock']),row['config_hash'])
         if identity not in cand_cache:
-            cand,demand=data.candidate_inputs(row)
+            cand=train.candidate_vector(row['assignment'],data.actions[row['kernel']])
+            demand_started=time.perf_counter()
+            demand,_=train.candidate_demand_tensor(
+                demand_graph_cache[key],row['assignment'],data.actions[row['kernel']])
+            candidate_demand_seconds+=time.perf_counter()-demand_started
+            if key not in equivalence_checked:
+                check_started=time.perf_counter()
+                reference_candidate,reference_demand=data.candidate_inputs(row)
+                if not torch.equal(cand,reference_candidate):
+                    raise ValueError('Precomputed directive vector differs from PreparedData')
+                if not torch.equal(demand,reference_demand):
+                    raise ValueError('Precomputed candidate demand differs from PreparedData')
+                equivalence_seconds+=time.perf_counter()-check_started
+                equivalence_checked.add(key)
             cand_cache[identity]=cand.cpu(); demand_cache[identity]=demand.cpu()
         if time.perf_counter()-started>timeout_seconds:
             raise TimeoutError('Feature preparation exceeded the 30-minute limit')
         if (i+1)%100==0: print(f'prepared {i+1}/{len(records)} candidate contexts',flush=True)
     report={'graph_tensor_count':len(graph_cache),'candidate_context_count':len(cand_cache),
+            'candidate_demand_graph_count':len(demand_graph_cache),
+            'graph_tensorization_seconds':graph_seconds,
+            'candidate_demand_graph_enrichment_seconds':demand_enrichment_seconds,
+            'candidate_demand_construction_seconds':candidate_demand_seconds,
+            'uncached_equivalence_check_seconds':equivalence_seconds,
+            'uncached_equivalence_context_count':len(equivalence_checked),
             'elapsed_seconds':time.perf_counter()-started}
     return graph_cache,cand_cache,demand_cache,report
 
@@ -558,6 +588,7 @@ def _memory_ablation(memory, graph, variant):
 def evaluate_model(model, groups, graph_cache, cand_cache, demand_cache, registry,
                    split_name, device, profile_cache=None, memory_variant='correct',
                    mismatched_memories=None, deadline=None):
+    evaluation_started=time.perf_counter()
     model.eval(); pair_acc=[]; family_acc=defaultdict(list); top1=[]; top3=[]; contexts=[]
     unsupported_memory_contexts=[]
     if profile_cache is None: profile_cache={}
@@ -695,6 +726,7 @@ def evaluate_model(model, groups, graph_cache, cand_cache, demand_cache, registr
         'unsupported_memory_contexts':unsupported_memory_contexts,
         'family_summary':family_summary,'memory_variant':memory_variant,'contexts':top1}
     result['by_objective']=by_objective
+    result['evaluation_seconds']=time.perf_counter()-evaluation_started
     return result
 
 
@@ -866,7 +898,8 @@ def _train_arm(mode, train_groups, val_groups, graph_cache, cand_cache, demand_c
             score=report['by_objective']['PARETO_ADP']['preference_accuracy_family_macro']
             if score is not None and score>best_score:
                 best_score=score; best_step=step; best={k:v.detach().cpu().clone() for k,v in model.state_dict().items()}
-            history.append({'step':step,'validation':report,'selection_score':score})
+            history.append({'step':step,'validation':report,'selection_score':score,
+                            'validation_seconds':report['evaluation_seconds']})
             checkpointing.atomic_torch_save(output_dir/f'{mode}_step_{step}.pt',{
                 'schema':SCHEMA,'mode':mode,'state_dict':model.state_dict(),'step':step,
                 'validation_family_macro':score,'protocol_seed':SEED,
@@ -1038,8 +1071,13 @@ def main():
     run_protocol['protocol_sha256']=_sha(run_protocol)
     checkpointing.atomic_json(args.output/'protocol.json',run_protocol)
     cache_path=args.output/'feature_cache.pt'
+    cache_started=time.perf_counter()
     checkpointing.atomic_torch_save(cache_path,{'graph':graph_cache,'candidates':cand_cache,'demands':demand_cache,
        'manifest_sha256':manifest['manifest_sha256']})
+    feat_report['feature_cache_serialization_seconds']=time.perf_counter()-cache_started
+    feat_report['feature_cache_loading_seconds']=None
+    feat_report['feature_cache_loading_note']='Not performed; the same in-memory cache is shared by all arms and evaluations'
+    checkpointing.atomic_json(args.output/'feature_preparation.json',feat_report)
     cache_hash=hashlib.sha256(cache_path.read_bytes()).hexdigest()
     if args.device.startswith('cuda'):
         torch.cuda.reset_peak_memory_stats()
