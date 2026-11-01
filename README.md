@@ -335,7 +335,11 @@ Receives the same information plus explicit FPGA-resource graph messages.
 
 QoR prediction and candidate selection are **auxiliary tests** of the learned representations. The framework's final purpose is better **LLM-generated directive configurations**, not deploying a standalone GNN QoR predictor.
 
-The November 2026 [V4 research results](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/RESULTS.md) show partial candidate-dependent learning, but neither a reliable advantage from hardware messages on held-out families nor useful feasibility discrimination. V4 is **not yet validated for Stage-2**. A separate experimental physical-QoR/budget separation removes unwanted budget-dependent physical predictions without establishing better directive selection.
+The completed V4 study includes matched 100-, 300- and 600-update runs and a separate physical-QoR/budget-separation ablation. The models learned to fit a fixed training context, but held-out Viterbi and PathFinder results were mixed. Hardware-resource messages did not show a consistent advantage over numerical target conditioning, and feasibility predictions matched an always-feasible baseline rather than rejecting over-budget candidates.
+
+The budget-separated variant makes physical-QoR predictions invariant to changes in the requested resource budget, as expected, but did not reliably improve candidate selection. Only three held-out device comparisons had meaningful measured latency differences, so device generalization remains unresolved. V4 is **not validated for Stage-2**: a candidate-conditioned QoR predictor does not prove that V4's candidate-independent structural memory improves LLM directive generation.
+
+See the [V4 methods and corrected results](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/RESULTS.md) and the [V4 audit and limitations](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/AUDIT.md) on the research branch. Checkpoints and full run receipts are not stored in Git.
 
 ## 4.5 Proposed target-aware structural memory (research direction)
 
@@ -901,7 +905,7 @@ The distinction between finalized functionality and ongoing research is importan
 | Stage-3 DPO | Production selection for ADP |
 | Stage-2 for Area/Latency | Pending or fallback, per manifest |
 | MLIR V2.2 RC3 graphs | Experimental structural representation |
-| V4 hardware-aware GNN | Experimental; predictive benefit under investigation |
+| V4 hardware-aware GNN | Experimental; fixed-context learning shown, held-out hardware benefit and Stage-2 value not established |
 | Stage-1 decision-aware supervision | Experimental |
 | Synthesis-feedback refinement | Implemented optional research mechanism |
 | Improved hardware-aware Stage-2 memory | Proposed target-conditioned, action-aligned memory; not deployed |
