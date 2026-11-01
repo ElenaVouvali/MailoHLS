@@ -916,6 +916,8 @@ def fixed_context_diagnostic(train_groups, graph_cache, cand_cache, demand_cache
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--release-dir',type=Path,required=True)
+    parser.add_argument('--preprocessed-dir',type=Path,default=None,
+                        help='Authenticated preprocessed CSV directory; default is the repository path')
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--authenticated-audit',type=Path,default=None,
                         help='Reuse a byte-verified full dataset audit instead of rerunning it')
@@ -940,7 +942,8 @@ def main():
     t0=time.perf_counter()
     audit_path=args.output/'authenticated_audit.json'
     data=train.PreparedData(args.release_dir,audit_path,selected_kernels=TRAIN_KERNELS+VALIDATION_KERNELS,
-                            authenticated_audit_path=args.authenticated_audit)
+                            authenticated_audit_path=args.authenticated_audit,
+                            preprocessed_dir=args.preprocessed_dir)
     checkpointing.atomic_json(args.output/'authenticated_audit.json',data.audit)
     manifest,pair_audit,coverage,groups,records,by_context=build_cohort(data)
     if time.perf_counter()-t0>args.preparation_limit_seconds:
@@ -987,6 +990,7 @@ def main():
         'checkpoint_selection':'validation ADP preference accuracy macro-averaged over represented families',
         'optimizer':'AdamW','learning_rate':3e-4,'weight_decay':1e-4,
         'graph_release_sha256':manifest['graph_release_sha256'],'dataset_sha256':manifest['dataset_sha256'],
+        'preprocessing_manifest_sha256':data.audit['dataset']['preprocessing_manifest_sha256'],
         'cohort_manifest_sha256':manifest['manifest_sha256'],
         'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         'source_hashes':{name:overlay.file_hash(Path(path)) for name,path in {

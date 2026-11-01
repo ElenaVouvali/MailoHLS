@@ -223,8 +223,10 @@ class CandidateQoRModel(nn.Module):
 
 class PreparedData:
     """Authenticated rows/graphs; expensive graph tensors are cached on CPU."""
-    def __init__(self, release_dir, audit_path, selected_kernels=None, authenticated_audit_path=None):
+    def __init__(self, release_dir, audit_path, selected_kernels=None,
+                 authenticated_audit_path=None, preprocessed_dir=None):
         self.release_dir = Path(release_dir)
+        self.preprocessed_dir = Path(preprocessed_dir) if preprocessed_dir is not None else PREPROCESSED
         if authenticated_audit_path is None:
             self.audit = audit_dataset(self.release_dir, audit_path)
         else:
@@ -269,7 +271,7 @@ class PreparedData:
                 raise ValueError('Selected probe kernels are absent from the authenticated split: '
                                  + ', '.join(sorted(unknown)))
         self.examples, self.kernel_manifest, _ = build_examples(
-            PREPROCESSED, selected_kernels=selected)
+            self.preprocessed_dir, selected_kernels=selected)
         selected_names = (selected if selected is not None else
                           {item['kernel'] for item in self.kernel_manifest})
         audited_by_kernel = {}
