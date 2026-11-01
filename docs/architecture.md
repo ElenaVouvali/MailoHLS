@@ -31,6 +31,8 @@ flowchart TD
  I --> D[Validated complete directives]
  D --> H[Vitis HLS]
  H --> Q[Latency/resources and objective evaluation]
+H --> FGR[Experimental FGR-v1 feedback ranking]
+FGR --> H
  C --> R[Experimental V2.2 RC3 compiler graph]
  R --> O[Separate FPGA overlay / deployment context]
  O --> E[Experimental heterogeneous tensor encoder]
@@ -53,3 +55,10 @@ structural memory must stay candidate-independent. Target-aware future memories
 need graph/device/clock/budget cache identities. Stage-2 integration of those
 memories is still future work. See the [status map](framework-development-status.md)
 and [full graph contract](target-aware-mlir-v22/README.md).
+
+FGR-v1 is a separate experimental adapter over the existing synthesis-in-the-loop
+refinement controller. It adds authenticated measurements to the current
+policy's revealed history and compares static, numerical-feedback, and
+feedback-plus-verified-relation ranking. It does not change production models,
+historical trajectories, or HLS measurement semantics. See the
+[`FGR-v1 README`](../experiments/refinement_feedback/README.md).
