@@ -33,6 +33,16 @@ the latest recorded full paired run has no selected checkpoint or QoR result.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
+The authenticated R11 study on `research/refinement-mechanism` evaluates five
+refinement policies plus a matched-pair control on GAN, covariance and Kalman
+(seed 123, eight logical evaluations per context, ZCU104/10 ns). Best observed
+ADP improvements are 42.694%, 28.754% and 0.142%, respectively. All three selected
+finalists passed finite C-simulation checks, but structural and hybrid superiority
+remain unproven. These retrospective research results establish neither exhaustive
+equivalence nor post-route benefit. See the
+[measured results](https://github.com/ElenaVouvali/MailoHLS/blob/871c3d4b0c83ce0ae29fbd3fed5d2d21bad937fb/experiments/refinement_search/RESULTS.md)
+and [assessment status](docs/framework-development-status.md#refinement-evidence-assessed-2026-11-01).
+
 ## Start here
 
 | Need | Guide |
