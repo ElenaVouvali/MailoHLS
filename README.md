@@ -17,6 +17,8 @@ An additional, optional **refinement mechanism** uses actual HLS synthesis feedb
 
 The goal is to reduce the manual effort required for FPGA design-space exploration while considering performance, hardware resources and deployment constraints.
 
+> **Research status (November 2026):** The latest V4 GNN study shows that the model can fit a fixed training context, but it has not established reliable held-out hardware-aware directive selection. Explicit hardware-resource messages have not shown a consistent advantage over numerical target conditioning, and V4 is not validated for production Stage-2 integration. See the [V4 results](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/RESULTS.md) and [research audit](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/AUDIT.md).
+
 ---
 
 ## 1. The Problem: Why HLS Optimization Is Difficult
