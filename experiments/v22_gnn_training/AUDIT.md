@@ -548,3 +548,93 @@ false-feasible outputs at 50%. Clock sign accuracy was 0.958 numerical and
 0.595 hardware, but paired-delta MAE remained about 7.3 ms. Device sign used
 only three meaningful observations and is not a general result. These
 receipts support fixed-context learnability but not reliable held-out QoR.
+
+# V4b full-cohort audit (2026-11-02)
+
+This section records the separate V4b audit; earlier V4 audit results remain
+unchanged.
+
+## Authenticated inventory and eligibility
+
+The existing authenticated V4 audit passed with explicit exclusions. The
+V4b audit restricted `PreparedData` to the 37 complete-assignment training
+kernels and three complete-assignment validation kernels; it did not load
+Kalman records for training or validation. It authenticated the 55-kernel
+inventory, seed-123 split, 150,026 aggregated points, dataset SHA256
+`afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`, split
+SHA256 `d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c`,
+and RC3 archive SHA256
+`feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`.
+The strict non-test cohort contains 88,466 train and 8,976 validation rows.
+
+Fourteen non-Kalman kernels have missing measured APL/CSV fields for registered
+actions. Each action ID, source/graph identity, and exclusion status is
+recorded in `v4b/receipts/eligibility.json`. The existing source/action
+registration does not prove that an absent measurement field means the
+directive was disabled, and placeholder defaults are not measurements. No
+alternate authenticated mapping was found. All 14 remain excluded rather than
+imputed. Sort-Radix L6 remains excluded.
+
+The original full audit reads and validates the seed-split assignment syntax
+as part of dataset integrity checking. V4b subsequently constructs its
+training/evaluation records only from the selected 40 non-test eligible
+kernels. No Kalman QoR labels entered the V4b pair audit, training, or model
+selection; no V4b training ran in this session.
+
+## Target and preference support
+
+The exact full-assignment audit produced 360 possible target comparison rows,
+13,338 overlapping exact-assignment intersections in paired comparisons, and
+2,400 budget-pair rows. Device comparisons had 104/120 paired contexts and
+3,605 paired assignments; clock comparisons had 209/240 contexts and 9,733
+paired assignments. Counts overlap and are not independent. At 5% measured
+winner margin, only two full-budget device contexts and no full-budget clock
+contexts changed the ADP winner. Across budgets, six device contexts in three
+families and one clock context in one family had any meaningful winner
+reversal. None occurred in the two validation families.
+
+The budget audit records 98 winner changes, but only eight comparison rows
+exceeded the 5% margin on both sides; those rows come from two unique
+training kernel/device/clock contexts. This is insufficient held-out evidence
+for reliable budget-conditioned winner adaptation. Physical QoR does change
+across device/clock for many exact assignment pairs; the receipts report
+latency, area-proxy and ADP paired delta distributions at 1%, 5% and 10%
+thresholds separately from directive-preference changes.
+
+## Candidate cohort and integrity
+
+The frozen candidate manifest uses a QoR-blind support-first, Hamming-diverse
+selection with deterministic assignment-hash tie breaks. It contains 240
+contexts, 3,664 selected observations (3,376 training; 288 validation), and
+7–16 candidates per context. Exact target coverage is calculated separately
+over every eligible assignment, not just the selected pool. Pair audit
+identities are hashed with their authenticated physical measurement keys.
+Only ADP is primary; objective identity never enters memory. Feasible-versus-
+infeasible pairs are retained; both-infeasible, 5%-near-tie and ambiguous
+Viterbi/U200/5 ns zero-area ADP pairs are excluded from preference ordering.
+
+## CPU verification and GPU gate
+
+The final focused V4b and relevant regression suite passed **62 tests, 0
+failed, 0 skipped**. This includes the 13 V4b-specific tests. V4b Python
+compilation, runner `--help`, and `git diff --check` passed. An earlier
+combined run exposed an omitted zero-valued audit count; the API was corrected
+and the final suite passed.
+
+The final full-cohort CPU audit completed in 79.36 seconds in the pinned
+Python 3.10 environment. Its source commit is `4487e11ef6644d40d9ee056560ffe53a40895f81`;
+the exact script hashes are embedded in `v4b/receipts/eligibility.json` and
+match the current `audit.py`, `preferences.py`, `models.py`, and
+`train_probe.py`. The four tracked receipt SHA256 values are:
+
+| Receipt | SHA256 |
+|---|---|
+| `eligibility.json` | `5d13b81f5a2f696bbb36244e5259f62a9f7055ce37d6861ca81260a494b2a315` |
+| `preference_cohort_manifest.json` | `9c92f44d15d5fe7a9e38e7399b88ac3fa00eecaed7b4a578fe018dfdd3a6f05b` |
+| `preference_pair_audit.json` | `6f310129445a322553b82f6379d7a53c17ac9eab41a59c5f457e76d3012783d1` |
+| `preference_target_coverage.json` | `cbe0843a4c6d31772a5082b5e78dec9fdb2c22aa6cb7226af71830e045e0d475` |
+
+GPU inventory could not be queried because `nvidia-smi` could not communicate
+with the NVIDIA driver. PyTorch 2.6.0+cu124 reported CUDA unavailable. No GPU
+was used, no V100S fallback was attempted, no checkpoints were produced, and
+no model-performance claim is supported.

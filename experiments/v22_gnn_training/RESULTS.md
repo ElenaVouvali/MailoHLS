@@ -772,3 +772,124 @@ audit; do not train another variant until the evaluation can measure the
 claimed target effect. A head-only candidate/target control is also needed
 before claiming compiler structure adds value. V4 is not ready for Stage-2
 cross-attention integration.
+
+## V4b full-cohort action-aligned preference study (2026-11-02)
+
+### Status
+
+**Classification: `EXPERIMENT_INCOMPLETE_RESOURCE_LIMIT`.** The authenticated
+full-cohort eligibility, exact target-pair, budget-winner, candidate-pool and
+selected-pool preference-pair audits completed on CPU. The NVIDIA driver was
+unavailable (`nvidia-smi` could not communicate with it; pinned PyTorch
+reported CUDA unavailable). No GPU training, validation checkpoint selection,
+memory ablation, or model comparison was run. The previous V4 numbers above
+remain historical and are not V4b results.
+
+### Eligibility and source-action exclusions
+
+| Property | Training | Validation | Test reservation |
+|---|---:|---:|---:|
+| Original split kernels | 50 | 4 | 1 |
+| Strict complete-assignment eligible kernels | 37 | 3 | 0 |
+| Eligible families | 17 | 2 | 0 |
+| Eligible measured rows | 88,466 | 8,976 | Not loaded for V4b |
+
+The full authenticated inventory remains 55 kernels and 150,026 aggregated
+design points. Fourteen of the 54 non-Kalman kernels are excluded because at
+least one source-registered action has no measured APL/CSV directive field.
+No existing alternate authenticated mapping or proof of a fixed applied
+directive value was found. Those states remain unknown; no disabled defaults
+were inserted. The excluded IDs are recorded individually in the eligibility
+receipt (including Sort-Radix L6). The eligible row total is 97,442.
+
+### Full exact-assignment target and budget coverage
+
+| Comparison | Paired kernel/target contexts | Exact assignment-pair count* | Meaningful ADP winner reversals at full budget | Meaningful reversals at any budget | Validation reversals |
+|---|---:|---:|---:|---:|---:|
+| ZCU104 ↔ U200, same clock | 104/120 | 3,605 | 2 | 6 contexts across 3 families | 0 |
+| Clock pairs, same device | 209/240 | 9,733 | 0 | 1 context in 1 family | 0 |
+
+*Assignment-pair counts overlap across device/clock comparisons and are not
+independent observations. Paired contexts span 19 families overall; the
+validation partition spans two families. All 5% winner-margin classifications
+and 1%/5%/10% physical-delta sensitivity counts are in the machine-readable
+receipt.
+
+Across the five requested resource budgets there were 98 raw winner changes
+in 2,400 budget-pair rows, but only eight rows met the 5% meaningful-margin
+rule. Those eight are repeated budget comparisons from two unique
+kernel/device/clock contexts in two families. The exact audit therefore shows
+that the available data contain some target-dependent preference changes, but
+they are sparse and clustered. The held-out validation families contain no
+meaningful device, clock, or budget winner reversal in the full exact-pool
+audit. A learned target-adaptive preference claim cannot be evaluated
+reliably on this split.
+
+The primary 16-candidate manifest was selected without looking at QoR: support
+across target contexts first, followed by deterministic complete-directive
+Hamming diversity and hash tie-breaks. It covers 240 physical contexts (222
+training and 18 validation), selecting 3,376 training and 288 validation
+candidate observations. Pools range from 7 to 16 candidates; no configurations
+were fabricated. The full exact-pool coverage audit is separate from these
+selected training/evaluation pools.
+
+The selected-pool ADP pair audit creates pairs only within one program/device/
+clock/budget context. Feasible candidates outrank infeasible candidates;
+both-infeasible pairs and objective near-ties are omitted. The ambiguous
+Viterbi/U200/5 ns all-zero resource rows are excluded from ADP comparisons
+where they could determine the ordering, without modifying source measurements.
+Physical QoR is reused unchanged for all budget views.
+
+### V4b model controls and execution status
+
+The isolated implementation contains a budget-invariant physical-QoR head
+with feasibility calculated afterward, a candidate/target control with no
+learned structural-memory encoder, compiler-only and hardware-message V4
+encoders, zero-gated target-FiLM modulation of compiler memory, and a
+compiler-only action-difference comparator. The candidate/target control
+shares the same authenticated analytical candidate-demand descriptors and
+action masks; “no graph” means no learned graph-memory encoder, not that the
+analytical demand descriptors are graph-free. The pair head is antisymmetric
+and returns zero for identical candidates. The shared hybrid objective is
+physical-QoR SmoothL1 plus a predeclared 0.1 pairwise logistic loss. Parameter
+counts are 126,930 (candidate/target control), 127,538 (compiler), 191,667
+(target-FiLM), 127,538 (hardware), and 152,319 (compiler plus difference
+comparator). FiLM and difference arms have extra capacity; no parameter-
+matched controls for those added modules were run.
+
+These are implementation/test findings, not selection results. Neither
+compiler graph memory nor hardware messages have yet been trained on the full
+cohort under V4b. The A2 availability gate stopped before training, so there
+are no checkpoints, training curves, validation preference accuracy, feasible
+selection rates, measured-pool regrets, or memory-alignment ablations to
+report. The next gate is to expose an independently available A2 and run the
+frozen five-arm command in `v4b/README.md`; do not use the reserved V100S.
+
+| V4b arm | Held-out ADP pair accuracy | Feasible top-1 success | ADP top-1 regret | Feasible top-3 success/regret | Status |
+|---|---:|---:|---:|---:|---|
+| Candidate/target control | Not run | Not run | Not run | Not run | No checkpoint |
+| Compiler V4 | Not run | Not run | Not run | Not run | No checkpoint |
+| Target-FiLM V4 | Not run | Not run | Not run | Not run | No checkpoint |
+| Hardware-message V4 | Not run | Not run | Not run | Not run | No checkpoint |
+| Compiler action-difference | Not run | Not run | Not run | Not run | No checkpoint |
+
+The CPU audit itself completed in 79.36 seconds in the pinned environment;
+this is data authentication/coverage time, not model feature-preparation or
+training time. Feature preparation for 3,664 selected examples and all GPU
+timings remain unmeasured.
+
+### Reproducibility receipts
+
+The CPU audit receipts are tracked under
+[`v4b/receipts/`](v4b/receipts/): eligibility, the 16-candidate cohort
+manifest, the selected-pool preference-pair audit, and exact target/budget
+coverage. They authenticate dataset SHA256
+`afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`, split
+SHA256 `d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c`,
+and RC3 graph archive SHA256
+`feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`. The
+eligibility receipt identifies source commit `4487e11ef6644d40d9ee056560ffe53a40895f81`
+and hashes the audit, preference builder, model implementation, and runner.
+Receipt-file SHA256 values are recorded in `AUDIT.md`. No HLS
+synthesis, Kalman/test-label evaluation, Stage-2/3 training, or production
+artifact change occurred.

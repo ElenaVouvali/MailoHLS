@@ -565,3 +565,27 @@ recorded in `RESULTS.md`; model weights, full cache and the 39 MB raw result
 remain outside Git. V4 remains unsuitable for Stage-2 integration: action
 memory has not shown stable held-out target-conditioned selection gains, and
 the new feature space is not compatible with V1-trained cross-attention.
+
+## V4b: full-cohort action-aligned preference learning
+
+V4b is a separately versioned experiment that treats feasible directive
+selection as its primary goal. It retains the RC3 compiler graphs and the
+existing two-layer V4 encoder. Its physical QoR head receives the program,
+complete legal candidate and physical device/clock context; requested budget
+is removed from every path into predicted QoR and applied afterward to
+predicted resource counts. A common fixed-ADP decision pathway compares four
+controls: independently trained candidate/target MLP without graph memory,
+compiler-only V4 memory, hardware-message V4 memory, and compiler memory with
+an antisymmetric action-difference comparator. The common hybrid loss is
+training-normalized physical SmoothL1 plus a fixed 0.1 pairwise logistic term.
+No objective identifier enters structural memory.
+
+The full authenticated CPU audit admits 37 training kernels and three
+validation kernels under the complete-action contract. Fourteen non-Kalman
+kernels with unmeasured registered APL actions remain excluded, because their
+values cannot be recovered without unsupported assumptions. The target audit
+finds sparse meaningful target-driven winner changes, and none in validation.
+The GPU comparison has not run: the host NVIDIA driver was inaccessible and
+CUDA was unavailable in the pinned environment. See the [V4b methods and
+receipts](v4b/README.md) and [results](RESULTS.md). V4b is not ready for
+Stage-2 integration, and no result here changes production V1 memory.

@@ -159,3 +159,33 @@ selection/normalization/coefficient predeclared. Training coverage contains
 filtering, but held-out device coverage has only three meaningful pairs.
 Evaluate clock-pair response descriptively and do not make a device-transfer
 claim. Keep Stage-2 integration deferred.
+
+## V4b full-cohort action-preference status (2026-11-02)
+
+The 2026-11-01 V4 analysis above remains historical. The separate V4b CPU
+eligibility and target-preference audit is complete; its manifests and
+machine-readable receipts are under `v4b/receipts/`. It confirms 37 usable
+training kernels and three validation kernels (19 families total, 17 train / 2
+validation), with 14 non-Kalman kernels excluded for unknown registered-action
+values. Exact measured pools contain some target-dependent preferences but
+very sparse meaningful winner changes: two full-budget device contexts and no
+full-budget clock contexts; the held-out families have no meaningful device,
+clock or budget winner reversals.
+
+V4b implements physical-QoR/budget separation, complete-assignment ADP pair
+construction, candidate/target and compiler controls, target-FiLM modulation,
+hardware messages, and an antisymmetric action-difference head. The CUDA-only
+five-arm runner has not run because the
+NVIDIA driver was unavailable and PyTorch reports CUDA unavailable. No V4b
+checkpoint or selection result exists; do not cite this as evidence for or
+against the encoder. The current conservative classification is
+`EXPERIMENT_INCOMPLETE_RESOURCE_LIMIT`.
+
+Next: once the isolated A2 is genuinely available, run the frozen manifest and
+five-arm schedule from `v4b/README.md` in a new durable output directory.
+First measure preparation, one update, and validation; stop if the resource
+budget is exceeded. Do not use the V100S, inspect Kalman, expand the candidate
+pool based on validation labels, or integrate memory into Stage-2. Because
+validation has no meaningful target preference reversal, an additional
+family-disjoint target-sensitive validation cohort may be required before
+claiming that target modulation learns correct device/clock changes.

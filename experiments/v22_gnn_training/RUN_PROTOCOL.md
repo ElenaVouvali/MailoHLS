@@ -195,3 +195,57 @@ Earlier V3 runs used the same RC3 graph archive but a different tensor schema.
 Their A2 profiling and the previous V100S pre-resumability attempt are
 historical only. Neither is a V4 training result or V4 checkpoint. V4 begins
 from a fresh initialization and a new empty output directory.
+
+## V4b full-cohort action-preference protocol (2026-11-02)
+
+This is a new protocol; it does not relabel or overwrite any V4 run. Its
+frozen 16-candidate, QoR-blind, full-eligible cohort manifest is
+`v4b/receipts/preference_cohort_manifest.json`; the paired preference and
+target coverage receipts are beside it. Data identities are the authenticated
+seed-123 split, RC3 graph release and dataset hashes recorded in
+`v4b/receipts/eligibility.json`. Kalman is not loaded by the V4b runner.
+
+Before launching, verify A2 UUID, driver and zero active compute processes;
+verify durable disk capacity and use a new empty output path. Do not use or
+fall back to the V100S. The pinned environment is Python 3.10.20, PyTorch
+2.6.0+cu124 and PyG 2.6.1. The CPU-only audit command is:
+
+```bash
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python \
+  -m experiments.v22_gnn_training.v4b.audit \
+  --release-dir /path/to/authenticated-rc3-release \
+  --authenticated-audit experiments/v22_gnn_training/data-audit.json \
+  --output-dir /durable/path/v4b-audit-<unique-id> \
+  --candidates-per-context 16
+```
+
+The bounded CUDA training command is:
+
+```bash
+CUDA_VISIBLE_DEVICES=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+SALT_HLS_GPU_UUID=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python \
+  -m experiments.v22_gnn_training.v4b.train_probe \
+  --release-dir /path/to/authenticated-rc3-release \
+  --authenticated-audit experiments/v22_gnn_training/data-audit.json \
+  --manifest experiments/v22_gnn_training/v4b/receipts/preference_cohort_manifest.json \
+  --output /durable/path/v4b-run-<unique-id> \
+  --gpu-name A2 --gpu-uuid GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+  --updates 1500 --validate-every 250 --seed 123
+```
+
+First run a separate one-update smoke (`--updates 1 --validate-every 1`) in a
+fresh output directory. The V4b entry point verifies the A2 inventory/UUID,
+active compute processes, utilization, free memory, and the UUID environment;
+it aborts rather than sharing or falling back.
+
+The runner refuses an existing output directory and refuses to run without
+CUDA. All arms share a family-balanced sampled pair trace, fixed candidate
+pools, train-only QoR normalization, AdamW settings, pair loss and validation
+steps. It selects checkpoints only on validation feasible-selection failure
+plus feasible top-1 ADP regret, with preference accuracy as a tie-break. This
+run has not been launched because the host driver was unavailable. Do not
+report preflight or audit outputs as model results. The pairwise difference
+arm's pool selection uses deterministic net wins; document possible
+non-transitive cycles in any result. Stage-2 and production artifacts remain
+out of scope.
