@@ -28,22 +28,23 @@ flowchart LR
 MLIR V2.2 RC3 and its hardware overlay are experimental representations. They
 are **not interchangeable with production V1 tensors or checkpoints**. The
 readiness pilot did not establish improved target generalization. Semantic
-features and resumable V2.2 supervised training live on research branches;
-the latest recorded full paired run has no selected checkpoint or QoR result.
+features and resumable V2.2 supervised training live on research branches; the
+full 8,000-update V4 QoR protocol remains unrun. The separate bounded
+directive-preference probe has validation-selected experimental checkpoints,
+but those do not replace V1 or establish target generalization.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
-On `research/gnn-refinement`, the V4 follow-up now includes corrected 300- and
-600-update three-arm comparisons and a separately versioned physical-QoR /
-feasibility ablation. The models can fit a fixed training context, but held-out
-results remain mixed. They show some candidate-ranking signal, but
-resource feasibility remains at the always-feasible baseline, device-pair
-coverage is too small for a conditioning claim, and hardware-message gains are
-inconsistent. Separating resource budget from physical-QoR prediction enforces
-the expected invariance but does not establish better candidate selection.
-This is not evidence for Stage-2 integration or broad target generalization.
-The detailed results and next research step are in
-[`experiments/v22_gnn_training/RESULTS.md`](experiments/v22_gnn_training/RESULTS.md).
+On `research/gnn-refinement`, the latest V4 study trained three matched
+directive-preference models for 300 updates: compiler-only memory,
+device/clock-FiLM memory, and the existing hardware-message graph. Hardware
+messages did not improve held-out ADP selection over compiler-only memory;
+FiLM's small pair-accuracy gain came with worse feasible top-1 selection and
+regret. All arms missed the 21 meaningful budget-driven winner changes, and
+validation had no meaningful device or clock winner changes. The result is
+limited to two validation families and one seed; it does not justify Stage-2
+integration or a richer hardware graph. See the [full results and audit](experiments/v22_gnn_training/RESULTS.md)
+and [current next-step brief](experiments/v22_gnn_training/NEXT_STEPS_BRIEF.md).
 V4 remains experimental; production still uses the V1 GNN.
 
 ## Start here

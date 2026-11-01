@@ -1,5 +1,14 @@
 # V4 experimental results
 
+**Latest result:** the 2026-11-01 three-arm directive-preference probe completed
+with 300 updates per arm on the A2. Hardware messages did not improve feasible
+ADP selection over compiler-only memory; FiLM's small preference-accuracy
+gain came with worse feasible selection/regret. All arms missed the 21
+meaningful validation budget winner changes, while validation had no meaningful
+device/clock winner changes. Classification:
+`TARGET_PREFERENCE_COVERAGE_INSUFFICIENT`. The latest full report is the final
+section below. Historical V4 QoR experiments are preserved unchanged.
+
 ## Bounded matched pilot — 2026-11-01
 
 A small family-disjoint probe completed on the NVIDIA A2. This is the first
@@ -543,3 +552,223 @@ device pairs before filtering. However, the validation device axis still has
 only three meaningful pairs, so only clock differences can be evaluated with
 any descriptive coverage; device-generalization claims must remain open.
 Predeclare pair aggregation/normalization and coefficient before training.
+
+## Directive-preference structural-memory probe (2026-11-01)
+
+This is the latest experiment. It asks whether candidate-independent
+compiler/hardware memory improves selection of feasible measured directive
+assignments, rather than whether a GNN can regress absolute QoR. It preserves
+the V4 RC3 graph/tensor contracts and all earlier result sections.
+
+### Authenticated cohort and preference construction
+
+| Property | Training | Validation |
+|---|---:|---:|
+| Kernels / families | 14 / 12 | 3 / 2 |
+| Authenticated measurement rows | 1,344 | 288 |
+| Distinct complete assignment hashes in partition | 520 | 94 |
+| Preference contexts (program × target × budget × objective) | 1,260 | 270 |
+| Non-tie preference pairs | 124,399 | 24,061 |
+| Feasible-over-infeasible pairs | 18,378 | 4,881 |
+| Feasible objective pairs | 106,021 | 19,180 |
+| Near ties excluded | 17,000 | 4,232 |
+| Both-infeasible pairs excluded | 9,801 | 4,107 |
+
+Each measured row comes from the authenticated seed-123 split and a complete
+source-legal assignment. Selected contexts cover ZCU104/U200 at 3.33/5/10 ns,
+with 16 measured assignments where available. The frozen roster uses graph,
+action and target-support coverage, not validation QoR. Validation kernels are
+MachSuite Viterbi and two Rodinia PathFinder implementations: two families,
+not three. The budget levels (100/75/50/25/10%) create correlated views of the
+same physical measurements, not additional syntheses. Kalman/test data were
+not loaded.
+
+Within one fixed program/target/budget/objective pool, a feasible design is
+preferred over an infeasible one. Pairs where both designs are infeasible are
+omitted. Among feasible designs, an objective gap greater than 5% defines a
+strict pair; near ties are omitted. ADP is primary; the existing area and
+latency objectives are supplementary. The known Viterbi/U200/5 ns zero-area
+guard remained active; no selected pair triggered its ambiguous-zero
+exclusion, and source measurements were unchanged.
+
+### Target-dependent preference coverage
+
+Exact assignment intersections show which axes have meaningful preference
+changes in validation. A meaningful change requires a different best measured
+configuration with a gap greater than 5%.
+
+| Axis | Meaningful winner changes | Meaningful invariants | Winner changes that are near ties | Unsupported empty pools |
+|---|---:|---:|---:|---:|
+| Device | 0 | 12 | 42 | 6 |
+| Clock | 0 | 55 | 8 | 3 |
+| Budget | 21 | 173 | 51 | 24 |
+| Objective | 31 | 18 | 158 | 6 |
+
+There is no validation evidence for device- or clock-driven winner changes.
+Budget and objective comparisons do have meaningful reversals and can test
+whether the decision head responds correctly. These comparisons overlap in
+assignment pools and are not independent samples.
+
+### Matched training protocol
+
+| Arm | Memory path | Trainable parameters |
+|---|---|---:|
+| Compiler-only | V4 compiler messages; hardware-node edges removed | 107,565 |
+| Target-FiLM | Compiler memory plus zero-gated authenticated profile/clock modulation | 171,694 |
+| Hardware messages | Existing hardware/resource nodes and typed edges | 107,565 |
+
+All arms used seed 123, the same training groups, candidate pools, target,
+budget and objective contexts, AdamW (`lr=3e-4`, `weight_decay=1e-4`), and 300
+updates. Pair classes were balanced in minibatches. Shared parameter
+initialization hashes and sampled-pair trace hashes matched across arms.
+Checkpoint selection used validation-only ADP preference accuracy,
+macro-averaged across the two validation families; all arms selected step 100.
+No parameter-count-matched FiLM control was run.
+
+The training-only fixed-context diagnostic used 16 GEMM-NCubed/U200/10 ns
+assignments and 115 strict pairs. In 100 updates, pair loss changed from
+0.69303 to 0.68623 while accuracy fell from 0.6957 to 0.6522. It does not
+establish fixed-context preference learning. Full-training sampled losses
+declined below initial values, but validation selection scores were highest at
+step 100 and lower at steps 200/300. The selected checkpoint was step 100 for
+all arms, so additional updates did not improve the predeclared validation
+criterion.
+
+### Held-out preference and measured-pool results
+
+All aggregate metrics use the same 270 validation decision contexts. Pair
+accuracy is macro-averaged within family then across the two families. Regret
+is relative to the best measured feasible assignment in the selected pool,
+not a global optimum. Top-1 regret excludes infeasible selections and contexts
+with no eligible measured feasible candidate; those outcomes are separate.
+
+| Primary ADP metric | Compiler-only | Target-FiLM | Hardware messages |
+|---|---:|---:|---:|
+| ADP pair accuracy, family macro | 0.7222 | 0.7246 | 0.7126 |
+| ADP feasible top-1 success | 85 / 88 (96.59%) | 83 / 88 (94.32%) | 85 / 88 (96.59%) |
+| ADP false-feasible selections | 3 / 88 | 5 / 88 | 3 / 88 |
+| ADP empty feasible pools | 2 / 90 | 2 / 90 | 2 / 90 |
+| ADP top-1 measured-pool relative regret | 0.3412 | 0.5319 | 0.4439 |
+| ADP top-3 measured-pool relative regret | 0.1764 | 0.2045 | 0.1874 |
+
+All-objective pair accuracy was 0.6714 compiler-only, 0.6824 FiLM and 0.6663
+hardware messages. Across all objectives, selected actual feasibility was
+255/264, 249/264 and 253/264. Six of 270 contexts had no measured feasible
+candidate; the remaining 9/15/11 infeasible selections in supported contexts
+are false-feasible decisions.
+
+| Validation family | Model | ADP pair accuracy | Feasible top-1 | Top-1 regret | Top-3 regret |
+|---|---|---:|---:|---:|---:|
+| MachSuite Viterbi | Compiler-only | 0.6338 | 27 / 28 | 0.0659 | 0.0236 |
+| MachSuite Viterbi | Target-FiLM | 0.6419 | 27 / 28 | 0.0659 | 0.0047 |
+| MachSuite Viterbi | Hardware messages | 0.6081 | 27 / 28 | 0.0659 | 0.0236 |
+| Rodinia PathFinder | Compiler-only | 0.8106 | 58 / 60 | 0.4694 | 0.2451 |
+| Rodinia PathFinder | Target-FiLM | 0.8074 | 56 / 60 | 0.7566 | 0.2944 |
+| Rodinia PathFinder | Hardware messages | 0.8170 | 58 / 60 | 0.6199 | 0.2623 |
+
+Hardware messages improve PathFinder ADP pair accuracy by about 0.0065 over
+compiler-only, but worsen its top-1 regret by about 0.1505. They reduce
+Viterbi pair accuracy by about 0.0257. This is not a consistent selection
+improvement. FiLM's ADP pair-accuracy gain over compiler-only is 0.0024, with
+worse feasible top-1 and regret.
+
+### Target-conditioned preference response
+
+Among the 21 meaningful budget-driven winner changes, all arms correctly
+identified **zero**. Compiler-only remained invariant-but-wrong in 20 and
+changed to the wrong winner in one; FiLM did so in 15 and 6; hardware messages
+in 19 and 2. On meaningful budget invariants, the correct complete winner was
+selected in 52/173 contexts by compiler-only, 52/173 by FiLM and 22/173 by
+hardware messages. For objectives, all arms missed the 31 meaningful winner
+changes and correctly selected only 2/18 meaningful invariants.
+
+Validation contained no meaningful device or clock winner changes, so these
+axes cannot test learned changes. Of 12 meaningful device invariants, each arm
+selected the complete winner in 3. For clock, compiler-only and FiLM got 16/55
+invariants right and hardware messages got 4/55. Near-tie changes were not
+counted as correct target response.
+
+### Memory and hardware-path ablations
+
+The same selected weights were evaluated with correct, zeroed, shuffled,
+active-slot-global-mean and target-mismatched memory. Entries below are
+primary ADP pair accuracy / top-1 regret.
+
+| Model | Correct | Zero | Shuffled | Global mean | Target-mismatched |
+|---|---:|---:|---:|---:|---:|
+| Compiler-only | 0.7222 / 0.3412 | 0.6939 / 0.3512 | 0.7254 / 0.3412 | 0.7230 / 0.3412 | 0.7222 / 0.3412 |
+| Target-FiLM | 0.7246 / 0.5319 | 0.6745 / 0.5481 | 0.7327 / 0.5077 | 0.7225 / 0.4145 | 0.7246 / 0.5319 |
+| Hardware messages | 0.7126 / 0.4439 | 0.6777 / 0.5562 | 0.7132 / 0.4439 | 0.7103 / 0.4439 | 0.7126 / 0.4439 |
+
+Zeroing memory changed top-1 selections in 31/270 compiler-only, 116/270
+FiLM and 107/270 hardware-message contexts, showing sensitivity to nonzero
+memory. Shuffling slots changed only 5, 8 and 5 top-1 choices respectively;
+its pair accuracy was slightly higher than correct memory in each arm. The
+measured pool does not show a robust selection benefit from correct
+per-action alignment. FiLM target-mismatching changed no top-1 or complete
+candidate order; mean score change was `8.5e-8`. Hardware target-mismatching
+changed complete order in 13/270 contexts but no top-1, and changed one top-3
+membership; mean score change was `1.19e-4`. This is weak target-memory
+sensitivity, not useful target conditioning. The FiLM gate remained near zero
+(`0.0011` at its selected step 100); hardware relation embeddings had finite
+nonzero sampled gradients (`1.09e-4` at step 1, `2.43e-4` at step 300).
+Neither observation proves decision utility.
+
+### Runtime, provenance and artifacts
+
+The completed run used source commit
+`fdd66e63db1ec40cb6ed11e23590ee93541c07b2`, A2 UUID
+`GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`, Python 3.10.20, PyTorch
+2.6.0+cu124 and PyG 2.6.1. CPU authentication/cohort/feature preparation
+took 906.91 s; candidate-demand construction accounted for 672.13 s,
+graph tensorization 75.17 s, graph enrichment 40.63 s, equality checks 84.68 s
+and cache serialization 2.29 s. GPU training, validation and memory ablations
+took 73.50 s; peak CUDA allocation was 242,267,136 bytes (231.1 MiB). Each
+full 270-context validation took about 1.4 s because features were reused.
+
+| Artifact | Identity |
+|---|---|
+| Dataset SHA256 | `afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820` |
+| Seed-123 split SHA256 | `d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c` |
+| RC3 graph release SHA256 | `feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73` |
+| Cohort manifest identity | `2ac3074d770c98169a52d0d27935d1e5eec67fff4db57b0ff010111d8f5b297d` |
+| Protocol SHA256 | `93cba7f8a7a1057c7b149776d7f5fb25de396a7535f643ceb7d8d2b29c8940e5` |
+| Compact results SHA256 | `2b559fc95d420e57ae389874322e471fb8e70edf297a4f567e70c1d7393497ba` |
+| Raw results SHA256 (outside Git) | `11a9755dd9263d0dcdf7a6b5ed32886b253e5718f47c489276ed9b00ab52fb6a` |
+
+Selected checkpoints are all from step 100:
+
+| Checkpoint | SHA256 | Durable path |
+|---|---|---|
+| `compiler_selected.pt` | `4078026800d035f7f5b16d15cfbaee91e9717b60bc76fa7b2ee3ca7170b098f3` | `/home/elvouvali/mailohls-gnn-runs/directive-preference-v1-20261101-fdd66e6-attempt01/compiler_selected.pt` |
+| `target_film_selected.pt` | `f29ad1ea30907d265f97ef72b1833683816d424b811aaac6645e35ed82f5b0aa` | `/home/elvouvali/mailohls-gnn-runs/directive-preference-v1-20261101-fdd66e6-attempt01/target_film_selected.pt` |
+| `hardware_messages_selected.pt` | `c67f66e1ac7fa192ac81d8e68f6a1b001b7c5f3580c0d2862bccd3678cf12173` | `/home/elvouvali/mailohls-gnn-runs/directive-preference-v1-20261101-fdd66e6-attempt01/hardware_messages_selected.pt` |
+
+The compact report is
+[`results/directive_preference_v1/compact_results.json`](results/directive_preference_v1/compact_results.json).
+The full raw report, cache and model weights remain outside Git. The exact run
+exited successfully (`0`). Earlier attempts remain preserved: one reached the
+diagnostic then failed Tensor-to-JSON serialization; one exposed an unset
+`-inf` progress score after one compiler-arm update; a launch-only attempt was
+refused because its PID file made the output directory nonempty. None
+overwrote the completed experiment.
+
+### Conclusion and next experiment
+
+**Classification: `TARGET_PREFERENCE_COVERAGE_INSUFFICIENT`.** The held-out
+data contain 21 meaningful budget reversals, which all arms missed, but no
+meaningful device or clock winner reversals. Target-aware memory variants did
+not outperform compiler-only memory in feasible ADP selection; hardware
+messages had worse top-1 regret, while FiLM's small pair-accuracy gain came
+with worse feasible selection. Validation has only two families and one seed.
+The scorer shows some pairwise signal, but the fixed-context diagnostic did
+not improve accuracy and selection still incurs substantial regret.
+
+No larger FPGA graph, deeper GNN, Stage-2 integration or refinement scorer is
+justified. The next single useful study is an authenticated, family-disjoint
+validation expansion, selected without QoR, that contains meaningful matched
+device/clock preference changes. Keep the encoder frozen for that coverage
+audit; do not train another variant until the evaluation can measure the
+claimed target effect. A head-only candidate/target control is also needed
+before claiming compiler structure adds value. V4 is not ready for Stage-2
+cross-attention integration.

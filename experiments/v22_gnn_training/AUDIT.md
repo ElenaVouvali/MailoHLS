@@ -1,5 +1,11 @@
 # V4 implementation and data audit
 
+**Latest audit state:** the authenticated three-arm directive-preference study
+completed at source commit `fdd66e6`; its run-specific hashes, cohort, selected
+checkpoints, data boundaries and preserved failed attempts are recorded in the
+final audit section. No test rows, Stage-2 changes, synthesis jobs or
+production artifacts were used.
+
 ## Scope and provenance
 
 This audit distinguishes the completed bounded V4 GPU probe from historical V3
@@ -181,6 +187,149 @@ However, primary matched-model ranking, QoR and top-k measured-pool results do
 not show consistent selection benefit; one validation context has very large
 latency regret. The one-seed, 20-update pilot is not evidence of broad
 generalization, training convergence, synthesis QoR, or Stage-2 improvement.
+
+## Directive-preference probe: integrity and execution receipt
+
+The latest complete study is the target-aware directive-preference run at
+source commit `fdd66e63db1ec40cb6ed11e23590ee93541c07b2`. Its protocol hash is
+`93cba7f8a7a1057c7b149776d7f5fb25de396a7535f643ceb7d8d2b29c8940e5`; cohort
+identity is `2ac3074d770c98169a52d0d27935d1e5eec67fff4db57b0ff010111d8f5b297d`.
+The versioned receipt directory is
+[`results/directive_preference_v1/`](results/directive_preference_v1/).
+The large feature cache, raw 39 MB result and three checkpoints remain outside
+Git at:
+
+```text
+/home/elvouvali/mailohls-gnn-runs/directive-preference-v1-20261101-fdd66e6-attempt01/
+```
+
+### Data and split identity
+
+The run re-used the authenticated dataset (`afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820`), seed-123 family split
+(`d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c`),
+preprocessing manifest (`b9c44ab46ff850cc8ebd5b7f471a680ca0c3ed8796e9fdd9a84281bb2a54a5b7`) and RC3 archive
+(`feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`). The
+selected roster is 14 training kernels/12 families and three validation
+kernels/two families. There are 1,344 selected train and 288 selected
+validation physical measurement rows; 1,632 selected measurement rows total.
+The row identity retains kernel, complete assignment hash, device, clock and
+source-table row. Preference groups add objective and budget without copying or
+modifying physical labels. The artifact records `test_data_loaded: false` and
+an empty test-kernel roster; Kalman was not loaded for training, validation,
+cohort selection or normalization.
+
+The authenticated audit SHA256 is
+`ee45e422dc18b416fe82f264dd5437ea1195dd87911d9daa24170e702047fd95`. The
+tracked files have SHA256 values:
+
+| File | SHA256 |
+|---|---|
+| `preference_audit_receipt.json` | `68d9a61d61ca5c3896e7797cad47051070fe560a58521194cbcf178957137a44` |
+| `preference_cohort_manifest.json` | `4d66a3f69390f6876073a3190d9ffd2092a5230309f085639f48ea2826f89edc` |
+| `preference_pair_audit.json` | `1d52e51c361474c6bb7a68d38238ddefc9a3795a10ef29a2d72cae2292677491` |
+| `preference_target_coverage.json` | `1c1d40c23074b4a10d0dfadbc5aa610c1e10f63a2fc2055397acc82064c839ec` |
+| `compact_results.json` | `2b559fc95d420e57ae389874322e471fb8e70edf297a4f567e70c1d7393497ba` |
+
+The cohort manifest hash is the canonical protocol identity stored in the
+manifest, not the SHA256 of its pretty-printed JSON file. The audit receipt's
+pair and target-coverage hashes are canonical JSON hashes. File hashes above
+are separately recorded to detect transport or edit changes.
+
+The pair audit contains 124,399 training and 24,061 validation preference
+pairs over 1,260/270 contexts. This apparent pair count is not an independent
+sample count: candidate pairs reuse the same measured rows across objectives
+and budget levels. For example, validation has 4,881 feasible/infeasible
+pairs, 19,180 feasible objective pairs, 4,232 excluded near-ties and 4,107
+both-infeasible pairs. No zero-area ambiguous pair was selected for strict
+comparison; the historical zero-utilization rows and their source provenance
+remain unchanged.
+
+### Feature and representation audit
+
+The probe prepared 102 graph tensors, 102 cached non-budget-enriched demand
+graphs, and 1,632 candidate vectors/demand descriptors. Feature preparation
+took 906.91 s including authenticated data/cohort setup. It checked graph
+tensor, candidate-vector and demand equality against existing V4 constructors
+for one candidate per graph target context (102 equivalence contexts). It did
+not independently rematerialize every candidate against the slow reference
+path. Candidate cache generation still used the existing `candidate_vector`
+and `candidate_demand_tensor`; the focused test exercises reuse with two
+distinct candidate assignments. This scope is explicit and does not claim
+1,632 slow-path equality calls.
+
+The cache is process/run scoped and bound by the authenticated cohort hash and
+protocol source hashes. It is not a cross-run cache API. Candidate demand
+construction took 672.13 s, target graph tensorization 75.17 s, shared demand
+graph enrichment 40.63 s, reference equality checks 84.68 s and cache
+serialization 2.29 s. No feature preparation runs inside periodic validation;
+each full 270-context validation takes approximately 1.4 s using the in-memory
+cache.
+
+Compiler-only and hardware-message arms each contain 107,565 trainable
+parameters. Target-FiLM contains 171,694. The common parameter initialization
+hash is identical across arms, and the sampled preference-pair trace hash is
+identical. FiLM's extra 64,129 parameters were not matched by a numerical
+capacity control. Each memory is generated without candidate assignments,
+candidate demand, measured QoR or preference labels. Budget and objective enter
+the shared decision scorer; requested budget is not used to create a distinct
+physical memory. The hardware path's relation embedding gradients were finite
+and nonzero; the numerical arm has no update path through those relation rows.
+
+### Run completion and preserved failures
+
+The final process exited with status `0` after all three 300-update arms,
+validation at 100/200/300, validation-selected checkpointing and all five
+memory-ablation variants. GPU phase runtime was 73.50 s on the A2 UUID
+`GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`; peak allocated CUDA memory was
+242,267,136 bytes. V100S remained unused. The selected checkpoint hashes and
+full output paths are in `RESULTS.md` and `compact_results.json`.
+
+The two failed compute attempts and one launch-only refusal were retained in
+separate output directories. One failed when the fixed-context report included
+a scalar Tensor not accepted by strict JSON; another failed when an unset
+validation score was represented as `-inf`. Both were corrected by explicit
+scalar/null reporting and regression-tested. The launch-only attempt refused
+the intentionally nonempty output because its PID record had been placed
+inside it; no training/GPU work occurred. These failures are not pooled into
+the successful experiment's update count or result.
+
+The minimal code fixes were committed and pushed before the successful run:
+`a208646` converts fixed-context pair accuracy to a Python scalar, and `fdd66e6`
+serializes an unset best-validation score as JSON `null`. The final run's
+protocol binds commit `fdd66e6`; its source tree was clean. No model, data,
+feature, objective or checkpoint-selection change was made by these fixes.
+
+The reproducible command (using a fresh empty output path) is:
+
+```bash
+cd /tmp/MailoHLS-gnn-directive-preference-ba6f39a
+CUDA_VISIBLE_DEVICES=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 PYTHONPATH=. \
+  /tmp/mailohls-v22-gnn-env-20261030/bin/python \
+  -m experiments.v22_gnn_training.directive_preference_probe \
+  --release-dir /tmp/salt-v22-training-release \
+  --preprocessed-dir /home/elvouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS \
+  --authenticated-audit /tmp/mailohls-v22-preference-full-audit-20261101.json \
+  --output /home/elvouvali/mailohls-gnn-runs/NEW-EMPTY-DIRECTORY \
+  --updates 300 --preparation-limit-seconds 1800 \
+  --gpu-limit-seconds 1200 --device cuda --gpu-name A2 \
+  --gpu-uuid GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35
+```
+
+The verified runtime was Python 3.10.20, PyTorch 2.6.0+cu124 and PyG 2.6.1.
+The full tracked code-source hash map and protocol are in the compact report.
+No Stage-2/Stage-3 training, synthesis, production artifact modification or
+test-label evaluation occurred.
+
+### Focused verification
+
+After the two diagnostic serialization fixes, the isolated environment passed
+45 tests across `test_v22_directive_preference.py`,
+`test_v22_gnn_training_contracts.py`, `test_v22_gnn_resume.py` and
+`test_v22_gnn_fast_probe.py`. The unchanged semantic tensor and action-demand
+regression modules passed 12 tests. Total focused tests: 57 passed, zero
+failed/skipped. Python compilation and `git diff --check` passed. The branch
+does not claim a fresh full-corpus regeneration or the separate V4 GPU
+interruption/resume test.
 
 ## Learnability and target-conditioning follow-up (2026-11-01)
 

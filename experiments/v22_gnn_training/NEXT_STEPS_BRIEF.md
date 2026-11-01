@@ -1,4 +1,47 @@
-# Next-step brief: continue the bounded V4 learnability study
+# Next-step brief: target-aware directive-preference evidence
+
+## Current decision after the preference probe (2026-11-01)
+
+The three-arm, 300-update directive-preference run is complete and documented
+in [`RESULTS.md`](RESULTS.md). On 270 shared validation contexts, hardware
+messages did not beat compiler-only memory on ADP pair accuracy or measured
+top-1/top-3 regret. FiLM's small ADP pair-accuracy gain came with fewer
+feasible top-1 selections and higher regret. All three arms missed all 21
+meaningful validation budget-driven winner changes. The validation data contain
+no meaningful device- or clock-driven winner changes, so those axes cannot
+support a response claim. Two validation families and one seed are insufficient
+for a general conclusion.
+
+### Next single step
+
+Perform a label-independent coverage audit for a family-disjoint validation
+cohort that has exact matched candidate assignments and meaningful measured
+preference changes across device and clock. Keep the encoder frozen during
+this audit. Do not launch another training variant until the validation set
+contains evidence that can test the target-conditioning claim.
+
+Before claiming that compiler structure itself contributes, add a small
+candidate-plus-numerical-target scorer control with the same decision head and
+protocol. The current zero-memory ablation is only an inference-time
+distribution-shift diagnostic, not an independently trained no-graph baseline.
+Do not build a richer FPGA graph, add GNN layers, integrate into Stage 2, or
+modify the refinement controller on this evidence.
+
+The selected V4 memory remains candidate-independent `[64,128]` action slots,
+but it is a new feature space and cannot be substituted into V1-trained
+cross-attention weights. A future Stage-2 test would retrain/adapt cross-
+attention and compare prompt-only, V1 memory, V4 compiler memory and V4 target
+memory on identical directive cases. A future refinement policy may use the
+validated memory only to prioritize legal compiler-verified proposals; Vitis
+measurements must still determine acceptance. Neither integration is part of
+this result.
+
+The current classification is **`TARGET_PREFERENCE_COVERAGE_INSUFFICIENT`**.
+This reflects absent meaningful held-out device/clock reversals; it does not
+hide that the available budget reversals were all missed. The result supports
+no present hardware-message selection benefit.
+
+## Historical status before the directive-preference experiment
 
 ## Current evidence (2026-11-01)
 

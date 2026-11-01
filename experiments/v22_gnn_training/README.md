@@ -1,23 +1,23 @@
 # V4 target-aware GNN training
 
-**Current state (2026-11-01):** a bounded V4 small-pool pilot completed on the
-NVIDIA A2. The numerical and hardware-message arms each trained for 20 updates
-with identical initialization and sampled examples, then evaluated the same 32
-measured configurations from two held-out families. Hardware messages changed
-action embeddings and ranking scores, but did not improve top-1 measured-pool
-selection and had worse aggregate latency regret than numerical conditioning
-in this small cohort. The pilot did not show useful held-out QoR learning; it
-is too short to establish that longer training cannot learn. It used only 10 ns,
-so clock-conditioned behavior at 3.33 and 5 ns remains untested. This is not a
-convergence study or a broad generalization result. The proposed follow-up is
-in [`NEXT_STEPS_BRIEF.md`](NEXT_STEPS_BRIEF.md). See [`RESULTS.md`](RESULTS.md),
-[`AUDIT.md`](AUDIT.md), and the machine-readable `results/` receipts.
+**Current state (2026-11-01):** the bounded directive-preference study has
+completed on the A2. Three matched 300-update arms compared compiler-only
+memory, zero-gated device/clock FiLM modulation, and the existing hardware
+message graph on 1,344 training and 288 validation measurements. The
+hardware-message model did not improve held-out ADP preference accuracy or
+measured-pool regret over compiler-only memory. FiLM had a small preference
+accuracy gain but worse feasible top-1 and top-1 regret. The validation set has
+no meaningful device or clock winner changes, and all three models failed to
+identify the 21 meaningful budget-driven winner changes. This is evidence
+against a current hardware-aware memory benefit, with only two validation
+families and one seed. See the latest study in [`RESULTS.md`](RESULTS.md),
+auditing in [`AUDIT.md`](AUDIT.md), and the current decision in
+[`NEXT_STEPS_BRIEF.md`](NEXT_STEPS_BRIEF.md). Exact outputs are linked below.
 
-The prior V100S smoke remains preserved; it completed five numerical updates
-before the first validation failed due to a missing `Counter` import, now fixed.
-The A2 was verified idle before the bounded run. No other GPU process was
-signaled, and V100S was not used. The GNN outputs remain experimental and are
-not integrated into Stage 2.
+The earlier 20-update QoR pilot, 100/300/600-update QoR studies and
+budget-independent QoR ablation remain historical, unchanged. No experimental
+V4 memory was integrated into Stage 2; the production V1 memory and checkpoints
+are untouched. The V100S was not used.
 
 ## What the experiment is meant to test
 
@@ -478,3 +478,90 @@ authenticated training cohort offers 480 exact assignment clock pairs and 240
 device pairs before filtering, so one predeclared clock-difference supervision
 ablation is justified. Device transfer remains weakly evaluated. See the 600
 step receipts and limitations in `RESULTS.md`.
+
+## Directive-preference memory probe (2026-11-01)
+
+This newest experiment changes the primary outcome from absolute QoR regression
+to pairwise ranking of complete measured directive assignments. It compares
+three candidate-independent memory paths with one shared, shallow preference
+scorer:
+
+1. **Compiler-only:** the V4 encoder with edges touching hardware nodes
+   removed. The scorer still receives numerical device, clock, budget and
+   objective context.
+2. **Target-FiLM:** compiler-only memory with a zero-initialized gated
+   modulation from authenticated device capabilities and requested clock. The
+   requested budget and objective remain in the scorer.
+3. **Hardware messages:** the existing V4 hardware-resource nodes and typed
+   edges, plus the same numerical scorer context as arm 1.
+
+The GNN memory is generated before a candidate is known. Candidate assignments
+and analytical demand enter only the common scorer. No QoR, preference label or
+selected-winner feature enters the memory. The scored objective is ADP by
+default; latency and the existing area proxy are supplementary tasks. A
+feasible candidate outranks an infeasible one; two infeasible candidates do
+not form an objective pair; feasible objective pairs within 5% are ties and
+are omitted. The lower model score means preferred. This pairwise ranking
+probe is not DPO and does not modify the Stage-3 workflow.
+
+The cohort is 14 training kernels across 12 families (1,344 measurement rows)
+and three validation kernels across two disjoint families (288 rows). Each
+selected kernel/target has up to 16 complete measured assignments; contexts
+with less support are not padded with fabricated measurements. The fixed
+validation pool includes ZCU104/U200 at 3.33, 5 and 10 ns and budget views at
+100/75/50/25/10%. Budget views share physical measurements and are correlated.
+No Kalman/test rows were loaded. The frozen cohort, pair audit and target
+coverage receipt are under
+[`results/directive_preference_v1/`](results/directive_preference_v1/).
+
+One-time CPU preparation authenticates and tensorizes each of the 102
+kernel/device/clock graph contexts, then prepares candidate vectors and demand
+descriptors once. A run-scoped cache is shared by all arms and validation
+calls, so compiler enrichment is not repeated during validation. The current
+run checked cached versus existing construction on one candidate per graph
+context and exercised multi-candidate cache reuse in the focused tests; this is
+not a claim that every one of the 1,632 assignments was independently
+re-materialized for equality. Cache artifacts remain outside Git. The cache is
+bound to the cohort manifest; it is not a general-purpose reusable cache.
+
+All arms use seed 123, AdamW (`3e-4`, `1e-4` decay), the same 300 sampled
+updates and preference-pair trace, and validation at 100/200/300. Checkpoint
+selection uses validation-only ADP preference accuracy, macro-averaged over
+validation families. All three selected step 100. Compiler and
+hardware-message models each have 107,565 parameters; target-FiLM has 171,694.
+No parameter-matched FiLM control was run, so its small preference-accuracy
+gain cannot be attributed solely to conditioning instead of added capacity.
+
+### Latest result and design decisions
+
+| Decision | Alternatives | Reason | Scientific impact | Test/result |
+|---|---|---|---|---|
+| Train complete-action preference pairs as primary | Regress every physical QoR label as primary | The intended output is directive selection; physical QoR regression was already studied | Measures preference and measured-pool selection directly | Fixed pool and validation pair reports; full details in `RESULTS.md` |
+| Use a small zero-gated FiLM arm | Add device IDs, a larger FPGA graph, or more GNN layers | Tests a simple transferable-profile modulation without changing RC3 | Isolates a low-complexity target-memory path | Gate gradients and matched/mismatched-memory selection ablation |
+| Keep budget/objective in the scorer, not structural memory | Generate a distinct memory for every request | Budget is a feasibility limit and objective is a decision request | Memory remains physical-context-specific and candidate-independent | Budget preference reversals are evaluated on exact candidate intersections |
+| Freeze 14 train / 3 validation kernels before training | Select kernels from favorable validation results | Structural support and target coverage were used; validation QoR was not | Limits leakage but leaves only two validation families | Authenticated cohort and source/graph identities |
+| Stop at 300 updates per arm | Run thousands of updates or tune one arm | Predeclared bounded comparison showed weak validation changes and the A2 budget was ample | One-seed pilot only; no convergence claim | Same initialization and pair trace hashes across arms |
+| Defer richer hardware topology and Stage-2 integration | Promote V4 memory based on gradients or score changes | Neither hardware messages nor target-FiLM improved feasible selection consistently | Avoids equating pathway activity with directive utility | Correct/zero/shuffled/global/mismatched memory selection results |
+
+On validation, pair accuracy was 0.6714 for compiler-only, 0.6824 for
+target-FiLM, and 0.6663 for hardware messages. Primary ADP pair accuracy was
+0.7222/0.7246/0.7126. ADP top-1 measured-pool regret was
+0.3412/0.5319/0.4439, respectively; feasible top-1 selection succeeded in
+85/88 contexts for compiler and hardware messages and 83/88 for FiLM. The
+target-conditioned arms did not correctly identify any of 21 meaningful
+budget-driven winner changes in the held-out coverage report. Validation has
+zero meaningful device or clock winner changes, so those axes cannot establish
+general target response. Correct memory changed many decisions relative to
+zero memory, but shuffled/global memory was often comparable; this supports
+some use of nonzero structural features, not a reliable advantage from action
+alignment or target conditioning. Full values, per-family results and the
+paired memory ablation are in [`RESULTS.md`](RESULTS.md).
+
+The exact completed launch used `/tmp/MailoHLS-gnn-directive-preference-ba6f39a`
+at source commit `fdd66e63db1ec40cb6ed11e23590ee93541c07b2`, the pinned Python
+3.10.20/PyTorch 2.6.0+cu124/PyG 2.6.1 environment, and A2 UUID
+`GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35`. The durable output and hashes are
+recorded in `RESULTS.md`; model weights, full cache and the 39 MB raw result
+remain outside Git. V4 remains unsuitable for Stage-2 integration: action
+memory has not shown stable held-out target-conditioned selection gains, and
+the new feature space is not compatible with V1-trained cross-attention.
