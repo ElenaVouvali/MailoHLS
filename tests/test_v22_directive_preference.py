@@ -224,3 +224,40 @@ def test_preference_scorer_has_finite_candidate_and_memory_gradients():
                               'target_conditioner_l2','preference_head_l2'}
     assert all(torch.isfinite(torch.tensor(value)) for value in breakdown.values())
 
+
+def test_fixed_context_receipt_is_json_serializable(monkeypatch):
+    import json
+
+    class _Graph:
+        def to(self, _device):
+            return self
+
+    class _Preference(torch.nn.Module):
+        def __init__(self, *_args):
+            super().__init__()
+            self.scores = torch.nn.Parameter(torch.arange(8, dtype=torch.float32))
+
+        def encode_memory(self, graph, profile):
+            return self.scores[None, :, None], None
+
+        def score(self, graph, memory, candidates, demands, decision):
+            return self.scores
+
+    monkeypatch.setattr(probe, 'PreferenceMemoryModel', _Preference)
+    monkeypatch.setattr(probe, 'capability_vector', lambda *_args: torch.ones(8))
+    monkeypatch.setattr(probe, 'decision_context', lambda *_args: torch.zeros(12))
+    rows = [{'kernel':'machsuite-gemm-ncubed','profile':'u200','clock':10.0,
+             'config_hash':str(i)} for i in range(8)]
+    pairs = [(0, 1, 'objective')] * 20
+    group = {'kernel':'machsuite-gemm-ncubed','profile':'u200','clock':10.0,
+             'fraction':1.0,'objective':'PARETO_ADP','rows':rows,'pairs':pairs,
+             'key':'fixed'}
+    keys = [(r['kernel'],r['profile'],r['clock'],r['config_hash']) for r in rows]
+    result = probe.fixed_context_diagnostic(
+        [group], {(group['kernel'],group['profile'],group['clock']):{'hardware':_Graph()}},
+        {key:torch.zeros(1) for key in keys}, {key:torch.zeros(1) for key in keys},
+        {}, torch.device('cpu'), updates=1)
+    json.dumps(result, allow_nan=False)
+    assert isinstance(result['initial_pair_accuracy'], float)
+    assert isinstance(result['final_pair_accuracy'], float)
+

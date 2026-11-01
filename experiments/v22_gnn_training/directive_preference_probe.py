@@ -955,7 +955,10 @@ def fixed_context_diagnostic(train_groups, graph_cache, cand_cache, demand_cache
         with torch.no_grad():
             memory=model.encode_memory(graph,pfeat)
             scores=model.score(graph,memory,candidates,demands,decision)
-            correct=sum(scores[a]<scores[b] for a,b,_ in pairs)
+            # Convert each scalar comparison to a Python integer here. Leaving
+            # these as zero-dimensional tensors makes the diagnostic receipt
+            # non-JSON-serializable and aborts the run before matched training.
+            correct=sum(int((scores[a]<scores[b]).item()) for a,b,_ in pairs)
             pair_loss=float(F.softplus(torch.stack([scores[a]-scores[b] for a,b,_ in pairs])).mean())
         model.train(); return pair_loss,correct/len(pairs)
     initial=diagnostics()
