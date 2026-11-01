@@ -1,0 +1,568 @@
+{
+  "candidates_per_context_target": 8,
+  "clock_ns": 10.0,
+  "equivalence_checks": {
+    "candidate_demands": 112,
+    "candidate_vectors": 112,
+    "graphs": 28
+  },
+  "feature_cache": "features.pt",
+  "feature_cache_keys": {
+    "candidate": [
+      "graph_identity",
+      "source/action mapping identity",
+      "feature implementation identity",
+      "profile",
+      "clock_ns",
+      "complete assignment hash",
+      "candidate-demand schema"
+    ],
+    "graph": [
+      "graph_identity",
+      "tensor_schema",
+      "overlay_schema",
+      "profile",
+      "clock_ns",
+      "budget_fraction",
+      "feature implementation identity"
+    ]
+  },
+  "feature_cache_sha256": "6368933c4e0ef1ea0325a66fe34c06f814f85d3a913988a9884681a86e84054f",
+  "graph_sizes": {
+    "machsuite-gemm-ncubed": {
+      "apl_sha256": "12c9e3ebb7746670cc0efaa8c04666a7430f80ec5f89fec9275b83dae626e7ab",
+      "array_actions": 0,
+      "edges": 106,
+      "graph_identity": "35fc4418a294b918646226e15eaed4c7acec9be36b65ede20bd6fd7af1b08154",
+      "graph_member_sha256": "a57ff324bb8d61b6726e5246c39c072e4514c7153001e98e4bc98f1cb7b31865",
+      "matched_actions": 3,
+      "metadata_sha256": "405224200b619c6dda653aa8e3e42e600da312543c173b99cd6f4da07bfd521c",
+      "nodes": 67,
+      "registered_actions": 3,
+      "source_sha256": "8aa81b54e905a6caac0b30fa6ede2236c9552efa6c05ca1321f760651d8d64b3"
+    },
+    "machsuite-md-knn": {
+      "apl_sha256": "99326c250c502f7565172de5f075f50abab8dc9f8927f3a9c7a5812faad5a3e8",
+      "array_actions": 0,
+      "edges": 375,
+      "graph_identity": "8e8ff73137d6297a89925c09ecf8a285da2efc8ca01d6624b2591aa4425b2ec6",
+      "graph_member_sha256": "1437f81ab62b577d2eae362e91716088e0ffd423f88ab407b680c8ffa86c8df7",
+      "matched_actions": 2,
+      "metadata_sha256": "1b122c38c613a90fde7d597b96cc0768f6f43258eefa7107df1457b3e317b6f7",
+      "nodes": 176,
+      "registered_actions": 2,
+      "source_sha256": "a3b531ddc95581c597939738351bdc9b56d1d588fb68b0ef12438769d21d0bd0"
+    },
+    "machsuite-spmv-ellpack": {
+      "apl_sha256": "99326c250c502f7565172de5f075f50abab8dc9f8927f3a9c7a5812faad5a3e8",
+      "array_actions": 0,
+      "edges": 122,
+      "graph_identity": "35efa3e93321fdd3ffc494a03a06699e44dbf0cdd0027b1e192f8861f68cc4f4",
+      "graph_member_sha256": "15dba5133a7fe33c7c9cf7729a0f58a85d0b2217ecdae3231eacc68ea72af531",
+      "matched_actions": 2,
+      "metadata_sha256": "0e77799f93c2645ed361d0cf3845593793d1250e2a3fbbdd328494a093fb5a8f",
+      "nodes": 74,
+      "registered_actions": 2,
+      "source_sha256": "001e986b36e96b7e0740fde8c4323444cd0dfc945bb672f6ae291404ccd9b672"
+    },
+    "machsuite-stencil2d": {
+      "apl_sha256": "4740bbec34eb6c96d70807501d259efbfd653968a57a2e73db493b027600cdb5",
+      "array_actions": 0,
+      "edges": 124,
+      "graph_identity": "eb0af2b7440f4b3402205f8d4283d82d6a7ba4691a3b637be8131e06b762aa26",
+      "graph_member_sha256": "9f3fbec062a53a25f7210230ab5e6199e01026245f9e71d7308b1589e7744cc0",
+      "matched_actions": 4,
+      "metadata_sha256": "bb110c63ccdfe870f3bf3a73d863fb1ad04b18ced96416607d060112461345ab",
+      "nodes": 76,
+      "registered_actions": 4,
+      "source_sha256": "3ef918250f199b53c924fad81c94b8ea3e655353b4f2e771c5f5fddba9b8a243"
+    },
+    "machsuite-viterbi": {
+      "apl_sha256": "5ca3a02bdb7ac06f36b9733c405aae6b36d61520e3af93f960c51db943f2ee9b",
+      "array_actions": 1,
+      "edges": 630,
+      "graph_identity": "a6b1d034aba97bf92615a2d8a908370873b4697472a9e9d7144a5d1c14bdd3e2",
+      "graph_member_sha256": "e1394dd2ba2c64d9cdc9abb70e6785830c4dce4521847d8fa40fdfd4a3d8eb21",
+      "matched_actions": 8,
+      "metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+      "nodes": 288,
+      "registered_actions": 8,
+      "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213"
+    },
+    "rodinia_dilate_0_baseline_0": {
+      "apl_sha256": "8aa8a2d22345652a895056a88c668e5e11313ef24b88cdea825e418aa660cca9",
+      "array_actions": 1,
+      "edges": 322,
+      "graph_identity": "f11cdf63187f8bd62d41891815f14b0b781511679271ad68351fe275ce05acaf",
+      "graph_member_sha256": "1e97ad2a3055589c862f60870ce4313d470b1b47e738bdc4bb16769780506d48",
+      "matched_actions": 5,
+      "metadata_sha256": "c7a74452f5fd93b12614a96e5401cfa25dc978c4a796fc694dccd40664c681cc",
+      "nodes": 130,
+      "registered_actions": 5,
+      "source_sha256": "f9d42cda91bac87e44d52a59534ed45245ffe5b84e095623a4084b5a07228ab2"
+    },
+    "rodinia_pathfinder_0_baseline_0": {
+      "apl_sha256": "59f3de3ddfe961d3cca3557c0b07bc2e9652cb8bf10800592d10304931de3605",
+      "array_actions": 2,
+      "edges": 512,
+      "graph_identity": "f228a1db4a325bf2297200c64d158b89245be1cd496a4663fe4b37304e61f47f",
+      "graph_member_sha256": "af67c5ca9c0e87778620074a37776d6d97dfd357a290e7f6dda83903fbb22141",
+      "matched_actions": 4,
+      "metadata_sha256": "3cd8e10d3eeb2b1285deed26c5c8f1d8332173883a851080d733e5281968f5ab",
+      "nodes": 221,
+      "registered_actions": 4,
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c"
+    }
+  },
+  "group_selection": {
+    "04ff646f1759615fde3d43a02f1d34c50b58c18183207e1c5a522e6bdcfda03c": {
+      "available_measured_configurations": 35,
+      "candidate_hashes": [
+        "001f6f8a0eddd3b05949fbd373b5dcf3295aff22e61d93e4fa5028e7904694e1",
+        "ec3a1fedb70295e98175a61d55d4e9dc2d02d627fc21a66e0c74a57d71273ea1",
+        "059fe9392e8aa7c3bff56dbbe954e6f1bee2494c75f9f33cfb26c7e164e2e999",
+        "1c1dd6be5f1f116eda7db62b213065e1de09b013a8b6589fea0700aeeefd8de3",
+        "25ffec35abcb43b6a4707a07a40ac08490951adfffbb170eab41f3123e591851",
+        "61e852b76690fcbc33f08528eddf92dfe316aa186fde8135ab9d113a3ef185ab",
+        "7b0b2d87fe1de22d4d4c043f85510dde91adfd875a4d4c182b389e9263adde5d",
+        "21be299515724c0d3a7459828ce4ef29d617cd2633448661fcfaf9d21e6ac21e"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 7,
+      "family": "machsuite_md_knn",
+      "kernel": "machsuite-md-knn",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "u200",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "06e0a1e3abcca7ccdf8eab176ed99cc313c704b7c14e2beca061a4601525536b": {
+      "available_measured_configurations": 615,
+      "candidate_hashes": [
+        "00110c10995cf7c553f9d33d5400587b671c690fbc9fd6db071b077369167fc8",
+        "00fb8894b1c257edac3529f41e3c6fa0e96fbc5357983f9db972b49940c13ab8",
+        "0145c801130a9e31f9ca7e1b32ed2553fc3d0cde887d3e6a339d889ecbda24ff",
+        "01e064e59d86a56b460d25559414473b1fa922d8bd14ee4ec9ea362d34c5d180",
+        "02096d93dcc7bcb74973096f5505a85308b24f3b4440af8108dac8db73545d24",
+        "0293f95c832412b5780eb8d31d2607696d73ae3decf73d9a29b8f2f1d0595e47",
+        "03145dbab771e0e45953216dc0bfd6d4c62cbc0801b7f6bd1c002a084ed0930b",
+        "032e52b4220a2a28319213ab2fcc5cf218622b5fba6e3708eae2050a7deb0471"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 8,
+      "family": "machsuite_viterbi",
+      "kernel": "machsuite-viterbi",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "u200",
+      "selected_measured_configurations": 8,
+      "selection_method": "first configuration hashes; no validation QoR used for selection",
+      "split": "val"
+    },
+    "13d314ecf0857abf66e37f142e5ebe79450b8eff3d8984f00d81dc2baf68a15e": {
+      "available_measured_configurations": 28,
+      "candidate_hashes": [
+        "059fe9392e8aa7c3bff56dbbe954e6f1bee2494c75f9f33cfb26c7e164e2e999",
+        "ec3a1fedb70295e98175a61d55d4e9dc2d02d627fc21a66e0c74a57d71273ea1",
+        "1c1dd6be5f1f116eda7db62b213065e1de09b013a8b6589fea0700aeeefd8de3",
+        "61e852b76690fcbc33f08528eddf92dfe316aa186fde8135ab9d113a3ef185ab",
+        "9eeea5b3a4afa04dd5b62ff994a6bb6bb18ba7d6adb7f632fbb13dadd4632380",
+        "ce55a40fdf6937fa39e24241de789348972a6314e7301a8256cd743f0968643f",
+        "21be299515724c0d3a7459828ce4ef29d617cd2633448661fcfaf9d21e6ac21e",
+        "290acb93c6a3a613398d5314ffb39bbe00fcad3bb4835921200fca6077354c56"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 7,
+      "family": "machsuite_spmv_ellpack",
+      "kernel": "machsuite-spmv-ellpack",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "u200",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "17ee779086e1ff84112290bdb2b5f2715c0cfbc318d3406254b598d8e26333a5": {
+      "available_measured_configurations": 519,
+      "candidate_hashes": [
+        "003865ff9623dd65f418579dd10efd4aa45fcbaf69039c352c02ad182e9fc44c",
+        "008df30e77f94dbbd701b5664d6043fdf57b0cc6eef1d018d9155d552783cca5",
+        "00d54008264c0a3b5c84198dcb6be8e734340372c9adeb76c696429de96ed11b",
+        "03fff7a6afee122e2f4b698be269ea750c9a80b27f9418b1e6f28e694ab59707",
+        "0430eaef9872698b132cf9aca4df6d57a6dafb89cb8028f391c9deee160ce9b1",
+        "047a089996b8484fff29f57bf32f1690bbeb23d9fa5133150a186ab499e43144",
+        "06953167e6e2a3a72f23905a9ba59ffa05282fcc08071e69640d6c0fbc1e612a",
+        "0746120e32ff7b03cb86b23dc3622bb42bd414f4076047c97052d97a0f4e0df0"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 8,
+      "family": "machsuite_viterbi",
+      "kernel": "machsuite-viterbi",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "zcu104",
+      "selected_measured_configurations": 8,
+      "selection_method": "first configuration hashes; no validation QoR used for selection",
+      "split": "val"
+    },
+    "224781d591fe817ec12a81dba6dbc2484530075ad796f9e536551b1c9035c63b": {
+      "available_measured_configurations": 227,
+      "candidate_hashes": [
+        "01283607eb8f4e8960787f8b6caeb0d37080bdf342d955475fd4e9682586fa75",
+        "013deffd36296931a9f9989c07a9075c3bfe0f36257dc258985bdc41bd3930b6",
+        "0189a7a516e43987ed7d41970dca1eed326d4e3d20289b65eb20781fc9a858f2",
+        "01ed96af86a41ef7ba79c1529670fa55b3ff152fbda1f80299949bcb41ce0e9d",
+        "03451fa3f7d4d0be9332cbd05a4d6be1260877992f64fb078e9913dbda19aea9",
+        "069c5fcce4311111abf02501ec2cd132935d4cf183842b7761e9b21f5593dd7d",
+        "0790d3aea495710301e7c51f058d66ac8131f750979489e57b024e63db126860",
+        "098c1af85738b6c788c6610bfa3fedc372e1cd07f2446b533835a26df848e283"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 7,
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "u200",
+      "selected_measured_configurations": 8,
+      "selection_method": "first configuration hashes; no validation QoR used for selection",
+      "split": "val"
+    },
+    "2c44b053963fb0f5e5f34facda39dc44739a5c931b28c780c56c9227cb217840": {
+      "available_measured_configurations": 28,
+      "candidate_hashes": [
+        "059fe9392e8aa7c3bff56dbbe954e6f1bee2494c75f9f33cfb26c7e164e2e999",
+        "ec3a1fedb70295e98175a61d55d4e9dc2d02d627fc21a66e0c74a57d71273ea1",
+        "1c1dd6be5f1f116eda7db62b213065e1de09b013a8b6589fea0700aeeefd8de3",
+        "61e852b76690fcbc33f08528eddf92dfe316aa186fde8135ab9d113a3ef185ab",
+        "9eeea5b3a4afa04dd5b62ff994a6bb6bb18ba7d6adb7f632fbb13dadd4632380",
+        "ce55a40fdf6937fa39e24241de789348972a6314e7301a8256cd743f0968643f",
+        "21be299515724c0d3a7459828ce4ef29d617cd2633448661fcfaf9d21e6ac21e",
+        "290acb93c6a3a613398d5314ffb39bbe00fcad3bb4835921200fca6077354c56"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 7,
+      "family": "machsuite_spmv_ellpack",
+      "kernel": "machsuite-spmv-ellpack",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "zcu104",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "52abc3639169c962d62ec6c50714aba3252774de16559146838f1b4759ac1e80": {
+      "available_measured_configurations": 164,
+      "candidate_hashes": [
+        "006d97c4995aa10333bcf703a1ccba671b5db1aef0a05b5702cf5b109d9bc98f",
+        "043370d786c3343d59b52a148bfb2b14e02cdff85c0a6dae7fbf986adc01142d",
+        "036c3b670e97a8c20ab48df6ce8b0b2a6d087bb78d62d94c80900ba3dc29ef29",
+        "00b4dd9abaf1addca770724b3840a9ff2848c64cd5e59c2e9528fbcb6cbdb4a1",
+        "01214cd2d219449b7bfbbc5697b0942b5876cb268e1c38caad2b7b8f0483f078",
+        "03b3fbd4e2866abd9e7d42011a39e21ef1bef148dfabd7ca7e40f94539bda038",
+        "040b19bad5f14f3e8c831bc9926d5ac699a7289f2b43b84d11d5764b9b743107",
+        "1d507257b8e92bf22a401fd9f6c64ea9f1757e230f0e11e1bfe3f49c929b5086"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 6,
+      "family": "machsuite_gemm",
+      "kernel": "machsuite-gemm-ncubed",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "u200",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "6a65dc94d0d6f7b051254591a786fd078e9cad9de7d6180716a27e8944478e9e": {
+      "available_measured_configurations": 86,
+      "candidate_hashes": [
+        "028f893c5bc26d73b2e5de87615a3cdc1804bbd83688bcaf8c4ea05f6a167ea6",
+        "0ae2612e00728ec37da153ff3bbfd7895543b55a1f2b27d123eebba6879714e5",
+        "05d20e8643411ab5281c234c1f6140b891b47b1296e634e10a183c391eed8a1d",
+        "24e5487ae6bdc2b2249631cb9ef132b88c605a59b1eed02b0bcb90e1ff98cbf7",
+        "313c3ce7acfa355b378b7002eb9cc9b2562359d741cfd024c398c498047048ad",
+        "596dd3a294e9bec37d5d99204d68a27b9646616196227feaa1a08e05cac046eb",
+        "6ca1f66067b88418fef8f98d61989da0297e3e9241bace92e9e296ebe0ce5fb9",
+        "74a1586e545e716666c12a4790a27458a2c1d3a5e2d97f5d7b658369ec2b1fbe"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 4,
+      "family": "machsuite_stencil2d",
+      "kernel": "machsuite-stencil2d",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "zcu104",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "6b34873057a7567bfb1eb7ff3da9adfeee0a962ec5e529372919c42f1104c100": {
+      "available_measured_configurations": 107,
+      "candidate_hashes": [
+        "027fb72fb4e868a615eaf57d5c8a9f6c16d950215f3a7d338aafefad3def5db6",
+        "0ae2612e00728ec37da153ff3bbfd7895543b55a1f2b27d123eebba6879714e5",
+        "05d20e8643411ab5281c234c1f6140b891b47b1296e634e10a183c391eed8a1d",
+        "0b6a05c86a16abcbc255920edbf6cea9b031426da3462b015c3a7541733204d5",
+        "2c8d2804925d5388093bd490f8695283892e9631995cc1102656f073008dd637",
+        "343cdd6f5523c593c86466031e015b6b2e53742ba7b22812eaeea6998e4cee5e",
+        "74a1586e545e716666c12a4790a27458a2c1d3a5e2d97f5d7b658369ec2b1fbe",
+        "0593368cd9df5e844b60459e952c211ba1431cc2ce5286506ca5dcc65a4cb53f"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 7,
+      "family": "machsuite_stencil2d",
+      "kernel": "machsuite-stencil2d",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "u200",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "6f07478b1c1c29fdc23316c7867ffdd1f548b3224829f622a3a49531d1155fae": {
+      "available_measured_configurations": 172,
+      "candidate_hashes": [
+        "01333a9a82181e1dbede1ee8c87f7837fb98f054325cf04833e737cc9c4396fa",
+        "e33367b49a6be622d04e8d5ca5e06e361ce79221c0a6a9d45864ba7f6fb3daaf",
+        "2bb9afeaa17c6d11e511d240f216d7c0be127e13f827df17237cba16af024303",
+        "068033db1c6db7c481b2a5a71499392262071bdec8698075b63f860dc8de550f",
+        "09d8b893138a8924ed521bc64b21093d62d841706f292a4120aca3f22cce8787",
+        "4259823eacc083f0c9ed11c08a99fd73c434a3db0c739bf3dde80bd4807d774c",
+        "0b9f88dd23c07dec8f4840443efeef05b647971f87f5e82d167a0b1c698f526a",
+        "220b2483fe462da534c235cc05533a316de9ae353b0878d456aba92d4a14bc6e"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 7,
+      "family": "rodinia_dilate",
+      "kernel": "rodinia_dilate_0_baseline_0",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "u200",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "afa9b708da0049b1c3356950437529ad9ae785e93ab60bbc38de76e1e8b94aed": {
+      "available_measured_configurations": 112,
+      "candidate_hashes": [
+        "01e26510e21045d82cae5d74ac368ed680162d6d0aca9977f0fa4cd2f8c63f1c",
+        "5659e8f5ee0961ab0618fa44ed77d4d031472175b1cf3d9ebdfbf6f0285724f1",
+        "1483fed6e9a82878e068e50c986445fe4e05af425d0f24b6e30938a953acf81c",
+        "1d5debcbc17600ceaaaec761f63685f3ca525d2eb9e8f1cdb46ba31b634ce0bc",
+        "3cdc8633eb0a2161dc71e52f3ee826b7aaf878535da2d2077df64c44a6a1106c",
+        "40cc0f5743aaca60b06ee0d1a3311a16a77402e3c1235e759128e7bf69d2f096",
+        "76f42acb3c239994f030b27eac66baf608d4493cb177931560ac817cc2351e07",
+        "602537ed71a6a314227f54236f18ea229167c3c3fbc50490b2e3021d1c00ef6c"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 7,
+      "family": "rodinia_dilate",
+      "kernel": "rodinia_dilate_0_baseline_0",
+      "measured_feasible_at_half_capacity": 6,
+      "profile": "zcu104",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "ca11a2900bb9aa5cc494efac0aab1ea845c53f5a648ed8a7c1c053e1f45aa4c6": {
+      "available_measured_configurations": 35,
+      "candidate_hashes": [
+        "001f6f8a0eddd3b05949fbd373b5dcf3295aff22e61d93e4fa5028e7904694e1",
+        "ec3a1fedb70295e98175a61d55d4e9dc2d02d627fc21a66e0c74a57d71273ea1",
+        "059fe9392e8aa7c3bff56dbbe954e6f1bee2494c75f9f33cfb26c7e164e2e999",
+        "1c1dd6be5f1f116eda7db62b213065e1de09b013a8b6589fea0700aeeefd8de3",
+        "25ffec35abcb43b6a4707a07a40ac08490951adfffbb170eab41f3123e591851",
+        "61e852b76690fcbc33f08528eddf92dfe316aa186fde8135ab9d113a3ef185ab",
+        "7b0b2d87fe1de22d4d4c043f85510dde91adfd875a4d4c182b389e9263adde5d",
+        "21be299515724c0d3a7459828ce4ef29d617cd2633448661fcfaf9d21e6ac21e"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 7,
+      "family": "machsuite_md_knn",
+      "kernel": "machsuite-md-knn",
+      "measured_feasible_at_half_capacity": 8,
+      "profile": "zcu104",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "cc9b3924edcc5778b2b30ffe8d37d220081bc5534f63fea8c688efc361e2fcc9": {
+      "available_measured_configurations": 148,
+      "candidate_hashes": [
+        "00b4dd9abaf1addca770724b3840a9ff2848c64cd5e59c2e9528fbcb6cbdb4a1",
+        "043370d786c3343d59b52a148bfb2b14e02cdff85c0a6dae7fbf986adc01142d",
+        "036c3b670e97a8c20ab48df6ce8b0b2a6d087bb78d62d94c80900ba3dc29ef29",
+        "040b19bad5f14f3e8c831bc9926d5ac699a7289f2b43b84d11d5764b9b743107",
+        "15c56a2b87ca8b2ef79fc079864e85628bfecacac70b483535abb2b48f21f180",
+        "52bfde918431cc57b0501c3a4308b4e95fc238b32bdc56e61513a3d50e15aa32",
+        "ab7174dc2026cc0db0723080c9c4a173f212bbbd05da1de371fd0eb02e785503",
+        "03042e0be669d930c5f7794e945571589d332f3151887c58a2b5ec8866810099"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 8,
+      "family": "machsuite_gemm",
+      "kernel": "machsuite-gemm-ncubed",
+      "measured_feasible_at_half_capacity": 6,
+      "profile": "zcu104",
+      "selected_measured_configurations": 8,
+      "selection_method": "greedy_maximum_complete-assignment_hamming_distance; hash tie-break",
+      "split": "train"
+    },
+    "f0bc07df563dfa107f0703ad4c4be873a658b225995837bc3a0a80fa9284ba9d": {
+      "available_measured_configurations": 388,
+      "candidate_hashes": [
+        "00749191fafbbed8cf5e60817527a6b238699f6bb7dc2b78cfc7abf0fe368133",
+        "00d103b415ca6f3a6e4d36c2a8db94df5c2ff2298f9a2d924fc480d92f894f79",
+        "013deffd36296931a9f9989c07a9075c3bfe0f36257dc258985bdc41bd3930b6",
+        "01bb6097915596abae86bdbb422c46f689c644302df27ef4fbf045590a04faa6",
+        "01ed96af86a41ef7ba79c1529670fa55b3ff152fbda1f80299949bcb41ce0e9d",
+        "027eb0b3174c2341727e663ffccb39b72d9755a9449cec1794c776fc34424fb4",
+        "0280efcbd87cf20bf076e3a4e94f38a035affb20385d28406e31b0f7aefba0f7",
+        "02cc157edabbc0717095f145a692bfa7351e57c249ab288da3af556b10511c90"
+      ],
+      "clock_ns": 10.0,
+      "distinct_measured_latency_outcomes": 7,
+      "family": "rodinia_pathfinder",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "measured_feasible_at_half_capacity": 5,
+      "profile": "zcu104",
+      "selected_measured_configurations": 8,
+      "selection_method": "first configuration hashes; no validation QoR used for selection",
+      "split": "val"
+    }
+  },
+  "identity": {
+    "candidate_demand_schema": "salt-hls-candidate-demand-v22-v1",
+    "dataset_sha256": "afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820",
+    "graph_release_archive_sha256": "feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73",
+    "graph_schema": "salt-hls-mlir-structural-v2.2",
+    "graphs": {
+      "machsuite-gemm-ncubed": {
+        "apl_sha256": "12c9e3ebb7746670cc0efaa8c04666a7430f80ec5f89fec9275b83dae626e7ab",
+        "array_actions": 0,
+        "edges": 106,
+        "graph_identity": "35fc4418a294b918646226e15eaed4c7acec9be36b65ede20bd6fd7af1b08154",
+        "graph_member_sha256": "a57ff324bb8d61b6726e5246c39c072e4514c7153001e98e4bc98f1cb7b31865",
+        "matched_actions": 3,
+        "metadata_sha256": "405224200b619c6dda653aa8e3e42e600da312543c173b99cd6f4da07bfd521c",
+        "nodes": 67,
+        "registered_actions": 3,
+        "source_sha256": "8aa81b54e905a6caac0b30fa6ede2236c9552efa6c05ca1321f760651d8d64b3"
+      },
+      "machsuite-md-knn": {
+        "apl_sha256": "99326c250c502f7565172de5f075f50abab8dc9f8927f3a9c7a5812faad5a3e8",
+        "array_actions": 0,
+        "edges": 375,
+        "graph_identity": "8e8ff73137d6297a89925c09ecf8a285da2efc8ca01d6624b2591aa4425b2ec6",
+        "graph_member_sha256": "1437f81ab62b577d2eae362e91716088e0ffd423f88ab407b680c8ffa86c8df7",
+        "matched_actions": 2,
+        "metadata_sha256": "1b122c38c613a90fde7d597b96cc0768f6f43258eefa7107df1457b3e317b6f7",
+        "nodes": 176,
+        "registered_actions": 2,
+        "source_sha256": "a3b531ddc95581c597939738351bdc9b56d1d588fb68b0ef12438769d21d0bd0"
+      },
+      "machsuite-spmv-ellpack": {
+        "apl_sha256": "99326c250c502f7565172de5f075f50abab8dc9f8927f3a9c7a5812faad5a3e8",
+        "array_actions": 0,
+        "edges": 122,
+        "graph_identity": "35efa3e93321fdd3ffc494a03a06699e44dbf0cdd0027b1e192f8861f68cc4f4",
+        "graph_member_sha256": "15dba5133a7fe33c7c9cf7729a0f58a85d0b2217ecdae3231eacc68ea72af531",
+        "matched_actions": 2,
+        "metadata_sha256": "0e77799f93c2645ed361d0cf3845593793d1250e2a3fbbdd328494a093fb5a8f",
+        "nodes": 74,
+        "registered_actions": 2,
+        "source_sha256": "001e986b36e96b7e0740fde8c4323444cd0dfc945bb672f6ae291404ccd9b672"
+      },
+      "machsuite-stencil2d": {
+        "apl_sha256": "4740bbec34eb6c96d70807501d259efbfd653968a57a2e73db493b027600cdb5",
+        "array_actions": 0,
+        "edges": 124,
+        "graph_identity": "eb0af2b7440f4b3402205f8d4283d82d6a7ba4691a3b637be8131e06b762aa26",
+        "graph_member_sha256": "9f3fbec062a53a25f7210230ab5e6199e01026245f9e71d7308b1589e7744cc0",
+        "matched_actions": 4,
+        "metadata_sha256": "bb110c63ccdfe870f3bf3a73d863fb1ad04b18ced96416607d060112461345ab",
+        "nodes": 76,
+        "registered_actions": 4,
+        "source_sha256": "3ef918250f199b53c924fad81c94b8ea3e655353b4f2e771c5f5fddba9b8a243"
+      },
+      "machsuite-viterbi": {
+        "apl_sha256": "5ca3a02bdb7ac06f36b9733c405aae6b36d61520e3af93f960c51db943f2ee9b",
+        "array_actions": 1,
+        "edges": 630,
+        "graph_identity": "a6b1d034aba97bf92615a2d8a908370873b4697472a9e9d7144a5d1c14bdd3e2",
+        "graph_member_sha256": "e1394dd2ba2c64d9cdc9abb70e6785830c4dce4521847d8fa40fdfd4a3d8eb21",
+        "matched_actions": 8,
+        "metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "nodes": 288,
+        "registered_actions": 8,
+        "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213"
+      },
+      "rodinia_dilate_0_baseline_0": {
+        "apl_sha256": "8aa8a2d22345652a895056a88c668e5e11313ef24b88cdea825e418aa660cca9",
+        "array_actions": 1,
+        "edges": 322,
+        "graph_identity": "f11cdf63187f8bd62d41891815f14b0b781511679271ad68351fe275ce05acaf",
+        "graph_member_sha256": "1e97ad2a3055589c862f60870ce4313d470b1b47e738bdc4bb16769780506d48",
+        "matched_actions": 5,
+        "metadata_sha256": "c7a74452f5fd93b12614a96e5401cfa25dc978c4a796fc694dccd40664c681cc",
+        "nodes": 130,
+        "registered_actions": 5,
+        "source_sha256": "f9d42cda91bac87e44d52a59534ed45245ffe5b84e095623a4084b5a07228ab2"
+      },
+      "rodinia_pathfinder_0_baseline_0": {
+        "apl_sha256": "59f3de3ddfe961d3cca3557c0b07bc2e9652cb8bf10800592d10304931de3605",
+        "array_actions": 2,
+        "edges": 512,
+        "graph_identity": "f228a1db4a325bf2297200c64d158b89245be1cd496a4663fe4b37304e61f47f",
+        "graph_member_sha256": "af67c5ca9c0e87778620074a37776d6d97dfd357a290e7f6dda83903fbb22141",
+        "matched_actions": 4,
+        "metadata_sha256": "3cd8e10d3eeb2b1285deed26c5c8f1d8332173883a851080d733e5281968f5ab",
+        "nodes": 221,
+        "registered_actions": 4,
+        "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c"
+      }
+    },
+    "overlay_schema": "salt-hls-target-enriched-v22-v1",
+    "source_hashes": {
+      "GNN_branch/action_demand_v22.py": "4246a926c9b4bcfc5f90c58a7f3aee5122ab4c658742848a53a3d616cf2d9325",
+      "GNN_branch/action_point_relations.py": "39aab15de84fecb46d108df194a6ebcad9e0db9963fba7bd155dbdcd036aba7c",
+      "GNN_branch/semantic_tensor_features_v22.py": "567ea762e5ae46603611376992d4da2f5f12f4fac779a6cb086ceb7550ac515a",
+      "GNN_branch/target_graph_tensor_v22.py": "06cd45a1c3269497d2a0a2674d69c4021b1aa1e674591896d98fb1a5acbe7c80",
+      "GNN_branch/target_graph_v22.py": "d528c62be0cad9b8eec46898de7d3f6873d28bdf46d8d6d59a49401009dddfdf",
+      "LLM_branch/common/directive_domains.py": "7abe0900e1dd0e8dd4cc161efa4d2fa87da30dc1637f53279126047505be9bda",
+      "experiments/target_graph_readiness/experiment.py": "a525514ba20fa89b1a470968ecfd501f2328bfa78c2fc9ff001def86c8cd3638",
+      "experiments/v22_gnn_training/audit.py": "be560856e6cfb127334c0fd033a0155f56c92f35a611786f780a070562d045a9",
+      "experiments/v22_gnn_training/fast_probe.py": "14c44c02a6a9be61a30fb88573f236e176c1437a807dacd71c4384b7ce63bc2e",
+      "experiments/v22_gnn_training/train.py": "a4315daf2e5fd49e7528f81e3af5ee67c9e01a0c177b0a60cdc457578a39ab5b"
+    },
+    "split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+    "tensor_schema": "salt-hls-target-tensors-v4-semantic-wide-affine-experimental"
+  },
+  "identity_sha256": "44461baba06f885ca257c31130f1d8773525da9aab5155a3c4899d7ba701d5ff",
+  "manifest_sha256": "80ec5ef03d3585d53cb1da520e50dae1706290a4c1c182ce452dd26945271822",
+  "profiles": [
+    "zcu104",
+    "u200"
+  ],
+  "schema": "salt-hls-v4-small-family-disjoint-probe-v1",
+  "seed": 123,
+  "timings_seconds": {
+    "authenticated_data_and_graph_loading_seconds": 150.82393225596752,
+    "cache_serialization_seconds": 0.2616783210542053,
+    "candidate_feature_preparation": 38.77592092577834,
+    "graph_tensorization": 9.82390862959437,
+    "total_preparation": 248.83719189302064
+  },
+  "train_selection_uses_qor": false,
+  "train_updates_per_arm": 20,
+  "training_kernels": [
+    "machsuite-gemm-ncubed",
+    "machsuite-spmv-ellpack",
+    "machsuite-stencil2d",
+    "machsuite-md-knn",
+    "rodinia_dilate_0_baseline_0"
+  ],
+  "validation_and_test_measurements_used_for_fitting": false,
+  "validation_candidate_selection_uses_qor": false,
+  "validation_families": [
+    "machsuite_viterbi",
+    "rodinia_pathfinder"
+  ],
+  "validation_kernels": [
+    "machsuite-viterbi",
+    "rodinia_pathfinder_0_baseline_0"
+  ]
+}

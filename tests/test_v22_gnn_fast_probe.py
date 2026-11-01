@@ -73,3 +73,18 @@ def test_numerical_arm_is_derived_from_same_hardware_graph():
     assert torch.equal(numerical.x, data.x)
     assert torch.equal(numerical.hardware_context, data.hardware_context)
     assert numerical.edge_index.shape[1] <= data.edge_index.shape[1]
+
+
+def test_nonempty_outputs_are_never_overwritten(tmp_path):
+    prepared = tmp_path / 'existing-cache'
+    prepared.mkdir()
+    (prepared / 'keep.txt').write_text('original')
+    with pytest.raises(FileExistsError, match='Refusing to overwrite'):
+        fast_probe.prepare(tmp_path / 'not-used', prepared)
+    run_output = tmp_path / 'existing-run'
+    run_output.mkdir()
+    (run_output / 'keep.txt').write_text('original')
+    with pytest.raises(FileExistsError, match='Refusing to overwrite'):
+        fast_probe.run(prepared, run_output, 'A2', 'uuid')
+    assert (prepared / 'keep.txt').read_text() == 'original'
+    assert (run_output / 'keep.txt').read_text() == 'original'

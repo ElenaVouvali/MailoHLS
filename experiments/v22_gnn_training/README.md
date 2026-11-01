@@ -1,18 +1,21 @@
 # V4 target-aware GNN training
 
-**Current state (2026-11-01):** the fresh V4 data audit reproduced the
-authenticated dataset and split identities. CPU-side contract, graph-tensor,
-resume and evaluator tests completed in this worktree. No V4 GPU smoke, interruption/
-resume smoke, training arm, selected checkpoint or QoR comparison has been
-completed. The A2 is occupied by an unrelated compute process and the V100S is
-reserved and occupied by Stage-1; neither was touched. Full experiment status
-is in [`RESULTS.md`](RESULTS.md), identities and checks in [`AUDIT.md`](AUDIT.md),
-and the current V4 commands in [`RUN_PROTOCOL.md`](RUN_PROTOCOL.md).
+**Current state (2026-11-01):** a bounded V4 small-pool pilot completed on the
+NVIDIA A2. The numerical and hardware-message arms each trained for 20 updates
+with identical initialization and sampled examples, then evaluated the same 32
+measured configurations from two held-out families. Hardware messages changed
+action embeddings and ranking scores, but did not improve top-1 measured-pool
+selection and had worse aggregate latency regret than numerical conditioning
+in this small cohort. The pilot did not show useful held-out QoR learning; it
+is too short to establish that longer training cannot learn. This is not a
+convergence study or a broad generalization result. See [`RESULTS.md`](RESULTS.md),
+[`AUDIT.md`](AUDIT.md), and the machine-readable `results/` receipts.
 
-The active Stage-1 diagnostics and prior run are not overwritten. The A2 is
-selected by its GPU UUID because CUDA ordinal mappings can differ from
-`nvidia-smi` indices. The detached launcher checks model identity, free memory,
-utilization and existing compute processes and refuses to share a busy device.
+The prior V100S smoke remains preserved; it completed five numerical updates
+before the first validation failed due to a missing `Counter` import, now fixed.
+The A2 was verified idle before the bounded run. No other GPU process was
+signaled, and V100S was not used. The GNN outputs remain experimental and are
+not integrated into Stage 2.
 
 ## What the experiment is meant to test
 
@@ -160,8 +163,9 @@ budget-induced QoR shifts. Periodic validation remains a deterministic subset
 and labels subset regret explicitly. The frozen checkpoint-selection score is
 unchanged. If every ranking correlation is undefined, its predeclared score
 uses an explicit neutral zero correlation fallback; the report marks that
-fallback and gives defined/undefined counts and reasons. These V4 evaluation
-paths have not run on an A2.
+fallback and gives defined/undefined counts and reasons. The bounded evaluation described in `RESULTS.md` ran on the A2; the full
+8,000-update protocol and full 104,147-record candidate-pool evaluation remain
+unrun.
 
 The readiness pilot's historic three-kernel results are not modified or
 reinterpreted. That pilot did not include family-held-out evaluation and did
@@ -197,19 +201,18 @@ integration is included here.
 
 ## Current outcome and limitations
 
-The previous V100S attempt produced no model checkpoints and remains
-preserved. The fresh V4 CPU audit passes with explicit historical exclusions.
-GPU training is blocked because `./cudaa` (PID 1181701) occupies the A2; the
-V100S remains reserved for independent Stage-1 work. The V4 launcher was
-retried and refused to share the active A2; neither process was interrupted.
-This work therefore cannot yet
-answer whether hardware messages improve QoR learning. See [`RESULTS.md`](RESULTS.md)
-for current evidence and the blocker.
+The earlier V100S smoke is preserved and failed at its first validation because
+`Counter` was missing from the evaluator imports; it completed five numerical
+updates and produced no selected checkpoint. That import defect is fixed. A
+separate early cohort attempt exposed missing measured action columns for
+Sort-Radix L6, so that validation kernel was excluded rather than assigned a
+fabricated label. The replacement Viterbi cohort is fully mapped. The A2 was
+verified idle for the completed pilot; no other GPU process was signaled.
 
 Even after that run, Kalman is one test family; U50 and 6.67 ns remain outside
 the training contexts and are needed for claims about target generalization.
 The graph does not provide a synthesis-exact resource-binding or schedule
-model, and Stage-2 remains future work. Nothing here establishes improved QoR
+model, and Stage-2 remains future work. Nothing here establishes improved HLS synthesis QoR
 or target generalization.
 
 ## Branch provenance
@@ -247,3 +250,52 @@ V4 checkpoints and optimizer states are incompatible with V3 and must use a
 fresh protocol identity. This experiment does not change the frozen compiler
 graphs, target overlay, candidate-demand contract, training split or production
 V1 GNN. Prior V3 GPU measurements remain historical and are not V4 results.
+
+
+## Bounded V4 fast probe (2026-11-01)
+
+The previous full-corpus validation path repeatedly enriched candidates and
+recomputed demand descriptors for thousands of rows. The fast probe uses the
+existing V4 tensorizer, encoder, candidate head, loss and evaluator, but
+authenticates a fixed small cohort and computes each selected graph/context,
+complete directive vector and candidate-demand tensor once. A hashed cache is
+shared by both arms and all validation calls. Cache keys bind the RC3 graph,
+V4 schema, source/action mapping, feature implementation, target context,
+assignment and demand schema. Equality checks compare cached values with the
+public V4 construction paths. This changes when features are computed, not
+what information the models receive.
+
+| Decision | Alternative | Reason and scientific effect | Validation |
+|---|---|---|---|
+| Precompute 112 selected candidates and 28 graph tensors | Recompute each validation | Avoid repeated compiler feature work while preserving exact inputs | 28 graph, 112 candidate-vector and 112 demand equality checks |
+| Keep V4 graph/tensor schemas unchanged | Add/derive new semantic features | Isolate existing hardware-message representation | RC3 archive and tensor schema hashes recorded in cohort manifest |
+| Use five training kernels and two validation kernels from distinct held-out families | Random row split or test-family tuning | Test transfer to two represented unseen families without splitting related kernel rows | Seed-123 family membership checked before selection |
+| Select training candidates by directive Hamming diversity; validation candidates by hash order | Select validation winners using QoR | Training diversity is useful; validation labels must not choose the pool | Selection rules and candidate hashes frozen in manifest |
+| Use 20 matched updates per arm, seed 123 | Continue the old 8,000-step plan | Bound the diagnostic; assess feasibility before a larger study | Identical initial-state and sample-trace hashes |
+| Run one hardware-edge ablation after matched training | Add model variants | Check whether the learned hardware path changes representations and decisions | Embedding/prediction/ranking deltas recorded |
+
+Exact inputs and results: [`fast_probe_s123_cohort_manifest.json`](results/fast_probe_s123_cohort_manifest.json) and
+[`fast_probe_s123_summary.json`](results/fast_probe_s123_summary.json). Model
+weights and the detailed update journal stay outside Git at
+`/tmp/v22-gnn-v4-fast-probe-s123-r4/training/`. Reproduction commands:
+
+```bash
+PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python \
+  -m experiments.v22_gnn_training.fast_probe prepare \
+  --release-dir /tmp/salt-v22-training-release \
+  --output /tmp/v22-gnn-v4-fast-probe-s123-r5 \
+  --preparation-limit-seconds 600
+
+CUDA_VISIBLE_DEVICES=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 PYTHONPATH=. \
+  /tmp/mailohls-v22-gnn-env-20261030/bin/python \
+  -m experiments.v22_gnn_training.fast_probe run \
+  --output /tmp/v22-gnn-v4-fast-probe-s123-r5 \
+  --run-output /tmp/v22-gnn-v4-fast-probe-s123-r5/training \
+  --gpu-name A2 --gpu-uuid GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+  --updates 20 --candidates-per-update 8 --gpu-limit-seconds 1200
+```
+
+The first attempt selected Sort-Radix, whose L6 registration has no
+authenticated measured column; it failed explicitly and was preserved. The
+final manifest instead uses Viterbi and PathFinder baseline validation graphs.
+No test-split measurements were loaded into the cohort cache.
