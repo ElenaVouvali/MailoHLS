@@ -333,11 +333,22 @@ Receives the compiler graph, candidate features and numerical device/clock/budge
 
 Receives the same information plus explicit FPGA-resource graph messages.
 
-The central question is whether the additional hardware relationships improve prediction or candidate selection.
+QoR prediction and candidate selection are **auxiliary tests** of the learned representations. The framework's final purpose is better **LLM-generated directive configurations**, not deploying a standalone GNN QoR predictor.
 
-As of the current published results, the full matched V4 experiment has not demonstrated a predictive improvement.
+The November 2026 [V4 research results](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/RESULTS.md) show partial candidate-dependent learning, but neither a reliable advantage from hardware messages on held-out families nor useful feasibility discrimination. V4 is **not yet validated for Stage-2**. A separate experimental physical-QoR/budget separation removes unwanted budget-dependent physical predictions without establishing better directive selection.
 
-A smaller, computationally bounded representation experiment is being investigated before pursuing full-scale training.
+## 4.5 Proposed target-aware structural memory (research direction)
+
+A proposed extension preserves the compiler-semantic graph and **candidate-independent, absolute action-aligned memory**, while learning how a deployment target changes the relevance of each action's structural context:
+
+\[
+M_P=E_{\mathrm{MLIR}}(G_P),\qquad
+M_{P,D,T}=M_P+\Delta M(M_P,\operatorname{Capabilities}(D),T).
+\]
+
+A compact, documented FPGA-capability encoder with gated action-specific conditioning (for example, FiLM-style modulation) should be evaluated **against**, rather than assumed superior to, the current V4 hardware-resource message graph. A larger physical device graph is not a prerequisite.
+
+The proposed memory describes program structure and target relevance **before final directive values are known**. Complete candidate assignments, analytical demand and measured preferences may supervise it through separate training heads, but candidate-specific inputs must not leak into exported inference memory. Device and synthesis clock describe physical context; external resource budgets and objectives determine decision preferences. The main acceptance criterion is better **feasible directive selection and, ultimately, Stage-2 generation** relative to V1/compiler-only memory. QoR regression remains supporting supervision. No target-aware V4 memory is deployed in `main`.
 
 Implementation:
 
@@ -599,6 +610,25 @@ Implementation:
 - `LLM_branch/train/train_SFT_xattn_new.py`
 - `scripts/training/train_stage2.sh`
 
+## 6.5 Complementary target conditioning: prompt and structural memory
+
+**Keep the FPGA device, requested clock, BRAM/DSP/FF/LUT budgets and objective in the LLM prompt.** These inputs explicitly define the optimization request. They allow the model to reason about its constraints even if some compiler/hardware evidence is missing. Removing them would unnecessarily place responsibility for the whole request on the experimental structural encoder.
+
+**Current production:** Stage-1 learns target-conditioned directive selection from the prompt. Stage-2 uses the same prompt, while its target-aware LLM hidden states query **V1 target-independent compiler memory**, with absolute action slots and compiler-relation routing. Thus one structural memory can be interpreted differently under different target requests.
+
+**Proposed research extension:** Keep the same target prompt and compiler routing, but provide additional **target-aware V4 action memory** incorporating documented FPGA capabilities and synthesis clock:
+
+\[
+Q=W_Q H_{\mathrm{LLM}}(P,D,T,B,J),\quad K,V=W_{K,V}M_{P,D,T},
+\]
+\[
+H'=H+\tanh(g)\operatorname{CrossAttn}(Q,K,V;\text{compiler routing}).
+\]
+
+The **prompt specifies what is requested**; the **memory supplies which program relationships and hardware capabilities are relevant at each action**. Cross-attention combines them at directive-token decisions. Redundant device information in both pathways is intentional but must be tested: matched and deliberately mismatched target-prompt/memory experiments should establish whether memory adds information beyond the prompt alone. Budget- or objective-conditioned action memory is an optional separate **decision-conditioning** experiment; these inputs must not change the predicted physical QoR of a fixed design.
+
+A new V4 encoder cannot be substituted into V1-trained cross-attention layers merely because both produce 128D vectors. Integration needs versioned graph/encoder/target identity, correct action masks and relations, appropriate cross-attention training, and downstream measured directive evaluation. Stage-3 inherits the selected trained fusion contract; Stage-1, Stage-2 and Stage-3 are not independent inference passes. **This V4 integration is planned, not implemented.**
+
 ---
 
 # 7. Stage-3: Preference-Based Optimization
@@ -745,6 +775,19 @@ Detailed results:
 
 [Authenticated refinement study](https://github.com/ElenaVouvali/MailoHLS/blob/871c3d4b0c83ce0ae29fbd3fed5d2d21bad937fb/experiments/refinement_search/RESULTS.md)
 
+## 8.5 Proposed reuse of structural and target-aware memory in refinement
+
+A future **learned edit-priority scorer** could reuse the same validated, candidate-independent action memory used by Stage-2 for the relevant program/device/clock. Sharing the encoder can avoid a second, incompatible structural representation. However, embeddings alone cannot evaluate a *proposed edit*: the scorer also needs the current/proposed legal directive values, requested budget/objective and available measured search history.
+
+| Component | Role |
+|---|---|
+| Authenticated MLIR graph, compiler witnesses and source domains | Authoritatively verify legal action values and compiler-supported action relationships |
+| Shared action-aligned GNN embeddings, optionally target-conditioned | Provide learned context for **ranking candidate edits** |
+| Proposed edit, complete incumbent and search history | Condition the learned priority on the particular configuration change and observations |
+| Vitis HLS measurements | Determine actual QoR, feasibility and incumbent updates |
+
+**Keep the original compiler graph:** embedding similarity cannot prove dependence, legality or a verified action pair. **Keep synthesis authoritative:** learned rankings can propose promising evaluations, but may not declare measured improvements. The existing refinement policies use compiler/source evidence and measured history and **do not currently invoke a GNN, LLM or learned scorer**. An embedding-guided policy is a **future experiment** to compare at equal logical synthesis-query budgets and on held-out examples.
+
 ---
 
 # 9. End-to-End Inference: What Does the User Provide and Receive?
@@ -861,7 +904,8 @@ The distinction between finalized functionality and ongoing research is importan
 | V4 hardware-aware GNN | Experimental; predictive benefit under investigation |
 | Stage-1 decision-aware supervision | Experimental |
 | Synthesis-feedback refinement | Implemented optional research mechanism |
-| Improved hardware-aware Stage-2 memory | Future integration experiment |
+| Improved hardware-aware Stage-2 memory | Proposed target-conditioned, action-aligned memory; not deployed |
+| Shared-embedding learned refinement ranking | Proposed optional scorer; not part of current refinement |
 
 For the exact checkpoint identities and supported objective combinations, consult:
 
@@ -998,7 +1042,7 @@ Can the language model learn target-sensitive optimization policies rather than 
 
 **2. Better structural representations**
 
-Do compiler-semantic and hardware-resource relationships improve GNN learning, ranking and generalization?
+Can compiler-semantic and authenticated FPGA-capability information produce action-aligned memories that improve target-conditioned **directive decisions** (not merely standalone QoR prediction)?
 
 **3. Better structural–semantic fusion**
 
@@ -1006,7 +1050,7 @@ Can improved graph memories provide information that leads to better complete di
 
 **4. Better refinement mechanisms**
 
-Can compiler-guided exploration find better feasible designs with fewer synthesis evaluations?
+Can compiler-verified exploration—and, if validated, shared-embedding candidate prioritization—find better feasible designs with fewer synthesis evaluations?
 
 **5. Larger design spaces and applications**
 
