@@ -261,3 +261,13 @@ def test_fixed_context_receipt_is_json_serializable(monkeypatch):
     assert isinstance(result['initial_pair_accuracy'], float)
     assert isinstance(result['final_pair_accuracy'], float)
 
+
+def test_unselected_checkpoint_score_is_json_null_not_infinity():
+    import json
+
+    assert probe._json_best_validation_score(None, float('-inf')) is None
+    assert probe._json_best_validation_score(100, 0.75) == 0.75
+    json.dumps({'best_validation_score':
+                probe._json_best_validation_score(None, float('-inf'))},
+               allow_nan=False)
+

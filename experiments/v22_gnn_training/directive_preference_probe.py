@@ -848,6 +848,11 @@ def _gradient_breakdown(model):
     return result
 
 
+def _json_best_validation_score(best_step, best_score):
+    """Represent the not-yet-selected checkpoint state with JSON null."""
+    return float(best_score) if best_step is not None else None
+
+
 def _train_arm(mode, train_groups, val_groups, graph_cache, cand_cache, demand_cache,
                registry, output_dir, device, protocol_sha256,
                updates=300, eval_every=100, time_limit=1200):
@@ -910,7 +915,8 @@ def _train_arm(mode, train_groups, val_groups, graph_cache, cand_cache, demand_c
                 'mode':mode,'last_completed_update':step,'planned_updates':updates,
                 'elapsed_seconds':time.perf_counter()-started,
                 'history':history,'sampling_trace_sha256':_sha(sampling_trace),
-                'best_validation_step':best_step,'best_validation_score':best_score,
+                'best_validation_step':best_step,
+                'best_validation_score':_json_best_validation_score(best_step,best_score),
                 'protocol_sha256':protocol_sha256})
         if time.perf_counter()-started>time_limit:
             raise TimeoutError(f'{mode} exceeded the 20-minute GPU budget')
