@@ -40,6 +40,13 @@ feasible; therefore feasibility is observable in only a small part of this
 validation cohort. The full 104,147-record authenticated dataset was not used
 for fitting, and no test rows were included.
 
+The pilot intentionally used only the 10 ns clock: it compared the two devices
+while keeping frequency fixed and the cohort small. It therefore did not test
+clock-conditioned behavior at 3.33 or 5 ns. Those contexts exist in the
+authenticated dataset, but shared complete-assignment coverage for the selected
+validation kernels has not yet been checked. See
+[`NEXT_STEPS_BRIEF.md`](NEXT_STEPS_BRIEF.md) for a bounded follow-up plan.
+
 The initial candidate cohort used Sort-Radix but the preflight correctly
 rejected it: its source registration includes L6 but the authenticated action
 mapping has no measured column for L6. Its failed attempt and audit receipt

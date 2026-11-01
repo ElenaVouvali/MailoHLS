@@ -7,8 +7,10 @@ measured configurations from two held-out families. Hardware messages changed
 action embeddings and ranking scores, but did not improve top-1 measured-pool
 selection and had worse aggregate latency regret than numerical conditioning
 in this small cohort. The pilot did not show useful held-out QoR learning; it
-is too short to establish that longer training cannot learn. This is not a
-convergence study or a broad generalization result. See [`RESULTS.md`](RESULTS.md),
+is too short to establish that longer training cannot learn. It used only 10 ns,
+so clock-conditioned behavior at 3.33 and 5 ns remains untested. This is not a
+convergence study or a broad generalization result. The proposed follow-up is
+in [`NEXT_STEPS_BRIEF.md`](NEXT_STEPS_BRIEF.md). See [`RESULTS.md`](RESULTS.md),
 [`AUDIT.md`](AUDIT.md), and the machine-readable `results/` receipts.
 
 The prior V100S smoke remains preserved; it completed five numerical updates

@@ -38,8 +38,9 @@ pilot has completed on the A2: 20 matched updates per arm and a small
 family-disjoint measured validation pool. Hardware messages altered embeddings
 and ranking scores but did not consistently improve measured-pool selection;
 the evidence is too small to justify Stage-2 integration or broad claims. Full
-results and limitations are in `experiments/v22_gnn_training/RESULTS.md` on
-that research branch. V4 remains experimental; production still uses the V1
+results and limitations are in `experiments/v22_gnn_training/RESULTS.md`; a
+copy-ready follow-up plan is in `experiments/v22_gnn_training/NEXT_STEPS_BRIEF.md`
+on that research branch. V4 remains experimental; production still uses the V1
 GNN.
 
 ## Start here
