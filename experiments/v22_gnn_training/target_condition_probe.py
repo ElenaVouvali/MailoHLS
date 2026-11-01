@@ -102,7 +102,7 @@ def _feasible_ranked_shortlists(actual_scores, predicted_scores,
               'predicted_feasible_selection_empty': not bool(len(eligible)),
               'topk': {}}
     for k in topk:
-        shortlist = list(order[:k])
+        shortlist = [int(index) for index in order[:k]]
         actual_good = [int(i) for i in shortlist if measured_feasible[i]]
         item = {'requested_k': int(k), 'effective_shortlist_size': len(shortlist),
                 'shortlist_actual_feasible_count': len(actual_good),

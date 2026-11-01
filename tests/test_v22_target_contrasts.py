@@ -87,6 +87,9 @@ def test_feasible_shortlist_reports_selection_success_and_regret():
     assert result['topk']['1']['selected_is_measured_feasible'] is True
     assert result['topk']['1']['relative_measured_feasible_pool_regret'] == 0.0
     assert result['topk']['3']['shortlist_actual_feasible_count'] == 2
+    assert type(result['topk']['1']['selected_index']) is int
+    import json
+    json.dumps(result, allow_nan=False)
 
 
 def test_false_feasible_top_choice_is_not_given_normal_regret():
