@@ -1,0 +1,2520 @@
+{
+  "assessment_seal": "6b450ced4ac446d8fe60b4c48efbade00bb8552fb57858026186e3a215ce2d87",
+  "comparison_note": "Original facts and dependence-edge multisets reproduced. This supplementary stricter audit changes no historical policy, relation, candidate, or QoR.",
+  "files_sha256": {
+    "experiments/refinement/results/search/pilot/shared/graphs/GAN.gexf": "eefc52bf7652eb0cda3609358ac2b8d98472a90ceec1337615c488c0ef1d08b3",
+    "experiments/refinement/results/search/pilot/shared/graphs/Kalman.gexf": "bcb06f71f45ef22649d7e7729abc66af0b67a688c1787a1125c3502ee2fc0238",
+    "experiments/refinement/results/search/pilot/shared/graphs/covariance.gexf": "fdf5e4de970a391a37394d5ea5191fd09b57054648d4a13de41dab573d805b23",
+    "experiments/structural_audit/audit.py": "d04b4c764b61e99be4adcc757e6f435efb87ba93ca9bdc894abce3a821e7acb9"
+  },
+  "original_relation_facts_reproduced": true,
+  "protocol_seal": "b4ed8b95ee8d64dcc91406216659229db8b20efb7c14b614a6ae6ccc3fd98868",
+  "relations": [
+    {
+      "actions": [
+        "L1",
+        "L4"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof.",
+      "diagnostic_support_operations": [
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [
+        "affine.store"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L5"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "func.call"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L6"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "func.call"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": true,
+          "policy": "structural",
+          "signature": "7957fb0792c82d716a7bdcae6e9838be35b8967be6e75a91c99c3577ed588de6",
+          "step": 3
+        },
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "2fe635c89b10ecb2cac43c46aceac7ccba6a3dd1b330b6856f6d43c658ed4676",
+          "step": 8
+        },
+        {
+          "improved": true,
+          "policy": "hybrid",
+          "signature": "6f78e112672879b7eec83a09df37ca7ffaa526b74923ed3c42bf6e827b4b8438",
+          "step": 8
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L7"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "GAN",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": true,
+          "policy": "matched",
+          "signature": "42b94fa0ad61a4721fd6f31c8300324b231e4d107fce4fee10a27c5e615d1e2c",
+          "step": 4
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L8"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L9"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L10"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L11"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L4"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L5"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "func.call"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L6"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "func.call"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L7"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "func.call"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "d24b496d6b4d70c9c17e84ddff19305bc28db94a657f957b5e63cdf1873e9c62",
+          "step": 5
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L2",
+        "L8"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.load",
+        "affine.store",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "func.call"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "88ef21433a21ab673de69f3c8ee0019be30fc8bba71942e89a6792ab68bf063a",
+          "step": 2
+        },
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "26a96737a64ab6cfaa2e4c6775c92167aae3177dfa56c64925acf9c7edc0edbd",
+          "step": 4
+        },
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "3f04acf0ce20ee41a9ba6898fd4fab222eb62bab4a6ae6e2770e83fc333d9cd7",
+          "step": 7
+        },
+        {
+          "improved": false,
+          "policy": "hybrid",
+          "signature": "662be88e5ae741547f253faea26c81ee9e17fbe5d1e34316a153202cf304738b",
+          "step": 4
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L2",
+        "L9"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "func.call"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L10"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [
+        "affine.load",
+        "affine.load",
+        "affine.store"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": true,
+          "policy": "matched",
+          "signature": "3c0feb02474dfea97f03a333e035862d119132f2ba22e336306b10c0872f73f6",
+          "step": 2
+        },
+        {
+          "improved": true,
+          "policy": "matched",
+          "signature": "daff5126ee8ae44514e528f06cdd2780588b6fb1543e7c1df25f1cf3d6f8c3df",
+          "step": 3
+        },
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "7ebe0dcf49243a192f79ae60ee3c4b70ecd362824dde18681c44bb63d470dbbd",
+          "step": 6
+        },
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "bd800cd62bdd8f2549f552852d57b87a4bc168f8c41b6b65f2b677cd4df81564",
+          "step": 8
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L2",
+        "L11"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L4"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "GAN",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": true,
+          "policy": "matched",
+          "signature": "a8ae5b2663a5d1a2a3d601060e7b33ac9abb5170fada8c41ef9727a5ae94b032",
+          "step": 5
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L3",
+        "L5"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof.",
+      "diagnostic_support_operations": [
+        "affine.store",
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [
+        "affine.store",
+        "affine.store"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L6"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof.",
+      "diagnostic_support_operations": [
+        "affine.store",
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [
+        "affine.store",
+        "affine.store"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": true,
+          "policy": "matched",
+          "signature": "f404e536b2959a2c8cf13c42394dcf1b2775ecd60b99cd56a39bda197c4c87e4",
+          "step": 7
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L3",
+        "L7"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof.",
+      "diagnostic_support_operations": [
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [
+        "affine.store"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L8"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store",
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [
+        "affine.load",
+        "affine.store",
+        "affine.store"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L9"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L10"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "func.call"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L11"
+      ],
+      "diagnostic_class": "conservative_unknown",
+      "diagnostic_reason": "Only shared helper reachability, unresolved root/access bindings, or legacy relation evidence; no context-specific proof. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "func.call"
+      ],
+      "kernel": "GAN",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": true,
+          "policy": "structural",
+          "signature": "981f7c8013c107df4468bdcc2b69f540b97d4ca644c8d9b0e0c5952fdaccbeaa",
+          "step": 6
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L4",
+        "L5"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L6"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L7"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L8"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L9"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L10"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L11"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L6"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L7"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L8"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L9"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L10"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L11"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L7"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L8"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L9"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L10"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L11"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L7",
+        "L8"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L7",
+        "L9"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L7",
+        "L10"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L7",
+        "L11"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L8",
+        "L9"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L8",
+        "L10"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L8",
+        "L11"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L9",
+        "L10"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L9",
+        "L11"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L10",
+        "L11"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "GAN",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L2"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "332bbf4cf5e9899d7fca13c57d8d36de8faf31c5231f67ecd2a41015f9e01e4a",
+          "step": 4
+        },
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "a6713ee2073d7a658f229924970857e28a746c443cca60c2be1c313a2e2a4826",
+          "step": 8
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L3"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L4"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L5"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "af4c771329cd5028e152a92328919a6bb5da62af35c8fbeff7eb248fb5d754a6",
+          "step": 2
+        },
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "514764f04222d2b66676caf9b636bc10f27cd6f740bb28299030bf93ba752ca4",
+          "step": 5
+        },
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "ced53edf3b892b3309a0f82a5768e87dfd2574094625d0fd47a8e1337f7b38b5",
+          "step": 8
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L6"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L7"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "9b0055ed0d425b4b87e53dfb56a577ef34019297fcbd89e3a920e71efeb39118",
+          "step": 3
+        },
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "8ddbc07e22be622496f1f9f731842de1b9e8bac0c74f3c98ac97cbbd3d4d15c8",
+          "step": 7
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L2",
+        "L3"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L4"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L5"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "ab7e7196860054300e4523eb3a16012dc884e01b2a6a7dc8167b42793c8c8009",
+          "step": 4
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L2",
+        "L6"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L7"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop",
+      "queried_by": [
+        {
+          "improved": true,
+          "policy": "matched",
+          "signature": "72b0995031cdaf4fd2b99e758a1505d344aee33874b85c14f3ea1a3c9dbdc92e",
+          "step": 6
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L3",
+        "L4"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L5"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "c67dc6db9bf0fa4bc6e2e9056ae06b41e322398a91fcb4ef4dc07fad26843f2b",
+          "step": 2
+        },
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "8026bd2a2eeb9ed840a96737addc97087aee9fe310714435c60461115235b305",
+          "step": 6
+        },
+        {
+          "improved": false,
+          "policy": "hybrid",
+          "signature": "ee512e092f164ce9562275bc5af11e36e9e0479d2be6c3c384adbac7b2cf8db2",
+          "step": 4
+        },
+        {
+          "improved": false,
+          "policy": "hybrid",
+          "signature": "0321292938c424b02f6eb4b3ca9b8c7320da6a952544f13675f7788d9c066262",
+          "step": 8
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L3",
+        "L6"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L7"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L5"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L6"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L7"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "3ceb5e0f0c08d6b4d7edb297d9bcfc58391dec5b7dbc310a009b89394b6acfea",
+          "step": 3
+        },
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "abb5bb661952bd9dd682cc55671b205aec1d1c7c18c73fbfed90c932f02d29c9",
+          "step": 7
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L5",
+        "L6"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L7"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L7"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "covariance",
+      "kind": "loop_loop",
+      "queried_by": [
+        {
+          "improved": true,
+          "policy": "structural",
+          "signature": "4a07794ff3ddd1aa10d892ba4d28285e04114b0e1cfa8d8d71a746f90ee68b6c",
+          "step": 5
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L3"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "memref.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "c578ba41da672a6c7cfe466c18ea72c50771aeaffff46a7f7ad53ca7ff742c7d",
+          "step": 6
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L4"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "memref.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L1",
+        "L9"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region.",
+      "diagnostic_support_operations": [
+        "affine.load"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.load"
+      ],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "c7282d6471e29ee50840ed5a117ecd2d7e89aba76ad376aa627c1b733f0c87f7",
+          "step": 2
+        },
+        {
+          "improved": false,
+          "policy": "hybrid",
+          "signature": "c7282d6471e29ee50840ed5a117ecd2d7e89aba76ad376aa627c1b733f0c87f7",
+          "step": 4
+        },
+        {
+          "improved": false,
+          "policy": "hybrid",
+          "signature": "3e0f4cc7dd61244a6dd1e4982ab247e577eada9613c1815d85c08b2c9c2f90ab",
+          "step": 8
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L10"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region.",
+      "diagnostic_support_operations": [
+        "affine.load"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.load"
+      ],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "fb28fbe0693236d29eee3a934e19f743a9fb960b4c72626f528d3736e9f28400",
+          "step": 6
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L11"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region.",
+      "diagnostic_support_operations": [
+        "affine.load"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.load"
+      ],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "998527890f39b41fa767a05a84a3a8ea0d4db2240aef0a27cb75581817b3100d",
+          "step": 4
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L12"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "dfc70933dd0a58992099d77bd879999f6aabcdf322b6a012cf5ed99239951d5b",
+          "step": 4
+        },
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "5147815fbb71d8bcc6409e5a464137857388503b966cbd8d5d54525059dad086",
+          "step": 7
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L1",
+        "L13"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L3"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L4"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": true,
+          "policy": "matched",
+          "signature": "04da81ddb8bf46eb4566f2a5adc0462197f9854c72d5626b24c1aabcb5696e75",
+          "step": 8
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L2",
+        "L9"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L10"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "210f4f686262377d7b97249f89e61b7f5a62342f5a1aa1c5af841289eb8bf7eb",
+          "step": 2
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L2",
+        "L11"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "3a7d5c83577e05979289194f26870f498f091ca7f576144cc8dd8f54f72d87eb",
+          "step": 3
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L2",
+        "L12"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region.",
+      "diagnostic_support_operations": [
+        "memref.load"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "memref.load"
+      ],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L2",
+        "L13"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region.",
+      "diagnostic_support_operations": [
+        "memref.load"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "memref.load"
+      ],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "d14c42e4c6da2d29bf8b07f829b8f0115a73fda641afa778ea5a38eac4898194",
+          "step": 7
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L5",
+        "L3"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L4"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "matched",
+          "signature": "8d3ac58efc2954bb17f4c75a7a184c2102a34479ac1cf26eb52e79a7af9a4465",
+          "step": 5
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L5",
+        "L9"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L10"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.load"
+      ],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "a321e9d6c9919cbc4104bf6112b633e252763bf9c0b00b7fa0470974bc68e427",
+          "step": 3
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L5",
+        "L11"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region.",
+      "diagnostic_support_operations": [
+        "affine.load",
+        "affine.store"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.load"
+      ],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "68de299e167590881ae5833a6ee80fe4a7422f573b6e3d47f7a9682d822b2931",
+          "step": 8
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L5",
+        "L12"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L5",
+        "L13"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L3"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L4"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L9"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region. Audit uses explicit callsite proof and native directed access semantics; see adaptation evidence.",
+      "diagnostic_support_operations": [
+        "affine.store"
+      ],
+      "historical_class": "conservative_unknown",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L10"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region.",
+      "diagnostic_support_operations": [
+        "affine.store",
+        "affine.load"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.load"
+      ],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L11"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Concrete compiler root-access edge and exact source action bindings in the loop's own region.",
+      "diagnostic_support_operations": [
+        "affine.store",
+        "affine.load"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.load"
+      ],
+      "kernel": "Kalman",
+      "kind": "array_loop",
+      "queried_by": [
+        {
+          "improved": false,
+          "policy": "structural",
+          "signature": "5a90a70873f6770a908b14a29219b7e29f179a9e3484b18e8f44a8e753eaadf5",
+          "step": 5
+        }
+      ]
+    },
+    {
+      "actions": [
+        "L6",
+        "L12"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L6",
+        "L13"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No qualifying access/binding established; this is not proof of independence.",
+      "diagnostic_support_operations": [],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [],
+      "kernel": "Kalman",
+      "kind": "array_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L4"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L9"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L10"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L11"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L12"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L3",
+        "L13"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L9"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L10"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L11"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L12"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L4",
+        "L13"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L9",
+        "L10"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L9",
+        "L11"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L9",
+        "L12"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L9",
+        "L13"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L10",
+        "L11"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L10",
+        "L12"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L10",
+        "L13"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L11",
+        "L12"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L11",
+        "L13"
+      ],
+      "diagnostic_class": "no_evidenced_relation",
+      "diagnostic_reason": "No direct region/dependence proof; absence is not independence.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "no_evidenced_relation",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    },
+    {
+      "actions": [
+        "L12",
+        "L13"
+      ],
+      "diagnostic_class": "direct_verified",
+      "diagnostic_reason": "Verified same-function nested loop region or explicit proven dependence edge.",
+      "diagnostic_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "historical_class": "direct_verified",
+      "historical_support_operations": [
+        "affine.for",
+        "affine.for"
+      ],
+      "kernel": "Kalman",
+      "kind": "loop_loop"
+    }
+  ],
+  "schema": "salt-r11-compiler-sensitivity-v1",
+  "seal": "27b4d9ff8c950bd56106071da5d9834863d4fb0e59ac5ae3ed7dcf8035c8cabd",
+  "verifier_policy": "strict_callsite_and_access_v1"
+}

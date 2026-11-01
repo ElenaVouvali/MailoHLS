@@ -1,0 +1,194 @@
+{
+  "archive": "experiments/refinement/results/local_refinement",
+  "candidate": {
+    "assignment": {
+      "AUTO{_PIPE_L1}": "0",
+      "AUTO{_PIPE_L2}": "0",
+      "AUTO{_PIPE_L3}": "0",
+      "AUTO{_PIPE_L4}": "1",
+      "AUTO{_PIPE_L5}": "0",
+      "AUTO{_PIPE_L6}": "1",
+      "AUTO{_PIPE_L7}": "1",
+      "AUTO{_UNROLL_L1}": "0",
+      "AUTO{_UNROLL_L2}": "10",
+      "AUTO{_UNROLL_L3}": "0",
+      "AUTO{_UNROLL_L4}": "0",
+      "AUTO{_UNROLL_L5}": "0",
+      "AUTO{_UNROLL_L6}": "0",
+      "AUTO{_UNROLL_L7}": "0"
+    },
+    "candidate_group": "refinement",
+    "candidate_id": "r02-covariance-ccf8badf9fca12b4",
+    "canonical_signature": "ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b",
+    "changed_action_count": 1,
+    "changed_action_ids": [
+      "L6"
+    ],
+    "changed_directive_fields": [
+      "AUTO{_PIPE_L6}"
+    ],
+    "changed_field_count": 1,
+    "evaluation_context_hash": "c2aee83a79311514333f07b9fd73c0c722914f8d6bad6daadd07c4f0d7d91d0f",
+    "functional_validation": "not_tested",
+    "kernel": "covariance",
+    "materialized_source_path": "experiments/refinement/results/r02_structural_domains/materialized/r02-covariance-ccf8badf9fca12b4/kernel.cpp",
+    "materialized_source_sha256": "c3ff9fba884b944f1cc27f6af398693620bb651b916a13a338e70b667b870521",
+    "memberships": [
+      {
+        "family": "PIPE",
+        "group": "A"
+      }
+    ],
+    "policy": {
+      "baseline_exception_required": false,
+      "baseline_exceptions": {},
+      "changed_values_new_under_v3": {},
+      "classification": "tcad_v3",
+      "domain_policy": "tcad_source_factors_v3",
+      "legacy_v2_admissible": false,
+      "tcad_v3_admissible": true
+    },
+    "source_context": {
+      "deployment": {
+        "adp_definition": "latency_cycles * area_proxy",
+        "area_definition": "mean of four device-capacity utilization percentages",
+        "device": "ZCU104",
+        "device_capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "flow_target": "vivado",
+        "hls_version": "2021.1",
+        "objective": "ADP",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "requested_clock_ns": 10.0,
+        "resource_budget": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "synthesis_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ]
+      },
+      "header_policy": "genuine verified vendor AP headers; other headers copied exactly",
+      "metadata_sha256": "a155498307bb5cd73d67fc72b4271604525231aaff45d9c3f4452780492c41e0",
+      "snapshot_headers": {},
+      "source_sha256": "2df25e667247b05dfd0dfe3c25f6580864a8fbbca4d2ff50996b5a52b7cb0b98",
+      "template_sha256": "6546ad246056dab796dd1383482aa1e7cb0b8e928a5f42229d998075d937ef2c",
+      "top": "kernel_covariance"
+    },
+    "static_validation": "pragma-only materialization; not functional equivalence",
+    "target": "auto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 0\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 10\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 0\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0"
+  },
+  "physical_evidence_sha256": {
+    "experiments/refinement/results/local_refinement/reused/covariance-ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b/r0_project/solution1/syn/report/kernel_covariance_csynth.xml": "dac020d644b0d863e83c91a93ec7dbe8f692158d04d64c15a92367f585e3ad08",
+    "experiments/refinement/results/local_refinement/reused/covariance-ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b/receipt.json": "6e8dc562b5d8f67237e60d20f40e8906848b2bb7d0678be465d19158a374fa5a",
+    "experiments/refinement/results/local_refinement/reused/covariance-ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b/synthesis.log": "7211e2e7596c26ea63d25c3367c8d2301eb84dd7b845a2707e8a3b7e3479873b"
+  },
+  "result": {
+    "ADP": 1373377.2392939813,
+    "area_proxy": 3.319806134259259,
+    "attempt_count": 1,
+    "authentication": "authenticated_new",
+    "candidate_group": "refinement",
+    "candidate_id": "r02-covariance-ccf8badf9fca12b4",
+    "canonical_signature": "ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b",
+    "comparison_context_id": "db1a0bb4b1b50ca6820e23560b86205cea81be8a78a5e74ebf0f2f35d62d6350",
+    "error": null,
+    "estimated_clock_le_requested": true,
+    "estimated_clock_ns": 7.672,
+    "evaluation_context_hash": "c2aee83a79311514333f07b9fd73c0c722914f8d6bad6daadd07c4f0d7d91d0f",
+    "evidence": {
+      "/home/bonus24/mailohls_r02_20261024_rqQicq/experiments/refinement/results/r02_structural_domains/projects/r02-covariance-ccf8badf9fca12b4/attempt-001/kernel.cpp": "c3ff9fba884b944f1cc27f6af398693620bb651b916a13a338e70b667b870521",
+      "/home/bonus24/mailohls_r02_20261024_rqQicq/experiments/refinement/results/r02_structural_domains/projects/r02-covariance-ccf8badf9fca12b4/attempt-001/r0_project/solution1/syn/report/kernel_covariance_csynth.xml": "dac020d644b0d863e83c91a93ec7dbe8f692158d04d64c15a92367f585e3ad08",
+      "/home/bonus24/mailohls_r02_20261024_rqQicq/experiments/refinement/results/r02_structural_domains/projects/r02-covariance-ccf8badf9fca12b4/attempt-001/receipt.json": "6e8dc562b5d8f67237e60d20f40e8906848b2bb7d0678be465d19158a374fa5a",
+      "/home/bonus24/mailohls_r02_20261024_rqQicq/experiments/refinement/results/r02_structural_domains/projects/r02-covariance-ccf8badf9fca12b4/attempt-001/run_hls.tcl": "2c7f85f047493aa9b0d502526a963d20c8a8e6a603c2554c46981a460fd4382f",
+      "/home/bonus24/mailohls_r02_20261024_rqQicq/experiments/refinement/results/r02_structural_domains/projects/r02-covariance-ccf8badf9fca12b4/attempt-001/synthesis.log": "7211e2e7596c26ea63d25c3367c8d2301eb84dd7b845a2707e8a3b7e3479873b"
+    },
+    "feasible": true,
+    "hls_runtime_seconds": 28.608069802983664,
+    "hls_version": "2021.1",
+    "kernel": "covariance",
+    "latency_cycles": 413692,
+    "log_path": "experiments/refinement/results/r02_structural_domains/projects/r02-covariance-ccf8badf9fca12b4/attempt-001/synthesis.log",
+    "normalized_utilization": {
+      "BRAM_18K": 0.0,
+      "DSP": 1.6203703703703705,
+      "FF": 6.082899305555555,
+      "LUT": 5.575954861111111
+    },
+    "part": "xczu7ev-ffvc1156-2-e",
+    "rankable": true,
+    "receipt_path": "experiments/refinement/results/r02_structural_domains/projects/r02-covariance-ccf8badf9fca12b4/attempt-001/receipt.json",
+    "report_path": "experiments/refinement/results/r02_structural_domains/projects/r02-covariance-ccf8badf9fca12b4/attempt-001/r0_project/solution1/syn/report/kernel_covariance_csynth.xml",
+    "report_sha256": "dac020d644b0d863e83c91a93ec7dbe8f692158d04d64c15a92367f585e3ad08",
+    "requested_clock_ns": 10.0,
+    "resources": {
+      "BRAM_18K": 0,
+      "DSP": 28,
+      "FF": 28030,
+      "LUT": 12847
+    },
+    "returncode": 0,
+    "synthesis_status": "success",
+    "timing_status": "HLS estimate only; not post-route timing",
+    "tool_hash": "3b2d65512b69bf6e8ec647ecb6bfd3a896962b3c69a3305fa5b017435c4d32c0",
+    "tool_identity": {
+      "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+      "vendor_headers": {
+        "ap_fixed.h": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11",
+        "ap_int.h": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+      },
+      "version": "2021.1"
+    },
+    "top": "kernel_covariance"
+  },
+  "seal": "56edfad5c6e62bc2466d90d8d8a4a131b8ff450fd48127e9adf27c93075b21d9",
+  "verified": {
+    "ADP": 1373377.2392939813,
+    "area_proxy": 3.319806134259259,
+    "comparison_context_id": "db1a0bb4b1b50ca6820e23560b86205cea81be8a78a5e74ebf0f2f35d62d6350",
+    "estimated_clock_le_requested": true,
+    "estimated_clock_ns": 7.672,
+    "evidence": {
+      "experiments/refinement/results/local_refinement/reused/covariance-ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b/kernel.cpp": "c3ff9fba884b944f1cc27f6af398693620bb651b916a13a338e70b667b870521",
+      "experiments/refinement/results/local_refinement/reused/covariance-ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b/r0_project/solution1/syn/report/kernel_covariance_csynth.xml": "dac020d644b0d863e83c91a93ec7dbe8f692158d04d64c15a92367f585e3ad08",
+      "experiments/refinement/results/local_refinement/reused/covariance-ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b/receipt.json": "6e8dc562b5d8f67237e60d20f40e8906848b2bb7d0678be465d19158a374fa5a",
+      "experiments/refinement/results/local_refinement/reused/covariance-ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b/run_hls.tcl": "2c7f85f047493aa9b0d502526a963d20c8a8e6a603c2554c46981a460fd4382f",
+      "experiments/refinement/results/local_refinement/reused/covariance-ccf8badf9fca12b41c2237797e636099c9c5c32a3e9dd9048d41f92a7a61769b/synthesis.log": "7211e2e7596c26ea63d25c3367c8d2301eb84dd7b845a2707e8a3b7e3479873b"
+    },
+    "feasible": true,
+    "hls_version": "2021.1",
+    "latency_cycles": 413692,
+    "normalized_utilization": {
+      "BRAM_18K": 0.0,
+      "DSP": 1.6203703703703705,
+      "FF": 6.082899305555555,
+      "LUT": 5.575954861111111
+    },
+    "part": "xczu7ev-ffvc1156-2-e",
+    "rankable": true,
+    "requested_clock_ns": 10.0,
+    "resources": {
+      "BRAM_18K": 0,
+      "DSP": 28,
+      "FF": 28030,
+      "LUT": 12847
+    },
+    "timing_status": "HLS estimate only; not post-route timing",
+    "tool_identity": {
+      "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+      "vendor_headers": {
+        "ap_fixed.h": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11",
+        "ap_int.h": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+      },
+      "version": "2021.1"
+    },
+    "top": "kernel_covariance"
+  }
+}
