@@ -465,3 +465,16 @@ parameters under a separate schema. Checkpoints and raw reports remain
 outside Git. The model remains experimental; candidate-conditioned QoR
 prediction does not validate V4's candidate-independent action memory for
 Stage-2.
+
+A fresh 600-update run subsequently showed that the graph models can fit the
+fixed training context (latency MAE fell from about 1.15 to 0.34 ms), but
+held-out metrics were mixed or worse than at 300 updates. Hardware-arm latency
+Spearman was 0.243 and top-1 regret 2.618 at 600, compared with 0.392 and
+2.345 at 300. At 600, the numerical arm predicted clock-change signs correctly
+on 95.8% of meaningful pairs but had 7.32 ms paired-delta MAE. Hardware had
+59.5% sign accuracy and 7.37 ms MAE. Candidate memorization therefore works;
+target-difference magnitude and family-held-out QoR remain unreliable. The
+authenticated training cohort offers 480 exact assignment clock pairs and 240
+device pairs before filtering, so one predeclared clock-difference supervision
+ablation is justified. Device transfer remains weakly evaluated. See the 600
+step receipts and limitations in `RESULTS.md`.

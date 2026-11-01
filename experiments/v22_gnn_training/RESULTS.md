@@ -494,3 +494,52 @@ seed, loss, optimizer and schedule unchanged. The first launch was blocked
 before training by the clean-source guard. Do not add graph depth or relations.
 Paired target-difference supervision is deferred until this convergence check
 and fixed-context fit are understood.
+
+### Fresh 600-update convergence check
+
+After committing the documentation so the clean-source guard could pass, a
+fresh 600-update run was executed from pinned initialization (not resumed),
+same seed/cohort/optimizer/loss, on the same A2. Data load took 94.04 s,
+feature preparation 143.55 s, and all three arms' GPU training/evaluation
+44.17 s. Maximum allocated GPU memory was 121.6 MB. It used source commit
+`2e2617f00f53a5df3b2757b0477c0c46ad70e2ea`, seed 123, 480 training and 180
+validation measurements, and no test data. Result SHA256
+`0605618f86a542f86e0d1f6fd176841e3e7cc7c271d951ffabeccf68b0fa0bf8`, manifest
+SHA256 `16148104959661fde4f1bf2835bfb2fab87df513ef31b61cf97cbd1afda5d89b`.
+The sampling trace SHA256 is `58a91c753d683912083bcb852208d36a18011f57f48ff6baa11c80c8175736d2`;
+initial graph-arm state SHA256 is the same `f4f5f98a…e2f89956` used by the
+matched numerical/hardware arms.
+
+| Arm | Updates | Train loss first → last | Fixed-context latency MAE, step 0 → 600 | Fixed-context rank, step 0 → 600 | Validation latency MAE ms | MAPE | Spearman | Top-1 regret | Top-3 regret |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Candidate + target | 600 | 0.359 → 0.262 | 1.299 → 0.167 | .693 → .839 | 13.367 | 4.710 | .189 | 7.372 | .035 |
+| Numerical GNN | 600 | 0.353 → 0.296 | 1.146 → 0.344 | .360 → .722 | 5.931 | .497 | .161 | 2.649 | .0069 |
+| Hardware GNN | 600 | 0.354 → 0.298 | 1.160 → 0.341 | .445 → .513 | 6.067 | .639 | .243 | 2.618 | .0039 |
+
+The fixed-context results show that both graph models can fit this selected
+training context by step 600, unlike the mixed 300-step intermediate. This is
+training-set learnability only. Held-out results did not improve uniformly:
+hardware latency Spearman fell from .392 at 300 to .243 at 600, while top-1
+regret changed from 2.345 to 2.618; numerical Spearman fell from .313 to .161,
+while MAE stayed about 5.93 ms. Candidate-only substantially deteriorated.
+The extra updates therefore do not establish better generalization.
+
+At full budget, 600-step clock sign accuracy / paired-delta MAE is .958 / 7.32
+ms (numerical) and .595 / 7.37 ms (hardware). Device sign accuracy is 1.0 / 0.0
+respectively, but these scores use only three meaningful Viterbi pairs; 42
+PathFinder pairs remain negligible. Large delta errors persist. At 50% budget
+all models still have TP=149, FP=31, FN=TN=0 (accuracy .8278, same as the
+always-feasible baseline). Physical latency drift from changing only budget
+remains .184 ms numerical and .300 ms hardware, so the original formulation
+still violates the physical-QoR/budget invariant.
+
+The 600 run satisfies the fixed-context learning gate but not the held-out
+reliability gate. It does not justify new graph semantics or deeper message
+passing. Paired target-difference supervision is now a reasonable *next
+single-variable experiment* for the clock axis: the authenticated training
+cohort has 16 exact assignment identities per each of five kernels across six
+device/clock contexts, so potential supervision is 480 clock pairs and 240
+device pairs before filtering. However, the validation device axis still has
+only three meaningful pairs, so only clock differences can be evaluated with
+any descriptive coverage; device-generalization claims must remain open.
+Predeclare pair aggregation/normalization and coefficient before training.

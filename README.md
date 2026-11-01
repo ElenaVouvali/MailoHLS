@@ -33,9 +33,10 @@ the latest recorded full paired run has no selected checkpoint or QoR result.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
-On `research/gnn-refinement`, the V4 follow-up now includes a corrected
-300-update three-arm comparison and a separately versioned physical-QoR /
-feasibility ablation. The models show some candidate-ranking signal, but
+On `research/gnn-refinement`, the V4 follow-up now includes corrected 300- and
+600-update three-arm comparisons and a separately versioned physical-QoR /
+feasibility ablation. The models can fit a fixed training context, but held-out
+results remain mixed. They show some candidate-ranking signal, but
 resource feasibility remains at the always-feasible baseline, device-pair
 coverage is too small for a conditioning claim, and hardware-message gains are
 inconsistent. Separating resource budget from physical-QoR prediction enforces

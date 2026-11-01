@@ -104,16 +104,15 @@ top-1 regret stays 2.345 and the result is not consistent across all metrics;
 budget-invariant QoR (drift below `5e-7 ms`) but does not improve hardware-arm
 selection.
 
-The 300-step aggregate objective fell and held-out latency ranking improved,
-while the fixed-context regression diagnostic worsened and other validation
-metrics were mixed. A 600-step fresh-from-initialization run is therefore a
-bounded convergence check, not a resume; it is justified only if launched from
-a clean, frozen source tree and within the same preparation/GPU caps. An
-initial attempt was refused by the source-cleanliness guard before training
-started; its audit files are preserved in `attempt-05-600-updates`. Do not
-disable that guard. After the documentation commit, repeat once from a fresh
-output directory with the same cohort/seed/protocol, then compare fixed-context
-and held-out trends. If training does not improve fixed-context fit and
-validation ranking together, stop and diagnose loss/sampling before considering
-paired target-difference supervision. Do not change the encoder or graph.
-V4 remains unsuitable for Stage-2 integration.
+The 600-update run was completed in a clean-source fresh output (not resumed);
+the earlier dirty-tree attempt-05 was preserved and made zero updates. At 600,
+fixed-context latency MAE improved from about 1.15 to 0.34 ms, confirming
+candidate learnability. Held-out metrics were mixed or worse than at 300, and
+feasibility remained the always-feasible baseline. No graph or encoder changes
+are justified. The next single experiment should be a paired target-difference
+loss ablation on the same training cohort, with one control arm and pair
+selection/normalization/coefficient predeclared. Training coverage contains
+480 potential exact assignment clock pairs and 240 device pairs before
+filtering, but held-out device coverage has only three meaningful pairs.
+Evaluate clock-pair response descriptively and do not make a device-transfer
+claim. Keep Stage-2 integration deferred.

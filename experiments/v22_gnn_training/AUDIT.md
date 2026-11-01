@@ -379,6 +379,23 @@ Focused verification after the metric fix passed **49 tests** across
 Python compilation and `git diff --check` also passed. A 600-step launch was
 blocked by the code's clean-source guard because documentation edits were
 uncommitted; it made no optimizer updates. This is preserved as a failed
-preflight receipt, not an experiment. It should be retried only from a new
-output directory after committing the documentation and recording the new
-source commit.
+preflight receipt, not an experiment. The retry completed in a fresh output
+after commit `2e2617f00f53a5df3b2757b0477c0c46ad70e2ea`.
+
+## 600-update run receipt
+
+Output: `/home/elvouvali/mailohls-gnn-runs/v4-corrected-300-s123-20261101/attempt-06-600-updates`.
+Manifest SHA256 `16148104959661fde4f1bf2835bfb2fab87df513ef31b61cf97cbd1afda5d89b`,
+results SHA256 `0605618f86a542f86e0d1f6fd176841e3e7cc7c271d951ffabeccf68b0fa0bf8`.
+Data-load/feature times were 94.04/143.55 s; GPU train/evaluate was 44.17 s;
+peak allocation 121.6 MB. It started fresh, not from optimizer state. Initial
+parameter hash, seed and cohort match the 300-update study.
+
+At step 600, fixed-context latency MAE was 0.344 ms for both graph arms (from
+1.146 numerical / 1.160 hardware at initialization). Held-out hardware latency
+Spearman/top-1 regret were 0.243/2.618, versus 0.392/2.345 at step 300;
+numerical values were 0.161/2.649 versus 0.313/2.790. All arms still had 31
+false-feasible outputs at 50%. Clock sign accuracy was 0.958 numerical and
+0.595 hardware, but paired-delta MAE remained about 7.3 ms. Device sign used
+only three meaningful observations and is not a general result. These
+receipts support fixed-context learnability but not reliable held-out QoR.
