@@ -792,6 +792,30 @@ def _sample_pairs(group, count, rng):
     return result
 
 
+def _gradient_norm(parameters):
+    values=[p.grad.detach().float().norm().square() for p in parameters if p.grad is not None]
+    return float(torch.stack(values).sum().sqrt().cpu()) if values else 0.0
+
+
+def _gradient_breakdown(model):
+    hardware_relations=set(overlay.RELATIONS)
+    row_ids=[i for i,name in enumerate(tensors.RELATIONS)
+             if name.removeprefix('reverse:') in hardware_relations]
+    relation_grad=model.encoder.relation.weight.grad
+    hardware_relation_norm=(float(relation_grad[row_ids].detach().float().norm().cpu())
+                            if relation_grad is not None and row_ids else 0.0)
+    head=list(model.action_kind.parameters())+list(model.local.parameters())+list(model.scorer.parameters())
+    conditioning=(list(model.modulation.parameters())+[model.gate]
+                  if model.modulation is not None else [])
+    result={'encoder_l2':_gradient_norm(model.encoder.parameters()),
+            'hardware_relation_embedding_l2':hardware_relation_norm,
+            'target_conditioner_l2':_gradient_norm(conditioning),
+            'preference_head_l2':_gradient_norm(head)}
+    if not all(math.isfinite(value) for value in result.values()):
+        raise ValueError('Nonfinite parameter-group gradient statistic')
+    return result
+
+
 def _train_arm(mode, train_groups, val_groups, graph_cache, cand_cache, demand_cache,
                registry, output_dir, device, protocol_sha256,
                updates=300, eval_every=100, time_limit=1200):
@@ -823,11 +847,17 @@ def _train_arm(mode, train_groups, val_groups, graph_cache, cand_cache, demand_c
         loss=F.softplus(torch.stack([scores[a]-scores[b] for a,b,_ in sampled])).mean()
         if not torch.isfinite(loss): raise ValueError('Nonfinite preference loss')
         optimizer.zero_grad(set_to_none=True); loss.backward()
+        sampled_classes={kind:sum(pair[2]==kind for pair in sampled)
+                         for kind in ('feasibility','objective')}
+        gradient_groups=_gradient_breakdown(model)
         grad_norm=float(torch.nn.utils.clip_grad_norm_(model.parameters(),1.0))
         if not math.isfinite(grad_norm): raise ValueError('Nonfinite preference gradient')
         optimizer.step()
         if step%25==0 or step==1:
             history.append({'step':step,'loss':float(loss.detach()),'grad_norm':grad_norm,
+                            'clip_applied':bool(grad_norm>1.0),
+                            'sampled_pair_class_counts':sampled_classes,
+                            'gradient_groups':gradient_groups,
                             'gate':float(torch.tanh(model.gate).detach()) if model.gate is not None else None})
         if step%eval_every==0 or step==updates:
             report=evaluate_model(model,val_groups,graph_cache,cand_cache,demand_cache,

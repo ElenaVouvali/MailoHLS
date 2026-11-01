@@ -117,9 +117,10 @@ class _FixedEncoder(torch.nn.Module):
     def __init__(self):
         super().__init__()
         self.bias = torch.nn.Parameter(torch.full((1, 64, 128), 0.2))
+        self.relation = torch.nn.Embedding(len(probe.tensors.RELATIONS), 2)
 
     def memories(self, graph):
-        return self.bias, None
+        return self.bias + self.relation.weight[0, 0] * 0.0, None
 
 
 def _graph():
@@ -163,4 +164,8 @@ def test_preference_scorer_has_finite_candidate_and_memory_gradients():
     assert model.scorer[-1].weight.grad is not None
     assert torch.isfinite(model.encoder.bias.grad).all()
     assert torch.isfinite(model.scorer[-1].weight.grad).all()
+    breakdown = probe._gradient_breakdown(model)
+    assert set(breakdown) == {'encoder_l2','hardware_relation_embedding_l2',
+                              'target_conditioner_l2','preference_head_l2'}
+    assert all(torch.isfinite(torch.tensor(value)) for value in breakdown.values())
 
