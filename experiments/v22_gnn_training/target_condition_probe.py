@@ -581,6 +581,7 @@ def run(args):
     if prep + features_seconds > args.preparation_limit_seconds:
         raise TimeoutError('Authenticated data plus feature preparation exceeded the preparation cap')
     selected_groups = {key: sorted(rows,key=lambda r:r['config_hash']) for key,rows in selected.items()}
+    val_groups = {key: rows for key, rows in selected_groups.items() if rows[0]['split'] == 'val'}
     train_rows = [r for key,rows in selected_groups.items() if rows[0]['split']=='train' for r in rows]
     mean, std = train._fit_normalization(train_rows)
     rank_scales = train.fit_ranking_scales(train_rows)
@@ -726,7 +727,6 @@ def run(args):
                 fixed_curve.append({'step':step, **_fixed_training_diagnostic(
                     model, arm, fixed_key, fixed_rows, graph_cache, candidate_cache,
                     demand_cache, mean, std, rank_scales, device)})
-        val_groups={k:r for k,r in selected_groups.items() if r[0]['split']=='val'}
         # Evaluate small selected pools at both requested budgets and record
         # budget-induced physical QoR prediction changes separately.
         report=_evaluate(model,arm,val_groups,graph_cache,candidate_cache,demand_cache,mean,std,device,
