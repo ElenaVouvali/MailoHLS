@@ -17,7 +17,12 @@ def authenticate(release, audit_path):
     names = sorted(split['train_kernels'] + split['val_kernels'])
     if len(names) != 54 or len(set(names)) != 54:
         raise ValueError('Original non-test inventory changed')
-    validate_preprocessing_manifest(train.PREPROCESSED)  # hashes only, including reserved table
+    preprocessing_path = validate_preprocessing_manifest(train.PREPROCESSED)  # hashes only, including reserved table
+    preprocessing = json.loads(preprocessing_path.read_text())
+    raw_records = {r['kernel']: r for r in preprocessing['kernels']}
+    graph_release = json.loads((ROOT / 'docs/graph-release-v22-rc3.json').read_text())
+    if train.overlay.file_hash(ROOT / graph_release['archive']) != graph_release['archive_sha256']:
+        raise ValueError('Frozen RC3 archive bytes changed')
     examples, manifests, _ = build_examples(train.PREPROCESSED, selected_kernels=set(names))
     source_rows = {r['kernel']: r for r in manifests}
     # PreparedData verifies source/table/split/validator and graph identities for
@@ -34,6 +39,15 @@ def authenticate(release, audit_path):
         for field, path in checks.items():
             if hashlib.sha256(path.read_bytes()).hexdigest() != row[field]:
                 raise ValueError(f'Authenticated {field} changed: {name}')
+        if train.overlay.file_hash(ROOT / 'Data/CSVS' / (name + '.csv')) != raw_records[name]['input_sha256']:
+            raise ValueError(f'Raw CSV bytes changed: {name}')
+        provenance = data.graphs[name][0].graph['provenance']
+        source_dir = checks['source_sha256'].parent
+        if train.overlay.file_hash(source_dir / 'kernel_info.txt') != provenance['metadata_sha256']:
+            raise ValueError(f'Source action metadata changed: {name}')
+        for header, expected in provenance.get('local_header_sha256', {}).items():
+            if train.overlay.file_hash(source_dir / header) != expected:
+                raise ValueError(f'Local source header changed: {name}/{header}')
         missing = row['unmapped_csv_actions']
         if missing:
             source = checks['source_sha256'].read_text()
@@ -60,7 +74,7 @@ def authenticate(release, audit_path):
             'reserved_count_provenance': 'authenticated historical audit, no test labels parsed',
             'eligible_kernel_counts': counts, 'eligible_non_test_records': len(data.records),
             'test_labels_parsed': False, 'excluded_action_assessment': assessments,
-            'authentication': 'source/APL/table/graph hashes verified against frozen full audit; preprocessing hashes verified'}
+            'authentication': 'source/APL/raw CSV/preprocessed table/graph bytes verified; metadata/local headers verified; RC3 archive bytes verified; preprocessing manifest verified'}
 
 
 def main():

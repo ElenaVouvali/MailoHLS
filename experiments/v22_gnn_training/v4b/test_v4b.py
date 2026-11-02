@@ -504,3 +504,21 @@ def test_film_accepts_authenticated_capability_vector_shape():
     graph = _tiny_tensor_graph()
     memory, _ = model.encode(graph, features)
     assert memory.shape == (1, 64, 128)
+
+
+def test_subset_cache_retains_exact_pools_and_refits_train_only_normalization():
+    from .cohorts import subset_manifest, subset_prepared
+    parent = _synthetic_prepared()
+    parent['mean'] = torch.full((5,), 1e9)
+    parent['std'] = torch.full((5,), 1e9)
+    manifest = {'training_kernels': ['train', 'extra'], 'validation_kernels': ['val'],
+                'manifest_sha256': 'parent', 'contexts': {
+                    g['key']: {'kernel': g['kernel'], 'split': g['split'],
+                               'selected_assignment_hashes': [r['config_hash'] for r in g['rows']]}
+                    for g in parent['groups']}}
+    child = subset_manifest(manifest, ['train'])
+    result = subset_prepared(parent, child)
+    assert not torch.equal(result['mean'], parent['mean'])
+    assert all(result['inputs'][key] is parent['inputs'][key] for key in result['inputs'])
+    assert result['groups'][1]['split'] == 'val'
+    assert child['validation_kernels'] == manifest['validation_kernels']

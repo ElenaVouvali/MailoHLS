@@ -465,6 +465,10 @@ def main(argv=None):
                 'source_sha256': {str(path.relative_to(Path(__file__).resolve().parents[3])):
                                  hashlib.sha256(path.read_bytes()).hexdigest() for path in source_files},
                 'torch': torch.__version__, 'gpu_uuid': args.gpu_uuid,
+                'python': __import__('platform').python_version(),
+                'pyg': __import__('torch_geometric').__version__,
+                'numpy': np.__version__, 'cuda_runtime': torch.version.cuda,
+                'cpu_threads': torch.get_num_threads(),
                 'checkpoint_criterion': 'family macro selection failure + feasible top1 regret; pair accuracy tie break'}
     fingerprint = _json_sha(protocol)
     protocol_path = output / 'protocol.json'
@@ -528,11 +532,11 @@ def main(argv=None):
                'preparation_seconds': prepared['preparation_seconds'],
                'selected_measurements': prepared['selected_measurements'],
                'test_kernels_loaded': [], 'sample_coverage': sample_coverage(prepared['groups'], schedule), 'protocol_fingerprint': fingerprint, 'checkpoint_selection': protocol['checkpoint_criterion']}
+    checkpointing.atomic_json(output / 'run_receipt.json', receipt)
+    checkpointing.atomic_json(output / 'training_history.json',
+                              {name: report['history'] for name, report in training.items()})
     checkpointing.atomic_json(output / 'status.json', {'status': 'complete', 'protocol_fingerprint': fingerprint})
-    (output / 'run_receipt.json').write_text(json.dumps(receipt, sort_keys=True, indent=2) + '\n')
-    (output / 'training_history.json').write_text(json.dumps(
-        {name: report['history'] for name, report in training.items()},
-        sort_keys=True, indent=2, allow_nan=False) + '\n')
+
 
 
 if __name__ == '__main__':
