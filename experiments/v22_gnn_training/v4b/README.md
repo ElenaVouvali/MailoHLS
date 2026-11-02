@@ -121,19 +121,17 @@ available GPU and loads only the manifest's 37 train/three validation kernels.
 The local sandbox could not communicate with the NVIDIA driver and its pinned
 PyTorch process reported CUDA unavailable. Direct host inspection after the
 user requested V100S found it idle and CUDA
-available (the A2 was occupied by an unrelated Ray worker). A one-update
-five-arm smoke then spent 31 minutes in CPU preparation before reaching any
-GPU operation and was gracefully stopped at the 30-minute cap. Inspection
-identified that `PreparedData.candidate_inputs()` re-enriched the same
-authenticated graph separately for each assignment. V4b now caches one
-overlay per kernel and candidate vector/demand per complete assignment across
-physical targets; CPU regressions and one authentic cross-clock example check
-exact equality against the existing path. This optimized path has not yet been
-timed on the full cohort.
-The smoke is preserved at
-`/home/elvouvali/mailohls-gnn-runs/v4b-fullcohort-v100s-20261102-smoke01`
-with no checkpoint. The audit and smoke do not constitute a learning result;
-the previous V4 metrics remain historical and are not V4b outcomes.
+available (the A2 was occupied by an unrelated Ray worker). Two one-update
+five-arm smokes spent 31:25 and 30:11 elapsed in CPU preparation before
+reaching GPU work. Both exact PIDs were gracefully stopped at the 30-minute
+cap; the V100S remained unused. The second run used an overlay cache, so V4b
+also memoizes program validation, static action descriptors, action relations,
+and loop semantics by authenticated graph identity. Candidate vectors/demands
+are cached per complete assignment across physical targets. CPU regressions
+and an authentic cross-clock example check exact output equality. The newest
+cache has not been timed on the full cohort. Both output directories are
+preserved without checkpoints. These smokes are not learning results; the
+previous V4 metrics remain historical and are not V4b outcomes.
 
 The default target is the isolated A2; there is no automatic fallback. For
 the current user-authorized V100S attempt, select it explicitly by its verified
@@ -191,6 +189,7 @@ compare it against V1 memory and prompt-only conditioning.
 | Keep the RC3 graph and V4 encoder frozen | Add resource node types/relations or increase depth | Historical full-cohort eligibility and V4 audits do not establish an encoder defect; holding this fixed isolates memory conditioning and candidate comparison | Existing graph/tensor tests plus V4b output shape and edge ablation tests |
 | Use 37/3 strict complete-assignment train/validation kernels | Impute missing registered actions or mix recovered subsets | Fourteen exclusions contain unknown action states; defaults would fabricate assignments. The fixed cohort maximizes the already authenticated full assignments without cross-family leakage | Full eligibility receipt; no test kernels in V4b records |
 | Use a support-first Hamming-diverse 16-candidate pool | Select validation winners or require all six targets | QoR-independent selection avoids winner leakage and exact target intersections remain separately auditable; contexts with fewer than 16 examples remain smaller | Frozen manifest hashes and deterministic selection test |
+| Memoize V4b candidate analysis by authenticated program identity | Rebuild overlay/static action relations/loop semantics per row | The first two full-cohort smokes spent 30+ minutes in redundant CPU preparation; cached outputs preserve the existing descriptor functions and values | Exact cached/uncached parity on authenticated candidates, graph-identity cache isolation, 7.32x eight-candidate single-kernel microbenchmark |
 | Separate physical QoR from requested feasibility budget | Preserve budget-conditioned physical predictions | The budget is a deployment limit, not a synthesis input. Resource feasibility is computed after QoR prediction from predicted counts and physical capacities | Full-capacity graph guard and exact QoR budget-invariance test |
 | Add zero-gated profile FiLM as a simple target-memory arm | Add a richer FPGA graph or device-ID embedding | Profile capabilities and knownness masks exist in the authenticated registry; FiLM tests whether these physical facts can modulate action memory without a larger graph or ID shortcut | Zero-gate equality and finite-gate-gradient tests; full run not yet executed |
 | Prefer complete-configuration ADP pairs as the learning target | Make absolute QoR the primary objective or train independent directive labels | The research goal is directive choice. Pair labels respect feasibility and near ties; physical QoR remains an auxiliary hybrid loss | Pair direction, feasibility, tie and ambiguous-zero tests |

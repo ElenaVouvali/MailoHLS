@@ -288,14 +288,16 @@ class CandidatePredictor(nn.Module):
         return self.head(torch.cat([pooled[context_index],local,context],dim=-1))
 
 
-def candidate_demand_tensor(target_overlay, assignments, actions, slots=64):
+def candidate_demand_tensor(target_overlay, assignments, actions, slots=64,
+                            analysis_cache=None):
     """Create separate candidate-only features for the experimental QoR head.
 
     `assignments` must be a complete source-legal map. This tensor is never
     attached to graph tensors or reusable pragma-free structural memory.
     """
     if slots < 1: raise ValueError('slots must be positive')
-    result=action_demand.candidate_demand_descriptors(target_overlay,assignments,actions)
+    result=action_demand.candidate_demand_descriptors(
+        target_overlay,assignments,actions,analysis_cache=analysis_cache)
     out=torch.zeros(slots,CANDIDATE_DEMAND_DIM,dtype=torch.float32)
     for label,row in result['actions'].items():
         slot=int(label[1:])-1

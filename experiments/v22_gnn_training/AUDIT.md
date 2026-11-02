@@ -615,9 +615,9 @@ Viterbi/U200/5 ns zero-area ADP pairs are excluded from preference ordering.
 
 ## CPU verification and GPU gate
 
-The focused V4b suite passed **15 tests, 0 failed, 0 skipped**, including the
-explicit V100S guard and cached-feature parity regressions. The final combined
-suite passed **64 tests, 0 failed, 0 skipped**. V4b Python compilation, runner
+The focused V4b suite passed **16 tests, 0 failed, 0 skipped**, including the
+explicit V100S guard, cache parity, and graph-identity cache-isolation
+regressions. The final combined suite passed **65 tests, 0 failed, 0 skipped**. V4b Python compilation, runner
 `--help`, and `git diff --check` passed. An earlier combined run exposed an
 omitted zero-valued audit count; the API was corrected and the final suite
 passed.
@@ -637,11 +637,18 @@ match the current `audit.py`, `preferences.py`, `models.py`, and
 
 The sandbox has no NVIDIA device nodes and local PyTorch reports CUDA
 unavailable. Direct SSH inspection found the A2 occupied by an unrelated Ray
-worker and the V100S idle. A user-authorized V100S smoke started, but CPU
-candidate preparation exceeded 30 minutes before GPU allocation; verified PID
-2250277 was gracefully interrupted. No optimizer update or checkpoint was
-produced. The repeated enriched-graph construction was identified and V4b now
-caches one authenticated overlay per kernel and candidate tensors by complete
-assignment across physical targets. A focused regression and an authenticated
-same-assignment comparison across U200/10 ns and U200/3.33 ns confirm exact
-vector/demand equality. Full-cohort cached runtime remains unmeasured.
+worker initially and the V100S idle. Two user-authorized V100S one-update
+smokes reached CPU feature preparation but did not reach GPU allocation:
+PID 2250277 exited after 31:25 elapsed/34:17 CPU, and PID 2290688 exited after
+30:11 elapsed/33:20 CPU. Both received SIGINT after their 30-minute
+preparation cap; neither made an optimizer update or checkpoint. V100S memory
+remained at 4 MiB during both attempts. The second run used the first overlay
+cache. The current code additionally memoizes program validation, static
+action descriptors, action relations, and loop semantics per authenticated
+graph identity, and candidate tensors per complete assignment. Focused tests
+pass; two authenticated candidates exactly match cached and uncached demand
+vectors, and one shared assignment matches across U200/10 ns and U200/3.33 ns.
+For eight assignments on MachSuite GEMM-blocked, demand preparation took
+0.520 s without analysis caching and 0.071 s with it (7.32x in this
+single-kernel microbenchmark). The full-cohort runtime of this latest cache
+remains unmeasured.

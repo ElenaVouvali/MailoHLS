@@ -247,14 +247,15 @@ CUDA. All arms share a family-balanced sampled pair trace, fixed candidate
 pools, train-only QoR normalization, AdamW settings, pair loss and validation
 steps. It selects checkpoints only on validation feasible-selection failure
 plus feasible top-1 ADP regret, with preference accuracy as a tie-break. A
-V100S one-update smoke was attempted under the explicit user override, but
-candidate feature preparation exceeded 30 minutes before GPU work; it was
-gracefully interrupted. V4b now caches the authenticated overlay once per
-kernel and candidate vectors/demands once per complete assignment across
-physical targets. Exact output equality is tested, including one authentic
-assignment checked across two clock contexts. That optimized path must pass a
-fresh smoke before the 1,500-step run. Do not report preflight or audit
-outputs as model results. The pairwise difference
+Two V100S one-update smokes were attempted under the explicit user override;
+candidate preparation exceeded 30 minutes before GPU work in both and each
+was gracefully interrupted. V4b now caches the authenticated overlay once per
+kernel, candidate vectors/demands once per complete assignment across targets,
+and static program/action-query analysis by authenticated graph identity.
+Exact output equality is tested, including one authentic assignment checked
+across two clock contexts. This newest cache must pass a fresh smoke before
+the 1,500-step run. Do not report preflight or audit outputs as model results.
+The pairwise difference
 arm's pool selection uses deterministic net wins; document possible
 non-transitive cycles in any result. Stage-2 and production artifacts remain
 out of scope.

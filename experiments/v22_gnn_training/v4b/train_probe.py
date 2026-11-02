@@ -59,11 +59,11 @@ def require_isolated_gpu(gpu_name, gpu_uuid, minimum_free_mib):
     if active:
         raise RuntimeError(f'Refusing to share occupied {gpu_name}: {active}')
     if gpu['free_mib'] < minimum_free_mib or gpu['utilization_percent'] > 15:
-        raise RuntimeError(f'A2 does not meet free-memory/utilization guard: {gpu}')
+        raise RuntimeError(f'{gpu_name} does not meet free-memory/utilization guard: {gpu}')
     if os.environ.get('CUDA_VISIBLE_DEVICES') != gpu_uuid:
-        raise RuntimeError('Set CUDA_VISIBLE_DEVICES to the verified A2 UUID before Python starts')
+        raise RuntimeError('Set CUDA_VISIBLE_DEVICES to the verified GPU UUID before Python starts')
     if os.environ.get('SALT_HLS_GPU_UUID') != gpu_uuid:
-        raise RuntimeError('SALT_HLS_GPU_UUID must identify the verified A2')
+        raise RuntimeError('SALT_HLS_GPU_UUID must identify the verified GPU')
     return gpu
 
 
@@ -77,7 +77,8 @@ def _families(split):
     return result
 
 
-def _cached_candidate_inputs(data, row, enriched_graph_cache, candidate_cache):
+def _cached_candidate_inputs(data, row, enriched_graph_cache, candidate_cache,
+                            analysis_cache_by_kernel):
     """Reuse authenticated target overlays while preparing candidate features.
 
     The shared PreparedData.candidate_inputs path rebuilds the enriched graph
@@ -98,7 +99,9 @@ def _cached_candidate_inputs(data, row, enriched_graph_cache, candidate_cache):
             base, row['profile'], row['clock'], authentication=authentication)
     enriched = enriched_graph_cache[kernel]
     actions = data.actions[kernel]
-    demand, _ = train.candidate_demand_tensor(enriched, row['assignment'], actions)
+    analysis_cache = analysis_cache_by_kernel.setdefault(kernel, {})
+    demand, _ = train.candidate_demand_tensor(
+        enriched, row['assignment'], actions, analysis_cache=analysis_cache)
     candidate = train.candidate_vector(row['assignment'], actions)
     candidate_cache[candidate_key] = (candidate, demand)
     return candidate_cache[candidate_key]
@@ -123,6 +126,11 @@ def prepare_small_cohort(data, manifest_path, device):
             manifest.get('family_split_sha256') != data.audit['dataset']['split_sha256'] or
             manifest.get('graph_archive_sha256') != data.audit['graph_release']['archive_sha256']):
         raise ValueError('V4b manifest dataset/split/graph identities do not match authenticated inputs')
+    demand_hash = hashlib.sha256(
+        (Path(__file__).resolve().parents[3] / 'GNN_branch/action_demand_v22.py').read_bytes()
+    ).hexdigest()
+    if manifest.get('action_demand_implementation_sha256') != demand_hash:
+        raise ValueError('V4b manifest candidate-demand implementation hash does not match')
     if set(manifest.get('training_kernels', ())) & set(manifest.get('validation_kernels', ())):
         raise ValueError('V4b training and validation kernel lists overlap')
     indexed = defaultdict(dict)
@@ -130,6 +138,7 @@ def prepare_small_cohort(data, manifest_path, device):
         indexed[(row['kernel'], row['profile'], float(row['clock']))][row['config_hash']] = row
     groups = []
     graph_cache, inputs, enriched_graph_cache, candidate_cache = {}, {}, {}, {}
+    analysis_cache_by_kernel = {}
     from experiments.v22_gnn_training.directive_preference_probe import capability_vector
     profile_features = {}
     split = data.kernel_split
@@ -159,7 +168,8 @@ def prepare_small_cohort(data, manifest_path, device):
             identity = (kernel, profile, clock, row['config_hash'])
             if identity not in inputs:
                 candidate, demand = _cached_candidate_inputs(
-                    data, row, enriched_graph_cache, candidate_cache)
+                    data, row, enriched_graph_cache, candidate_cache,
+                    analysis_cache_by_kernel)
                 inputs[identity] = (candidate.cpu(), demand.cpu())
         groups.append({'key': context_id, 'kernel': kernel, 'profile': profile,
                        'clock': clock, 'family': families.get(kernel, kernel),

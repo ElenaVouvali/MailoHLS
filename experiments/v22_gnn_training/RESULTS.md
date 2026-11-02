@@ -860,15 +860,25 @@ counts are 126,930 (candidate/target control), 127,538 (compiler), 191,667
 comparator). FiLM and difference arms have extra capacity; no parameter-
 matched controls for those added modules were run.
 
-The smoke exposed repeated authenticated overlay construction in the existing
-`PreparedData.candidate_inputs()` call: one overlay was rebuilt for each
-candidate. V4b now reuses one overlay per kernel and caches candidate vectors
-and demand tensors per `(kernel, complete-assignment hash)` across physical
-targets. The tensor API's candidate-demand projection contains program and
-directive features; target metadata is discarded. One authentic common
-assignment was compared across U200/10 ns and U200/3.33 ns with exactly equal
-demand tensors, and cached versus uncached vector/demand outputs were exactly
-equal. Full-cohort optimized preparation time remains unmeasured.
+The first smoke exposed repeated authenticated overlay construction in the
+existing `PreparedData.candidate_inputs()` call: one overlay was rebuilt for
+each candidate. V4b first cached one overlay per kernel, but a second attempt
+still spent 30:11 elapsed (33:20 CPU) in candidate preparation before GPU
+work. Both attempts were gracefully interrupted at the preflight cap and
+created no checkpoints. Inspection then found that candidate-demand analysis
+also reran program validation, static-action extraction, relation queries and
+loop-semantics queries for each assignment. The current V4b cache reuses one
+overlay per kernel, analysis results per authenticated graph identity, and
+candidate vectors/demands per `(kernel, complete-assignment hash)` across
+physical targets. These are memoized outputs from the existing APIs; no
+features or labels changed. The tensor API's candidate-demand vector contains
+program/directive features; target metadata is discarded. One authentic
+assignment matched exactly across U200/10 ns and U200/3.33 ns, and two
+additional candidate vectors/demands matched exactly between cached and
+uncached calls. In a one-kernel CPU microbenchmark, eight demand vectors took
+0.520 s uncached and 0.071 s with static analysis/query caching (7.32x); this
+small-kernel timing is not a full-cohort estimate. The optimized full-cohort
+preparation has not yet been timed.
 
 These are implementation/test findings, not selection results. Neither
 compiler graph memory nor hardware messages have yet been trained on the full
@@ -887,10 +897,11 @@ frozen five-arm command in `v4b/README.md`; do not use the reserved V100S.
 | Compiler action-difference | Not run | Not run | Not run | Not run | No checkpoint |
 
 The full CPU audit completed in 78.35 seconds in the pinned environment; that
-is data authentication/coverage time. The attempted unoptimized selected-pool
-feature preparation exceeded 30 minutes. The cached implementation is a
-subsequent code fix and must be timed before any optimizer run. GPU training
-time, model validation time, and peak GPU allocation remain unmeasured.
+is data authentication/coverage time. Two selected-pool preparation attempts
+exceeded 30 minutes before reaching GPU work. The current graph-analysis cache
+is a subsequent code fix and must be timed in a fresh smoke before any
+optimizer run. GPU training time, model validation time, and peak GPU
+allocation remain unmeasured.
 
 ### Reproducibility receipts
 

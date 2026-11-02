@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import torch
 from torch_geometric.data import Data
 
+from GNN_branch import action_demand_v22 as action_demand
 from GNN_branch import mlir_graph_v2 as compiler
 from GNN_branch import target_graph_tensor_v22 as tensors
 from experiments.target_graph_readiness.experiment import CANDIDATE_DEMAND_DIM
@@ -198,20 +199,21 @@ def test_candidate_feature_cache_reuses_overlay_and_matches_prepared_data(monkey
                         lambda base, profile, clock, authentication=None: calls.append(
                             (profile, clock, authentication)) or marker)
     monkeypatch.setattr(train, 'candidate_demand_tensor',
-                        lambda graph, assignment, actions: (torch.tensor([float(assignment['x'])]), None))
+                        lambda graph, assignment, actions, analysis_cache=None:
+                        (torch.tensor([float(assignment['x'])]), None))
     data = FakeData()
-    cache, candidate_cache = {}, {}
+    cache, candidate_cache, analysis_cache = {}, {}, {}
     row_a = {'kernel': 'kernel', 'profile': 'zcu104', 'clock': 10.,
              'assignment': {'x': 1}, 'config_hash': 'a'}
     row_b = {'kernel': 'kernel', 'profile': 'zcu104', 'clock': 10.,
              'assignment': {'x': 2}, 'config_hash': 'b'}
-    cached_a = _cached_candidate_inputs(data, row_a, cache, candidate_cache)
-    cached_b = _cached_candidate_inputs(data, row_b, cache, candidate_cache)
+    cached_a = _cached_candidate_inputs(data, row_a, cache, candidate_cache, analysis_cache)
+    cached_b = _cached_candidate_inputs(data, row_b, cache, candidate_cache, analysis_cache)
     assert len(calls) == 1
 
     same_assignment_other_target = dict(row_a, profile='u200', clock=3.33)
     cached_other_target = _cached_candidate_inputs(
-        data, same_assignment_other_target, cache, candidate_cache)
+        data, same_assignment_other_target, cache, candidate_cache, analysis_cache)
     assert cached_other_target is cached_a
     assert len(calls) == 1
 
@@ -224,6 +226,41 @@ def test_candidate_feature_cache_reuses_overlay_and_matches_prepared_data(monkey
                            (cached_other_target, legacy_other_target)):
         assert torch.equal(cached[0], legacy[0])
         assert torch.equal(cached[1], legacy[1])
+
+
+def test_candidate_demand_analysis_cache_reuses_graph_static_queries(monkeypatch):
+    import networkx as nx
+    from LLM_branch.common import directive_domains
+
+    program = nx.MultiDiGraph()
+    program.graph.update(schema='fake-program', semantic_revision='rc3', graph_identity='program-1')
+    overlay = nx.MultiDiGraph()
+    overlay.graph.update(schema=action_demand.overlay.SCHEMA,
+                         graph_identity='overlay-1', program_graph_identity='program-1',
+                         target_profile_id='zcu104', target_profile={'resources': {}},
+                         deployment={})
+    calls = {'program': 0, 'static': 0}
+    monkeypatch.setattr(directive_domains, 'validate_assignments', lambda assignments, actions: None)
+    monkeypatch.setattr(action_demand, '_program', lambda graph: calls.__setitem__(
+        'program', calls['program'] + 1) or program)
+    monkeypatch.setattr(action_demand, 'static_action_descriptors', lambda graph: calls.__setitem__(
+        'static', calls['static'] + 1) or {'actions': {}})
+    monkeypatch.setattr(action_demand, '_target_map', lambda graph: {})
+    cache = {}
+    first = action_demand.candidate_demand_descriptors(overlay, {}, {}, analysis_cache=cache)
+    second = action_demand.candidate_demand_descriptors(overlay, {}, {}, analysis_cache=cache)
+    assert first['actions'] == second['actions'] == {}
+    assert calls == {'program': 1, 'static': 1}
+
+    other_overlay = nx.MultiDiGraph()
+    other_overlay.graph.update(overlay.graph, graph_identity='overlay-2',
+                               program_graph_identity='program-2')
+    try:
+        action_demand.candidate_demand_descriptors(other_overlay, {}, {}, analysis_cache=cache)
+    except ValueError as exc:
+        assert 'reused across program graphs' in str(exc)
+    else:
+        raise AssertionError('Analysis cache must not cross authenticated graph identities')
 
 
 def test_full_assignment_target_coverage_detects_real_winner_reversal():

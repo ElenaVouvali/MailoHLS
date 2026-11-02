@@ -447,7 +447,7 @@ def _candidate_access_bank(row, loop_target, lane_count, mode, factor, dimension
     return None
 
 
-def candidate_demand_descriptors(graph, assignments, actions):
+def candidate_demand_descriptors(graph, assignments, actions, analysis_cache=None):
     """Analyze a complete legal assignment; candidate data never enter static vectors.
 
     `assignments` uses the directive-domain AUTO keys and `actions` is the
@@ -456,10 +456,43 @@ def candidate_demand_descriptors(graph, assignments, actions):
     from LLM_branch.common import directive_domains as domains
     if graph.graph.get('schema') != overlay.SCHEMA:
         raise ValueError('Candidate demand requires an existing target overlay to identify FPGA/clock/budget context')
-    program=_program(graph)
+    if analysis_cache is None:
+        program=_program(graph)
+        static=static_action_descriptors(program)['actions']
+        targets=_target_map(program)
+        relation_cache={}
+        loop_cache={}
+    else:
+        expected_identity = graph.graph.get('program_graph_identity')
+        if not expected_identity:
+            raise ValueError('Target overlay lacks authenticated program graph identity')
+        cached_identity = analysis_cache.setdefault('program_graph_identity', expected_identity)
+        if cached_identity != expected_identity:
+            raise ValueError('Candidate-demand analysis cache reused across program graphs')
+        if 'program' not in analysis_cache:
+            analysis_cache['program'] = _program(graph)
+        program = analysis_cache['program']
+        if 'static_actions' not in analysis_cache:
+            analysis_cache['static_actions'] = static_action_descriptors(program)['actions']
+        static = analysis_cache['static_actions']
+        if 'targets' not in analysis_cache:
+            analysis_cache['targets'] = _target_map(program)
+        targets = analysis_cache['targets']
+        relation_cache = analysis_cache.setdefault('action_relations', {})
+        loop_cache = analysis_cache.setdefault('loop_semantics', {})
     domains.validate_assignments(assignments,actions)
-    static=static_action_descriptors(program)['actions']
-    targets=_target_map(program)
+
+    def action_relations(action):
+        if action not in relation_cache:
+            relation_cache[action] = queries.get_action_point_relations(
+                program, action, evidence='all')
+        return relation_cache[action]
+
+    def loop_semantics(action):
+        if action not in loop_cache:
+            loop_cache[action] = queries.get_loop_semantics(program, action)
+        return loop_cache[action]
+
     config_hash=_sha(assignments)
     output={}
     matched_arrays={a for a,d in static.items() if d.get('matched') and d.get('kind')=='array'}
@@ -480,14 +513,14 @@ def candidate_demand_descriptors(graph, assignments, actions):
                 'nominal_readwrite_occurrences':_known(access['invocation_readwrites']*lanes,witnesses=access['operation_ids'],interpretation='Call-scoped readwrite occurrences times lanes; nested dynamic counts excluded; not simultaneous ports'),
                 'nominal_memory_access_occurrences':_known(access['invocation_witnesses']*lanes,witnesses=access['operation_ids'],interpretation='Call-scoped static access occurrences times lanes; nested dynamic counts excluded; not cycle count'),
                 'known_dependence_count':_known(known_dep,witnesses=[d['witness'] for d in dep['dependences']],interpretation='Observed dependence edges; absence is unknown, not independence')})
-            related=[r['neighbor'] for r in queries.get_action_point_relations(program,action,evidence='all') if r['relation_type']=='memory_access' and r['neighbor'] in matched_arrays]
+            related=[r['neighbor'] for r in action_relations(action) if r['relation_type']=='memory_access' and r['neighbor'] in matched_arrays]
             bank_records=[]
             for array in sorted(set(related)):
                 atarget=targets[array]; aa=assignments[f'AUTO{{_ARRAY_T_{array}}}']; ff=int(assignments[f'AUTO{{_ARRAY_F_{array}}}']);dd=int(assignments[f'AUTO{{_ARRAY_D_{array}}}'])
                 mode=aa.lower(); shape=program.nodes[atarget].get('memory_shape')
                 if not isinstance(shape,(tuple,list)) or any(type(s) is not int or s<1 for s in shape):shape=[]
                 factor=(shape[dd-1] if mode=='complete' and dd>0 and len(shape)>=dd else ff)
-                rows=[r for r in queries.get_loop_semantics(program,action)['accesses'] if r.get('memory_object')==atarget or r.get('memory_root')==atarget]
+                rows=[r for r in loop_semantics(action)['accesses'] if r.get('memory_object')==atarget or r.get('memory_root')==atarget]
                 known_patterns=[];unknown=0
                 for row in rows:
                     banks=_candidate_access_bank(row,targets[action],lanes,mode,factor,dd,shape) if mode=='none' or (mode in ('cyclic','block','complete') and factor) else None

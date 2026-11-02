@@ -449,6 +449,8 @@ def build_report(release_dir, authenticated_audit, output_dir, candidates_per_co
         'preference_builder_sha256': _sha(Path(__file__).with_name('preferences.py')),
         'model_implementation_sha256': _sha(Path(__file__).with_name('models.py')),
         'training_runner_sha256': _sha(Path(__file__).with_name('train_probe.py')),
+        'action_demand_implementation_sha256': _sha(
+            ROOT / 'GNN_branch/action_demand_v22.py'),
         'dataset_sha256': audit['dataset']['dataset_sha256'],
         'family_split_sha256': audit['dataset']['split_sha256'],
         'graph_archive_sha256': audit['graph_release']['archive_sha256'],
@@ -498,6 +500,8 @@ def build_report(release_dir, authenticated_audit, output_dir, candidates_per_co
               'dataset_sha256': audit['dataset']['dataset_sha256'],
               'family_split_sha256': audit['dataset']['split_sha256'],
               'graph_archive_sha256': audit['graph_release']['archive_sha256'],
+              'action_demand_implementation_sha256':
+                  eligibility['action_demand_implementation_sha256'],
               'training_kernels': train_names, 'validation_kernels': val_names,
               'candidate_pool_size': candidates_per_context,
               'family_disjoint': True, 'test_kernels_loaded': [], 'contexts': pool_manifest}

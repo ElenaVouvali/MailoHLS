@@ -175,14 +175,14 @@ clock or budget winner reversals.
 V4b implements physical-QoR/budget separation, complete-assignment ADP pair
 construction, candidate/target and compiler controls, target-FiLM modulation,
 hardware messages, and an antisymmetric action-difference head. A direct host
-query found the V100S idle (A2 was occupied); the one-update smoke was started
-there but spent 31 minutes repeatedly enriching the same graph during
-candidate preparation, before any GPU operation. Its verified PID was
-gracefully interrupted. V4b now caches one overlay per kernel and candidate
-vectors/demands per complete assignment across targets; CPU regressions and an
-authenticated cross-clock example check equality against the existing path.
-The optimized path has not yet been timed, and no V4b checkpoint or selection
-result exists.
+query found the V100S idle (A2 was occupied). Two one-update smokes were
+started there, but each exceeded 30 minutes in CPU preparation before GPU
+work and was gracefully interrupted by verified PID. V4b now caches one
+overlay per kernel, static program/action analysis per graph identity, and
+candidate vectors/demands per complete assignment across targets. CPU
+regressions and an authenticated cross-clock example check equality against
+the existing path. The newest cache has not yet been timed, and no V4b
+checkpoint or selection result exists.
 The current conservative classification is
 `EXPERIMENT_INCOMPLETE_RESOURCE_LIMIT`.
 
