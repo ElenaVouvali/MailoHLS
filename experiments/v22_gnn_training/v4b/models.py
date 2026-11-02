@@ -95,6 +95,8 @@ class TargetFilmV4bModel(V4bGraphModel):
         if profile_features is None:
             raise ValueError('Target-FiLM memory requires authenticated profile features')
         features = torch.as_tensor(profile_features, dtype=memory.dtype, device=memory.device)
+        if features.shape == (self.profile_feature_dim,):
+            features = features.unsqueeze(0)
         if features.shape != (1, self.profile_feature_dim) or not torch.isfinite(features).all():
             raise ValueError('Physical profile features must be finite [1,profile_feature_dim]')
         active = (graph.registered_mask & graph.matched_mask).squeeze(0)

@@ -494,3 +494,13 @@ def test_all_arms_cpu_forward_backward_and_independent_no_graph():
         assert any(g.abs().sum() > 0 for g in grads)
     assert not hasattr(models['no_graph'], 'graph')
     assert set(map(id, models['no_graph'].parameters())).isdisjoint(map(id, models['compiler'].parameters()))
+
+
+def test_film_accepts_authenticated_capability_vector_shape():
+    from GNN_branch.target_graph_v22 import load_registry
+    from experiments.v22_gnn_training.directive_preference_probe import capability_vector
+    features = capability_vector(load_registry(), 'zcu104', 10.)
+    model = TargetFilmV4bModel(features.numel())
+    graph = _tiny_tensor_graph()
+    memory, _ = model.encode(graph, features)
+    assert memory.shape == (1, 64, 128)
