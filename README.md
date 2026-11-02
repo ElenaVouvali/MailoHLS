@@ -25,6 +25,92 @@ flowchart LR
  V -. experimental tensor encoder .-> E[Future trained target-aware memory]
 ```
 
+## Structural pathway: compiler graph to action memory
+
+The production structural path preserves compiler structure, then aligns its
+learned representation to the source action IDs used by directive generation.
+The graph is not a picture of the C++ syntax tree alone: nodes and typed edges
+represent operations, values, control/region structure, loops, memory actions,
+and verified directive anchors.
+
+```mermaid
+flowchart LR
+  SRC[Kernel source] --> FRONT[Pinned cgeist / MLIR frontend]
+  META[kernel_info + source action metadata] --> MATCH[Exact Lk-to-source binding]
+  FRONT --> CG[Compiler graph]
+  MATCH --> CG
+  subgraph GRAPH[Typed structural graph]
+    N[Nodes: operations, SSA values, regions, memory, action anchors]
+    E[Edges: data/control, loop, memory, dependence, action scope]
+  end
+  CG --> N
+  CG --> E
+  N --> T[mlir_data tensors: x, edge_index, edge_attr, action masks]
+  E --> T
+  T --> GNN[Edge-aware production GNN]
+  GNN --> MEM[Action-aligned memory: absolute slot k-1 for Lk]
+  MEM --> XATTN[Stage-2 gated cross-attention]
+  PROMPT[Target and objective prompt] --> LLM[LLM hidden states]
+  LLM --> XATTN
+  XATTN --> OUT[Directive-token decisions]
+  SRC -. separately versioned experiment .-> V22[MLIR V2.2 RC3 graph]
+  V22 --> OVERLAY[Experimental FPGA/clock overlay]
+  OVERLAY --> V4[Experimental V4/V4b studies]
+  V4 -. no validated production connection .-> OUT
+```
+
+**What each stage means:** the frontend and native analysis create graph facts;
+`mlir_data.py` turns node and edge attributes into the tensors consumed by the
+GNN; the GNN produces representations associated with compiler action anchors;
+the memory exporter stores those representations in stable absolute `Lk-1`
+slots; Stage-2 lets directive-position token states attend to the selected
+memory under the configured slot/relation mask. The target request remains in
+the LLM prompt. An inactive or missing `Lk` keeps its identity and mask state;
+later actions are never renumbered to close a gap.
+
+The action binding is source- and metadata-validated. A loop anchor can be
+associated with loop directives, and an array anchor with array-partition
+directives. Compiler relations provide context for routing; an absent or
+unknown relation is not proof that actions are independent. Numerical hardware
+features in the V2.2/V4 experiments do not change the production V1 memory or
+checkpoint contract. The dashed experimental branch in the diagram stops at
+research evaluation because V4/V4b has not earned Stage-2 integration.
+
+### A concrete graph example: GEMV
+
+The branch already contains a real compiler graph visualization. It is a
+readable, reduced neighborhood of the checked-in production GEMV GEXF, not a
+hand-drawn or synthetic graph. It retains the selected action anchors and
+production edges from their two-hop semantic neighborhood; the figure shows
+31 nodes and 44 edges. The full graph and its action manifest remain available
+beside the figure.
+
+![Reduced production SALT-HLS structured-MLIR graph for GEMV. The selected action anchors are L1 (array A), L4 (outer loop), and L5 (inner loop). Dashed edges denote Stage-2 action routing; orange edges denote compiler-reported proven dependence.](paper_figures/gemv_mlir_paper.png)
+
+In the checked-in `kernel_info.txt`, `L1` is the partitionable array `A` at
+source line 5, `L4` is the outer loop at line 12, and `L5` is the inner loop
+at line 16. The red directive nodes and dashed routing lines show which
+action-aligned memory slots serve directive positions. Those dashed lines are
+Stage-2 routing links, not compiler dependence claims. The orange dependence
+edge is retained from the compiler graph with its `proven` evidence label;
+the remaining visible edges show dataflow, loop/region, memory, or action-scope
+relationships. The graph contains no target clock, resource budget, measured
+QoR, or candidate-selected directive values.
+
+The visualization is reproducible from
+[`paper_figures/render_gemv_mlir_paper.py`](paper_figures/render_gemv_mlir_paper.py)
+and the checked-in graph at
+[`paper_examples/gemv/gemv_mlir.gexf`](paper_examples/gemv/gemv_mlir.gexf).
+The reduced-graph manifest records the selected actions, node/edge provenance,
+and source graph hash:
+[`paper_figures/gemv_mlir_reduced.json`](paper_figures/gemv_mlir_reduced.json).
+The original MLIR, expanded figure and vector exports are also available:
+[`gemv.mlir`](paper_examples/gemv/gemv.mlir),
+[`full SVG`](paper_figures/gemv_mlir_paper.svg),
+[`PDF`](paper_figures/gemv_mlir_paper.pdf), and
+[`L1`](paper_figures/gemv_mlir_zoom_L1.svg) / [`L4`](paper_figures/gemv_mlir_zoom_L4.svg)
+action neighborhoods.
+
 MLIR V2.2 RC3 and its hardware overlay are experimental representations. They
 are **not interchangeable with production V1 tensors or checkpoints**. The
 readiness pilot did not establish improved target generalization. Semantic
