@@ -522,3 +522,24 @@ def test_subset_cache_retains_exact_pools_and_refits_train_only_normalization():
     assert all(result['inputs'][key] is parent['inputs'][key] for key in result['inputs'])
     assert result['groups'][1]['split'] == 'val'
     assert child['validation_kernels'] == manifest['validation_kernels']
+
+
+def test_cached_measurements_cannot_replace_labels_or_training_normalization():
+    import copy
+    import pytest
+    from .provenance import validate_cached_measurements
+    prepared = _synthetic_prepared()
+    for group in prepared['groups']:
+        for i,row in enumerate(group['rows']):
+            row['preprocessed_row']=i
+            row['assignment']={'synthetic_action': str(i)}
+    fresh=SimpleNamespace(records=copy.deepcopy([r for g in prepared['groups'] for r in g['rows']]))
+    from experiments.v22_gnn_training.train import _fit_normalization
+    prepared['mean'],prepared['std']=_fit_normalization(fresh.records)
+    manifest={'contexts':{g['key']:{'kernel':g['kernel'],'device':g['profile'],'clock_ns':g['clock'],
+               'split':g['split'],'selected_assignment_hashes':[r['config_hash'] for r in g['rows']]}
+               for g in prepared['groups']}}
+    assert validate_cached_measurements(prepared,fresh,manifest)['normalization_reauthenticated']
+    prepared['groups'][0]['rows'][0]['physical'][0] += 10
+    with pytest.raises(ValueError,match='provenance changed'):
+        validate_cached_measurements(prepared,fresh,manifest)

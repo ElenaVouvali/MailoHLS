@@ -444,6 +444,8 @@ def main(argv=None):
         prepared = prepare_small_cohort(data, args.manifest, torch.device('cpu'))
         if args.prepared_cache:
             checkpointing.atomic_torch_save(args.prepared_cache, {'identity': cache_identity, 'prepared': prepared})
+    from .provenance import validate_cached_measurements
+    cache_validation = validate_cached_measurements(prepared, data, manifest)
     if args.prepare_only:
         print('CPU-only preparation completed; no training or GPU initialization', flush=True)
         return
@@ -469,6 +471,8 @@ def main(argv=None):
                 'pyg': __import__('torch_geometric').__version__,
                 'numpy': np.__version__, 'cuda_runtime': torch.version.cuda,
                 'cpu_threads': torch.get_num_threads(),
+                'prepared_cache_sha256': train.overlay.file_hash(args.prepared_cache) if args.prepared_cache else None,
+                'cache_validation': cache_validation,
                 'checkpoint_criterion': 'family macro selection failure + feasible top1 regret; pair accuracy tie break'}
     fingerprint = _json_sha(protocol)
     protocol_path = output / 'protocol.json'
