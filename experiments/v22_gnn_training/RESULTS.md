@@ -862,10 +862,13 @@ matched controls for those added modules were run.
 
 The smoke exposed repeated authenticated overlay construction in the existing
 `PreparedData.candidate_inputs()` call: one overlay was rebuilt for each
-candidate instead of once per program/device/clock context. V4b now reuses the
-overlay across assignments and retains the existing per-candidate demand
-calculation. A focused mocked parity/cache-count regression passes; the
-full-cohort optimized preparation time remains unmeasured.
+candidate. V4b now reuses one overlay per kernel and caches candidate vectors
+and demand tensors per `(kernel, complete-assignment hash)` across physical
+targets. The tensor API's candidate-demand projection contains program and
+directive features; target metadata is discarded. One authentic common
+assignment was compared across U200/10 ns and U200/3.33 ns with exactly equal
+demand tensors, and cached versus uncached vector/demand outputs were exactly
+equal. Full-cohort optimized preparation time remains unmeasured.
 
 These are implementation/test findings, not selection results. Neither
 compiler graph memory nor hardware messages have yet been trained on the full
@@ -883,7 +886,7 @@ frozen five-arm command in `v4b/README.md`; do not use the reserved V100S.
 | Hardware-message V4 | Not run | Not run | Not run | Not run | No checkpoint |
 | Compiler action-difference | Not run | Not run | Not run | Not run | No checkpoint |
 
-The full CPU audit completed in 79.36 seconds in the pinned environment; that
+The full CPU audit completed in 78.35 seconds in the pinned environment; that
 is data authentication/coverage time. The attempted unoptimized selected-pool
 feature preparation exceeded 30 minutes. The cached implementation is a
 subsequent code fix and must be timed before any optimizer run. GPU training
@@ -899,7 +902,7 @@ coverage. They authenticate dataset SHA256
 SHA256 `d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c`,
 and RC3 graph archive SHA256
 `feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73`. The
-eligibility receipt identifies source commit `4487e11ef6644d40d9ee056560ffe53a40895f81`
+eligibility receipt identifies source commit `729c10ba06b9e7d2110b3c593376a877e53bb2ad`
 and hashes the audit, preference builder, model implementation, and runner.
 Receipt-file SHA256 values are recorded in `AUDIT.md`. No HLS
 synthesis, Kalman/test-label evaluation, Stage-2/3 training, or production

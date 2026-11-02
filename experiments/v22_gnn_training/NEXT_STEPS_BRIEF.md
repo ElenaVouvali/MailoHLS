@@ -178,9 +178,11 @@ hardware messages, and an antisymmetric action-difference head. A direct host
 query found the V100S idle (A2 was occupied); the one-update smoke was started
 there but spent 31 minutes repeatedly enriching the same graph during
 candidate preparation, before any GPU operation. Its verified PID was
-gracefully interrupted. V4b now caches enriched graphs per kernel/device/clock
-and a CPU test checks feature equality against the existing path. The optimized
-path has not yet been timed, and no V4b checkpoint or selection result exists.
+gracefully interrupted. V4b now caches one overlay per kernel and candidate
+vectors/demands per complete assignment across targets; CPU regressions and an
+authenticated cross-clock example check equality against the existing path.
+The optimized path has not yet been timed, and no V4b checkpoint or selection
+result exists.
 The current conservative classification is
 `EXPERIMENT_INCOMPLETE_RESOURCE_LIMIT`.
 

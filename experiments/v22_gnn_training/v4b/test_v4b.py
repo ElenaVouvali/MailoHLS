@@ -200,20 +200,28 @@ def test_candidate_feature_cache_reuses_overlay_and_matches_prepared_data(monkey
     monkeypatch.setattr(train, 'candidate_demand_tensor',
                         lambda graph, assignment, actions: (torch.tensor([float(assignment['x'])]), None))
     data = FakeData()
-    cache = {}
+    cache, candidate_cache = {}, {}
     row_a = {'kernel': 'kernel', 'profile': 'zcu104', 'clock': 10.,
              'assignment': {'x': 1}, 'config_hash': 'a'}
     row_b = {'kernel': 'kernel', 'profile': 'zcu104', 'clock': 10.,
              'assignment': {'x': 2}, 'config_hash': 'b'}
-    cached_a = _cached_candidate_inputs(data, row_a, cache)
-    cached_b = _cached_candidate_inputs(data, row_b, cache)
+    cached_a = _cached_candidate_inputs(data, row_a, cache, candidate_cache)
+    cached_b = _cached_candidate_inputs(data, row_b, cache, candidate_cache)
+    assert len(calls) == 1
+
+    same_assignment_other_target = dict(row_a, profile='u200', clock=3.33)
+    cached_other_target = _cached_candidate_inputs(
+        data, same_assignment_other_target, cache, candidate_cache)
+    assert cached_other_target is cached_a
     assert len(calls) == 1
 
     # Match the existing uncached PreparedData path under the same controlled
     # feature implementations, and require tensor identity for both candidates.
     legacy_a = train.PreparedData.candidate_inputs(data, row_a)
     legacy_b = train.PreparedData.candidate_inputs(data, row_b)
-    for cached, legacy in ((cached_a, legacy_a), (cached_b, legacy_b)):
+    legacy_other_target = train.PreparedData.candidate_inputs(data, same_assignment_other_target)
+    for cached, legacy in ((cached_a, legacy_a), (cached_b, legacy_b),
+                           (cached_other_target, legacy_other_target)):
         assert torch.equal(cached[0], legacy[0])
         assert torch.equal(cached[1], legacy[1])
 

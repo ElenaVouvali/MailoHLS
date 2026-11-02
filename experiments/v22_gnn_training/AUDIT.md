@@ -641,7 +641,7 @@ worker and the V100S idle. A user-authorized V100S smoke started, but CPU
 candidate preparation exceeded 30 minutes before GPU allocation; verified PID
 2250277 was gracefully interrupted. No optimizer update or checkpoint was
 produced. The repeated enriched-graph construction was identified and V4b now
-caches the authenticated overlay per kernel/device/clock. A focused regression
-and one authenticated GNOSIS candidate confirm exact vector/demand equality
-against the old path; the real example took 0.924 s. Full-cohort cached runtime
-remains unmeasured.
+caches one authenticated overlay per kernel and candidate tensors by complete
+assignment across physical targets. A focused regression and an authenticated
+same-assignment comparison across U200/10 ns and U200/3.33 ns confirm exact
+vector/demand equality. Full-cohort cached runtime remains unmeasured.

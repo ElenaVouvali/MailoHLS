@@ -249,10 +249,12 @@ steps. It selects checkpoints only on validation feasible-selection failure
 plus feasible top-1 ADP regret, with preference accuracy as a tie-break. A
 V100S one-update smoke was attempted under the explicit user override, but
 candidate feature preparation exceeded 30 minutes before GPU work; it was
-gracefully interrupted. V4b now caches the authenticated enriched graph once
-per kernel/device/clock during candidate preparation, with an exact-output
-regression. That optimized path must pass a fresh smoke before the 1,500-step
-run. Do not report preflight or audit outputs as model results. The pairwise difference
+gracefully interrupted. V4b now caches the authenticated overlay once per
+kernel and candidate vectors/demands once per complete assignment across
+physical targets. Exact output equality is tested, including one authentic
+assignment checked across two clock contexts. That optimized path must pass a
+fresh smoke before the 1,500-step run. Do not report preflight or audit
+outputs as model results. The pairwise difference
 arm's pool selection uses deterministic net wins; document possible
 non-transitive cycles in any result. Stage-2 and production artifacts remain
 out of scope.

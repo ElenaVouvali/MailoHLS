@@ -118,18 +118,18 @@ budget-invariant physical-QoR head, feasibility calculation, pair construction
 and audit utilities are implemented with focused CPU tests. A CUDA-only
 five-arm matched runner is provided as `train_probe.py`; it refuses to start without an
 available GPU and loads only the manifest's 37 train/three validation kernels.
-On 2026-11-02, `nvidia-smi` could not communicate with the driver and the
-pinned PyTorch environment reported CUDA unavailable. Thus no V4b optimizer
-updates, validation-selected checkpoints, or model comparisons were produced.
-After the user requested V100S, direct host inspection found it idle and CUDA
+The local sandbox could not communicate with the NVIDIA driver and its pinned
+PyTorch process reported CUDA unavailable. Direct host inspection after the
+user requested V100S found it idle and CUDA
 available (the A2 was occupied by an unrelated Ray worker). A one-update
 five-arm smoke then spent 31 minutes in CPU preparation before reaching any
 GPU operation and was gracefully stopped at the 30-minute cap. Inspection
 identified that `PreparedData.candidate_inputs()` re-enriched the same
-authenticated kernel/device/clock graph separately for each assignment.
-V4b now caches that overlay per context and still computes each candidate
-demand once; a CPU regression checks exact equality against the existing
-uncached path. This optimized path has not yet been timed on the full cohort.
+authenticated graph separately for each assignment. V4b now caches one
+overlay per kernel and candidate vector/demand per complete assignment across
+physical targets; CPU regressions and one authentic cross-clock example check
+exact equality against the existing path. This optimized path has not yet been
+timed on the full cohort.
 The smoke is preserved at
 `/home/elvouvali/mailohls-gnn-runs/v4b-fullcohort-v100s-20261102-smoke01`
 with no checkpoint. The audit and smoke do not constitute a learning result;
