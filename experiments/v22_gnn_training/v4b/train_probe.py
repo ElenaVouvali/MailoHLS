@@ -77,6 +77,27 @@ def _families(split):
     return result
 
 
+def _cached_candidate_inputs(data, row, enriched_graph_cache):
+    """Reuse authenticated target overlays while preparing candidate features.
+
+    The shared PreparedData.candidate_inputs path rebuilds the enriched graph
+    for every candidate. V4b only changes directive assignment within a
+    kernel/device/clock context, so the authenticated overlay is identical
+    across those candidates and can be safely reused. Candidate demand itself
+    is still computed once per complete assignment and target context.
+    """
+    context = (row['kernel'], row['profile'], float(row['clock']))
+    if context not in enriched_graph_cache:
+        base, authentication = data.graphs[row['kernel']]
+        enriched_graph_cache[context] = train.overlay.enrich(
+            base, row['profile'], row['clock'], authentication=authentication)
+    enriched = enriched_graph_cache[context]
+    actions = data.actions[row['kernel']]
+    demand, _ = train.candidate_demand_tensor(enriched, row['assignment'], actions)
+    candidate = train.candidate_vector(row['assignment'], actions)
+    return candidate, demand
+
+
 def prepare_small_cohort(data, manifest_path, device):
     """Materialize only selected <=16 candidates/context; reuse each tensor."""
     manifest = json.loads(Path(manifest_path).read_text())
@@ -102,7 +123,7 @@ def prepare_small_cohort(data, manifest_path, device):
     for row in data.records:
         indexed[(row['kernel'], row['profile'], float(row['clock']))][row['config_hash']] = row
     groups = []
-    graph_cache, inputs = {}, {}
+    graph_cache, inputs, enriched_graph_cache = {}, {}, {}
     from experiments.v22_gnn_training.directive_preference_probe import capability_vector
     profile_features = {}
     split = data.kernel_split
@@ -131,7 +152,8 @@ def prepare_small_cohort(data, manifest_path, device):
         for row in records:
             identity = (kernel, profile, clock, row['config_hash'])
             if identity not in inputs:
-                candidate, demand = data.candidate_inputs(row)
+                candidate, demand = _cached_candidate_inputs(
+                    data, row, enriched_graph_cache)
                 inputs[identity] = (candidate.cpu(), demand.cpu())
         groups.append({'key': context_id, 'kernel': kernel, 'profile': profile,
                        'clock': clock, 'family': families.get(kernel, kernel),

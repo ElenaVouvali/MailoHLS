@@ -779,10 +779,13 @@ cross-attention integration.
 
 **Classification: `EXPERIMENT_INCOMPLETE_RESOURCE_LIMIT`.** The authenticated
 full-cohort eligibility, exact target-pair, budget-winner, candidate-pool and
-selected-pool preference-pair audits completed on CPU. The NVIDIA driver was
-unavailable (`nvidia-smi` could not communicate with it; pinned PyTorch
-reported CUDA unavailable). No GPU training, validation checkpoint selection,
-memory ablation, or model comparison was run. The previous V4 numbers above
+selected-pool preference-pair audits completed on CPU. The sandbox cannot
+access CUDA devices directly, but direct host inspection found the V100S idle
+and the A2 occupied by a separate Ray worker. A V100S one-update smoke was
+started; it spent 31:25 elapsed (34:17 CPU) repeatedly preparing candidate
+features and had not reached GPU execution. The identified V4b process (PID
+2250277) received SIGINT at the 30-minute preparation cap and exited cleanly.
+No checkpoint or optimizer update was produced. The previous V4 numbers above
 remain historical and are not V4b results.
 
 ### Eligibility and source-action exclusions
@@ -857,6 +860,13 @@ counts are 126,930 (candidate/target control), 127,538 (compiler), 191,667
 comparator). FiLM and difference arms have extra capacity; no parameter-
 matched controls for those added modules were run.
 
+The smoke exposed repeated authenticated overlay construction in the existing
+`PreparedData.candidate_inputs()` call: one overlay was rebuilt for each
+candidate instead of once per program/device/clock context. V4b now reuses the
+overlay across assignments and retains the existing per-candidate demand
+calculation. A focused mocked parity/cache-count regression passes; the
+full-cohort optimized preparation time remains unmeasured.
+
 These are implementation/test findings, not selection results. Neither
 compiler graph memory nor hardware messages have yet been trained on the full
 cohort under V4b. The A2 availability gate stopped before training, so there
@@ -873,10 +883,11 @@ frozen five-arm command in `v4b/README.md`; do not use the reserved V100S.
 | Hardware-message V4 | Not run | Not run | Not run | Not run | No checkpoint |
 | Compiler action-difference | Not run | Not run | Not run | Not run | No checkpoint |
 
-The CPU audit itself completed in 79.36 seconds in the pinned environment;
-this is data authentication/coverage time, not model feature-preparation or
-training time. Feature preparation for 3,664 selected examples and all GPU
-timings remain unmeasured.
+The full CPU audit completed in 79.36 seconds in the pinned environment; that
+is data authentication/coverage time. The attempted unoptimized selected-pool
+feature preparation exceeded 30 minutes. The cached implementation is a
+subsequent code fix and must be timed before any optimizer run. GPU training
+time, model validation time, and peak GPU allocation remain unmeasured.
 
 ### Reproducibility receipts
 

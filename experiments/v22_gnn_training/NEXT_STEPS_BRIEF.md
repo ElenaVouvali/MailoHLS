@@ -174,18 +174,21 @@ clock or budget winner reversals.
 
 V4b implements physical-QoR/budget separation, complete-assignment ADP pair
 construction, candidate/target and compiler controls, target-FiLM modulation,
-hardware messages, and an antisymmetric action-difference head. The CUDA-only
-five-arm runner has not run because the
-NVIDIA driver was unavailable and PyTorch reports CUDA unavailable. No V4b
-checkpoint or selection result exists; do not cite this as evidence for or
-against the encoder. The current conservative classification is
+hardware messages, and an antisymmetric action-difference head. A direct host
+query found the V100S idle (A2 was occupied); the one-update smoke was started
+there but spent 31 minutes repeatedly enriching the same graph during
+candidate preparation, before any GPU operation. Its verified PID was
+gracefully interrupted. V4b now caches enriched graphs per kernel/device/clock
+and a CPU test checks feature equality against the existing path. The optimized
+path has not yet been timed, and no V4b checkpoint or selection result exists.
+The current conservative classification is
 `EXPERIMENT_INCOMPLETE_RESOURCE_LIMIT`.
 
-Next: once the isolated A2 is genuinely available, run the frozen manifest and
-five-arm schedule from `v4b/README.md` in a new durable output directory.
-First measure preparation, one update, and validation; stop if the resource
-budget is exceeded. Do not use the V100S, inspect Kalman, expand the candidate
-pool based on validation labels, or integrate memory into Stage-2. Because
+Next: rerun the one-update smoke on an explicitly selected, independently idle
+GPU using the cached feature path, then launch the frozen five-arm schedule
+only if preparation and validation complete within the resource budget. Do not
+inspect Kalman, expand the candidate pool based on validation labels, or
+integrate memory into Stage-2. Because
 validation has no meaningful target preference reversal, an additional
 family-disjoint target-sensitive validation cohort may be required before
 claiming that target modulation learns correct device/clock changes.

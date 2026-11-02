@@ -615,26 +615,33 @@ Viterbi/U200/5 ns zero-area ADP pairs are excluded from preference ordering.
 
 ## CPU verification and GPU gate
 
-The final focused V4b and relevant regression suite passed **62 tests, 0
-failed, 0 skipped**. This includes the 13 V4b-specific tests. V4b Python
-compilation, runner `--help`, and `git diff --check` passed. An earlier
-combined run exposed an omitted zero-valued audit count; the API was corrected
-and the final suite passed.
+The focused V4b suite passed **15 tests, 0 failed, 0 skipped**, including the
+explicit V100S guard and cached-feature parity regressions. The final combined
+suite passed **64 tests, 0 failed, 0 skipped**. V4b Python compilation, runner
+`--help`, and `git diff --check` passed. An earlier combined run exposed an
+omitted zero-valued audit count; the API was corrected and the final suite
+passed.
 
-The final full-cohort CPU audit completed in 79.36 seconds in the pinned
-Python 3.10 environment. Its source commit is `4487e11ef6644d40d9ee056560ffe53a40895f81`;
+The final full-cohort CPU audit completed in 78.35 seconds in the pinned
+Python 3.10 environment. Its source commit is `729c10ba06b9e7d2110b3c593376a877e53bb2ad`;
 the exact script hashes are embedded in `v4b/receipts/eligibility.json` and
 match the current `audit.py`, `preferences.py`, `models.py`, and
 `train_probe.py`. The four tracked receipt SHA256 values are:
 
 | Receipt | SHA256 |
 |---|---|
-| `eligibility.json` | `5d13b81f5a2f696bbb36244e5259f62a9f7055ce37d6861ca81260a494b2a315` |
-| `preference_cohort_manifest.json` | `9c92f44d15d5fe7a9e38e7399b88ac3fa00eecaed7b4a578fe018dfdd3a6f05b` |
-| `preference_pair_audit.json` | `6f310129445a322553b82f6379d7a53c17ac9eab41a59c5f457e76d3012783d1` |
+| `eligibility.json` | `ea4ea0fd7198f26ed6ca5f451fadf9d7e08c16d2857308eabe4e4e107753d8fc` |
+| `preference_cohort_manifest.json` | `f1a74d54ed91b97fd6be47001ceeac4acc5c77b8491ee39393e749d266ed573e` |
+| `preference_pair_audit.json` | `397a6a489d24fa675d93d7b503d8c0fcc773479d88001ca1b2d0bdc621df038c` |
 | `preference_target_coverage.json` | `cbe0843a4c6d31772a5082b5e78dec9fdb2c22aa6cb7226af71830e045e0d475` |
 
-GPU inventory could not be queried because `nvidia-smi` could not communicate
-with the NVIDIA driver. PyTorch 2.6.0+cu124 reported CUDA unavailable. No GPU
-was used, no V100S fallback was attempted, no checkpoints were produced, and
-no model-performance claim is supported.
+The sandbox has no NVIDIA device nodes and local PyTorch reports CUDA
+unavailable. Direct SSH inspection found the A2 occupied by an unrelated Ray
+worker and the V100S idle. A user-authorized V100S smoke started, but CPU
+candidate preparation exceeded 30 minutes before GPU allocation; verified PID
+2250277 was gracefully interrupted. No optimizer update or checkpoint was
+produced. The repeated enriched-graph construction was identified and V4b now
+caches the authenticated overlay per kernel/device/clock. A focused regression
+and one authenticated GNOSIS candidate confirm exact vector/demand equality
+against the old path; the real example took 0.924 s. Full-cohort cached runtime
+remains unmeasured.

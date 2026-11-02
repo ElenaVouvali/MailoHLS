@@ -124,7 +124,9 @@ The new V4b full-cohort audit confirms 37 eligible training kernels and three
 validation kernels, with exact target-pair and budget-preference coverage
 receipts committed under `experiments/v22_gnn_training/v4b/receipts/`.
 Meaningful device/clock winner reversals are sparse and absent in the held-out
-families. The matched five-arm training/evaluation has **not** run because the
-NVIDIA driver is unavailable in this session. No hardware-aware benefit or
-Stage-2 readiness is claimed; production continues to use V1 memory. See the
+families. An explicitly selected, idle V100S was tried, but the first smoke
+spent over 30 minutes in repeated CPU feature preparation before GPU work. A
+V4b-local overlay cache now addresses that bottleneck; the optimized smoke and
+matched training remain unrun. No hardware-aware benefit or Stage-2 readiness
+is claimed; production continues to use V1 memory. See the
 [V4b results and limitations](experiments/v22_gnn_training/RESULTS.md#v4b-full-cohort-action-aligned-preference-study-2026-11-02).

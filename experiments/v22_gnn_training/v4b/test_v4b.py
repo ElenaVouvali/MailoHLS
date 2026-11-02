@@ -18,7 +18,9 @@ from experiments.v22_gnn_training.v4b.models import (
     pairwise_pool_order,
 )
 from experiments.v22_gnn_training.v4b.preferences import preference_pairs
-from experiments.v22_gnn_training.v4b.train_probe import _initial_models, _pair_schedule
+from experiments.v22_gnn_training.v4b.train_probe import (
+    _cached_candidate_inputs, _initial_models, _pair_schedule,
+)
 from experiments.v22_gnn_training.v4b.train_probe import require_isolated_gpu
 
 
@@ -179,6 +181,41 @@ def test_explicit_v100s_gpu_selection_requires_matching_idle_uuid(monkeypatch):
         assert 'occupied V100S' in str(exc)
     else:
         raise AssertionError('Occupied V100S must be rejected')
+
+
+def test_candidate_feature_cache_reuses_overlay_and_matches_prepared_data(monkeypatch):
+    from experiments.v22_gnn_training import train
+
+    class FakeData:
+        graphs = {'kernel': (object(), object())}
+        actions = {'kernel': {}}
+        demand_cache = {}
+        preprocessed_action_cache = {'kernel': {}}
+
+    calls = []
+    marker = object()
+    monkeypatch.setattr(train.overlay, 'enrich',
+                        lambda base, profile, clock, authentication=None: calls.append(
+                            (profile, clock, authentication)) or marker)
+    monkeypatch.setattr(train, 'candidate_demand_tensor',
+                        lambda graph, assignment, actions: (torch.tensor([float(assignment['x'])]), None))
+    data = FakeData()
+    cache = {}
+    row_a = {'kernel': 'kernel', 'profile': 'zcu104', 'clock': 10.,
+             'assignment': {'x': 1}, 'config_hash': 'a'}
+    row_b = {'kernel': 'kernel', 'profile': 'zcu104', 'clock': 10.,
+             'assignment': {'x': 2}, 'config_hash': 'b'}
+    cached_a = _cached_candidate_inputs(data, row_a, cache)
+    cached_b = _cached_candidate_inputs(data, row_b, cache)
+    assert len(calls) == 1
+
+    # Match the existing uncached PreparedData path under the same controlled
+    # feature implementations, and require tensor identity for both candidates.
+    legacy_a = train.PreparedData.candidate_inputs(data, row_a)
+    legacy_b = train.PreparedData.candidate_inputs(data, row_b)
+    for cached, legacy in ((cached_a, legacy_a), (cached_b, legacy_b)):
+        assert torch.equal(cached[0], legacy[0])
+        assert torch.equal(cached[1], legacy[1])
 
 
 def test_full_assignment_target_coverage_detects_real_winner_reversal():

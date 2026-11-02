@@ -225,8 +225,8 @@ PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python \
 The bounded CUDA training command is:
 
 ```bash
-CUDA_VISIBLE_DEVICES=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
-SALT_HLS_GPU_UUID=GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35 \
+CUDA_VISIBLE_DEVICES=GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb \
+SALT_HLS_GPU_UUID=GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb \
 PYTHONPATH=. /tmp/mailohls-v22-gnn-env-20261030/bin/python \
   -m experiments.v22_gnn_training.v4b.train_probe \
   --release-dir /path/to/authenticated-rc3-release \
@@ -246,9 +246,13 @@ The runner refuses an existing output directory and refuses to run without
 CUDA. All arms share a family-balanced sampled pair trace, fixed candidate
 pools, train-only QoR normalization, AdamW settings, pair loss and validation
 steps. It selects checkpoints only on validation feasible-selection failure
-plus feasible top-1 ADP regret, with preference accuracy as a tie-break. This
-run has not been launched because the host driver was unavailable. Do not
-report preflight or audit outputs as model results. The pairwise difference
+plus feasible top-1 ADP regret, with preference accuracy as a tie-break. A
+V100S one-update smoke was attempted under the explicit user override, but
+candidate feature preparation exceeded 30 minutes before GPU work; it was
+gracefully interrupted. V4b now caches the authenticated enriched graph once
+per kernel/device/clock during candidate preparation, with an exact-output
+regression. That optimized path must pass a fresh smoke before the 1,500-step
+run. Do not report preflight or audit outputs as model results. The pairwise difference
 arm's pool selection uses deterministic net wins; document possible
 non-transitive cycles in any result. Stage-2 and production artifacts remain
 out of scope.
