@@ -164,6 +164,7 @@ def _coverage(records, family_by_kernel):
                     'low_feasible_count': low_n, 'high_feasible_count': high_n,
                     'low_winner': low_w, 'high_winner': high_w,
                     'winner_changed': changed,
+                    'meaningful_reversal_sensitivity': {str(t): bool(changed and low_gap is not None and high_gap is not None and low_gap > t and high_gap > t) for t in (.01, .05, .10)},
                     'meaningful_reversal_5pct': bool(
                         changed and low_gap is not None and high_gap is not None
                         and low_gap > PRIMARY_GAP and high_gap > PRIMARY_GAP),
@@ -199,6 +200,9 @@ def _coverage(records, family_by_kernel):
                         'adp': lphysical[:, 0] * larea}
             rmetrics = {'latency_ms': rphysical[:, 0], 'area_fraction': rarea,
                         'adp': rphysical[:, 0] * rarea}
+            for column, resource in enumerate(('bram', 'dsp', 'ff', 'lut'), 1):
+                lmetrics[resource] = lphysical[:, column]
+                rmetrics[resource] = rphysical[:, column]
             deltas = {}
             meaningful = Counter()
             for name in lmetrics:
@@ -218,6 +222,7 @@ def _coverage(records, family_by_kernel):
                 winner_comparisons[f'{fraction:g}'] = {
                     'left_winner': lw, 'right_winner': rw, 'winner_changed': changed,
                     'meaningful_reversal_5pct': bool(meaningful_change),
+                    'meaningful_reversal_sensitivity': {str(t): bool(changed and lgap is not None and rgap is not None and lgap > t and rgap > t) for t in (.01, .05, .10)},
                     'left_winner_margin': lgap, 'right_winner_margin': rgap,
                     'left_feasible_candidates': ln, 'right_feasible_candidates': rn,
                     'empty_left_pool': ln == 0, 'empty_right_pool': rn == 0,

@@ -3,6 +3,13 @@
 V4b is an isolated experiment. It does not change V1 production memory, V4
 checkpoints, Stage-2/Stage-3, or the frozen MLIR V2.2 RC3 graph release.
 
+## Current revision
+
+The evaluation/resume v2 protocol and execution report are in
+[`PROTOCOL_V2.md`](PROTOCOL_V2.md) and [`RESULTS_V2.md`](RESULTS_V2.md).
+They supersede the runner status below; earlier audit and smoke history remains
+preserved. V4 historical source/model contracts are unchanged.
+
 ## Scientific controls
 
 The planned controls share the same V4 tensor schema, candidate assignments,

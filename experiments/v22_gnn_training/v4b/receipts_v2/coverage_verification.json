@@ -1,0 +1,115 @@
+{
+  "files": {
+    "eligibility.json": "54f9edc36b9b42f87ac5155eae86e0d0983b071aa28d2d419a78a8dfebb83492",
+    "preference_cohort_manifest.json": "2e63f40e8a4299c3e85add116cd569fba7ec0870249220b0047a8109515204a0",
+    "preference_pair_audit.json": "3623ac485603ccc30f89f1ffbaa7c99f0f5d2d75b5a9706737016497c94d51a4",
+    "preference_target_coverage.json": "cbe0843a4c6d31772a5082b5e78dec9fdb2c22aa6cb7226af71830e045e0d475"
+  },
+  "full_coverage_exactly_matches_frozen_receipt": true,
+  "full_coverage_receipt": "../receipts/preference_target_coverage.json",
+  "kalman_labels_parsed": false,
+  "non_independence": "Budgets and exact assignment intersections overlap; target-pair rows are not independent observations.",
+  "primary_gap": 0.05,
+  "qor_blind_selected_contexts_exactly_match_frozen_manifest": true,
+  "schema": "v4b-recomputed-coverage-verification-v2",
+  "sensitivity": {
+    "0.01": {
+      "train": {
+        "clock": {
+          "families": [
+            "machsuite_gemm",
+            "rodinia_backprop"
+          ],
+          "full_budget_meaningful_pairs": 0,
+          "meaningful_target_pairs_any_budget": 3
+        },
+        "device": {
+          "families": [
+            "rodinia_backprop",
+            "rodinia_cfd_flux",
+            "rodinia_hotspot",
+            "rodinia_streamcluster"
+          ],
+          "full_budget_meaningful_pairs": 8,
+          "meaningful_target_pairs_any_budget": 13
+        }
+      },
+      "val": {
+        "clock": {
+          "families": [],
+          "full_budget_meaningful_pairs": 0,
+          "meaningful_target_pairs_any_budget": 0
+        },
+        "device": {
+          "families": [
+            "machsuite_viterbi"
+          ],
+          "full_budget_meaningful_pairs": 2,
+          "meaningful_target_pairs_any_budget": 2
+        }
+      }
+    },
+    "0.05": {
+      "train": {
+        "clock": {
+          "families": [
+            "machsuite_gemm"
+          ],
+          "full_budget_meaningful_pairs": 0,
+          "meaningful_target_pairs_any_budget": 1
+        },
+        "device": {
+          "families": [
+            "rodinia_backprop",
+            "rodinia_hotspot",
+            "rodinia_streamcluster"
+          ],
+          "full_budget_meaningful_pairs": 2,
+          "meaningful_target_pairs_any_budget": 6
+        }
+      },
+      "val": {
+        "clock": {
+          "families": [],
+          "full_budget_meaningful_pairs": 0,
+          "meaningful_target_pairs_any_budget": 0
+        },
+        "device": {
+          "families": [],
+          "full_budget_meaningful_pairs": 0,
+          "meaningful_target_pairs_any_budget": 0
+        }
+      }
+    },
+    "0.1": {
+      "train": {
+        "clock": {
+          "families": [
+            "machsuite_gemm"
+          ],
+          "full_budget_meaningful_pairs": 0,
+          "meaningful_target_pairs_any_budget": 1
+        },
+        "device": {
+          "families": [
+            "rodinia_hotspot"
+          ],
+          "full_budget_meaningful_pairs": 0,
+          "meaningful_target_pairs_any_budget": 3
+        }
+      },
+      "val": {
+        "clock": {
+          "families": [],
+          "full_budget_meaningful_pairs": 0,
+          "meaningful_target_pairs_any_budget": 0
+        },
+        "device": {
+          "families": [],
+          "full_budget_meaningful_pairs": 0,
+          "meaningful_target_pairs_any_budget": 0
+        }
+      }
+    }
+  }
+}

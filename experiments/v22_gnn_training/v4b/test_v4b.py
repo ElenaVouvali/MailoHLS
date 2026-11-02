@@ -372,3 +372,125 @@ def test_zero_gated_target_film_preserves_base_memory_and_receives_gradient():
     assert torch.equal(expected, actual)
     actual[0, 2].sum().backward()
     assert film.gate.grad is not None and torch.isfinite(film.gate.grad)
+
+
+def _synthetic_prepared():
+    """Synthetic unit fixture only; never emitted as measured evidence."""
+    import numpy as np
+    graph = _tiny_tensor_graph()
+    graph.registered_mask[0, 3] = True
+    graph.matched_mask[0, 3] = True
+    graph.action_node_index = torch.tensor([0])
+    graph.action_slot = torch.tensor([3])
+    candidates = torch.zeros(2, 64, 8)
+    candidates[1, 3, 0] = 1.
+    demand = torch.zeros(2, 64, CANDIDATE_DEMAND_DIM)
+    groups, inputs, cache = [], {}, {}
+    for split in ('train', 'val'):
+        rows = [{'kernel': split, 'profile': 'zcu104', 'clock': 10., 'split': split,
+                 'config_hash': str(i), 'physical': [1.+i, 4.+4*i, 4., 4., 4.],
+                 'transformed': np.log1p([1.+i, 4.+4*i, 4., 4., 4.]).tolist(),
+                 'capacities': [10.]*4} for i in range(2)]
+        identities = [(split, 'zcu104', 10., str(i)) for i in range(2)]
+        for i, identity in enumerate(identities):
+            inputs[identity] = (candidates[i], demand[i])
+        cache[(split, 'zcu104', 10.)] = graph
+        groups.append({'key': split, 'kernel': split, 'profile': 'zcu104', 'clock': 10.,
+                       'family': split, 'split': split, 'rows': rows, 'identities': identities,
+                       'budget_pairs': {f: preference_pairs(rows, f)[0] for f in (1., .75, .5, .25, .1)}})
+    return {'groups': groups, 'inputs': inputs, 'graph_cache': cache,
+            'mean': torch.zeros(5), 'std': torch.ones(5),
+            'profile_features': {('zcu104', 10.): torch.zeros(1, 5)}}
+
+
+def test_evaluation_covers_empty_pair_contexts_and_difference_dictionary():
+    from .train_probe import evaluate_arm
+    torch.set_num_threads(1)
+    prepared = _synthetic_prepared()
+    models = _initial_models(123, 5)
+    for arm in ('no_graph', 'compiler_difference'):
+        report = evaluate_arm(arm, models[arm], prepared, torch.device('cpu'))
+        assert len(report['contexts']) == 5
+        assert any(r['constant_or_no_meaningful_pair'] for r in report['contexts'])
+        assert report['test_kernels_loaded'] == []
+        assert all(r['budget_normalized_prediction_drift'] == 0 for r in report['physical_contexts'])
+        assert set(report['per_family']) == {'val'}
+
+
+def test_atomic_resume_matches_uninterrupted_cpu_training(tmp_path):
+    import pytest
+    from .train_probe import train_arm, _model_state
+    torch.set_num_threads(1)
+    prepared = _synthetic_prepared()
+    schedule = [(0, 1., 0)] * 4
+    first = _initial_models(123, 5)['no_graph']
+    whole = train_arm('no_graph', first, prepared, schedule, torch.device('cpu'), (2, 4))
+    second = _initial_models(123, 5)['no_graph']
+    calls = []
+    def stop():
+        calls.append(1)
+        return len(calls) >= 4
+    path = tmp_path / 'state.pt'
+    with pytest.raises(InterruptedError):
+        train_arm('no_graph', second, prepared, schedule, torch.device('cpu'), (2, 4),
+                  state_path=path, fingerprint='synthetic-test', stop_requested=stop)
+    with pytest.raises(ValueError, match='fingerprint'):
+        train_arm('no_graph', second, prepared, schedule, torch.device('cpu'), (2, 4),
+                  state_path=path, fingerprint='wrong')
+    resumed = train_arm('no_graph', second, prepared, schedule, torch.device('cpu'), (2, 4),
+                        state_path=path, fingerprint='synthetic-test')
+    assert resumed['history'] == whole['history']
+    assert all(torch.equal(v, _model_state(second)[k]) for k, v in _model_state(first).items())
+
+
+def test_training_normalization_ignores_validation_and_comparison_rejects_mixed_targets():
+    from experiments.v22_gnn_training.train import _fit_normalization
+    rows = [{'split': 'train', 'transformed': [1.]*5},
+            {'split': 'train', 'transformed': [3.]*5},
+            {'split': 'val', 'transformed': [1e9]*5}]
+    mean, std = _fit_normalization(rows)
+    assert torch.equal(mean, torch.full((5,), 2.))
+    assert torch.equal(std, torch.ones(5))
+    import pytest
+    a, b = _synthetic_prepared()['groups'][0]['rows']
+    with pytest.raises(ValueError, match='mixes program/device/clock'):
+        preference_pairs([a, dict(b, clock=5.)], 1.)
+
+
+def test_frozen_inventory_and_no_test_cohort():
+    import json
+    from pathlib import Path
+    receipts = Path(__file__).parent / 'receipts'
+    eligible = json.loads((receipts / 'eligibility.json').read_text())
+    manifest = json.loads((receipts / 'preference_cohort_manifest.json').read_text())
+    assert eligible['full_inventory']['kernels'] == 55
+    assert len(eligible['training_kernels']) == 37
+    assert len(eligible['validation_kernels']) == 3
+    assert len(eligible['kernel_audit']) == 54
+    assert len(eligible['excluded_action_assessment']) == 14
+    assert all(not r['usable_for_complete_assignment_training'] for r in eligible['excluded_action_assessment'])
+    assert all('kalman' not in r['kernel'] for r in manifest['contexts'].values())
+    assert set(eligible['family_by_kernel'][k] for k in eligible['training_kernels']).isdisjoint(
+        eligible['family_by_kernel'][k] for k in eligible['validation_kernels'])
+
+
+def test_all_arms_cpu_forward_backward_and_independent_no_graph():
+    from .train_probe import _forward_pair, _all_parameters
+    torch.set_num_threads(1)
+    prepared = _synthetic_prepared()
+    group = prepared['groups'][0]
+    graph = prepared['graph_cache'][('train', 'zcu104', 10.)]
+    features = [prepared['inputs'][key] for key in group['identities']]
+    candidates = torch.stack([x[0] for x in features])
+    demands = torch.stack([x[1] for x in features])
+    models = _initial_models(123, 5)
+    for arm, model in models.items():
+        qor, score = _forward_pair(arm, model, graph, candidates, demands, .5,
+                                  prepared['mean'], prepared['std'], torch.zeros(1, 5))
+        loss, _ = hybrid_loss(qor, torch.ones_like(qor), score, [True])
+        loss.backward()
+        grads = [p.grad for p in _all_parameters(model) if p.grad is not None]
+        assert grads and all(torch.isfinite(g).all() for g in grads)
+        assert any(g.abs().sum() > 0 for g in grads)
+    assert not hasattr(models['no_graph'], 'graph')
+    assert set(map(id, models['no_graph'].parameters())).isdisjoint(map(id, models['compiler'].parameters()))

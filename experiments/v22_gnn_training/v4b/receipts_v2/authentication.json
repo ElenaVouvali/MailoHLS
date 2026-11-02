@@ -1,0 +1,265 @@
+{
+  "authentication": "source/APL/table/graph hashes verified against frozen full audit; preprocessing hashes verified",
+  "eligible_kernel_counts": {
+    "train": 37,
+    "val": 3
+  },
+  "eligible_non_test_records": 97442,
+  "excluded_action_assessment": [
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "OuterLoop_1,L1\nOuterLoop_2,L3\nOuterLoop_3,L4\nOuterLoop_4,L7\nOuterLoop_5,L9\nOuterLoop_6,L11\nInnerLoop_1_1,L2\nInnerLoop_1_2,L5\nInnerLoop_1_3,L8\nInnerLoop_1_4,L10\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "machsuite-sort-radix",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L6"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L6:    init_1 : for (i=0; i<BUCKETSIZE; i++) {"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L6\nArray_2,L7\nArray_3,L5\nOuterLoop_1,L1\nOuterLoop_2,L2\nOuterLoop_3,L4\nOuterLoop_4,L9\nInnerLoop_1_1,L3\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia-knn-1-tiling",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L8"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L8:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L6\nArray_2,L7\nArray_3,L5\nOuterLoop_1,L1\nOuterLoop_2,L2\nOuterLoop_3,L4\nOuterLoop_4,L9\nInnerLoop_1_1,L3\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia-knn-2-pipeline",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L8"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L8:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L7\nArray_2,L8\nArray_3,L6\nOuterLoop_1,L1\nOuterLoop_2,L2\nOuterLoop_3,L5\nOuterLoop_4,L10\nInnerLoop_1_1,L3\nInnerLoop_2_1,L4\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia-knn-3-unroll",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L9"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L9:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L7\nArray_2,L8\nArray_3,L9\nArray_4,L10\nArray_5,L6\nOuterLoop_1,L1\nOuterLoop_2,L2\nOuterLoop_3,L5\nOuterLoop_4,L12\nInnerLoop_1_1,L3\nInnerLoop_2_1,L4\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L11"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L11:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L8\nArray_2,L9\nArray_3,L10\nArray_4,L11\nArray_5,L7\nOuterLoop_1,L1\nOuterLoop_2,L2\nOuterLoop_3,L6\nOuterLoop_4,L13\nInnerLoop_1_1,L3\nInnerLoop_2_1,L4\nInnerLoop_3_1,L5\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia-knn-5-coalescing",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L12"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L12:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L19\nArray_2,L18\nArray_3,L4\nArray_4,L3\nArray_5,L9\nOuterLoop_1,L1\nOuterLoop_2,L7\nOuterLoop_3,L14\nOuterLoop_4,L16\nOuterLoop_5,L20\nInnerLoop_1_1,L2\nInnerLoop_1_2,L8\nInnerLoop_1_3,L13\nInnerLoop_1_4,L15\nInnerLoop_1_5,L17\nInnerLoop_2_1,L10\nInnerLoop_3_1,L11\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L12",
+        "L5",
+        "L6"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L5:\t    for (int i = 0; i < MAX_RADIUS; i++) {",
+        "L6:\t    for (int i = 0; i < GRID_COLS * (2 * MAX_RADIUS) + MAX_RADIUS + PARA_FACTOR; i++) {",
+        "L12:\t        for (int k = 0; k < GRID_COLS * (2 * MAX_RADIUS) + MAX_RADIUS * 2; k++) {"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L19\nArray_2,L18\nArray_3,L21\nArray_4,L20\nArray_5,L4\nArray_6,L3\nArray_7,L9\nOuterLoop_1,L1\nOuterLoop_2,L7\nOuterLoop_3,L14\nOuterLoop_4,L16\nOuterLoop_5,L22\nInnerLoop_1_1,L2\nInnerLoop_1_2,L8\nInnerLoop_1_3,L13\nInnerLoop_1_4,L15\nInnerLoop_1_5,L17\nInnerLoop_1_6,L23\nInnerLoop_2_1,L10\nInnerLoop_2_2,L28\nInnerLoop_2_3,L30\nInnerLoop_2_4,L24\nInnerLoop_2_5,L26\nInnerLoop_2_6,L32\nInnerLoop_2_7,L34\nInnerLoop_3_1,L11\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia_dilate_3_pipeline_0",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L12",
+        "L25",
+        "L27",
+        "L29",
+        "L31",
+        "L33",
+        "L35",
+        "L5",
+        "L6"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L5:\t    LOAD_WORKING_IMG_SET_BLANK : for (int i = 0; i < MAX_RADIUS; i++) {",
+        "L6:\t    LOAD_WORKING_IMG_SET : for (int i = 0; i < (TILE_COLS+2*MAX_RADIUS) * (2 * MAX_RADIUS) + MAX_RADIUS + PARA_FACTOR; i++) {",
+        "L12:\t        SHIFT_AHEAD_BODY_INDEX : for (int k = 0; k < (TILE_COLS+2*MAX_RADIUS) * (2 * MAX_RADIUS) + MAX_RADIUS * 2; k++) {",
+        "L25:\t\t\t\t\t\tLOAD_IMG_COL_LEFTMOST : for (int col=0; col<(TILE_COLS + MAX_RADIUS); ++col){",
+        "L27:\t\t\t\t\t\tLOAD_IMG_COL_LEFTMOST_BLANK : for (int col=0; col<MAX_RADIUS; ++col){",
+        "L29:\t\t\t\t\t\tLOAD_IMG_COL_RIGHTMOST : for (int col=0; col<(TILE_COLS + MAX_RADIUS); ++col){",
+        "L31:\t\t\t\t\t\tLOAD_IMG_COL_RIGHTMOST_BLANK : for (int col=0; col<MAX_RADIUS; ++col){",
+        "L33:\t\t\t\t\t\tLOAD_IMG_COL_REST : for (int col=0; col<(TILE_COLS + 2 * MAX_RADIUS); ++col){",
+        "L35:\t\t\t\t\tSTORE_RST_COL : for (int col=0; col<TILE_COLS; ++col){"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L3\nArray_2,L4\nArray_3,L6\nArray_4,L5\nArray_5,L2\nOuterLoop_1,L7\nInnerLoop_1_1,L9\nInnerLoop_1_2,L10\nInnerLoop_1_3,L15\nInnerLoop_2_1,L11\nInnerLoop_2_2,L12\nInnerLoop_2_3,L13\nInnerLoop_3_1,L14\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia_lavaMD_1_tiling_0",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L8"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L8:        WIPE_LOCAL_POS_O: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L3\nArray_2,L4\nArray_3,L6\nArray_4,L5\nArray_5,L2\nOuterLoop_1,L7\nInnerLoop_1_1,L9\nInnerLoop_1_2,L10\nInnerLoop_1_3,L15\nInnerLoop_2_1,L11\nInnerLoop_2_2,L12\nInnerLoop_2_3,L13\nInnerLoop_3_1,L14\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia_lavaMD_1_tiling_1",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L8"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L8:        WIPE_LOCAL_POS_O: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L3\nArray_2,L4\nArray_3,L6\nArray_4,L5\nArray_5,L2\nOuterLoop_1,L7\nInnerLoop_1_1,L9\nInnerLoop_1_2,L10\nInnerLoop_1_3,L15\nInnerLoop_2_1,L11\nInnerLoop_2_2,L12\nInnerLoop_2_3,L13\nInnerLoop_3_1,L14\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L8"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L8:        WIPE_LOCAL_POS_O: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L5\nArray_2,L19\nArray_3,L39\nArray_4,L40\nArray_5,L41\nOuterLoop_1,L1\nOuterLoop_2,L3\nOuterLoop_3,L6\nOuterLoop_4,L11\nOuterLoop_5,L13\nOuterLoop_6,L15\nOuterLoop_7,L17\nOuterLoop_8,L22\nOuterLoop_9,L24\nOuterLoop_10,L31\nOuterLoop_11,L33\nOuterLoop_12,L35\nOuterLoop_13,L37\nOuterLoop_14,L42\nOuterLoop_15,L46\nInnerLoop_1_1,L2\nInnerLoop_1_2,L4\nInnerLoop_1_3,L7\nInnerLoop_1_4,L9\nInnerLoop_1_5,L12\nInnerLoop_1_6,L14\nInnerLoop_1_7,L16\nInnerLoop_1_8,L18\nInnerLoop_1_9,L23\nInnerLoop_1_10,L25\nInnerLoop_1_11,L28\nInnerLoop_1_12,L32\nInnerLoop_1_13,L34\nInnerLoop_1_14,L36\nInnerLoop_1_15,L38\nInnerLoop_1_16,L43\nInnerLoop_2_1,L8\nInnerLoop_2_2,L10\nInnerLoop_2_3,L26\nInnerLoop_2_4,L29\nInnerLoop_2_5,L44\nInnerLoop_3_1,L27\nInnerLoop_3_2,L30\nInnerLoop_3_3,L45\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "rodinia_lud_1_tiling_0",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L20",
+        "L21"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L20:    float top_buffer[BSIZE * BSIZE];",
+        "L21:    float left_buffer[BSIZE * BSIZE];"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L1\nArray_2,L2\nOuterLoop_1,L5\nInnerLoop_1_1,L6\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "spcl_example_03",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L3",
+        "L4"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L3:  for (int i = 0; i < M; ++i) {",
+        "L4:  for (int i = 0; i < M; ++i) {"
+      ]
+    },
+    {
+      "alternative_mapping": "No alternative registered in the authenticated selected manifest; unauthenticated alternatives cannot recover labels.",
+      "authenticated_apl_text": "Array_1,L2\nOuterLoop_1,L1\nInnerLoop_1_1,L3\nInnerLoop_2_1,L4\n",
+      "classification": "C_unknown_directive_state",
+      "fixed_state_proven": false,
+      "kernel": "spcl_example_05",
+      "measured_subset_usable": false,
+      "missing_action_ids": [
+        "L5"
+      ],
+      "reason": "QoR describes the whole configuration; source registration/placeholder alone does not prove the applied state.",
+      "recovery_requirement": "Authenticated synthesis configuration trace proving missing action states, or new synthesis under a separately versioned protocol.",
+      "source_action_lines": [
+        "L5:    for (int m = 0; m < M; ++m) {"
+      ]
+    }
+  ],
+  "non_test_kernels_reconstructed": 54,
+  "non_test_rows_reconstructed": 143321,
+  "original_aggregated_rows": 150026,
+  "original_inventory_kernels": 55,
+  "reserved_count_provenance": "authenticated historical audit, no test labels parsed",
+  "schema": "v4b-non-test-reauthentication-v2",
+  "test_labels_parsed": false
+}

@@ -14,6 +14,7 @@ import math
 import os
 from pathlib import Path
 import random
+import signal
 import subprocess
 import time
 
@@ -21,7 +22,7 @@ import numpy as np
 import torch
 from torch.nn import functional as F
 
-from experiments.v22_gnn_training import train
+from experiments.v22_gnn_training import train, checkpointing
 from experiments.v22_gnn_training.v4b.models import (
     ActionDifferenceComparator, NoGraphControl, TargetFilmV4bModel,
     V4bGraphModel, hybrid_loss,
@@ -171,6 +172,7 @@ def prepare_small_cohort(data, manifest_path, device):
                     data, row, enriched_graph_cache, candidate_cache,
                     analysis_cache_by_kernel)
                 inputs[identity] = (candidate.cpu(), demand.cpu())
+        print(f'V4b prepare: {len(groups)+1}/{len(manifest["contexts"])} {context_id}', flush=True)
         groups.append({'key': context_id, 'kernel': kernel, 'profile': profile,
                        'clock': clock, 'family': families.get(kernel, kernel),
                        'split': split[kernel], 'rows': records,
@@ -214,6 +216,22 @@ def _pair_schedule(groups, updates, seed):
         pair_index = rng.randrange(len(pairs))
         schedule.append((gi, fraction, pair_index))
     return schedule
+
+
+def sample_coverage(groups, schedule):
+    from collections import Counter
+    candidates, pairs, contexts = set(), set(), set()
+    families, reasons = Counter(), Counter()
+    for gi, fraction, pi in schedule:
+        group = groups[gi]
+        a, b, reason = group['budget_pairs'][fraction][pi]
+        ah, bh = [group['rows'][i]['config_hash'] for i in (a, b)]
+        candidates.update(((group['kernel'], ah), (group['kernel'], bh)))
+        pairs.add((group['key'], fraction, ah, bh))
+        contexts.add(group['key']); families[group['family']] += 1; reasons[reason] += 1
+    return {'distinct_kernel_target_contexts': len(contexts), 'distinct_complete_assignments': len(candidates),
+            'distinct_budget_pair_identities': len(pairs), 'per_family_updates': dict(families),
+            'pair_reason_updates': dict(reasons), 'updates': len(schedule)}
 
 
 def _initial_models(seed, profile_feature_dim):
@@ -281,130 +299,9 @@ def _load_model_state(model, state):
         model.load_state_dict(state)
 
 
-def evaluate_arm(arm, model, prepared, device):
-    """Validation-only pair accuracy and feasibility-aware ADP selection."""
-    model.eval()
-    groups, inputs = prepared['groups'], prepared['inputs']
-    mean, std = prepared['mean'].to(device), prepared['std'].to(device)
-    pair_correct = pair_total = 0
-    family_selection = defaultdict(list)
-    selected_feasible = false_feasible = no_prediction = no_reference = 0
-    regrets, top3_regrets = [], []
-    top3_success = top3_failure = 0
-    with torch.no_grad():
-        for group in groups:
-            if group['split'] != 'val':
-                continue
-            graph = prepared['graph_cache'][(group['kernel'], group['profile'], group['clock'])].to(device)
-            data = [inputs[key] for key in group['identities']]
-            candidates = torch.stack([row[0] for row in data]).to(device)
-            demands = torch.stack([row[1] for row in data]).to(device)
-            if arm == 'no_graph':
-                output = model(graph, candidates, demands, 1.0)
-            else:
-                if isinstance(model, dict):
-                    memory, pooled = model['base'].encode(graph)
-                elif arm == 'target_film':
-                    memory, pooled = model.encode(
-                        graph, prepared['profile_features'][(group['profile'], group['clock'])].to(device))
-                else:
-                    memory, pooled = model.encode(graph)
-                base = model['base'] if isinstance(model, dict) else model
-                output = base.from_memory(graph, memory, pooled, candidates, demands, 1.0)
-            resources = _physical(output['qor_z'], mean, std)[:, 1:]
-            capacities = torch.tensor(group['rows'][0]['capacities'], device=device)
-            measured_resources = np.asarray([row['physical'][1:] for row in group['rows']])
-            adp = np.asarray([row['physical'][0] * _area(row) for row in group['rows']])
-            for fraction in BUDGETS:
-                if arm == 'no_graph':
-                    budget_output = model(graph, candidates, demands, fraction)
-                elif isinstance(model, dict):
-                    budget_output = output
-                else:
-                    budget_output = base.from_memory(graph, memory, pooled, candidates, demands, fraction)
-                pairs = group['budget_pairs'][fraction]
-                if not pairs:
-                    continue
-                pair_logits = []
-                for preferred, worse, _ in pairs:
-                    if isinstance(model, dict):
-                        logit, _ = model['compare'](
-                            graph, memory, candidates[preferred:preferred+1], demands[preferred:preferred+1],
-                            candidates[worse:worse+1], demands[worse:worse+1], fraction)
-                        pair_logits.append(float(logit.item()))
-                    else:
-                        scores = budget_output['preference_score']
-                        pair_logits.append(float((scores[worse] - scores[preferred]).item()))
-                pair_correct += sum(value > 0 for value in pair_logits)
-                pair_total += len(pair_logits)
-                predicted_feasible = (resources <= capacities * fraction).all(-1).cpu().numpy()
-                measured_feasible = np.all(measured_resources <= np.asarray(group['rows'][0]['capacities'])[None, :] * fraction, axis=1)
-                candidates_feasible = np.flatnonzero(predicted_feasible)
-                reference = np.flatnonzero(measured_feasible)
-                if not len(reference):
-                    no_reference += 1
-                    continue
-                if not len(candidates_feasible):
-                    no_prediction += 1
-                    top3_failure += 1
-                    family_selection[group['family']].append((False, None))
-                    continue
-                if isinstance(model, dict):
-                    scores = torch.zeros((len(group['rows']), len(group['rows'])), device=device)
-                    for i in candidates_feasible:
-                        for j in candidates_feasible:
-                            if i < j:
-                                value, _ = model['compare'](
-                                    graph, memory, candidates[i:i+1], demands[i:i+1],
-                                    candidates[j:j+1], demands[j:j+1], fraction)
-                                scores[i, j] = value[0]
-                                scores[j, i] = -value[0]
-                    win_count = (scores[candidates_feasible][:, candidates_feasible] > 0).sum(1)
-                    order_local = sorted(range(len(candidates_feasible)),
-                                         key=lambda n: (-int(win_count[n]),
-                                             group['rows'][candidates_feasible[n]]['config_hash']))
-                    ranked = [int(candidates_feasible[n]) for n in order_local]
-                else:
-                    point_scores = budget_output['preference_score'][candidates_feasible]
-                    ranked = [int(candidates_feasible[n]) for n in
-                              torch.argsort(point_scores, stable=True).cpu().tolist()]
-                chosen = ranked[0]
-                shortlist = ranked[:3]
-                shortlist_feasible = [index for index in shortlist if measured_feasible[index]]
-                if shortlist_feasible:
-                    top3_success += 1
-                    top3_regrets.append(float((min(adp[index] for index in shortlist_feasible) -
-                                               adp[reference].min()) /
-                                              max(abs(adp[reference].min()), 1e-12)))
-                else:
-                    top3_failure += 1
-                is_feasible = bool(measured_feasible[chosen])
-                if is_feasible:
-                    selected_feasible += 1
-                    regret = float((adp[chosen] - adp[reference].min()) / max(abs(adp[reference].min()), 1e-12))
-                    regrets.append(regret)
-                    family_selection[group['family']].append((True, regret))
-                else:
-                    false_feasible += 1
-                    family_selection[group['family']].append((False, None))
-    success_contexts = selected_feasible + false_feasible + no_prediction
-    failure_rate = ((false_feasible + no_prediction) / success_contexts
-                    if success_contexts else None)
-    selection_score = (failure_rate + (float(np.mean(regrets)) if regrets else 1.0)
-                       if failure_rate is not None else None)
-    return {'validation_preference_accuracy': pair_correct / pair_total if pair_total else None,
-            'meaningful_pair_count': pair_total,
-            'selected_measured_feasible': selected_feasible,
-            'false_feasible_selections': false_feasible,
-            'no_predicted_feasible_candidate': no_prediction,
-            'no_measured_feasible_reference': no_reference,
-            'feasible_top1_regret_macro': float(np.mean(regrets)) if regrets else None,
-            'feasible_top3_success_count': top3_success,
-            'feasible_top3_failure_count': top3_failure,
-            'feasible_top3_regret_macro': float(np.mean(top3_regrets)) if top3_regrets else None,
-            'selection_failure_rate': failure_rate,
-            'selection_score': selection_score,
-            'family_contexts': {family: len(values) for family, values in family_selection.items()}}
+def evaluate_arm(arm, model, prepared, device, mode='correct'):
+    from .evaluation import evaluate
+    return evaluate(arm, model, prepared, device, mode)
 
 
 def _physical(raw_z, mean, std):
@@ -412,17 +309,41 @@ def _physical(raw_z, mean, std):
 
 
 def train_arm(arm, model, prepared, schedule, device, validation_steps, lr=3e-4,
-              weight_decay=1e-4, pair_weight=PAIR_WEIGHT):
+              weight_decay=1e-4, pair_weight=PAIR_WEIGHT, state_path=None,
+              fingerprint=None, stop_requested=lambda: False):
     groups, inputs = prepared['groups'], prepared['inputs']
     mean, std = prepared['mean'].to(device), prepared['std'].to(device)
     optimizer = torch.optim.AdamW(_all_parameters(model), lr=lr, weight_decay=weight_decay)
     history, checkpoints = [], {}
     start = time.perf_counter()
+    start_step = 0
+    if state_path is not None and Path(state_path).exists():
+        state = torch.load(state_path, map_location='cpu', weights_only=False)
+        checkpointing.verify_fingerprint(state, fingerprint)
+        _load_model_state(model, state['model'])
+        optimizer.load_state_dict(state['optimizer'])
+        checkpointing.restore_rng_state(state['rng'])
+        start_step, history, checkpoints = state['step'], state['history'], state['checkpoints']
+    def save(step):
+        if state_path is not None:
+            checkpointing.atomic_torch_save(state_path, {
+                'protocol_fingerprint': fingerprint, 'model': _model_state(model),
+                'optimizer': optimizer.state_dict(), 'rng': checkpointing.capture_rng_state(),
+                'step': step, 'history': history, 'checkpoints': checkpoints})
     for step, (gi, fraction, pair_index) in enumerate(schedule, 1):
+        if step <= start_step:
+            continue
+        if stop_requested():
+            save(step - 1)
+            if state_path is not None:
+                checkpointing.atomic_json(Path(state_path).parent / 'status.json', {'status': 'interrupted', 'arm': arm, 'completed_step': step - 1})
+            raise InterruptedError('V4b interrupted at atomic update boundary')
+        for module in (model.values() if isinstance(model, dict) else [model]):
+            module.train()
         group = groups[gi]
         preferred, worse, _reason = group['budget_pairs'][fraction][pair_index]
         rows = (group['rows'][preferred], group['rows'][worse])
-        graph = prepared['graph_cache'][(group['kernel'], group['profile'], group['clock'])].to(device)
+        graph = prepared['graph_cache'][(group['kernel'], group['profile'], group['clock'])].clone().to(device)
         features = [inputs[identity] for identity in (
             group['identities'][preferred], group['identities'][worse])]
         candidates = torch.stack([x[0] for x in features]).to(device)
@@ -431,7 +352,7 @@ def train_arm(arm, model, prepared, schedule, device, validation_steps, lr=3e-4,
         target = (target - mean) / std
         qor, logits = _forward_pair(arm, model, graph, candidates, demands,
                                    fraction, mean, std,
-                                   prepared['profile_features'][(group['profile'], group['clock'])].to(device))
+                                   prepared['profile_features'][(group['profile'], group['clock'])].clone().to(device))
         loss, parts = hybrid_loss(qor, target, logits, [True], pair_weight)
         if not torch.isfinite(loss):
             raise ValueError(f'Nonfinite {arm} loss at step {step}')
@@ -453,6 +374,10 @@ def train_arm(arm, model, prepared, schedule, device, validation_steps, lr=3e-4,
             validation = evaluate_arm(arm, model, prepared, device)
             checkpoints[step] = {'state': _model_state(model), 'metrics': validation}
             history[-1]['validation'] = validation
+        if step % 25 == 0 or step in validation_steps or stop_requested():
+            save(step)
+            print(f'V4b {arm}: update {step}/{len(schedule)}, loss={float(loss.detach()):.5f}', flush=True)
+    save(len(schedule))
     viable = [(step, row) for step, row in checkpoints.items()
               if row['metrics']['selection_score'] is not None]
     if not viable:
@@ -473,6 +398,9 @@ def main(argv=None):
     parser.add_argument('--authenticated-audit', required=True)
     parser.add_argument('--manifest', required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--prepare-only', action='store_true', help='CPU feature preparation only; no training')
+    parser.add_argument('--prepared-cache', type=Path)
+    parser.add_argument('--resume', action='store_true')
     parser.add_argument('--updates', type=int, default=1500)
     parser.add_argument('--validate-every', type=int, default=250)
     parser.add_argument('--seed', type=int, default=123)
@@ -481,44 +409,115 @@ def main(argv=None):
     parser.add_argument('--minimum-free-mib', type=int, default=6000)
     args = parser.parse_args(argv)
     output = Path(args.output)
-    if output.exists():
+    if output.exists() and not args.resume:
         raise FileExistsError(f'Refusing to overwrite V4b run directory: {output}')
-    require_isolated_gpu(args.gpu_name, args.gpu_uuid, args.minimum_free_mib)
-    if not torch.cuda.is_available():
+    if args.resume and not (output / 'protocol.json').is_file():
+        raise ValueError('Resume requires an existing authenticated V4b run')
+    if args.resume and (output / 'status.json').exists() and json.loads((output / 'status.json').read_text()).get('status') == 'complete':
+        raise ValueError('Refusing to resume or overwrite a completed V4b run')
+    if not args.prepare_only:
+        require_isolated_gpu(args.gpu_name, args.gpu_uuid, args.minimum_free_mib)
+    if not args.prepare_only and not torch.cuda.is_available():
         raise RuntimeError('V4b training requires the independently available A2; CUDA is unavailable')
     if args.updates < 1 or args.validate_every < 1 or args.updates % args.validate_every:
         raise ValueError('updates must be positive and divisible by validate-every')
+    torch.set_num_threads(4)
+    random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
     from experiments.v22_gnn_training.train import PreparedData
     manifest = json.loads(Path(args.manifest).read_text())
     kernels = sorted({row['kernel'] for row in manifest['contexts'].values()})
     data = PreparedData(args.release_dir, output / 'unused-audit.json',
                         selected_kernels=kernels,
                         authenticated_audit_path=args.authenticated_audit)
-    prepared = prepare_small_cohort(data, args.manifest, torch.device('cuda'))
+    print('V4b authenticated data loaded; preparing frozen candidate pools', flush=True)
+    from experiments.v22_gnn_training.fast_probe import _source_hashes
+    cache_identity = {'features': _source_hashes(), 'manifest': _json_sha(manifest),
+                      'preparation': hashlib.sha256((__import__('inspect').getsource(prepare_small_cohort) + __import__('inspect').getsource(_cached_candidate_inputs)).encode()).hexdigest(),
+                      'torch': torch.__version__,
+                      'preferences': hashlib.sha256(Path(__file__).with_name('preferences.py').read_bytes()).hexdigest()}
+    if args.prepared_cache and args.prepared_cache.exists():
+        cached = torch.load(args.prepared_cache, map_location='cpu', weights_only=False)
+        if cached['identity'] != cache_identity:
+            raise ValueError('Prepared feature cache provenance changed')
+        prepared = cached['prepared']
+    else:
+        prepared = prepare_small_cohort(data, args.manifest, torch.device('cpu'))
+        if args.prepared_cache:
+            checkpointing.atomic_torch_save(args.prepared_cache, {'identity': cache_identity, 'prepared': prepared})
+    if args.prepare_only:
+        print('CPU-only preparation completed; no training or GPU initialization', flush=True)
+        return
+    print(f'V4b preparation complete in {prepared["preparation_seconds"]:.1f}s', flush=True)
     schedule = _pair_schedule(prepared['groups'], args.updates, args.seed)
     schedule_hash = _json_sha([
         [prepared['groups'][gi]['key'], fraction, pair_index]
         for gi, fraction, pair_index in schedule])
-    output.mkdir(parents=True)
+    require_isolated_gpu(args.gpu_name, args.gpu_uuid, args.minimum_free_mib)
+    output.mkdir(parents=True, exist_ok=args.resume)
+    checkpointing.atomic_json(output / 'status.json', {'status': 'running'})
+    source_files = sorted(p for p in Path(__file__).parent.glob('*.py') if not p.name.startswith('test_'))
+    source_files += [Path(__file__).resolve().parents[3] / name for name in
+                     __import__('experiments.v22_gnn_training.fast_probe', fromlist=['FEATURE_FILES']).FEATURE_FILES]
+    protocol = {'version': 'v4b-evaluation-resume-v2', 'seed': args.seed,
+                'updates': args.updates, 'validate_every': args.validate_every,
+                'pair_weight': PAIR_WEIGHT, 'lr': 3e-4, 'weight_decay': 1e-4,
+                'manifest': _json_sha(prepared['manifest']), 'schedule': schedule_hash,
+                'source_sha256': {str(path.relative_to(Path(__file__).resolve().parents[3])):
+                                 hashlib.sha256(path.read_bytes()).hexdigest() for path in source_files},
+                'torch': torch.__version__, 'gpu_uuid': args.gpu_uuid,
+                'checkpoint_criterion': 'family macro selection failure + feasible top1 regret; pair accuracy tie break'}
+    fingerprint = _json_sha(protocol)
+    protocol_path = output / 'protocol.json'
+    if args.resume:
+        if json.loads(protocol_path.read_text()) != protocol:
+            raise ValueError('Resume protocol changed')
+    else:
+        checkpointing.atomic_json(protocol_path, protocol)
+    stopped = []
+    def on_signal(signum, frame):
+        stopped.append(signum)
+    signal.signal(signal.SIGTERM, on_signal)
+    signal.signal(signal.SIGINT, on_signal)
     initial = _initial_models(args.seed, prepared['profile_feature_dim'])
     initial_hashes = {}
     training = {}
     validation_steps = tuple(range(args.validate_every, args.updates + 1, args.validate_every))
     for arm in ARMS:
         model = initial[arm]
+        if args.resume and (output / f'{arm}_selected.pt').exists():
+            training[arm] = json.loads((output / f'{arm}_report.json').read_text())
+            initial_hashes[arm] = train.model_state_sha256(model['base'] if isinstance(model, dict) else model)
+            continue
+        for module in (model.values() if isinstance(model, dict) else [model]):
+            module.to('cuda')
+        torch.cuda.reset_peak_memory_stats()
         initial_hashes[arm] = (
             train.model_state_sha256(model['base']) if isinstance(model, dict)
             else train.model_state_sha256(model))
         # All arms consume the same fixed family-balanced sampled pair trace.
         training[arm] = train_arm(arm, model, prepared, schedule,
-                                  torch.device('cuda'), validation_steps)
-        torch.save({'state': _model_state(model), 'updates': args.updates,
-                    'schema': 'salt-hls-v4b-full-cohort-action-aligned-preference-v1',
+                                  torch.device('cuda'), validation_steps,
+                                  state_path=output / f'{arm}_training_state.pt',
+                                  fingerprint=fingerprint, stop_requested=lambda: bool(stopped))
+        training[arm]['peak_gpu_allocated_bytes'] = torch.cuda.max_memory_allocated()
+        from .evaluation import controlled_action_probe
+        training[arm]['controlled_action_probe'] = controlled_action_probe(model, prepared, torch.device('cuda'))
+        training[arm]['ablations'] = {}
+        if arm != 'no_graph':
+            for mode in ('zero', 'shuffled', 'global_mean', 'target_mismatched'):
+                training[arm]['ablations'][mode] = evaluate_arm(arm, model, prepared, torch.device('cuda'), mode)
+        checkpointing.atomic_json(output / f'{arm}_report.json', {k: v for k, v in training[arm].items() if k != 'checkpoints'})
+        checkpointing.atomic_torch_save(output / f'{arm}_selected.pt', {'state': _model_state(model), 'updates': args.updates,
+                    'schema': 'salt-hls-v4b-full-cohort-action-aligned-preference-v2',
+                    'protocol_fingerprint': fingerprint, 'selected_step': training[arm]['selected_step'],
                     'arm': arm, 'seed': args.seed, 'manifest_sha256': _json_sha(prepared['manifest']),
                     'sample_trace_sha256': schedule_hash,
                     'selected_validation': training[arm]['selected_validation']},
-                   output / f'{arm}_selected.pt')
-    receipt = {'schema': 'salt-hls-v4b-full-cohort-action-aligned-preference-v1-run',
+                   )
+        for module in (model.values() if isinstance(model, dict) else [model]):
+            module.cpu()
+        torch.cuda.empty_cache()
+    receipt = {'schema': 'salt-hls-v4b-full-cohort-action-aligned-preference-v2-run',
                'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
                'manifest_sha256': _json_sha(prepared['manifest']),
                'sample_trace_sha256': schedule_hash, 'seed': args.seed,
@@ -528,7 +527,8 @@ def main(argv=None):
                                    if key != 'checkpoints'} for name, report in training.items()},
                'preparation_seconds': prepared['preparation_seconds'],
                'selected_measurements': prepared['selected_measurements'],
-               'test_kernels_loaded': [], 'checkpoint_selection': 'not selected: validation evaluator is required before publishing'}
+               'test_kernels_loaded': [], 'sample_coverage': sample_coverage(prepared['groups'], schedule), 'protocol_fingerprint': fingerprint, 'checkpoint_selection': protocol['checkpoint_criterion']}
+    checkpointing.atomic_json(output / 'status.json', {'status': 'complete', 'protocol_fingerprint': fingerprint})
     (output / 'run_receipt.json').write_text(json.dumps(receipt, sort_keys=True, indent=2) + '\n')
     (output / 'training_history.json').write_text(json.dumps(
         {name: report['history'] for name, report in training.items()},

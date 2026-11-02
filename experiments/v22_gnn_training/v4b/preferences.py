@@ -34,6 +34,9 @@ def preference_pairs(records, budget_fraction, meaningful_gap=0.05):
     if not records:
         return [], {'feasible_infeasible': 0, 'adp': 0, 'near_tie': 0,
                     'both_infeasible': 0, 'zero_area_ambiguous': 0}
+    contexts = {(r['kernel'], r['profile'], float(r['clock'])) for r in records}
+    if len(contexts) != 1:
+        raise ValueError('Preference pool mixes program/device/clock contexts')
     capacities = np.asarray(records[0]['capacities'], dtype=np.float64)
     if capacities.shape != (4,) or np.any(capacities <= 0):
         raise ValueError('Expected positive [BRAM,DSP,FF,LUT] capacities')

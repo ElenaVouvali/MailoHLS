@@ -262,8 +262,8 @@ def feasibility_from_physical(predicted_resources, capacities, budget_fraction):
     budget = torch.as_tensor(budget_fraction, dtype=resources.dtype, device=resources.device)
     if not torch.isfinite(resources).all() or not torch.isfinite(caps).all():
         raise ValueError('Nonfinite resource prediction or capacity')
-    if (budget < 0).any() or (budget > 1).any():
-        raise ValueError('Budget fractions must lie in [0,1]')
+    if not torch.isfinite(budget).all() or (budget < 0).any() or (budget > 1).any():
+        raise ValueError('Budget fractions must be finite and lie in [0,1]')
     return (resources <= caps * budget.unsqueeze(-1)).all(-1)
 
 
