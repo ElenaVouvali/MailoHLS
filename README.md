@@ -17,7 +17,19 @@ An additional, optional **refinement mechanism** uses actual HLS synthesis feedb
 
 The goal is to reduce the manual effort required for FPGA design-space exploration while considering performance, hardware resources and deployment constraints.
 
-> **Research status (November 2026):** The latest V4 GNN study shows that the model can fit a fixed training context, but it has not established reliable held-out hardware-aware directive selection. Explicit hardware-resource messages have not shown a consistent advantage over numerical target conditioning, and V4 is not validated for production Stage-2 integration. See the [V4 results](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/RESULTS.md) and [research audit](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/AUDIT.md).
+> **Research status (November 2026):** The production path remains the selected V1 graph encoder and the objective-specific artifacts listed below. In the GNN branch, the V4 matched preference study has not established a held-out hardware-aware selection advantage; a separate V4b coverage audit found insufficient held-out preference reversals and its training smoke stopped during CPU feature preparation. In Stage-1, the legacy full-data run completed 400 updates, but its complete validation and measured-QoR assessment remain pending. The refinement branch has two distinct bodies of evidence: the complete historical R11 study and a newer, authenticated but incomplete FGR-v1 pilot. None of these research branches has promoted a replacement into production. See the [GNN README](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/README.md), [Stage-1 README](https://github.com/ElenaVouvali/MailoHLS/blob/research/stage1-refinement/README.md), and [refinement README](https://github.com/ElenaVouvali/MailoHLS/blob/research/refinement-mechanism/README.md) for branch-specific methods, evidence and limits.
+
+## Research branch guide
+
+The active research branches isolate different questions. Their experiments are not production results unless explicitly selected in `FINAL_ARTIFACTS.json`.
+
+| Branch | Research question | Evidence at this revision | Primary branch guide |
+|---|---|---|---|
+| [`research/gnn-refinement`](https://github.com/ElenaVouvali/MailoHLS/tree/research/gnn-refinement) | Do richer compiler and target-aware graph memories improve candidate or directive decisions? | V4 hardware messages did not consistently improve held-out feasible selection; V4b coverage/training is incomplete. | [README](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/README.md) |
+| [`research/stage1-refinement`](https://github.com/ElenaVouvali/MailoHLS/tree/research/stage1-refinement) | Can directive supervision better express conditional choices under ambiguous measured labels? | Legacy full-data CE reached 400 updates; all-383-context validation and the measured-candidate comparison are pending. No experimental adapter is promoted. | [README](https://github.com/ElenaVouvali/MailoHLS/blob/research/stage1-refinement/README.md) |
+| [`research/refinement-mechanism`](https://github.com/ElenaVouvali/MailoHLS/tree/research/refinement-mechanism) | Can measured feedback and compiler relations prioritize HLS edits within a fixed query budget? | R11 is complete; the newer FGR-v1 GAN/Jacobi pilot has matched prefixes through budget 4 and seven of eight queries per arm, with budget 8 incomplete. | [README](https://github.com/ElenaVouvali/MailoHLS/blob/research/refinement-mechanism/README.md) |
+
+These summaries describe the branch evidence, not independent replications. GAN appears in earlier refinement development, and the GNN and Stage-1 analyses reuse authenticated repository datasets. The branch guides identify exact evaluation sets, context identity, artifact provenance, unresolved blockers and commands for reproducing each study.
 
 ---
 
@@ -341,7 +353,7 @@ The completed V4 study includes matched 100-, 300- and 600-update runs and a sep
 
 The budget-separated variant makes physical-QoR predictions invariant to changes in the requested resource budget, as expected, but did not reliably improve candidate selection. Only three held-out device comparisons had meaningful measured latency differences, so device generalization remains unresolved. V4 is **not validated for Stage-2**: a candidate-conditioned QoR predictor does not prove that V4's candidate-independent structural memory improves LLM directive generation.
 
-See the [V4 methods and corrected results](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/RESULTS.md) and the [V4 audit and limitations](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/experiments/v22_gnn_training/AUDIT.md) on the research branch. Checkpoints and full run receipts are not stored in Git.
+See the [V4 methods and corrected results](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/README.md#merged-experiments-v22-gnn-training-results-md) and the [V4 audit and limitations](https://github.com/ElenaVouvali/MailoHLS/blob/research/gnn-refinement/README.md#merged-experiments-v22-gnn-training-audit-md) on the research branch. Checkpoints and full run receipts are not stored in Git.
 
 ## 4.5 Proposed target-aware structural memory (research direction)
 
@@ -771,6 +783,24 @@ It does **not** establish that structural or hybrid search consistently outperfo
 The experiments also do not establish exhaustive equivalence or post-route improvement.
 
 The refinement mechanism remains optional and under active research.
+
+### Newer FGR-v1 pilot (separate from R11)
+
+The research branch also contains a prospective paper-configuration pilot of
+three new policies: static ordering, measured-feedback ranking, and
+feedback-plus-compiler-structure ranking. It used authenticated Vitis HLS
+2021.1 measurements on GAN and jacobi-2d under the same ZCU104 / 10 ns / TCAD
+context. Each of the six policy/kernel arms reached seven charged logical
+queries; the preregistered eight-query prefix is incomplete. At budget four,
+feedback and feedback-plus-structure reached 6.73% GAN ADP improvement versus
+0.06% for static ordering; on Jacobi, static reached 31.35% while the other two
+remained at baseline. At the incomplete equal-query-seven endpoint, Jacobi
+static reached 37.12%, feedback 36.22%, and structural 19.45%; one static
+query failed and has no QoR. The pilot does not establish a general policy
+ranking, and it showed no incremental structural advantage over feedback.
+These estimates are HLS synthesis results, not post-route or board measurements.
+See the [pilot report](https://github.com/ElenaVouvali/MailoHLS/blob/research/refinement-mechanism/README.md#merged-experiments-refinement-feedback-paper-evaluation-pilot-results-md)
+and [paper-evaluation audit](https://github.com/ElenaVouvali/MailoHLS/blob/research/refinement-mechanism/README.md#merged-experiments-refinement-feedback-paper-evaluation-readme-md).
 
 Implementation:
 

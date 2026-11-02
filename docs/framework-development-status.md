@@ -49,9 +49,9 @@ remain explicit limitations. The research suite passed 143 tests with one
 optional saved-tensor prerequisite skip. This main-branch update publishes only
 the status and links; it promotes no experimental algorithm or checkpoint.
 
-The pinned [results and evidence](https://github.com/ElenaVouvali/MailoHLS/blob/871c3d4b0c83ce0ae29fbd3fed5d2d21bad937fb/experiments/refinement_search/RESULTS.md)
+The pinned [results and evidence](https://github.com/ElenaVouvali/MailoHLS/blob/research/refinement-mechanism/README.md#merged-experiments-refinement-search-results-md)
 include complete budget curves, costs, configurations, hashes and functional
-receipts. The [methodology and design rationale](https://github.com/ElenaVouvali/MailoHLS/blob/871c3d4b0c83ce0ae29fbd3fed5d2d21bad937fb/experiments/refinement_search/README.md#authenticated-r11-assessment)
+receipts. The [methodology and design rationale](https://github.com/ElenaVouvali/MailoHLS/blob/research/refinement-mechanism/README.md#merged-experiments-refinement-search-readme-md)
 explain replay, authentication, controls and reproduction.
 
 `mlir-target` and `llvm-ir` remain immutable historical implementations. Source
