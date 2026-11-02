@@ -501,7 +501,7 @@ training run or QoR experiment was performed, and the pilot's CONDITIONAL GO
 result is unchanged.
 
 The subsequent supervised-training protocol is documented in
-[`experiments/v22_gnn_training/README.md`](../v22_gnn_training/README.md). It
+[`research/gnn-refinement consolidated README`](../../README.md#merged-experiments-v22-gnn-training-readme-md). It
 uses the same V3 encoder but supplies candidate-demand features to the
 candidate-conditioned head and evaluates the original seed-123 family split.
 Its measurements, if/when run, are separate from this pilot; no new model

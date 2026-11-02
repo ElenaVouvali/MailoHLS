@@ -1662,7 +1662,7 @@ keeps that path and does not add GNN depth or attention heads.
 
 The source-audited measured-data training path, numerical-conditioning
 baseline, hardware-message arm, loss and evaluation protocol are documented in
-[`experiments/v22_gnn_training/README.md`](../../experiments/v22_gnn_training/README.md).
+[`research/gnn-refinement consolidated README`](../../README.md#merged-experiments-v22-gnn-training-readme-md).
 That experiment package is experimental and currently **TRAINING BLOCKED**
 because no CUDA device/driver is exposed in its runtime. It has not produced a
 QoR result or selected checkpoint. Its historical seed-123 data audit is
