@@ -543,3 +543,22 @@ def test_cached_measurements_cannot_replace_labels_or_training_normalization():
     prepared['groups'][0]['rows'][0]['physical'][0] += 10
     with pytest.raises(ValueError,match='provenance changed'):
         validate_cached_measurements(prepared,fresh,manifest)
+
+
+def test_global_reported_zero_adp_policy_and_pointwise_only_contexts():
+    from .quality import apply_quality, adp_valid
+    from .train_probe import _pair_schedule, train_arm
+    prepared=_synthetic_prepared()
+    for group in prepared['groups']:
+        if group['split']!='train': continue
+        for row in group['rows']:
+            row['physical'][1:]=[0.]*4
+            row['transformed']=[0.]*5
+    report=apply_quality(prepared)
+    assert report['counts']['train_ambiguous_zero_area']==2
+    assert not adp_valid(prepared['groups'][0]['rows'][0])
+    schedule=_pair_schedule(prepared['groups'],4,123,include_pointwise_only=True)
+    assert all(pi==-1 for gi,b,pi in schedule)
+    models=_initial_models(123,5)
+    result=train_arm('no_graph',models['no_graph'],prepared,schedule,torch.device('cpu'),(4,))
+    assert all(r['pointwise_only'] and r['pairwise_loss']==0 for r in result['history'])

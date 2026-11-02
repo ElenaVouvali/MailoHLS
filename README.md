@@ -3393,3 +3393,39 @@ The user explicitly authorized V100S execution after the A2 became occupied.
 Use only idle V100S UUID `GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb`, and retain
 the smoke-before-full-run requirement. No sharing, Kalman evaluation, synthesis,
 or Stage-2/3/controller integration is part of this execution.
+
+### V4b v3: global reported-zero ADP validity correction
+
+The completed v2 37-kernel and matched 14-kernel runs are preserved, but their
+primary relative-regret/checkpoint-selection results are invalid: the legacy
+Viterbi-only exception missed all-zero resource percentages in other kernels.
+For example, a PathFinder/U200/10 ns candidate reports 69.56562 ms and four
+literal zero resource percentages. Its reported ADP is zero; dividing by a
+1e-12 floor produced a spurious 33-billion relative regret. These values are
+not evidence of architecture quality. The raw CSV provides percentages, not
+unrounded resource counts, so exact zero versus rounded/truncated utilization
+cannot be resolved. No counts or directives are imputed.
+
+This is corrected under the **separate v3 protocol identity**, preserving both
+v2 runs and their source commit `3bd2ae7`. The same architecture, candidate
+identity pools, seed, physical labels/normalization, 0.1 hybrid coefficient,
+optimizer, budgets, 5% gap, 1,500-update bound and checkpoint criterion remain.
+All-zero-resource rows are marked ADP-unobservable uniformly across kernels
+and targets; ADP supervision and selection are evaluated on the remaining
+ADP-observable measured subpool. Original pools remain QoR-blind; no replacement
+candidate is chosen by validation QoR. This validity subpool is a post-audit
+measurement-quality correction, not the global original-pool optimum.
+Physical predictions retain the original reported labels. Contexts with no
+valid ADP pair receive pointwise-only updates, so unrankable kernels are not
+silently omitted from physical learning. The family/context/budget sampling
+rule includes these contexts uniformly in v3. Empty pair losses are exactly
+zero. These corrections do not establish the truth of sub-percent resource
+counts; resource precision remains a limitation.
+
+The full non-test audit finds 2,281 training and 352 validation complete rows
+with ambiguous all-zero area. `spcl_example_00` has no positive-ADP measurement:
+it is usable for physical reported-QoR supervision but not ADP ordering.
+Thus 40 kernels have complete directive assignments, while 39 have any
+ADP-observable measurements (36 train, three validation). Both corrected
+cohort sizes will use the same validity policy and evaluation functions.
+No architecture or coefficient is tuned from these validation outcomes.

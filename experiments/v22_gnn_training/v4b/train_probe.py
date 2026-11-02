@@ -195,7 +195,7 @@ def prepare_small_cohort(data, manifest_path, device):
             'selected_measurements': sum(len(g['rows']) for g in groups)}
 
 
-def _pair_schedule(groups, updates, seed):
+def _pair_schedule(groups, updates, seed, include_pointwise_only=False):
     """One family-balanced sampled pair trace shared by all model arms."""
     by_family = defaultdict(list)
     for gi, group in enumerate(groups):
@@ -203,7 +203,7 @@ def _pair_schedule(groups, updates, seed):
             continue
         for fraction in BUDGETS:
             pairs = group['budget_pairs'].get(fraction, [])
-            if pairs:
+            if pairs or include_pointwise_only:
                 by_family[group['family']].append((gi, fraction, pairs))
     if not by_family:
         raise ValueError('No eligible training preference pairs in frozen cohort')
@@ -213,7 +213,7 @@ def _pair_schedule(groups, updates, seed):
     for _ in range(updates):
         family = rng.choice(families)
         gi, fraction, pairs = rng.choice(by_family[family])
-        pair_index = rng.randrange(len(pairs))
+        pair_index = rng.randrange(len(pairs)) if pairs else -1
         schedule.append((gi, fraction, pair_index))
     return schedule
 
@@ -222,12 +222,16 @@ def sample_coverage(groups, schedule):
     from collections import Counter
     candidates, pairs, contexts = set(), set(), set()
     families, reasons = Counter(), Counter()
-    for gi, fraction, pi in schedule:
+    for step, (gi, fraction, pi) in enumerate(schedule, 1):
         group = groups[gi]
-        a, b, reason = group['budget_pairs'][fraction][pi]
+        if pi < 0:
+            a, b, reason = (step-1) % len(group['rows']), step % len(group['rows']), 'physical_only_no_valid_adp_pair'
+        else:
+            a, b, reason = group['budget_pairs'][fraction][pi]
         ah, bh = [group['rows'][i]['config_hash'] for i in (a, b)]
         candidates.update(((group['kernel'], ah), (group['kernel'], bh)))
-        pairs.add((group['key'], fraction, ah, bh))
+        if pi >= 0:
+            pairs.add((group['key'], fraction, ah, bh))
         contexts.add(group['key']); families[group['family']] += 1; reasons[reason] += 1
     return {'distinct_kernel_target_contexts': len(contexts), 'distinct_complete_assignments': len(candidates),
             'distinct_budget_pair_identities': len(pairs), 'per_family_updates': dict(families),
@@ -341,7 +345,13 @@ def train_arm(arm, model, prepared, schedule, device, validation_steps, lr=3e-4,
         for module in (model.values() if isinstance(model, dict) else [model]):
             module.train()
         group = groups[gi]
-        preferred, worse, _reason = group['budget_pairs'][fraction][pair_index]
+        pointwise_only = pair_index < 0
+        if pointwise_only:
+            preferred = (step - 1) % len(group['rows'])
+            worse = step % len(group['rows'])
+            _reason = 'physical_only_no_valid_adp_pair'
+        else:
+            preferred, worse, _reason = group['budget_pairs'][fraction][pair_index]
         rows = (group['rows'][preferred], group['rows'][worse])
         graph = prepared['graph_cache'][(group['kernel'], group['profile'], group['clock'])].clone().to(device)
         features = [inputs[identity] for identity in (
@@ -353,7 +363,9 @@ def train_arm(arm, model, prepared, schedule, device, validation_steps, lr=3e-4,
         qor, logits = _forward_pair(arm, model, graph, candidates, demands,
                                    fraction, mean, std,
                                    prepared['profile_features'][(group['profile'], group['clock'])].clone().to(device))
-        loss, parts = hybrid_loss(qor, target, logits, [True], pair_weight)
+        if pointwise_only:
+            logits = logits[:0]
+        loss, parts = hybrid_loss(qor, target, logits, [] if pointwise_only else [True], pair_weight)
         if not torch.isfinite(loss):
             raise ValueError(f'Nonfinite {arm} loss at step {step}')
         optimizer.zero_grad(set_to_none=True)
@@ -369,7 +381,7 @@ def train_arm(arm, model, prepared, schedule, device, validation_steps, lr=3e-4,
                         'gradient_clipped': bool(float(grad) > 1.0),
                         'context': group['key'], 'budget_fraction': fraction,
                         'preferred_hash': rows[0]['config_hash'],
-                        'worse_hash': rows[1]['config_hash']})
+                        'worse_hash': rows[1]['config_hash'], 'pair_reason': _reason, 'pointwise_only': pointwise_only})
         if step in validation_steps:
             validation = evaluate_arm(arm, model, prepared, device)
             checkpoints[step] = {'state': _model_state(model), 'metrics': validation}
@@ -398,6 +410,8 @@ def main(argv=None):
     parser.add_argument('--authenticated-audit', required=True)
     parser.add_argument('--manifest', required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--quality-policy', choices=('legacy-v2', 'reported-zero-adp-ambiguous-v1'), default='legacy-v2')
+    parser.add_argument('--quality-audit-only', action='store_true')
     parser.add_argument('--prepare-only', action='store_true', help='CPU feature preparation only; no training')
     parser.add_argument('--prepared-cache', type=Path)
     parser.add_argument('--resume', action='store_true')
@@ -415,9 +429,9 @@ def main(argv=None):
         raise ValueError('Resume requires an existing authenticated V4b run')
     if args.resume and (output / 'status.json').exists() and json.loads((output / 'status.json').read_text()).get('status') == 'complete':
         raise ValueError('Refusing to resume or overwrite a completed V4b run')
-    if not args.prepare_only:
+    if not (args.prepare_only or args.quality_audit_only):
         require_isolated_gpu(args.gpu_name, args.gpu_uuid, args.minimum_free_mib)
-    if not args.prepare_only and not torch.cuda.is_available():
+    if not (args.prepare_only or args.quality_audit_only) and not torch.cuda.is_available():
         raise RuntimeError('V4b training requires the independently available A2; CUDA is unavailable')
     if args.updates < 1 or args.validate_every < 1 or args.updates % args.validate_every:
         raise ValueError('updates must be positive and divisible by validate-every')
@@ -449,8 +463,15 @@ def main(argv=None):
     if args.prepare_only:
         print('CPU-only preparation completed; no training or GPU initialization', flush=True)
         return
+    quality_audit = None
+    if args.quality_policy != 'legacy-v2':
+        from .quality import apply_quality
+        quality_audit = apply_quality(prepared)
+    if args.quality_audit_only:
+        checkpointing.atomic_json(output / 'quality_audit.json', quality_audit)
+        return
     print(f'V4b preparation complete in {prepared["preparation_seconds"]:.1f}s', flush=True)
-    schedule = _pair_schedule(prepared['groups'], args.updates, args.seed)
+    schedule = _pair_schedule(prepared['groups'], args.updates, args.seed, args.quality_policy != 'legacy-v2')
     schedule_hash = _json_sha([
         [prepared['groups'][gi]['key'], fraction, pair_index]
         for gi, fraction, pair_index in schedule])
@@ -460,7 +481,8 @@ def main(argv=None):
     source_files = sorted(p for p in Path(__file__).parent.glob('*.py') if not p.name.startswith('test_'))
     source_files += [Path(__file__).resolve().parents[3] / name for name in
                      __import__('experiments.v22_gnn_training.fast_probe', fromlist=['FEATURE_FILES']).FEATURE_FILES]
-    protocol = {'version': 'v4b-evaluation-resume-v2', 'seed': args.seed,
+    protocol = {'version': 'v4b-quality-corrected-v3' if quality_audit else 'v4b-evaluation-resume-v2',
+                'quality_policy': args.quality_policy, 'seed': args.seed,
                 'updates': args.updates, 'validate_every': args.validate_every,
                 'pair_weight': PAIR_WEIGHT, 'lr': 3e-4, 'weight_decay': 1e-4,
                 'manifest': _json_sha(prepared['manifest']), 'schedule': schedule_hash,
@@ -486,6 +508,8 @@ def main(argv=None):
         stopped.append(signum)
     signal.signal(signal.SIGTERM, on_signal)
     signal.signal(signal.SIGINT, on_signal)
+    if quality_audit:
+        checkpointing.atomic_json(output / 'quality_audit.json', quality_audit)
     initial = _initial_models(args.seed, prepared['profile_feature_dim'])
     initial_hashes = {}
     training = {}
@@ -516,7 +540,8 @@ def main(argv=None):
                 training[arm]['ablations'][mode] = evaluate_arm(arm, model, prepared, torch.device('cuda'), mode)
         checkpointing.atomic_json(output / f'{arm}_report.json', {k: v for k, v in training[arm].items() if k != 'checkpoints'})
         checkpointing.atomic_torch_save(output / f'{arm}_selected.pt', {'state': _model_state(model), 'updates': args.updates,
-                    'schema': 'salt-hls-v4b-full-cohort-action-aligned-preference-v2',
+                    'schema': 'salt-hls-v4b-full-cohort-action-aligned-preference-v3' if quality_audit else 'salt-hls-v4b-full-cohort-action-aligned-preference-v2',
+                    'quality_policy': args.quality_policy,
                     'protocol_fingerprint': fingerprint, 'selected_step': training[arm]['selected_step'],
                     'arm': arm, 'seed': args.seed, 'manifest_sha256': _json_sha(prepared['manifest']),
                     'sample_trace_sha256': schedule_hash,
@@ -525,7 +550,8 @@ def main(argv=None):
         for module in (model.values() if isinstance(model, dict) else [model]):
             module.cpu()
         torch.cuda.empty_cache()
-    receipt = {'schema': 'salt-hls-v4b-full-cohort-action-aligned-preference-v2-run',
+    receipt = {'schema': 'salt-hls-v4b-full-cohort-action-aligned-preference-v3-run' if quality_audit else 'salt-hls-v4b-full-cohort-action-aligned-preference-v2-run',
+               'quality_policy': args.quality_policy,
                'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
                'manifest_sha256': _json_sha(prepared['manifest']),
                'sample_trace_sha256': schedule_hash, 'seed': args.seed,

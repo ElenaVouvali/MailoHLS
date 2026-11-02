@@ -31,7 +31,7 @@ def summary(run):
                    'family_macro':selected['family_macro'], 'per_family':selected['per_family'],
                    'selection_score':selected['selection_score'],
                    'physical_mae_family_macro_latency_bram_dsp_ff_lut':np.mean(list(family_errors.values()),axis=0).tolist(),
-                   'sampled_last250_preupdate_pair_accuracy':float(np.mean([r['pairwise_loss']<math.log(2) for r in recent])),
+                   'sampled_last250_preupdate_pair_accuracy':float(np.mean([r['pairwise_loss']<math.log(2) for r in recent if not r.get('pointwise_only',False)])) if any(not r.get('pointwise_only',False) for r in recent) else None,
                    'sampled_last250_physical_loss':float(np.mean([r['physical_qor_loss'] for r in recent])),
                    'initial_sampled_loss':history[0]['loss'], 'last_sampled_loss':history[-1]['loss'],
                    'meaningful_budget_transition_count':len(selected['meaningful_budget_transitions']),

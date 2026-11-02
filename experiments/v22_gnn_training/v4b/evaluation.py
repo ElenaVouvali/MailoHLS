@@ -119,6 +119,8 @@ def summarize(rows):
 
 def evaluate(arm, model, prepared, device, mode='correct'):
     from .audit import _winner
+    from .quality import adp_valid
+    strict_quality = prepared.get('quality_policy') == 'reported-zero-adp-ambiguous-v1'
     for module in modules(model):
         module.eval()
     contexts, predictions, physical_rows = [], {}, []
@@ -131,7 +133,7 @@ def evaluate(arm, model, prepared, device, mode='correct'):
             caps = np.asarray(group['rows'][0]['capacities'])
             adp = true[:, 0] * (true[:, 1:] / caps).mean(1)
             pred_adp = predicted[:, 0] * (predicted[:, 1:] / caps).mean(1)
-            valid = np.asarray([not _ambiguous_zero_area(r) for r in group['rows']])
+            valid = np.asarray([adp_valid(r) if strict_quality else not _ambiguous_zero_area(r) for r in group['rows']])
             ids = [r['config_hash'] for r in group['rows']]
             predictions[(group['kernel'], group['profile'], group['clock'])] = {
                 h: (true[i], predicted[i]) for i, h in enumerate(ids)}
@@ -158,7 +160,7 @@ def evaluate(arm, model, prepared, device, mode='correct'):
                 oracle = _selection(rank(mf), mf, adp, reference)
                 pairs = group['budget_pairs'][fraction]
                 pair_accuracy = _mean([float(matrix[a, b] > 0) for a, b, _ in pairs])
-                winner, margin, count = _winner(group['rows'], fraction, 'PARETO_ADP')
+                winner, margin, count = _winner([r for i,r in enumerate(group['rows']) if valid[i]], fraction, 'PARETO_ADP')
                 selected = deploy.pop('selected_hash_index')
                 contexts.append({'context': group['key'], 'kernel': group['kernel'], 'family': group['family'],
                     'device': group['profile'], 'clock_ns': group['clock'], 'budget_fraction': fraction,
