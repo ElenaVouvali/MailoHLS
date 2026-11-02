@@ -77,7 +77,7 @@ jobs and require configured weights, datasets, dependencies and fresh outputs.
 
 Inference entry point `LLM_branch/inference/eval_stage1_stage2_stage3.py` accepts
 the model and memory contracts; consult its `--help` and [shell guide](shell-scripts.md).
-The [refinement experiment](../experiments/refinement/README.md) documents explicit
+The [consolidated refinement experiment guide](../README.md#merged-experiments-refinement-readme-md) documents explicit
 Vitis synthesis execution and report reuse. No new measurements are required to
 inspect graphs or verify artifact integrity.
 

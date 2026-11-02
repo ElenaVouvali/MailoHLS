@@ -61,4 +61,4 @@ refinement controller. It adds authenticated measurements to the current
 policy's revealed history and compares static, numerical-feedback, and
 feedback-plus-verified-relation ranking. It does not change production models,
 historical trajectories, or HLS measurement semantics. See the
-[`FGR-v1 README`](../experiments/refinement_feedback/README.md).
+[`FGR-v1 guide`](../README.md#merged-experiments-refinement-feedback-readme-md).

@@ -34,7 +34,7 @@ an ignored local source archive, while original measurements remain unchanged.
 
 Generated refinement reports, source snapshots, graphs, receipts and HLS
 projects belong under ignored `experiments/refinement/results/`. The user guide
-is `experiments/refinement/README.md`; it documents the current interface rather
+is the consolidated root `README.md` research record; it documents the current interface rather
 than a sequence of historical research milestones.
 
 Keep implementation, tests, source patches, compiler locks, kernel sources,
