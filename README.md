@@ -3360,3 +3360,36 @@ Fetched SHA256 values, respectively:
 `2090424c55134e157fe364bb2ad2aa5ae08c2443e7c435362ad2a2bc8a6ab55d`.
 
 </details>
+
+## V4b v2 authenticated execution — 2026-11-02
+
+The CPU implementation passed 214 tests with 15 skips. After correcting the
+FiLM adapter to accept the authenticated flat capability vector, the focused
+suite passed 23 tests, including subset-cache normalization. All five models passed a three-update CPU sanity check
+on the same authenticated measured training pair: finite loss, nonzero gradients,
+and exactly budget-invariant physical predictions. This is a sanity check,
+not held-out selection evidence. The receipt is
+[`fixed_context_sanity.json`](experiments/v22_gnn_training/v4b/receipts_v2/fixed_context_sanity.json).
+
+The first full CPU preparation completed in 802.36 seconds and produced a
+335 MiB external cache. A second pass builds the final cache provenance; old
+cache identities are rejected, not overridden. The largest prepared graph has
+1,137 nodes and 5,922 directed edges. Model parameter counts are 126,930
+(no learned graph memory), 127,538 (compiler/hardware), 152,319 (action
+difference), and 191,667 (target-FiLM). Any difference/FiLM gain must be read
+with this capacity difference; a favorable difference result triggers a
+capacity-matched standard-head control before attributing it to action alignment.
+
+Before any new validation predictions, a supplementary **matched 14-kernel
+control** is declared, subject to the same resource limit: use exactly the
+historical `directive_preference_probe.TRAIN_KERNELS` membership, the new v2
+per-context pools, the same three validation kernels, seed, 1,500 updates,
+losses, optimization and selection rules. Fit normalization using only that
+subset's training records. This is a new v2 sensitivity cohort; it does not
+modify or reinterpret the historical 300-update V4 experiment. If resources
+prevent it, the effect of cohort size remains unresolved.
+
+The user explicitly authorized V100S execution after the A2 became occupied.
+Use only idle V100S UUID `GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb`, and retain
+the smoke-before-full-run requirement. No sharing, Kalman evaluation, synthesis,
+or Stage-2/3/controller integration is part of this execution.

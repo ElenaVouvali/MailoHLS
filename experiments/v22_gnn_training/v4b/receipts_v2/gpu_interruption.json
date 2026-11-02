@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/tmp/mailohls-v22-gnn-env-20261030/bin/python",
+    "-m",
+    "experiments.v22_gnn_training.v4b.train_probe",
+    "--release-dir",
+    "/tmp/salt-v22-training-release",
+    "--authenticated-audit",
+    "experiments/v22_gnn_training/data-audit.json",
+    "--manifest",
+    "experiments/v22_gnn_training/v4b/receipts_v2/full_cohort/preference_cohort_manifest.json",
+    "--prepared-cache",
+    "/home/elvouvali/MailoHLS-GNN-runs/v4b-v2-20261102-8f3593b/prepared_full.pt",
+    "--output",
+    "/home/elvouvali/MailoHLS-GNN-runs/v4b-v2-20261102-8f3593b/resume_smoke",
+    "--gpu-name",
+    "V100S",
+    "--gpu-uuid",
+    "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb",
+    "--updates",
+    "50",
+    "--validate-every",
+    "25"
+  ],
+  "signaled_exact_child_pid": 3072693,
+  "signal": "SIGTERM",
+  "exit_code": 1,
+  "status": {
+    "arm": "no_graph",
+    "completed_step": 26,
+    "status": "interrupted"
+  },
+  "elapsed_seconds": 52.618619447923265,
+  "purpose": "disposable CUDA interruption/resume smoke, not a scientific result"
+}
