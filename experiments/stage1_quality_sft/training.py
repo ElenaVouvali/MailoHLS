@@ -253,6 +253,7 @@ def run_production(arm_dir: Path, argv=None):
              '--objective', '--resource_budget_mode', '--resource_budget_fracs',
              '--random_budgets_per_case', '--directive_loss_weighting',
              '--stage1_supervision_policy', '--stage1_contrast_weight',
+             '--stage1_quality_skip_selection',
              '--budget_target_max_duplicates'}
     if any(arg.split('=', 1)[0] in owned for arg in args):
         raise ValueError('Runner owns dataset/split/registry/output and forbids historical adapter initialization')
@@ -278,7 +279,12 @@ def run_production(arm_dir: Path, argv=None):
              '--model', BACKBONE, '--model_revision', BACKBONE_REVISION,
              '--epochs', '1', '--batch_size', '1', '--grad_accum', '8', '--num_workers', '0', '--family_sampling_power', '0', '--gradient_checkpointing', '--lora_r', '8', '--lora_alpha', '16', '--lora_dropout', '0.05',
              '--lora_target_modules', 'attention',
-             '--stage1_decision_diagnostics', '--stage1_full_validation',
+             '--stage1_decision_diagnostics', '--stage1_quality_skip_selection',
+             '--no-eval_on_start',
+             '--eval_steps', '1000',
+             '--selection_eval_steps', '1000',
+             '--save_steps', '100',
+             '--early_stopping_patience', '0',
              '--output_dir', str(run_dir), '--disable_structural_memory']
     (arm_dir / 'gpu_preflight.json').write_text(json.dumps(gpu_receipt, indent=2, sort_keys=True) + '\n')
     from LLM_branch.train import train_SFT_xattn_new as production

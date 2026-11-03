@@ -7364,7 +7364,9 @@ def run_single_training(args):
 
     if args.stage1_full_validation:
         selection_cases = [SelectionCase(row["kernel_name"], row["obj_mode"], row["input"],
-                             reorder_target_by_source_order(row["input"], row["target"]), row)
+                             build_partial_deterministic_target_text(
+                                 row["input"], row["target"], min_supervised_sites=1
+                             )[0], row)
                            for row in val_rows]
     training_constant_modes = {}
     if args.stage1_decision_diagnostics and train_rows:
@@ -8269,7 +8271,7 @@ def run_single_training(args):
         )
     )
 
-    if selection_cases:
+    if selection_cases and not args.stage1_quality_skip_selection:
         trainer.add_callback(
             StageValSelectionCallback(
                 tokenizer=tok,
@@ -8635,6 +8637,8 @@ def main():
     ap.add_argument("--stage1_contrast_weight", type=float, default=1.)
     ap.add_argument("--stage1_decision_diagnostics", action="store_true")
     ap.add_argument("--stage1_full_validation", action="store_true")
+    ap.add_argument("--stage1_quality_skip_selection", action="store_true",
+                    help="Skip online candidate-scoring selection for fixed-epoch quality-SFT runs")
     ap.add_argument("--value_loss_weight", type=float, default=1.0)
     ap.add_argument(
         "--directive_loss_weighting",
