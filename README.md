@@ -3429,3 +3429,250 @@ Thus 40 kernels have complete directive assignments, while 39 have any
 ADP-observable measurements (36 train, three validation). Both corrected
 cohort sizes will use the same validity policy and evaluation functions.
 No architecture or coefficient is tuned from these validation outcomes.
+
+
+## V4b final scientific report — corrected v3, 2026-11-04
+
+**Outcome: MIXED_COMPILER_MEMORY_EVIDENCE; ACTION_DIFFERENCE_NO_GAIN;
+TARGET_PREFERENCE_COVERAGE_INSUFFICIENT.** The implementation, controlled GPU
+experiments and diagnostics are complete. There is limited positive evidence
+for compiler action alignment on the two validation families, but no demonstrated
+benefit from hardware messages or the action-difference head. Stage-2/3 and the
+synthesis-refinement controller remain outside this experiment.
+
+This section supersedes earlier pending/incomplete V4b status sections above.
+Original V4, invalid-regret v2 runs, and their receipts remain historical.
+All results below use the explicitly versioned global zero-area correction,
+not the invalid epsilon-normalized v2 regrets. Because this correction followed
+a data-quality failure observed during validation, treat v3 as a corrective
+research analysis, not an untouched confirmatory study.
+
+### Cohort, observability and target coverage
+
+Authentication reconstructed 54 non-Kalman kernels and 143,321 rows. Hashes and
+the authenticated reserved count reconcile the original 55 kernels / 150,026
+aggregated points without parsing Kalman labels. Forty non-test kernels have
+complete measured directives: 37 train / three validation, 97,442 rows and
+17 / two families. Fourteen exclusions have unknown registered-action values;
+none has a proven fixed state or alternative mapping in the authenticated
+contract. Source/APL evidence and exact IDs are retained in the authentication
+receipts. Do not infer disabled directives from their placeholders.
+
+Resource observability is a separate limitation. Of those complete rows, 2,281
+training and 352 validation rows report four zero resource percentages, with no
+unrounded counts or precision metadata. Thus 39 kernels have any positive-ADP
+measurement (36 train / three validation); `spcl_example_00` supports reported
+physical-QoR regression but no defensible ADP ordering. V3 retains its physical
+supervision through pointwise-only updates. It neither edits labels nor invents
+sub-percent resource counts.
+
+The frozen QoR-blind assignment pools contain 3,664 observations across 240
+physical contexts (7–16 candidates/context). V3 marks 305 selected training and
+five selected validation observations ADP-unobservable. ADP metrics describe the
+remaining **ADP-observable measured subpool**, not the original full pool or a
+global optimum. No replacement candidate was chosen from validation QoR.
+
+Original complete-assignment intersections support 104/120 device pairs
+(3,605 matching assignments) and 209/240 clock pairs (9,733). Positive-ADP
+intersections support 96/120 device pairs (2,849 assignments) and 196/240 clock
+pairs (8,661). At the fixed 5% margin, the corrected full-data audit contains
+11 device target-pair rows with a reversal across some budget, spanning six
+training families, and one clock row in one training family. Validation has
+**zero meaningful device, clock or budget winner changes**. Eight meaningful
+full-data budget-pair rows reduce to two training physical contexts. Overlapping
+target pairs and budget views are correlated; they are not replications.
+Sensitivity at 1%, 5% and 10% is retained in the coverage receipts; 5% was not
+tuned. Reported percentage quantization remains relevant even for positive ADP.
+
+### Matched held-out selection
+
+All five primary arms used 1,500 updates, validation every 250, seed 123,
+AdamW 3e-4 / weight decay 1e-4, clip 1, and normalized physical SmoothL1 plus
+0.1 mean pair logistic loss. Sampling is uniform over training families, then
+context/budget and eligible pair; contexts without pairs receive physical-only
+updates. Initialization uses deterministic streams derived from seed 123:
+compiler/shared encoder 123, FiLM/difference additions 124, independent no-graph
+125. No V1 weights are imported. Encoder geometry and RC3 remain frozen.
+
+The 37-kernel trace saw all 37 training kernels, 219/222 physical contexts,
+994 distinct complete assignments, and 1,343 distinct budget/pair identities.
+Of 1,500 updates, 1,149 used ADP pairs, 235 feasibility pairs, and 116 were
+physical-only. Family update counts ranged from 73 to 101. The same trace was
+used by every full-cohort arm. Train-only normalization was independently refit
+for the 14-kernel sensitivity. Its validation identities and applicable protocol
+fields exactly match the full-cohort run.
+
+The score is family-macro selection failure plus conditional feasible top-1
+regret; lower is better. Feasible-selection rate is conditional on a measured
+feasible reference existing. Regrets and top-3 results must be read with that
+coverage, rather than rewarding abstention. Pair accuracy is family macro.
+
+| Arm | Selected update | Parameters | Feasible selection | Top-1 regret | Top-3 regret | ADP pair accuracy | Score |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| compiler | 1500 | 127,538 | 78.93% | 0.5264 | 0.0556 | 71.18% | 0.7371 |
+| compiler_difference | 1500 | 152,319 | 84.01% | 0.9400 | 0.1483 | 66.80% | 1.0999 |
+| hardware | 1250 | 127,538 | 83.16% | 0.6232 | 0.1611 | 70.81% | 0.7916 |
+| no_graph | 1000 | 126,930 | 89.10% | 0.8494 | 0.0538 | 74.30% | 0.9585 |
+| target_film | 250 | 191,667 | 87.40% | 0.5601 | 0.1896 | 70.10% | 0.6861 |
+| compiler_capacity | 500 | 191,604 | 89.10% | 0.5234 | 0.0206 | 74.70% | 0.6325 |
+
+The no-graph control has no learned GNN memory but shares the authenticated
+analytical candidate descriptors. The compiler/no-graph parameter counts differ
+by less than 0.5%, so this comparison isolates learned graph memory beyond those
+common features. Compiler memory improves conditional regret and the fixed
+score, but loses 10.17 percentage points of feasible selections. Its top-3 regret
+and pair accuracy do not improve. This is mixed evidence, not a robust win.
+
+Hardware messages worsen the compiler score and top-1/top-3 regret. Action
+difference also worsens the score, regret and pair accuracy despite more
+parameters. Its extra capacity therefore does not establish a comparison-head
+benefit. FiLM's apparent score gain is explained by a competing capacity
+control: widening only the standard candidate ActionMLP to 375 hidden units
+produces 191,604 parameters versus FiLM's 191,667 (0.033% difference). The same
+encoder, initial compiler state, normalization, sampled trace, losses, updates
+and evaluator were verified. Width was calculated from parameter counts,
+without validation tuning. This standard-head control beats FiLM on score and
+top-3 regret; no target-modulation advantage is demonstrated.
+
+### Does the larger cohort help?
+
+| Arm | 14-kernel score | 37-kernel score | 14-kernel top-1 regret | 37-kernel top-1 regret |
+|---|---:|---:|---:|---:|
+| compiler | 0.9421 | 0.7371 | 0.8415 | 0.5264 |
+| compiler_difference | 1.1085 | 1.0999 | 0.9994 | 0.9400 |
+| hardware | 0.7579 | 0.7916 | 0.6150 | 0.6232 |
+| no_graph | 0.7693 | 0.9585 | 0.6603 | 0.8494 |
+| target_film | 0.8918 | 0.6861 | 0.8252 | 0.5601 |
+
+The effect is architecture-dependent. Compiler and FiLM scores improve, the
+difference score barely changes, and no-graph/hardware scores worsen. Compiler
+conditional regret falls 37.5%, but its feasible-selection rate falls from
+89.94% to 78.93%. The larger cohort does not establish a universal selection
+advantage under this initial bounded optimization budget. This is a matched v3
+sensitivity, not a comparison against the historical pairwise-only 300-update V4.
+
+### Feasibility, physical prediction and alignment
+
+Physical predictions have zero observed normalized drift across requested
+budgets (asserted tolerance 1e-7). Budget information enters preference and
+explicit capacity filtering only. Feasibility errors remain substantial:
+
+| Arm | Precision | Recall | False-feasible rate | False-infeasible rate | Oracle-filter top-1 regret |
+|---|---:|---:|---:|---:|---:|
+| compiler | 92.00% | 80.59% | 61.16% | 19.41% | 0.4720 |
+| compiler_difference | 91.16% | 85.68% | 70.54% | 14.32% | 0.8222 |
+| hardware | 90.74% | 86.53% | 71.47% | 13.47% | 0.5542 |
+| no_graph | 85.06% | 95.76% | 90.62% | 4.24% | 0.7527 |
+| target_film | 88.22% | 90.76% | 81.47% | 9.24% | 0.5129 |
+| compiler_capacity | 89.00% | 90.76% | 79.91% | 9.24% | 0.4699 |
+
+Rates average context-level metrics within family, then families. False-feasible
+means FP/(FP+TN); false-infeasible means FN/(FN+TP). High precision alongside a
+high false-feasible rate reflects class imbalance, not reliable feasibility.
+Oracle filtering is a diagnostic using measured feasibility, never model input.
+Compiler regret remains 0.472 with oracle filtering: ranking error persists
+alongside feasibility error. No held-out meaningful budget transition exists,
+so correct winner-change adaptation is unidentifiable, not a success rate of zero.
+Physical MAEs and exact matched clock/device delta errors are in the validation
+receipts; they refer to reported resource proxies, not unrounded hardware counts.
+
+| Memory intervention (compiler checkpoint) | Score | Changed budget views / 90 |
+|---|---:|---:|
+| Correct | 0.7371 | 0 |
+| global_mean | 1.0320 | 11 |
+| shuffled | 1.3967 | 12 |
+| target_mismatched | 0.7371 | 0 |
+| zero | 0.8918 | 25 |
+
+Compiler top-1 regret rises from 0.5264 to 1.1859 with shuffled slots and 0.8721
+with global-mean slots. Both validation families worsen under these two slot
+interventions. This is selection evidence for correct alignment in this small
+sample, beyond an active gradient or nonzero-memory sensitivity. Zero memory
+also removes the pooled program state and is a broader intervention; it is not
+the independently trained no-graph baseline. Target-mismatched memory changes
+no selected candidate, providing no device-adaptation evidence. Budget views
+are correlated, so the changed-view counts are not independent observations.
+
+The difference model's controlled single-action pair assigns attention 1 to
+slot 2. Adding 0.1 to each aligned memory coordinate changes its score from
+-1.26343 to -1.24350; perturbing an unrelated slot leaves it unchanged. The
+comparison direction does not flip. This shows local sensitivity, not causal
+importance of attention or improved selection: its held-out regret is still
+worse than the standard compiler scorer. Attention magnitude alone is not used
+as evidence.
+
+### Answers to the research questions
+
+1. **Usable non-test kernels:** 40 have complete directives; 39 have any
+   ADP-observable measurements. All 37 eligible training kernels receive
+   physical supervision; 36 can contribute positive-ADP ordering.
+2. **Recover exclusions:** none is proven recoverable in the authenticated
+   mapping. Fixed directive states cannot be inferred from source placeholders.
+3. **Device/clock reversals:** sparse corrected reversals exist in training,
+   but none meaningful in the held-out families at 5%.
+4. **Does 37 beat 14?** Mixed: compiler conditional regret/score improve while
+   feasible-selection rate worsens; several other arms do not improve.
+5. **Graph versus no-graph:** limited positive compiler score/regret evidence
+   at matched capacity, with worse feasible-selection coverage and pair accuracy.
+6. **Hardware messages:** no additional selection benefit over compiler-only.
+7. **Action difference:** no improvement; the standard compiler head is better.
+8. **Budget adaptation:** physical invariance and capacity-sensitive feasibility
+   hold, but error rates are high and meaningful held-out winner transitions
+   are unavailable to test adaptation.
+9. **Correct alignment useful?** Yes, limited evidence on these two families:
+   shuffling/averaging compiler slots worsens actual measured-subpool selection.
+   It is not robust broad-family evidence and does not rescue the difference head.
+10. **Remaining bottleneck:** resource precision and target-reversal coverage
+    are established data limits. Feasibility calibration and candidate-head
+    capacity also matter. The evidence does not isolate an encoder-depth defect
+    or justify architecture search, more GNN layers, or Stage-2 integration.
+
+### Reproduction, cost and artifacts
+
+Primary corrected runs used source commit `f248497`, the explicitly authorized
+idle V100S UUID `GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb`, pinned Python 3.10 /
+PyTorch 2.6.0+cu124 / PyG, and fresh checkpoints. The capacity control used
+`d21f462` and verified all parent source hashes before training. The default A2
+was not shared; no GPU fallback was automatic. Initial and final full CPU
+feature preparations took 802.36 and 772.9 seconds; reported cached preparation
+time is cache construction time, not fresh GPU-run startup time.
+
+Per-arm training-plus-checkpoint-validation time was 38–84 seconds for the
+full-cohort primary arms. Peak PyTorch allocation was approximately 27–69 MiB;
+this excludes driver/context memory and is not total `nvidia-smi` occupancy.
+Training is an initial 1,500-update controlled budget, not demonstrated
+convergence. Recent sampled training pair accuracy is only about 64–72% in the
+primary arms; lower losses alone do not establish selection quality.
+
+The complete CPU suite passed 214 tests with 15 skips before the later quality
+correction; the corrected focused V4/V4b suite passed 62 tests. The final complete
+suite passed **218 tests, 15 skipped, zero failed** in 139.46 seconds; the
+machine-readable result is `receipts_v3/cpu_test_receipt.json`. Real CPU measured-context sanity and CUDA
+SIGTERM/resume smokes passed; resumed histories contain exactly updates 1–50.
+Synthetic fixtures remain tests only. No synthesis or Kalman label evaluation
+was performed. One seed, two validation families, checkpoint selection on those
+families and the corrective analysis limit every inference here.
+
+- Frozen manifests and authentication: `experiments/v22_gnn_training/v4b/receipts_v2/`.
+- Corrected coverage, matched summaries, full per-kernel/device/clock/budget
+  validation and ablations: `experiments/v22_gnn_training/v4b/receipts_v3/`.
+- Binary weight and receipt hashes: `receipts_v3/artifact_manifest.json`.
+- Loss/checkpoint curves: `receipts_v3/training_curves.png` and `.pdf`.
+- Durable weights, raw histories and GPU logs:
+  `/home/elvouvali/MailoHLS-GNN-runs/v4b-v2-20261102-8f3593b/`.
+
+![V4b training and validation curves](experiments/v22_gnn_training/v4b/receipts_v3/training_curves.png)
+
+To reproduce the primary training implementation, use source commit `f248497`,
+restore the authenticated preprocessing/RC3 inputs, run `authenticate`, the CPU
+suite and smoke first, then invoke `python -m experiments.v22_gnn_training.v4b.train_probe`
+with the frozen `receipts_v2/full_cohort/preference_cohort_manifest.json`, a new
+output, `--quality-policy reported-zero-adp-ambiguous-v1 --updates 1500
+--validate-every 250 --seed 123`. Explicitly set both GPU UUID environment
+variables and matching `--gpu-name` / `--gpu-uuid` after an idle-device preflight.
+The matched-14 manifest is under `receipts_v2/matched14/`; its normalization must
+be refit, as implemented by `cohorts.py`. `summarize.py` verifies matched protocol
+fields and validation pool identities. `capacity_control.py` inherits and
+verifies the parent protocol and selects width solely by parameter count.
+`plot_results.py` renders the recorded curves. Use unique output paths, preserve
+completed artifacts, and keep caches/weights/logs outside Git.
