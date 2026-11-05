@@ -1,0 +1,52 @@
+### Role: Expert FPGA/HLS engineer.
+
+### Task:
+The kernel marks each directive site with a source marker <SRC_Lk>.
+Select the directive RHS values for the optimization goal and target platform.
+If the clock is <CLK=AUTO>, also select the best supported clock period.
+Anchors and directive names are fixed by the source code.
+
+### Target Platform
+Device class: <DEV=XCZU7EV_FFVC1156_2E>
+Device name: xczu7ev-ffvc1156-2-e
+Target clock period: <CLK=10NS>
+Supported measured clock periods: 10 ns
+
+Available resources:
+BRAM_18K=125 (20.0% of device)
+DSP=346 (20.0% of device)
+FF=92160 (20.0% of device)
+LUT=46080 (20.0% of device)
+
+### Objective
+<OBJ=PARETO_LATENCY>
+
+### Kernel
+#define M 32
+#define N 32
+
+float gemv() {
+    <SRC_L1> float A[N][M];
+#pragma HLS array_partition variable=A type=auto{_ARRAY_T_L1} factor=auto{_ARRAY_F_L1} dim=auto{_ARRAY_D_L1}
+    <SRC_L2> float x[M];
+#pragma HLS array_partition variable=x type=auto{_ARRAY_T_L2} factor=auto{_ARRAY_F_L2} dim=auto{_ARRAY_D_L2}
+    <SRC_L3> float y[N];
+#pragma HLS array_partition variable=y type=auto{_ARRAY_T_L3} factor=auto{_ARRAY_F_L3} dim=auto{_ARRAY_D_L3}
+
+    <SRC_L4> for (int i = 0; i < N; i++) {
+#pragma HLS pipeline II=auto{_PIPE_L4}
+#pragma HLS unroll factor=auto{_UNROLL_L4}
+        float acc = 0;
+        <SRC_L5> for (int j = 0; j < M; j++) {
+#pragma HLS pipeline II=auto{_PIPE_L5}
+#pragma HLS unroll factor=auto{_UNROLL_L5}
+            acc += A[i][j] * x[j];
+        }
+        y[i] = acc;
+    }
+    return y[0];
+}
+
+### Selected Clock and Directives
+<CLOCK>
+selected_clock_period_ns = 10

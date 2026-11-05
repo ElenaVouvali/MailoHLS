@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "--stage",
+    "stage1",
+    "--adapter_dir",
+    "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run",
+    "--directive_domain_registry_json",
+    "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run/directive_domain_registry.json",
+    "--application_dataset_dir",
+    "/tmp/MailoHLS-stage1-refinement/experiments/gemv_framework_deep_dive/inputs",
+    "--input_jsonl",
+    "/tmp/MailoHLS-stage1-refinement/artifacts/gemv_framework_deep_dive/v4_20261106/requests.jsonl",
+    "--output_jsonl",
+    "/tmp/MailoHLS-stage1-refinement/artifacts/gemv_framework_deep_dive/v4_20261106/official.jsonl",
+    "--admissibility_policy",
+    "legacy",
+    "--score_reduction",
+    "mean",
+    "--num_samples",
+    "1",
+    "--sample_seed",
+    "123",
+    "--max_prompt_tokens",
+    "7168",
+    "--debug_topk",
+    "10000",
+    "--candidate_max_prefix_tokens",
+    "0",
+    "--candidate_keep_head_tokens",
+    "256"
+  ],
+  "entrypoint": "LLM_branch.inference.eval_stage1_stage2_stage3",
+  "gpu": {
+    "compute_processes": [],
+    "gpu_utilization_percent": 0,
+    "memory_total_mib": "32768",
+    "memory_used_mib": 1,
+    "name": "Tesla V100S-PCIE-32GB",
+    "uuid": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb"
+  },
+  "manifest_sha256": "406527ee2e6ece2d079af9e3c5ac021f5ebff3185bd7ad71800e9db1a8e4bcf1"
+}

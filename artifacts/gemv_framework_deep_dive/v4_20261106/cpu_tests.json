@@ -1,0 +1,22 @@
+{
+  "utc": "2026-11-05T23:34:14.339744+00:00",
+  "cwd": "/tmp/MailoHLS-stage1-refinement",
+  "checks": [
+    {
+      "argv": [
+        "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "experiments/gemv_framework_deep_dive/test_diagnostics.py",
+        "LLM_branch/tests/test_checkpoint_tokenizer.py",
+        "LLM_branch/tests/test_source_tool_policy.py"
+      ],
+      "returncode": 0,
+      "stdout": "..........................                                               [100%]\n=============================== warnings summary ===============================\nexperiments/gemv_framework_deep_dive/test_diagnostics.py::test_launcher_stops_before_loader_on_gpu_failure\n  /home/elvouvali/miniforge3/envs/mailohls-llm-v2/lib/python3.10/site-packages/torch/cuda/__init__.py:788: UserWarning: Can't initialize NVML\n    warnings.warn(\"Can't initialize NVML\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n26 passed, 1 warning in 5.32s\n",
+      "stderr": "",
+      "elapsed_seconds": 6.4825235300231725
+    }
+  ],
+  "scope": "CPU tests plus independent checks of recorded V100S evidence; no GPU checkpoint reloaded"
+}

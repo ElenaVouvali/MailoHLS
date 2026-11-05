@@ -1,0 +1,95 @@
+{
+  "archived_stage2": {
+    "model": "deepseek-ai/deepseek-coder-6.7b-base",
+    "model_revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+    "objective": "PARETO_ADP",
+    "path": "/tmp/MailoHLS-stage1-refinement/artifacts/reproducibility/stage2_fusion/training_contract.json",
+    "sha256": "1f46c3a37bd534f1695af5d0f075813975be9d0e9c80eee39651f09ec83dd51a",
+    "structural": {
+      "action_relation_policy": "self+nearest-loop-hierarchy+array-access+proven-memory-dependence",
+      "action_relation_schema": "mailohls-action-relations-v1",
+      "every_n_layers": 8,
+      "initial_structural_state_sha256": "0d2170bcdf1bf117adbdd35f68a135b6b67daa2cc43e8e56aa7ed20444488935",
+      "max_slots": 64,
+      "mem_dim": 64,
+      "memory_manifest_sha256": "e40ee9a8403621314df817dc935257f2b17af7cde85b7b651967802e7d4d24ec",
+      "schema": "mailohls-structural-config-v2",
+      "selected_xattn_layers_1based": [
+        8,
+        16,
+        24,
+        32
+      ],
+      "selection_eval_gate_scale": 1.0,
+      "selection_eval_memory_value_scale": 1.0,
+      "structural_routing": "compiler_relational",
+      "xattn_dim_head": 64,
+      "xattn_enable_ff": false,
+      "xattn_ff_mult": 1,
+      "xattn_gate_init": 0.0,
+      "xattn_heads": 4,
+      "xattn_placement": "post_decoder_residual"
+    }
+  },
+  "local_production_adp_stage2": {
+    "model": "deepseek-ai/deepseek-coder-6.7b-base",
+    "model_revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+    "objective": "PARETO_ADP",
+    "path": "/tmp/MailoHLS-stage1-refinement/mailohls_runs/stage2_specified_adp_epoch9_s123_v3/best_custom_stage2/training_contract.json",
+    "sha256": "8455f2e746f0970abfc178b0a2b8061c4f8895f0b7e56ed2ba7b926a2f9e744e",
+    "structural": {
+      "action_relation_policy": "self+nearest-loop-hierarchy+array-access+proven-memory-dependence",
+      "action_relation_schema": "mailohls-action-relations-v1",
+      "apply_mask_policy": "rhs_only_causal_logit_positions",
+      "embedding_mode": "multiscale::jkn+centered_conv1",
+      "every_n_layers": 8,
+      "frozen_stage1_sha256": "41c5bd32592597c6f02fc10fa9988d90f4c768faccf993ba44c0cde4adc476d8",
+      "gnn_effective_area_floor": 0.0625,
+      "gnn_experiment_split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+      "initial_structural_state_sha256": "e5af679ca9afb97af02ee78dae1e354fb7d07a850f6d597efaa5703b314855ab",
+      "loss_policy": {
+        "candidate_loss_weight": 0.0,
+        "ce_loss_weight": 1.0
+      },
+      "max_slots": 64,
+      "mem_dim": 128,
+      "memory_manifest_sha256": "475b1da085f5404445da9f41e7e7b9a1fc04de97838f7ed9f02b9996d0e0c440",
+      "normalization_artifact_sha256": "6b03a9bcbe8a577e5071f411d9c71603dde0d50ceb26b1f185430d18b28961ad",
+      "schema": "mailohls-structural-config-v2",
+      "selected_xattn_layers_1based": [
+        8,
+        16,
+        24,
+        32
+      ],
+      "selection_eval_gate_scale": 1.0,
+      "selection_eval_memory_value_scale": 1.0,
+      "special_token_sha256": "971d002255af20a0b40f09e345bd2a95755b7cf1c83ca2c5ae2c6e5e6ab9746c",
+      "stage1_adapter_sha256": "222f3c248257b9591f1ad85254fba0a282770dc2ea7f9904cfeede111a19de2d",
+      "stage1_contract_sha256": "7a985e14b35e6b9b713d63004204156eca5c41f7bf49b68aace67aa516082941",
+      "stage1_lora_sha256": "1dd757bfed9c5f71a5b26607adbdd97917af3ab20641d8d6781b824225e841a3",
+      "structural_routing": "compiler_relational",
+      "trainable_parameter_contract": {
+        "allowed_groups": [
+          "structural_cross_attention",
+          "structural_attention_gates"
+        ],
+        "frozen_groups": [
+          "base_model",
+          "stage1_lora",
+          "special_token_embeddings",
+          "structural_ff"
+        ],
+        "parameter_count": 24,
+        "parameter_names_sha256": "12fc748154d32798000a3d70f2e28a70f94e4ce518a1c38b7bd134d93be8571d",
+        "schema": "mailohls-stage2-trainables-v1"
+      },
+      "xattn_dim_head": 64,
+      "xattn_enable_ff": false,
+      "xattn_ff_mult": 1,
+      "xattn_gate_init": 0.0,
+      "xattn_heads": 4,
+      "xattn_placement": "post_self_attention_residual"
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "branch": {
+    "argv": [
+      "git",
+      "branch",
+      "--show-current"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "research/stage1-refinement\n"
+  },
+  "commit": {
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "3b7fd7cd39eb052b5661e09ad3562b98a5412036\n"
+  },
+  "cuda_available": false,
+  "cuda_count": 0,
+  "cuda_init_error": "No CUDA GPUs are available",
+  "cuda_visible_devices": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb",
+  "expected_gpu_name": "Tesla V100S-PCIE-32GB",
+  "expected_gpu_uuid": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb",
+  "gpu_query": {
+    "argv": [
+      "nvidia-smi",
+      "--query-gpu=uuid,name,memory.used,memory.total,utilization.gpu",
+      "--format=csv,noheader,nounits"
+    ],
+    "returncode": 9,
+    "stderr": "",
+    "stdout": "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.\n\n"
+  },
+  "hostname": "liono",
+  "peft": "0.18.1",
+  "preexisting_worktree_status": {
+    "argv": [
+      "git",
+      "status",
+      "--short"
+    ],
+    "returncode": 0,
+    "stderr": "",
+    "stdout": " M experiments/stage1_recovery/evaluate.py\n?? README.txt\n?? docs/stage1-quality-sft-manual-handoff.md\n?? experiments/gemv_framework_deep_dive/\n?? experiments/stage1_quality_sft/gpu_preflight.py.bak\n?? experiments/stage1_quality_sft/training.py.before_source_case_fix\n?? experiments/stage1_recovery/assessments/\n"
+  },
+  "processes": {
+    "argv": [
+      "nvidia-smi",
+      "--query-compute-apps=gpu_uuid,pid,process_name",
+      "--format=csv,noheader"
+    ],
+    "returncode": 9,
+    "stderr": "",
+    "stdout": "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.\n\n"
+  },
+  "python": "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python",
+  "torch": "2.6.0+cu124",
+  "transformers": "4.51.0"
+}

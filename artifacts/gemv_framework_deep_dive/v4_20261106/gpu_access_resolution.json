@@ -1,0 +1,26 @@
+{
+  "captured_utc": "2026-11-05T22:14:10.006794+00:00",
+  "root_cause": "GPU device nodes are hidden by the restricted execution sandbox; host driver is healthy",
+  "original_host_driver_failure_diagnosis": "incorrect; corrected after unsandboxed read-only check",
+  "sandbox": {
+    "nvidia_smi_exitcode": 9,
+    "cuda_available": false,
+    "cuda_device_count": 0
+  },
+  "outside_sandbox": {
+    "driver_version": "550.163.01",
+    "gpu_uuid": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb",
+    "gpu_name": "Tesla V100S-PCIE-32GB",
+    "memory_used_mib": 1,
+    "memory_total_mib": 32768,
+    "utilization_percent": 0,
+    "compute_processes": [],
+    "cuda_available": true,
+    "cuda_device_count": 1,
+    "cuda_visible_devices": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb"
+  },
+  "repair": "execute GPU workload with approved access outside sandbox; no driver/service/software changes",
+  "manifest_correction": "added supported obj_mode field; objective PARETO_LATENCY unchanged",
+  "all_four_rendered_prompts_and_token_ids_unchanged": true,
+  "prior_manifest_preserved": "artifacts/gemv_framework_deep_dive/v4_20261105/manifest.json"
+}
