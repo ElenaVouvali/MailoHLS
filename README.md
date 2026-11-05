@@ -3676,3 +3676,17 @@ fields and validation pool identities. `capacity_control.py` inherits and
 verifies the parent protocol and selects width solely by parameter count.
 `plot_results.py` renders the recorded curves. Use unique output paths, preserve
 completed artifacts, and keep caches/weights/logs outside Git.
+
+### Standalone GEMV RC3 graph and embedding exports
+
+The [GEMV RC3 artifact](paper_figures/gemv_rc3_20261105/README.md) provides the
+native 32×32 GEMV graph (66 nodes, 106 edges, five matched action anchors),
+canonical/compact JSON, GEXF, SVG/PNG/PDF views and source/compiler provenance.
+It is separate from the frozen RC3 cohort and the earlier production V1 figure.
+
+[Embedding exports](paper_figures/gemv_rc3_20261105/embeddings/) contain actual
+trained V4b compiler, hardware-message and FiLM memories for ZCU104/U200 at
+10 ns. These are out-of-cohort inference visualizations, without new measured
+labels or performance claims. The packaged inspector resolves repository
+imports automatically; the reproduction instructions explain the separate
+GEMV input cache. Large caches and model checkpoints remain outside Git.
