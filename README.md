@@ -12,6 +12,112 @@ artifacts and objective-specific availability are recorded in
 and Stage 3 are selected for ADP; other stages/objectives have the explicit
 fallback or pending status in that manifest.
 
+## Current Research Status (5 November 2026)
+
+- **Stage-1 quality SFT V4 training is complete** for both independently initialized latency arms: single-reference and near-optimal multi-reference. Each used 2,524 training examples and one pass under the recorded Transformers 4.51 schedule (315 planned steps; 313 successful updates for single-reference and 314 for multi-reference after 2/1 AMP-skipped steps). Both used the same seed and pinned backbone revision. Published inference uses each run's final root adapter; it was **not** chosen by the optional measured-quality `select_checkpoints.py` utility. Training completion is not completed scientific evaluation.
+- The only authenticated held-out inference report is the six legal Kalman outputs in the [November 4 report](experiments/stage1_quality_sft/results/kalman_v4_20261104.md). It contains no QoR labels and does not establish feasibility, quality, adapter superiority, or promotion eligibility.
+- The **GEMV source-to-Stage-1 walkthrough** below now includes four real production-decoder predictions: both V4 adapters on ZCU104 and U200 at 10 ns/full budget. All four passed 13-field completeness and source-domain checks. Within each adapter, the chosen directives were identical across the two devices; this small inference-only probe has no measured QoR or target-adaptation claim. Exact inputs and hashes are in the [GEMV report](experiments/stage1_quality_sft/results/gemv_v4_20261105.md) and [machine-readable receipt](experiments/stage1_quality_sft/results/gemv_v4_20261105_report.json).
+- The current GNN research branch has completed V4b full-cohort training and analysis, but that experimental memory is not integrated with this branch or production Stage-2. See the [GNN research guide](https://github.com/ElenaVouvali/MailoHLS/blob/aa6ad1a20239250fc9236a3e87b35b1df99e6ca9/docs/gnn-refinement/README.md) for the selected structural baseline and [GEMV graph/embedding walkthrough](https://github.com/ElenaVouvali/MailoHLS/blob/aa6ad1a20239250fc9236a3e87b35b1df99e6ca9/docs/gnn-refinement/README.md#worked-example-gemv-32-by-32-from-c-code-to-compiler-graph-to-gnn-embeddings).
+
+The two experimental Stage-1 V4 adapters are local artifacts, not Git-tracked
+weights. Their exact root-adapter and contract hashes are:
+
+| Arm | Local run | Adapter SHA-256 | Contract SHA-256 |
+|---|---|---|---|
+| Single-reference | `/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/single_reference/run` | `abef1af9e9e833b2a02173a803318b90a37b5015c8f597ebb02c70d0655bbd66` | `f4dcf440a98cf4cf75bf6ecd294193e8ba2362a825fe148b553907b9788d97b4` |
+| Near-optimal multi-reference | `/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run` | `28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164` | `1c7a2034dba45030e51525fd415367e6fcf276cceddd89eb1132edfd66840671` |
+
+Both use base model `deepseek-ai/deepseek-coder-6.7b-base` at revision
+`ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912`; saved tokenizer SHA-256 is
+`eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891` and saved
+source-domain registry SHA-256 is
+`41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c`. The
+Kalman record identifies the matching source metadata, requests, prompt source,
+decoder configuration and generated-output hashes. Adapters are rank-8 LoRA
+with the repository's trainable special input-token deltas; production output
+embeddings remain frozen. The V4 final adapter policy was the **final root
+adapter after the fixed one-pass run**. `select_checkpoints.py` is an optional
+later utility and did not choose these two V4 adapters.
+
+### Worked example: annotated GEMV source through the Stage-1 decoder
+
+The source is the authenticated 32×32 GEMV prepared for the separate RC3 structural demonstration. Its exact bytes are available at the [commit-pinned source file](https://github.com/ElenaVouvali/MailoHLS/blob/aa6ad1a20239250fc9236a3e87b35b1df99e6ca9/paper_figures/gemv_rc3_20261105/inputs/gemv.c) (SHA-256 `c6e8b0aab3919a433803bacf29c7af6b56a6a5cb4d7a511a6875a21593a7e8f6`); action metadata is [here](https://github.com/ElenaVouvali/MailoHLS/blob/aa6ad1a20239250fc9236a3e87b35b1df99e6ca9/paper_figures/gemv_rc3_20261105/inputs/kernel_info.txt) (SHA-256 `72dcbe726d2066c34854ff1efe04fe6f2dba9d5b4f050104c0edbc9d607c487a`). The metadata registers arrays `L1=A`, `L2=x`, `L3=y` and loops `L4` (outer) and `L5` (inner), each with trip count 32.
+
+```c
+#define M 32
+#define N 32
+float gemv() {
+    /*L1:*/ float A[N][M];
+#pragma HLS array_partition variable=A type=auto{_ARRAY_T_L1} factor=auto{_ARRAY_F_L1} dim=auto{_ARRAY_D_L1}
+    /*L2:*/ float x[M];
+#pragma HLS array_partition variable=x type=auto{_ARRAY_T_L2} factor=auto{_ARRAY_F_L2} dim=auto{_ARRAY_D_L2}
+    /*L3:*/ float y[N];
+#pragma HLS array_partition variable=y type=auto{_ARRAY_T_L3} factor=auto{_ARRAY_F_L3} dim=auto{_ARRAY_D_L3}
+    /*L4:*/ for (int i = 0; i < N; i++) {
+#pragma HLS pipeline II=auto{_PIPE_L4}
+#pragma HLS unroll factor=auto{_UNROLL_L4}
+        float acc = 0;
+        /*L5:*/ for (int j = 0; j < M; j++) {
+#pragma HLS pipeline II=auto{_PIPE_L5}
+#pragma HLS unroll factor=auto{_UNROLL_L5}
+            acc += A[i][j] * x[j];
+        }
+        y[i] = acc;
+    }
+    return y[0];
+}
+```
+
+This quotation is from that exact checked-in source; the external link contains the complete 25-line file. Stage-1 uses source/action markers in the prompt, not GNN graph tensors. The canonical prompt builder in [`mailohls_contract.py`](LLM_branch/common/mailohls_contract.py) renders target fields, objective, then the source with `/*Lk:*/` replaced by `<SRC_Lk>`, followed by `### Selected Clock and Directives`. A representative request header for this kernel is:
+
+```text
+### Role: Expert FPGA/HLS engineer.
+### Task:
+The kernel marks each directive site with a source marker <SRC_Lk>.
+Select the directive RHS values for the optimization goal and target platform.
+If the clock is <CLK=AUTO>, also select the best supported clock period.
+Anchors and directive names are fixed by the source code.
+### Target Platform
+Device class: <DEV=XCZU7EV_FFVC1156_2E>
+Device name: xczu7ev-ffvc1156-2-e
+Target clock period: <CLK=10NS>
+Supported measured clock periods: 10 ns
+Available resources:
+BRAM_18K=624 (100.0% of device)
+DSP=1728 (100.0% of device)
+FF=460800 (100.0% of device)
+LUT=230400 (100.0% of device)
+### Objective
+<OBJ=PARETO_LATENCY>
+### Kernel
+... full source, with action comments replaced by <SRC_L1> through <SRC_L5> ...
+### Selected Clock and Directives
+```
+
+The displayed header is the repository prompt template expanded for a ZCU104 request at 10 ns and full capacity; the middle placeholder denotes the actual source body. For XCU200/full capacity, the registered counts are BRAM_18K 4,320, DSP 6,840, FF 2,364,480 and LUT 1,182,240. The source/action IDs do not change across requests.
+
+![Stage-1 source-to-prompt-to-constrained-decoder workflow, with the separate V4b GNN research path and the unimplemented Stage-2 boundary marked explicitly.](docs/figures/gemv_stage1_gnn_boundary.svg)
+
+The checked source/action metadata yields these actual per-field values through the existing source-domain routine:
+
+| Action | Field | Derived domain |
+|---|---|---|
+| `L1` array `A` (32×32) | `ARRAY_T`, `ARRAY_F`, `ARRAY_D` | `{block, complete, cyclic, none}`; `{0,2,4,8,16,32}`; `{0,1,2}` |
+| `L2` array `x` (32) and `L3` array `y` (32) | `ARRAY_T`, `ARRAY_F`, `ARRAY_D` | `{block, complete, cyclic, none}`; `{0,2,4,8,16,32}`; `{0,1}` |
+| `L4` outer loop and `L5` inner loop (trip count 32 each) | `PIPE`, `UNROLL` | `{0,1}`; `{0,2,4,8,16,32}` |
+
+These are per-field candidate domains from action metadata, not evidence that any tuple is feasible in synthesis. The Stage-1 training adapters' saved measured-domain registries do not contain GEMV. This out-of-training source used the existing source-action/domain extension path, with source and metadata hashes recorded; no missing value was filled from a measurement.
+
+The constrained decoder asks the checkpoint to score field values only inside the source-derived legal domain and serializes all registered actions into a complete assignment. This establishes **source-domain legality**, not synthesis feasibility: a legal unroll or partition may exceed a budget or fail HLS. The device, clock, explicit resource counts and `PARETO_LATENCY` objective condition the prompt. No objective-specific Stage-1 weights for other objectives are claimed here.
+
+#### GEMV inference results and safety boundary
+
+The single-reference and multi-reference V4 latency adapters use the pinned `deepseek-ai/deepseek-coder-6.7b-base` revision `ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912`, rank-8 LoRA on the attention projections, and saved tokenizer/domain assets. The [Kalman inference JSON](experiments/stage1_quality_sft/results/kalman_v4_20261104.json) records the exact local adapter, tokenizer, source/domain hashes, prompt identity, decoder and request identities. These adapter contracts permit specified-device, 10 ns, latency-objective decoding; the GEMV source action set is available in the source metadata above, but it is absent from the saved training registry and needs the supported source-derived extension path.
+
+The assigned V100S was rechecked idle before each pass; both adapters were run sequentially, with no shared GPU or process interruption. The decoder emitted a temporary source-derived GEMV domain extension through the existing missing-evaluation-kernel path while verifying each saved registry against its checkpoint hash. GEMV was absent from those saved registries; the saved files were not modified. The actual four outputs and their exact checkpoint, request, prompt-source, metadata, and output hashes are in the [result report](experiments/stage1_quality_sft/results/gemv_v4_20261105.md) and [JSON receipt](experiments/stage1_quality_sft/results/gemv_v4_20261105_report.json). Every result contains all five registered actions and all 13 directive fields with legal domain values.
+
+Both adapters returned the same assignment for ZCU104 and U200 at the fixed 10 ns/full-budget request. The adapters differ from each other on several array factors/types and inner-loop unroll, but neither shows a device-triggered directive change in this two-request comparison. Sequence scores are decoder likelihood summaries, not quality measurements. No synthesis or measured QoR is available from prompt inference alone, and no target-selection benefit is inferred.
+
 ```mermaid
 flowchart LR
  C[C/C++ and action metadata] --> G[Production V1 compiler graph and GNN]
@@ -27,13 +133,13 @@ flowchart LR
 
 MLIR V2.2 RC3 and its hardware overlay are experimental representations. They
 are **not interchangeable with production V1 tensors or checkpoints**. The
-readiness pilot did not establish improved target generalization. Semantic
-features and resumable V2.2 supervised training live on research branches;
-the latest recorded full paired run has no selected checkpoint or QoR result.
+readiness pilot did not establish improved target generalization. The current
+GNN research branch has since completed V4b; see its pinned guide linked above.
+Those results do not alter this branch's production V1/Stage-2 contract.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
-## Stage-1 research status on this branch
+## Historical Stage-1 recovery status and results
 
 ### Latest quality-aware SFT evidence — 2026-11-04
 

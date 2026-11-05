@@ -1,0 +1,192 @@
+{
+  "backbone": {
+    "name": "deepseek-ai/deepseek-coder-6.7b-base",
+    "revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912"
+  },
+  "date": "2026-11-05",
+  "decoder": {
+    "candidate_keep_head_tokens": 256,
+    "candidate_max_prefix_tokens": 0,
+    "decode_mode": "greedy",
+    "entrypoint": "python -m LLM_branch.inference.eval_stage1_stage2_stage3",
+    "max_prompt_tokens": 7168,
+    "mode": "production constrained field-greedy",
+    "model_load": "4-bit NF4 double-quantized (existing default), compute fp16 on V100S",
+    "num_samples": 1,
+    "sample_seed": 123,
+    "score_reduction": "mean",
+    "stage": "stage1"
+  },
+  "directive_domains": {
+    "checkpoint_registry_hash_verified_before_extension": true,
+    "complete_fields_per_prediction": 13,
+    "gemv_present_in_original_saved_registry": false,
+    "legal_source_values_validated": true,
+    "runtime_extension": "existing add_missing_source_directive_domains path, derived from authenticated source and kernel_info.txt; saved registry not modified"
+  },
+  "gpu": {
+    "name": "Tesla V100S-PCIE-32GB",
+    "preflight": "1 MiB used, 0% utilization, no compute processes reported before each arm",
+    "uuid": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb"
+  },
+  "models": {
+    "multi_reference": {
+      "adapter_config_sha256": "c3382cfed1e96e5e1604c55275b9ec1880b5c98e917493e3f7f1b2f052cf5d5f",
+      "adapter_dir": "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run",
+      "adapter_sha256": "28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+      "domain_registry_sha256": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c",
+      "results": {
+        "gemv-u200-10ns-full": {
+          "fields": 13,
+          "prediction": "<L1>\nauto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 2\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 4\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2",
+          "prompt_token_count": 608,
+          "sequence_score": -2.7520894668996334,
+          "target": {
+            "budget": "100%",
+            "clock_period_ns": 10.0,
+            "device": "xcu200-fsgd2104-2-e"
+          }
+        },
+        "gemv-zcu104-10ns-full": {
+          "fields": 13,
+          "prediction": "<L1>\nauto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 2\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 4\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2",
+          "prompt_token_count": 604,
+          "sequence_score": -2.796139289624989,
+          "target": {
+            "budget": "100%",
+            "clock_period_ns": 10.0,
+            "device": "xczu7ev-ffvc1156-2-e"
+          }
+        }
+      },
+      "tokenizer_sha256": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891",
+      "training_contract_sha256": "1c7a2034dba45030e51525fd415367e6fcf276cceddd89eb1132edfd66840671"
+    },
+    "single_reference": {
+      "adapter_config_sha256": "18cb968d048665bea994671edfae967fa1a406026895c5fbf80cbfdf19304e9f",
+      "adapter_dir": "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/single_reference/run",
+      "adapter_sha256": "abef1af9e9e833b2a02173a803318b90a37b5015c8f597ebb02c70d0655bbd66",
+      "domain_registry_sha256": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c",
+      "results": {
+        "gemv-u200-10ns-full": {
+          "fields": 13,
+          "prediction": "<L1>\nauto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = complete\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 4",
+          "prompt_token_count": 608,
+          "sequence_score": -2.2141627883538604,
+          "target": {
+            "budget": "100%",
+            "clock_period_ns": 10.0,
+            "device": "xcu200-fsgd2104-2-e"
+          }
+        },
+        "gemv-zcu104-10ns-full": {
+          "fields": 13,
+          "prediction": "<L1>\nauto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = complete\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 4",
+          "prompt_token_count": 604,
+          "sequence_score": -2.1746008680202067,
+          "target": {
+            "budget": "100%",
+            "clock_period_ns": 10.0,
+            "device": "xczu7ev-ffvc1156-2-e"
+          }
+        }
+      },
+      "tokenizer_sha256": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891",
+      "training_contract_sha256": "f4dcf440a98cf4cf75bf6ecd294193e8ba2362a825fe148b553907b9788d97b4"
+    }
+  },
+  "outputs": {
+    "multi_reference": {
+      "json": {
+        "path": "experiments/stage1_quality_sft/results/gemv_v4_20261105_multi_reference.json",
+        "sha256": "7522a0c49a72d196792e77c774a1228e2b312d54a5ea7b2050375777de0e1ecd"
+      },
+      "jsonl": {
+        "path": "experiments/stage1_quality_sft/results/gemv_v4_20261105_multi_reference.jsonl",
+        "sha256": "9badc317067b377e9f6653b41109cb24979bf32f4886ec7c374396c2f3d27d38"
+      }
+    },
+    "single_reference": {
+      "json": {
+        "path": "experiments/stage1_quality_sft/results/gemv_v4_20261105_single_reference.json",
+        "sha256": "5c1b100328fe5d729b91ff9194bc9d560923a3f0ab2476be555d0e4fefcfd0fd"
+      },
+      "jsonl": {
+        "path": "experiments/stage1_quality_sft/results/gemv_v4_20261105_single_reference.jsonl",
+        "sha256": "7da3d13fdae7e2e5f4761cd728717930d6d132389dac7131e0ac5906b87c6ee2"
+      }
+    }
+  },
+  "prompt_contract": {
+    "clock_period_ns": 10.0,
+    "frequency_mode": "specified",
+    "objective": "PARETO_LATENCY",
+    "resource_budget": "100% of each device",
+    "schema_version": 2,
+    "source_module": "LLM_branch/common/mailohls_contract.py",
+    "source_module_sha256": "25d1e0fa7bb19eff3744ab1a3a4c07886eaa56b91b89e6bdc3bdf84757874673"
+  },
+  "request_file": {
+    "path": "experiments/stage1_quality_sft/results/gemv_v4_20261105_requests.jsonl",
+    "requests": [
+      {
+        "available_resources": {
+          "avail_bram": 624,
+          "avail_dsp": 1728,
+          "avail_ff": 460800,
+          "avail_lut": 230400
+        },
+        "clock_period_ns": 10.0,
+        "context_id": "gemv-zcu104-10ns-full",
+        "device": "xczu7ev-ffvc1156-2-e",
+        "request_sha256": "ea349f3e3348405dfdc9fbd4912974e16d2ff218011b365fa9b3afe65e472ccc",
+        "resource_budget_id": "uniform-100",
+        "test_measurement_labels_included": false
+      },
+      {
+        "available_resources": {
+          "avail_bram": 4320,
+          "avail_dsp": 6840,
+          "avail_ff": 2364480,
+          "avail_lut": 1182240
+        },
+        "clock_period_ns": 10.0,
+        "context_id": "gemv-u200-10ns-full",
+        "device": "xcu200-fsgd2104-2-e",
+        "request_sha256": "690345fe21c35e5cf4ab7b8d9d33e5156fa50a20b98cc15df440d9221d2e083b",
+        "resource_budget_id": "uniform-100",
+        "test_measurement_labels_included": false
+      }
+    ],
+    "sha256": "4cd6e35aaf67ddea41a4758117d370d18ad752a5ccf1a39d1169a6d495121a81"
+  },
+  "schema": "stage1-gemv-32x32-inference-v1",
+  "scope": "Four production constrained-decoder outputs: two target requests for each independently trained Stage-1 V4 adapter. Inference only; no synthesis or measurement labels.",
+  "software_commit": "ecb6e78110b37d741dc72687b2094cd30c58d786",
+  "source": {
+    "action_ids": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5"
+    ],
+    "metadata_path": "paper_figures/gemv_rc3_20261105/inputs/kernel_info.txt",
+    "metadata_sha256": "72dcbe726d2066c34854ff1efe04fe6f2dba9d5b4f050104c0edbc9d607c487a",
+    "origin_commit": "aa6ad1a20239250fc9236a3e87b35b1df99e6ca9",
+    "path": "paper_figures/gemv_rc3_20261105/inputs/gemv.c",
+    "sha256": "c6e8b0aab3919a433803bacf29c7af6b56a6a5cb4d7a511a6875a21593a7e8f6",
+    "source_action_validation": "all five IDs and directive placeholders match authenticated kernel_info.txt"
+  },
+  "status": "INFERENCE_COMPLETED",
+  "validation": {
+    "all_source_legal": true,
+    "complete_directive_assignments": true,
+    "contexts": 2,
+    "kalman_labels_loaded": false,
+    "measured_qor_evaluated": false,
+    "models": 2,
+    "predictions": 4,
+    "synthesis_run": false
+  }
+}

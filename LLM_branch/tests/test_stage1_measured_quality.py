@@ -20,8 +20,11 @@ def test_full_validation_reuses_only_identical_reference_cases(tmp_path):
     reference, candidate = tmp_path / 'reference', tmp_path / 'candidate'
     reference.mkdir()
     candidate.mkdir()
+    case = dict(kernel_name='toy', source_key='toy', jsonl_idx=0,
+                device=DEVICE, clock_period=10.0,
+                resource_budget_id='budget-100', obj_mode='PARETO_LATENCY')
     for folder in (reference, candidate):
-        (folder / 'cases.json').write_text('[{"case": 1}]')
+        (folder / 'cases.json').write_text(json.dumps([case]))
     shared = dict(cases=383, dataset_sha256='dataset',
                   prepared_manifest_sha256='selection', baseline={'score': 1})
     (reference / 'report.json').write_text(json.dumps(dict(shared, adapters={
@@ -30,11 +33,13 @@ def test_full_validation_reuses_only_identical_reference_cases(tmp_path):
         '0': {'path': 'new_decision'}})))
     output = candidate / 'combined_report.json'
     result = combine_full_validation_reports(reference, candidate, output)
-    assert [result['adapters'][str(i)]['path'] for i in (0, 1)] == ['historical', 'new_decision']
+    assert [result['adapters'][str(i)]['path'] for i in (0, 1, 2)] == [
+        'historical', 'legacy_ce', 'new_decision']
     with pytest.raises(FileExistsError):
         combine_full_validation_reports(reference, candidate, output)
-    (candidate / 'cases.json').write_text('[{"case": 2}]')
-    with pytest.raises(ValueError, match='exact reference case sequence'):
+    changed = dict(case, resource_budget_id='budget-050')
+    (candidate / 'cases.json').write_text(json.dumps([changed]))
+    with pytest.raises(ValueError, match='case identities/order'):
         combine_full_validation_reports(reference, candidate, candidate / 'other.json')
 
 

@@ -1,0 +1,51 @@
+digraph G {
+	graph [bgcolor=white compound=true fontcolor="#17263C" fontname="DejaVu Sans" fontsize=22 label="SALT-HLS · GEMV source → Stage-1, with separate experimental GNN boundary" labeljust=l labelloc=t nodesep=0.37 pad=0.23 rankdir=LR ranksep=0.57 splines=spline]
+	node [fontname="DejaVu Sans" fontsize=11]
+	edge [arrowsize=0.75 color="#566777" fontname="DejaVu Sans" fontsize=9 penwidth=1.55]
+	subgraph cluster_a {
+		color="#D5DFEA" fillcolor="#F7FAFD" fontcolor="#245899" fontname="DejaVu Sans" fontsize=13 label="Shared source example" style="rounded,filled"
+		src [label="Annotated GEMV 32×32 source
+5 actions: arrays L1–L3, loops L4–L5" color="#245899" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+	}
+	subgraph cluster_st {
+		color="#D5DFEA" fillcolor="#F7FAFD" fontcolor="#245899" fontname="DejaVu Sans" fontsize=13 label="Stage-1 · LLM directive generation (current separate workflow)" style="rounded,filled"
+		prompt [label="Prompt and target request
+FPGA · clock · resource budget
+objective: PARETO_LATENCY" color="#245899" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		llm [label="DeepSeek-Coder-6.7B-base
+Stage-1 rank-8 LoRA
+single- / multi-reference checkpoints" color="#245899" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		dec [label="Source-domain constrained decoder
+complete L1–L5 directive assignment" color="#245899" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		qor [label="HLS resource/latency measurements
+NOT available from inference alone
+synthesis required" color="#AF6A1B" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+	}
+	subgraph cluster_g {
+		color="#D5DFEA" fillcolor="#F7FAFD" fontcolor="#047D88" fontname="DejaVu Sans" fontsize=13 label="GNN refinement · separate, experimental pathway" style="rounded,filled"
+		comp [label="GEMV RC3 canonical graph
+66 nodes / 106 edges" color="#047D88" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		gnn [label="V4b two-layer TransformerConv
+compiler / hardware / FiLM controls" color="#047D88" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		emb [label="Actual GEMV embeddings in repository
+64 × 128; matched L1–L5
+ZCU104 vs U200 at 10 ns" color="#287B63" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+	}
+	subgraph cluster_f {
+		color="#AF6A1B" fontcolor="#AF6A1B" fontname="DejaVu Sans" fontsize=13 label="Future Stage-2: hypothesis, not achieved" style="rounded,dashed"
+		xatt [label="Newly trained gated cross-attention
+with target-aware LLM queries
+V4b ≠ existing V1 checkpoint" color="#AF6A1B" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+	}
+	src -> prompt [color="#566777" style=solid]
+	prompt -> llm [color="#566777" style=solid]
+	llm -> dec [color="#566777" style=solid]
+	dec -> qor [color="#AF6A1B" style=dashed]
+	src -> comp [color="#566777" style=solid]
+	comp -> gnn [color="#566777" style=solid]
+	gnn -> emb [color="#566777" style=solid]
+	emb -> xatt [color="#AF6A1B" style=dashed]
+	llm -> xatt [color="#AF6A1B" style=dashed]
+	label="SALT-HLS · GEMV source → Stage-1, with separate experimental GNN boundary
+(four legal Stage-1 predictions recorded; no measured QoR; Kalman is a different kernel)"
+}
