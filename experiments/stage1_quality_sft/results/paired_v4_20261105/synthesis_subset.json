@@ -1,0 +1,106 @@
+{
+  "requests": [
+    {
+      "clock_period": 3.33,
+      "device": "xcu200-fsgd2104-2-e",
+      "kernel_name": "machsuite-viterbi",
+      "objective": "PARETO_LATENCY",
+      "request_id": "35427d3c02a845a6fc64865de2fe9bb2b074467aefd6bf1aad687d30634bc876",
+      "resource_budget_id": "uniform-100",
+      "source_file": "Data/ApplicationDataset/machsuite-viterbi/viterbi.c",
+      "source_key": "machsuite-viterbi"
+    },
+    {
+      "clock_period": 10.0,
+      "device": "xczu7ev-ffvc1156-2-e",
+      "kernel_name": "machsuite-viterbi",
+      "objective": "PARETO_LATENCY",
+      "request_id": "516ffd46bc91cd8bfe903c2d430b37693f06221ba0f73050fe744f826d71ecfb",
+      "resource_budget_id": "uniform-025",
+      "source_file": "Data/ApplicationDataset/machsuite-viterbi/viterbi.c",
+      "source_key": "machsuite-viterbi"
+    },
+    {
+      "clock_period": 10.0,
+      "device": "xcu200-fsgd2104-2-e",
+      "kernel_name": "rodinia_pathfinder_0_baseline_0",
+      "objective": "PARETO_LATENCY",
+      "request_id": "8691aaa2f98ab21a7e2a05f751e8e205ad5deb60b766e02249151686b30342e7",
+      "resource_budget_id": "uniform-025",
+      "source_file": "Data/ApplicationDataset/rodinia_pathfinder_0_baseline_0/pathfinder.cpp",
+      "source_key": "rodinia_pathfinder_0_baseline_0"
+    },
+    {
+      "clock_period": 5.0,
+      "device": "xczu7ev-ffvc1156-2-e",
+      "kernel_name": "rodinia_pathfinder_0_baseline_0",
+      "objective": "PARETO_LATENCY",
+      "request_id": "9b90af4132645a39364c814e27aee4a61591faa3c2f4f2a956f450e4d43fc148",
+      "resource_budget_id": "uniform-100",
+      "source_file": "Data/ApplicationDataset/rodinia_pathfinder_0_baseline_0/pathfinder.cpp",
+      "source_key": "rodinia_pathfinder_0_baseline_0"
+    },
+    {
+      "clock_period": 5.0,
+      "device": "xcu200-fsgd2104-2-e",
+      "kernel_name": "rodinia_pathfinder_4_doublebuffer_0",
+      "objective": "PARETO_LATENCY",
+      "request_id": "49088aba41132f7c83a78c09726500518bb934b6470ba68cd9801405d002eb90",
+      "resource_budget_id": "uniform-050",
+      "source_file": "Data/ApplicationDataset/rodinia_pathfinder_4_doublebuffer_0/pathfinder.cpp",
+      "source_key": "rodinia_pathfinder_4_doublebuffer_0"
+    },
+    {
+      "clock_period": 3.33,
+      "device": "xczu7ev-ffvc1156-2-e",
+      "kernel_name": "rodinia_pathfinder_4_doublebuffer_0",
+      "objective": "PARETO_LATENCY",
+      "request_id": "849c1ac6e27c79d05be41611924e2931472a69b0dc24a44e3b1f5cbc1b9c457e",
+      "resource_budget_id": "uniform-025",
+      "source_file": "Data/ApplicationDataset/rodinia_pathfinder_4_doublebuffer_0/pathfinder.cpp",
+      "source_key": "rodinia_pathfinder_4_doublebuffer_0"
+    }
+  ],
+  "schema": "stage1-v4-paired-synthesis-subset-v1",
+  "selection_rule": "Six request strata declared before inference outcomes; source/kernel, device, clock and budget are fixed; any stratum collision is resolved by SHA256(seed:request_id). No predictions or QoR rankings are used.",
+  "selection_seed": 20261105,
+  "sha256": "e0874208ac34d13b925e7c0ae5d33556f0db03c936319694cef1509296bf221b",
+  "strata": [
+    [
+      "machsuite-viterbi",
+      "xcu200-fsgd2104-2-e",
+      3.33,
+      "uniform-100"
+    ],
+    [
+      "machsuite-viterbi",
+      "xczu7ev-ffvc1156-2-e",
+      10.0,
+      "uniform-025"
+    ],
+    [
+      "rodinia_pathfinder_0_baseline_0",
+      "xcu200-fsgd2104-2-e",
+      10.0,
+      "uniform-025"
+    ],
+    [
+      "rodinia_pathfinder_0_baseline_0",
+      "xczu7ev-ffvc1156-2-e",
+      5.0,
+      "uniform-100"
+    ],
+    [
+      "rodinia_pathfinder_4_doublebuffer_0",
+      "xcu200-fsgd2104-2-e",
+      5.0,
+      "uniform-050"
+    ],
+    [
+      "rodinia_pathfinder_4_doublebuffer_0",
+      "xczu7ev-ffvc1156-2-e",
+      3.33,
+      "uniform-025"
+    ]
+  ]
+}

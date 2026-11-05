@@ -236,7 +236,7 @@ def directive_preference_action_members(lhs: str) -> set[str]:
     return {f"AUTO{{_{kind}_{label}}}" for kind in kinds}
 
 
-def _valid_action_values(values: dict[str, str]) -> bool:
+def _valid_action_values(values: dict[str, str], *, allow_dim_zero_all: bool = False) -> bool:
     if "PIPE" in values and "UNROLL" in values:
         try:
             # PIPE and UNROLL are independent HLS directives. In particular,
@@ -251,13 +251,16 @@ def _valid_action_values(values: dict[str, str]) -> bool:
         except ValueError:
             return False
         kind = values["ARRAY_T"].strip().lower()
-        # These are invariants of MailoHLS's measured tuple representation,
-        # not an exhaustive claim about every pragma accepted by Vitis HLS.
+        # Keep the historical MailoHLS measurement-schema default. An
+        # inference-only, explicit compiler policy may opt into HLS dim=0
+        # all-dimensions semantics without changing training data validation.
         if kind == "none":
             return factor == 0 and dimension == 0
         if kind == "complete":
-            return factor == 0 and dimension > 0
-        return kind in {"block", "cyclic"} and factor > 0 and dimension > 0
+            return factor == 0 and (dimension > 0 or (allow_dim_zero_all and dimension == 0))
+        return kind in {"block", "cyclic"} and factor > 0 and (
+            dimension > 0 or (allow_dim_zero_all and dimension == 0)
+        )
     return True
 
 
@@ -266,6 +269,7 @@ def filter_semantic_candidates(
     candidates: list[str],
     chosen_assignments: dict[str, str],
     site_domains: dict[str, list[str]],
+    *, allow_dim_zero_all: bool = False,
 ) -> list[str]:
     """Keep RHS values compatible with the measured directive encoding."""
     kind, label = _directive_site(lhs)
@@ -288,7 +292,7 @@ def filter_semantic_candidates(
                 if not domain:
                     raise ValueError(f"Missing semantic companion domain: {key}")
                 options.append([str(value).strip() for value in domain])
-        if any(_valid_action_values(dict(zip(kinds, combination)))
+        if any(_valid_action_values(dict(zip(kinds, combination)), allow_dim_zero_all=allow_dim_zero_all)
                for combination in product(*options)):
             legal.append(str(candidate).strip())
     if not legal:
@@ -296,7 +300,7 @@ def filter_semantic_candidates(
     return legal
 
 
-def validate_directive_assignments(assignments: dict[str, str]) -> None:
+def validate_directive_assignments(assignments: dict[str, str], *, allow_dim_zero_all: bool = False) -> None:
     """Reject incomplete actions and inconsistent measured array tuples."""
     grouped = defaultdict(dict)
     for lhs, rhs in assignments.items():
@@ -305,7 +309,7 @@ def validate_directive_assignments(assignments: dict[str, str]) -> None:
     for label, values in grouped.items():
         expected = ({"PIPE", "UNROLL"} if "PIPE" in values or "UNROLL" in values
                     else {"ARRAY_T", "ARRAY_F", "ARRAY_D"})
-        if set(values) != expected or not _valid_action_values(values):
+        if set(values) != expected or not _valid_action_values(values, allow_dim_zero_all=allow_dim_zero_all):
             raise ValueError(f"Invalid directive action {label}: {dict(values)}")
 
 

@@ -21,6 +21,7 @@ from LLM_branch.common import (
     device_adaptation,
     directive_domains,
     mailohls_contract,
+    source_tool_policy,
     structural_memory as structural_memory_utils,
     structural_xattn,
 )
@@ -879,6 +880,8 @@ def constrained_decode_rhs_by_candidate_scoring(
     sample_top_p: float = 1.0,                # NEW
     sample_top_k: int = 0,                    # NEW
     sample_generator: Optional[torch.Generator] = None,  # NEW
+    source_actions=None,
+    admissibility_policy=None,
 ):
     assert score_reduction in {"mean", "sum"}
     assert decode_mode in {"greedy", "sample"}
@@ -896,6 +899,7 @@ def constrained_decode_rhs_by_candidate_scoring(
     parts = []
     current_label = None
     site_debug = []
+    admissibility_audit = []
     chosen_assignments = {}
     site_domains = directive_domain_registry[normalize_kname(kernel_name)]
 
@@ -934,8 +938,23 @@ def constrained_decode_rhs_by_candidate_scoring(
             original_candidates = get_rhs_candidates_for_lhs(
                 kernel_name, lhs, directive_domain_registry
             )
+            candidate_domain = original_candidates
+            field_audit = {}
+            match = directive_domains.DIRECTIVE_RE.fullmatch(lhs)
+            if match is None:
+                raise ValueError(f"Malformed directive field for admissibility policy: {lhs}")
+            kind, label_id = match.group(2).upper(), match.group(3).upper()
+            if admissibility_policy is not None and kind.startswith("ARRAY_"):
+                if source_actions is None or label_id not in source_actions:
+                    raise ValueError(f"Missing source action evidence for {lhs}")
+                candidate_domain, field_audit = source_tool_policy.filter_partial_tuple(
+                    lhs, original_candidates, chosen_assignments,
+                    source_actions[label_id], admissibility_policy,
+                )
+                admissibility_audit.append(field_audit)
             candidates = mailohls_contract.filter_semantic_candidates(
-                lhs, original_candidates, chosen_assignments, site_domains
+                lhs, candidate_domain, chosen_assignments, site_domains,
+                allow_dim_zero_all=bool(admissibility_policy and admissibility_policy.dim_zero_all_dimensions),
             )
             scored = []
 
@@ -1014,13 +1033,23 @@ def constrained_decode_rhs_by_candidate_scoring(
                         "chosen_sample_prob": float(chosen.get("sample_prob", 1.0)),
                         "chosen_sample_rank": int(chosen.get("sample_rank", 1)),
                         "static_candidate_count": len(original_candidates),
+                        "checkpoint_candidate_domain": list(original_candidates),
+                        "active_candidate_domain": list(candidate_domain),
+                        "source_tool_rejected": field_audit.get("rejected_candidates", {}),
                         "forced_by_semantics": len(candidates) == 1,
                         "top_candidates": ordered[:debug_topk],
                     }
                 )
 
         prediction = "".join(parts).rstrip()
-        mailohls_contract.validate_directive_assignments(chosen_assignments)
+        mailohls_contract.validate_directive_assignments(
+            chosen_assignments,
+            allow_dim_zero_all=bool(admissibility_policy and admissibility_policy.dim_zero_all_dimensions),
+        )
+        if admissibility_policy is not None:
+            source_tool_policy.validate_complete_assignment(
+                chosen_assignments, source_actions, admissibility_policy
+            )
         canonical_prediction = canonicalize_generation(prediction)
 
         return {
@@ -1032,6 +1061,13 @@ def constrained_decode_rhs_by_candidate_scoring(
             "sequence_mean_site_score": float(sequence_score / max(site_count, 1)),
             "site_count": int(site_count),
             "decode_mode": decode_mode,
+            "admissibility_policy": (None if admissibility_policy is None else {
+                "policy_id": admissibility_policy.policy_id,
+                "policy_sha256": admissibility_policy.source_sha256,
+                "compiler": f"{admissibility_policy.compiler} {admissibility_policy.version}",
+                "final_assignment_validated": True,
+                "domain_audit": admissibility_audit,
+            }),
         }
 
     finally:
@@ -1394,6 +1430,8 @@ def predict_case(
     sample_seed: int,                 # NEW
     candidate_writer=None,
     clock_selector=None,
+    source_actions=None,
+    admissibility_policy=None,
 ) -> Dict[str, Any]:
     frequency_mode = str(
         case.platform_row.get("frequency_mode", "specified")
@@ -1539,6 +1577,8 @@ def predict_case(
             sample_top_p=sample_top_p,
             sample_top_k=sample_top_k,
             sample_generator=sample_generator,
+            source_actions=source_actions,
+            admissibility_policy=admissibility_policy,
         )
 
         cand = {
@@ -1720,6 +1760,10 @@ def main():
     )
 
     ap.add_argument("--directive_domain_registry_json", type=str, default="")
+    ap.add_argument("--admissibility_policy", choices=("legacy", "source_tool_v1", "source_tool_v2"),
+                    default="legacy", help="Inference-time source/compiler admissibility layer")
+    ap.add_argument("--tool_policy_json", type=str, default="",
+                    help="Versioned compiler profile required by source_tool_v1")
     ap.add_argument(
         "--application_dataset_dir",
         type=str,
@@ -2062,6 +2106,27 @@ def main():
                 raise ValueError("Adapted checkpoint may only evaluate its declared device")
             case.platform_row["_checkpoint_device_mode"] = "device_adapt"
         mailohls_contract.target_prompt_fields(case.platform_row)
+    admissibility_policy = None
+    source_actions_by_kernel = {}
+    if args.admissibility_policy in {"source_tool_v1", "source_tool_v2"}:
+        if not args.tool_policy_json:
+            raise ValueError(f"{args.admissibility_policy} requires --tool_policy_json")
+        admissibility_policy = source_tool_policy.load_policy(args.tool_policy_json)
+        if (args.admissibility_policy == "source_tool_v2"
+                and not admissibility_policy.dim_zero_all_dimensions):
+            raise ValueError("source_tool_v2 requires explicit dim=0 all-dimensions policy semantics")
+        if (args.admissibility_policy == "source_tool_v1"
+                and admissibility_policy.dim_zero_all_dimensions):
+            raise ValueError("source_tool_v1 cannot load the v2 all-dimensions candidate policy")
+        for case in cases:
+            key = normalize_kname(case.kernel_name)
+            actions = directive_domains.load_source_actions(
+                case.kernel_name, args.application_dataset_dir
+            )
+            previous = source_actions_by_kernel.get(key)
+            if previous is not None and previous != actions:
+                raise ValueError(f"Source action metadata changes across requests for {case.kernel_name}")
+            source_actions_by_kernel[key] = actions
     expected_registry_hash = training_contract.get("directive_domain_registry_sha256")
     if expected_registry_hash:
         if not args.directive_domain_registry_json:
@@ -2171,7 +2236,25 @@ def main():
             # complete-design path; --stage3 remains available for DPO.
             candidate_writer=candidate_writer,
             clock_selector=clock_selector,
+            source_actions=source_actions_by_kernel.get(normalize_kname(case.kernel_name)),
+            admissibility_policy=admissibility_policy,
         )
+        row["source_tool_contract"] = None if admissibility_policy is None else {
+            "policy_id": admissibility_policy.policy_id,
+            "policy_sha256": admissibility_policy.source_sha256,
+            "compiler": f"{admissibility_policy.compiler} {admissibility_policy.version}",
+            "checkpoint_adapter_dir": os.path.realpath(args.adapter_dir),
+            "adapter_sha256": hashlib.sha256(Path(args.adapter_dir, "adapter_model.safetensors").read_bytes()).hexdigest()
+                if os.path.isfile(os.path.join(args.adapter_dir, "adapter_model.safetensors")) else None,
+            "training_contract_sha256": hashlib.sha256(Path(args.adapter_dir, "training_contract.json").read_bytes()).hexdigest(),
+            "tokenizer_sha256": hashlib.sha256(Path(args.lora_adapter_dir or args.adapter_dir, "tokenizer.json").read_bytes()).hexdigest()
+                if os.path.isfile(os.path.join(args.lora_adapter_dir or args.adapter_dir, "tokenizer.json")) else None,
+            "checkpoint_registry_sha256": expected_registry_hash,
+            "source_action_metadata": {label: {
+                "kind": action.kind, "array_name": action.array_name,
+                "dimensions": list(action.dimensions), "trip_count": action.trip_count,
+            } for label, action in source_actions_by_kernel.get(normalize_kname(case.kernel_name), {}).items()},
+        }
         outputs.append(row)
 
         if args.print_predictions:

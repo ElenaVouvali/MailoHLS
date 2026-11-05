@@ -30,6 +30,7 @@ class SourceAction:
     kind: str
     trip_count: int | None = None
     dimensions: tuple[tuple[int, int], ...] = ()
+    array_name: str | None = None
 
 
 def normalize_kernel_name(value: Any) -> str:
@@ -95,6 +96,7 @@ def load_source_actions(
         elif kind == "array":
             if len(fields) < 5 or (len(fields) - 3) % 2:
                 raise ValueError(f"Malformed array action in {path}: {line!r}")
+            array_name = fields[2]
             dimensions = tuple(
                 (int(fields[index]), int(fields[index + 1]))
                 for index in range(3, len(fields), 2)
@@ -103,7 +105,8 @@ def load_source_actions(
                 raise ValueError(f"Invalid array dimensions for {label} in {path}")
             if len({dimension for dimension, _ in dimensions}) != len(dimensions):
                 raise ValueError(f"Duplicate array dimension for {label} in {path}")
-            actions[label] = SourceAction(kind="array", dimensions=dimensions)
+            actions[label] = SourceAction(kind="array", dimensions=dimensions,
+                                          array_name=array_name)
         else:
             raise ValueError(f"Unsupported source action kind {kind!r} in {path}")
     if not actions:

@@ -1,0 +1,52 @@
+{
+  "schema": "mailohls-source-tool-admissibility-v1",
+  "policy_id": "vitis_hls_2021_1_array_partition_guard_v1",
+  "compiler": {
+    "name": "AMD Vitis HLS",
+    "version": "2021.1",
+    "evidence": "Coroni synthesis receipts and Vitis logs for the authenticated 2026-11-05 GAN/Kalman diagnostic batch"
+  },
+  "runner_configuration": {
+    "config_array_partition": "config_array_partition -complete_threshold 0 -throughput_driven off",
+    "config_compile": "config_compile -pipeline_loops 0",
+    "flow_target": "vivado"
+  },
+  "complete_partition_dimension_element_limit": 1024,
+  "limit_interpretation": {
+    "scope": "selected partition dimension",
+    "multidimensional_dim_zero": "product of extents because HLS dim=0 partitions all dimensions",
+    "nonzero_dimension": "extent of the selected source dimension; other dimensions remain array dimensions",
+    "boundary": "reject only when selected partition element count is greater than 1024",
+    "confidence": "conservative compiler-specific guard; exact internal XFORM accounting for multidimensional arrays is not independently established"
+  },
+  "partial_partition_rule": "block/cyclic factor must be positive and no larger than the selected dimension extent",
+  "source_tuple_rule": "array type, factor sentinel, and dimension must extend to one complete SourceAction tuple",
+  "evidence": [
+    {
+      "kind": "authenticated_compiler_failure",
+      "record": "experiments/stage1_quality_sft/results/gan_kalman_v4_synthesis_20261105.json",
+      "observation": "Vitis 2021.1 rejected explicit complete partitioning of one-dimensional 262144-element Kalman arrays and reported threshold 1024 under the recorded runner configuration"
+    },
+    {
+      "kind": "authenticated_compiler_failure",
+      "record": "experiments/stage1_quality_sft/results/gan_kalman_v4_synthesis_20261105.json",
+      "observation": "Vitis 2021.1 rejected block factor 64 for GAN layer_2_out with source extent 50"
+    },
+    {
+      "kind": "vendor_guidance",
+      "url": "https://docs.amd.com/r/2021.1-English/ug1399-vitis-hls/pragma-HLS-array_partition",
+      "observation": "UG1399 documents complete partitioning per selected dimension, factor semantics, and dim=0 as partitioning all dimensions"
+    },
+    {
+      "kind": "vendor_guidance",
+      "url": "https://docs.amd.com/r/2025.1-English/ug1448-hls-guidance/Long-Run-Time",
+      "observation": "UG1448 identifies complete partitioning arrays larger than 1024 as a long-runtime risk; this is guidance, not a universal silicon/resource limit"
+    }
+  ],
+  "limitations": [
+    "The 1024 guard is specific to the authenticated Vitis 2021.1 runner profile and its observed XFORM diagnostic; it is not a universal FPGA capacity limit.",
+    "Multidimensional threshold accounting uses the selected dimension extent, consistent with documented dim semantics, but the internal 2021.1 XFORM counting behavior for all shapes requires a targeted compiler probe.",
+    "The config_array_partition complete_threshold setting describes automatic partitioning and is not treated as changing the explicit-directive XFORM rejection boundary.",
+    "This policy prevents known invalid choices; it does not guarantee HLS success, resource-budget feasibility, or timing closure."
+  ]
+}
