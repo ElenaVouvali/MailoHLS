@@ -1,0 +1,69 @@
+digraph G {
+	graph [bgcolor=white compound=true fontcolor="#17263C" fontname="DejaVu Sans" fontsize=22 label="GEMV 32×32 · Native MLIR V2.2 RC3 → experimental V4b encoder" labeljust=l labelloc=t nodesep=0.37 pad=0.23 rankdir=LR ranksep=0.57 splines=spline]
+	node [fontname="DejaVu Sans" fontsize=11]
+	edge [arrowsize=0.75 color="#566777" fontname="DejaVu Sans" fontsize=9 penwidth=1.55]
+	subgraph cluster_s {
+		color="#D5DFEA" fillcolor="#F7FAFD" fontcolor="#245899" fontname="DejaVu Sans" fontsize=13 label="1 · Source & action contract" penwidth=1.6 style="rounded,filled"
+		s [label="C source: gemv()
+A[32][32], x[32], y[32]
+acc += A[i][j] × x[j]" color="#245899" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		m [label="kernel_info.txt
+L1=A · L2=x · L3=y
+L4=outer · L5=inner" color="#047D88" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		s -> m [style=invis]
+	}
+	subgraph cluster_c {
+		color="#D5DFEA" fillcolor="#F7FAFD" fontcolor="#245899" fontname="DejaVu Sans" fontsize=13 label="2 · Authenticated compiler representation" penwidth=1.6 style="rounded,filled"
+		front [label="Pinned cgeist → MLIR
+V2.2 RC3 + native analyses" color="#245899" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		"graph" [label="Canonical GEMV graph
+66 nodes · 106 edges
+5 matched actions" color="#047D88" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		overlay [label="Optional target overlay
+FPGA capacities + clock
+separate from compiler evidence" color="#AF6A1B" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+	}
+	subgraph cluster_e {
+		color="#D5DFEA" fillcolor="#F7FAFD" fontcolor="#245899" fontname="DejaVu Sans" fontsize=13 label="3 · V4b tensorization & learning" penwidth=1.6 style="rounded,filled"
+		tens [label="Typed node/edge tensors
+source action masks
+action demand + semantic summary" color="#7048A9" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		e0 [label="5 categorical embeddings (8D each)
+node numeric features
+input projection → 64D" color="#7048A9" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		action_injection [label="Matched action-node injection
+static demand + semantic projections
+absolute Lk slot alignment" color="#7048A9" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		e1 [label="TransformerConv #1
+64D · 2 heads · residual + LN" color="#7048A9" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		e2 [label="TransformerConv #2
+64D · 2 heads · residual + LN" color="#7048A9" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		e3 [label="Linear projection
+64D → 128D" color="#7048A9" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+	}
+	subgraph cluster_o {
+		color="#D5DFEA" fillcolor="#F7FAFD" fontcolor="#245899" fontname="DejaVu Sans" fontsize=13 label="4 · Encoder output" penwidth=1.6 style="rounded,filled"
+		mem [label="Action-aligned memory
+[1, 64, 128]
+Lk → absolute slot k−1
+L1–L5 matched; others masked" color="#287B63" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+		pool [label="Pooled program state
+[1, 128]" color="#287B63" fillcolor="#FFFFFF" fontcolor="#17263C" margin="0.17,0.10" penwidth=1.7 shape=box style="rounded,filled"]
+	}
+	s -> front
+	m -> "graph"
+	front -> "graph"
+	"graph" -> overlay
+	overlay -> tens
+	tens -> e0
+	e0 -> action_injection
+	action_injection -> e1
+	e1 -> e2
+	e2 -> e3
+	e3 -> mem
+	e3 -> pool
+	"graph" -> tens [label="compiler-only: remove
+hardware-message edges" color="#047D88" constraint=false headport=nw style=dashed tailport=ne]
+	label="GEMV 32×32 · Native MLIR V2.2 RC3 → experimental V4b encoder
+(architectural diagram; source-backed, no synthetic embedding values)"
+}

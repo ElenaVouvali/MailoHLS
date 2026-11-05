@@ -1,5 +1,29 @@
 # MailoHLS / SALT-HLS
 
+## Research branch status — 5 November 2026
+
+Production remains on the existing V1 GNN and its current Stage-2 contract.
+The selected structural representation for the **next GNN research comparison**
+is the native MLIR V2.2 RC3 canonical compiler graph, V4 semantic tensorization,
+and source-verified absolute `Lk → slot k−1` action alignment. Keep the FPGA
+hardware overlay separate. This is not a production promotion or a replacement
+for V1 artifacts.
+
+V4b full-cohort corrected-v3 training, matched controls, evaluation, and
+alignment interventions are complete. Evidence is mixed: compiler memory does
+not consistently beat the independent no-graph model; hardware messages do not
+show a reliable extra gain; action-difference attention did not improve
+selection; and meaningful held-out device/clock preference coverage is absent.
+Validation contains only two families. No V4b model is connected to Stage-2.
+See the [corrected-v3 report](#v4b-final-scientific-report--corrected-v3-2026-11-04),
+the [GNN architecture guide](docs/gnn-refinement/README.md), and the
+[GEMV graph-to-embedding walkthrough](docs/gnn-refinement/README.md#worked-example-gemv-32-by-32-from-c-code-to-compiler-graph-to-gnn-embeddings).
+
+This branch also contains a standalone authenticated GEMV RC3 graph and actual
+trained V4b embedding exports. They are out-of-cohort inference evidence, not
+new measurements or training records. The walkthrough links their exact source,
+manifests, figures, arrays and checkpoint identities.
+
 MailoHLS learns complete HLS directive configurations for C/C++ kernels under
 an optimization objective, FPGA device, clock period and resource budget. SALT-HLS
 is the extended framework name used in the research work.
@@ -113,15 +137,13 @@ action neighborhoods.
 
 MLIR V2.2 RC3 and its hardware overlay are experimental representations. They
 are **not interchangeable with production V1 tensors or checkpoints**. The
-readiness pilot did not establish improved target generalization. Semantic
-features and resumable V2.2 supervised training live on research branches; the
-full 8,000-update V4 QoR protocol remains unrun. The separate bounded
-directive-preference probe has validation-selected experimental checkpoints,
-but those do not replace V1 or establish target generalization.
+readiness-pilot and incomplete-run statements in the following historical
+sections describe earlier snapshots. The completed V4b evidence and its
+limitations are summarized above and in the dated final report.
 See [development status](docs/framework-development-status.md) for branch links
 and the boundary between implemented, evaluated and planned functionality.
 
-On `research/gnn-refinement`, the latest V4 study trained three matched
+The earlier, smaller V4 directive-preference probe trained three matched
 directive-preference models for 300 updates: compiler-only memory,
 device/clock-FiLM memory, and the existing hardware-message graph. Hardware
 messages did not improve held-out ADP selection over compiler-only memory;
@@ -206,18 +228,18 @@ Do not force-rewrite shared history. Detailed conventions are in
 
 ## V4b GNN research status
 
-The new V4b full-cohort audit confirms 37 eligible training kernels and three
-validation kernels, with exact target-pair and budget-preference coverage
-receipts committed under `experiments/v22_gnn_training/v4b/receipts/`.
-Meaningful device/clock winner reversals are sparse and absent in the held-out
-families. An explicitly selected, idle V100S was tried, but the first smoke
-spent over 30 minutes in repeated CPU feature preparation before GPU work. A
-V4b-local overlay cache now addresses that bottleneck; the optimized smoke and
-matched training remain unrun. No hardware-aware benefit or Stage-2 readiness
-is claimed; production continues to use V1 memory. See the
+**Current status (5 November 2026):** the V4b full-cohort audit, matched
+training, evaluation, capacity control, and alignment interventions are
+complete. The authenticated cohort contains 37 training and three validation
+kernels; Kalman remains untouched. Meaningful device/clock preference changes
+are sparse in training and absent in held-out families. Results are mixed and
+do not show a reliable compiler-memory, hardware-message, or action-difference
+selection advantage. No V4b result justifies Stage-2 integration; production
+continues to use V1 memory. See the
 [V4b results and limitations](README.md#merged-experiments-v22-gnn-training-results-md),
 [frozen evaluation/resume protocol v2](README.md#merged-experiments-v22-gnn-training-v4b-protocol-v2-md),
-and [implementation guide](README.md#merged-experiments-v22-gnn-training-v4b-readme-md).
+the [implementation guide](README.md#merged-experiments-v22-gnn-training-v4b-readme-md),
+and the [standalone GEMV structural walkthrough](docs/gnn-refinement/README.md#worked-example-gemv-32-32--from-c-code-to-compiler-graph-to-gnn-embeddings).
 
 ### Interpretation across V4 studies
 

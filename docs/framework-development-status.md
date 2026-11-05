@@ -2,26 +2,23 @@
 
 The maintained framework is `main`. Selected models and objective-specific stage
 availability are defined in `FINAL_ARTIFACTS.json`; production GNN tensors remain
-V1. The frozen MLIR V2.2 RC3 representation still awaits independent human
-semantic adjudication. Its automated validation does not establish improved QoR.
+V1. V2.2 RC3 is a frozen research graph representation awaiting independent
+semantic adjudication. Automated validation does not establish improved QoR.
 
-The three ongoing research branches are:
+## Research branches — 5 November 2026
 
-- `research/stage1-refinement`: full-data recovery, decision-aware supervision,
-  measured-quality diagnostics and resumable experimental training. No recovery
-  adapter is promoted to production; Kalman corrections remain a separate variant.
-- `research/gnn-refinement`: static/candidate demand, semantic tensorization,
-  coverage audits and resumable candidate-conditioned GNN experiments. The latest
-  coverage variant has its own tensor schema; historical V3 preflight receipts
-  remain historical and are not relabeled as V4 results. The last committed full
-  paired-training receipt reported no selected checkpoint. This is not a live
-  process monitor or a new QoR/generalization evaluation.
+- `research/stage1-refinement`: both Stage-1 quality-SFT V4 latency arms completed
+  one training pass; six legal Kalman inference outputs are recorded. Measured
+  QoR evaluation and production promotion remain outstanding.
+- `research/gnn-refinement`: full-cohort corrected-v3 V4b controls, evaluation,
+  and alignment interventions completed. Evidence is mixed; meaningful held-out
+  device/clock preference changes are absent in two validation families. No V4b
+  model is promoted. The selected next research baseline is the V2.2 RC3 canonical
+  compiler graph, V4 semantic tensorization, and source-verified absolute action
+  alignment, with the FPGA hardware overlay kept separate. See the [GNN guide](gnn-refinement/README.md).
 - `research/refinement-mechanism`: independent development over the stable
-  refinement/search utilities already available on main. No new algorithm is
-  introduced merely to differentiate the branch.
+  refinement/search utilities already available on main.
 
-`mlir-target` and `llvm-ir` remain immutable historical implementations. Source
-commits, configurations, experiment reports and verified offline preservation
-replace the need for a separate branch or Release for every experiment. See
-[experiments](experiments.md), [reproduction](reproducibility.md) and
-[development](development.md) for the working interfaces.
+`mlir-target` and `llvm-ir` remain historical implementations. See
+[experiments](experiments.md), [reproducibility](reproducibility.md), and
+[development](development.md) for the maintained working interfaces.

@@ -1,10 +1,127 @@
 # SALT-HLS / MailoHLS: structural GNN research (V4b)
 
 **Research branch:** `research/gnn-refinement`  
-**Reviewed state:** commit `1f5a090` (4 November 2026)  
+**Reviewed state:** commit `aa6ad1a` (5 November 2026)
 **Status:** V4b corrected-v3 experiments completed; **not integrated into production Stage-2**.
 
 > **Start here.** This guide explains what the structural GNN encodes, where device/clock/budget information enters, what the controlled experiments show, and what must be demonstrated before it can improve the LLM. The root [README](../../README.md) documents the wider MailoHLS/SALT-HLS framework and retains historical experiments. The final V4b scientific record is in the [root README's V4b report](../../README.md#v4b-final-scientific-report--corrected-v3-2026-11-04).
+
+> **Current baseline decision.** Carry forward the **native MLIR V2.2 RC3 canonical compiler graph + V4 semantic tensorization + source-verified absolute action alignment** as the selected research representation. Keep the FPGA hardware overlay as a separate optional input. This is a research baseline, not a production promotion: V1 graphs, weights, and the Stage-2 interface remain unchanged. See the [GEMV 32×32 worked example](#worked-example-gemv-32-32--from-c-code-to-compiler-graph-to-gnn-embeddings).
+
+## Worked Example: GEMV 32-by-32 from C Code to Compiler Graph to GNN Embeddings
+
+This is a separate, authenticated inference demonstration using actual compiler output and actual trained V4b checkpoint embeddings. It is **not** a frozen RC3 corpus member, a synthesis run, a measured GEMV QoR result, or a V4b training example. Its graph was generated with the archived RC3 construction code from the labelled recovery source and matching action metadata; the frozen 63-snapshot RC3 release was not changed. The previous production-V1 GEMV drawing elsewhere in the repository shows a different graph.
+
+### Source and action contract
+
+The complete source, including every placeholder directive, is [`inputs/gemv.c`](../../paper_figures/gemv_rc3_20261105/inputs/gemv.c); the exact action registrations are in [`kernel_info.txt`](../../paper_figures/gemv_rc3_20261105/inputs/kernel_info.txt). The excerpt below is quoted from that source:
+
+```c
+#define M 32
+#define N 32
+
+float gemv() {
+    /*L1:*/ float A[N][M];
+#pragma HLS array_partition variable=A type=auto{_ARRAY_T_L1} factor=auto{_ARRAY_F_L1} dim=auto{_ARRAY_D_L1}
+    /*L2:*/ float x[M];
+#pragma HLS array_partition variable=x type=auto{_ARRAY_T_L2} factor=auto{_ARRAY_F_L2} dim=auto{_ARRAY_D_L2}
+    /*L3:*/ float y[N];
+#pragma HLS array_partition variable=y type=auto{_ARRAY_T_L3} factor=auto{_ARRAY_F_L3} dim=auto{_ARRAY_D_L3}
+
+    /*L4:*/ for (int i = 0; i < N; i++) {
+#pragma HLS pipeline II=auto{_PIPE_L4}
+#pragma HLS unroll factor=auto{_UNROLL_L4}
+        float acc = 0;
+        /*L5:*/ for (int j = 0; j < M; j++) {
+#pragma HLS pipeline II=auto{_PIPE_L5}
+#pragma HLS unroll factor=auto{_UNROLL_L5}
+            acc += A[i][j] * x[j];
+        }
+        y[i] = acc;
+    }
+    return y[0];
+}
+```
+
+The code computes a 32×32 matrix-vector product: each outer iteration `i` accumulates row `A[i][0..31]` against `x[0..31]`, then writes `y[i]`. The five registered source actions are `L1=A`, `L2=x`, and `L3=y` (array partition actions), `L4` (outer loop), and `L5` (inner loop). The compiler proves both loop trip counts are 32. The source expresses `y[32]`; this particular compiler lowering promotes its storage to a scalar `memref<f32>`, which the graph preserves rather than rewriting to match the source declaration.
+
+### Compiler representation and canonical graph
+
+The checked-in [`gemv.mlir`](../../paper_figures/gemv_rc3_20261105/gemv.mlir) includes explicit `affine.for`, load, multiply, add, yield, store, and return operations. For example:
+
+```mlir
+affine.for %arg0 loc("gemv.c":12:31) = 0 to 32 {
+  %1 = affine.for %arg1 loc("gemv.c":16:35) = 0 to 32 iter_args(%arg2 = %cst) -> (f32) {
+    %2 = affine.load %alloca_1[%arg0, %arg1] : memref<32x32xf32>
+    %3 = affine.load %alloca_0[%arg1] : memref<32xf32>
+    %4 = arith.mulf %2, %3 : f32
+    %5 = arith.addf %arg2, %4 : f32
+    affine.yield %5 : f32
+  }
+  affine.if #set(%arg0) {
+    affine.store %1, %alloca[] : memref<f32>
+  }
+}
+```
+
+MLIR makes operations, operands/results (SSA), loop and region nesting, and lowered memory accesses explicit. The semantic pass adds memory-root, alias/view, access, and dependence witnesses where supported. Evidence is labelled `proven`, `possible`, or `not_established`; a missing dependence proof is not proof of independence, and not every program dependence is resolved.
+
+![Actual GEMV V2.2 RC3 canonical-graph overview.](../../paper_figures/gemv_rc3_20261105/gemv.rc3.overview.svg)
+
+The authoritative canonical graph has **66 nodes, 106 edges, and five matched actions**. It retains compiler evidence and source-action bindings. The [full compact display graph](../../paper_figures/gemv_rc3_20261105/gemv.rc3.full.svg) is a reduced view with 49 nodes and 89 edges; the overview further omits SSA/scope nodes and draws explicitly labelled derived SSA projections. Neither visualization replaces [`gemv.canonical.json`](../../paper_figures/gemv_rc3_20261105/gemv.canonical.json). Source, metadata, compiler code and graph checksums are recorded in [`manifest.json`](../../paper_figures/gemv_rc3_20261105/manifest.json) and [`validation.json`](../../paper_figures/gemv_rc3_20261105/validation.json). Fresh frontend runs reproduce identical structural nodes/edges, but MLIR DLTI module-attribute ordering changes the raw-module hash and graph identity; the original output is preserved and the limitation is recorded, not normalized away.
+
+### Tensorization: graph records to encoder inputs
+
+The frozen tensor contract is `salt-hls-target-tensors-v4-semantic-wide-affine-experimental` (exact identifier in [`target_graph_tensor_v22.py`](../../GNN_branch/target_graph_tensor_v22.py)). For ZCU104/10 ns, the separate physical-target-enriched tensor graph has 71 nodes and 282 directed edges. `x` is `[71,36]`; five categorical ID arrays each have 71 entries and receive learned 8D embeddings; `edge_index` is `[2,282]`, `edge_type` has 282 IDs, and `edge_attr` is `[282,132]`. The candidate-independent action-demand and action-semantic arrays are `[1,64,82]` and `[1,64,108]`. Registered, matched, unresolved and source-only masks each use `[1,64]` absolute slots. The five actual actions are all registered and compiler-matched; inactive slots remain masked.
+
+Concrete tensor values from the saved GEMV/ZCU104 input cache:
+
+| Tensor record | Actual value | Interpretation |
+|---|---|---|
+| `action:L4`, categorical IDs | node type `action_point` (ID 0), op `none` (0), value `unknown` (0), resource `none` (0), root `none` (0) | The anchor is an action node, not a compiler operation. |
+| `L4` demand, first known fields | trip count `(0.2102, known=1)`; loop depth `(0,1)`; direct arithmetic `(0,1)`; descendant arithmetic `(0.0660,1)` | Each numerical demand value is paired with an explicit known bit and normalized by the existing feature transform. |
+| `L4` semantic summary, first fields | operand-position value `0.0152`; known fraction `0.7778`; index-role value `0.1667`; known fraction `0.3889` | These are fixed summaries over compiler evidence; fractions do not mean every relation is proven. |
+| `defines` edge | relation ID 8; first edge-attribute values `[1,0,0,0,0,0,0,0,…]` | First evidence one-hot position is `proven`; remaining features encode typed semantics. |
+| `registered / matched / unresolved` | `5 / 5 / 0` true slots | Slots are not compacted or renumbered. |
+
+`Lk` always maps to tensor row `k−1` (e.g. `L4` → slot 3 and `L5` → slot 4). The graph carries both directive-independent structural features and static action-demand summaries; candidate-specific directive values and candidate analytical demand enter only V4b's candidate heads. Tensor arrays and relation vocabularies are implemented in the linked encoder/tensor modules; saved graph/cache provenance is described in the [embedding preparation script](../../paper_figures/gemv_rc3_20261105/prepare_embedding_cache.py).
+
+### V4b encoder architecture
+
+![Source-backed SmallGraphEncoder architecture, including its 64D message-passing states and 128D output memory.](../../paper_figures/gemv_rc3_20261105/gemv_v4b_encoder.svg)
+
+Editable [Graphviz DOT source](../../paper_figures/gemv_rc3_20261105/gemv_v4b_encoder.dot); it renders with `dot -Tsvg gemv_v4b_encoder.dot -o gemv_v4b_encoder.svg` and `dot -Tpng gemv_v4b_encoder.dot -o gemv_v4b_encoder.png`.
+
+The encoder first combines 36 numerical node features with five 8D categorical embeddings, projects to 64D, and injects static action-demand and semantic-summary projections at the aligned matched action nodes. Two residual typed-edge-aware `TransformerConv` layers each use hidden width 64, two heads, `concat=False`, 16D edge projections, and LayerNorm. A final linear map projects each node state **from 64D to 128D**. Matched action nodes populate `[1,64,128]` memory; compiler-program nodes are mean pooled to `[1,128]`. Inactive/unmatched slots are zero and are governed by explicit masks. These are V4b research parameters, not V1 weights.
+
+### Actual trained action embeddings
+
+The actual values below come from the committed V4b compiler checkpoint evaluated on an inference-only GEMV/ZCU104/10 ns tensor input. Each row has 128 features; the table shows its first eight rounded coordinates. `L1`, `L4`, and `L5` differ because their bound source objects, loop roles, action semantics, and compiler neighborhoods differ—not because the vectors encode proven causal importance.
+
+| Action | Slot | First eight coordinates |
+|---|---:|---|
+| `L1` array `A` | 0 | `[1.3420, 0.2536, -0.5970, 0.2268, 1.0733, -0.5516, -0.3643, -0.9310]` |
+| `L4` outer loop | 3 | `[0.3094, 0.2074, 0.1675, -0.7608, -1.1808, -0.1285, -0.3588, -0.1000]` |
+| `L5` inner loop | 4 | `[0.2192, 0.9242, -0.5435, -1.2173, -1.5088, -0.7313, -0.7881, 0.2974]` |
+
+![Actual compiler-model action-memory heatmap for GEMV at ZCU104/10 ns.](../../paper_figures/gemv_rc3_20261105/embeddings/compiler_zcu104_actions.png)
+
+The complete five-active-row × 128D arrays are [`compiler_zcu104_active.csv`](../../paper_figures/gemv_rc3_20261105/embeddings/compiler_zcu104_active.csv) and [`compiler_zcu104_raw.npz`](../../paper_figures/gemv_rc3_20261105/embeddings/compiler_zcu104_raw.npz); analogous exports exist for hardware-message and target-FiLM arms and U200. Checkpoint hashes and selected update counts are in [`embedding_report.json`](../../paper_figures/gemv_rc3_20261105/embeddings/embedding_report.json): compiler step 1500, SHA-256 `ef615219…31019162`; hardware-message step 1250, `89db512c…d7cd5ef4f4a`; target-FiLM step 250, `c4643f48…82aca51f`. The selected checkpoint files remain outside Git; the committed CSV/NPZ arrays and report are the evidence accessible to readers.
+
+For the five active actions, within-model ZCU104-to-U200 Frobenius distances at 10 ns are **0** for compiler-only, **0.0513367** for hardware-message, and **0.0002718** for target-FiLM. These describe embedding changes only; larger distance does not mean better QoR. The two nonzero values are visible in [hardware-message](../../paper_figures/gemv_rc3_20261105/embeddings/hardware_target_difference.png) and [target-FiLM](../../paper_figures/gemv_rc3_20261105/embeddings/target_film_target_difference.png) plots. Cross-arm latent subtraction is not causal because those arms were trained independently.
+
+### Structural encoding versus directive selection
+
+V4b has two separate stages:
+
+```text
+structural encoding:  authenticated compiler graph + (optional) physical target → action memory
+V4b evaluation:       memory + complete supplied candidate + physical target → physical QoR / preference
+```
+
+V4b evaluates supplied complete source-legal candidates; it is not a directive generator. Its physical QoR head predicts latency and resource counts independently of requested budget. The budget applies to a separate feasibility/selection path. Compiler-only removes hardware-message edges during encoding, while physical device/clock features still reach downstream heads. Hardware-message and target-FiLM models remain experimental controls. Their evaluation found mixed compiler-memory evidence, no action-difference gain, and insufficient held-out target-preference coverage; see the [corrected-v3 report](../../README.md#v4b-final-scientific-report--corrected-v3-2026-11-04).
+
+In a future experiment, a **newly trained** Stage-2 cross-attention could consume a representation derived from these action slots. That has not been implemented or validated. Equal `[1,64,128]` shape does not make V4b embeddings compatible with existing production V1 Stage-2 checkpoints.
 
 ## 1. Research question and distinction from production
 
@@ -49,7 +166,7 @@ The authenticated V2.2 RC3 graph models compiler operations, SSA values, regions
 
 **Action alignment matters:** `Lk` always refers to absolute slot `k−1`, and unresolved or source-only actions preserve their slots and masks. There is no silent renumbering, truncation beyond the 64-slot contract, or assertion that an unmatched compiler anchor is valid evidence.
 
-See [`GNN_branch/mlir_graph_v2.py`](../../GNN_branch/mlir_graph_v2.py), [`GNN_branch/target_graph_v22.py`](../../GNN_branch/target_graph_v22.py), [`GNN_branch/target_graph_tensor_v22.py`](../../GNN_branch/target_graph_tensor_v22.py), and the [structural graph guide](../structural-graph-v22.md). The [GEMV graph example](../../paper_figures/gemv_mlir_paper.png) illustrates **production V1** action routing, not measured V4b embeddings.
+See [`GNN_branch/mlir_graph_v2.py`](../../GNN_branch/mlir_graph_v2.py), [`GNN_branch/target_graph_v22.py`](../../GNN_branch/target_graph_v22.py), [`GNN_branch/target_graph_tensor_v22.py`](../../GNN_branch/target_graph_tensor_v22.py), and the [structural graph guide](../structural-graph-v22.md). The [GEMV graph example](../../paper_figures/gemv_mlir_paper.png) illustrates **production V1** action routing; the standalone RC3/V4b example above is a different graph and includes actual V4b embeddings.
 
 ### 2.2 GNN tensor encoder
 
@@ -158,6 +275,15 @@ The full scientific explanation, failure modes, per-family breakdowns and ten re
 
 **Do not feed a V4b checkpoint into the existing production V1-trained Stage-2 cross-attention merely because both expose 128D action vectors.** Their learned distributions and contracts differ. Stage-2 needs a separately trained/adapted cross-attention with frozen data and comparable LLM initialization.
 
+The next defensible matched Stage-2 study is:
+
+1. Stage-1 prompt-only baseline.
+2. The same Stage-1 checkpoint with source-aligned compiler memory and a separately trained cross-attention module.
+3. Optional numerical device/clock conditioning in cross-attention, introduced as its own matched control.
+4. Target-conditioned GNN memory only as a later controlled ablation.
+
+Use identical family-disjoint examples, prompt requests, optimizer budget, initialization and validation selection. Keep resource budget and objective in Stage-1's prompt/decision path; they must not alter candidate-independent static graph memory. Begin with offline validation, with no synthesis or test labels. This is a recommendation, **not implemented or run here**.
+
 Before claiming a target-aware improvement, the shortest defensible path is:
 
 1. **Documentation/measurement hygiene:** distinguish reported-proxy feasibility from count-verified feasibility; recover selected ambiguous HLS reports without altering historical CSVs.
@@ -169,6 +295,8 @@ Before claiming a target-aware improvement, the shortest defensible path is:
 The central open hypothesis is whether correct compiler-action structure gives the LLM useful *additional information* beyond the source and prompt, and whether the model can use target-dependent structure when measured target preferences actually differ. V4b does **not** currently answer this question.
 
 ## 8. Repository map and reproduction
+
+For file roles, retention decisions and outside-Git storage, see the [artifact disposition report](CLEANUP-DISPOSITION.md).
 
 | File/area | Purpose |
 |---|---|
