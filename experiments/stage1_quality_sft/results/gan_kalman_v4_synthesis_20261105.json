@@ -1,0 +1,606 @@
+{
+  "attempted_configurations": 12,
+  "estimated_clock_meets_request_success_count": 5,
+  "failed_synthesis": 7,
+  "limitations": [
+    "csynth estimates only; no implementation or post-route timing",
+    "no C-simulation, RTL co-simulation or functional equivalence validation",
+    "six Kalman predictions were generated on V100S; six GAN predictions on A2",
+    "failed synthesis has unknown latency/resources/feasibility, not fabricated QoR",
+    "two user-requested kernels; no generalization or model-superiority conclusion"
+  ],
+  "paired_GAN_comparisons": [
+    {
+      "both_hls_clock_estimates_meet_request": true,
+      "both_resource_budget_feasible": true,
+      "kernel": "GAN",
+      "multi_cycle_change_percent": 45.53890078515346,
+      "multi_latency_cycles": 8156,
+      "request_number": 1,
+      "single_latency_cycles": 5604
+    },
+    {
+      "both_hls_clock_estimates_meet_request": true,
+      "both_resource_budget_feasible": true,
+      "kernel": "GAN",
+      "multi_cycle_change_percent": -77.01005025125629,
+      "multi_latency_cycles": 1281,
+      "request_number": 2,
+      "single_latency_cycles": 5572
+    }
+  ],
+  "publication_note": "Compact authenticated synthesis assessment; raw Vitis project/log evidence is retained outside Git on the execution host and in the local research artifacts.",
+  "requested_configurations": 12,
+  "resource_feasible_success_count": 5,
+  "results": [
+    {
+      "arm": "single_reference",
+      "clock_ns": 10.0,
+      "completed_utc": "2026-11-05T13:04:30.165974+00:00",
+      "directive_warnings": [
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'VITIS_LOOP_81_5' (kernel.cpp:81) because its parent loop or function is pipelined."
+      ],
+      "error": "ValueError('Vitis exited 1',)",
+      "error_messages": [
+        "ERROR: [XFORM 203-103] Array 'out_local.V' (kernel.cpp:46): partitioned elements number (262144) has exeeded the threshold (1024), which may cause long run-time.",
+        "ERROR: [HLS 200-1715] Encountered problem during source synthesis",
+        "ERROR: [HLS 200-70] Pre-synthesis failed."
+      ],
+      "job_id": "kalman_single_reference_r1",
+      "kernel": "Kalman",
+      "log_sha256": "00152cc654996dd1007bd91a390bbdc758d46b00df76de68e0ca5c1eda73bf49",
+      "materialized_source_sha256": "d4ac9a35e1d5e08071879dfb677b1d6e2e028a11727b271ea106be2f8a53b594",
+      "metrics": null,
+      "part": "xczu7ev-ffvc1156-2-e",
+      "receipt_sha256": "6d19b4f4a2b2b46599ab2c5fee476f02448c4046ec0bbaef56722e916c0e0591",
+      "report_sha256": null,
+      "request_number": 1,
+      "requested_resource_budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "returncode": 1,
+      "runtime_seconds": 27.14061346196104,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 4\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 4\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 4\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 4\n<L13>\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 2",
+      "source_sha256": "3c36824db4be6be09b110a20cd5c5b655d14a4973bf4a0ec1820d544b98b81b1",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "failed"
+    },
+    {
+      "arm": "single_reference",
+      "clock_ns": 10.0,
+      "completed_utc": "2026-11-05T13:04:57.657681+00:00",
+      "directive_warnings": [
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'VITIS_LOOP_81_5' (kernel.cpp:81) because its parent loop or function is pipelined."
+      ],
+      "error": "ValueError('Vitis exited 1',)",
+      "error_messages": [
+        "ERROR: [XFORM 203-103] Array 'in_local.V' (kernel.cpp:44): partitioned elements number (262144) has exeeded the threshold (1024), which may cause long run-time.",
+        "ERROR: [HLS 200-1715] Encountered problem during source synthesis",
+        "ERROR: [HLS 200-70] Pre-synthesis failed."
+      ],
+      "job_id": "kalman_single_reference_r2",
+      "kernel": "Kalman",
+      "log_sha256": "603958991856127e49961895a96f1240d3f34ffeb9f2749677c05a9507aa7154",
+      "materialized_source_sha256": "2a8cceeae0b8017b9f03db53486b5e8de3e50d92ae4203f0b3056e9c36a86e8d",
+      "metrics": null,
+      "part": "xcu200-fsgd2104-2-e",
+      "receipt_sha256": "d070d69160584c3857c54167bf2b69b7aa9f482120170ada7bbf871f894d0526",
+      "report_sha256": null,
+      "request_number": 2,
+      "requested_resource_budget": {
+        "BRAM_18K": 1080,
+        "DSP": 1710,
+        "FF": 591120,
+        "LUT": 295560
+      },
+      "returncode": 1,
+      "runtime_seconds": 27.486565055907704,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 4\n<L5>\nauto{_ARRAY_T_L5} = complete\nauto{_ARRAY_F_L5} = 0\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = complete\nauto{_ARRAY_F_L6} = 0\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 2\n<L13>\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 4",
+      "source_sha256": "3c36824db4be6be09b110a20cd5c5b655d14a4973bf4a0ec1820d544b98b81b1",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "failed"
+    },
+    {
+      "arm": "single_reference",
+      "clock_ns": 3.33,
+      "completed_utc": "2026-11-05T13:05:22.940197+00:00",
+      "directive_warnings": [],
+      "error": "ValueError('Vitis exited 1',)",
+      "error_messages": [
+        "ERROR: [XFORM 203-103] Array 'in_local.V' (kernel.cpp:44): partitioned elements number (262144) has exeeded the threshold (1024), which may cause long run-time.",
+        "ERROR: [HLS 200-1715] Encountered problem during source synthesis",
+        "ERROR: [HLS 200-70] Pre-synthesis failed."
+      ],
+      "job_id": "kalman_single_reference_r3",
+      "kernel": "Kalman",
+      "log_sha256": "f1663723d1e6e854209e8aa0983c5f82e3aaabc555fea0b9adee0d360c672cf0",
+      "materialized_source_sha256": "487a1f9d82a2d394006b3dbeb4343665acefa88bef3963d9e0b9d2acff1b9912",
+      "metrics": null,
+      "part": "xczu7ev-ffvc1156-2-e",
+      "receipt_sha256": "fc923bea4f0053db65247251f9ec7dc88f8afe1bd6feb727fb0aa3b9f57cd0e5",
+      "report_sha256": null,
+      "request_number": 3,
+      "requested_resource_budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "returncode": 1,
+      "runtime_seconds": 25.2811053940095,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 4\n<L5>\nauto{_ARRAY_T_L5} = complete\nauto{_ARRAY_F_L5} = 0\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = complete\nauto{_ARRAY_F_L6} = 0\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 32\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 2\n<L13>\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 4",
+      "source_sha256": "3c36824db4be6be09b110a20cd5c5b655d14a4973bf4a0ec1820d544b98b81b1",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "failed"
+    },
+    {
+      "arm": "multi_reference",
+      "clock_ns": 10.0,
+      "completed_utc": "2026-11-05T13:06:38.703217+00:00",
+      "directive_warnings": [],
+      "error": "ValueError('Vitis exited 1',)",
+      "error_messages": [
+        "ERROR: [XFORM 203-103] Array 'in_local.V' (kernel.cpp:44): partitioned elements number (262144) has exeeded the threshold (1024), which may cause long run-time.",
+        "ERROR: [HLS 200-1715] Encountered problem during source synthesis",
+        "ERROR: [HLS 200-70] Pre-synthesis failed."
+      ],
+      "job_id": "kalman_multi_reference_r1",
+      "kernel": "Kalman",
+      "log_sha256": "3e094e9d6757838a371354b33f61c4adb6fedf20a6f5db4f9e35ab9453e1c3a0",
+      "materialized_source_sha256": "0c822c519bb8527e4bcc8c10837f4b023c027fe804336cd91345a2cd50c0c615",
+      "metrics": null,
+      "part": "xczu7ev-ffvc1156-2-e",
+      "receipt_sha256": "f7151580480f01bdf2c3489f783ad5dcaa7bde64d8fa0cec6bdd107754052d78",
+      "report_sha256": null,
+      "request_number": 1,
+      "requested_resource_budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "returncode": 1,
+      "runtime_seconds": 75.76041373400949,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 4\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 16\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 4\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 64\n<L13>\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0",
+      "source_sha256": "3c36824db4be6be09b110a20cd5c5b655d14a4973bf4a0ec1820d544b98b81b1",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "failed"
+    },
+    {
+      "arm": "multi_reference",
+      "clock_ns": 10.0,
+      "completed_utc": "2026-11-05T13:07:03.888545+00:00",
+      "directive_warnings": [],
+      "error": "ValueError('Vitis exited 1',)",
+      "error_messages": [
+        "ERROR: [XFORM 203-103] Array 'in_local.V' (kernel.cpp:44): partitioned elements number (262144) has exeeded the threshold (1024), which may cause long run-time.",
+        "ERROR: [HLS 200-1715] Encountered problem during source synthesis",
+        "ERROR: [HLS 200-70] Pre-synthesis failed."
+      ],
+      "job_id": "kalman_multi_reference_r2",
+      "kernel": "Kalman",
+      "log_sha256": "a01ef8a51d88a06d64bf3debb4edf47a9f132e1f3b83c2765823ed36c253e3f6",
+      "materialized_source_sha256": "00086a8a65870edbb4f736cd038fd7d8312018df932cb0f90f6d83eae1f3a378",
+      "metrics": null,
+      "part": "xcu200-fsgd2104-2-e",
+      "receipt_sha256": "fe477f8da0728f802858cd63cc075b224d7243ffe873bb40544e94e8282d60e8",
+      "report_sha256": null,
+      "request_number": 2,
+      "requested_resource_budget": {
+        "BRAM_18K": 1080,
+        "DSP": 1710,
+        "FF": 591120,
+        "LUT": 295560
+      },
+      "returncode": 1,
+      "runtime_seconds": 25.18323457799852,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 16\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 16\n<L13>\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0",
+      "source_sha256": "3c36824db4be6be09b110a20cd5c5b655d14a4973bf4a0ec1820d544b98b81b1",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "failed"
+    },
+    {
+      "arm": "multi_reference",
+      "clock_ns": 3.33,
+      "completed_utc": "2026-11-05T13:07:27.970731+00:00",
+      "directive_warnings": [],
+      "error": "ValueError('Vitis exited 1',)",
+      "error_messages": [
+        "ERROR: [XFORM 203-103] Array 'in_local.V' (kernel.cpp:44): partitioned elements number (262144) has exeeded the threshold (1024), which may cause long run-time.",
+        "ERROR: [HLS 200-1715] Encountered problem during source synthesis",
+        "ERROR: [HLS 200-70] Pre-synthesis failed."
+      ],
+      "job_id": "kalman_multi_reference_r3",
+      "kernel": "Kalman",
+      "log_sha256": "073c361d21109c9962884499ca357960a5d7ca23468e84d2cf67a50e1cf364eb",
+      "materialized_source_sha256": "cac6de63649bdc0f75dd23b8bc809445c42480f6ddab40c8b84f2d0473e12e3f",
+      "metrics": null,
+      "part": "xczu7ev-ffvc1156-2-e",
+      "receipt_sha256": "450fa5b94a95b8180a7c3d317d47838adf37a37966a9e2f4c2e5650b6456182b",
+      "report_sha256": null,
+      "request_number": 3,
+      "requested_resource_budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "returncode": 1,
+      "runtime_seconds": 24.079760108026676,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 4\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 16\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 16\n<L13>\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0",
+      "source_sha256": "3c36824db4be6be09b110a20cd5c5b655d14a4973bf4a0ec1820d544b98b81b1",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "failed"
+    },
+    {
+      "arm": "single_reference",
+      "clock_ns": 10.0,
+      "completed_utc": "2026-11-05T13:19:39.964208+00:00",
+      "directive_warnings": [
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:26:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:27:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:28:9",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L6' (network.cpp:50) because its parent loop or function is pipelined.",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L11' (network.cpp:83) because its parent loop or function is pipelined.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_3', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_5', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_7', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln55', network.cpp:55) of variable 'add_ln712_5' on array 'layer_1_out_V_0' due to limited memory ports (II = 7). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'."
+      ],
+      "error": null,
+      "error_messages": [],
+      "job_id": "gan_single_reference_r1",
+      "kernel": "GAN",
+      "log_sha256": "0550e2e69b0c38078fb059a64f5be28368365bfd23f3989b51749c8ac6489293",
+      "materialized_source_sha256": "e63a4ad341ee2eea06e5532dc7f785c3edabb139a0599b38482254c12bb939bd",
+      "metrics": {
+        "device_capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "estimated_clock_ns": 6.598,
+        "fits_physical_device": true,
+        "functional_validation": false,
+        "hls_estimated_clock_meets_request": true,
+        "latency_at_requested_clock_ns": 56040.0,
+        "latency_cycles": 5604,
+        "resource_budget_feasible": true,
+        "resources": {
+          "BRAM_18K": 83,
+          "DSP": 52,
+          "FF": 3303,
+          "LUT": 9357
+        },
+        "timing_evidence": "HLS estimate; no implementation/post-route timing"
+      },
+      "part": "xczu7ev-ffvc1156-2-e",
+      "receipt_sha256": "1430096d6ee6c60a9bd8c61af28b29fd91f9dba2a104c5e6312800e4eb1693cf",
+      "report_sha256": "f3156f77224265fb9a3eecbbba70ab2657aef8a23ef754f79aa7e10c3e415cc3",
+      "request_number": 1,
+      "requested_resource_budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "returncode": 0,
+      "runtime_seconds": 86.51902169594541,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 4\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 16\n<L7>\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8",
+      "source_sha256": "40c0d7706c7d4ed88978366cd022ffa1868a2dcb19a8e82fa02d39346a6ae03f",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "success"
+    },
+    {
+      "arm": "single_reference",
+      "clock_ns": 10.0,
+      "completed_utc": "2026-11-05T13:20:59.497997+00:00",
+      "directive_warnings": [
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:26:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:27:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:28:9",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L6' (network.cpp:50) because its parent loop or function is pipelined.",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L11' (network.cpp:83) because its parent loop or function is pipelined.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_3', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_5', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_7', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln55', network.cpp:55) of variable 'add_ln712_5' on array 'layer_1_out_V_0' due to limited memory ports (II = 7). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'."
+      ],
+      "error": null,
+      "error_messages": [],
+      "job_id": "gan_single_reference_r2",
+      "kernel": "GAN",
+      "log_sha256": "02de4d51b194051518390f6f598f4d5476231c30dd0a5d4bdbac18d395525aae",
+      "materialized_source_sha256": "7d5ba0f32bdfac6f89ffb360ca908b57335623609f18efb0eb61b1b2f17c749a",
+      "metrics": {
+        "device_capacities": {
+          "BRAM_18K": 4320,
+          "DSP": 6840,
+          "FF": 2364480,
+          "LUT": 1182240
+        },
+        "estimated_clock_ns": 6.688,
+        "fits_physical_device": true,
+        "functional_validation": false,
+        "hls_estimated_clock_meets_request": true,
+        "latency_at_requested_clock_ns": 55720.0,
+        "latency_cycles": 5572,
+        "resource_budget_feasible": true,
+        "resources": {
+          "BRAM_18K": 83,
+          "DSP": 54,
+          "FF": 3721,
+          "LUT": 11314
+        },
+        "timing_evidence": "HLS estimate; no implementation/post-route timing"
+      },
+      "part": "xcu200-fsgd2104-2-e",
+      "receipt_sha256": "a8024b3d771cceb9cff0f0d41865cba263fd4a0984c11b3add8d0333bfbd118a",
+      "report_sha256": "eb241324bc6c4d50d76560a70b58e8fb50e3f61c4bffcd9b6b4efa011cd94dcc",
+      "request_number": 2,
+      "requested_resource_budget": {
+        "BRAM_18K": 1080,
+        "DSP": 1710,
+        "FF": 591120,
+        "LUT": 295560
+      },
+      "returncode": 0,
+      "runtime_seconds": 79.52192754403222,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = block\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 4\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 4\n<L7>\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 8\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8",
+      "source_sha256": "40c0d7706c7d4ed88978366cd022ffa1868a2dcb19a8e82fa02d39346a6ae03f",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "success"
+    },
+    {
+      "arm": "single_reference",
+      "clock_ns": 3.33,
+      "completed_utc": "2026-11-05T13:21:41.892880+00:00",
+      "directive_warnings": [
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:26:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:27:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:28:9",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L6' (network.cpp:50) because its parent loop or function is pipelined.",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L11' (network.cpp:83) because its parent loop or function is pipelined."
+      ],
+      "error": "ValueError('Vitis exited 1',)",
+      "error_messages": [
+        "ERROR: [HLS 200-908] Cannot partition array 'layer_2_out.V' (network.cpp:32): incorrect partition factor 64.",
+        "ERROR: [HLS 200-1715] Encountered problem during source synthesis",
+        "ERROR: [HLS 200-70] Pre-synthesis failed."
+      ],
+      "job_id": "gan_single_reference_r3",
+      "kernel": "GAN",
+      "log_sha256": "218a45b43ff7030c2e0fde37c9000d4848a7d0ad8fea8f9e844345950cb0295e",
+      "materialized_source_sha256": "a3f03e148177f504626937d29bf6888055e78d1ec8a2b5dac66a721d857ccb00",
+      "metrics": null,
+      "part": "xczu7ev-ffvc1156-2-e",
+      "receipt_sha256": "5f8314a6305b1b6c568ad046563905e2236bec40db67f6ba201096a800a9a3a1",
+      "report_sha256": null,
+      "request_number": 3,
+      "requested_resource_budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "returncode": 1,
+      "runtime_seconds": 42.38338984805159,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 64\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 8\n<L7>\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8",
+      "source_sha256": "40c0d7706c7d4ed88978366cd022ffa1868a2dcb19a8e82fa02d39346a6ae03f",
+      "source_tcad_error": "Source-aware TCAD tuple violation at L3: ('block', '64', '1')",
+      "source_tcad_legal": false,
+      "status": "failed"
+    },
+    {
+      "arm": "multi_reference",
+      "clock_ns": 10.0,
+      "completed_utc": "2026-11-05T13:32:44.071152+00:00",
+      "directive_warnings": [
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:26:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:27:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:28:9",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L6' (network.cpp:50) because its parent loop or function is pipelined.",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L11' (network.cpp:83) because its parent loop or function is pipelined.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_3', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_5', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_7', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln55', network.cpp:55) of variable 'add_ln712_20' on array 'layer_1_out_V_0' due to limited memory ports (II = 7). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'."
+      ],
+      "error": null,
+      "error_messages": [],
+      "job_id": "gan_multi_reference_r1",
+      "kernel": "GAN",
+      "log_sha256": "4d397b233355945d17754fd98dfb624494707585e4be3f2ffbfae41dec0bbbbe",
+      "materialized_source_sha256": "a5fb51ff172ba299cecfd4e6c14b53606a8c2fff8423159629605a2b34d4a7f8",
+      "metrics": {
+        "device_capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "estimated_clock_ns": 7.095,
+        "fits_physical_device": true,
+        "functional_validation": false,
+        "hls_estimated_clock_meets_request": true,
+        "latency_at_requested_clock_ns": 81560.0,
+        "latency_cycles": 8156,
+        "resource_budget_feasible": true,
+        "resources": {
+          "BRAM_18K": 85,
+          "DSP": 54,
+          "FF": 3593,
+          "LUT": 10280
+        },
+        "timing_evidence": "HLS estimate; no implementation/post-route timing"
+      },
+      "part": "xczu7ev-ffvc1156-2-e",
+      "receipt_sha256": "449ddb0fb3ec6537800f74508004a69fcda783bbe15d88f6f22d1ca5069e06f8",
+      "report_sha256": "efe495782eb879c49131e424f7ce4ecd27df67b482c19fce7ff2679824933fad",
+      "request_number": 1,
+      "requested_resource_budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "returncode": 0,
+      "runtime_seconds": 57.658884671051055,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 16\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 16",
+      "source_sha256": "40c0d7706c7d4ed88978366cd022ffa1868a2dcb19a8e82fa02d39346a6ae03f",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "success"
+    },
+    {
+      "arm": "multi_reference",
+      "clock_ns": 10.0,
+      "completed_utc": "2026-11-05T13:34:00.493009+00:00",
+      "directive_warnings": [
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:26:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:27:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:28:9",
+        "WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L6' (network.cpp:50) because its parent loop or function is pipelined.",
+        "WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L9' (network.cpp:69) because its parent loop or function is pipelined.",
+        "WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L11' (network.cpp:83) because its parent loop or function is pipelined.",
+        "WARNING: [HLS 200-914] Completely partitioning array 'xbuf.V' (network.cpp:28) accessed through non-constant indices on dimension 1 (network.cpp:43:3), which may result in long runtime and suboptimal QoR due to large multiplexers. Please consider wrapping the array access into a function or using a register file core instead.",
+        "WARNING: [HLS 200-914] Completely partitioning array 'layer_2_out.V' (network.cpp:32) accessed through non-constant indices on dimension 1 (network.cpp:76:3), which may result in long runtime and suboptimal QoR due to large multiplexers. Please consider wrapping the array access into a function or using a register file core instead."
+      ],
+      "error": null,
+      "error_messages": [],
+      "job_id": "gan_multi_reference_r2",
+      "kernel": "GAN",
+      "log_sha256": "4fdcac62dade66321149adc4fc431a3ed160ddd85284ae3737ebc7b3065fa2c9",
+      "materialized_source_sha256": "edcad71a97694ae3dbd046a22a263e3c90bb466ca1dbea0cc1ce919384971d49",
+      "metrics": {
+        "device_capacities": {
+          "BRAM_18K": 4320,
+          "DSP": 6840,
+          "FF": 2364480,
+          "LUT": 1182240
+        },
+        "estimated_clock_ns": 6.688,
+        "fits_physical_device": true,
+        "functional_validation": false,
+        "hls_estimated_clock_meets_request": true,
+        "latency_at_requested_clock_ns": 12810.0,
+        "latency_cycles": 1281,
+        "resource_budget_feasible": true,
+        "resources": {
+          "BRAM_18K": 81,
+          "DSP": 80,
+          "FF": 8674,
+          "LUT": 12556
+        },
+        "timing_evidence": "HLS estimate; no implementation/post-route timing"
+      },
+      "part": "xcu200-fsgd2104-2-e",
+      "receipt_sha256": "7af420e31624b719763f9d905c7c84aa8197f8de3bf55dd770f85a7bd3525b7a",
+      "report_sha256": "e21d6de95a7698856403f903a083effb57e49300551bfe43f103fa45dafdd829",
+      "request_number": 2,
+      "requested_resource_budget": {
+        "BRAM_18K": 1080,
+        "DSP": 1710,
+        "FF": 591120,
+        "LUT": 295560
+      },
+      "returncode": 0,
+      "runtime_seconds": 76.41152430395596,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = complete\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0",
+      "source_sha256": "40c0d7706c7d4ed88978366cd022ffa1868a2dcb19a8e82fa02d39346a6ae03f",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "success"
+    },
+    {
+      "arm": "multi_reference",
+      "clock_ns": 3.33,
+      "completed_utc": "2026-11-05T13:34:59.565860+00:00",
+      "directive_warnings": [
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:26:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:27:9",
+        "WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:28:9",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L6' (network.cpp:50) because its parent loop or function is pipelined.",
+        "WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L11' (network.cpp:83) because its parent loop or function is pipelined.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_3', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_5', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_7', network.cpp:53) on array 'layer_1_out_V_0' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+        "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln55', network.cpp:55) of variable 'add_ln712_20' on array 'layer_1_out_V_0' due to limited memory ports (II = 7). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'."
+      ],
+      "error": null,
+      "error_messages": [],
+      "job_id": "gan_multi_reference_r3",
+      "kernel": "GAN",
+      "log_sha256": "b232909bb2c72f2ea142e2fd88a4f074d0860da8c5d38aeaea191ff5777279ed",
+      "materialized_source_sha256": "a5fb51ff172ba299cecfd4e6c14b53606a8c2fff8423159629605a2b34d4a7f8",
+      "metrics": {
+        "device_capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "estimated_clock_ns": 2.404,
+        "fits_physical_device": true,
+        "functional_validation": false,
+        "hls_estimated_clock_meets_request": true,
+        "latency_at_requested_clock_ns": 29793.510000000002,
+        "latency_cycles": 8947,
+        "resource_budget_feasible": true,
+        "resources": {
+          "BRAM_18K": 85,
+          "DSP": 54,
+          "FF": 4974,
+          "LUT": 10442
+        },
+        "timing_evidence": "HLS estimate; no implementation/post-route timing"
+      },
+      "part": "xczu7ev-ffvc1156-2-e",
+      "receipt_sha256": "e658c6c37959af1048b0ab3fd977e0fd99255735f1c5902d5a81c8e512d00a53",
+      "report_sha256": "fd8271942f3f55ff06a388ad65f8193e88e95729320e6b4f0ab28a2246075944",
+      "request_number": 3,
+      "requested_resource_budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "returncode": 0,
+      "runtime_seconds": 59.06148669309914,
+      "source_prediction": "<L1>\nauto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = cyclic\nauto{_ARRAY_F_L2} = 4\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 16\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 16",
+      "source_sha256": "40c0d7706c7d4ed88978366cd022ffa1868a2dcb19a8e82fa02d39346a6ae03f",
+      "source_tcad_error": null,
+      "source_tcad_legal": true,
+      "status": "success"
+    }
+  ],
+  "schema": "stage1-v4-gan-kalman-synthesis-results-v1",
+  "successful_synthesis": 5,
+  "tool": {
+    "executable": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+    "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+    "vendor_headers": {
+      "ap_fixed.h": {
+        "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+        "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+      },
+      "ap_int.h": {
+        "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+        "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+      }
+    },
+    "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved."
+  }
+}

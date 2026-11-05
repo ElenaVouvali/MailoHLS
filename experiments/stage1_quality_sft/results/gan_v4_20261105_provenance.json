@@ -1,0 +1,58 @@
+{
+  "adapters": {
+    "multi_reference": {
+      "adapter_sha256": "28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+      "prediction_sha256": "a3f20433d82c9b87bb41f15e97d362e17f62e5fe2adb43a775579f65e8ce3ec6",
+      "training_contract_sha256": "1c7a2034dba45030e51525fd415367e6fcf276cceddd89eb1132edfd66840671"
+    },
+    "single_reference": {
+      "adapter_sha256": "abef1af9e9e833b2a02173a803318b90a37b5015c8f597ebb02c70d0655bbd66",
+      "prediction_sha256": "8126fe8688d9287d68b192938143192cae97f972822c9beba8c5027b1eb02944",
+      "training_contract_sha256": "f4dcf440a98cf4cf75bf6ecd294193e8ba2362a825fe148b553907b9788d97b4"
+    }
+  },
+  "backbone_revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+  "checkpoint_selection": "final v4 root adapters",
+  "decoder": "production constrained greedy, num_samples=1",
+  "directive_domain_registry_sha256": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c",
+  "headers_sha256": {
+    "network.h": "2c78e50aa55bbd6531884a6aab7d5262196f0881ca48466832e742bffc26ee6c",
+    "tanh.h": "52408068008dfc4a6a3c47bdef65ebcac2d9cb7d058539eca7391a712feffc32",
+    "weight_definitions.h": "0bf67492662b46d65bee0347e82d497b8782bf622135a2af12f7cd0aca1ef771"
+  },
+  "inference_gpu": {
+    "name": "NVIDIA A2",
+    "uuid": "GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35"
+  },
+  "metadata_sha256": "cc93afeefd25bf7de0769e5755fc56cef0585f6d851cc94f1bb7db6efdf27eb5",
+  "objective": "PARETO_LATENCY",
+  "raw_run_evidence": "Retained in local research artifacts and on the Coroni execution host; large project databases and logs are intentionally not committed.",
+  "requests_sha256": "2ece1370f20f4267f5ecc3d71590ecbafcb412a4bd519f20c88be7e2c6217255",
+  "schema": "stage1-quality-sft-inference-provenance-v1",
+  "source_sha256": "40c0d7706c7d4ed88978366cd022ffa1868a2dcb19a8e82fa02d39346a6ae03f",
+  "stage": "stage1",
+  "strict_source_extent_errors": [
+    {
+      "arm": "single_reference",
+      "error": "Source-aware TCAD tuple violation at L3: ('block', '64', '1')",
+      "request": 3
+    }
+  ],
+  "synthesis_tool": {
+    "executable": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+    "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+    "vendor_headers": {
+      "ap_fixed.h": {
+        "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+        "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+      },
+      "ap_int.h": {
+        "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+        "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+      }
+    },
+    "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved."
+  },
+  "test_measurement_labels_loaded": false,
+  "tokenizer_sha256": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891"
+}
