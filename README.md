@@ -35,6 +35,21 @@ and the boundary between implemented, evaluated and planned functionality.
 
 ## Stage-1 research status on this branch
 
+### Latest quality-aware SFT evidence — 2026-11-04
+
+The quality-aware SFT prototype and training-selection fix are committed on this
+branch. The final v4 single-reference and multi-reference latency adapters were
+each run on three user-requested Kalman contexts: ZCU104/10 ns/full budget,
+XCU200/10 ns/25% budget, and ZCU104/3.33 ns/full budget. All six production
+constrained-decoder outputs are complete and source-legal (26 fields across 11
+registered actions). Exact predictions and checkpoint/input hashes are in the
+[Kalman inference report](experiments/stage1_quality_sft/results/kalman_v4_20261104.md).
+These held-out probes do not establish resource feasibility, synthesis QoR,
+multi-reference superiority or checkpoint eligibility for production/Stage-2.
+See the [quality-aware SFT package](experiments/stage1_quality_sft/README.md).
+
+### Historical recovery record
+
 The research question is whether exact imitation of one selected measured
 design weakens the learned conditional policy across FPGA, clock and resource
 budget requests. The work is diagnostic: it does not change the production

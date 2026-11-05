@@ -1,0 +1,160 @@
+{
+  "schema": "stage1-quality-sft-kalman-inference-v1",
+  "date": "2026-11-04",
+  "software_commit": "f4de183757b9ed3d0aa7b08f8005017258b39172",
+  "status": "INFERENCE_COMPLETED",
+  "objective": "PARETO_LATENCY",
+  "checkpoint_selection": "final root adapters from completed v4 training runs",
+  "decoder": "production constrained field-greedy, num_samples=1",
+  "gpu_uuid": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb",
+  "test_measurement_labels_loaded": false,
+  "source_sha256": "3c36824db4be6be09b110a20cd5c5b655d14a4973bf4a0ec1820d544b98b81b1",
+  "source_metadata_sha256": "b5d1ccb00e427d3b20bf70baa709a21a083c9279c4853047e534df16094ba1e8",
+  "prompt_source_sha256": "7f7263fd118d7daf874cdbaa7635312d6576ebccc668d725ba91d2ab1cad68b2",
+  "requests_sha256": "453dca53687c3607226a3e86302ebc9014192597399cf9fa05cc4970712212bd",
+  "requests": [
+    {
+      "context_id": "kalman-zcu104-10ns-full",
+      "request_id": "kalman-zcu104-10ns-full",
+      "kernel_name": "serrano-kalman-filter",
+      "objective": "PARETO_LATENCY",
+      "obj_mode": "PARETO_LATENCY",
+      "device": "xczu7ev-ffvc1156-2-e",
+      "clock_period": 10.0,
+      "selected_clock_period": 10.0,
+      "frequency_mode": "specified",
+      "available_clock_periods": [
+        10.0
+      ],
+      "resource_budget_id": "uniform-100",
+      "avail_bram": 624,
+      "avail_dsp": 1728,
+      "avail_ff": 460800,
+      "avail_lut": 230400
+    },
+    {
+      "context_id": "kalman-xcu200-10ns-25pct",
+      "request_id": "kalman-xcu200-10ns-25pct",
+      "kernel_name": "serrano-kalman-filter",
+      "objective": "PARETO_LATENCY",
+      "obj_mode": "PARETO_LATENCY",
+      "device": "xcu200-fsgd2104-2-e",
+      "clock_period": 10.0,
+      "selected_clock_period": 10.0,
+      "frequency_mode": "specified",
+      "available_clock_periods": [
+        10.0
+      ],
+      "resource_budget_id": "uniform-025",
+      "avail_bram": 1080,
+      "avail_dsp": 1710,
+      "avail_ff": 591120,
+      "avail_lut": 295560
+    },
+    {
+      "context_id": "kalman-zcu104-3p33ns-full",
+      "request_id": "kalman-zcu104-3p33ns-full",
+      "kernel_name": "serrano-kalman-filter",
+      "objective": "PARETO_LATENCY",
+      "obj_mode": "PARETO_LATENCY",
+      "device": "xczu7ev-ffvc1156-2-e",
+      "clock_period": 3.33,
+      "selected_clock_period": 3.33,
+      "frequency_mode": "specified",
+      "available_clock_periods": [
+        3.33
+      ],
+      "resource_budget_id": "uniform-100",
+      "avail_bram": 624,
+      "avail_dsp": 1728,
+      "avail_ff": 460800,
+      "avail_lut": 230400
+    }
+  ],
+  "checkpoints": {
+    "single_reference": {
+      "path": "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/single_reference/run",
+      "hashes": {
+        "adapter_model.safetensors": "abef1af9e9e833b2a02173a803318b90a37b5015c8f597ebb02c70d0655bbd66",
+        "training_contract.json": "f4dcf440a98cf4cf75bf6ecd294193e8ba2362a825fe148b553907b9788d97b4",
+        "tokenizer.json": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891",
+        "directive_domain_registry.json": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c"
+      }
+    },
+    "multi_reference": {
+      "path": "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run",
+      "hashes": {
+        "adapter_model.safetensors": "28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+        "training_contract.json": "1c7a2034dba45030e51525fd415367e6fcf276cceddd89eb1132edfd66840671",
+        "tokenizer.json": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891",
+        "directive_domain_registry.json": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c"
+      }
+    }
+  },
+  "generated": {
+    "single_reference": [
+      {
+        "request_id": "kalman-zcu104-10ns-full",
+        "prediction": "<L1>\nauto{_ARRAY_T_L1} = cyclic\nauto{_ARRAY_F_L1} = 4\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 4\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_ARRAY_T_L5} = block\nauto{_ARRAY_F_L5} = 4\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 4\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 4\n<L13>\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 2",
+        "sequence_score": -5.722011934383772,
+        "source_legal": true,
+        "complete_actions": 11,
+        "fields": 26,
+        "measured_qor": null
+      },
+      {
+        "request_id": "kalman-xcu200-10ns-25pct",
+        "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 4\n<L5>\nauto{_ARRAY_T_L5} = complete\nauto{_ARRAY_F_L5} = 0\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = complete\nauto{_ARRAY_F_L6} = 0\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 2\n<L13>\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 4",
+        "sequence_score": -4.503867365390761,
+        "source_legal": true,
+        "complete_actions": 11,
+        "fields": 26,
+        "measured_qor": null
+      },
+      {
+        "request_id": "kalman-zcu104-3p33ns-full",
+        "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 4\n<L5>\nauto{_ARRAY_T_L5} = complete\nauto{_ARRAY_F_L5} = 0\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = complete\nauto{_ARRAY_F_L6} = 0\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 32\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 2\n<L13>\nauto{_PIPE_L13} = 0\nauto{_UNROLL_L13} = 4",
+        "sequence_score": -6.303075823234394,
+        "source_legal": true,
+        "complete_actions": 11,
+        "fields": 26,
+        "measured_qor": null
+      }
+    ],
+    "multi_reference": [
+      {
+        "request_id": "kalman-zcu104-10ns-full",
+        "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 4\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 16\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 4\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 64\n<L13>\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0",
+        "sequence_score": -5.690439294412499,
+        "source_legal": true,
+        "complete_actions": 11,
+        "fields": 26,
+        "measured_qor": null
+      },
+      {
+        "request_id": "kalman-xcu200-10ns-25pct",
+        "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 16\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 16\n<L13>\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0",
+        "sequence_score": -5.436332525103353,
+        "source_legal": true,
+        "complete_actions": 11,
+        "fields": 26,
+        "measured_qor": null
+      },
+      {
+        "request_id": "kalman-zcu104-3p33ns-full",
+        "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_ARRAY_T_L2} = complete\nauto{_ARRAY_F_L2} = 0\nauto{_ARRAY_D_L2} = 1\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 4\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = block\nauto{_ARRAY_F_L6} = 2\nauto{_ARRAY_D_L6} = 1\n<L9>\nauto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 16\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 2\n<L12>\nauto{_PIPE_L12} = 0\nauto{_UNROLL_L12} = 16\n<L13>\nauto{_PIPE_L13} = 1\nauto{_UNROLL_L13} = 0",
+        "sequence_score": -5.660105418821331,
+        "source_legal": true,
+        "complete_actions": 11,
+        "fields": 26,
+        "measured_qor": null
+      }
+    ]
+  },
+  "hardware_qor_evaluated": false,
+  "limitation": "Three user-requested held-out Kalman probes; no checkpoint selection, synthesis, measured QoR or superiority claim.",
+  "raw_output_sha256": {
+    "single_reference": "e5796b5be0af5e4e57de8045abe5d3a67eb1f21b8b5ac63d7548e443895808b4",
+    "multi_reference": "6974145a772fdde60df3a5a11c9af384648aecf95a8b568d836468fc0d8401ed"
+  }
+}
