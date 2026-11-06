@@ -1,0 +1,23 @@
+# Next GNN ablations
+
+## Historical architecture and supervision
+
+V4b RC3 tensor dimensions are node numeric 36, categorical embeddings 5×8=40, total 76 before the 64-wide input projection; edge dimension is the base 22 plus semantic edge features; hidden width 64; two `TransformerConv` layers; action outputs 128; action demand/semantic projections are direct at action nodes. The model has candidate-independent memory and separate downstream physical-QoR and preference heads. Its learned targets come from the authenticated V4b compiler-only measured QoR and pairwise preference process with cohort/family split provenance. The historical model uses four graph layers and max Jumping Knowledge, but its preprocessing, dimensions, task/checkpoint contract, and provenance predate RC3. Reuse architectural ideas only; no historical tensor or weights are compatible.
+
+## Minimal matched comparison (no training in this audit)
+
+1. Freeze identical RC3 graph tensors, action alignment, and masks for every arm. Freeze one train/validation family split before model comparison; hold test families out. Reuse identical samples, labels, candidate construction, optimizer/update budget, seeds, and checkpoint-selection rule.
+2. Compare the current 2-layer RC3 baseline against a freshly initialized 4-layer RC3 encoder and a freshly initialized 4-layer max-JK RC3 encoder. Historical four-layer/JK weights and feature projections are incompatible and must not be reused. The historical architecture is a controlled architectural alternative only. Add capacity controls: 2-layer width chosen to approximately match 4-layer parameter count; and 4-layer without JK. Publish parameter counts and FLOPs. Optionally a no-message action-MLP with the same output width separates direct features from graph propagation.
+3. Keep target/context pathway and candidate head identical. Do not use GPU use or a different budget for one variant. Report latency-focused outcomes under declared area/resource constraints: feasible recommendation latency, regret against the measured feasible best, feasibility rate, and latency-vs-resource Pareto coverage. Include calibration/uncertainty and family-wise intervals; distinguish measured labels from predictions.
+4. Add action-specific diagnostics on L1–L5: exact direct-feature mask; per-action source/compiler shape and rank recovery; access role/map classification only where graph metadata supports labels; loop trip count/provenance recovery; SSA recurrence and dependence status/direction; contained operation/access association. For every diagnostic, report proven/possible/not-established coverage and never score absent evidence as a negative fact.
+5. Run controlled evidence-group masking/permutation at inference (arrays/shapes, access/affine, loop/trip, arithmetic/SSA, dependence, edge direction) and direct-feature ablations. Verify provenance and tensor schema after each perturbation. Measure embedding deltas as sensitivity diagnostics, then separately evaluate candidate scores, rankings, latency regret and feasibility. No semantic feature invention and no use of latent distance as quality.
+6. Routing phase after encoder comparison: exact-slot, current action-relational, then evidence-memory masks from the interface proposal. Keep memory width and train budget matched; include parameter/key-count controls. Evaluate eligible-key/type coverage and attention utilization alongside end-task outcomes.
+
+## Decision gate
+
+Prefer the smallest encoder/memory that improves held-out family latency-focused performance and calibrated feasibility without losing action-specific compiler-evidence recovery. If four layers only improve reachability but not diagnostics or end-task metrics, keep the two-layer model. If selected-evidence keys improve diagnostics and held-out decisions over relational action routing, take option C into a separately reviewed cross-attention design. None of these comparisons is trained or executed here.
+
+
+## Recommendation
+
+Use the same authenticated RC3 tensors and trained 2-layer V4b encoder as the frozen representation baseline. Compare exact-slot A, an explicitly versioned RC3-derived action-relation B, and small typed evidence-memory C without assuming a larger key set wins. For encoder capacity, compare freshly trained 2-layer, parameter-matched 2-layer, 4-layer, and 4-layer max-JK arms on the same family split/budget. Include evidence-group masking diagnostics and per-action recovery, with particular attention to L1 affine access/shape and L5 recurrence/arithmetic/dependence. Evaluate latency-focused measured outcomes under resource constraints; no performance conclusion follows from current embedding deltas.
