@@ -1,0 +1,201 @@
+{
+  "actions": {
+    "records": [
+      {
+        "action_id": "L1",
+        "action_point_node": "action:L1",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_memory_shape": [
+          32,
+          32
+        ],
+        "compiler_status": "compiler_matched",
+        "compiler_target": "memory:gemv:op3:r0",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": [
+          32,
+          32
+        ],
+        "source_binding": {
+          "array_name": "A",
+          "function": "gemv",
+          "kind": "array",
+          "source_column": 19,
+          "source_file": "gemv.c",
+          "source_line": 5,
+          "source_use_lines": [
+            6,
+            19
+          ]
+        },
+        "source_labeled": true
+      },
+      {
+        "action_id": "L2",
+        "action_point_node": "action:L2",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_memory_shape": [
+          32
+        ],
+        "compiler_status": "compiler_matched",
+        "compiler_target": "memory:gemv:op2:r0",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": [
+          32
+        ],
+        "source_binding": {
+          "array_name": "x",
+          "function": "gemv",
+          "kind": "array",
+          "source_column": 19,
+          "source_file": "gemv.c",
+          "source_line": 7,
+          "source_use_lines": [
+            8,
+            19
+          ]
+        },
+        "source_labeled": true
+      },
+      {
+        "action_id": "L3",
+        "action_point_node": "action:L3",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_memory_shape": [],
+        "compiler_status": "compiler_matched",
+        "compiler_target": "memory:gemv:op1:r0",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": [
+          32
+        ],
+        "source_binding": {
+          "array_name": "y",
+          "function": "gemv",
+          "kind": "array",
+          "source_column": 19,
+          "source_file": "gemv.c",
+          "source_line": 9,
+          "source_use_lines": [
+            10,
+            21,
+            23
+          ]
+        },
+        "source_labeled": true
+      },
+      {
+        "action_id": "L4",
+        "action_point_node": "action:L4",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_proven_trip_count": 32,
+        "compiler_status": "compiler_matched",
+        "compiler_target": "op:gemv:op4",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": 32,
+        "source_binding": {
+          "function": "gemv",
+          "kind": "loop",
+          "source_column": 13,
+          "source_file": "gemv.c",
+          "source_line": 12
+        },
+        "source_labeled": true,
+        "trip_count_provenance": "mlir_affine_analysis"
+      },
+      {
+        "action_id": "L5",
+        "action_point_node": "action:L5",
+        "compiler_eliminated": false,
+        "compiler_matched": true,
+        "compiler_proven_trip_count": 32,
+        "compiler_status": "compiler_matched",
+        "compiler_target": "op:gemv:op5",
+        "elimination_note": "Absence of a match does not establish compiler elimination",
+        "metadata_registered": true,
+        "metadata_value": 32,
+        "source_binding": {
+          "function": "gemv",
+          "kind": "loop",
+          "source_column": 17,
+          "source_file": "gemv.c",
+          "source_line": 16
+        },
+        "source_labeled": true,
+        "trip_count_provenance": "mlir_affine_analysis"
+      }
+    ],
+    "registration_metadata": "kernel_info.txt",
+    "source": "gemv.c"
+  },
+  "canonical": {
+    "action_points": 5,
+    "edge_categories": {
+      "alias": 3,
+      "contains_block": 4,
+      "contains_operation": 18,
+      "declares_argument": 3,
+      "defines": 10,
+      "depends_on": 1,
+      "feature": 17,
+      "literal": 1,
+      "loop_carried": 3,
+      "loop_child": 1,
+      "memory_access": 4,
+      "next_operation": 13,
+      "operand": 16,
+      "owns_region": 4,
+      "resolves_to": 3,
+      "targets": 5
+    },
+    "edges": 106,
+    "node_categories": {
+      "action_point": 5,
+      "constant_or_feature": 18,
+      "control_region": 9,
+      "memory_object": 3,
+      "operation": 18,
+      "ssa_value": 13
+    },
+    "nodes": 66
+  },
+  "compact": {
+    "action_points": 5,
+    "edge_categories": {
+      "alias": 3,
+      "contains_block": 4,
+      "contains_operation": 18,
+      "declares_argument": 3,
+      "defines": 10,
+      "depends_on": 1,
+      "literal": 1,
+      "loop_carried": 3,
+      "loop_child": 1,
+      "memory_access": 4,
+      "next_operation": 13,
+      "operand": 16,
+      "owns_region": 4,
+      "resolves_to": 3,
+      "targets": 5
+    },
+    "edges": 89,
+    "node_categories": {
+      "action_point": 5,
+      "constant_or_feature": 1,
+      "control_region": 9,
+      "memory_object": 3,
+      "operation": 18,
+      "ssa_value": 13
+    },
+    "nodes": 49
+  },
+  "graph_identity": "42fe84cb8b8c2f5665dc016fcfb6a969f93b848a3407c7343100b6b4bcabae21",
+  "visualization": "Full view includes all compact nodes; parallel identical visual edges are grouped. Overview omits SSA/scope nodes and uses explicitly labelled derived SSA projection edges. Canonical JSON remains authoritative."
+}
