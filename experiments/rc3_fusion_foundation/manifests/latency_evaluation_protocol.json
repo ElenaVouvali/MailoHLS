@@ -1,0 +1,27 @@
+{
+  "schema": "salt-hls-latency-gnn-xattn-evaluation-protocol-v1",
+  "status": "proposed_not_run",
+  "objective": "PARETO_LATENCY: minimize latency subject to measured BRAM/DSP/FF/LUT resource constraints",
+  "fixed_inputs": ["authenticated RC3 graph set", "family-disjoint frozen splits", "absolute action slots", "same source/action metadata", "same Stage-1 V4 latency checkpoint"],
+  "gnn_arms": [
+    {"id":"G0","encoder":"existing two-layer V4b RC3 compiler-only","training":"none; frozen diagnostic baseline","caveat":"ADP-oriented, not latency-qualified"},
+    {"id":"G1","encoder":"capacity-matched two-layer RC3","target":"latency plus resource feasibility"},
+    {"id":"G2","encoder":"four-layer RC3","target":"latency plus resource feasibility"},
+    {"id":"G3","encoder":"four-layer RC3 with Jumping Knowledge","target":"latency plus resource feasibility"},
+    {"id":"G4","encoder":"direct action/compiler feature baseline without message passing","optional":true}
+  ],
+  "metrics_separate": ["compiler-fact recovery", "pairwise ranking", "resource feasibility", "latency cycles", "latency regret among feasible measured candidates", "generated complete-directive performance"],
+  "stage2_arms": [
+    {"id":"S0","memory":"none"},
+    {"id":"S1","memory":"A exact action"},
+    {"id":"S2","memory":"B RC3 relational action"},
+    {"id":"S3","memory":"C typed compiler evidence"},
+    {"id":"S4","control":"zero-valued memory with identical masks"},
+    {"id":"S5","control":"shuffled/mismatched program memory"},
+    {"id":"S6","control":"capacity-matched non-informative memory"}
+  ],
+  "layer_comparison": {"historical_four_layers":[8,16,24,32],"alternative_pool":[12,16,24,28,32],"rule":"same number of attention modules and matched parameter/training budget; no selection from hidden-state distance alone"},
+  "fusion_boundary":"post_self_attention_residual; fuse after native self-attention residual and before post-attention norm/MLP",
+  "controls": ["same initialization", "same objective and examples", "same optimizer/update budget", "same family splits", "fresh attention weights", "no V1 ADP attention reuse"],
+  "deferred_separate_ablations": ["target-conditioned fusion gate", "hardware-conditioned GNN memory"]
+}

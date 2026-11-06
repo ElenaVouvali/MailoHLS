@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="470" viewBox="0 0 1240 470" role="img" aria-labelledby="title desc">
+  <title id="title">RC3 compiler memory interface for future structural cross-attention</title>
+  <desc id="desc">Implemented graph tensorization and frozen GNN produce action and evidence memories; relation masks route them to a future trainable cross-attention module.</desc>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#46566b"/></marker></defs>
+  <rect width="1240" height="470" fill="#fbfcfe"/>
+  <text x="40" y="42" font-family="sans-serif" font-size="24" font-weight="700" fill="#172334">RC3 compiler structure → future Stage-2 memory fusion</text>
+  <text x="40" y="76" font-family="sans-serif" font-size="14" fill="#43536a">Solid blue = implemented and CPU-tested · dashed amber = proposed, not trained</text>
+  <g font-family="sans-serif" text-anchor="middle">
+    <rect x="38" y="145" width="190" height="112" rx="12" fill="#e7f0fb" stroke="#2366a8" stroke-width="2"/>
+    <text x="133" y="183" font-size="18" font-weight="700" fill="#173f68">RC3 graph</text>
+    <text x="133" y="211" font-size="13" fill="#294b69">66 nodes · 106 edges</text>
+    <text x="133" y="233" font-size="13" fill="#294b69">absolute L1–L5 alignment</text>
+    <rect x="286" y="145" width="210" height="112" rx="12" fill="#e7f0fb" stroke="#2366a8" stroke-width="2"/>
+    <text x="391" y="183" font-size="18" font-weight="700" fill="#173f68">Frozen V4b GNN</text>
+    <text x="391" y="211" font-size="13" fill="#294b69">2-layer compiler encoder</text>
+    <text x="391" y="233" font-size="13" fill="#294b69">128D nodes · ADP-trained</text>
+    <rect x="556" y="113" width="270" height="180" rx="12" fill="#eef7f3" stroke="#27815c" stroke-width="2"/>
+    <text x="691" y="145" font-size="18" font-weight="700" fill="#175d40">Memory interfaces</text>
+    <text x="691" y="177" font-size="14" fill="#225d45">A · exact action slots</text>
+    <text x="691" y="202" font-size="14" fill="#225d45">B · RC3 relation mask</text>
+    <text x="691" y="227" font-size="14" fill="#225d45">C · typed node/edge evidence</text>
+    <text x="691" y="263" font-size="12" fill="#426b57">same action vectors in all arms</text>
+    <rect x="891" y="145" width="150" height="112" rx="12" fill="#e7f0fb" stroke="#2366a8" stroke-width="2"/>
+    <text x="966" y="183" font-size="17" font-weight="700" fill="#173f68">Routing</text>
+    <text x="966" y="211" font-size="13" fill="#294b69">keys + masks</text>
+    <text x="966" y="233" font-size="13" fill="#294b69">Lk absolute slots</text>
+    <rect x="1080" y="145" width="132" height="112" rx="12" fill="#fff3dc" stroke="#c18420" stroke-width="2" stroke-dasharray="8 5"/>
+    <text x="1146" y="181" font-size="16" font-weight="700" fill="#785116">Future</text>
+    <text x="1146" y="207" font-size="14" fill="#785116">XAttn</text>
+    <text x="1146" y="231" font-size="12" fill="#785116">trainable</text>
+    <text x="40" y="360" font-size="14" text-anchor="start" fill="#43536a">Explicit graph witnesses remain in sidecar provenance; IDs/names are not learned features.</text>
+    <text x="40" y="388" font-size="14" text-anchor="start" fill="#43536a">No target-conditioned GNN, learned gate, Stage-2 attention, or HLS QoR result is part of this milestone.</text>
+  </g>
+  <g fill="none" stroke="#46566b" stroke-width="2.5" marker-end="url(#arrow)">
+    <path d="M228 201 H282"/><path d="M496 201 H552"/><path d="M826 201 H887"/><path d="M1041 201 H1076"/>
+  </g>
+</svg>

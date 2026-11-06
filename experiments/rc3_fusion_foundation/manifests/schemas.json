@@ -1,0 +1,54 @@
+{
+  "edge_vector": "mean(endpoint node vectors) plus frozen relation embedding in dims 0:16 and frozen edge-feature embedding in dims 16:32; remaining dimensions are endpoint mean; diagnostic design, not trained",
+  "evidence_known_fields": [
+    "class",
+    "proven",
+    "shape",
+    "trip_count",
+    "affine_map",
+    "access_role",
+    "operation_family",
+    "loop_carried",
+    "dependence_kind"
+  ],
+  "evidence_types": [
+    "array_memory_root",
+    "array_ssa_root",
+    "loop_node",
+    "control_region",
+    "affine_memory_access",
+    "arithmetic_operation",
+    "loop_carried_ssa_value",
+    "memory_access_witness",
+    "loop_carried_witness",
+    "dependence_witness",
+    "loop_hierarchy_witness",
+    "operand_witness",
+    "definition_witness"
+  ],
+  "memory_schemas": {
+    "A": "salt-hls-xattn-action-memory-v1",
+    "B": "salt-hls-xattn-action-memory-v1 + RC3 relation mask",
+    "C": "salt-hls-rc3-action-evidence-memory-v1+xattn-mask-v1"
+  },
+  "relation_schema": {
+    "absence_semantics": "not established is not independence",
+    "absolute_slot_rule": "Lk -> slot k-1; no compaction",
+    "evidence_status_values": [
+      "proven",
+      "possible",
+      "not_established",
+      "missing"
+    ],
+    "id": "2c5b4676e739e9836e22935aa207725e5a938d1206274077b41d6ac460c9061d",
+    "name": "salt-hls-rc3-action-relations-v1",
+    "relation_types": [
+      "self",
+      "loop_child",
+      "loop_parent",
+      "array_accessed_by_loop",
+      "loop_accesses_array",
+      "loop_dependence"
+    ]
+  }
+}

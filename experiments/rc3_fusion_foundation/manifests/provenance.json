@@ -1,0 +1,496 @@
+{
+  "gnn_checkpoint": {
+    "arm": "compiler",
+    "checkpoint_path": "/home/elvouvali/MailoHLS-GNN-runs/v4b-v2-20261102-8f3593b/corrected_v3_full37/compiler_selected.pt",
+    "checkpoint_sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162",
+    "encoder": "same frozen two-layer V4b compiler-only encoder for A/B/C",
+    "objective_caveat": "V4b was trained with physical-QoR/ADP-oriented preference supervision; not latency-qualified.",
+    "protocol_fingerprint": "09b0f68a3bd80e4bc777daf3fb0f0c99f6b6b9b9112039eb7f852e588fda1ba5",
+    "quality_policy": "reported-zero-adp-ambiguous-v1",
+    "schema": "salt-hls-v4b-full-cohort-action-aligned-preference-v3",
+    "selected_step": 1500,
+    "updates": 1500
+  },
+  "implementation_sha256": {
+    "GNN_branch/action_demand_v22.py": "a3d0ac2173e39a6d3e057dddac1eb66668a05069edb1d7a832e24b5b00a44c87",
+    "GNN_branch/action_point_relations.py": "39aab15de84fecb46d108df194a6ebcad9e0db9963fba7bd155dbdcd036aba7c",
+    "GNN_branch/mlir_graph_v2.py": "ae12ae568905d3375f145e31ccab4cab73dcf16a6cb10aef1c50f49fe6d1ea5b",
+    "GNN_branch/semantic_tensor_features_v22.py": "567ea762e5ae46603611376992d4da2f5f12f4fac779a6cb086ceb7550ac515a",
+    "GNN_branch/target_graph_tensor_v22.py": "06cd45a1c3269497d2a0a2674d69c4021b1aa1e674591896d98fb1a5acbe7c80",
+    "GNN_branch/target_graph_v22.py": "d528c62be0cad9b8eec46898de7d3f6873d28bdf46d8d6d59a49401009dddfdf",
+    "LLM_branch/common/structural_memory.py": "cd41a5c6d058740ae965bf3e9f606cde5fe07e09b7e8f898ca26498e7daccc62",
+    "LLM_branch/common/structural_xattn.py": "95b237b0527ab5e1c2a32ea0e3599ad3e3504f79bd9743e7ded2114e2e6b1041",
+    "experiments/rc3_fusion_foundation/build_memory.py": "85622f4b169c1a683608159caf29cc4e44f58db43afe42faae94c64530283791",
+    "experiments/rc3_fusion_foundation/prepare_synthesis.py": "f7ab2e6a4b9ec061e2f2bdac72d70611c932fbc0e0cfbd91326452489bddfc4f",
+    "experiments/rc3_fusion_foundation/rc3_action_relations.py": "d5d02904ff6ba285764e149f9c8945ad853fbe5185ee10e9011a74f220fcbe3e",
+    "experiments/rc3_fusion_foundation/structural_memory_v1.py": "ccdb206f3cb64e8d4e3bec05692a27b8ca87169978bd94457603cfab14b42e16",
+    "experiments/rc3_fusion_foundation/summarize_synthesis.py": "b938eb6333d6f8c8828e4d9cd70ab670f1074954de24ab1ff046742942d9bf3e",
+    "experiments/rc3_fusion_foundation/test_rc3_memory.py": "9bbd3d7a7ef7c494e3c97b81dfaf72a893b17f1479aa75ef57377ab3036fc72e",
+    "experiments/v22_gnn_training/v4b/models.py": "8e8979d88b1af37bc24d81fa375db4c409c06b5d4ec1feb158b0ee7d6591ea39"
+  },
+  "inputs": [
+    {
+      "actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "edges": 106,
+      "graph_file_sha256": "7d295d791f8438eeda62a6b230ab80c8d3a051ecda43b822c7a3827ec0cb43a6",
+      "graph_identity": "42fe84cb8b8c2f5665dc016fcfb6a969f93b848a3407c7343100b6b4bcabae21",
+      "metadata_sha256": "72dcbe726d2066c34854ff1efe04fe6f2dba9d5b4f050104c0edbc9d607c487a",
+      "mlir_sha256": "c443062dd6f36bad38234c8b061904145e71ad000b6829e4e19f93be7a9f6966",
+      "name": "gemv_rc3_original",
+      "nodes": 66,
+      "path": "/tmp/MailoHLS-rc3-fusion-foundation/paper_figures/gemv_rc3_20261105/gemv.canonical.json",
+      "source_sha256": "c6e8b0aab3919a433803bacf29c7af6b56a6a5cb4d7a511a6875a21593a7e8f6",
+      "status": "built"
+    },
+    {
+      "actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "edges": 213,
+      "graph_file_sha256": "b6335e17be35bc028013b76b3f5cae49544fe6d3a635fefed503a69ede785954",
+      "graph_identity": "450bbccefa800b3bbe166705e34f64566ad09f13c228fdfb2de4447d808078a9",
+      "metadata_sha256": "72dcbe726d2066c34854ff1efe04fe6f2dba9d5b4f050104c0edbc9d607c487a",
+      "mlir_sha256": "8f776c99308bcfceec0faf3a404ba5f432167712504626323826564ca2e274c3",
+      "name": "reduce32",
+      "nodes": 117,
+      "path": "/tmp/MailoHLS-rc3-fusion-foundation/experiments/rc3_fusion_foundation/benchmark/variants/reduce32/graph.json",
+      "source_sha256": "0bf12183719b41fec7b50dd458848e991964454a89467577616f4460480caece",
+      "status": "built"
+    },
+    {
+      "actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "edges": 201,
+      "graph_file_sha256": "72d202b26b18b5883bdc1fa9749d165d4861a88718cf976e2b5646a2ad326f5b",
+      "graph_identity": "131bf03acc94d3fe0b9e917ffa239c942e97495b744a78ef6698b0541f47725e",
+      "metadata_sha256": "72dcbe726d2066c34854ff1efe04fe6f2dba9d5b4f050104c0edbc9d607c487a",
+      "mlir_sha256": "3e95b551bc8fd023e736c2b85c004f36591f98d6df2ac1d96eb8e0d787329506",
+      "name": "independent32",
+      "nodes": 113,
+      "path": "/tmp/MailoHLS-rc3-fusion-foundation/experiments/rc3_fusion_foundation/benchmark/variants/independent32/graph.json",
+      "source_sha256": "004692648f0ed934e1cb44d96118d49af9d207ff292782c6156a72232bae04ea",
+      "status": "built"
+    },
+    {
+      "actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "edges": 213,
+      "graph_file_sha256": "31408f6364dd53c531bff0aa1dffe91cd6cfc54b43f2ad9ad1cadab536f621b7",
+      "graph_identity": "553aaa1deb05d16c2f86f472a464ae8c2ae794885a472f490c9ebce46d1b49e3",
+      "metadata_sha256": "b720032997ff1659b5b3443598a6188c7125e3ec7cc38be4f442f92bd353b47d",
+      "mlir_sha256": "6999c4fdfa22489d10156196c7ea38067f3d89e276f15436e7d487e3a498b553",
+      "name": "reduce32_rename",
+      "nodes": 117,
+      "path": "/tmp/MailoHLS-rc3-fusion-foundation/experiments/rc3_fusion_foundation/benchmark/variants/reduce32_rename/graph.json",
+      "source_sha256": "517281ed8f7082858dc9cf3e4df0f10b39f105a28195d36ad52f94778d9c2bde",
+      "status": "built"
+    }
+  ],
+  "memory_artifacts": [
+    {
+      "evidence_count": 47,
+      "name": "gemv_rc3_original.pt",
+      "routing": {
+        "L1": [
+          "L1",
+          "L4"
+        ],
+        "L2": [
+          "L2",
+          "L4"
+        ],
+        "L3": [
+          "L3",
+          "L4"
+        ],
+        "L4": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "L5": [
+          "L1",
+          "L2",
+          "L4",
+          "L5"
+        ]
+      },
+      "sha256": "64ef6b38f13cdb5fbd4f792510a16a947da62f8e939b06a088a17a461f77f5c4",
+      "shapes": {
+        "action_evidence_mask": [
+          1,
+          64,
+          47
+        ],
+        "action_matched_mask": [
+          1,
+          64
+        ],
+        "action_memory": [
+          1,
+          64,
+          128
+        ],
+        "action_registered_mask": [
+          1,
+          64
+        ],
+        "action_relation_mask": [
+          1,
+          64,
+          64
+        ],
+        "action_source_only_mask": [
+          1,
+          64
+        ],
+        "action_unresolved_mask": [
+          1,
+          64
+        ],
+        "action_valid_mask": [
+          1,
+          64
+        ],
+        "evidence_known_mask": [
+          1,
+          47,
+          9
+        ],
+        "evidence_memory": [
+          1,
+          47,
+          128
+        ],
+        "evidence_type_ids": [
+          1,
+          47
+        ],
+        "evidence_valid_mask": [
+          1,
+          47
+        ],
+        "pooled_program_memory": [
+          1,
+          128
+        ]
+      }
+    },
+    {
+      "evidence_count": 82,
+      "name": "reduce32.pt",
+      "routing": {
+        "L1": [
+          "L1",
+          "L4"
+        ],
+        "L2": [
+          "L2",
+          "L4"
+        ],
+        "L3": [
+          "L3",
+          "L4"
+        ],
+        "L4": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "L5": [
+          "L1",
+          "L2",
+          "L4",
+          "L5"
+        ]
+      },
+      "sha256": "42ed4de572a3e8e51782831a182a6476607f674a026b7564ea5b6c05d2bbad6b",
+      "shapes": {
+        "action_evidence_mask": [
+          1,
+          64,
+          82
+        ],
+        "action_matched_mask": [
+          1,
+          64
+        ],
+        "action_memory": [
+          1,
+          64,
+          128
+        ],
+        "action_registered_mask": [
+          1,
+          64
+        ],
+        "action_relation_mask": [
+          1,
+          64,
+          64
+        ],
+        "action_source_only_mask": [
+          1,
+          64
+        ],
+        "action_unresolved_mask": [
+          1,
+          64
+        ],
+        "action_valid_mask": [
+          1,
+          64
+        ],
+        "evidence_known_mask": [
+          1,
+          82,
+          9
+        ],
+        "evidence_memory": [
+          1,
+          82,
+          128
+        ],
+        "evidence_type_ids": [
+          1,
+          82
+        ],
+        "evidence_valid_mask": [
+          1,
+          82
+        ],
+        "pooled_program_memory": [
+          1,
+          128
+        ]
+      }
+    },
+    {
+      "evidence_count": 67,
+      "name": "independent32.pt",
+      "routing": {
+        "L1": [
+          "L1",
+          "L4"
+        ],
+        "L2": [
+          "L2",
+          "L4"
+        ],
+        "L3": [
+          "L3",
+          "L4"
+        ],
+        "L4": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "L5": [
+          "L1",
+          "L2",
+          "L4",
+          "L5"
+        ]
+      },
+      "sha256": "3de5d28c7f0df298379ef0649bea240b2221028f473be9b34c9d338b454a01e3",
+      "shapes": {
+        "action_evidence_mask": [
+          1,
+          64,
+          67
+        ],
+        "action_matched_mask": [
+          1,
+          64
+        ],
+        "action_memory": [
+          1,
+          64,
+          128
+        ],
+        "action_registered_mask": [
+          1,
+          64
+        ],
+        "action_relation_mask": [
+          1,
+          64,
+          64
+        ],
+        "action_source_only_mask": [
+          1,
+          64
+        ],
+        "action_unresolved_mask": [
+          1,
+          64
+        ],
+        "action_valid_mask": [
+          1,
+          64
+        ],
+        "evidence_known_mask": [
+          1,
+          67,
+          9
+        ],
+        "evidence_memory": [
+          1,
+          67,
+          128
+        ],
+        "evidence_type_ids": [
+          1,
+          67
+        ],
+        "evidence_valid_mask": [
+          1,
+          67
+        ],
+        "pooled_program_memory": [
+          1,
+          128
+        ]
+      }
+    },
+    {
+      "evidence_count": 82,
+      "name": "reduce32_rename.pt",
+      "routing": {
+        "L1": [
+          "L1",
+          "L4"
+        ],
+        "L2": [
+          "L2",
+          "L4"
+        ],
+        "L3": [
+          "L3",
+          "L4"
+        ],
+        "L4": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "L5": [
+          "L1",
+          "L2",
+          "L4",
+          "L5"
+        ]
+      },
+      "sha256": "a3d012635a74d8908185fb5f664c3489b7a2ebc0fab12b7e15b2c1cbc6f6eeb8",
+      "shapes": {
+        "action_evidence_mask": [
+          1,
+          64,
+          82
+        ],
+        "action_matched_mask": [
+          1,
+          64
+        ],
+        "action_memory": [
+          1,
+          64,
+          128
+        ],
+        "action_registered_mask": [
+          1,
+          64
+        ],
+        "action_relation_mask": [
+          1,
+          64,
+          64
+        ],
+        "action_source_only_mask": [
+          1,
+          64
+        ],
+        "action_unresolved_mask": [
+          1,
+          64
+        ],
+        "action_valid_mask": [
+          1,
+          64
+        ],
+        "evidence_known_mask": [
+          1,
+          82,
+          9
+        ],
+        "evidence_memory": [
+          1,
+          82,
+          128
+        ],
+        "evidence_type_ids": [
+          1,
+          82
+        ],
+        "evidence_valid_mask": [
+          1,
+          82
+        ],
+        "pooled_program_memory": [
+          1,
+          128
+        ]
+      }
+    }
+  ],
+  "relation_schema": {
+    "name": "salt-hls-rc3-action-relations-v1",
+    "policy": "proven_loop_scope_array_access_and_loop_hierarchy_v1",
+    "schema_id": "2c5b4676e739e9836e22935aa207725e5a938d1206274077b41d6ac460c9061d"
+  },
+  "schema": "salt-hls-rc3-foundation-provenance-v1",
+  "source_commits": {
+    "gemv_stage1_full_depth": "97ed75ed3f41ad80247d739888d9ee488881872c",
+    "gnn_refinement": "172e05a69650a666c323955ea78cb501fd9364c2",
+    "rc3_structural_memory_audit": "bb4bc8f8261e33f7a229d92f30e36a0a53f986a7",
+    "stage1_refinement": "63afcfc7a54e573a544678e728cdb7d99d865981"
+  },
+  "synthesis_manifest": {
+    "path": "synthesis_bundle_v2/manifest.json",
+    "physical_jobs": 24,
+    "runner_path": "synthesis_bundle_v2/run_batch.py",
+    "runner_sha256": "ec05f6b97479a30ebc1c3b45eea7758881889cc5c87e64234ae85b610e7f1414",
+    "sha256": "ed642be3aa28db74e63e0a3cfe4d1c30cdd917eaebe0f29ee7252cadad23562d",
+    "tool_available": false,
+    "tool_invoked": false
+  }
+}
