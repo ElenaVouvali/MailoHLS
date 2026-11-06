@@ -24,7 +24,7 @@
     "experiments/rc3_fusion_foundation/prepare_synthesis.py": "f7ab2e6a4b9ec061e2f2bdac72d70611c932fbc0e0cfbd91326452489bddfc4f",
     "experiments/rc3_fusion_foundation/rc3_action_relations.py": "d5d02904ff6ba285764e149f9c8945ad853fbe5185ee10e9011a74f220fcbe3e",
     "experiments/rc3_fusion_foundation/structural_memory_v1.py": "ccdb206f3cb64e8d4e3bec05692a27b8ca87169978bd94457603cfab14b42e16",
-    "experiments/rc3_fusion_foundation/summarize_synthesis.py": "b938eb6333d6f8c8828e4d9cd70ab670f1074954de24ab1ff046742942d9bf3e",
+    "experiments/rc3_fusion_foundation/summarize_synthesis.py": "bd263396a3e933f8e683bd4228f3417b2e3fe1339bbdeda8ae388922c445e990",
     "experiments/rc3_fusion_foundation/test_rc3_memory.py": "9bbd3d7a7ef7c494e3c97b81dfaf72a893b17f1479aa75ef57377ab3036fc72e",
     "experiments/v22_gnn_training/v4b/models.py": "8e8979d88b1af37bc24d81fa375db4c409c06b5d4ec1feb158b0ee7d6591ea39"
   },
@@ -484,13 +484,44 @@
     "rc3_structural_memory_audit": "bb4bc8f8261e33f7a229d92f30e36a0a53f986a7",
     "stage1_refinement": "63afcfc7a54e573a544678e728cdb7d99d865981"
   },
+  "synthesis_execution": {
+    "batch_manifest_sha256": "ed642be3aa28db74e63e0a3cfe4d1c30cdd917eaebe0f29ee7252cadad23562d",
+    "batch_provenance_sha256": "642515e24c1a3a8e1953ce94114546a453346913abd52ec68726e434ef5bc521",
+    "failure_count": 0,
+    "host_receipt": {
+      "account": "bonus24",
+      "batch_provenance_sha256": "642515e24c1a3a8e1953ce94114546a453346913abd52ec68726e434ef5bc521",
+      "bundle_manifest_sha256": "ed642be3aa28db74e63e0a3cfe4d1c30cdd917eaebe0f29ee7252cadad23562d",
+      "download_archive_sha256": "9918759f212ede511e0b2b3cc688fe2246cb6c4d4123f9feecc7faeb6326cd89",
+      "failed_count": 0,
+      "functional_validation": "not performed by csynth runner",
+      "host": "coroni.microlab.ntua.gr",
+      "job_count": 24,
+      "output_path": "/tmp/rc3_fusion_foundation_dd54fe3/synthesis_results",
+      "results_report_sha256": "eff8002d75e6657198cf0e12281922305297c66e694558c5fcd891657ada299e",
+      "run_completed_utc": "2026-11-06T11:37:24.679247+00:00",
+      "run_started_utc": "2026-11-06T11:32:16.170441+00:00",
+      "runner_sha256": "ec05f6b97479a30ebc1c3b45eea7758881889cc5c87e64234ae85b610e7f1414",
+      "schema": "salt-hls-remote-synthesis-execution-receipt-v1",
+      "success_count": 24,
+      "timing_scope": "Vitis HLS estimates; no implementation or post-route timing",
+      "tool_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+      "tool_version": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved."
+    },
+    "job_count": 24,
+    "report_sha256": "eff8002d75e6657198cf0e12281922305297c66e694558c5fcd891657ada299e",
+    "runner_sha256": "ec05f6b97479a30ebc1c3b45eea7758881889cc5c87e64234ae85b610e7f1414",
+    "success_count": 24,
+    "tool_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+    "tool_version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved."
+  },
   "synthesis_manifest": {
     "path": "synthesis_bundle_v2/manifest.json",
     "physical_jobs": 24,
     "runner_path": "synthesis_bundle_v2/run_batch.py",
     "runner_sha256": "ec05f6b97479a30ebc1c3b45eea7758881889cc5c87e64234ae85b610e7f1414",
     "sha256": "ed642be3aa28db74e63e0a3cfe4d1c30cdd917eaebe0f29ee7252cadad23562d",
-    "tool_available": false,
-    "tool_invoked": false
+    "tool_available_when_prepared": false,
+    "tool_invoked": true
   }
 }

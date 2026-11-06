@@ -36,6 +36,9 @@ def main():
                 'budget':budget,'status':(result or {}).get('status','missing'),
                 'latency_cycles':metrics.get('latency_cycles'),'latency_at_requested_clock_ns':metrics.get('latency_at_requested_clock_ns'),
                 'resources':resources,'resource_feasible':feasible,'estimated_clock_ns':metrics.get('estimated_clock_ns'),
+                'estimated_clock_meets_request':metrics.get('hls_estimated_clock_meets_request'),
+                'estimated_latency_ns':(metrics.get('latency_cycles')*metrics.get('estimated_clock_ns')
+                    if metrics.get('latency_cycles') is not None and metrics.get('estimated_clock_ns') is not None else None),
                 'timing_evidence':'HLS estimate, not post-route','functional_validation':False,
                 'loop_pipeline_reports':loop_ii,'budget_view_is_duplicate_synthesis':False,
                 'physical_job_shared_across_budget_views':True})
@@ -46,6 +49,13 @@ def main():
         row['best_feasible_pool_latency_cycles']=best
         row['latency_regret_cycles']=None if best is None or row['resource_feasible'] is not True or row['latency_cycles'] is None else row['latency_cycles']-best
         row['latency_regret_fraction']=None if best in (None,0) or row['latency_regret_cycles'] is None else row['latency_regret_cycles']/best
+        timed=[x for x in peers if x['estimated_clock_meets_request'] is True]
+        best_clock_cycles=min((x['latency_cycles'] for x in timed),default=None)
+        best_estimated_ns=min((x['estimated_latency_ns'] for x in timed if x['estimated_latency_ns'] is not None),default=None)
+        row['best_resource_and_clock_feasible_pool_latency_cycles']=best_clock_cycles
+        row['latency_regret_cycles_clock_feasible']=None if best_clock_cycles is None or row['resource_feasible'] is not True or row['estimated_clock_meets_request'] is not True or row['latency_cycles'] is None else row['latency_cycles']-best_clock_cycles
+        row['best_resource_and_clock_feasible_estimated_latency_ns']=best_estimated_ns
+        row['estimated_latency_regret_ns']=None if best_estimated_ns is None or row['resource_feasible'] is not True or row['estimated_clock_meets_request'] is not True or row['estimated_latency_ns'] is None else row['estimated_latency_ns']-best_estimated_ns
     payload={'schema':'salt-hls-gemv-synthesis-summary-v1','status':'measured' if any(x['status']=='success' for x in rows) else 'pending_or_failed',
         'manifest_sha256':__import__('hashlib').sha256((bundle/'manifest.json').read_bytes()).hexdigest(),
         'small_pool_only':True,'global_optimum_claim':False,'rows':rows}

@@ -14,6 +14,13 @@ def main():
     build=json.loads((root/'manifest.json').read_text())
     bundle=root/'synthesis_bundle_v2'
     synthesis=json.loads((bundle/'manifest.json').read_text())
+    results_root=root/'synthesis_results'
+    batch_path=results_root/'batch_provenance.json'
+    report_path=results_root/'report.json'
+    execution_receipt_path=results_root/'remote_execution_receipt.json'
+    batch_provenance=json.loads(batch_path.read_text()) if batch_path.exists() else None
+    report=json.loads(report_path.read_text()) if report_path.exists() else None
+    execution_receipt=json.loads(execution_receipt_path.read_text()) if execution_receipt_path.exists() else None
     provenance={
       'schema':'salt-hls-rc3-foundation-provenance-v1',
       'source_commits':{
@@ -39,8 +46,18 @@ def main():
       'memory_artifacts':build['memory_files'],
       'synthesis_manifest':{'path':'synthesis_bundle_v2/manifest.json','sha256':sha(bundle/'manifest.json'),
         'runner_path':'synthesis_bundle_v2/run_batch.py','runner_sha256':sha(bundle/'run_batch.py'),
-        'physical_jobs':synthesis['physical_job_count'],'tool_invoked':False,
-        'tool_available':json.loads((bundle/'execution_status.json').read_text())['exists']}}
+        'physical_jobs':synthesis['physical_job_count'],'tool_invoked':report is not None,
+        'tool_available_when_prepared':json.loads((bundle/'execution_status.json').read_text())['exists']},
+      'synthesis_execution':None if report is None or batch_provenance is None else {
+        'host_receipt':execution_receipt,
+        'batch_provenance_sha256':sha(batch_path),'report_sha256':sha(report_path),
+        'batch_manifest_sha256':batch_provenance['manifest_sha256'],
+        'runner_sha256':batch_provenance['runner_sha256'],
+        'tool_sha256':batch_provenance['executable_sha256'],
+        'tool_version_output':batch_provenance['version_output'],
+        'job_count':len(report['results']),
+        'success_count':sum(x.get('status')=='success' for x in report['results']),
+        'failure_count':sum(x.get('status')!='success' for x in report['results'])}}
     out=PACKAGE/'manifests'; out.mkdir(exist_ok=True)
     (out/'provenance.json').write_text(json.dumps(provenance,indent=2,sort_keys=True)+'\n')
     schemas={'relation_schema':{'name':'salt-hls-rc3-action-relations-v1','id':provenance['relation_schema']['schema_id'],

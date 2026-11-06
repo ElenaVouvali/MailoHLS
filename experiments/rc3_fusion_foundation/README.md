@@ -33,4 +33,4 @@ Generated tensor files and frozen synthesis inputs live under ignored `artifacts
 
 ## Boundaries
 
-Memory A/B/C interfaces are CPU-tested read-only adapters. They do not establish that C contains useful information, that V4b is the appropriate latency encoder, or that any attention layer helps. No V100S is occupied. Vitis HLS 2021.1 was not available at the recorded executable path and was not run; the prepared jobs are not QoR results. See `GEMV_MEMORY_COVERAGE.md`, `MEMORY_INTERFACE.md`, `SYNTHESIS_BENCHMARK.md`, and `NEXT_ABLATIONS.md`.
+Memory A/B/C interfaces are CPU-tested read-only adapters. They do not establish that C contains useful information, that V4b is the appropriate latency encoder, or that any attention layer helps. No V100S is occupied. The 24-job initialized-GEMV bundle was executed on bonus24 with Vitis HLS 2021.1; compact job receipts and XML reports are under ignored `artifacts/rc3_fusion_foundation/v1_20261107/synthesis_results/`. These are csynth estimates, not implementation or post-route results. See `GEMV_MEMORY_COVERAGE.md`, `MEMORY_INTERFACE.md`, `SYNTHESIS_BENCHMARK.md`, and `NEXT_ABLATIONS.md`.
