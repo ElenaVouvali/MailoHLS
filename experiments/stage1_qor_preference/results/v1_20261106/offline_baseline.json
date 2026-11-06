@@ -1,0 +1,246 @@
+{
+  "train": {
+    "by": {
+      "budget": {
+        "0.25": {
+          "accuracy": 0.8444444444444444,
+          "mean_margin": 4.822798538208008,
+          "pairs": 45,
+          "sft_nll": 0.5199009482722936
+        },
+        "0.5": {
+          "accuracy": 0.8444444444444444,
+          "mean_margin": 4.593902757432725,
+          "pairs": 45,
+          "sft_nll": 0.47877428182918164
+        },
+        "1.0": {
+          "accuracy": 0.782608695652174,
+          "mean_margin": 4.574095207711925,
+          "pairs": 46,
+          "sft_nll": 0.49111655720701924
+        }
+      },
+      "clock": {
+        "10.0": {
+          "accuracy": 0.8888888888888888,
+          "mean_margin": 5.240924723943075,
+          "pairs": 45,
+          "sft_nll": 0.4806465888680476
+        },
+        "3.33": {
+          "accuracy": 0.7555555555555555,
+          "mean_margin": 4.253353791766696,
+          "pairs": 45,
+          "sft_nll": 0.5495156745943758
+        },
+        "5.0": {
+          "accuracy": 0.8260869565217391,
+          "mean_margin": 4.498204448948735,
+          "pairs": 46,
+          "sft_nll": 0.4603140245713091
+        }
+      },
+      "device": {
+        "xcu200-fsgd2104-2-e": {
+          "accuracy": 0.8235294117647058,
+          "mean_margin": 5.300952658933752,
+          "pairs": 68,
+          "sft_nll": 0.4724430527575725
+        },
+        "xczu7ev-ffvc1156-2-e": {
+          "accuracy": 0.8235294117647058,
+          "mean_margin": 4.024928780163036,
+          "pairs": 68,
+          "sft_nll": 0.5206708735084462
+        }
+      },
+      "family": {
+        "machsuite_gemm": {
+          "accuracy": 0.375,
+          "mean_margin": 0.15220928192138672,
+          "pairs": 8,
+          "sft_nll": 0.6732642911374569
+        },
+        "machsuite_md_knn": {
+          "accuracy": 0.875,
+          "mean_margin": 6.235758394002914,
+          "pairs": 8,
+          "sft_nll": 0.6108935661613941
+        },
+        "machsuite_spmv_ellpack": {
+          "accuracy": 1.0,
+          "mean_margin": 6.827411890029907,
+          "pairs": 8,
+          "sft_nll": 0.48441499285399914
+        },
+        "machsuite_stencil2d": {
+          "accuracy": 0.75,
+          "mean_margin": 1.215465009212494,
+          "pairs": 8,
+          "sft_nll": 0.5505456402897835
+        },
+        "machsuite_stencil3d": {
+          "accuracy": 0.75,
+          "mean_margin": 2.7279186248779297,
+          "pairs": 8,
+          "sft_nll": 0.732873722910881
+        },
+        "rodinia_backprop": {
+          "accuracy": 0.75,
+          "mean_margin": 2.1536123752593994,
+          "pairs": 8,
+          "sft_nll": 0.4799863938242197
+        },
+        "rodinia_cfd_flux": {
+          "accuracy": 1.0,
+          "mean_margin": 6.934413731098175,
+          "pairs": 8,
+          "sft_nll": 0.1445073215290904
+        },
+        "rodinia_cfd_step_factor": {
+          "accuracy": 1.0,
+          "mean_margin": 7.158244013786316,
+          "pairs": 8,
+          "sft_nll": 0.48910182042163797
+        },
+        "rodinia_dilate": {
+          "accuracy": 1.0,
+          "mean_margin": 5.993048131465912,
+          "pairs": 8,
+          "sft_nll": 0.6186888292431831
+        },
+        "rodinia_hotspot": {
+          "accuracy": 0.875,
+          "mean_margin": 4.333518087863922,
+          "pairs": 8,
+          "sft_nll": 0.6610560342669487
+        },
+        "rodinia_kmeans": {
+          "accuracy": 0.75,
+          "mean_margin": 4.676717162132263,
+          "pairs": 8,
+          "sft_nll": 0.5968444123864174
+        },
+        "rodinia_knn": {
+          "accuracy": 1.0,
+          "mean_margin": 10.411944031715393,
+          "pairs": 8,
+          "sft_nll": 0.0343433681409806
+        },
+        "rodinia_lavamd": {
+          "accuracy": 0.625,
+          "mean_margin": 1.5909240245819092,
+          "pairs": 8,
+          "sft_nll": 0.5603749677538872
+        },
+        "rodinia_lc_gicov": {
+          "accuracy": 0.5,
+          "mean_margin": -1.1439497470855713,
+          "pairs": 8,
+          "sft_nll": 0.826322965323925
+        },
+        "rodinia_lc_mgvf": {
+          "accuracy": 1.0,
+          "mean_margin": 8.677232325077057,
+          "pairs": 8,
+          "sft_nll": 0.26823414489626884
+        },
+        "rodinia_streamcluster": {
+          "accuracy": 0.75,
+          "mean_margin": 4.742192506790161,
+          "pairs": 8,
+          "sft_nll": 0.6975519806146622
+        },
+        "spcl_example": {
+          "accuracy": 1.0,
+          "mean_margin": 6.583332389593124,
+          "pairs": 8,
+          "sft_nll": 0.012463921506423503
+        }
+      }
+    },
+    "mean_margin": 4.662940719548394,
+    "pairs": 136,
+    "preferred_sft_nll": 0.49655696313300934,
+    "preferred_token_accuracy": 0.7739515797946519,
+    "ranking_accuracy": 0.8235294117647058
+  },
+  "validation": {
+    "by": {
+      "budget": {
+        "0.25": {
+          "accuracy": 0.3888888888888889,
+          "mean_margin": -2.5805614259507923,
+          "pairs": 18,
+          "sft_nll": 1.1947189569473267
+        },
+        "0.5": {
+          "accuracy": 0.2777777777777778,
+          "mean_margin": -1.3029262754652235,
+          "pairs": 18,
+          "sft_nll": 1.16556629869673
+        },
+        "1.0": {
+          "accuracy": 0.3888888888888889,
+          "mean_margin": -0.7637263933817545,
+          "pairs": 18,
+          "sft_nll": 1.2056961821185217
+        }
+      },
+      "clock": {
+        "10.0": {
+          "accuracy": 0.4444444444444444,
+          "mean_margin": -0.6666733423868815,
+          "pairs": 18,
+          "sft_nll": 1.1395064658588834
+        },
+        "3.33": {
+          "accuracy": 0.2777777777777778,
+          "mean_margin": -1.6763166851467557,
+          "pairs": 18,
+          "sft_nll": 1.2537509732776217
+        },
+        "5.0": {
+          "accuracy": 0.3333333333333333,
+          "mean_margin": -2.304224067264133,
+          "pairs": 18,
+          "sft_nll": 1.1727239986260731
+        }
+      },
+      "device": {
+        "xcu200-fsgd2104-2-e": {
+          "accuracy": 0.37037037037037035,
+          "mean_margin": -0.6261234636659976,
+          "pairs": 27,
+          "sft_nll": 1.1754379603597853
+        },
+        "xczu7ev-ffvc1156-2-e": {
+          "accuracy": 0.3333333333333333,
+          "mean_margin": -2.4720192661991827,
+          "pairs": 27,
+          "sft_nll": 1.2018829981486003
+        }
+      },
+      "family": {
+        "machsuite_viterbi": {
+          "accuracy": 0.6666666666666666,
+          "mean_margin": 2.0473097695244684,
+          "pairs": 18,
+          "sft_nll": 0.9744262430402968
+        },
+        "rodinia_pathfinder": {
+          "accuracy": 0.19444444444444445,
+          "mean_margin": -3.3472619321611194,
+          "pairs": 36,
+          "sft_nll": 1.2957775973611407
+        }
+      }
+    },
+    "mean_margin": -1.54907136493259,
+    "pairs": 54,
+    "preferred_sft_nll": 1.1886604792541928,
+    "preferred_token_accuracy": 0.5797493265063299,
+    "ranking_accuracy": 0.35185185185185186
+  }
+}

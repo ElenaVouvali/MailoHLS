@@ -1,0 +1,25 @@
+{
+  "beta": 0.1,
+  "checkpoint_selection": "final predeclared one-pass endpoint; no GEMV or validation-based tuning",
+  "dropout": "disabled for deterministic policy/reference scoring and preference training; saved LoRA config unchanged",
+  "epochs": 1,
+  "final_successful_updates": 34,
+  "gpu": {
+    "compute_processes": [],
+    "gpu_utilization_percent": 0,
+    "memory_total_mib": "32768",
+    "memory_used_mib": 1,
+    "name": "Tesla V100S-PCIE-32GB",
+    "uuid": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb"
+  },
+  "grad_accum": 4,
+  "gradient_checkpointing": true,
+  "gradient_clip": 1.0,
+  "lambda_dpo": 0.2,
+  "learning_rate": 1e-05,
+  "pair_manifest_sha256": "a47d6336b134685806b46c2f0edf59473fc241f22e3a5a1413aa1b37d0f29b16",
+  "parent_learning_rate": 5e-05,
+  "pilot_gate": "finite updates; mean train-probe policy-reference margin increases; chosen SFT NLL <= start*1.15+0.1; roundtrip passes",
+  "pilot_successful_updates": 4,
+  "seed": 123
+}

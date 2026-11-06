@@ -1,0 +1,130 @@
+{
+  "audit": {
+    "train": {
+      "device_clock_budget_counts": {
+        "xcu200-fsgd2104-2-e@10.0ns/0.25": 9,
+        "xcu200-fsgd2104-2-e@10.0ns/0.5": 8,
+        "xcu200-fsgd2104-2-e@10.0ns/1.0": 7,
+        "xcu200-fsgd2104-2-e@3.33ns/0.25": 9,
+        "xcu200-fsgd2104-2-e@3.33ns/0.5": 7,
+        "xcu200-fsgd2104-2-e@3.33ns/1.0": 6,
+        "xcu200-fsgd2104-2-e@5.0ns/0.25": 8,
+        "xcu200-fsgd2104-2-e@5.0ns/0.5": 7,
+        "xcu200-fsgd2104-2-e@5.0ns/1.0": 7,
+        "xczu7ev-ffvc1156-2-e@10.0ns/0.25": 6,
+        "xczu7ev-ffvc1156-2-e@10.0ns/0.5": 7,
+        "xczu7ev-ffvc1156-2-e@10.0ns/1.0": 8,
+        "xczu7ev-ffvc1156-2-e@3.33ns/0.25": 6,
+        "xczu7ev-ffvc1156-2-e@3.33ns/0.5": 8,
+        "xczu7ev-ffvc1156-2-e@3.33ns/1.0": 9,
+        "xczu7ev-ffvc1156-2-e@5.0ns/0.25": 7,
+        "xczu7ev-ffvc1156-2-e@5.0ns/0.5": 8,
+        "xczu7ev-ffvc1156-2-e@5.0ns/1.0": 9
+      },
+      "eligible_requests": 631,
+      "excluded_candidate_request_occurrences": {
+        "outside_requested_budget": 18153
+      },
+      "excluded_requests": {},
+      "family_pair_cap": 8,
+      "gap_quantiles": {
+        "max": 1656.9230769230771,
+        "median": 6.903783138977838,
+        "min": 0.13496239766950469,
+        "p25": 2.0035758490599793,
+        "p75": 16.62462004311415
+      },
+      "pairs_per_family": {
+        "machsuite_gemm": 8,
+        "machsuite_md_knn": 8,
+        "machsuite_spmv_ellpack": 8,
+        "machsuite_stencil2d": 8,
+        "machsuite_stencil3d": 8,
+        "rodinia_backprop": 8,
+        "rodinia_cfd_flux": 8,
+        "rodinia_cfd_step_factor": 8,
+        "rodinia_dilate": 8,
+        "rodinia_hotspot": 8,
+        "rodinia_kmeans": 8,
+        "rodinia_knn": 8,
+        "rodinia_lavamd": 8,
+        "rodinia_lc_gicov": 8,
+        "rodinia_lc_mgvf": 8,
+        "rodinia_streamcluster": 8,
+        "spcl_example": 8
+      },
+      "request_pair_cap": 1,
+      "requests": 631,
+      "sealed_pairs": 136,
+      "valid_pair_combinations": 9859730
+    },
+    "validation": {
+      "device_clock_budget_counts": {
+        "xcu200-fsgd2104-2-e@10.0ns/0.25": 3,
+        "xcu200-fsgd2104-2-e@10.0ns/0.5": 3,
+        "xcu200-fsgd2104-2-e@10.0ns/1.0": 3,
+        "xcu200-fsgd2104-2-e@3.33ns/0.25": 3,
+        "xcu200-fsgd2104-2-e@3.33ns/0.5": 3,
+        "xcu200-fsgd2104-2-e@3.33ns/1.0": 3,
+        "xcu200-fsgd2104-2-e@5.0ns/0.25": 3,
+        "xcu200-fsgd2104-2-e@5.0ns/0.5": 3,
+        "xcu200-fsgd2104-2-e@5.0ns/1.0": 3,
+        "xczu7ev-ffvc1156-2-e@10.0ns/0.25": 3,
+        "xczu7ev-ffvc1156-2-e@10.0ns/0.5": 3,
+        "xczu7ev-ffvc1156-2-e@10.0ns/1.0": 3,
+        "xczu7ev-ffvc1156-2-e@3.33ns/0.25": 3,
+        "xczu7ev-ffvc1156-2-e@3.33ns/0.5": 3,
+        "xczu7ev-ffvc1156-2-e@3.33ns/1.0": 3,
+        "xczu7ev-ffvc1156-2-e@5.0ns/0.25": 3,
+        "xczu7ev-ffvc1156-2-e@5.0ns/0.5": 3,
+        "xczu7ev-ffvc1156-2-e@5.0ns/1.0": 3
+      },
+      "eligible_requests": 54,
+      "excluded_candidate_request_occurrences": {
+        "outside_requested_budget": 2058
+      },
+      "excluded_requests": {},
+      "family_pair_cap": null,
+      "gap_quantiles": {
+        "max": 26.73814649330106,
+        "median": 1.9031824094131096,
+        "min": 0.10821951782974915,
+        "p25": 0.2275014815106315,
+        "p75": 3.702787224313938
+      },
+      "pairs_per_family": {
+        "machsuite_viterbi": 18,
+        "rodinia_pathfinder": 36
+      },
+      "request_pair_cap": 1,
+      "requests": 54,
+      "sealed_pairs": 54,
+      "valid_pair_combinations": 1390299
+    }
+  },
+  "beta": 0.1,
+  "complete_measured_assignments_preserved": true,
+  "coverage_gate": "at least 64 train pairs/8 train families and 20 validation pairs/2 validation families; no outcome tuning",
+  "exclusion_counting": "candidate-request occurrences; a design can appear under several budgets",
+  "lambda_dpo": 0.2,
+  "measurement_units": "authenticated dataset latency units; ratios only; no inferred cycle conversion",
+  "minimum_rejection_gap": 0.1,
+  "near_optimal_epsilon": 0.01,
+  "pair_files": {
+    "train": "c3f0370c201e1e8d780fe7a5c81a2d77eaf15ae300b345393d1c9b8b15b42816",
+    "validation": "efb0fd32eec1e53aaf9e9a6791b698cd789ee47c3972b09718194009c88fb09e"
+  },
+  "parent_dataset_sha256": "afdf4af8e6defc559871a6ec92185e6321313979ff3f1495806e5b037d5ab820",
+  "preferred_rule": "within 1% of minimum measured latency among source/tool-admissible feasible complete configurations",
+  "prepared_protocol_sha256": "e9a9e6b930ed07a1a30053c7fd9381e0443f7a05c18059211bdce612588c15c8",
+  "raw_family_split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+  "reference_adapter_sha256": "28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+  "reference_contract_sha256": "1c7a2034dba45030e51525fd415367e6fcf276cceddd89eb1132edfd66840671",
+  "registry_sha256": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c",
+  "schema": "stage1-qor-preference-v1",
+  "seed": 123,
+  "test_measurements_decoded": 0,
+  "tokenizer_sha256": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891",
+  "tool_policy_sha256": "bed4e3384cbf3a3acc03cdc20a2b858d726691550333f27186d9537e38309fb8",
+  "training_justified_for_bounded_pilot": true
+}
