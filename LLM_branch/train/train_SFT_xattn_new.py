@@ -1029,7 +1029,18 @@ def assert_family_split_contract(
     minimum_test_families: int = 3,
 ) -> dict:
     """Reject family leakage and holdouts too small for a final experiment."""
-    assert_disjoint_nonempty_kernel_splits(train, val, test)
+    if not test and minimum_test_families == 0:
+        # Exploratory studies may use an authenticated source that has no
+        # released test rows. Keep train/validation nonempty and family-disjoint;
+        # do not manufacture or borrow a test family.
+        if not train or not val:
+            raise AssertionError("Train and validation must both be nonempty")
+        train_kernels = {row["kernel_name"] for row in train}
+        val_kernels = {row["kernel_name"] for row in val}
+        if train_kernels & val_kernels:
+            raise ValueError("Kernel leakage between train and validation")
+    else:
+        assert_disjoint_nonempty_kernel_splits(train, val, test)
     family_sets = {
         name: {family_id_from_kernel_name(row["kernel_name"]) for row in rows}
         for name, rows in (("train", train), ("val", val), ("test", test))
@@ -1230,7 +1241,7 @@ STAGE1_COMPATIBILITY_FIELDS = (
 )
 
 
-def require_compatible_stage1_contract(adapter_dir, expected_contract):
+def require_compatible_stage1_contract(adapter_dir, expected_contract, *, allow_research_subset=False):
     contract_path = Path(adapter_dir) / "training_contract.json"
     if not contract_path.is_file():
         raise FileNotFoundError(
@@ -1257,6 +1268,14 @@ def require_compatible_stage1_contract(adapter_dir, expected_contract):
     # inverse-frequency loss weights) without changing the directive domain,
     # model architecture, or target contract inherited from Stage-1.
     mismatches.pop("directive_loss_weights", None)
+    if allow_research_subset:
+        # Explicit exploratory pilots may train on a frozen subset of the
+        # authenticated Stage-1 train families while keeping the saved
+        # validation families fixed. Only the data/split fingerprints may
+        # differ; objective, model, tokenizer, prompt/schema and domain
+        # registry remain exact compatibility requirements.
+        mismatches.pop("dataset_sha256", None)
+        mismatches.pop("split_sha256", None)
     if mismatches:
         raise ValueError(
             "Stage-1 adapter contract is incompatible with Stage 2: "
@@ -4623,23 +4642,15 @@ class LengthGroupedTrainer(Trainer):
                     relation
                 )
 
-        mem_kv = torch.stack(
-            kvs,
-            dim=0,
-        )
-
-        mem_mask = torch.stack(
-            masks,
-            dim=0,
-        )
-
-        relation_mask = (
-            torch.stack(
-                relations,
-                dim=0,
+        # RC3 evidence memories have a fixed 64-slot absolute action prefix,
+        # followed by a graph-dependent number of evidence keys. Pad each
+        # batch to its longest pack; padded keys and routes remain masked.
+        mem_kv, mem_mask, relation_mask = (
+            structural_memory_utils.pad_memory_pack_batch(
+                kvs,
+                masks,
+                relations if use_relational else None,
             )
-            if use_relational
-            else None
         )
 
         device = next(
@@ -6768,6 +6779,11 @@ def run_single_training(args):
     data_cache_key = {
         "dataset_sha256": _file_sha256(Path(args.dataset)),
         "split_sha256": split_sha256,
+        "research_stage1_subset_mode": bool(args.research_allow_stage1_subset),
+        "research_subset_policy": (
+            "subset_of_authenticated_stage1_train_families_same_validation"
+            if args.research_allow_stage1_subset else "none"
+        ),
         "objective": args.objective,
         "seed": int(args.seed),
         "resource_budget_mode": args.resource_budget_mode,
@@ -7133,23 +7149,19 @@ def run_single_training(args):
                     raise ValueError("Multiscale normalization was fitted for a different split")
 
         if args.structural_routing == "compiler_relational":
-            expected_relation_schema = "mailohls-action-relations-v1"
+            expected_relation_schemas = {
+                "mailohls-action-relations-v1",
+                "salt-hls-rc3-action-relations-v1",
+            }
 
-            actual_relation_schema = (
-                memory_manifest.get(
-                    "action_relation_schema"
-                )
-            )
+            actual_relation_schema = memory_manifest.get("action_relation_schema")
 
-            if (
-                actual_relation_schema
-                != expected_relation_schema
-            ):
+            if actual_relation_schema not in expected_relation_schemas:
                 raise ValueError(
                     "compiler_relational routing "
                     "requires relation-aware memory: "
                     f"expected "
-                    f"{expected_relation_schema!r}, "
+                    f"one of {sorted(expected_relation_schemas)!r}, "
                     f"got "
                     f"{actual_relation_schema!r}"
                 )
@@ -7521,7 +7533,8 @@ def run_single_training(args):
     )
     if not args.disable_structural_memory and init_adapter_dir:
         parent_stage1 = require_compatible_stage1_contract(
-            init_adapter_dir, training_contract
+            init_adapter_dir, training_contract,
+            allow_research_subset=bool(args.research_allow_stage1_subset),
         )
         trainable_contract = parent_stage1.get("stage1_trainable_parameter_contract")
         if not isinstance(trainable_contract, dict):
@@ -7667,7 +7680,13 @@ def run_single_training(args):
         )
         if not args.selection_eval_only and not args.resume_from_checkpoint:
             expected_layers = [8, 16, 24, 32]
-            if structural_config["selected_xattn_layers_1based"] != expected_layers:
+            actual_layers = structural_config["selected_xattn_layers_1based"]
+            layer_smoke_allowed = (
+                bool(args.research_allow_layer_smoke)
+                and bool(args.research_allow_stage1_subset)
+                and actual_layers == [32]
+            )
+            if actual_layers != expected_layers and not layer_smoke_allowed:
                 raise ValueError(
                     "Production Stage 2 requires structural layers "
                     f"{expected_layers}, got {structural_config['selected_xattn_layers_1based']}"
@@ -8480,6 +8499,14 @@ def main():
         ),
     )
     ap.add_argument("--init_adapter_dir", type=str, default="")
+    ap.add_argument(
+        "--research_allow_stage1_subset", action="store_true",
+        help="Research only: allow dataset/split hash changes when all model/task contracts still match.",
+    )
+    ap.add_argument(
+        "--research_allow_layer_smoke", action="store_true",
+        help="Research only: permit the requested single insertion layer [32] smoke; never changes the production default.",
+    )
     ap.add_argument("--init_structural_xattn_from", type=str, default="")
     ap.add_argument(
         "--selection_eval_only",

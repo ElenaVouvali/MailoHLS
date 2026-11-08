@@ -412,6 +412,31 @@ def test_gate_scale_is_runtime_only_and_scales_block_residual_linearly():
     assert not any("memory_value_scale" in key for key in base.state_dict())
 
 
+def test_zero_gate_is_exact_identity_across_residual_and_attention_dtypes():
+    torch.manual_seed(19)
+    block = GatedCrossAttentionBlock(
+        dim=16,
+        dim_memory=8,
+        dim_head=4,
+        heads=2,
+    ).half().eval()
+    x = torch.randn(1, 2, 16, dtype=torch.float32)
+    memory = torch.randn(1, 2, 8, dtype=torch.float16)
+    slots = torch.tensor([[1, 0]], dtype=torch.long)
+    mask = torch.ones(1, 2, dtype=torch.bool)
+
+    with torch.no_grad():
+        result = block(
+            x,
+            memory,
+            placeholder_slot_ids=slots,
+            memory_mask=mask,
+        )
+
+    assert result.dtype == x.dtype
+    assert torch.equal(result, x)
+
+
 @torch.no_grad()
 def test_all_false_memory_mask_is_identity_with_nonzero_gate():
     stage1_model = _base_model()

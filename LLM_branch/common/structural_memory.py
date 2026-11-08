@@ -5,12 +5,47 @@ import re
 from typing import Dict, Tuple, Optional
 
 import torch
+import torch.nn.functional as F
 
 
 STRUCTURAL_ROUTING_MODES = {
     "exact_slot",
     "compiler_relational",
 }
+
+
+def pad_memory_pack_batch(kvs, masks, relations=None):
+    """Pad variable-length RC3 memories without changing absolute action slots.
+
+    Evidence keys follow the fixed 64 action slots, so right-padding preserves
+    every absolute Lk address. Padded keys and relation entries are always
+    masked. Returns batched tensors on CPU; callers choose the target device.
+    """
+    if not kvs or len(kvs) != len(masks):
+        raise ValueError("memory batch requires equally sized, nonempty kv/mask lists")
+    if relations is not None and len(relations) != len(kvs):
+        raise ValueError("relation list length must match memory batch")
+    dim = kvs[0].size(-1)
+    if any(kv.ndim != 2 or kv.size(-1) != dim for kv in kvs):
+        raise ValueError("memory packs must be [S,D] with a shared D")
+    if any(mask.ndim != 1 or mask.numel() != kv.size(0) for kv, mask in zip(kvs, masks)):
+        raise ValueError("each memory mask must match its [S,D] memory")
+    max_keys = max(kv.size(0) for kv in kvs)
+    padded_kvs, padded_masks = [], []
+    for kv, mask in zip(kvs, masks):
+        pad = max_keys - kv.size(0)
+        padded_kvs.append(F.pad(kv, (0, 0, 0, pad)))
+        padded_masks.append(F.pad(mask.bool(), (0, pad), value=False))
+    padded_relations = None
+    if relations is not None:
+        padded_relations = []
+        for kv, relation in zip(kvs, relations):
+            if relation.shape != (kv.size(0), kv.size(0)):
+                raise ValueError("each relation mask must be square and match its memory")
+            pad = max_keys - kv.size(0)
+            padded_relations.append(F.pad(relation.bool(), (0, pad, 0, pad), value=False))
+        padded_relations = torch.stack(padded_relations, dim=0)
+    return torch.stack(padded_kvs, dim=0), torch.stack(padded_masks, dim=0), padded_relations
 
 
 def resolve_relation_mask(
@@ -104,6 +139,22 @@ def load_memory_bank(
         #
         # Do NOT compact active vectors to slots 0..N-1: structural_xattn
         # routes the <Lk> placeholder directly to one-based memory slot k.
+        memory_interface = pack.get("memory_interface", "action_slots_v1")
+        if memory_interface not in {"action_slots_v1", "rc3_action_evidence_c_v1"}:
+            raise ValueError(f"{fn}: unsupported memory interface {memory_interface!r}")
+        action_slot_count = int(pack.get("action_slot_count", max_slots))
+        slot_ids = pack.get("slot_ids", None)
+        action_slot_mask = pack.get("action_slot_mask", mask[:action_slot_count])
+        action_slot_mask = torch.as_tensor(action_slot_mask, dtype=torch.bool).view(-1)
+        if action_slot_count != max_slots or action_slot_mask.numel() != action_slot_count:
+            raise ValueError(f"{fn}: action-slot metadata does not match max_slots={max_slots}")
+        if memory_interface == "rc3_action_evidence_c_v1":
+            if kv.size(0) < action_slot_count:
+                raise ValueError(f"{fn}: evidence memory is shorter than its absolute action prefix")
+            if labels is not None or slot_ids is not None:
+                raise ValueError(f"{fn}: C memory must keep evidence keys outside action-label addressing")
+        elif kv.size(0) != max_slots:
+            raise ValueError(f"{fn}: legacy action memory must have exactly max_slots keys")
         if labels is not None:
             labels_t = torch.as_tensor(
                 labels,
@@ -149,8 +200,6 @@ def load_memory_bank(
 
         # slot_ids, when present, must describe the same fixed absolute
         # one-based structural address space.
-        slot_ids = pack.get("slot_ids", None)
-
         if slot_ids is not None:
             slot_ids_t = torch.as_tensor(
                 slot_ids,
@@ -271,21 +320,12 @@ def load_memory_bank(
                     "inactive structural slots"
                 )
 
-            active = torch.where(
-                mask
-            )[0]
-
-            if (
-                active.numel() > 0
-                and not relation_mask[
-                    active,
-                    active,
-                ].all()
-            ):
-                raise ValueError(
-                    f"{fn}: active action is missing "
-                    "its self relation"
-                )
+            active = torch.where(action_slot_mask)[0]
+            if active.numel() > 0 and not relation_mask[active, active].all():
+                raise ValueError(f"{fn}: active action is missing its self relation")
+            if memory_interface == "rc3_action_evidence_c_v1":
+                if relation_mask[action_slot_count:].any():
+                    raise ValueError(f"{fn}: evidence-only keys cannot be query rows")
             
         rec = {
             "kv": kv.contiguous(),
@@ -301,6 +341,12 @@ def load_memory_bank(
             "slot_cats": slot_cats,
             "ckpt": pack.get("ckpt", ""),
             "disable_pragma_injection": bool(pack.get("disable_pragma_injection", False)),
+            "memory_interface": memory_interface,
+            "action_slot_count": action_slot_count,
+            "action_slot_mask": action_slot_mask.contiguous(),
+            "evidence_start_slot": int(pack.get("evidence_start_slot", action_slot_count)),
+            "evidence_metadata": pack.get("evidence_metadata", []),
+            "provenance": pack.get("provenance", {}),
         }
     
         for alias in dict.fromkeys((k, normalize_kname(k))):
@@ -364,10 +410,12 @@ def get_structural_memory_pack_for_kernel(
     kv = pack["kv"]
     mask = pack["mask"]
 
-    expected_kv = (
-        int(max_slots),
-        int(mem_dim),
-    )
+    interface = pack.get("memory_interface", "action_slots_v1")
+    action_slot_count = int(pack.get("action_slot_count", max_slots))
+    expected_key_count = kv.size(0) if interface == "rc3_action_evidence_c_v1" else int(max_slots)
+    if action_slot_count != int(max_slots):
+        raise ValueError(f"{kernel_name}: absolute action slot count mismatch")
+    expected_kv = (expected_key_count, int(mem_dim))
 
     if tuple(kv.shape) != expected_kv:
         raise ValueError(
@@ -375,9 +423,7 @@ def get_structural_memory_pack_for_kernel(
             f"{tuple(kv.shape)} != {expected_kv}"
         )
 
-    if tuple(mask.shape) != (
-        int(max_slots),
-    ):
+    if tuple(mask.shape) != (expected_key_count,):
         raise ValueError(
             f"{kernel_name}: invalid memory mask"
         )

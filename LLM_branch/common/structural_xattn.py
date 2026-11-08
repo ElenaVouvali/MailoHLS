@@ -594,14 +594,15 @@ class GatedCrossAttentionBlock(nn.Module):
         use_cached_memory=False,
         xattn_apply_mask=None,
     ):
-        # Keep the residual stream in the structural branch parameter dtype.
-        # This also prevents a fp32 hidden state from propagating into a
-        # fp16/bf16 LM head after the gated residual is added.
+        # The attention projections may use a lower precision than the native
+        # decoder residual stream.  Cast only the attention input; keep the
+        # residual itself untouched so a zero gate is an exact identity at
+        # the insertion boundary.
         branch_dtype = self.attn.norm.weight.dtype
-        input_hidden = x.to(dtype=branch_dtype) if x.dtype != branch_dtype else x
+        attention_input = x.to(dtype=branch_dtype) if x.dtype != branch_dtype else x
 
         attention_output = self.attn(
-            input_hidden,
+            attention_input,
             memory,
             placeholder_slot_ids=(
                 placeholder_slot_ids
@@ -646,9 +647,9 @@ class GatedCrossAttentionBlock(nn.Module):
             with torch.no_grad():
                 if apply_mask is None:
                     active = torch.ones(
-                        input_hidden.shape[:2],
+                        x.shape[:2],
                         dtype=torch.bool,
-                        device=input_hidden.device,
+                        device=x.device,
                     )
                 else:
                     active = (
@@ -658,7 +659,7 @@ class GatedCrossAttentionBlock(nn.Module):
                     )
 
                 hidden_norm = (
-                    input_hidden
+                    x
                     .float()
                     .norm(dim=-1)
                 )
@@ -774,14 +775,14 @@ class GatedCrossAttentionBlock(nn.Module):
                             "projected_to_hidden_rms_ratio": float(
                                 attention_output[active].float().square().mean().sqrt().item()
                                 / max(
-                                    input_hidden[active].float().square().mean().sqrt().item(),
+                                    x[active].float().square().mean().sqrt().item(),
                                     1e-12,
                                 )
                             ),
                             "gated_residual_to_hidden_rms_ratio": float(
                                 gated_residual[active].float().square().mean().sqrt().item()
                                 / max(
-                                    input_hidden[active].float().square().mean().sqrt().item(),
+                                    x[active].float().square().mean().sqrt().item(),
                                     1e-12,
                                 )
                             ),
@@ -790,10 +791,10 @@ class GatedCrossAttentionBlock(nn.Module):
 
                 self.last_debug = debug
 
-        x = (
-            input_hidden
-            + gated_residual
-        )
+        # Addition follows native residual dtype/rounding.  In particular,
+        # gate == 0 must return x bit-for-bit, including when branch weights
+        # and residual stream use different dtypes.
+        x = x + gated_residual.to(dtype=x.dtype)
 
         if self.ff is not None:
             ff_output = self.ff(x)

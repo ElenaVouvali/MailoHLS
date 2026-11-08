@@ -8,17 +8,12 @@ from pathlib import Path
 
 import torch
 
-from GNN_branch import mlir_graph_v2 as compiler
-from GNN_branch import target_graph_tensor_v22 as tensors
-from GNN_branch import target_graph_v22 as overlay
-from experiments.v22_gnn_training.v4b.models import V4bGraphModel
-from .rc3_action_relations import build_action_relations
 
 ACTION_SLOTS = 64
-# RC3 GEMV has 82 typed node/edge records.  Capacity is explicitly versioned
-# at 128; larger graphs fail closed and must be assigned a new capacity/schema.
-EVIDENCE_CAPACITY = 128
-EVIDENCE_SCHEMA = 'salt-hls-rc3-action-evidence-memory-v1'
+# Multi-kernel audit: complete mapped V4 train/validation graphs select up to
+# 877 evidence records. Capacity v2 is explicit; overflow still fails closed.
+EVIDENCE_CAPACITY = 1024
+EVIDENCE_SCHEMA = 'salt-hls-rc3-action-evidence-memory-v2'
 KNOWN_FIELDS = ('class', 'proven', 'shape', 'trip_count', 'affine_map',
                 'access_role', 'operation_family', 'loop_carried', 'dependence_kind')
 EVIDENCE_TYPES = (
@@ -38,11 +33,15 @@ def sha256(path):
 
 
 def load_frozen_encoder(checkpoint_path, expected_sha256):
+    from experiments.v22_gnn_training.v4b.models import V4bGraphModel
     checkpoint_path = Path(checkpoint_path)
     actual = sha256(checkpoint_path)
     if actual != expected_sha256:
         raise ValueError(f'V4b checkpoint SHA mismatch: {actual}')
-    state = torch.load(checkpoint_path, map_location='cpu', weights_only=True)
+    try:
+        state = torch.load(checkpoint_path, map_location='cpu', weights_only=True)
+    except TypeError:  # torch 1.9 compatibility for the authenticated CPU GNN environment
+        state = torch.load(checkpoint_path, map_location='cpu')
     if state.get('arm') != 'compiler' or state.get('selected_step') != 1500:
         raise ValueError('Expected the authenticated corrected-v3 compiler-only selected checkpoint')
     if state.get('quality_policy') != 'reported-zero-adp-ambiguous-v1':
@@ -64,6 +63,8 @@ def load_frozen_encoder(checkpoint_path, expected_sha256):
 
 
 def _target_graph(program_graph, *, target='u200', clock_ns=10.0):
+    from GNN_branch import target_graph_tensor_v22 as tensors
+    from GNN_branch import target_graph_v22 as overlay
     registry = overlay.load_registry()
     joint = overlay.enrich(program_graph, target, clock_ns, registry=registry)
     data = tensors.tensorize(joint, max_slots=ACTION_SLOTS)
@@ -71,6 +72,7 @@ def _target_graph(program_graph, *, target='u200', clock_ns=10.0):
 
 
 def _source_edge_tensor_index(joint, data, source, target, edge_key, relation):
+    from GNN_branch import target_graph_tensor_v22 as tensors
     nodes = {node: i for i, node in enumerate(data.audit['node_ids'])}
     wanted_source, wanted_target = nodes[source], nodes[target]
     wanted_type = tensors.RELATIONS.index(relation)
@@ -87,6 +89,7 @@ def _source_edge_tensor_index(joint, data, source, target, edge_key, relation):
 
 
 def _evidence(graph, data, node_h, model, cap=EVIDENCE_CAPACITY):
+    from GNN_branch import target_graph_tensor_v22 as tensors
     rows = []
     edges_by_relation = defaultdict(list)
     for u, v, key, attrs in graph.edges(keys=True, data=True):
@@ -320,12 +323,13 @@ def pad_evidence_batch(packs, *, capacity=EVIDENCE_CAPACITY):
             known[i, :e] = pack['evidence_known_mask'][0]
     return {'evidence_memory': memory, 'evidence_valid_mask': valid,
             'evidence_known_mask': known, 'lengths': sizes,
-            'padding_policy': 'right-pad false; no truncation; maximum configured evidence capacity 64'}
+            'padding_policy': f'right-pad false; no truncation; maximum configured evidence capacity {capacity}'}
 
 
 def build_memory_pack(program_graph, model, *, graph_file_sha256, gnn_identity,
                       target='u200', clock_ns=10.0, max_slots=ACTION_SLOTS,
                       evidence_capacity=EVIDENCE_CAPACITY, expected_graph_identity=None):
+    from .rc3_action_relations import build_action_relations
     if max_slots != ACTION_SLOTS:
         raise ValueError('The current structural memory contract is fixed at 64 absolute action slots')
     relation_pack = build_action_relations(program_graph, max_slots=max_slots,
@@ -334,9 +338,15 @@ def build_memory_pack(program_graph, model, *, graph_file_sha256, gnn_identity,
     if data.audit['program_graph_identity'] != program_graph.graph['graph_identity']:
         raise ValueError('Tensorized program identity differs from the authenticated input graph')
     model.eval()
+    from GNN_branch import target_graph_tensor_v22 as tensors
     with torch.inference_mode():
         action_memory, pooled = model.encode(data)
-        node_hidden = model.graph(data)
+        # Evidence keys must share the compiler-only message graph used by
+        # V4bGraphModel.encode. Calling model.graph(data) here would leak the
+        # deployment overlay into evidence vectors even for the compiler-only
+        # encoder, making static Memory C target-dependent.
+        message_graph = data if model.hardware_messages else tensors.without_hardware_messages(data)
+        node_hidden = model.graph(message_graph)
     if action_memory.shape != (1, max_slots, 128) or pooled.shape != (1, 128):
         raise ValueError('Frozen V4b action-memory shape mismatch')
     masks = relation_pack['absolute_slots']
@@ -374,7 +384,7 @@ def build_memory_pack(program_graph, model, *, graph_file_sha256, gnn_identity,
 
     # A/B/C share bit-identical action vectors from this one frozen forward.
     pack = {
-        'schema': 'salt-hls-rc3-structural-memory-v1',
+        'schema': 'salt-hls-rc3-structural-memory-v2',
         'action_memory': action_memory.detach().float().cpu().contiguous(),
         'action_valid_mask': valid,
         'action_registered_mask': torch.tensor([masks['registered_mask']], dtype=torch.bool),

@@ -49,7 +49,14 @@ def _slots(graph, max_slots):
         row = by_id.get(label, {})
         registered[slot] = bool(row.get('metadata_registered'))
         source_only[slot] = bool(row.get('source_labeled')) and not registered[slot]
-        target_edges = [(v, e) for _, v, _, e in graph.out_edges(points[label], keys=True, data=True)
+        point = points.get(label)
+        if point is None:
+            # Coverage ledgers may preserve an inactive absolute slot without
+            # a corresponding action_point node. Keep the slot unresolved;
+            # never synthesize a target or compact later actions.
+            unresolved[slot] = registered[slot]
+            continue
+        target_edges = [(v, e) for _, v, _, e in graph.out_edges(point, keys=True, data=True)
                         if e.get('relation_type') == 'targets' and not e.get('is_reverse')]
         if len(target_edges) > 1:
             raise ValueError(f'{label}: multiple compiler targets')
