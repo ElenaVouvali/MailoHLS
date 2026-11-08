@@ -1,0 +1,44 @@
+{
+  "base_commit": "98d9d2d41cded4b184bd432c2cc4d8c676d0110c",
+  "branch": "research/stage1-gnn-representation-audit",
+  "checkpoint_arm": "compiler",
+  "checkpoint_model_config": {
+    "action_demand_projection_dim": 40,
+    "hardware_messages": false,
+    "hidden_dim": 64,
+    "message_passing_layers": 2,
+    "node_output_dim": 128
+  },
+  "checkpoint_path": "/home/elvouvali/MailoHLS-GNN-runs/v4b-v2-20261102-8f3593b/corrected_v3_full37/compiler_selected.pt",
+  "checkpoint_sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162",
+  "device": "cpu",
+  "family_split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+  "graph_archive_sha256": "feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73",
+  "large_activations_directory": "/tmp/mailohls-gnn-audit-activations",
+  "protocol_fingerprint": "09b0f68a3bd80e4bc777daf3fb0f0c99f6b6b9b9112039eb7f852e588fda1ba5",
+  "schema": "salt-hls-architecture-representation-audit-run-v1",
+  "selected_step": 1500,
+  "source_commit": "f248497d4d8b51313fa9683aa64e0b701c6c2f39",
+  "source_file_sha256": {
+    "GNN_branch/action_demand_v22.py": "a3d0ac2173e39a6d3e057dddac1eb66668a05069edb1d7a832e24b5b00a44c87",
+    "GNN_branch/mlir_graph_v2.py": "ae12ae568905d3375f145e31ccab4cab73dcf16a6cb10aef1c50f49fe6d1ea5b",
+    "GNN_branch/semantic_tensor_features_v22.py": "567ea762e5ae46603611376992d4da2f5f12f4fac779a6cb086ceb7550ac515a",
+    "GNN_branch/target_graph_tensor_v22.py": "06cd45a1c3269497d2a0a2674d69c4021b1aa1e674591896d98fb1a5acbe7c80",
+    "LLM_branch/common/structural_xattn.py": "95b237b0527ab5e1c2a32ea0e3599ad3e3504f79bd9743e7ded2114e2e6b1041",
+    "experiments/architecture_representation_audit/audit_cohort.py": "0fbaf948337cfc58d26bcd197026b43e0c0037fd367b5c7786389ce9d78cf9c6",
+    "experiments/architecture_representation_audit/extract_gnn_cpu.py": "f1decb1a1d02d38f40cb165f405c18ad3a7657ecb2302d9f5d33c154312ceb96",
+    "experiments/architecture_representation_audit/plot_results.py": "837f9a18e976f861de2c0e05d46f1643245a6dc67fd4c997f8cd6623c67b40f4",
+    "experiments/rc3_fusion_foundation/rc3_action_relations.py": "d5d02904ff6ba285764e149f9c8945ad853fbe5185ee10e9011a74f220fcbe3e",
+    "experiments/rc3_fusion_foundation/structural_memory_v1.py": "ccdb206f3cb64e8d4e3bec05692a27b8ca87169978bd94457603cfab14b42e16",
+    "experiments/v22_gnn_training/v4b/models.py": "8e8979d88b1af37bc24d81fa375db4c409c06b5d4ec1feb158b0ee7d6591ea39"
+  },
+  "status": {
+    "cohort_and_frozen_gnn_cpu_audit": "completed",
+    "cross_kernel_stage1_gpu": "not_run_reserved_gpu",
+    "linear_property_probes": "deferred_single_test_family_and_label_support",
+    "new_training": "not_run",
+    "trained_stage2_cross_attention": "not_available_in_isolated_base"
+  },
+  "torch": "2.6.0+cu124",
+  "torch_geometric": "2.6.1 isolated in /tmp/mailohls-pyg-audit-site"
+}
