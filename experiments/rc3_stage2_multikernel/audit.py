@@ -21,11 +21,15 @@ def graph_index(archive):
    if not m.name.startswith('canonical/') or not m.name.endswith('.json'): continue
    obj=json.load(tar.extractfile(m)); md=obj['metadata']; k=m.name.rsplit('/',1)[-1][:-5].rsplit('-',1)[0]
    cov=md['action_point_coverage']['records']
-   out[k]={'archive_member':m.name,'graph_identity':md['graph_identity'],'source_sha256':md['provenance']['source_sha256'],
+   record={'archive_member':m.name,'graph_identity':md['graph_identity'],'source_sha256':md['provenance']['source_sha256'],
     'nodes':len(obj['nodes']),'edges':len(obj['edges']),
     'registered_actions':[x['action_id'] for x in cov if x.get('metadata_registered')],
     'matched_actions':[x['action_id'] for x in cov if x.get('metadata_registered') and x.get('compiler_matched')],
     'source_actions':[x['action_id'] for x in cov if x.get('source_labeled')]}
+   if k in out:
+    out[k].setdefault('archive_variants', []).append(record)
+   else:
+    out[k]=dict(record, archive_variants=[record])
  return out
 def audit(data,archive):
  data,archive=Path(data),Path(archive); dh,gh=sha(data),sha(archive)
@@ -37,6 +41,8 @@ def audit(data,archive):
  inv={}; usable=set()
  for k,rs in sorted(grouped.items()):
   r=rs[0]; g=graphs.get(k); sp=ROOT/r['source_file']; source_sha=sha(sp) if sp.is_file() else None
+  if g and len(g.get('archive_variants', [])) != 1:
+   raise ValueError(f'{k}: ambiguous RC3 variants require an explicit graph identity')
   actions=sorted({f'L{n}' for n in re.findall(r'\bL(\d+)\s*:',r['input'])},key=lambda x:int(x[1:]))
   complete=bool(g and set(actions).issubset(g['matched_actions'])); source_match=bool(g and source_sha==g['source_sha256'])
   ok=bool(g and complete and source_match and k not in INCOMPLETE)
@@ -96,7 +102,9 @@ def audit(data,archive):
   'inputs':{'training_jsonl':str(data),'training_jsonl_sha256':dh,'canonical_rc3_archive':str(archive),'canonical_rc3_archive_sha256':gh,
    'stage1_adapter_sha256':'28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164',
    'gnn_checkpoint_sha256':'ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162'},
-  'canonical_graph_count':len(graphs),'candidate_kernel_count':len(grouped),'candidate_family_count':len({r['_family'] for r in rows}),
+  'canonical_graph_count':len(graphs),
+  'canonical_graph_variant_count':sum(len(g['archive_variants']) for g in graphs.values()),
+  'ambiguous_graph_names':{k:[v['graph_identity'] for v in g['archive_variants']] for k,g in graphs.items() if len(g['archive_variants'])>1},'candidate_kernel_count':len(grouped),'candidate_family_count':len({r['_family'] for r in rows}),
   'usable_kernels':len(usable),'usable_families':len({inv[k]['family'] for k in usable}),'splits':splits,
   'one_kernel_per_training_family':selected,'pilot_schedule_rows':len(schedule),
   'source_tuple_validated_rows':legal_rows,'resource_screen_audit':resource_audit,

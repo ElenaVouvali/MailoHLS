@@ -1,5 +1,7 @@
 # MailoHLS / SALT-HLS
 
+[Target-conditioned architecture qualification](docs/architecture-finalization/README.md): retained latency endpoint, measured limits, and executable configuration.
+
 ## Research branch status — 5 November 2026
 
 Production remains on the existing V1 GNN and its current Stage-2 contract.

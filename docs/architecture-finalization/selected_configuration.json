@@ -1,0 +1,63 @@
+{
+  "schema": "salt-selected-latency-configuration-v1",
+  "status": "retained baseline; new structural architecture not qualified",
+  "stage": "stage1",
+  "objective": "PARETO_LATENCY",
+  "adapter": {
+    "path": "/home/elvouvali/MailoHLS/mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1",
+    "files": {
+      "adapter_model.safetensors": "a15a0af1022370b08ee1e64cb9934a12e9f1c7ef1b96aaaf4ccfc406f4e0cc86",
+      "adapter_config.json": "8337214542f92039b30502169b0d999325d5c8ad4019834cf85a3fb66dc3f2e9",
+      "training_contract.json": "d2c63fdaf32199d5de3625dcd4a9358c34a79e48f6761f16948ca7a2c7120dd8",
+      "tokenizer.json": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891",
+      "tokenizer_config.json": "bb2811b886c9ec020b1ed665bbdc9fa71756690422ef20c65e191c4a4fa99410",
+      "special_tokens_map.json": "b0d6d1b584e8a097c0a57512a026fcf54edb0dcf0cc32fdf1d122e3f7180499e",
+      "directive_domain_registry.json": null
+    },
+    "objective": "PARETO_LATENCY",
+    "model": "deepseek-ai/deepseek-coder-6.7b-base",
+    "revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+    "target_modules": [
+      "k_proj",
+      "q_proj",
+      "o_proj",
+      "v_proj"
+    ],
+    "lora_r": 8,
+    "trainable_tokens": 140,
+    "trainables": {
+      "schema": "mailohls-stage1-trainables-v1",
+      "allowed_groups": [
+        "lora",
+        "special_token_input_deltas"
+      ],
+      "parameter_count": 257,
+      "parameter_names_sha256": "9325ae059b3def6e46539d161d370622da3d6d62921a047d870151e48a88c428",
+      "frozen_groups": [
+        "base_model",
+        "standard_embeddings",
+        "output_embeddings",
+        "structural_cross_attention"
+      ]
+    },
+    "data_split": null
+  },
+  "device": "xczu7ev-ffvc1156-2-e",
+  "clock_ns": 10,
+  "frequency_mode": "specified",
+  "available_resources": {
+    "BRAM_18K": 624,
+    "DSP": 1728,
+    "FF": 460800,
+    "LUT": 230400
+  },
+  "score_reduction": "mean",
+  "decode": "complete-action constrained greedy",
+  "samples": 1,
+  "structural_fusion": false,
+  "stage3_dpo": false,
+  "refinement": false,
+  "precision": "existing NF4/FP16 loader",
+  "launch_module": "experiments.architecture_finalization.run_selected",
+  "registry_unchanged": true
+}

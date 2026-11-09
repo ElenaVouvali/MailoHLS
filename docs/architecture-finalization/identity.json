@@ -1,0 +1,147 @@
+{
+  "schema": "architecture-input-audit-v1",
+  "refs": {
+    "research/stage1-refinement": "63afcfc7a54e573a544678e728cdb7d99d865981",
+    "research/stage1-qor-preference": "3aeb704967714aa08d6ca68e4e6bf1136cb0b464",
+    "research/gnn-refinement": "172e05a69650a666c323955ea78cb501fd9364c2",
+    "origin/research/stage1-gnn-representation-audit": "0098ea5c8e7c5d054e0fc311eab1541b2f52d820",
+    "research/rc3-fusion-foundation": "98d9d2d41cded4b184bd432c2cc4d8c676d0110c",
+    "research/rc3-stage2-multikernel-c": "ca1b9fc7dd8ce81aebc8f13278b1481f2256f0dd",
+    "research/gemv-stage1-full-depth": "97ed75ed3f41ad80247d739888d9ee488881872c",
+    "research/refinement-mechanism": "c8e0b9c1912e4b59b5692f5f26918a23fbf82114",
+    "origin/research/rc3-structural-memory-audit": "bb4bc8f8261e33f7a229d92f30e36a0a53f986a7"
+  },
+  "models": {
+    "registered_latency": {
+      "path": "/home/elvouvali/MailoHLS/mailohls_runs/stage1_final_final_latency_s123/best_custom_stage1",
+      "files": {
+        "adapter_model.safetensors": "a15a0af1022370b08ee1e64cb9934a12e9f1c7ef1b96aaaf4ccfc406f4e0cc86",
+        "adapter_config.json": "8337214542f92039b30502169b0d999325d5c8ad4019834cf85a3fb66dc3f2e9",
+        "training_contract.json": "d2c63fdaf32199d5de3625dcd4a9358c34a79e48f6761f16948ca7a2c7120dd8",
+        "tokenizer.json": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891",
+        "tokenizer_config.json": "bb2811b886c9ec020b1ed665bbdc9fa71756690422ef20c65e191c4a4fa99410",
+        "special_tokens_map.json": "b0d6d1b584e8a097c0a57512a026fcf54edb0dcf0cc32fdf1d122e3f7180499e",
+        "directive_domain_registry.json": null
+      },
+      "objective": "PARETO_LATENCY",
+      "model": "deepseek-ai/deepseek-coder-6.7b-base",
+      "revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+      "target_modules": [
+        "k_proj",
+        "q_proj",
+        "o_proj",
+        "v_proj"
+      ],
+      "lora_r": 8,
+      "trainable_tokens": 140,
+      "trainables": {
+        "schema": "mailohls-stage1-trainables-v1",
+        "allowed_groups": [
+          "lora",
+          "special_token_input_deltas"
+        ],
+        "parameter_count": 257,
+        "parameter_names_sha256": "9325ae059b3def6e46539d161d370622da3d6d62921a047d870151e48a88c428",
+        "frozen_groups": [
+          "base_model",
+          "standard_embeddings",
+          "output_embeddings",
+          "structural_cross_attention"
+        ]
+      },
+      "data_split": null
+    },
+    "v4_single": {
+      "path": "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/single_reference/run",
+      "files": {
+        "adapter_model.safetensors": "abef1af9e9e833b2a02173a803318b90a37b5015c8f597ebb02c70d0655bbd66",
+        "adapter_config.json": "18cb968d048665bea994671edfae967fa1a406026895c5fbf80cbfdf19304e9f",
+        "training_contract.json": "f4dcf440a98cf4cf75bf6ecd294193e8ba2362a825fe148b553907b9788d97b4",
+        "tokenizer.json": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891",
+        "tokenizer_config.json": "bb2811b886c9ec020b1ed665bbdc9fa71756690422ef20c65e191c4a4fa99410",
+        "special_tokens_map.json": "b0d6d1b584e8a097c0a57512a026fcf54edb0dcf0cc32fdf1d122e3f7180499e",
+        "directive_domain_registry.json": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c"
+      },
+      "objective": "PARETO_LATENCY",
+      "model": "deepseek-ai/deepseek-coder-6.7b-base",
+      "revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+      "target_modules": [
+        "v_proj",
+        "k_proj",
+        "o_proj",
+        "q_proj"
+      ],
+      "lora_r": 8,
+      "trainable_tokens": 140,
+      "trainables": {
+        "schema": "mailohls-stage1-trainables-v1",
+        "allowed_groups": [
+          "lora",
+          "special_token_input_deltas"
+        ],
+        "parameter_count": 257,
+        "parameter_names_sha256": "9325ae059b3def6e46539d161d370622da3d6d62921a047d870151e48a88c428",
+        "frozen_groups": [
+          "base_model",
+          "standard_embeddings",
+          "output_embeddings",
+          "structural_cross_attention"
+        ]
+      },
+      "data_split": null
+    },
+    "v4_multi": {
+      "path": "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run",
+      "files": {
+        "adapter_model.safetensors": "28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+        "adapter_config.json": "c3382cfed1e96e5e1604c55275b9ec1880b5c98e917493e3f7f1b2f052cf5d5f",
+        "training_contract.json": "1c7a2034dba45030e51525fd415367e6fcf276cceddd89eb1132edfd66840671",
+        "tokenizer.json": "eef84d1f080adcb66a40c467931055a8b95e3d37fd6534c7340aa6c63b966891",
+        "tokenizer_config.json": "bb2811b886c9ec020b1ed665bbdc9fa71756690422ef20c65e191c4a4fa99410",
+        "special_tokens_map.json": "b0d6d1b584e8a097c0a57512a026fcf54edb0dcf0cc32fdf1d122e3f7180499e",
+        "directive_domain_registry.json": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c"
+      },
+      "objective": "PARETO_LATENCY",
+      "model": "deepseek-ai/deepseek-coder-6.7b-base",
+      "revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+      "target_modules": [
+        "o_proj",
+        "q_proj",
+        "k_proj",
+        "v_proj"
+      ],
+      "lora_r": 8,
+      "trainable_tokens": 140,
+      "trainables": {
+        "schema": "mailohls-stage1-trainables-v1",
+        "allowed_groups": [
+          "lora",
+          "special_token_input_deltas"
+        ],
+        "parameter_count": 257,
+        "parameter_names_sha256": "9325ae059b3def6e46539d161d370622da3d6d62921a047d870151e48a88c428",
+        "frozen_groups": [
+          "base_model",
+          "standard_embeddings",
+          "output_embeddings",
+          "structural_cross_attention"
+        ]
+      },
+      "data_split": null
+    }
+  },
+  "gnn_sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162",
+  "request_sha256": "c8342e2d7ff147f482aeb8c26bd76095761e4d1b776ea3742492d69cce0ac082",
+  "prompt_replay_sha256": "e4733ba4df0bafc3b26c9316a398486a512732752e873b4c2b432b5154b3e0b2",
+  "test_labels_read": 0,
+  "draft_zip": "absent; TCAD sections/figures cannot be authenticated",
+  "code_files": {
+    "FINAL_ARTIFACTS.json": "00cbb65c2ca7c4098628c994033862c39ab1b0629f253a3ebb2de8383123a96d",
+    "LLM_branch/common/mailohls_contract.py": "25d1e0fa7bb19eff3744ab1a3a4c07886eaa56b91b89e6bdc3bdf84757874673",
+    "LLM_branch/common/structural_memory.py": "8734d839be83dc645724dc4e0f1c556dc2e7b79bb2537fcee636d7379a343e5a",
+    "LLM_branch/common/structural_xattn.py": "c6cb2ff5cf004afca0c1b904ac58da7c0c106b161c5e058b668889857992e5d8",
+    "LLM_branch/inference/eval_stage1_stage2_stage3.py": "fae50c0ae3a62d8840fe108fb52d02e946463eaa5e8ac3f8a32f3d0fce5d7024",
+    "LLM_branch/train/train_SFT_xattn_new.py": "108b698c137ed686ebe0e985e163306ff66de8072e83d4866e28edff14bdb7d1",
+    "LLM_branch/train/train_DPO_harp_xattn.py": "b59ccae00a97133d965d3474a3c1701ec72ebd4780660700fb30061cb00b03f4"
+  }
+}

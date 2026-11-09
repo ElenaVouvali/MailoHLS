@@ -1,0 +1,84 @@
+{
+  "schema": "architecture-qualification-results-v1",
+  "cases": [
+    {
+      "job_id": "bank_01",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "runner_status": "timeout",
+      "runtime_seconds": 300.00408279002295,
+      "error": "Exceeded 300 seconds",
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = complete\nauto{_ARRAY_F_L3} = 0\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 4\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 4\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0",
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+      "headers": {
+        "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+        "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+        "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+        "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+        "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+      },
+      "materialized_source_sha256": "d417489de1d04cdfa13112dba9c9335a396fdf25209fe3e9073cda6066571986",
+      "receipt_sha256": "76033f97e75476b992fca02dd6310091df68c5f4e66512a5265263a3118fd57e",
+      "synthesis_completed": false,
+      "rankable_latency": false,
+      "latency_cycles": null,
+      "resources": null,
+      "resource_feasible": null,
+      "timing_qualified": null
+    },
+    {
+      "job_id": "bank_04",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "runner_status": "failed",
+      "runtime_seconds": 11.91065181902377,
+      "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+      "headers": {
+        "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+        "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+        "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+        "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+        "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "receipt_sha256": "e4a0630f1fec9b2e60eab4c4d9ea5b128a4826352ffcde0b223f5ad1b70e3dc3",
+      "synthesis_completed": true,
+      "rankable_latency": false,
+      "latency_cycles": null,
+      "resources": {
+        "BRAM_18K": 14,
+        "DSP": 0,
+        "FF": 1515,
+        "LUT": 3418
+      },
+      "resource_feasible": true,
+      "timing_qualified": true,
+      "latency_tag": "undef",
+      "resource_headroom": {
+        "BRAM_18K": 0.9775641025641025,
+        "DSP": 1.0,
+        "FF": 0.9967122395833333,
+        "LUT": 0.9851649305555555
+      },
+      "estimated_clock_ns": 7.3
+    }
+  ],
+  "new_unique_hls_jobs": 2,
+  "completed_csynth": 1,
+  "rankable_latency_cases": 0,
+  "switch_pairs": 0,
+  "stay_pairs": 0,
+  "cohort_status": "unresolved: no paired rankable latency measurements",
+  "gpu_optimizer_updates": 0,
+  "gpu_model_forwards": 0,
+  "gpu_execution_blocker": "Operational baseline preflight refused Ray worker holding 29782 MiB on assigned V100S; no process interrupted",
+  "post_route_checks": 0,
+  "promotion": "none; retained registry paths and defaults",
+  "hls_runtime_seconds": 311.9147346090467,
+  "unexecuted_sealed_jobs": 10,
+  "test_outcomes_accessed": 0
+}
