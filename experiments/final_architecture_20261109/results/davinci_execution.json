@@ -1,0 +1,66 @@
+{
+  "status": "INCONCLUSIVE",
+  "host": "davinci",
+  "GPU_UUID": "GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f",
+  "model": "Tesla V100-PCIE-32GB",
+  "stage1_adapter_sha256": "28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+  "transfer_verified": {
+    "all_37_files_verified": true,
+    "both_pinned_backbone_shards_verified": true,
+    "copied_secrets": false
+  },
+  "baseline_completed_requests": 6,
+  "baseline_sha256": "4fa37cf60906c4b862a5c538600f30d1ad6180a0d105bb67ae6e57998c98c578",
+  "zero_gate_exact_candidates_and_scores": true,
+  "smoke_successful_optimizer_updates": 1,
+  "smoke_optimizer_steps_verified": [
+    1.0
+  ],
+  "smoke_gate_after_update": -0.00019999168580397964,
+  "smoke_runtime_seconds_including_validation": 838.5422,
+  "smoke_train_loss": 0.3159502446651459,
+  "smoke_validation_history": [
+    {
+      "epoch": 0,
+      "eval_loss": 0.7066142559051514,
+      "eval_runtime": 26.8169,
+      "eval_samples_per_second": 2.014,
+      "eval_steps_per_second": 2.014,
+      "step": 0
+    },
+    {
+      "epoch": 0.027491408934707903,
+      "eval_loss": 0.7065427303314209,
+      "eval_runtime": 25.8736,
+      "eval_samples_per_second": 2.087,
+      "eval_steps_per_second": 2.087,
+      "step": 1
+    }
+  ],
+  "frozen_stage1_runtime_digest": "37ce944d28be212fd0acd631c7b301cd2f7dc560923845948eb965f8f94ca22f",
+  "frozen_stage1_verified": true,
+  "static_baseline": {
+    "state": "RUNNING",
+    "maximum_updates": 500,
+    "maximum_wall_seconds": 21600,
+    "layers": [
+      8,
+      16,
+      24,
+      32
+    ],
+    "memory": "static C",
+    "seed": 123,
+    "output": "/home/evouvali/mailohls_runs/final_architecture_r2/static",
+    "log": "/home/evouvali/MailoHLS-final-architecture-20261109/artifacts/final_architecture_20261109/static_train.log",
+    "selection_cases": 12,
+    "covered_memory_kernels": 20
+  },
+  "new_HLS_jobs": 0,
+  "hardware_quality_improvement": "NOT_ESTABLISHED",
+  "architecture_freeze": "NO",
+  "failed_diagnostic_attempts": [
+    "Memory width inherited as0 from Stage1 CLI; wrapper corrected to128/64",
+    "OOM loading retry; explicit idle preflight added before successful attempt"
+  ]
+}
