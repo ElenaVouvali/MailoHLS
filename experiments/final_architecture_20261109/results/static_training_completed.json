@@ -1,0 +1,64 @@
+{
+  "schema": "architecture-r2-static-C-completed-v1",
+  "updates": 150,
+  "maximum_planned_updates": 500,
+  "stop_reason": "three consecutive no-improvement constrained validation evaluations",
+  "best_selected_step": 0,
+  "runtime_seconds_including_validation": 4938.8074,
+  "frozen_stage1_verified": true,
+  "curve": [
+    {
+      "step": 0,
+      "teacher_forced_eval_loss": 0.7066142559051514,
+      "macro_decision_accuracy": 0.2935049019607843,
+      "candidate_margin": -0.4855758728254942,
+      "schema_compliance": 1.0,
+      "joint_action_score": 0.19791666666666666,
+      "exact_design_accuracy": 0.0,
+      "cases": 12,
+      "physical_QoR": "pending paired synthesis"
+    },
+    {
+      "step": 50,
+      "teacher_forced_eval_loss": 0.7056862711906433,
+      "macro_decision_accuracy": 0.2935049019607843,
+      "candidate_margin": -0.4951741621821889,
+      "schema_compliance": 1.0,
+      "joint_action_score": 0.19791666666666666,
+      "exact_design_accuracy": 0.0,
+      "cases": 12,
+      "physical_QoR": "pending paired synthesis"
+    },
+    {
+      "step": 100,
+      "teacher_forced_eval_loss": 0.7058402895927429,
+      "macro_decision_accuracy": 0.28921568627450983,
+      "candidate_margin": -0.51492836720678,
+      "schema_compliance": 1.0,
+      "joint_action_score": 0.1875,
+      "exact_design_accuracy": 0.0,
+      "cases": 12,
+      "physical_QoR": "pending paired synthesis"
+    },
+    {
+      "step": 150,
+      "teacher_forced_eval_loss": 0.6784988641738892,
+      "macro_decision_accuracy": 0.24019607843137256,
+      "candidate_margin": -0.6915513634884451,
+      "schema_compliance": 1.0,
+      "joint_action_score": 0.15625,
+      "exact_design_accuracy": 0.0,
+      "cases": 12,
+      "physical_QoR": "pending paired synthesis"
+    }
+  ],
+  "families": 2,
+  "validation_requests": 12,
+  "decision_sites": 149,
+  "forced_sites": 13,
+  "critical_scope": "Teacher-forced loss and decision accuracy are proxies; checkpoint150 physical quality not yet known. Both checkpoints included in sealed reference syntheses.",
+  "source_request_reconciliation": "Evaluation jsonl_idx is file line position; retained upstream _jsonl_idx is different. Verification checks kernel, device, clock, budget ID. U200 validation representative uses50% budget; separate baseline U200 full-budget request must not be equated.",
+  "evidence_controls": "BLOCKED by GPU occupancy/headroom after training; no control outputs fabricated",
+  "selected_deployment": "retain existing Stage1 pending physical qualification",
+  "test_labels_accessed": false
+}

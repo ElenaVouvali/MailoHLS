@@ -376,6 +376,11 @@ class MaskedCrossAttention(nn.Module):
             attention = attention.masked_fill(
                 ~text_to_memory_mask.any(dim=-1, keepdim=True), 0.0
             )
+        # Optional read-only diagnostics. The callback must detach only selected
+        # query positions; no attention tensor is retained by the module.
+        observer = getattr(self, "_diagnostic_attention_observer", None)
+        if observer is not None:
+            observer(attention, text_to_memory_mask if placeholder_slot_ids is not None else None)
         output = einsum("b h i j, b h j d -> b h i d", attention, v)
         output = rearrange(output, "b h n d -> b n (h d)")
 

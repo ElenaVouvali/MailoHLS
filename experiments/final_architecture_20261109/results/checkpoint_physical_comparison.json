@@ -1,0 +1,494 @@
+{
+  "schema": "architecture-r2-matched-physical-comparison-v1",
+  "cases": [
+    {
+      "job_id": "cp_01",
+      "checkpoint_step": 0,
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "attributions": [
+        {
+          "checkpoint_step": 0,
+          "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1191",
+          "request_jsonl_idx": 1191,
+          "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+          "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+          "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+          "request_sha256": "c95be45a051b54977ad4b275f264c81e065ef3fff416bb53a2d200d4457bdf9b",
+          "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+          "requested_budget": {
+            "BRAM": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          }
+        }
+      ],
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+      "headers": {
+        "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+        "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+        "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+        "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+        "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "runner_status": "failed",
+      "runtime_seconds": 11.806995018007001,
+      "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+      "csynth_completed": true,
+      "latency_cycles": null,
+      "resources": {
+        "BRAM_18K": 14,
+        "DSP": 0,
+        "FF": 1515,
+        "LUT": 3418
+      },
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "receipt_sha256": "48b8bdb05059e5ced23559e311f4bc0bda79585742bebf0a44c5f0bd41ecb78b",
+      "log_sha256": "bb9e058a57eecab4035b8734b33f08f89221f44750e96de79e3385835e23313d",
+      "report_sha256": "136e9134f15208dfc6a8febe2d7aab1b929555aa0c51c1ff6c2de67b4d727561",
+      "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+      "latency_tag": "undef",
+      "headroom": {
+        "BRAM_18K": 0.9775641025641025,
+        "DSP": 1.0,
+        "FF": 0.9967122395833333,
+        "LUT": 0.9851649305555555
+      },
+      "estimated_clock_ns": 7.3
+    },
+    {
+      "job_id": "cp_02",
+      "checkpoint_step": 150,
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "assignment": {
+        "AUTO{_ARRAY_T_L3}": "cyclic",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "attributions": [
+        {
+          "checkpoint_step": 150,
+          "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1191",
+          "request_jsonl_idx": 1191,
+          "prediction": "<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+          "assignment_sha256": "87453b1ddfb9a7ad43fef81482a71840d84dc7192800626b2f7e8ab85a7763d5",
+          "evaluation_receipt_sha256": "ae475cf0413b0af4168feac0a5b0442cf86e6832537dc0e354151f8b89c9051c",
+          "request_sha256": "c95be45a051b54977ad4b275f264c81e065ef3fff416bb53a2d200d4457bdf9b",
+          "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+          "requested_budget": {
+            "BRAM": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          }
+        }
+      ],
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+      "headers": {
+        "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+        "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+        "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+        "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+        "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+      },
+      "materialized_source_sha256": "320a8af46041425b49b947c99c212b2b01cdb75559e8a2b959b411ed47c04b0d",
+      "runner_status": "success",
+      "runtime_seconds": 11.60611669998616,
+      "error": null,
+      "csynth_completed": true,
+      "latency_cycles": 3165722,
+      "resources": {
+        "BRAM_18K": 14,
+        "DSP": 0,
+        "FF": 1511,
+        "LUT": 3266
+      },
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "receipt_sha256": "10b50ff8ddd1cce00d28b06e0bb1df2dc9b34aa8eb90d18d3a237ca4f07fa25b",
+      "log_sha256": "61150f2d36422b4182e8be29f2fb77d11d3bff8368c8915f35616c56cdcb3bda",
+      "report_sha256": "bec04fa494e9dbef63a63d1b375d4f222fde6e52d7df9ccef260068e38baa339",
+      "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+      "latency_tag": "3165722",
+      "headroom": {
+        "BRAM_18K": 0.9775641025641025,
+        "DSP": 1.0,
+        "FF": 0.9967209201388889,
+        "LUT": 0.9858246527777778
+      },
+      "estimated_clock_ns": 7.3
+    },
+    {
+      "job_id": "cp_05",
+      "checkpoint_step": 0,
+      "kernel": "machsuite-viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "attributions": [
+        {
+          "checkpoint_step": 0,
+          "case_id": "machsuite-viterbi::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1173",
+          "request_jsonl_idx": 1173,
+          "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+          "assignment_sha256": "a667ff416a5fcf25e8291e216e95509fadf3b868fbbb2db35c64e1ecf9357d14",
+          "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+          "request_sha256": "e51629be471e4abcc8a7bca1c6ae4efccdbd51f6fe73b8b536e57edfe6659143",
+          "input_source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+          "requested_budget": {
+            "BRAM": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          }
+        }
+      ],
+      "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+      "headers": {
+        "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+        "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+      },
+      "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+      "runner_status": "timeout",
+      "runtime_seconds": 1200.0052487950015,
+      "error": "Exceeded 1200 seconds",
+      "csynth_completed": false,
+      "latency_cycles": null,
+      "resources": null,
+      "resource_feasible": null,
+      "hls_estimated_timing_qualified": null,
+      "receipt_sha256": "af03d98cd36289fd386a5642903cb5675abca60ee87267db8ec38ca65ff1e6d1",
+      "log_sha256": "a42a0c073ca047039ba631c021a1c2eb724cd646ac81e0134ee9009944767138",
+      "report_sha256": null,
+      "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845"
+    },
+    {
+      "job_id": "cp_06",
+      "checkpoint_step": 150,
+      "kernel": "machsuite-viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "assignment": {
+        "AUTO{_ARRAY_T_L1}": "block",
+        "AUTO{_ARRAY_F_L1}": "2",
+        "AUTO{_ARRAY_D_L1}": "1",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "0",
+        "AUTO{_UNROLL_L6}": "2",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "1",
+        "AUTO{_UNROLL_L8}": "0"
+      },
+      "attributions": [
+        {
+          "checkpoint_step": 150,
+          "case_id": "machsuite-viterbi::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1173",
+          "request_jsonl_idx": 1173,
+          "prediction": "<L1>\nauto{_ARRAY_T_L1} = block\nauto{_ARRAY_F_L1} = 2\nauto{_ARRAY_D_L1} = 1\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 2\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0",
+          "assignment_sha256": "a247951cf00516ffcf232115569200f4b169000b1b3a036182e58f4aab0a1432",
+          "evaluation_receipt_sha256": "ae475cf0413b0af4168feac0a5b0442cf86e6832537dc0e354151f8b89c9051c",
+          "request_sha256": "e51629be471e4abcc8a7bca1c6ae4efccdbd51f6fe73b8b536e57edfe6659143",
+          "input_source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+          "requested_budget": {
+            "BRAM": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          }
+        }
+      ],
+      "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+      "headers": {
+        "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+        "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+      },
+      "materialized_source_sha256": "a963e745a833bc952b772f849ceef9d250212b6b293279927fe510449be8c546",
+      "runner_status": "timeout",
+      "runtime_seconds": 1200.0039100310241,
+      "error": "Exceeded 1200 seconds",
+      "csynth_completed": false,
+      "latency_cycles": null,
+      "resources": null,
+      "resource_feasible": null,
+      "hls_estimated_timing_qualified": null,
+      "receipt_sha256": "c8887c5dbdf41ce4e3a05264990dfb954530bdc4a3c2bfdfe9e8ce94a1e5f1e4",
+      "log_sha256": "877d3937f56a5ae6d473d7828bcdd50a6870d1e1cad15336ec9f3d1735f0c180",
+      "report_sha256": null,
+      "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845"
+    },
+    {
+      "job_id": "cp_03",
+      "checkpoint_step": 0,
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 2160,
+        "DSP": 3420,
+        "FF": 1182240,
+        "LUT": 591120
+      },
+      "assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "attributions": [
+        {
+          "checkpoint_step": 0,
+          "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xcu200-fsgd2104-2-e::uniform-050::10.0::1183",
+          "request_jsonl_idx": 1183,
+          "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+          "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+          "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+          "request_sha256": "a8a7925e659f49a680e373d9089f80d410473f8b8497806cc9a5fe1d431ef02d",
+          "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+          "requested_budget": {
+            "BRAM": 2160,
+            "DSP": 3420,
+            "FF": 1182240,
+            "LUT": 591120
+          }
+        }
+      ],
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+      "headers": {
+        "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+        "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+        "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+        "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+        "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "runner_status": "failed",
+      "runtime_seconds": 12.512018849985907,
+      "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+      "csynth_completed": true,
+      "latency_cycles": null,
+      "resources": {
+        "BRAM_18K": 6,
+        "DSP": 0,
+        "FF": 1515,
+        "LUT": 3409
+      },
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "receipt_sha256": "709458d0567ca3ba5c8e78e53693dd764cd0c1e0b6e6ed3ade004900e8bc5f99",
+      "log_sha256": "9e5b3b2d315d74cea189ab4cff962b0318ac03212ec663f6dd5c4d7786db69f3",
+      "report_sha256": "879dfb7a1d46616caf791f4529077f4293856d75c32174553205ca4f9562ecaa",
+      "batch_provenance_sha256": "5ce8dfb510ab7e1d78cc78a4273d618a6fff21009a731ff7ce8660bf3916bfe5",
+      "latency_tag": "undef",
+      "headroom": {
+        "BRAM_18K": 0.9972222222222222,
+        "DSP": 1.0,
+        "FF": 0.9987185343077548,
+        "LUT": 0.9942329814589255
+      },
+      "estimated_clock_ns": 7.3
+    },
+    {
+      "job_id": "cp_04",
+      "checkpoint_step": 150,
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 2160,
+        "DSP": 3420,
+        "FF": 1182240,
+        "LUT": 591120
+      },
+      "assignment": {
+        "AUTO{_ARRAY_T_L3}": "cyclic",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "attributions": [
+        {
+          "checkpoint_step": 150,
+          "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xcu200-fsgd2104-2-e::uniform-050::10.0::1183",
+          "request_jsonl_idx": 1183,
+          "prediction": "<L3>\nauto{_ARRAY_T_L3} = cyclic\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+          "assignment_sha256": "87453b1ddfb9a7ad43fef81482a71840d84dc7192800626b2f7e8ab85a7763d5",
+          "evaluation_receipt_sha256": "ae475cf0413b0af4168feac0a5b0442cf86e6832537dc0e354151f8b89c9051c",
+          "request_sha256": "a8a7925e659f49a680e373d9089f80d410473f8b8497806cc9a5fe1d431ef02d",
+          "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+          "requested_budget": {
+            "BRAM": 2160,
+            "DSP": 3420,
+            "FF": 1182240,
+            "LUT": 591120
+          }
+        }
+      ],
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+      "headers": {
+        "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+        "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+        "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+        "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+        "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+      },
+      "materialized_source_sha256": "320a8af46041425b49b947c99c212b2b01cdb75559e8a2b959b411ed47c04b0d",
+      "runner_status": "success",
+      "runtime_seconds": 12.161921293998603,
+      "error": null,
+      "csynth_completed": true,
+      "latency_cycles": 3165722,
+      "resources": {
+        "BRAM_18K": 6,
+        "DSP": 0,
+        "FF": 1511,
+        "LUT": 3257
+      },
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "receipt_sha256": "264fd97e6805e1ff1d68cfa8eb5d056a81507575d68ebcf70042a1c06e6799c2",
+      "log_sha256": "7b52181f60b989394a0115ca4654f380cc248d25354984f4163b85af639e616b",
+      "report_sha256": "2a51eff9aaea1e0a9f90501c519a23f8a076ffbce7262ba033ad2462125a6b27",
+      "batch_provenance_sha256": "5ce8dfb510ab7e1d78cc78a4273d618a6fff21009a731ff7ce8660bf3916bfe5",
+      "latency_tag": "3165722",
+      "headroom": {
+        "BRAM_18K": 0.9972222222222222,
+        "DSP": 1.0,
+        "FF": 0.9987219177155231,
+        "LUT": 0.9944901204493165
+      },
+      "estimated_clock_ns": 7.3
+    }
+  ],
+  "simulations": [
+    {
+      "job_id": "cp_01",
+      "checkpoint_step": 0,
+      "RTL_testcase_cycles": 3164724,
+      "functional_testcase_pass": true,
+      "input_cells": 1048576,
+      "checked_outputs": 1024,
+      "testcases": 1,
+      "report_sha256": "5adabd5516e62e775531bac2b881562bc9180bfd5c0a976c125173fd0d9e1ca5",
+      "simulation_receipt_sha256": "ed2448ec79a0810b39257740834bc25a781335176bf60d5ae04f910f551ef5b2",
+      "testbench_sha256": "baf1596fd66588392449134ab65fec7b77c42d08c0fec485439f8f8a0a0ef89d",
+      "scope": "one deterministic initialized testcase; RTL simulation under default AXI BFM; no physical/post-route timing"
+    },
+    {
+      "job_id": "cp_02",
+      "checkpoint_step": 150,
+      "RTL_testcase_cycles": 3164724,
+      "functional_testcase_pass": true,
+      "input_cells": 1048576,
+      "checked_outputs": 1024,
+      "testcases": 1,
+      "report_sha256": "8fe69ab07194126403743e906df309e5840b944862931526d50460d8da91f69b",
+      "simulation_receipt_sha256": "f7439d1ecf4ce1620287df827208379ee2e52b652e4de09c5b38b67b86c84fe3",
+      "testbench_sha256": "baf1596fd66588392449134ab65fec7b77c42d08c0fec485439f8f8a0a0ef89d",
+      "scope": "one deterministic initialized testcase; RTL simulation under default AXI BFM; no physical/post-route timing"
+    }
+  ],
+  "paired_RTL_speedup": 1.0,
+  "RTL_latency_improvement_percent": 0.0,
+  "hardware_superiority": "not demonstrated",
+  "independent_families_with_paired_finite_latency": 1,
+  "total_new_CSYNTH_calls_this_revision": 7,
+  "prior_revision_unique_CSYNTH_calls": 2,
+  "RTL_simulations": 2,
+  "C_simulations": 2,
+  "post_route_runs": 0,
+  "new_complete_models_promoted": 0,
+  "limitations": [
+    "HLS baseline latency undefined for Pathfinder",
+    "Viterbi both matched20minute timeouts: unknown QoR",
+    "only one deterministic RTL testcase and default AXI BFM; no routed timing",
+    "U200 prompt budgets50%, ZCU104 full; model comparison matched within context, not isolated target-axis experiment",
+    "no locked-test outcomes used"
+  ]
+}
