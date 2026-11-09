@@ -1,0 +1,949 @@
+[
+  {
+    "experiment_id": "C4",
+    "hypothesis": "hardware/cache/FiLM implementation path",
+    "baseline": "V4 latency for Stage2; corrected V4b for predictor audit",
+    "variant": "C4",
+    "code_commit": "6e27fa352488d481eb418cf6ee52fadd62d6b449",
+    "dataset_identity": "4a74291644d1cd4ccbd523c3156b75d2cf6211007810c4ff478bc81ed4eaf356",
+    "split_identity": "2187139c6689d71d2e5bac1026b49f8c2090890ba18bf3f8f3574c31af09cde2",
+    "checkpoint_identity": {
+      "capacity": {
+        "initial_encoder_hashes": null,
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "d21f46215127b6f54b832d13303b7c6a5fd4806f",
+        "training": {
+          "compiler_capacity": {
+            "elapsed_seconds": 54.50125383597333,
+            "family_macro": null,
+            "parameter_count": 191604,
+            "selected_step": 500,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_capacity_selected.pt": {
+            "matches": true,
+            "sha256": "5d6e0a4b96b3a40058a48fba912e21801c88c8b13028e00ea490fe4d0fda8764"
+          }
+        }
+      },
+      "full37": {
+        "initial_encoder_hashes": {
+          "compiler": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "compiler_difference": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "hardware": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "no_graph": "41c0483793b91cad78e0f500cbeb4e71008589ea293e7a8186f83ddf16eea9c1",
+          "target_film": "0ca83e5ccd6f75012814f0b64d62e2a870caf6ff5e992a5671ed7d0bf5692b1f"
+        },
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "f248497d4d8b51313fa9683aa64e0b701c6c2f39",
+        "training": {
+          "compiler": {
+            "elapsed_seconds": 81.26202895096503,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "compiler_difference": {
+            "elapsed_seconds": 83.83670798793901,
+            "family_macro": null,
+            "parameter_count": 152319,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "hardware": {
+            "elapsed_seconds": 66.13585441501345,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1250,
+            "selection_score": null
+          },
+          "no_graph": {
+            "elapsed_seconds": 38.25629770895466,
+            "family_macro": null,
+            "parameter_count": 126930,
+            "selected_step": 1000,
+            "selection_score": null
+          },
+          "target_film": {
+            "elapsed_seconds": 81.38027232291643,
+            "family_macro": null,
+            "parameter_count": 191667,
+            "selected_step": 250,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_difference_selected.pt": {
+            "matches": true,
+            "sha256": "14f1661a40d977ce6ba04672c020431fffe6f8be010f999afd6249042f5762c6"
+          },
+          "compiler_selected.pt": {
+            "matches": true,
+            "sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162"
+          },
+          "hardware_selected.pt": {
+            "matches": true,
+            "sha256": "89db512c5536391d5bc24b35c784465a729dcaa7ac9fa268e7a1dd7cd5ef4f4a"
+          },
+          "no_graph_selected.pt": {
+            "matches": true,
+            "sha256": "829a146568a1017fd4cddd4a7667313c404113314951edb2d4478d566f8f7cdf"
+          },
+          "target_film_selected.pt": {
+            "matches": true,
+            "sha256": "c4643f481515a60c414f92a5ffafea7b9c96239291ff414fef4238e062aca51f"
+          }
+        }
+      }
+    },
+    "seed": 123,
+    "GPU_host": null,
+    "GPU_UUID": null,
+    "training_updates": 0,
+    "training_runtime": 0,
+    "evaluation_contexts": null,
+    "available_metrics": {
+      "cache_comparisons": 96,
+      "source_hashes_equal": true,
+      "reauthenticated_measurements": 3664
+    },
+    "confidence_intervals_if_applicable": null,
+    "synthesis_receipts": [],
+    "status": "PASS",
+    "limitations": "one real training kernel across six contexts for path diagnostics",
+    "decision": "retain established path; no qualified new architecture"
+  },
+  {
+    "experiment_id": "C4_ADP_replay",
+    "hypothesis": "historical incremental hardware/FiLM advantage",
+    "baseline": "V4 latency for Stage2; corrected V4b for predictor audit",
+    "variant": "C4_ADP_replay",
+    "code_commit": "6e27fa352488d481eb418cf6ee52fadd62d6b449",
+    "dataset_identity": "4a74291644d1cd4ccbd523c3156b75d2cf6211007810c4ff478bc81ed4eaf356",
+    "split_identity": "2187139c6689d71d2e5bac1026b49f8c2090890ba18bf3f8f3574c31af09cde2",
+    "checkpoint_identity": {
+      "capacity": {
+        "initial_encoder_hashes": null,
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "d21f46215127b6f54b832d13303b7c6a5fd4806f",
+        "training": {
+          "compiler_capacity": {
+            "elapsed_seconds": 54.50125383597333,
+            "family_macro": null,
+            "parameter_count": 191604,
+            "selected_step": 500,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_capacity_selected.pt": {
+            "matches": true,
+            "sha256": "5d6e0a4b96b3a40058a48fba912e21801c88c8b13028e00ea490fe4d0fda8764"
+          }
+        }
+      },
+      "full37": {
+        "initial_encoder_hashes": {
+          "compiler": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "compiler_difference": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "hardware": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "no_graph": "41c0483793b91cad78e0f500cbeb4e71008589ea293e7a8186f83ddf16eea9c1",
+          "target_film": "0ca83e5ccd6f75012814f0b64d62e2a870caf6ff5e992a5671ed7d0bf5692b1f"
+        },
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "f248497d4d8b51313fa9683aa64e0b701c6c2f39",
+        "training": {
+          "compiler": {
+            "elapsed_seconds": 81.26202895096503,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "compiler_difference": {
+            "elapsed_seconds": 83.83670798793901,
+            "family_macro": null,
+            "parameter_count": 152319,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "hardware": {
+            "elapsed_seconds": 66.13585441501345,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1250,
+            "selection_score": null
+          },
+          "no_graph": {
+            "elapsed_seconds": 38.25629770895466,
+            "family_macro": null,
+            "parameter_count": 126930,
+            "selected_step": 1000,
+            "selection_score": null
+          },
+          "target_film": {
+            "elapsed_seconds": 81.38027232291643,
+            "family_macro": null,
+            "parameter_count": 191667,
+            "selected_step": 250,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_difference_selected.pt": {
+            "matches": true,
+            "sha256": "14f1661a40d977ce6ba04672c020431fffe6f8be010f999afd6249042f5762c6"
+          },
+          "compiler_selected.pt": {
+            "matches": true,
+            "sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162"
+          },
+          "hardware_selected.pt": {
+            "matches": true,
+            "sha256": "89db512c5536391d5bc24b35c784465a729dcaa7ac9fa268e7a1dd7cd5ef4f4a"
+          },
+          "no_graph_selected.pt": {
+            "matches": true,
+            "sha256": "829a146568a1017fd4cddd4a7667313c404113314951edb2d4478d566f8f7cdf"
+          },
+          "target_film_selected.pt": {
+            "matches": true,
+            "sha256": "c4643f481515a60c414f92a5ffafea7b9c96239291ff414fef4238e062aca51f"
+          }
+        }
+      }
+    },
+    "seed": 123,
+    "GPU_host": null,
+    "GPU_UUID": null,
+    "training_updates": 0,
+    "training_runtime": 0,
+    "evaluation_contexts": 18,
+    "available_metrics": {
+      "compiler": 0.7371046020868666,
+      "hardware": 0.7915560692760504,
+      "no_graph": 0.95846573331611,
+      "target_film": 0.6861195501119515
+    },
+    "confidence_intervals_if_applicable": null,
+    "synthesis_receipts": [],
+    "status": "INCONCLUSIVE",
+    "limitations": "ADP, one seed, two validation families; not latency generation",
+    "decision": "retain established path; no qualified new architecture"
+  },
+  {
+    "experiment_id": "D5",
+    "hypothesis": "latency common-configuration contrasts",
+    "baseline": "V4 latency for Stage2; corrected V4b for predictor audit",
+    "variant": "D5",
+    "code_commit": "6e27fa352488d481eb418cf6ee52fadd62d6b449",
+    "dataset_identity": "4a74291644d1cd4ccbd523c3156b75d2cf6211007810c4ff478bc81ed4eaf356",
+    "split_identity": "2187139c6689d71d2e5bac1026b49f8c2090890ba18bf3f8f3574c31af09cde2",
+    "checkpoint_identity": {
+      "capacity": {
+        "initial_encoder_hashes": null,
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "d21f46215127b6f54b832d13303b7c6a5fd4806f",
+        "training": {
+          "compiler_capacity": {
+            "elapsed_seconds": 54.50125383597333,
+            "family_macro": null,
+            "parameter_count": 191604,
+            "selected_step": 500,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_capacity_selected.pt": {
+            "matches": true,
+            "sha256": "5d6e0a4b96b3a40058a48fba912e21801c88c8b13028e00ea490fe4d0fda8764"
+          }
+        }
+      },
+      "full37": {
+        "initial_encoder_hashes": {
+          "compiler": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "compiler_difference": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "hardware": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "no_graph": "41c0483793b91cad78e0f500cbeb4e71008589ea293e7a8186f83ddf16eea9c1",
+          "target_film": "0ca83e5ccd6f75012814f0b64d62e2a870caf6ff5e992a5671ed7d0bf5692b1f"
+        },
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "f248497d4d8b51313fa9683aa64e0b701c6c2f39",
+        "training": {
+          "compiler": {
+            "elapsed_seconds": 81.26202895096503,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "compiler_difference": {
+            "elapsed_seconds": 83.83670798793901,
+            "family_macro": null,
+            "parameter_count": 152319,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "hardware": {
+            "elapsed_seconds": 66.13585441501345,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1250,
+            "selection_score": null
+          },
+          "no_graph": {
+            "elapsed_seconds": 38.25629770895466,
+            "family_macro": null,
+            "parameter_count": 126930,
+            "selected_step": 1000,
+            "selection_score": null
+          },
+          "target_film": {
+            "elapsed_seconds": 81.38027232291643,
+            "family_macro": null,
+            "parameter_count": 191667,
+            "selected_step": 250,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_difference_selected.pt": {
+            "matches": true,
+            "sha256": "14f1661a40d977ce6ba04672c020431fffe6f8be010f999afd6249042f5762c6"
+          },
+          "compiler_selected.pt": {
+            "matches": true,
+            "sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162"
+          },
+          "hardware_selected.pt": {
+            "matches": true,
+            "sha256": "89db512c5536391d5bc24b35c784465a729dcaa7ac9fa268e7a1dd7cd5ef4f4a"
+          },
+          "no_graph_selected.pt": {
+            "matches": true,
+            "sha256": "829a146568a1017fd4cddd4a7667313c404113314951edb2d4478d566f8f7cdf"
+          },
+          "target_film_selected.pt": {
+            "matches": true,
+            "sha256": "c4643f481515a60c414f92a5ffafea7b9c96239291ff414fef4238e062aca51f"
+          }
+        }
+      }
+    },
+    "seed": 123,
+    "GPU_host": null,
+    "GPU_UUID": null,
+    "training_updates": 0,
+    "training_runtime": 0,
+    "evaluation_contexts": null,
+    "available_metrics": {
+      "train": {
+        "budget": {
+          "feasibility_boundary_proxy": 74,
+          "no_change": 525,
+          "unsupported": 67
+        },
+        "clock": {
+          "latency_reversal": 3,
+          "near_tie": 1,
+          "no_change": 130,
+          "unsupported": 14
+        },
+        "device": {
+          "latency_reversal": 2,
+          "near_tie": 2,
+          "no_change": 188,
+          "unsupported": 30
+        }
+      },
+      "val": {
+        "budget": {
+          "feasibility_boundary_proxy": 11,
+          "no_change": 43
+        },
+        "clock": {
+          "no_change": 10,
+          "unsupported": 2
+        },
+        "device": {
+          "no_change": 16,
+          "unsupported": 2
+        }
+      }
+    },
+    "confidence_intervals_if_applicable": null,
+    "synthesis_receipts": [],
+    "status": "PASS",
+    "limitations": "resource proxies; no timing-qualified contexts; 2 device views correlated",
+    "decision": "retain established path; no qualified new architecture"
+  },
+  {
+    "experiment_id": "Stage1_reference",
+    "hypothesis": "real V4 constrained reference decode",
+    "baseline": "V4 latency for Stage2; corrected V4b for predictor audit",
+    "variant": "Stage1_reference",
+    "code_commit": "6e27fa352488d481eb418cf6ee52fadd62d6b449",
+    "dataset_identity": "4a74291644d1cd4ccbd523c3156b75d2cf6211007810c4ff478bc81ed4eaf356",
+    "split_identity": "2187139c6689d71d2e5bac1026b49f8c2090890ba18bf3f8f3574c31af09cde2",
+    "checkpoint_identity": {
+      "capacity": {
+        "initial_encoder_hashes": null,
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "d21f46215127b6f54b832d13303b7c6a5fd4806f",
+        "training": {
+          "compiler_capacity": {
+            "elapsed_seconds": 54.50125383597333,
+            "family_macro": null,
+            "parameter_count": 191604,
+            "selected_step": 500,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_capacity_selected.pt": {
+            "matches": true,
+            "sha256": "5d6e0a4b96b3a40058a48fba912e21801c88c8b13028e00ea490fe4d0fda8764"
+          }
+        }
+      },
+      "full37": {
+        "initial_encoder_hashes": {
+          "compiler": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "compiler_difference": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "hardware": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "no_graph": "41c0483793b91cad78e0f500cbeb4e71008589ea293e7a8186f83ddf16eea9c1",
+          "target_film": "0ca83e5ccd6f75012814f0b64d62e2a870caf6ff5e992a5671ed7d0bf5692b1f"
+        },
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "f248497d4d8b51313fa9683aa64e0b701c6c2f39",
+        "training": {
+          "compiler": {
+            "elapsed_seconds": 81.26202895096503,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "compiler_difference": {
+            "elapsed_seconds": 83.83670798793901,
+            "family_macro": null,
+            "parameter_count": 152319,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "hardware": {
+            "elapsed_seconds": 66.13585441501345,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1250,
+            "selection_score": null
+          },
+          "no_graph": {
+            "elapsed_seconds": 38.25629770895466,
+            "family_macro": null,
+            "parameter_count": 126930,
+            "selected_step": 1000,
+            "selection_score": null
+          },
+          "target_film": {
+            "elapsed_seconds": 81.38027232291643,
+            "family_macro": null,
+            "parameter_count": 191667,
+            "selected_step": 250,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_difference_selected.pt": {
+            "matches": true,
+            "sha256": "14f1661a40d977ce6ba04672c020431fffe6f8be010f999afd6249042f5762c6"
+          },
+          "compiler_selected.pt": {
+            "matches": true,
+            "sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162"
+          },
+          "hardware_selected.pt": {
+            "matches": true,
+            "sha256": "89db512c5536391d5bc24b35c784465a729dcaa7ac9fa268e7a1dd7cd5ef4f4a"
+          },
+          "no_graph_selected.pt": {
+            "matches": true,
+            "sha256": "829a146568a1017fd4cddd4a7667313c404113314951edb2d4478d566f8f7cdf"
+          },
+          "target_film_selected.pt": {
+            "matches": true,
+            "sha256": "c4643f481515a60c414f92a5ffafea7b9c96239291ff414fef4238e062aca51f"
+          }
+        }
+      }
+    },
+    "seed": 123,
+    "GPU_host": null,
+    "GPU_UUID": null,
+    "training_updates": 0,
+    "training_runtime": 0,
+    "evaluation_contexts": null,
+    "available_metrics": {},
+    "confidence_intervals_if_applicable": null,
+    "synthesis_receipts": [],
+    "status": "BLOCKED",
+    "limitations": "Lion\u043e V100S occupied; Davinci SSH host key unverified",
+    "decision": "retain established path; no qualified new architecture"
+  },
+  {
+    "experiment_id": "static_XAttn",
+    "hypothesis": "convergence-qualified static fusion",
+    "baseline": "V4 latency for Stage2; corrected V4b for predictor audit",
+    "variant": "static_XAttn",
+    "code_commit": "6e27fa352488d481eb418cf6ee52fadd62d6b449",
+    "dataset_identity": "4a74291644d1cd4ccbd523c3156b75d2cf6211007810c4ff478bc81ed4eaf356",
+    "split_identity": "2187139c6689d71d2e5bac1026b49f8c2090890ba18bf3f8f3574c31af09cde2",
+    "checkpoint_identity": {
+      "capacity": {
+        "initial_encoder_hashes": null,
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "d21f46215127b6f54b832d13303b7c6a5fd4806f",
+        "training": {
+          "compiler_capacity": {
+            "elapsed_seconds": 54.50125383597333,
+            "family_macro": null,
+            "parameter_count": 191604,
+            "selected_step": 500,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_capacity_selected.pt": {
+            "matches": true,
+            "sha256": "5d6e0a4b96b3a40058a48fba912e21801c88c8b13028e00ea490fe4d0fda8764"
+          }
+        }
+      },
+      "full37": {
+        "initial_encoder_hashes": {
+          "compiler": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "compiler_difference": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "hardware": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "no_graph": "41c0483793b91cad78e0f500cbeb4e71008589ea293e7a8186f83ddf16eea9c1",
+          "target_film": "0ca83e5ccd6f75012814f0b64d62e2a870caf6ff5e992a5671ed7d0bf5692b1f"
+        },
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "f248497d4d8b51313fa9683aa64e0b701c6c2f39",
+        "training": {
+          "compiler": {
+            "elapsed_seconds": 81.26202895096503,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "compiler_difference": {
+            "elapsed_seconds": 83.83670798793901,
+            "family_macro": null,
+            "parameter_count": 152319,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "hardware": {
+            "elapsed_seconds": 66.13585441501345,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1250,
+            "selection_score": null
+          },
+          "no_graph": {
+            "elapsed_seconds": 38.25629770895466,
+            "family_macro": null,
+            "parameter_count": 126930,
+            "selected_step": 1000,
+            "selection_score": null
+          },
+          "target_film": {
+            "elapsed_seconds": 81.38027232291643,
+            "family_macro": null,
+            "parameter_count": 191667,
+            "selected_step": 250,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_difference_selected.pt": {
+            "matches": true,
+            "sha256": "14f1661a40d977ce6ba04672c020431fffe6f8be010f999afd6249042f5762c6"
+          },
+          "compiler_selected.pt": {
+            "matches": true,
+            "sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162"
+          },
+          "hardware_selected.pt": {
+            "matches": true,
+            "sha256": "89db512c5536391d5bc24b35c784465a729dcaa7ac9fa268e7a1dd7cd5ef4f4a"
+          },
+          "no_graph_selected.pt": {
+            "matches": true,
+            "sha256": "829a146568a1017fd4cddd4a7667313c404113314951edb2d4478d566f8f7cdf"
+          },
+          "target_film_selected.pt": {
+            "matches": true,
+            "sha256": "c4643f481515a60c414f92a5ffafea7b9c96239291ff414fef4238e062aca51f"
+          }
+        }
+      }
+    },
+    "seed": 123,
+    "GPU_host": null,
+    "GPU_UUID": null,
+    "training_updates": 0,
+    "training_runtime": 0,
+    "evaluation_contexts": null,
+    "available_metrics": {},
+    "confidence_intervals_if_applicable": null,
+    "synthesis_receipts": [],
+    "status": "BLOCKED",
+    "limitations": "safe GPU unavailable; no convergence experiment performed",
+    "decision": "retain established path; no qualified new architecture"
+  },
+  {
+    "experiment_id": "location_training",
+    "hypothesis": "matched H0-H5/F1-F3 latency selection",
+    "baseline": "V4 latency for Stage2; corrected V4b for predictor audit",
+    "variant": "location_training",
+    "code_commit": "6e27fa352488d481eb418cf6ee52fadd62d6b449",
+    "dataset_identity": "4a74291644d1cd4ccbd523c3156b75d2cf6211007810c4ff478bc81ed4eaf356",
+    "split_identity": "2187139c6689d71d2e5bac1026b49f8c2090890ba18bf3f8f3574c31af09cde2",
+    "checkpoint_identity": {
+      "capacity": {
+        "initial_encoder_hashes": null,
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "d21f46215127b6f54b832d13303b7c6a5fd4806f",
+        "training": {
+          "compiler_capacity": {
+            "elapsed_seconds": 54.50125383597333,
+            "family_macro": null,
+            "parameter_count": 191604,
+            "selected_step": 500,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_capacity_selected.pt": {
+            "matches": true,
+            "sha256": "5d6e0a4b96b3a40058a48fba912e21801c88c8b13028e00ea490fe4d0fda8764"
+          }
+        }
+      },
+      "full37": {
+        "initial_encoder_hashes": {
+          "compiler": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "compiler_difference": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "hardware": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "no_graph": "41c0483793b91cad78e0f500cbeb4e71008589ea293e7a8186f83ddf16eea9c1",
+          "target_film": "0ca83e5ccd6f75012814f0b64d62e2a870caf6ff5e992a5671ed7d0bf5692b1f"
+        },
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "f248497d4d8b51313fa9683aa64e0b701c6c2f39",
+        "training": {
+          "compiler": {
+            "elapsed_seconds": 81.26202895096503,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "compiler_difference": {
+            "elapsed_seconds": 83.83670798793901,
+            "family_macro": null,
+            "parameter_count": 152319,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "hardware": {
+            "elapsed_seconds": 66.13585441501345,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1250,
+            "selection_score": null
+          },
+          "no_graph": {
+            "elapsed_seconds": 38.25629770895466,
+            "family_macro": null,
+            "parameter_count": 126930,
+            "selected_step": 1000,
+            "selection_score": null
+          },
+          "target_film": {
+            "elapsed_seconds": 81.38027232291643,
+            "family_macro": null,
+            "parameter_count": 191667,
+            "selected_step": 250,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_difference_selected.pt": {
+            "matches": true,
+            "sha256": "14f1661a40d977ce6ba04672c020431fffe6f8be010f999afd6249042f5762c6"
+          },
+          "compiler_selected.pt": {
+            "matches": true,
+            "sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162"
+          },
+          "hardware_selected.pt": {
+            "matches": true,
+            "sha256": "89db512c5536391d5bc24b35c784465a729dcaa7ac9fa268e7a1dd7cd5ef4f4a"
+          },
+          "no_graph_selected.pt": {
+            "matches": true,
+            "sha256": "829a146568a1017fd4cddd4a7667313c404113314951edb2d4478d566f8f7cdf"
+          },
+          "target_film_selected.pt": {
+            "matches": true,
+            "sha256": "c4643f481515a60c414f92a5ffafea7b9c96239291ff414fef4238e062aca51f"
+          }
+        }
+      }
+    },
+    "seed": 123,
+    "GPU_host": null,
+    "GPU_UUID": null,
+    "training_updates": 0,
+    "training_runtime": 0,
+    "evaluation_contexts": null,
+    "available_metrics": {},
+    "confidence_intervals_if_applicable": null,
+    "synthesis_receipts": [],
+    "status": "NOT_RUN",
+    "limitations": "no trustworthy validation reversal cohort or convergence baseline",
+    "decision": "retain established path; no qualified new architecture"
+  },
+  {
+    "experiment_id": "new_synthesis",
+    "hypothesis": "confirm development target switches",
+    "baseline": "V4 latency for Stage2; corrected V4b for predictor audit",
+    "variant": "new_synthesis",
+    "code_commit": "6e27fa352488d481eb418cf6ee52fadd62d6b449",
+    "dataset_identity": "4a74291644d1cd4ccbd523c3156b75d2cf6211007810c4ff478bc81ed4eaf356",
+    "split_identity": "2187139c6689d71d2e5bac1026b49f8c2090890ba18bf3f8f3574c31af09cde2",
+    "checkpoint_identity": {
+      "capacity": {
+        "initial_encoder_hashes": null,
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "d21f46215127b6f54b832d13303b7c6a5fd4806f",
+        "training": {
+          "compiler_capacity": {
+            "elapsed_seconds": 54.50125383597333,
+            "family_macro": null,
+            "parameter_count": 191604,
+            "selected_step": 500,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_capacity_selected.pt": {
+            "matches": true,
+            "sha256": "5d6e0a4b96b3a40058a48fba912e21801c88c8b13028e00ea490fe4d0fda8764"
+          }
+        }
+      },
+      "full37": {
+        "initial_encoder_hashes": {
+          "compiler": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "compiler_difference": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "hardware": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "no_graph": "41c0483793b91cad78e0f500cbeb4e71008589ea293e7a8186f83ddf16eea9c1",
+          "target_film": "0ca83e5ccd6f75012814f0b64d62e2a870caf6ff5e992a5671ed7d0bf5692b1f"
+        },
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "f248497d4d8b51313fa9683aa64e0b701c6c2f39",
+        "training": {
+          "compiler": {
+            "elapsed_seconds": 81.26202895096503,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "compiler_difference": {
+            "elapsed_seconds": 83.83670798793901,
+            "family_macro": null,
+            "parameter_count": 152319,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "hardware": {
+            "elapsed_seconds": 66.13585441501345,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1250,
+            "selection_score": null
+          },
+          "no_graph": {
+            "elapsed_seconds": 38.25629770895466,
+            "family_macro": null,
+            "parameter_count": 126930,
+            "selected_step": 1000,
+            "selection_score": null
+          },
+          "target_film": {
+            "elapsed_seconds": 81.38027232291643,
+            "family_macro": null,
+            "parameter_count": 191667,
+            "selected_step": 250,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_difference_selected.pt": {
+            "matches": true,
+            "sha256": "14f1661a40d977ce6ba04672c020431fffe6f8be010f999afd6249042f5762c6"
+          },
+          "compiler_selected.pt": {
+            "matches": true,
+            "sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162"
+          },
+          "hardware_selected.pt": {
+            "matches": true,
+            "sha256": "89db512c5536391d5bc24b35c784465a729dcaa7ac9fa268e7a1dd7cd5ef4f4a"
+          },
+          "no_graph_selected.pt": {
+            "matches": true,
+            "sha256": "829a146568a1017fd4cddd4a7667313c404113314951edb2d4478d566f8f7cdf"
+          },
+          "target_film_selected.pt": {
+            "matches": true,
+            "sha256": "c4643f481515a60c414f92a5ffafea7b9c96239291ff414fef4238e062aca51f"
+          }
+        }
+      }
+    },
+    "seed": 123,
+    "GPU_host": null,
+    "GPU_UUID": null,
+    "training_updates": 0,
+    "training_runtime": 0,
+    "evaluation_contexts": null,
+    "available_metrics": {},
+    "confidence_intervals_if_applicable": null,
+    "synthesis_receipts": [],
+    "status": "NOT_RUN",
+    "limitations": "prior bank anchor finite latency unresolved; no blind queue",
+    "decision": "retain established path; no qualified new architecture"
+  },
+  {
+    "experiment_id": "locked_test",
+    "hypothesis": "frozen architecture final validation",
+    "baseline": "V4 latency for Stage2; corrected V4b for predictor audit",
+    "variant": "locked_test",
+    "code_commit": "6e27fa352488d481eb418cf6ee52fadd62d6b449",
+    "dataset_identity": "4a74291644d1cd4ccbd523c3156b75d2cf6211007810c4ff478bc81ed4eaf356",
+    "split_identity": "2187139c6689d71d2e5bac1026b49f8c2090890ba18bf3f8f3574c31af09cde2",
+    "checkpoint_identity": {
+      "capacity": {
+        "initial_encoder_hashes": null,
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "d21f46215127b6f54b832d13303b7c6a5fd4806f",
+        "training": {
+          "compiler_capacity": {
+            "elapsed_seconds": 54.50125383597333,
+            "family_macro": null,
+            "parameter_count": 191604,
+            "selected_step": 500,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_capacity_selected.pt": {
+            "matches": true,
+            "sha256": "5d6e0a4b96b3a40058a48fba912e21801c88c8b13028e00ea490fe4d0fda8764"
+          }
+        }
+      },
+      "full37": {
+        "initial_encoder_hashes": {
+          "compiler": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "compiler_difference": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "hardware": "b1493b22d9e2b76ae0515109abf1defe788ba79b4c0d8d77c13317675efbda04",
+          "no_graph": "41c0483793b91cad78e0f500cbeb4e71008589ea293e7a8186f83ddf16eea9c1",
+          "target_film": "0ca83e5ccd6f75012814f0b64d62e2a870caf6ff5e992a5671ed7d0bf5692b1f"
+        },
+        "schedule": "4a1f314c2ce9fd2da77c89c5a34c22e53a7d403dc4bcee53af09f9e4e0e1614e",
+        "source_commit": "f248497d4d8b51313fa9683aa64e0b701c6c2f39",
+        "training": {
+          "compiler": {
+            "elapsed_seconds": 81.26202895096503,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "compiler_difference": {
+            "elapsed_seconds": 83.83670798793901,
+            "family_macro": null,
+            "parameter_count": 152319,
+            "selected_step": 1500,
+            "selection_score": null
+          },
+          "hardware": {
+            "elapsed_seconds": 66.13585441501345,
+            "family_macro": null,
+            "parameter_count": 127538,
+            "selected_step": 1250,
+            "selection_score": null
+          },
+          "no_graph": {
+            "elapsed_seconds": 38.25629770895466,
+            "family_macro": null,
+            "parameter_count": 126930,
+            "selected_step": 1000,
+            "selection_score": null
+          },
+          "target_film": {
+            "elapsed_seconds": 81.38027232291643,
+            "family_macro": null,
+            "parameter_count": 191667,
+            "selected_step": 250,
+            "selection_score": null
+          }
+        },
+        "weights": {
+          "compiler_difference_selected.pt": {
+            "matches": true,
+            "sha256": "14f1661a40d977ce6ba04672c020431fffe6f8be010f999afd6249042f5762c6"
+          },
+          "compiler_selected.pt": {
+            "matches": true,
+            "sha256": "ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162"
+          },
+          "hardware_selected.pt": {
+            "matches": true,
+            "sha256": "89db512c5536391d5bc24b35c784465a729dcaa7ac9fa268e7a1dd7cd5ef4f4a"
+          },
+          "no_graph_selected.pt": {
+            "matches": true,
+            "sha256": "829a146568a1017fd4cddd4a7667313c404113314951edb2d4478d566f8f7cdf"
+          },
+          "target_film_selected.pt": {
+            "matches": true,
+            "sha256": "c4643f481515a60c414f92a5ffafea7b9c96239291ff414fef4238e062aca51f"
+          }
+        }
+      }
+    },
+    "seed": 123,
+    "GPU_host": null,
+    "GPU_UUID": null,
+    "training_updates": 0,
+    "training_runtime": 0,
+    "evaluation_contexts": null,
+    "available_metrics": {},
+    "confidence_intervals_if_applicable": null,
+    "synthesis_receipts": [],
+    "status": "NOT_RUN",
+    "limitations": "choices unresolved; test remains locked",
+    "decision": "retain established path; no qualified new architecture"
+  }
+]

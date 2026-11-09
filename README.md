@@ -1,5 +1,7 @@
 # MailoHLS / SALT-HLS
 
+Revision-2 architecture evidence and Davinci handoff: [Architecture decisions](docs/architecture_freeze/ARCHITECTURE_DECISIONS.md). GPU qualification remains pending.
+
 [Target-conditioned architecture qualification](docs/architecture-finalization/README.md): retained latency endpoint, measured limits, and executable configuration.
 
 ## Research branch status — 5 November 2026

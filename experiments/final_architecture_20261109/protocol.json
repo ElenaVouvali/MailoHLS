@@ -1,0 +1,50 @@
+{
+  "schema": "salt-final-architecture-r2-v1",
+  "parent_commit": "6e27fa352488d481eb418cf6ee52fadd62d6b449",
+  "reference": {
+    "objective": "PARETO_LATENCY",
+    "part": "xczu7ev-ffvc1156-2-e",
+    "clock_ns": 10,
+    "resources": {
+      "BRAM": 624,
+      "DSP": 1728,
+      "FF": 460800,
+      "LUT": 230400
+    }
+  },
+  "research_parent": "V4 multi-reference 28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+  "production_registry": "unchanged; historical latency independent control",
+  "limits": {
+    "gpu_hours": 8,
+    "new_hls_initial": 30,
+    "new_hls_max": 48,
+    "postroute_max": 6
+  },
+  "seed": 123,
+  "meaningful_gap": 0.05,
+  "near_optimal_tolerance": 0.01,
+  "promotion": {
+    "min_independent_selection_families": 2,
+    "max_reference_macro_latency_regression": 0.05,
+    "no_new_reference_infeasibility": true
+  },
+  "order": [
+    "C4 re-audit and TCAD crosswalk",
+    "D5 latency common-configuration contrasts",
+    "Stage1 and static XAttn baseline if safe GPU and useful data",
+    "matched location screen only if identifiable",
+    "Coroni selected development receipts",
+    "freeze only supported decisions"
+  ],
+  "locked_test": "no labels, metrics, or candidate mining",
+  "proxy_resources": "percentage times capacity are proxies; never exact-count feasibility",
+  "conditioning_controls": "H0-H5 forward diagnostics distinct from matched training and Stage2 generation",
+  "stopping": "hard integrity, missing trustworthy contrast, unsafe GPU, or budget; do independent work",
+  "plan": [
+    "authenticate paper/code/cache/checkpoints",
+    "real-graph message/cache/gradient tests; reproduce saved metrics",
+    "common-pool latency reversals, boundaries, ties and invariants on train/development only",
+    "preflight and run safe baseline; do not share occupied GPU",
+    "convergence and matched experiments gated on preceding evidence"
+  ]
+}
