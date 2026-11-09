@@ -216,20 +216,20 @@ def physical_candidate(manifest, shared, proposal):
 
 def _usable(result):
     return (result.get("synthesis_status") == "success" and result.get("rankable") is True
-            and result.get("feasible") is True and result.get("ADP") is not None
-            and math.isfinite(result["ADP"]))
+            and result.get("feasible") is True and hls.objective_value(result) is not None
+            and math.isfinite(hls.objective_value(result)))
 
 
 def _history_entry(trace, record):
     # The policy can see precisely the outcomes it paid for, and nothing else.
-    fields = ("ADP", "rankable", "feasible", "synthesis_status", "comparison_context_id")
+    fields = ("ADP", "latency_cycles", "objective", "rankable", "feasible", "synthesis_status", "comparison_context_id")
     return {**trace["proposal"], "measurement": {key: record["result"].get(key) for key in fields}}
 
 
 def _best(history):
     valid = [row for row in history if _usable(row["measurement"])]
     # Stable min retains the earlier incumbent on equal measured ADP.
-    return min(valid, key=lambda r: r["measurement"]["ADP"]) if valid else None
+    return min(valid, key=lambda r: hls.objective_value(r["measurement"])) if valid else None
 
 
 def _check_context(history, result):
@@ -258,15 +258,18 @@ def _verify_result(record, candidate, kernel, expected_tool):
         raise ValueError("Failed synthesis cannot provide a numerical objective")
 
 
-def read_state(path, manifest, shared):
+def read_state(path, manifest, shared, runtime=None):
     """Reconstruct and verify decisions from a policy's own journals."""
+    problem_fn = runtime.problem_for if runtime is not None else problem_for
+    candidate_fn = runtime.physical_candidate if runtime is not None else physical_candidate
+    verify_fn = runtime.verify_result if runtime is not None else _verify_result
     traces = c.read_jsonl(Path(path) / "search_trace.jsonl")
     records = c.read_jsonl(Path(path) / "measurements.jsonl")
     by_step = {r["step"]: r for r in records}
     if len(by_step) != len(records):
         raise ValueError("Duplicate logical measurement steps")
     history, pending, terminal = [], None, None
-    problem = problem_for(manifest, shared)
+    problem = problem_fn(manifest, shared)
     for index, trace in enumerate(traces):
         if trace["event_type"] == "termination":
             if index != len(traces) - 1:
@@ -288,7 +291,7 @@ def read_state(path, manifest, shared):
                 or trace["selection_reason"] != expected["selection_reason"]
                 or trace["relation_evidence"] != expected.get("relation_evidence")):
             raise ValueError("Trace explanation differs from the selected proposal")
-        candidate = physical_candidate(manifest, shared, expected)
+        candidate = candidate_fn(manifest, shared, expected)
         c.policy_record(expected["assignment"], problem["baseline"], problem["actions"], problem["native_domains"], "tcad")
         if trace["status"] == "pending":
             if index != len(traces) - 1:
@@ -297,7 +300,7 @@ def read_state(path, manifest, shared):
         record = by_step.get(step)
         if record is None or record["candidate_signature"] != expected["signature"]:
             raise ValueError("Completed trace lacks its exact measurement")
-        _verify_result(record, candidate, shared["kernels"][manifest["kernel"]], shared["expected_tool_identity"])
+        verify_fn(record, candidate, shared["kernels"][manifest["kernel"]], shared["expected_tool_identity"])
         _check_context(history, record["result"])
         history.append(_history_entry(trace, record))
         after = _best(history)
@@ -387,13 +390,22 @@ def measure(manifest, shared, proposal, query_id, root, executable, timeout):
             "physical_synthesis_runtime_seconds": result.get("hls_runtime_seconds", 0) if own else 0}
 
 
-def search(path, *, executable="vitis_hls", timeout=21600, limit=None):
+def search(path, *, executable="vitis_hls", timeout=21600, limit=None, runtime=None):
+    # The default backend retains its historical sealed ADP contract. A versioned
+    # deployment runtime supplies authentication/storage/measurement, not a search policy.
+    load = runtime.load_run if runtime is not None else load_run
+    read = runtime.read_state if runtime is not None else read_state
+    problem_fn = runtime.problem_for if runtime is not None else problem_for
+    measure_fn = runtime.measure if runtime is not None else measure
+    candidate_fn = runtime.physical_candidate if runtime is not None else physical_candidate
+    verify_fn = runtime.verify_result if runtime is not None else _verify_result
+    summary_fn = runtime.summarize if runtime is not None else summarize
     path = Path(path)
     with (path / "run.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        manifest, shared = load_run(path)
-        traces, records, history, pending, terminal = read_state(path, manifest, shared)
-        problem = problem_for(manifest, shared)
+        manifest, shared = load(path)
+        traces, records, history, pending, terminal = read(path, manifest, shared)
+        problem = problem_fn(manifest, shared)
         completed = 0
         while not terminal:
             if not pending and limit is not None and completed >= limit:
@@ -424,11 +436,11 @@ def search(path, *, executable="vitis_hls", timeout=21600, limit=None):
                 c.write_jsonl(path / "search_trace.jsonl", traces)  # Pay BEFORE oracle access.
             saved = next((r for r in records if r["step"] == trace["step"]), None)
             if saved is None:
-                result, physical = measure(manifest, shared, proposal, trace["query_id"], path.parents[1], executable, timeout)
+                result, physical = measure_fn(manifest, shared, proposal, trace["query_id"], path.parents[1], executable, timeout)
                 saved = {"step": trace["step"], "candidate_signature": proposal["signature"], "result": result, **physical}
                 records.append(saved); c.write_jsonl(path / "measurements.jsonl", records)
-            candidate = physical_candidate(manifest, shared, proposal)
-            _verify_result(saved, candidate, shared["kernels"][manifest["kernel"]], shared["expected_tool_identity"])
+            candidate = candidate_fn(manifest, shared, proposal)
+            verify_fn(saved, candidate, shared["kernels"][manifest["kernel"]], shared["expected_tool_identity"])
             _check_context(history, saved["result"])
             history.append(_history_entry(trace, saved))
             after = _best(history)
@@ -438,14 +450,14 @@ def search(path, *, executable="vitis_hls", timeout=21600, limit=None):
                 measured_ADP=result.get("ADP"), feasibility=result.get("feasible"),
                 incumbent_after=after["signature"] if after else None,
                 best_ADP_so_far=after["measurement"]["ADP"] if after else None,
-                incumbent_improved=bool(best and after and after["measurement"]["ADP"] < best["measurement"]["ADP"]),
+                incumbent_improved=bool(best and after and hls.objective_value(after["measurement"]) < hls.objective_value(best["measurement"])),
                 controller_runtime_seconds=max(0.0, time.monotonic() - started - saved["physical_synthesis_runtime_seconds"]))
             c.write_jsonl(path / "search_trace.jsonl", traces)
             pending = None; completed += 1
         if terminal and (not traces or traces[-1]["event_type"] != "termination"):
             traces.append({"event_type": "termination", "reason": terminal, "logical_evaluation_cost": 0})
             c.write_jsonl(path / "search_trace.jsonl", traces)
-        summarize(path)
+        summary_fn(path)
         print(f"{manifest['kernel']}/{manifest['policy']}: {len(history)}/{manifest['max_evaluations']} logical queries; {terminal or 'paused_at_invocation_limit'}", flush=True)
 
 

@@ -1422,15 +1422,12 @@ class STRUCTURALDPOTrainer(Trainer):
             masks.append(mask)
             relations.append(relation)
 
-        mem_kv = torch.cat(kvs, dim=0)
-        mem_m = torch.cat(masks, dim=0)
-        relation_mask = None
-        if self.structural_routing == "compiler_relational":
-            if any(relation is None for relation in relations):
-                raise RuntimeError(
-                    "compiler_relational DPO received missing relations"
-                )
-            relation_mask = torch.cat(relations, dim=0)
+        if self.structural_routing == "compiler_relational" and any(relation is None for relation in relations):
+            raise RuntimeError("compiler_relational DPO received missing relations")
+        mem_kv, mem_m, relation_mask = self._sft_mod.structural_memory_utils.pad_memory_pack_batch(
+            [kv.squeeze(0) for kv in kvs], [mask.squeeze(0) for mask in masks],
+            [relation.squeeze(0) for relation in relations] if self.structural_routing == "compiler_relational" else None
+        )
         device = next(model.parameters()).device
         model.condition_structural_memory(
             mem_kv.to(device),
@@ -1480,12 +1477,14 @@ class STRUCTURALDPOTrainer(Trainer):
             weights = score_weights[:, 1:]
             anchor = anchor_weights[:, 1:] if anchor_weights is not None else weights
 
-            log_probs = F.log_softmax(logits, dim=-1)
-            token_logps = torch.gather(
-                log_probs,
-                dim=-1,
-                index=labels.unsqueeze(-1)
+            # Standard causal scoring in float32, without materializing
+            # prompt-token vocabulary probabilities that never enter the loss.
+            weights, anchor = weights.float(), anchor.float()
+            active = weights.ne(0) | anchor.ne(0)
+            selected_logps = F.log_softmax(logits[active].float(), dim=-1).gather(
+                -1, labels[active].unsqueeze(-1)
             ).squeeze(-1)
+            token_logps = torch.zeros_like(weights).masked_scatter(active, selected_logps)
 
             seq_logps = (token_logps * weights).sum(dim=-1)
             token_counts = weights.sum(dim=-1).clamp(min=1.0)

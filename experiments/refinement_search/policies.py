@@ -6,6 +6,7 @@ from itertools import combinations, product
 import math
 
 from experiments.refinement import configurations as c
+from experiments.refinement.synthesis import objective_value
 
 POLICIES = ("random", "coordinate", "compose", "structural", "hybrid")
 FAMILIES = ("UNROLL", "ARRAY_F", "PIPE", "ARRAY_T", "ARRAY_D", "tuple")
@@ -129,8 +130,8 @@ def structural_proposals(problem, reference, seed=123):
 def _rankable(row):
     result = row.get("measurement", {})
     return (result.get("synthesis_status") == "success" and result.get("rankable") is True
-            and result.get("feasible") is True and result.get("ADP") is not None
-            and math.isfinite(result["ADP"]) and result.get("comparison_context_id") is not None)
+            and result.get("feasible") is True and objective_value(result) is not None
+            and math.isfinite(objective_value(result)) and result.get("comparison_context_id") is not None)
 
 
 def composition_proposals(problem, history, incumbent, seed=123):
@@ -147,7 +148,7 @@ def composition_proposals(problem, history, incumbent, seed=123):
         if (row["proposal_type"] == "coordinate" and len(row["reference_changed_actions"]) == 1
                 and reference and _rankable(reference) and _rankable(row)
                 and row["measurement"]["comparison_context_id"] == reference["measurement"]["comparison_context_id"]
-                and row["measurement"]["ADP"] < reference["measurement"]["ADP"]):
+                and objective_value(row["measurement"]) < objective_value(reference["measurement"])):
             groups[row["reference_signature"]].append(row)
     proposals, rejected = [], []
     for reference_sig, rows in groups.items():
@@ -174,7 +175,7 @@ def composition_proposals(problem, history, incumbent, seed=123):
             candidate = {**base, **updates}
             if candidate == incumbent:
                 continue
-            gain = sum(observed[reference_sig]["measurement"]["ADP"] - row["measurement"]["ADP"] for row in (a, b))
+            gain = sum(objective_value(observed[reference_sig]["measurement"]) - objective_value(row["measurement"]) for row in (a, b))
             proposal = _proposal(problem, base, candidate, "composition",
                 "Combine two observed beneficial singles from the same reference; rank by observed gains only",
                 constituent_signatures=[a["signature"], b["signature"]], observed_gain_sum=gain)

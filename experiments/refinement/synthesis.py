@@ -55,6 +55,21 @@ def evaluate_metrics(latency_cycles, resources, capacities=None, budget=None):
         'rankable': feasible
     }
 
+def objective_value(result):
+    """Comparable fixed-request objective, preserving historical ADP defaults."""
+    objective = result.get('objective') or 'PARETO_ADP'
+    field = {'PARETO_ADP': 'ADP', 'ADP': 'ADP',
+             'PARETO_LATENCY': 'latency_cycles', 'PARETO_AREA': 'area_proxy'}.get(objective)
+    if field is None:
+        raise ValueError('Unsupported refinement objective: ' + str(objective))
+    value = result.get(field)
+    if value is None or isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
+        return None
+    if field == 'latency_cycles' and value <= 0:
+        return None
+    return value
+
+
 def best_feasible(results):
     valid = [
         r for r in results if r.get('synthesis_status') == 'success' and r.get('rankable') is True and (r.get('ADP') is not None)
