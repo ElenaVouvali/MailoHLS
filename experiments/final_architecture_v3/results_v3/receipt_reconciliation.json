@@ -1,0 +1,46 @@
+{
+  "schema": "v3-receipt-reconciliation-v1",
+  "checked_utc": "2026-11-09T22:56:56.697716+00:00",
+  "baseline_parent": "8ad95155ec38d9a389e3b8c70dc4a1127dacc28e",
+  "claims": [
+    {
+      "claim": "Static 150-update run finished",
+      "status": "VERIFIED",
+      "artifact": "experiments/final_architecture_20261109/results/static_training_completed.json",
+      "sha256": "031f10d694d2ab1cc5e74a1001b64c85b1cdee6b07df646b945f95143110ae35"
+    },
+    {
+      "claim": "Older Davinci Markdown says RUNNING",
+      "status": "CONFLICTING",
+      "resolution": "Historical status superseded by completed training receipt; leave original intact"
+    },
+    {
+      "claim": "Six fixed-prefix cases and tensors exist",
+      "status": "VERIFIED",
+      "jsonl_sha256": "373555c4b052883fcb1d5651c0f189d29ce2035d22fce5fcf13eb78a3142c5cf",
+      "analysis": "fixed_prefix_analysis.json"
+    },
+    {
+      "claim": "Stage2 already preserves native V4 action/reference supervision",
+      "status": "CONFLICTING",
+      "resolution": "Historical equal fields/top1; new scoped loss/exposure repair required"
+    },
+    {
+      "claim": "Hardware graph/FiLM proven useless for latency generation",
+      "status": "UNKNOWN",
+      "resolution": "Historical ADP predictor result cannot establish this hypothesis"
+    },
+    {
+      "claim": "DPO default and latency refinement qualified",
+      "status": "PENDING",
+      "resolution": "Mandatory Revision3 release gates remain open"
+    },
+    {
+      "claim": "One corrected-loss optimizer update, Stage1 unchanged",
+      "status": "VERIFIED",
+      "scope": "Smoke still compacted1164 exposures to1016; formal launch disables compaction",
+      "contract_sha256": "f3d6df077103b41c64b5e1f7a53a54189e6f91f146b95d4835d217ec9244dcd7",
+      "optimizer_sha256": "5be6a5af744eb94a73b0b3f8a1788e87217d5e93c32f63f537e7a754e4bb80e9"
+    }
+  ]
+}

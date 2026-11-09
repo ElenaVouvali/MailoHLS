@@ -1,0 +1,74 @@
+{
+  "schema": "salt-architecture-v3-protocol-v1",
+  "parent_commit": "8ad95155ec38d9a389e3b8c70dc4a1127dacc28e",
+  "reference": {
+    "objective": "PARETO_LATENCY",
+    "part": "xczu7ev-ffvc1156-2-e",
+    "clock_ns": 10,
+    "budgets_fraction": [
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "budget": {
+    "total_gpu_hours_ceiling": 8,
+    "new_hls_max": 48,
+    "postroute_max": 6,
+    "prior_gpu_seconds_lower_bound": 6132.938499999999,
+    "prior_hls_attempts_including_repeats": 11,
+    "prior_hls_unique": 10,
+    "prior_postroute": 0,
+    "unreconciled_prior_gpu_sessions": "baseline, zero-gate, evidence controls, failed/OOM loads; reserve one additional hour pending exact accounting"
+  },
+  "stages": {
+    "R0": "reuse verified V4b audit; do not read locked-test labels",
+    "R1": {
+      "max_updates": 150,
+      "seed": 123,
+      "batch": 1,
+      "accumulation": 8,
+      "layers": [
+        8,
+        16,
+        24,
+        32
+      ],
+      "max_new_wall_seconds": 7200,
+      "selection_kernels": 3,
+      "selection_requests_expected": 18,
+      "training_exposures": 1164,
+      "validation_rows": 54,
+      "loss": "stage1-action-normalized-values-v1",
+      "selection": "report full configurations and all proxy metrics; no physical promotion from accuracy alone"
+    },
+    "R7": {
+      "required": true,
+      "status": "waiting corrected Stage2 parent",
+      "beta": 0.1,
+      "logp_reduction": "sum_nonforced_value_tokens",
+      "initial_updates": 34,
+      "control": "chosen-only action-normalized SFT, same schedule",
+      "trainable": "fusion/gates only; frozen Stage1 and GNN"
+    },
+    "R8": {
+      "required": true,
+      "default_enabled": false,
+      "logical_budgets": [
+        1,
+        4,
+        8
+      ],
+      "status": "latency controller integration pending Stage3 labels"
+    }
+  },
+  "promotion": {
+    "independent_selection_families": 2,
+    "meaningful_gap": 0.05,
+    "max_reference_latency_regression": 0.05,
+    "no_new_reference_infeasibility": true,
+    "unknown_QoR": "not failure, not improvement"
+  },
+  "locked_test": "UNOPENED"
+}
