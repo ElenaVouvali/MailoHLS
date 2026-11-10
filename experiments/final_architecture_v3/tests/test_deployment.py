@@ -57,3 +57,12 @@ def test_normal_inference_without_refinement_has_exact_assignment_parity(tmp_pat
  assert captured[0]['final_assignment']=={'AUTO{_PIPE_L9}':'0','AUTO{_UNROLL_L9}':'2'}
  assert captured[0]['refinement']['logical_queries']==0
  assert entry.decoder.predict_case is fake_prediction
+
+def test_cancel_returns_incumbent_and_charges_pending_query(tmp_path):
+ request,problem=fixture();report=tmp_path/'report';report.write_text('synthetic');calls=[]
+ def oracle(identity):
+  calls.append(identity)
+  if len(calls)>1:raise KeyboardInterrupt()
+  return {'physical_identity':identity,'measurement':{'latency_cycles':100,'resources':{k:1 for k in c.RESOURCE_KEYS},'estimated_clock_ns':8.,'synthesis_status':'success'},'report_sha256':{str(report):c.sha256(report)}}
+ r=optimize(request,problem['baseline'],problem=problem,refinement_enabled=True,refinement_budget=4,run_dir=tmp_path/'run',oracle=oracle,stage3_sha256='e'*64)
+ assert r['termination']=='cancelled' and r['logical_queries']==2 and r['completed_queries']==1 and r['pending_query'] and r['assignment']==problem['baseline']

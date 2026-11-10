@@ -222,7 +222,7 @@ def _usable(result):
 
 def _history_entry(trace, record):
     # The policy can see precisely the outcomes it paid for, and nothing else.
-    fields = ("ADP", "latency_cycles", "objective", "rankable", "feasible", "synthesis_status", "comparison_context_id")
+    fields = ("ADP", "latency_cycles", "objective", "rankable", "feasible", "resource_feasible", "resources", "estimated_clock_ns", "synthesis_status", "comparison_context_id", "report_sha256", "physical_identity")
     return {**trace["proposal"], "measurement": {key: record["result"].get(key) for key in fields}}
 
 

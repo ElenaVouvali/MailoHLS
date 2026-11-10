@@ -19,6 +19,7 @@ def validate_request(request):
  if float(request['clock_ns']) not in (10.,5.,3.33):raise ValueError('Unapproved fixed clock')
  for name in ('capacities','budgets'):
   if set(request[name])!=set(c.RESOURCE_KEYS) or any(isinstance(v,bool) or not isinstance(v,int) or v<0 for v in request[name].values()):raise ValueError('Exact integer resource limits required')
+ if request['capacities']!=dict(c.mc.DEVICE_RESOURCES[request['part']]):raise ValueError('Capacities must match the canonical physical part')
  if any(request['budgets'][k]>request['capacities'][k] or request['capacities'][k]<=0 for k in c.RESOURCE_KEYS):raise ValueError('Invalid capacity/budget')
 
 class ExactReceiptOracle:
@@ -78,12 +79,13 @@ class DeploymentRuntime:
   else:
    if entry['physical_identity']!=identity:raise ValueError('Oracle returned wrong physical design')
    m=entry['measurement'];metrics=hls.evaluate_metrics(m.get('latency_cycles'),m.get('resources'),self.request['capacities'],self.request['budgets']);clock=m.get('estimated_clock_ns')
-   result={**metrics,**m,'synthesis_status':m['synthesis_status'],'rankable':bool(m['synthesis_status']=='success' and metrics['rankable'] and clock is not None and math.isfinite(float(clock)) and float(clock)<=self.request['clock_ns']),'objective':'PARETO_LATENCY','physical_identity':identity,'comparison_context_id':c.object_hash(self.request),'report_sha256':entry['report_sha256']}
+   resource_feasible=all(m['resources'][k]<=self.request['budgets'][k] for k in c.RESOURCE_KEYS) if m.get('resources') and all(isinstance(m['resources'].get(k),int) and not isinstance(m['resources'][k],bool) and m['resources'][k]>=0 for k in c.RESOURCE_KEYS) else None
+   result={**metrics,**m,'resource_feasible':resource_feasible,'synthesis_status':m['synthesis_status'],'rankable':bool(m['synthesis_status']=='success' and metrics['rankable'] and clock is not None and math.isfinite(float(clock)) and float(clock)<=self.request['clock_ns']),'objective':'PARETO_LATENCY','physical_identity':identity,'comparison_context_id':c.object_hash(self.request),'report_sha256':entry['report_sha256']}
   self.verify_result({'result':result},self.physical_candidate(manifest,shared,proposal),{},shared['expected_tool_identity'])
   new=bool(entry and entry.get('new_physical_call'));return result,{'physical_synthesis_status':'new_synthesis' if new else 'authenticated_reuse' if entry else 'unavailable','new_physical_synthesis_runs':int(new),'authenticated_measurement_reuses':int(entry is not None and not new),'physical_synthesis_runtime_seconds':float(entry.get('result',{}).get('runtime_seconds',0)) if new else 0.}
  def summarize(self,path):
-  manifest,shared=self.load_run(path);_,_,history,_,terminal=self.read_state(path,manifest,shared);best=controller._best(history)
-  result={'status':'verified_feasible' if best else 'unverified','assignment':best['assignment'] if best else self.problem['baseline'],'objective':'PARETO_LATENCY','objective_value':hls.objective_value(best['measurement']) if best else None,'logical_queries':len(history),'new_physical_calls':sum(r.get('new_physical_synthesis_runs',0) for r in c.read_jsonl(Path(path)/'measurements.jsonl')),'termination':terminal,'qualification':'AVAILABLE_EXPERIMENTAL','clock_convention':'cycles ranked only within fixed requested period, finite HLS estimate <= request; no post-route claim'}
+  manifest,shared=self.load_run(path);traces,records,history,pending,terminal=self.read_state(path,manifest,shared);best=controller._best(history)
+  result={'status':'verified_feasible' if best else 'unverified','assignment':best['assignment'] if best else self.problem['baseline'],'objective':'PARETO_LATENCY','objective_value':hls.objective_value(best['measurement']) if best else None,'logical_queries':sum(t['event_type']=='query' for t in traces),'completed_queries':len(history),'pending_query':pending is not None,'measurement':best['measurement'] if best else None,'baseline_measurement':history[0]['measurement'] if history else None,'authenticated_measurement_reuses':sum(r.get('authenticated_measurement_reuses',0) for r in records),'physical_synthesis_runtime_seconds':sum(r.get('physical_synthesis_runtime_seconds',0) for r in records),'policy_overhead_seconds':sum(t.get('controller_runtime_seconds',0) for t in traces),'request':self.request,'stage3_sha256':manifest['stage3_sha256'],'new_physical_calls':sum(r.get('new_physical_synthesis_runs',0) for r in c.read_jsonl(Path(path)/'measurements.jsonl')),'termination':terminal,'qualification':'AVAILABLE_EXPERIMENTAL','clock_convention':'cycles ranked only within fixed requested period, finite HLS estimate <= request; no post-route claim'}
   c.write_json(Path(path)/'deployment_result.json',result);return result
 
 def optimize(request,stage3_assignment,*,problem=None,refinement_enabled=False,refinement_budget=4,refinement_policy='coordinate',run_dir=None,oracle=None,stage3_sha256=None):
@@ -92,5 +94,7 @@ def optimize(request,stage3_assignment,*,problem=None,refinement_enabled=False,r
  if problem is None or run_dir is None or oracle is None:raise ValueError('Refinement requires sealed source/action problem, journal and authenticated oracle')
  if stage3_assignment!=problem['baseline']:raise ValueError('Refinement must start at this Stage3 output')
  runtime=DeploymentRuntime(run_dir,request,problem,oracle,refinement_budget,refinement_policy,123,stage3_sha256)
- controller.search(run_dir,runtime=runtime)
+ try:controller.search(run_dir,runtime=runtime)
+ except KeyboardInterrupt:
+  result=runtime.summarize(run_dir);return {**result,'refinement_enabled':True,'termination':'cancelled','pending_query_charged':True}
  return {**runtime.summarize(run_dir),'refinement_enabled':True}

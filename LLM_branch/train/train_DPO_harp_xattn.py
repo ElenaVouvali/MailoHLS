@@ -1500,6 +1500,10 @@ class STRUCTURALDPOTrainer(Trainer):
 
     def training_step(self, model, inputs, num_items_in_batch=None):
         model.train()
+        # Trainer may re-enable checkpointing after model construction. Restore
+        # the same per-forward routing snapshots used by Stage2 before scoring.
+        if self.args.gradient_checkpointing:
+            self._sft_mod.install_structural_checkpoint_context(model)
         disable_lora_dropout_for_dpo(model)
         inputs = self._prepare_inputs(inputs)
 
@@ -1933,6 +1937,8 @@ def build_structural_model(mod, args, tokenizer, trainable: bool):
             raise ValueError("Stage-3 production keeps special-token embeddings frozen")
         freeze_embeddings(model)
         disable_lora_dropout_for_dpo(model)
+        if gc_enabled:
+            mod.install_structural_checkpoint_context(model)
     else:
         model.requires_grad_(False)
         freeze_embeddings(model)

@@ -30,3 +30,22 @@ def test_real_stage3_mixed_length_memory_padding():
   def condition_structural_memory(self,memory,mask,**kw):self.values=(memory,mask,kw['action_relation_mask'])
  m=Model();trainer._condition_structural_memory_from_kernel_names(m,['a','b']);kv,mask,rel=m.values
  assert kv.shape==(2,73,128) and not mask[0,67:].any() and not rel[0,67:,:].any() and not rel[0,:,67:].any()
+
+def test_two_completion_checkpoint_gradients_keep_independent_prefix_routes():
+ import copy
+ from torch.utils.checkpoint import checkpoint
+ from LLM_branch.common.structural_xattn import GatedCrossAttentionBlock,StructuralPostSelfAttentionResidual,make_structural_checkpoint_context_fn
+ torch.manual_seed(123)
+ base=StructuralPostSelfAttentionResidual(GatedCrossAttentionBlock(dim=16,dim_memory=8,dim_head=4,heads=2))
+ base.gated_cross_attn_layer.attn_gate.data.fill_(.1)
+ inputs=[torch.randn(1,n,16,requires_grad=True) for n in (3,5)];memories=[torch.randn(1,2,8),torch.randn(1,2,8)]
+ gradients=[]
+ for use_checkpoint in (False,True):
+  wrapper=copy.deepcopy(base);backbone=torch.nn.Sequential(wrapper);ctx=make_structural_checkpoint_context_fn(backbone);loss=0.
+  for x,memory in zip(inputs,memories):
+   wrapper.structural_memory=memory;wrapper.structural_memory_mask=torch.ones(1,2,dtype=torch.bool);wrapper.placeholder_slot_ids=torch.ones(1,x.size(1),dtype=torch.long);wrapper.xattn_apply_mask=torch.ones(1,x.size(1))
+   result=checkpoint(wrapper,x,use_reentrant=False,context_fn=ctx) if use_checkpoint else wrapper(x)
+   loss=loss+result.square().mean()
+  loss.backward();gradients.append({n:p.grad.clone() for n,p in wrapper.named_parameters() if p.grad is not None})
+ assert gradients[0].keys()==gradients[1].keys()
+ for key in gradients[0]:assert torch.allclose(gradients[0][key],gradients[1][key],atol=1e-6,rtol=1e-5),key

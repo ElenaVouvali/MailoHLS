@@ -2,11 +2,13 @@
 import fcntl,importlib.util,json,re,shlex,shutil,subprocess
 from pathlib import Path
 from experiments.refinement import configurations as c,synthesis as hls
-from .deployment import ExactReceiptOracle
+from .deployment import ExactReceiptOracle,validate_request
 HOST='bonus24@coroni.microlab.ntua.gr'
 RUNNER_SHA='ec05f6b97479a30ebc1c3b45eea7758881889cc5c87e64234ae85b610e7f1414'
 class CoroniOracle:
  def __init__(self,request,template,headers,runner,root,remote_base,*,cache=None,max_new_calls=8,prior_calls=11,timeout=1200):
+  validate_request(request)
+  if request['flow_settings']!=list(c.SETTINGS):raise ValueError('Unqualified synthesis settings')
   if not re.fullmatch(r'[A-Za-z0-9_/-]+',remote_base) or remote_base.startswith('/'):raise ValueError('Use a safe relative run-specific Coroni directory')
   if c.sha256(runner)!=RUNNER_SHA:raise ValueError('Unrecognized sealed synthesis runner')
   if c.sha256(template)!=request['source_sha256']:raise ValueError('Source template changed')
@@ -55,7 +57,13 @@ class CoroniOracle:
   witnesses={str(p.resolve()):c.sha256(p) for p in (out/'query/result.json',out/'batch_provenance.json',out/'query/synthesis.log')}
   if report.exists():witnesses[str(report.resolve())]=c.sha256(report)
   metrics=result.get('metrics') or {};status=result['status']
-  if result.get('returncode')==0 and report.exists() and 'undef' in str(result.get('error','')):status='latency_unknown'
+  if result.get('returncode')==0 and report.exists() and 'undef' in str(result.get('error','')):
+   status='latency_unknown'
+   import xml.etree.ElementTree as ET
+   xml=ET.parse(report).getroot();resources={k:int(xml.findtext('.//AreaEstimates/Resources/'+k)) for k in self.request['capacities']};available={k:int(xml.findtext('.//AreaEstimates/AvailableResources/'+k)) for k in self.request['capacities']}
+   if available!=self.request['capacities']:raise ValueError('Unknown-latency report has wrong device capacities')
+   metrics={'latency_cycles':None,'resources':resources,'estimated_clock_ns':float(xml.findtext('.//SummaryOfTimingAnalysis/EstimatedClockPeriod'))}
+
   measurement={'synthesis_status':'success' if status=='success' else status,'latency_cycles':metrics.get('latency_cycles'),'resources':metrics.get('resources'),'estimated_clock_ns':metrics.get('estimated_clock_ns')}
   entry={'physical_identity':identity,'measurement':measurement,'report_sha256':witnesses,'new_physical_call':True,'coroni':remote,'result':result}
   c.write_json(resultfile,entry);return entry

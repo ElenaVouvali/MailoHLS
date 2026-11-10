@@ -1,0 +1,69 @@
+{
+  "schema": "v3-supervision-cohort-counts-v1",
+  "input_sha256": "332b8ab6dc7ffdd2ac3e3501f3d90a31ff6fd399b14b4df9e9f9a81734457c07",
+  "splits": {
+    "train": {
+      "rows": 1164,
+      "request_contexts": 291,
+      "physical_source_device_clock_contexts": 102,
+      "distinct_selected_complete_physical_designs": 705,
+      "observed_multi_target_requests": 238,
+      "selected_references_outside_1pct_span": 0,
+      "families": [
+        "machsuite_gemm",
+        "machsuite_md_knn",
+        "machsuite_spmv_ellpack",
+        "machsuite_stencil2d",
+        "machsuite_stencil3d",
+        "rodinia_backprop",
+        "rodinia_cfd_flux",
+        "rodinia_cfd_step_factor",
+        "rodinia_dilate",
+        "rodinia_hotspot",
+        "rodinia_kmeans",
+        "rodinia_knn",
+        "rodinia_lavamd",
+        "rodinia_lc_gicov",
+        "rodinia_lc_mgvf",
+        "rodinia_streamcluster",
+        "spcl_example"
+      ],
+      "kernels": [
+        "machsuite-gemm-blocked",
+        "machsuite-md-knn",
+        "machsuite-spmv-ellpack",
+        "machsuite-stencil2d",
+        "machsuite-stencil3d",
+        "rodinia-backprop-1-tiling-back",
+        "rodinia-hotspot-1-tiling",
+        "rodinia-kmeans-3-unroll",
+        "rodinia-knn-0-baseline",
+        "rodinia_cfd_flux_0_baseline_0",
+        "rodinia_cfd_step_factor_4_doublebuffer_0",
+        "rodinia_dilate_1_tiling_0",
+        "rodinia_lavaMD_0_baseline",
+        "rodinia_lc_gicov_0_baseline_0",
+        "rodinia_lc_mgvf_0_baseline_0",
+        "rodinia_streamcluster_3_doublebuffer_0",
+        "spcl_example_01"
+      ]
+    },
+    "validation": {
+      "rows": 54,
+      "request_contexts": 54,
+      "physical_source_device_clock_contexts": 18,
+      "distinct_selected_complete_physical_designs": 26,
+      "observed_multi_target_requests": 0,
+      "selected_references_outside_1pct_span": 0,
+      "families": [
+        "machsuite_viterbi",
+        "rodinia_pathfinder"
+      ],
+      "kernels": [
+        "machsuite-viterbi",
+        "rodinia_pathfinder_0_baseline_0",
+        "rodinia_pathfinder_4_doublebuffer_0"
+      ]
+    }
+  }
+}

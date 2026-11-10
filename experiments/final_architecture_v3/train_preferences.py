@@ -32,10 +32,14 @@ def main():
  p=argparse.ArgumentParser();p.add_argument('--parent',type=Path,required=True);p.add_argument('--pairs',type=Path,required=True);p.add_argument('--memory-dir',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--steps',type=int,default=34);p.add_argument('--resume',type=Path);p.add_argument('--gpu-uuid',default='GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb');a=p.parse_args()
  if a.out.exists() and not a.resume:raise FileExistsError(a.out)
  receipt=preflight(a.gpu_uuid);os.environ['CUDA_VISIBLE_DEVICES']=a.gpu_uuid;a.out.mkdir(parents=True,exist_ok=True)
- parent=dpo.load_stage2_contract(str(a.parent));args=SimpleNamespace(objective=None,model=None,model_revision=None,seed=123,stage2_seed=123,parent_contract=parent,stage2_adapter_dir=str(a.parent),gradient_checkpointing=True,train_lora_dpo=False,train_xattn_dpo=True,train_attn_gate_dpo=True,train_ff_gate_dpo=False,train_special_token_embeddings=False)
+ parent=dpo.load_stage2_contract(str(a.parent))
+ if parent.get('research_supervision',{}).get('policy')!='stage1-action-normalized-values-v1':raise ValueError('Corrected action-normalized Stage2 parent required')
+ if parent['objective']!='PARETO_LATENCY' or parent['structural']['stage1_adapter_sha256']!='28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164':raise ValueError('Wrong frozen V4 latency lineage')
+ args=SimpleNamespace(objective=None,model=None,model_revision=None,seed=123,stage2_seed=123,parent_contract=parent,stage2_adapter_dir=str(a.parent),gradient_checkpointing=True,train_lora_dpo=False,train_xattn_dpo=True,train_attn_gate_dpo=True,train_ff_gate_dpo=False,train_special_token_embeddings=False)
  dpo.apply_parent_contract(production,args,parent);tok=dpo.build_tokenizer(production,args,parent)
  manifest=json.loads((a.pairs/'manifest.json').read_text());memory_manifest=a.memory_dir/'memory_manifest.json'
  if sha(memory_manifest)!=parent['structural']['memory_manifest_sha256']:raise ValueError('Parent/memory contract differs')
+ if json.loads(memory_manifest.read_text())['gnn_checkpoint_sha256']!='ef61521989d8cf3282b28f881f0cd7673de2a5253f1d42b57542e21531019162':raise ValueError('Wrong frozen V4b encoder lineage')
  for fold in ('train','val'):
   if sha(a.pairs/(fold+'_pairs.jsonl'))!=manifest['pair_sha256'][fold]:raise ValueError('Preference file changed')
  encoded={k:encode(rows(a.pairs/(k+'_pairs.jsonl')),tok,parent,inference.load_directive_domain_registry(str(a.parent/'directive_domain_registry.json'))) for k in ('train','val')}
@@ -90,7 +94,7 @@ def main():
   for name in ('adapter_model.safetensors','adapter_config.json','tokenizer.json','tokenizer_config.json','special_tokens_map.json','directive_domain_registry.json'):
    shutil.copyfile(a.parent/name,folder/name)
   contract=copy.deepcopy(parent);contract['stage']='stage3' if arm.startswith('dpo') else 'stage2';contract['parent_stage2']={'contract_sha256':identity['parent_contract_sha256'],'structural_xattn_sha256':identity['parent_structural_sha256']}
-  contract['stage3_preference']={'schema':'mailohls-stage3-preference-v1','algorithm':'reference_dpo' if arm.startswith('dpo') else 'chosen_only_SFT_control','beta':.1,'sft_alpha':(.1 if arm=='dpo_anchor' else 0.),'logp_reduction':'sum','reference_cache_sha256':sha(cachefile),'successful_updates':step,'trainable':'fusion/gates only','qualification':'DPO_REQUIRED_BUT_NOT_QUALIFIED','pair_manifest_sha256':sha(a.pairs/'manifest.json'),'limits':manifest['resource_qualification']}
+  contract['stage3_preference']={'schema':'mailohls-stage3-preference-v1','deployment_role':'normal_stage3_candidate' if arm.startswith('dpo') else 'matched_SFT_control','intended_default_after_qualification':arm.startswith('dpo'),'algorithm':'reference_dpo' if arm.startswith('dpo') else 'chosen_only_SFT_control','beta':.1,'sft_alpha':(.1 if arm=='dpo_anchor' else 0.),'logp_reduction':'sum','reference_cache_sha256':sha(cachefile),'successful_updates':step,'trainable':'fusion/gates only','qualification':'DPO_REQUIRED_BUT_NOT_QUALIFIED','pair_manifest_sha256':sha(a.pairs/'manifest.json'),'limits':manifest['resource_qualification']}
   write(folder/'training_contract.json',contract)
   torch.save({'step':step,'arm':arm,'optimizer':optimizer.state_dict(),'scaler':scaler.state_dict(),'rng_python':random.getstate(),'rng_numpy':np.random.get_state(),'rng_torch':torch.get_rng_state(),'rng_cuda':torch.cuda.get_rng_state_all(),'reference_cache_sha256':sha(cachefile)},folder/'progress.pt')
  summaries={}

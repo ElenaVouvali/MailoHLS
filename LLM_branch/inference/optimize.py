@@ -33,11 +33,11 @@ def main():
   if c.sha256(metadata)!=request['action_metadata_sha256']:raise ValueError('Action metadata changed')
   actions=domains.load_source_actions(case.kernel_name,directory);native=c.legacy_domains(actions,directory)
   problem={'baseline':assignment,'actions':actions,'native_domains':native,'relations':request.get('verified_relations',[]),'inactive_actions':request.get('inactive_actions',[])}
-  # Compiler relations must arrive with authenticated graph provenance.
-  if problem['relations']:
-   graph=Path(request['compiler_graph_path'])
-   if c.sha256(graph)!=request['compiler_graph_sha256']:raise ValueError('Compiler relation graph changed')
-   raise ValueError('Structural proposal adapter needs RC3 relation-schema reconciliation; coordinate policy remains available')
+  # Derive relations from the authenticated graph; never trust a supplied table of claims.
+  if request.get('compiler_graph_path'):
+   from experiments.refinement_search.rc3_relations import from_rc3
+   problem['relations']=from_rc3(request['compiler_graph_path'],request['compiler_graph_sha256'],actions)
+  elif problem['relations']:raise ValueError('Relation claims require authenticated RC3 graph evidence')
   if a.refinement_coroni_runner:
    from experiments.refinement_search.coroni import CoroniOracle
    if not a.refinement_coroni_directory:p.error('Explicit run-specific Coroni directory required')

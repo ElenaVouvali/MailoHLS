@@ -31,8 +31,8 @@ def checked(**kwargs):
  device=inference.get_first_real_device(model);gates=[p for n,p in model.named_parameters() if n.endswith('attn_gate')];saved=[p.detach().clone() for p in gates]
  records=[];vectors=[]
  selected={'machsuite-viterbi':('ARRAY_F_L1','ARRAY_D_L1','PIPE_L6','UNROLL_L6','PIPE_L8','UNROLL_L8'),'rodinia_pathfinder_0_baseline_0':('ARRAY_F_L3','ARRAY_F_L4','PIPE_L5','UNROLL_L5','PIPE_L6','UNROLL_L6')}[case.kernel_name]
- for mode in ('authentic','zero_evidence','permuted_evidence','gate_off'):
-  prior={};bank=changed(kwargs['mem_bank'],mode) if mode in ('zero_evidence','permuted_evidence') else kwargs['mem_bank']
+ for mode in os.environ.get('SALT_FIXED_MODES','authentic,zero_evidence,permuted_evidence,gate_off').split(','):
+  prior={};bank=changed(kwargs['mem_bank'],mode) if mode in ('zero_evidence','permuted_evidence','cross_route_evidence') else kwargs['mem_bank']
   memory,valid,relation=inference.get_real_memory_pack_for_kernel(bank,case.kernel_name,64,128,'compiler_relational')
   pack=bank.get(case.kernel_name) or bank[kernel_key]
   with torch.no_grad():
