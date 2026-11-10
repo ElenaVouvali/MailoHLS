@@ -281,7 +281,7 @@ anti-switch controls. New development measurements must not use locked test labe
 | V4 latency Stage1 | CONSERVATIVELY_RETAINED | Frozen research parent |
 | RC3 graph/action provenance | QUALIFIED within tested packs | No universal compiler coverage claim |
 | Two-layer V4b encoder | CONSERVATIVELY_RETAINED for experiments | Not selected as latency-optimal |
-| Static Memory C0 and four-layer placement | NOT_IDENTIFIABLE for superiority | Corrected matched baseline required |
+| Static Memory C0 and four-layer placement | NOT_IDENTIFIABLE for superiority | Corrected baseline completed; no generated-policy gain demonstrated |
 | Hardware messages/FiLM/conditional gates | NOT_IDENTIFIABLE for latency generation | Historical ADP negatives are narrower |
 | Stage3 DPO default | NOT_IDENTIFIABLE; required release gate | Never promote a proven regression |
 | User-controlled refinement | AVAILABLE_EXPERIMENTAL | CPU contract tests are not physical gains |

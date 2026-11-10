@@ -9,7 +9,7 @@ def load(p):return json.loads(Path(p).read_text())
 def main():
  p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--dry-run',action='store_true');a=p.parse_args();r=ROOT/'experiments/final_architecture_v3/results_v3';art=ROOT/'artifacts/final_architecture_v3';retry=art/'stage3_anchor_confirmation/result.json'
  if not retry.exists():raise RuntimeError('Physical baseline confirmation not complete; no final snapshot fabricated')
- inputs=[r/'architecture_decisions.json',r/'corrected_static_completed.json',r/'stage3_completed.json',r/'decoder_comparison.json',r/'measured_bank_analysis.json',r/'joint_trip_probe.json',r/'resource_ledger.json',retry,art/'latency_refinement_path4/bounded_cancellation.json',art/'latency_refinement_path4/active_query_after_cancel.json']
+ inputs=[r/'architecture_decisions.json',r/'corrected_static_completed.json',r/'stage3_completed.json',r/'decoder_comparison.json',r/'measured_bank_analysis.json',r/'joint_trip_probe.json',r/'stage3_health.json',r/'stage3_family_sensitivity.json',r/'exact_cached_physical_joins.json',r/'request_response_diagnostics.json',r/'resource_ledger.json',retry,art/'latency_refinement_path4/bounded_cancellation.json',art/'latency_refinement_path4/active_query_after_cancel.json']
  hashes={str(p.relative_to(ROOT)):sha(p) for p in inputs};print('Validated',len(hashes),'source receipts; FREEZE=NO, pending independent physical endpoint qualification.')
  if a.dry_run:return
  if a.out.exists():raise FileExistsError('Use a new output directory; historical snapshots are immutable')
@@ -27,7 +27,10 @@ def main():
  for id in ('R4_conditioning','R5_gate_layers','R6_contrast_SFT','locked_final_test'):
   add(id,'Conditional qualification gate','Established compatible path','Not escalated','NOT_RUN',{},'NOT_IDENTIFIABLE; not rejected with fair evidence','Informative independent-family target switches/useful physical fusion signal absent; locked test remains unopened')
  for row in experiment:
-  if row['experiment_id']=='R7':row['training_runtime']={k:v['runtime_seconds'] for k,v in stage3['arms'].items()}
+  if row['experiment_id']=='R7':
+   row['code_commit']='dbeaa77dca61f9e6be949fe8177a8f3c46ff8b4f';row['executed_source_reconstruction']=load(r/'executed_source_reconstruction.json');row['source_tree_at_execution']='dirty; exact executed reconstruction and dependency hashes preserved';row['training_runtime']={k:v['runtime_seconds'] for k,v in stage3['arms'].items()}
+  if row['experiment_id']=='R1':row['code_commit']='64086ed510fe8aea877cc1cc87cc9b298fc36793';row['effective_supervision_sha256']='a772b2fc11558dda013a401924484fa72aca7e951ff6bc4d807b3eaf899a0f7d'
+  if row['experiment_id']=='decode':row['code_commit']='3acc7b99593742ee21673fcd68e74ef6d32457b0';row['source_tree_at_execution']='new portable decoder script transferred with checksum; per-arm commands/source manifest preserved'
   if row['experiment_id']=='R1':row['training_runtime']=load(r/'resource_ledger.json')['corrected_static_inclusive_file_timestamp_interval_seconds']
  manifest={'schema':'salt-v3-final-snapshot-v1','generated_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'code_commit':commit,'git_dirty_at_generation':dirty,'input_receipts_sha256':hashes,'large_artifacts':'Ignored persistent run directories; never committed; no secrets copied','weights':{str(p):sha(p) for p in [Path('/home/elvouvali/mailohls_runs/final_architecture_v3/qualification/stage2_selected_export/structural_xattn.pt'),Path('/home/elvouvali/mailohls_runs/final_architecture_v3/qualification/preferences/dpo/checkpoint-34/structural_xattn.pt')]}}
  for name,obj in [('experiment_results.json',experiment),('artifact_manifest.json',manifest),('architecture_decisions.json',load(r/'architecture_decisions.json'))]:(a.out/name).write_text(json.dumps(obj,indent=2)+'\n')
