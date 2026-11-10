@@ -15,12 +15,14 @@ class CoroniOracle:
   self.request=request;self.template=Path(template);self.headers=list(map(Path,headers));self.runner=Path(runner);self.root=Path(root);self.remote=remote_base;self.cache=ExactReceiptOracle(cache) if cache else None;self.max_calls=max_new_calls;self.prior=prior_calls;self.timeout=timeout
   self.root.mkdir(parents=True,exist_ok=True)
  def __call__(self,identity):
+  if c.sha256(self.template)!=self.request['source_sha256'] or {p.name:c.sha256(p) for p in self.headers}!=self.request['headers_sha256']:raise ValueError('Sealed source/header content changed')
   if self.cache:
    hit=self.cache(identity)
    if hit:return hit
   key=c.object_hash(identity);base=self.root/key;bundle=base/'bundle';out=base/'results';resultfile=base/'oracle.json'
   if resultfile.exists():
    entry=json.loads(resultfile.read_text())
+   if entry['physical_identity']!=identity:raise ValueError('Cached physical design changed')
    for p,digest in entry['report_sha256'].items():
     if c.sha256(p)!=digest:raise ValueError('Cached physical report changed')
    return {**entry,'new_physical_call':False}
@@ -30,7 +32,7 @@ class CoroniOracle:
    for path in self.headers:shutil.copyfile(path,jobdir/path.name)
    top=self.request['top']
    if not re.fullmatch(r'[A-Za-z_]\w*',top):raise ValueError('Invalid HLS top')
-   job={'job_id':'query','kernel':self.request['kernel'],'arm':'stage3_refinement','request_number':1,'source':source.name,'top':top,'part':identity['part'],'clock_ns':identity['clock_ns'],'capacities':self.request['capacities'],'budget':self.request['budgets'],'materialized_source_sha256':c.sha256(source),'original_source_sha256':self.request['source_sha256'],'metadata_sha256':self.request['action_metadata_sha256'],'headers':self.request['headers_sha256'],'assignment':identity['assignment']}
+   job={'job_id':'query','kernel':self.request['kernel'],'arm':self.request.get('experiment_arm','stage3_refinement'),'request_number':1,'source':source.name,'top':top,'part':identity['part'],'clock_ns':identity['clock_ns'],'capacities':self.request['capacities'],'budget':self.request['budgets'],'materialized_source_sha256':c.sha256(source),'original_source_sha256':self.request['source_sha256'],'metadata_sha256':self.request['action_metadata_sha256'],'headers':self.request['headers_sha256'],'assignment':identity['assignment']}
    tcl='\n'.join(['open_project -reset hls_project','set_top '+top,'add_files -cflags {-I"/opt/Xilinx/Vitis_HLS/2021.1/include"} {'+source.name+'}','open_solution -reset solution1 -flow_target vivado','set_part {'+identity['part']+'}','create_clock -period '+str(identity['clock_ns'])+' -name default',*identity['flow_settings'],'csynth_design','exit','']);(jobdir/'run_hls.tcl').write_text(tcl);job['expected_tcl_sha256']=c.sha256(jobdir/'run_hls.tcl')
    shutil.copyfile(self.runner,bundle/'run_batch.py');c.write_json(bundle/'manifest.json',{'schema':'salt-v3-user-refinement-v1','jobs':[job],'settings':identity['flow_settings'],'objective':'PARETO_LATENCY','runner_sha256':RUNNER_SHA,'physical_identity':identity})
    (bundle/'SHA256SUMS').write_text(''.join(c.sha256(p)+'  '+str(p.relative_to(bundle))+'\n' for p in sorted(bundle.rglob('*')) if p.is_file() and p.name!='SHA256SUMS'))
@@ -52,6 +54,8 @@ class CoroniOracle:
   if result.get('report_sha256') and c.sha256(report)!=result['report_sha256']:raise ValueError('Returned report hash mismatch')
   witnesses={str(p.resolve()):c.sha256(p) for p in (out/'query/result.json',out/'batch_provenance.json',out/'query/synthesis.log')}
   if report.exists():witnesses[str(report.resolve())]=c.sha256(report)
-  metrics=result.get('metrics') or {};measurement={'synthesis_status':'success' if result['status']=='success' else result['status'],'latency_cycles':metrics.get('latency_cycles'),'resources':metrics.get('resources'),'estimated_clock_ns':metrics.get('estimated_clock_ns')}
+  metrics=result.get('metrics') or {};status=result['status']
+  if result.get('returncode')==0 and report.exists() and 'undef' in str(result.get('error','')):status='latency_unknown'
+  measurement={'synthesis_status':'success' if status=='success' else status,'latency_cycles':metrics.get('latency_cycles'),'resources':metrics.get('resources'),'estimated_clock_ns':metrics.get('estimated_clock_ns')}
   entry={'physical_identity':identity,'measurement':measurement,'report_sha256':witnesses,'new_physical_call':True,'coroni':remote,'result':result}
   c.write_json(resultfile,entry);return entry

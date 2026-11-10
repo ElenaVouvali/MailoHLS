@@ -1,3 +1,5 @@
+> **Current Revision3:** see [Final technical architecture and qualification status](FINAL_SALT_HLS_ARCHITECTURE.md) and [executable experiment package](../../experiments/final_architecture_v3/README.md). The Revision2 status below is a historical snapshot; consult machine receipts before interpreting RUNNING/BLOCKED text.
+
 # SALT-HLS architecture qualification — Revision2
 
 Start with [Architecture decisions](ARCHITECTURE_DECISIONS.md), [V4b re-audit](V4B_IMPLEMENTATION_REAUDIT.md), [Target analysis](TARGET_CONDITIONING_ANALYSIS.md) and [Davinci commands](REPRODUCIBILITY.md).

@@ -57,6 +57,8 @@ def main():
   if not torch.is_grad_enabled():model.clear_structural_memory()
   return values
  identity={'schema':'v3-stage3-reference-cache-v1','parent_contract_sha256':sha(a.parent/'training_contract.json'),'parent_structural_sha256':sha(a.parent/'structural_xattn.pt'),'frozen_stage1':frozen,'memory_manifest_sha256':sha(memory_manifest),'pair_files':manifest['pair_sha256'],'encoding_sha256':dpo.canonical_json_sha256({k:[r['encoding_sha256'] for r in v] for k,v in encoded.items()}),'mask':'summed causal nonforced value tokens, no delimiters/singletons/prompt','precision':'NF4/FP16 backbone; FP32 selected log-softmax and sums; same trainable FP32 fusion for policy/ref','code_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()}
+ from .capture_probe_states import capture
+ capture(model,tok,encoded,score,a.out/'probe_states.json')
  write(a.out/'preflight.json',receipt)
  cachefile=a.out/'reference.json';model.eval()
  if cachefile.exists():
@@ -87,14 +89,23 @@ def main():
   folder.mkdir(parents=True,exist_ok=True);torch.save(production.get_structural_xattn_state_dict(model),folder/'structural_xattn.pt')
   for name in ('adapter_model.safetensors','adapter_config.json','tokenizer.json','tokenizer_config.json','special_tokens_map.json','directive_domain_registry.json'):
    shutil.copyfile(a.parent/name,folder/name)
-  contract=copy.deepcopy(parent);contract['stage']='stage3' if arm=='dpo' else 'stage2';contract['parent_stage2']={'contract_sha256':identity['parent_contract_sha256'],'structural_xattn_sha256':identity['parent_structural_sha256']}
-  contract['stage3_preference']={'schema':'mailohls-stage3-preference-v1','algorithm':'reference_dpo' if arm=='dpo' else 'chosen_only_SFT_control','beta':.1,'sft_alpha':0.,'logp_reduction':'sum','reference_cache_sha256':sha(cachefile),'successful_updates':step,'trainable':'fusion/gates only','qualification':'DPO_REQUIRED_BUT_NOT_QUALIFIED','pair_manifest_sha256':sha(a.pairs/'manifest.json'),'limits':manifest['resource_qualification']}
+  contract=copy.deepcopy(parent);contract['stage']='stage3' if arm.startswith('dpo') else 'stage2';contract['parent_stage2']={'contract_sha256':identity['parent_contract_sha256'],'structural_xattn_sha256':identity['parent_structural_sha256']}
+  contract['stage3_preference']={'schema':'mailohls-stage3-preference-v1','algorithm':'reference_dpo' if arm.startswith('dpo') else 'chosen_only_SFT_control','beta':.1,'sft_alpha':(.1 if arm=='dpo_anchor' else 0.),'logp_reduction':'sum','reference_cache_sha256':sha(cachefile),'successful_updates':step,'trainable':'fusion/gates only','qualification':'DPO_REQUIRED_BUT_NOT_QUALIFIED','pair_manifest_sha256':sha(a.pairs/'manifest.json'),'limits':manifest['resource_qualification']}
   write(folder/'training_contract.json',contract)
   torch.save({'step':step,'arm':arm,'optimizer':optimizer.state_dict(),'scaler':scaler.state_dict(),'rng_python':random.getstate(),'rng_numpy':np.random.get_state(),'rng_torch':torch.get_rng_state(),'rng_cuda':torch.cuda.get_rng_state_all(),'reference_cache_sha256':sha(cachefile)},folder/'progress.pt')
  summaries={}
  resume=torch.load(a.resume/'progress.pt',map_location='cpu',weights_only=False) if a.resume else None
- for arm in ('sft','dpo'):
-  if resume and resume['arm']=='dpo' and arm=='sft':continue
+ arms=('sft','dpo','dpo_anchor')
+ for arm in arms:
+  if resume and arms.index(arm)<arms.index(resume['arm']):
+   previous=a.out/arm/'result.json'
+   if previous.exists():summaries[arm]=json.loads(previous.read_text())
+   continue
+  if arm=='dpo_anchor':
+   primary=summaries.get('dpo',{})
+   reference_val=cache['scores']['val'];base_accuracy=sum(r['chosen']>r['rejected'] for r in reference_val)/len(reference_val);base_nll=float(np.mean([r['chosen_nll'] for r in reference_val]))
+   if not primary or not (primary['ranking_accuracy']['val']<base_accuracy or primary['chosen_nll']['val']>1.05*base_nll):
+    print('[REPAIR] not triggered: no held-out ranking decline or >5% chosen-NLL drift',flush=True);continue
   for n,pv in model.named_parameters():
    if n in initial:pv.data.copy_(initial[n].to(pv.device))
   random.seed(123);np.random.seed(123);torch.manual_seed(123)
@@ -112,8 +123,9 @@ def main():
    optimizer.zero_grad(set_to_none=True);losses=[]
    for idx in schedule[successful*4:(successful+1)*4]:
     item=encoded['train'][idx];ref=cache['scores']['train'][idx];kernel=item['pair']['row']['kernel_name'];x,sx,nx=score(item['preferred'],kernel)
-    if arm=='dpo':
+    if arm.startswith('dpo'):
      y,sy,ny=score(item['rejected'],kernel);loss=dpo_loss(x,y,torch.tensor(ref['chosen'],device=device),torch.tensor(ref['rejected'],device=device),.1)
+     if arm=='dpo_anchor':loss=loss+.1*sx
     else:loss=sx
     if not torch.isfinite(loss):raise FloatingPointError('Nonfinite preference loss')
     scaler.scale(loss/4).backward();model.clear_structural_memory();losses.append(float(loss.detach()))
@@ -125,7 +137,8 @@ def main():
    if successful in (1,5,10,20,a.steps) and not skipped:save(folder/('checkpoint-'+str(successful)),arm,successful,optimizer,scaler)
   frozen_stage1.assert_frozen_stage1_unchanged(model,frozen)
   evaluations={fold:evaluate(fold) for fold in ('train','val')}
+  capture(model,tok,encoded,score,folder/'probe_states.json')
   for fold,records in evaluations.items():write(folder/(fold+'_scores.json'),records)
-  summaries[arm]={'successful_updates':successful,'attempts':attempts,'runtime_seconds':time.monotonic()-started,'ranking_accuracy':{fold:sum(r['ranking_correct'] for r in v)/len(v) for fold,v in evaluations.items()},'frozen_stage1_verified':True,'checkpoint':str(folder/('checkpoint-'+str(successful)))};write(folder/'result.json',summaries[arm])
+  summaries[arm]={'successful_updates':successful,'attempts':attempts,'runtime_seconds':time.monotonic()-started,'ranking_accuracy':{fold:sum(r['ranking_correct'] for r in v)/len(v) for fold,v in evaluations.items()},'chosen_nll':{fold:float(np.mean([r['chosen_nll'] for r in v])) for fold,v in evaluations.items()},'frozen_stage1_verified':True,'checkpoint':str(folder/('checkpoint-'+str(successful)))};write(folder/'result.json',summaries[arm])
  write(a.out/'result.json',{'arms':summaries,'reference_accuracy':{fold:sum(r['chosen']>r['rejected'] for r in v)/len(v) for fold,v in cache['scores'].items()},'qualification':'DPO_REQUIRED_BUT_NOT_QUALIFIED pending constrained generation and physical validation','peak_cuda_allocated_bytes':torch.cuda.max_memory_allocated()})
 if __name__=='__main__':main()

@@ -50,7 +50,12 @@
       "logp_reduction": "sum_nonforced_value_tokens",
       "initial_updates": 34,
       "control": "chosen-only action-normalized SFT, same schedule",
-      "trainable": "fusion/gates only; frozen Stage1 and GNN"
+      "trainable": "fusion/gates only; frozen Stage1 and GNN",
+      "one_predeclared_repair": {
+        "trigger": "held-out summed ranking declines from parent or chosen-NLL increases >5%",
+        "change": "DPO +0.1 action-normalized chosen-NLL, same initial parent/schedule/34 updates",
+        "no_further_sweep": true
+      }
     },
     "R8": {
       "required": true,

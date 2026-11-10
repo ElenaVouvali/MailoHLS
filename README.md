@@ -3716,3 +3716,8 @@ trained V4b compiler, hardware-message and FiLM memories for ZCU104/U200 at
 labels or performance claims. The packaged inspector resolves repository
 imports automatically; the reproduction instructions explain the separate
 GEMV input cache. Large caches and model checkpoints remain outside Git.
+
+
+### Architecture qualification (Revision3)
+
+The maintained research decision record is [FINAL_SALT_HLS_ARCHITECTURE.md](docs/architecture_freeze/FINAL_SALT_HLS_ARCHITECTURE.md). It distinguishes qualified components, experimental Stage3/refinement paths and pending physical evidence; production checkpoint registries remain unchanged.

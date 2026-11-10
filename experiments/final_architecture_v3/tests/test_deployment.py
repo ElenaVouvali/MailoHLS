@@ -10,7 +10,7 @@ def fixture():
  base={'AUTO{_PIPE_L9}':'0','AUTO{_UNROLL_L9}':'2'}
  native={'AUTO{_PIPE_L9}':['0','1'],'AUTO{_UNROLL_L9}':['0','1','2','4','8']}
  problem={'baseline':base,'actions':actions,'native_domains':native,'relations':[],'inactive_actions':[]}
- request={'objective':'PARETO_LATENCY','source_sha256':'a'*64,'headers_sha256':{},'action_metadata_sha256':'b'*64,'domain_identity':'tcad','part':'xczu7ev-ffvc1156-2-e','clock_ns':10.,'capacities':dict(c.CAPACITIES),'budgets':dict(c.CAPACITIES),'tool_identity':'synthetic-test-only','flow_settings':[]}
+ request={'top':'test_top','objective':'PARETO_LATENCY','source_sha256':'a'*64,'headers_sha256':{},'action_metadata_sha256':'b'*64,'domain_identity':'tcad','part':'xczu7ev-ffvc1156-2-e','clock_ns':10.,'capacities':dict(c.CAPACITIES),'budgets':dict(c.CAPACITIES),'tool_identity':'synthetic-test-only','flow_settings':[]}
  return request,problem
 
 def test_disabled_never_queries_or_validates_expensive_source():
@@ -41,3 +41,19 @@ def test_unknown_or_missed_clock_never_ranked(tmp_path):
  def oracle(identity):return {'physical_identity':identity,'measurement':{'latency_cycles':1,'resources':{k:1 for k in c.RESOURCE_KEYS},'estimated_clock_ns':11.,'synthesis_status':'success'},'report_sha256':{str(report):c.sha256(report)}}
  r=optimize(request,problem['baseline'],problem=problem,refinement_enabled=True,refinement_budget=1,run_dir=tmp_path/'run',oracle=oracle,stage3_sha256='d'*64)
  assert r['status']=='unverified' and r['objective_value'] is None
+
+def test_normal_inference_without_refinement_has_exact_assignment_parity(tmp_path,monkeypatch):
+ import json,sys
+ from LLM_branch.inference import optimize as entry
+ parent=tmp_path/'stage3';parent.mkdir();(parent/'structural_xattn.pt').write_bytes(b'synthetic-only')
+ (parent/'training_contract.json').write_text(json.dumps({'stage3_preference':{'qualification':'QUALIFIED'}}))
+ prediction='auto{_PIPE_L9} = 0\nauto{_UNROLL_L9} = 2';captured=[]
+ def fake_prediction(**kwargs):return {'candidates':[{'prediction':prediction}]}
+ def fake_main():captured.append(entry.decoder.predict_case())
+ monkeypatch.setattr(entry.decoder,'predict_case',fake_prediction);monkeypatch.setattr(entry.decoder,'main',fake_main)
+ monkeypatch.setattr(sys,'argv',['optimize','--adapter_dir',str(parent)])
+ entry.main()
+ assert captured[0]['candidates'][0]['prediction']==prediction
+ assert captured[0]['final_assignment']=={'AUTO{_PIPE_L9}':'0','AUTO{_UNROLL_L9}':'2'}
+ assert captured[0]['refinement']['logical_queries']==0
+ assert entry.decoder.predict_case is fake_prediction

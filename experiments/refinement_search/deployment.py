@@ -7,7 +7,7 @@ import copy,dataclasses,json,math
 from pathlib import Path
 from experiments.refinement import configurations as c, synthesis as hls
 from experiments.refinement_search import controller,policies
-REQUIRED=('source_sha256','headers_sha256','action_metadata_sha256','domain_identity','part','clock_ns','capacities','budgets','tool_identity','flow_settings')
+REQUIRED=('top','source_sha256','headers_sha256','action_metadata_sha256','domain_identity','part','clock_ns','capacities','budgets','tool_identity','flow_settings')
 
 def physical_identity(request,assignment):
  return {k:request[k] for k in REQUIRED if k!='budgets'} | {'assignment':assignment}
@@ -43,6 +43,7 @@ class DeploymentRuntime:
   self.path=Path(path);self.request=request;self.problem=problem;self.oracle=oracle
   if not parent_stage3_sha256 or len(parent_stage3_sha256)!=64:raise ValueError('Explicit Stage3 checkpoint identity required')
   serial={**problem,'actions':{k:dataclasses.asdict(v) for k,v in problem['actions'].items()}}
+  c.tcad.validate_assignments(problem['baseline'],problem['actions'])
   c.policy_record(problem['baseline'],problem['baseline'],problem['actions'],problem['native_domains'],'tcad')
   data={'schema':'salt-latency-refinement-runtime-v1','request':request,'problem_sha256':c.object_hash(serial),'baseline_signature':c.signature(problem['baseline']),'max_evaluations':budget,'policy':policy,'seed':seed,'kernel':request.get('kernel','source'),'stage3_sha256':parent_stage3_sha256,'code_sha256':controller.code_hashes()}
   data=controller._sealed(data);self.path.mkdir(parents=True,exist_ok=True);f=self.path/'manifest.json'

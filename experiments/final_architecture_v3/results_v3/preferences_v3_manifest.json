@@ -1,0 +1,59 @@
+{
+  "schema": "v3-authenticated-preferences-v1",
+  "sampler_commit": "3aeb704967714aa08d6ca68e4e6bf1136cb0b464",
+  "sampler_functions": [
+    "one_pair",
+    "balance"
+  ],
+  "sampler_source_sha256": "67413176b8cafcfbe105bbff16675e7354eb71330ce22281de3f2e276278e551",
+  "inputs": {
+    "/home/elvouvali/MailoHLS-final-architecture-20261109/artifacts/final_architecture_20261109/reaudit/non_test_records.json": "2e4ed4f041c4d40f7d18400c9c9ad74379cbc81a452bceb2c235d30b4aac59ee",
+    "/home/elvouvali/MailoHLS-rc3-stage2-multikernel-c/artifacts/rc3_stage2_multikernel/v1/audit/stage2_pilot.jsonl": "332b8ab6dc7ffdd2ac3e3501f3d90a31ff6fd399b14b4df9e9f9a81734457c07",
+    "/home/elvouvali/MailoHLS-rc3-stage2-multikernel-c/artifacts/rc3_stage2_multikernel/v1/audit/split.json": "626e0851aed86d20b79f8a153f955a3531a0abf985db209b117109dfce1d4c0e",
+    "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run/directive_domain_registry.json": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c"
+  },
+  "counts": {
+    "train": 128,
+    "val": 54
+  },
+  "families": {
+    "train": {
+      "machsuite_gemm": 8,
+      "machsuite_md_knn": 8,
+      "machsuite_spmv_ellpack": 8,
+      "machsuite_stencil2d": 8,
+      "machsuite_stencil3d": 8,
+      "rodinia_backprop": 8,
+      "rodinia_cfd_flux": 8,
+      "rodinia_cfd_step_factor": 8,
+      "rodinia_dilate": 8,
+      "rodinia_hotspot": 8,
+      "rodinia_kmeans": 8,
+      "rodinia_knn": 8,
+      "rodinia_lavamd": 8,
+      "rodinia_lc_gicov": 8,
+      "rodinia_lc_mgvf": 8,
+      "rodinia_streamcluster": 8
+    },
+    "val": {
+      "machsuite_viterbi": 18,
+      "rodinia_pathfinder": 36
+    }
+  },
+  "eligible_combinations": {
+    "train": 4415686,
+    "val": 1390299
+  },
+  "exclusions": {
+    "outside_memory_cohort_or_quarantined_spcl": 52586,
+    "no_admissible_feasible_configuration": 18
+  },
+  "resource_qualification": "proxy-derived feasibility; exact-count and timing-qualified DPO release is blocked",
+  "timing_estimates_available": false,
+  "spcl": "excluded until extreme latency-unit discrepancy is resolved",
+  "test_accessed": false,
+  "pair_sha256": {
+    "train": "808da7dadffc6c1ff2ae49fc729114870ebca6abf1964b684aac85b07ac9116e",
+    "val": "99e042ec3325c1ef0bb13e038cb7ebe7523d64925e041896697c712147e67211"
+  }
+}

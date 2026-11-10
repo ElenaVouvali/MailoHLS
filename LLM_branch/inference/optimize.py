@@ -11,15 +11,17 @@ from experiments.refinement import configurations as c
 from experiments.refinement_search.deployment import optimize,ExactReceiptOracle
 
 def main():
- p=argparse.ArgumentParser(add_help=False);p.add_argument('--refinement-enabled',action='store_true');p.add_argument('--refinement-budget',type=int,default=4);p.add_argument('--refinement-policy',choices=['coordinate','structural','hybrid'],default='coordinate');p.add_argument('--refinement-request',type=Path);p.add_argument('--refinement-run-dir',type=Path);p.add_argument('--refinement-archive',type=Path);p.add_argument('--refinement-coroni-runner',type=Path);p.add_argument('--refinement-coroni-directory');p.add_argument('--refinement-max-new-calls',type=int,default=8);a,argv=p.parse_known_args()
+ p=argparse.ArgumentParser(add_help=False);p.add_argument('--allow-unqualified-checkpoint',action='store_true');p.add_argument('--refinement-enabled',action='store_true');p.add_argument('--refinement-budget',type=int,default=4);p.add_argument('--refinement-policy',choices=['coordinate','structural','hybrid'],default='coordinate');p.add_argument('--refinement-request',type=Path);p.add_argument('--refinement-run-dir',type=Path);p.add_argument('--refinement-archive',type=Path);p.add_argument('--refinement-coroni-runner',type=Path);p.add_argument('--refinement-coroni-directory');p.add_argument('--refinement-max-new-calls',type=int,default=8);a,argv=p.parse_known_args()
  if '--stage' not in argv:argv=['--stage','stage3',*argv]
  if argv[argv.index('--stage')+1]!='stage3':p.error('Normal endpoint requires Stage3; invoke the original decoder directly for Stage1/2 ablations')
  if '--adapter_dir' not in argv:p.error('Stage3 adapter directory required')
- parent=Path(argv[argv.index('--adapter_dir')+1]);weight=parent/'structural_xattn.pt';stage3_sha=hashlib.sha256(weight.read_bytes()).hexdigest()
+ parent=Path(argv[argv.index('--adapter_dir')+1]);checkpoint_contract=json.loads((parent/'training_contract.json').read_text());qualification=checkpoint_contract.get('stage3_preference',{}).get('qualification','NOT_QUALIFIED')
+ if qualification not in ('QUALIFIED','CONSERVATIVELY_RETAINED') and not a.allow_unqualified_checkpoint:raise ValueError('Stage3 checkpoint is not qualified for default deployment; explicit --allow-unqualified-checkpoint is research-only')
+ weight=parent/'structural_xattn.pt';stage3_sha=hashlib.sha256(weight.read_bytes()).hexdigest()
  if a.refinement_enabled and not all((a.refinement_request,a.refinement_run_dir)):p.error('Enabled refinement requires an exact request manifest and persistent run directory')
  original=decoder.predict_case
  def predict(**kwargs):
-  result=original(**kwargs);assignment=decoder.parse_assignment_dict(result['candidates'][0]['prediction'])
+  result=original(**kwargs);result['checkpoint_qualification']=qualification;assignment=decoder.parse_assignment_dict(result['candidates'][0]['prediction'])
   if not a.refinement_enabled:
    result['final_assignment']=assignment;result['refinement']={'enabled':False,'logical_queries':0,'new_physical_calls':0};return result
   request=json.loads(a.refinement_request.read_text());case=kwargs['case'];platform=case.platform_row

@@ -1,0 +1,659 @@
+{
+  "schema": "v3-development-switch-bank-v1",
+  "source_code_sha256": "61558d1cfbecd645b6e1af721d812d15c1e6c5d57e8e66af5cdc8cd260d8d8b6",
+  "jobs": [
+    {
+      "id": "machsuite-viterbi:0:10.0",
+      "request": {
+        "kernel": "machsuite-viterbi",
+        "objective": "PARETO_LATENCY",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "budgets": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "original_source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "top": "viterbi",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "experiment_arm": "development_switch_stay",
+        "split": "validation",
+        "source_template": "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_bank_union_v1/sources/machsuite-viterbi/viterbi.c",
+        "clock_ns": 10.0
+      },
+      "assignment": {
+        "AUTO{_ARRAY_D_L1}": "1",
+        "AUTO{_ARRAY_F_L1}": "2",
+        "AUTO{_ARRAY_T_L1}": "cyclic",
+        "AUTO{_PIPE_L2}": "1",
+        "AUTO{_PIPE_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_PIPE_L5}": "1",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_PIPE_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L2}": "0",
+        "AUTO{_UNROLL_L3}": "2",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_UNROLL_L5}": "0",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_UNROLL_L7}": "4",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "missing_cross_measurement_in_original_bank": true,
+      "candidate_hash": "0187514fe6eb6dccb5c17480ebec8b37b0d0f3d1e7011422796d1b63584ec845",
+      "anchor": true
+    },
+    {
+      "id": "machsuite-viterbi:0:3.33",
+      "request": {
+        "kernel": "machsuite-viterbi",
+        "objective": "PARETO_LATENCY",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "budgets": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "original_source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "top": "viterbi",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "experiment_arm": "development_switch_stay",
+        "split": "validation",
+        "source_template": "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_bank_union_v1/sources/machsuite-viterbi/viterbi.c",
+        "clock_ns": 3.33
+      },
+      "assignment": {
+        "AUTO{_ARRAY_D_L1}": "1",
+        "AUTO{_ARRAY_F_L1}": "2",
+        "AUTO{_ARRAY_T_L1}": "cyclic",
+        "AUTO{_PIPE_L2}": "1",
+        "AUTO{_PIPE_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_PIPE_L5}": "1",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_PIPE_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L2}": "0",
+        "AUTO{_UNROLL_L3}": "2",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_UNROLL_L5}": "0",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_UNROLL_L7}": "4",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "missing_cross_measurement_in_original_bank": false,
+      "candidate_hash": "0187514fe6eb6dccb5c17480ebec8b37b0d0f3d1e7011422796d1b63584ec845",
+      "anchor": false
+    },
+    {
+      "id": "machsuite-viterbi:1:10.0",
+      "request": {
+        "kernel": "machsuite-viterbi",
+        "objective": "PARETO_LATENCY",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "budgets": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "original_source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "top": "viterbi",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "experiment_arm": "development_switch_stay",
+        "split": "validation",
+        "source_template": "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_bank_union_v1/sources/machsuite-viterbi/viterbi.c",
+        "clock_ns": 10.0
+      },
+      "assignment": {
+        "AUTO{_ARRAY_D_L1}": "1",
+        "AUTO{_ARRAY_F_L1}": "2",
+        "AUTO{_ARRAY_T_L1}": "cyclic",
+        "AUTO{_PIPE_L2}": "1",
+        "AUTO{_PIPE_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_PIPE_L5}": "1",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_PIPE_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L2}": "0",
+        "AUTO{_UNROLL_L3}": "2",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_UNROLL_L5}": "0",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_UNROLL_L7}": "2",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "missing_cross_measurement_in_original_bank": true,
+      "candidate_hash": "889dbe3f125c98c36d481a88da2e115d27f33f39b9f3936605d13d7df2043d93",
+      "anchor": false
+    },
+    {
+      "id": "machsuite-viterbi:1:3.33",
+      "request": {
+        "kernel": "machsuite-viterbi",
+        "objective": "PARETO_LATENCY",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "budgets": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "original_source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "top": "viterbi",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "experiment_arm": "development_switch_stay",
+        "split": "validation",
+        "source_template": "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_bank_union_v1/sources/machsuite-viterbi/viterbi.c",
+        "clock_ns": 3.33
+      },
+      "assignment": {
+        "AUTO{_ARRAY_D_L1}": "1",
+        "AUTO{_ARRAY_F_L1}": "2",
+        "AUTO{_ARRAY_T_L1}": "cyclic",
+        "AUTO{_PIPE_L2}": "1",
+        "AUTO{_PIPE_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_PIPE_L5}": "1",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_PIPE_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L2}": "0",
+        "AUTO{_UNROLL_L3}": "2",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_UNROLL_L5}": "0",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_UNROLL_L7}": "2",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "missing_cross_measurement_in_original_bank": false,
+      "candidate_hash": "889dbe3f125c98c36d481a88da2e115d27f33f39b9f3936605d13d7df2043d93",
+      "anchor": false
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:0:10.0",
+      "request": {
+        "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+        "objective": "PARETO_LATENCY",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "budgets": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "original_source_sha256": "60f73965aacdf828c5d2ddc5ac398dd28f7a17118071c811119ad08e84ea7057",
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "top": "workload",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "experiment_arm": "development_switch_stay",
+        "split": "validation",
+        "source_template": "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_bank_union_v1/sources/rodinia_pathfinder_4_doublebuffer_0/pathfinder.cpp",
+        "clock_ns": 10.0
+      },
+      "assignment": {
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_ARRAY_F_L4}": "4",
+        "AUTO{_ARRAY_F_L5}": "4",
+        "AUTO{_ARRAY_F_L6}": "2",
+        "AUTO{_ARRAY_F_L7}": "2",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_PIPE_L1}": "0",
+        "AUTO{_PIPE_L2}": "1",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L1}": "2",
+        "AUTO{_UNROLL_L2}": "0",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "missing_cross_measurement_in_original_bank": false,
+      "candidate_hash": "0178d1d217e8c8e0805acaeb5d8337af23742021009c22d4324c1c22c1cb18ea",
+      "anchor": true
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:0:3.33",
+      "request": {
+        "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+        "objective": "PARETO_LATENCY",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "budgets": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "original_source_sha256": "60f73965aacdf828c5d2ddc5ac398dd28f7a17118071c811119ad08e84ea7057",
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "top": "workload",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "experiment_arm": "development_switch_stay",
+        "split": "validation",
+        "source_template": "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_bank_union_v1/sources/rodinia_pathfinder_4_doublebuffer_0/pathfinder.cpp",
+        "clock_ns": 3.33
+      },
+      "assignment": {
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_ARRAY_F_L4}": "4",
+        "AUTO{_ARRAY_F_L5}": "4",
+        "AUTO{_ARRAY_F_L6}": "2",
+        "AUTO{_ARRAY_F_L7}": "2",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_PIPE_L1}": "0",
+        "AUTO{_PIPE_L2}": "1",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L1}": "2",
+        "AUTO{_UNROLL_L2}": "0",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "missing_cross_measurement_in_original_bank": true,
+      "candidate_hash": "0178d1d217e8c8e0805acaeb5d8337af23742021009c22d4324c1c22c1cb18ea",
+      "anchor": false
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+      "request": {
+        "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+        "objective": "PARETO_LATENCY",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "budgets": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "original_source_sha256": "60f73965aacdf828c5d2ddc5ac398dd28f7a17118071c811119ad08e84ea7057",
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "top": "workload",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "experiment_arm": "development_switch_stay",
+        "split": "validation",
+        "source_template": "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_bank_union_v1/sources/rodinia_pathfinder_4_doublebuffer_0/pathfinder.cpp",
+        "clock_ns": 10.0
+      },
+      "assignment": {
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_ARRAY_F_L4}": "4",
+        "AUTO{_ARRAY_F_L5}": "4",
+        "AUTO{_ARRAY_F_L6}": "2",
+        "AUTO{_ARRAY_F_L7}": "2",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_PIPE_L1}": "0",
+        "AUTO{_PIPE_L2}": "1",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L1}": "2",
+        "AUTO{_UNROLL_L2}": "0",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "missing_cross_measurement_in_original_bank": false,
+      "candidate_hash": "e93fcf6c18795f8948b28bde9a0adf039a6937f42b77f2c427a28bb89556795c",
+      "anchor": false
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+      "request": {
+        "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+        "objective": "PARETO_LATENCY",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "budgets": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "original_source_sha256": "60f73965aacdf828c5d2ddc5ac398dd28f7a17118071c811119ad08e84ea7057",
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "top": "workload",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "experiment_arm": "development_switch_stay",
+        "split": "validation",
+        "source_template": "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_bank_union_v1/sources/rodinia_pathfinder_4_doublebuffer_0/pathfinder.cpp",
+        "clock_ns": 3.33
+      },
+      "assignment": {
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_ARRAY_F_L4}": "4",
+        "AUTO{_ARRAY_F_L5}": "4",
+        "AUTO{_ARRAY_F_L6}": "2",
+        "AUTO{_ARRAY_F_L7}": "2",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_PIPE_L1}": "0",
+        "AUTO{_PIPE_L2}": "1",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L1}": "2",
+        "AUTO{_UNROLL_L2}": "0",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "missing_cross_measurement_in_original_bank": true,
+      "candidate_hash": "e93fcf6c18795f8948b28bde9a0adf039a6937f42b77f2c427a28bb89556795c",
+      "anchor": false
+    }
+  ],
+  "selection": {
+    "machsuite-viterbi": {
+      "status": "SEALED",
+      "common_configurations": 0,
+      "low_cost_legal": 106,
+      "candidate_ids": [
+        "0187514fe6eb6dccb5c17480ebec8b37b0d0f3d1e7011422796d1b63584ec845",
+        "889dbe3f125c98c36d481a88da2e115d27f33f39b9f3936605d13d7df2043d93"
+      ],
+      "candidate_availability": "common pool if>=2; otherwise union with missing contexts to be physically measured",
+      "choice_rule": "minimum action distance, then field distance, then hashes among low-unroll/noncomplete legal common configurations; must differ in unroll; no latency/resource ranking"
+    },
+    "rodinia_pathfinder_4_doublebuffer_0": {
+      "status": "SEALED",
+      "common_configurations": 0,
+      "low_cost_legal": 18,
+      "candidate_ids": [
+        "0178d1d217e8c8e0805acaeb5d8337af23742021009c22d4324c1c22c1cb18ea",
+        "e93fcf6c18795f8948b28bde9a0adf039a6937f42b77f2c427a28bb89556795c"
+      ],
+      "candidate_availability": "common pool if>=2; otherwise union with missing contexts to be physically measured",
+      "choice_rule": "minimum action distance, then field distance, then hashes among low-unroll/noncomplete legal common configurations; must differ in unroll; no latency/resource ranking"
+    }
+  },
+  "inputs": {
+    "/home/elvouvali/MailoHLS-final-architecture-20261109/artifacts/final_architecture_20261109/reaudit/non_test_records.json": "2e4ed4f041c4d40f7d18400c9c9ad74379cbc81a452bceb2c235d30b4aac59ee",
+    "/home/elvouvali/MailoHLS-rc3-stage2-multikernel-c/artifacts/rc3_stage2_multikernel/v1/audit/stage2_pilot.jsonl": "332b8ab6dc7ffdd2ac3e3501f3d90a31ff6fd399b14b4df9e9f9a81734457c07",
+    "artifacts/final_architecture_v3/coroni_clock5/batch_provenance.json": "ec630dd01fec4cc68187e801f88e3753b4463aef6cadb7fd8c51450ec9c6c1a4",
+    "/home/elvouvali/MailoHLS-final-architecture-20261109/artifacts/final_architecture_20261109/checkpoint_pathfinder_clock5/run_batch.py": "ec05f6b97479a30ebc1c3b45eea7758881889cc5c87e64234ae85b610e7f1414"
+  },
+  "runner": "/home/elvouvali/MailoHLS-final-architecture-20261109/artifacts/final_architecture_20261109/checkpoint_pathfinder_clock5/run_batch.py",
+  "budget": {
+    "max_new_calls": 8,
+    "prior_calls_including_repeats": 11,
+    "timeout_per_job": 300
+  },
+  "protocol": {
+    "latency_reversal_gap": 0.05,
+    "near_ties": "ambiguous",
+    "clock_timing": "separate finite HLS estimate <= request subset",
+    "anchor_gate": "Run one10ns candidate per family; release remaining three only if anchor has finite authenticated latency and exact resource counts. Otherwise mark family BLOCKED, not failed hardware.",
+    "budget_diagnostic": "After measuring, define one component-wise midpoint threshold only if candidates differ in exact resource counts; label bank-derived diagnostic and do not present as in-distribution budget adaptation.",
+    "no_test_access": true,
+    "no_architecture_selection_from_HLS_until_all_comparisons_frozen": true
+  }
+}

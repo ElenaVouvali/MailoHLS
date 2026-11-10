@@ -1,0 +1,3666 @@
+{
+  "schema": "v3-real-mask-audit-v1",
+  "parent_contract_sha256": "09e02a1739a1a9b98c45e296db11c593e58553f1215d00c818ee32f30fe89375",
+  "splits": {
+    "train": {
+      "pairs": 128,
+      "shorter_preferred": 49,
+      "longer_preferred": 43,
+      "equal_score_lengths": 36,
+      "length_only_accuracy_nontied": 0.532608695652174,
+      "length_only_half_credit_ties": 0.5234375,
+      "records": [
+        {
+          "pair_id": "11c7641088b5e29833e427b2c026b67ec12aecda8dc564af6cfd52e9515a9584",
+          "family": "machsuite_gemm",
+          "encoding_sha256": "04459cc25c54f928d0865f45f77926b77023f6efc9371bb7f1da75d45a6c2585",
+          "latency_gap": 9.881927951801204,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 12,
+            "completion_tokens": 152,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 151,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "940d8154d968ddc418e16797d1a10c7078614d70eed4ac1c2c05d65c2ce26cb7",
+          "family": "machsuite_md_knn",
+          "encoding_sha256": "00e0fc5e5fa7300fc5f59e5e839677f6ed9892e5fe282683a6c4317d43727595",
+          "latency_gap": 28.25219717233474,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "bb19178684adee712efc05feabad52f4af2a1d379e57fed30c61fc71c1ca551d",
+          "family": "machsuite_spmv_ellpack",
+          "encoding_sha256": "23473649af6d541750de3900871ab83268c4a82ccae691919e61d8db623fe1ae",
+          "latency_gap": 8.295490506329115,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "f89a68a396237158483c4f8f45ace9b59fe9a1e07ca756f2c3278b10e998c8f7",
+          "family": "machsuite_stencil2d",
+          "encoding_sha256": "966c751af01a76dc5fcc6d2325f4158127547e69e44cea81c18577b5b5e8cc2a",
+          "latency_gap": 17.040888815463404,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 8,
+            "completion_tokens": 120,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 121,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "c29b7a15e50f45797d3529e5c8eaf1bc0eda86e8bd70dfd387a00df8fa799a5e",
+          "family": "machsuite_stencil3d",
+          "encoding_sha256": "2c0ac94ce990ceb0880793c9afb62c04aed8d8b1eb46a9932aa53cc72484c69c",
+          "latency_gap": 0.5727843810728974,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 257,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 18,
+            "completion_tokens": 256,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "28188d897f6f81e4eaf4d6047fc8c03b2d85780abe28e81023d609ab98922591",
+          "family": "rodinia_backprop",
+          "encoding_sha256": "2cb744c5e8a8f8bc3c969029b2073206ae8b3c10783e11a95acf727ac016d3f3",
+          "latency_gap": 2.680320186789171,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 31,
+            "completion_tokens": 398,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 23,
+            "completion_tokens": 391,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "3756379c27afcce2a3d783dd01d2bbcc33d70c3c5bacd4159c1bdd334855e5e1",
+          "family": "rodinia_cfd_flux",
+          "encoding_sha256": "4d3edaab1d27009f5d00f297ff306965fbfcc347a28924f3ba8922cd9f81251f",
+          "latency_gap": 3.895980719894271,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "d84ceda98089f15134784d3653f5f74e80770df0097b5084c2d2a81ede490a2f",
+          "family": "rodinia_cfd_step_factor",
+          "encoding_sha256": "865b36379b0a7113d166210695e57bb5c4593dfecd203698c187258cfc9f6706",
+          "latency_gap": 1474.9230769230771,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 60,
+            "completion_tokens": 806,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 61,
+            "completion_tokens": 807,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "015d7918261ddc74292b7bcd2068a4ceca3202fe69f33427d36466083c28a5ea",
+          "family": "rodinia_dilate",
+          "encoding_sha256": "799d167041e0990d9c737e2a9782dde2dbdd0d75921d942cd853524419866cf0",
+          "latency_gap": 13.479555223258942,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 401,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 31,
+            "completion_tokens": 402,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "4cacba084475182347085c3d3183d6c48ee5463cd4db854bed053a817a68eda3",
+          "family": "rodinia_hotspot",
+          "encoding_sha256": "81d9099f012b97c7a2f7c033156f3d3afdc80d926b007f44e47b123f9a4c99d7",
+          "latency_gap": 0.45701580669444763,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 23,
+            "completion_tokens": 286,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 284,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "4b4349a7c00a6953324b354198da99720f77820c926442ac06217580f6ece65e",
+          "family": "rodinia_kmeans",
+          "encoding_sha256": "2b87e18c4139627c46372cdfe8da4126d166d3c8f8b45a853b88c4b06d1e3688",
+          "latency_gap": 13.713075326686743,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 36,
+            "completion_tokens": 410,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 27,
+            "completion_tokens": 401,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "d49a4f6ae8cf22f7acdc9fbfa504b14082e336adcdef9f5ff1a93d8631ef95bc",
+          "family": "rodinia_knn",
+          "encoding_sha256": "d46b0bf41d67142712b5982a69e57ab5bd64764d8b39d2ac8250d47d88fbf131",
+          "latency_gap": 0.49998497985154366,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 68,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "f51a35b28ef6c070218d0497cedcf96423cc6de48db7661c02c6020dfd0569cc",
+          "family": "rodinia_lavamd",
+          "encoding_sha256": "62325310f01475cc611dbaade973f32100f421e30b2eff152943ca971ec48640",
+          "latency_gap": 8.065956924844016,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 167,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 167,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "f9633fff8a2f8b81f328a55bd0050c5ffae0a61bf2b080da8fc3aba0eba05aa2",
+          "family": "rodinia_lc_gicov",
+          "encoding_sha256": "65754259e3ae530810837eed3fb724da9781ea2c499c70347284aba188846fc7",
+          "latency_gap": 1.3002179877578222,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 403,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 2
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 399,
+            "weight_sum": 1.0,
+            "complete_partitions": 4
+          }
+        },
+        {
+          "pair_id": "211c0e152bc969ac4d4db5b4fab2f926d15bebd7fbb952d7ed6435ddc9d28576",
+          "family": "rodinia_lc_mgvf",
+          "encoding_sha256": "26b1cf7725efc0e9f371d1d6bb0bd363c6c5481dc8b2fd18c8abfdd8d6dd7163",
+          "latency_gap": 11.309467890515661,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 7,
+            "completion_tokens": 94,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 6,
+            "completion_tokens": 93,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "034a56f2722d2045a9aa53d2ce35aafb8f8735be3c9af1a22ba43064d5ad9847",
+          "family": "rodinia_streamcluster",
+          "encoding_sha256": "d80ffbbf49d2f1f5dc9fd563dea23e2f35e18f1cff515f5fd95ffaad3991a158",
+          "latency_gap": 185.914273281114,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 56,
+            "completion_tokens": 783,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 56,
+            "completion_tokens": 783,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "e2fbe001a48068af9985b958e25793ac533e2305fbfa5f0e403812104330a830",
+          "family": "machsuite_gemm",
+          "encoding_sha256": "458abe3becff21f7c4872e62662409016382f98d3af2a141673716e1a4b7e52a",
+          "latency_gap": 1.1995851963022024,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 148,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 148,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "ab828cef58c9ca23882042a99a4ec65508078054c2f34f40411d6d17aad5b934",
+          "family": "machsuite_md_knn",
+          "encoding_sha256": "779ef98a71963df9c827a16ae3c4e6fce663fa0994bd8156fee9bb4ce98c2946",
+          "latency_gap": 36.625390624999994,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 70,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e8b7a479efc10cd31f3fe3862a8e929133bfb479948b9a6a40a0a0a3cbfd60af",
+          "family": "machsuite_spmv_ellpack",
+          "encoding_sha256": "e080a98f304aa50ed5391d571d076c6fde04cf014e8a5661081d7cc889fa063d",
+          "latency_gap": 26.54669792887847,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 70,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "b4dc783b63c09b9e425d7cfe47bd0dd57bcb9b534aa0396c6ad98becde2aff8c",
+          "family": "machsuite_stencil2d",
+          "encoding_sha256": "b1a5841f920c76e4d40f3b40c9cb800831c1c1459e5c571eff41c0414e3fca9d",
+          "latency_gap": 1.947908840470824,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 122,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 122,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "974eed5d288c556fc7beb16f14d1d8a493f33f13eac16529eff214b42add7ff5",
+          "family": "machsuite_stencil3d",
+          "encoding_sha256": "23139ae89f5f96eb9e26729307254b5863ffb3a932f4a3cdf33fbd25f86cfedb",
+          "latency_gap": 0.5090654880028864,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 256,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 256,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "91fbdf6ea2f42f299b4b702bc3b269e49b1ef2a299991d5df77b02dedff19efb",
+          "family": "rodinia_backprop",
+          "encoding_sha256": "73e0a2dab746a12903aed8c8791f8c21f376abf2a8ef4a39155073082da4f372",
+          "latency_gap": 0.1668564207787009,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 25,
+            "completion_tokens": 391,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 34,
+            "completion_tokens": 399,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "9f1cefa28bf824e6990387989c32413686f9caea0121841d54e0bf257c4b6559",
+          "family": "rodinia_cfd_flux",
+          "encoding_sha256": "9dff100d91eb5b52df3f940cd3d1794753c1c81677c09e2af069b788fd5ec771",
+          "latency_gap": 18.705262348053548,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "66e9477150f52fde1d018b38c3f6899504dd1dd136dcbc5e58a27ab9cb08222a",
+          "family": "rodinia_cfd_step_factor",
+          "encoding_sha256": "e05c97e2dc284614705ff565e39b8be2d0ae1f77c59590278942c0c8cb50837b",
+          "latency_gap": 0.8749999999999998,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 53,
+            "completion_tokens": 798,
+            "weight_sum": 1.0,
+            "complete_partitions": 2
+          },
+          "rejected": {
+            "supervised_value_tokens": 59,
+            "completion_tokens": 803,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "60c71106b969ee8137d65641e8a7b92671a9dfc6a14193fa4d8476ca793ec301",
+          "family": "rodinia_dilate",
+          "encoding_sha256": "94d27ed29094afad9db73d362c017b9c31ad51e08112dbe6a3ddc2b98634f686",
+          "latency_gap": 14.908761875461638,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 402,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 29,
+            "completion_tokens": 401,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "cd2975cfc8a13691417d727fc91c89be86504d099a6830a8344c808bd5ac9fdb",
+          "family": "rodinia_hotspot",
+          "encoding_sha256": "723cc2f5d4f977fe3c4f232ef95fcbbb9f0012d5405202415e2a94c591c2c373",
+          "latency_gap": 0.10130834712055004,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 17,
+            "completion_tokens": 283,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 16,
+            "completion_tokens": 282,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "2f5059d3c9cadc63512b6f569444bf9e7682715ee993b2a53898ef55b0306917",
+          "family": "rodinia_kmeans",
+          "encoding_sha256": "b56868032c12ea93d7ad852b403ef60a0d6d498d9aeca2dcd3e2e02c1b8bd2d9",
+          "latency_gap": 115.12121900366571,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 36,
+            "completion_tokens": 407,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 401,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "f32e7a91d150ef98fb35372faed2644cfb8415dbb86b5cbf59445051f48750ca",
+          "family": "rodinia_knn",
+          "encoding_sha256": "57d6dcc7ee562fdf1cb7218ddec82b17993a0f5c6d447b42a30a29278007bd38",
+          "latency_gap": 0.5312279467020662,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 70,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "3ead8e248031674633773def1fec6109f90bb70f23bc0e23a937ffd30f65c6aa",
+          "family": "rodinia_lavamd",
+          "encoding_sha256": "ffa81e55976fd56153d6ef9fcf3432200f9259e4498401c59c1a4a0f7c9ae543",
+          "latency_gap": 0.3074395746609737,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 165,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 165,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "cad13115055c60498022b3ff87a79b22cc5b3f0a92319c392d1e1687a9136e1f",
+          "family": "rodinia_lc_gicov",
+          "encoding_sha256": "248ae6105c4b20bd921cd70ff0a0a7293d32d2046fa481f3354d7a7102e019c4",
+          "latency_gap": 16.7989428193313,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 34,
+            "completion_tokens": 408,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 400,
+            "weight_sum": 1.0,
+            "complete_partitions": 2
+          }
+        },
+        {
+          "pair_id": "a22feefc5bde225ec723f0e754ef44155ee4b13b1de75f50e3e09b1a92e4e42e",
+          "family": "rodinia_lc_mgvf",
+          "encoding_sha256": "367ad65ffe2cf0a609595e44fa9039b3c634f6ce317c2e3464f2231e888238f4",
+          "latency_gap": 10.892174737405385,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 6,
+            "completion_tokens": 94,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 7,
+            "completion_tokens": 95,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "858a009ecfc5a541987209cc2390b91a1c3652262abda303b5d6c3a47c35d9f5",
+          "family": "rodinia_streamcluster",
+          "encoding_sha256": "531a04a45a1eb83f73b760913ea03b884ef0a5dd6efea1975ed566dece8d42d5",
+          "latency_gap": 0.14049689440993784,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 53,
+            "completion_tokens": 783,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 64,
+            "completion_tokens": 794,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "b2f1ee04b331a98db7380364da65d72b6f1cab108df356126f06613d8c81de18",
+          "family": "machsuite_gemm",
+          "encoding_sha256": "1f3562197853d7c0278c5b169f22916d87c175de985643c0e81cacad3fd28243",
+          "latency_gap": 4.905694749450988,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 148,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 147,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "85d4b762df1f11f82fb40b1d9978d8c131b80e5a63395cd78a7dbea0fd9fe34d",
+          "family": "machsuite_md_knn",
+          "encoding_sha256": "b9c8b7c17bcc295bdf89cf93b052f53eefa50f924889f8d9a2898a6bf7e873c6",
+          "latency_gap": 9.960314179412979,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 68,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "d316b56a7303f083e3e56dd177d3d580b8b324fb568d18feeb2e80d756683af8",
+          "family": "machsuite_spmv_ellpack",
+          "encoding_sha256": "54a77bb60848183941960565eb280efbf1c53c24e1deda30752b5a2316556572",
+          "latency_gap": 17.073151443258205,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "77df41e95c995bd28dbf1db6c4f437e870be8f3f136effdae66e7759994931c6",
+          "family": "machsuite_stencil2d",
+          "encoding_sha256": "d13b8c6a86013d424fcabfe0b2def0ec893744f9b9a6965ccaa3c4254619bc1a",
+          "latency_gap": 2.06880301602262,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 125,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 124,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "9725abdee4fac0ceab7f8d4cec2b19c0c9c5d5b2db6b75e4b11f51541c0e1cd9",
+          "family": "machsuite_stencil3d",
+          "encoding_sha256": "6f1c2fe51b29acd559da65c705552707f5362fcf204275c4b1fb770312bef8d0",
+          "latency_gap": 0.8896801846356743,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 260,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 260,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "104a0bb11007f863f7e10f0031d588f569aec566de478f5f688fd0d9039dde87",
+          "family": "rodinia_backprop",
+          "encoding_sha256": "a3c6784ba04c926e1bf63f0b8150df315ec0877a2eeca3b1e74b4ca6dff6b765",
+          "latency_gap": 0.19869536427882672,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 23,
+            "completion_tokens": 389,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 2
+          },
+          "rejected": {
+            "supervised_value_tokens": 27,
+            "completion_tokens": 392,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "0ccb8c69a929c2edf1e53262974547788d42378224f7d3770cf6895414ea7103",
+          "family": "rodinia_cfd_flux",
+          "encoding_sha256": "b66dfd4bdbcc4b0aa87c92afa3672465c83130f810422d6b59e8c88e945cc130",
+          "latency_gap": 8.500717137651666,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "ed8e9c0efdc56a472621438517cd18a8a7638d7ca5a2fe3c809d59386460a9d8",
+          "family": "rodinia_cfd_step_factor",
+          "encoding_sha256": "f9ad4e86134c96944ce6125768ca6e73cdc9c1604e4bd3c852ffb3da6fb5e917",
+          "latency_gap": 5955.153846153847,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 67,
+            "completion_tokens": 812,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 56,
+            "completion_tokens": 801,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "fc44b590e92666260ba42cef573245300ff54cc55e10c9aea097b7c866661682",
+          "family": "rodinia_dilate",
+          "encoding_sha256": "8338fd0b89fc36e3f89b43cc26902118eb631b4058790ffaeb778f7f3aea5439",
+          "latency_gap": 28.55500888342217,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 404,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 27,
+            "completion_tokens": 401,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "a2800ba9b49b63a7d6010875c234a70ddf5a91d4ef7cbb06d4a415eca9916b78",
+          "family": "rodinia_hotspot",
+          "encoding_sha256": "080da262429ceeac5d4bce5b34ea7c082b250c161b3b76e3ee0d717754a18ca2",
+          "latency_gap": 2.8379693851592482,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 18,
+            "completion_tokens": 282,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 18,
+            "completion_tokens": 282,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "849b4368874992c3e1a388d5402957e3228ad03fcececd3b2bedfe288149cabf",
+          "family": "rodinia_kmeans",
+          "encoding_sha256": "18194212e2a5cb38375fd142aa4d7a5815095e477f8af11aed8dade88bf29b46",
+          "latency_gap": 9.31491759043253,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 33,
+            "completion_tokens": 405,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 402,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "8f8b3a1c867c9de67dc942dde6cc2a533e301418fd2d7e9f62921e9fe3dbed14",
+          "family": "rodinia_knn",
+          "encoding_sha256": "a327b981dffaf991d850562a4c80b4df9ba0a9b267fc08c10ca617a973aefcf7",
+          "latency_gap": 1.8749454629202695,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "2022d86d553b8dfcd350d27206ad6c40a9113cc93c0e4b82b7188a332fcfcf0d",
+          "family": "rodinia_lavamd",
+          "encoding_sha256": "49270f57d8570191a2990d78aab458cf7ea8a74d36971f72707515e4529f8f95",
+          "latency_gap": 6.894057228418158,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 166,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 164,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "b788861a36029464fbca99f455aa307a68d71eadb737a323cbe490141f1129a3",
+          "family": "rodinia_lc_gicov",
+          "encoding_sha256": "b737e88fabcc7b9df08d2f0269faeb42c941a1add73782da3041e840fa31b837",
+          "latency_gap": 21.49184866261142,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 402,
+            "weight_sum": 1.0,
+            "complete_partitions": 4
+          },
+          "rejected": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 407,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "841307c643acb37d3e00e79177d3e540963528806a8103d3f4539f97958bb5e5",
+          "family": "rodinia_lc_mgvf",
+          "encoding_sha256": "47b2ea275c1b4e5e46b3fc6d9cd7123f940c3e7589e66dee0a1c0bd5677f81a2",
+          "latency_gap": 22.682139366170716,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 6,
+            "completion_tokens": 96,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 6,
+            "completion_tokens": 96,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "5dc79f5b297eb61cdb493fbfdb2aef03c7612e4bd1f93e8e9d445078ab838cde",
+          "family": "rodinia_streamcluster",
+          "encoding_sha256": "c7e49dd48546a382fb5895be1cd0f8bf8fa634effe19dea75128b0b947bb59c2",
+          "latency_gap": 0.12785558667911623,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 54,
+            "completion_tokens": 782,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 65,
+            "completion_tokens": 793,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "b1a01ef61a4a6601f9f49edc2d1a679afac0f67b4a257c9ec7f433c6a469ea75",
+          "family": "machsuite_gemm",
+          "encoding_sha256": "fdd79427e219a34f94f9ee78dda55fad75b6e203ea1f45c21b17902ed44674ad",
+          "latency_gap": 2.1464089854461084,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 148,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 148,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "0eb6c2fc210e69911f409f41b716d6b266b047b22f308e8d41a1fa82ac2b8b17",
+          "family": "machsuite_md_knn",
+          "encoding_sha256": "c2c099f4e2c7367a350e0a69003776bb60a68b903c5cdc8f77eb8921af5e6d51",
+          "latency_gap": 40.34077079107505,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 68,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e18c0396ec301cc82cb649a05584bf70d633c7566d7e39c48098245e243477b9",
+          "family": "machsuite_spmv_ellpack",
+          "encoding_sha256": "b579e5bcc951d4a211f0a0d39bede4aa8633af19b11cd54c7dced5aa2d918f59",
+          "latency_gap": 38.336523736600306,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "fc4ca5ff870fb4cedaf3e14c491e1c4db77ae885c7acee7abdd0d917b4b29149",
+          "family": "machsuite_stencil2d",
+          "encoding_sha256": "0e542991c634f771e8b1ffe256c487adab845a30656fd7fbc5e593626c6ed356",
+          "latency_gap": 19.036606226479645,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 125,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 124,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "64e3f040a50b446ac0ebfe1e5e2b03900324b65448d7dd5314046878cae9107e",
+          "family": "machsuite_stencil3d",
+          "encoding_sha256": "222d4207d3d06ed73b09767086109a49721c659421a3024438df6c81a066b795",
+          "latency_gap": 0.3159154547917984,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 258,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 18,
+            "completion_tokens": 256,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e12e0d5c16d00a3608affb6b313e013e7ab05348f586227c0afa16304cbae263",
+          "family": "rodinia_backprop",
+          "encoding_sha256": "8f8cfb6dd7e5cee586ab1eabaf196ae98da8bb9e27da83900f1b0cc52af59345",
+          "latency_gap": 0.3717909911766537,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 390,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 390,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "84543682298e39795913eedd4b2b3b0ba07fc685f68d3fe839d9ac91689799d2",
+          "family": "rodinia_cfd_flux",
+          "encoding_sha256": "7a007afbdc11ad6288955216feb52c90bc52711a7288402b019c00eba3fe033d",
+          "latency_gap": 12.215022603454273,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "584155f707d94ba54072fb0975e80b5da152c44c9a4480fd062434a4074dc5c7",
+          "family": "rodinia_cfd_step_factor",
+          "encoding_sha256": "6dfb3e1b996405814df8ec622f606c6f814b4fc6eb8e2ce3fe29eec759d9b629",
+          "latency_gap": 372.66666666666674,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 62,
+            "completion_tokens": 808,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 56,
+            "completion_tokens": 802,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "2381c9425b00d45a8f99136d3c8f2a8f5df97e13acfd4585303af7a956f261cc",
+          "family": "rodinia_dilate",
+          "encoding_sha256": "b2b4e6740d74927e719da28bf78ca2c6d45696215a5b599b0664e201b92d7455",
+          "latency_gap": 0.5983440862406955,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 31,
+            "completion_tokens": 403,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 28,
+            "completion_tokens": 401,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "740a6663b8db37ab72c7a0f7bc1a2d37332766f3ad1bf59ca5d3363c631a74d3",
+          "family": "rodinia_hotspot",
+          "encoding_sha256": "08b75e59c3c767e954a819cdbc0ba9c941512ef04ac9b8d136b17fe962c3e1b7",
+          "latency_gap": 0.7472441544532633,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 285,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 284,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "5b9fee30e57144533354465790c62da6ff230a1fe9849635b423122f81afa470",
+          "family": "rodinia_kmeans",
+          "encoding_sha256": "ddd384a4c89b02a0e725b4520df723cb5a450ef1775108d98a39e9ffa2ed7c70",
+          "latency_gap": 89.0768451709755,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 32,
+            "completion_tokens": 406,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 31,
+            "completion_tokens": 405,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "d2df800059eb412404290b515fb3280daa6bda48a0c5889c14b0b52d82e459e2",
+          "family": "rodinia_knn",
+          "encoding_sha256": "8676ba4e01520064fa79ccb8bb3526064c8014a3bb0591deb79ce918b60a0370",
+          "latency_gap": 0.4999828341406056,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "266eae3f8e79c4bcf513a88bf6a690e485639d1fbaec5abbfd8d31867a33877e",
+          "family": "rodinia_lavamd",
+          "encoding_sha256": "38f8d8969ed642dd938d181c682336a0bed7947a0d923629f57b437a153da9b5",
+          "latency_gap": 5.861058266075786,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 165,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 167,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "0ef2d2d6670f7b5739c379be00865be4321f6bd88199dae613fb5520339ff24e",
+          "family": "rodinia_lc_gicov",
+          "encoding_sha256": "25cf161e89523a10df5b24ff8150bd04f86f1ced734d16fa28a4526585e61a57",
+          "latency_gap": 0.9173436991243606,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 408,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 34,
+            "completion_tokens": 411,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "59c119532c256520f3abb19a921fc80a4777aa54fbd46f20f942fe464a71ab84",
+          "family": "rodinia_lc_mgvf",
+          "encoding_sha256": "c75433daccc2e4c85bdf9ace9d068bd929ad0f5087fea87d40446244cdbb261e",
+          "latency_gap": 11.927297008290951,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 7,
+            "completion_tokens": 94,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 6,
+            "completion_tokens": 93,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "baec2a94c035fca520c64f62354c98fc2fbc7f5e48101610a91b52e29d9ba1bc",
+          "family": "rodinia_streamcluster",
+          "encoding_sha256": "e121bdd930cdd019ccd00feedb7db422c77bce4f4cdb574e1739739278190376",
+          "latency_gap": 72.1925925925926,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 51,
+            "completion_tokens": 779,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 64,
+            "completion_tokens": 792,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "2b1b1e55f4c0a554ad06a8c0811128c7fff78786f70d1f4da0b2b92efdd9a804",
+          "family": "machsuite_gemm",
+          "encoding_sha256": "a94e92ff27cfeb4c4fdd6179a562241ba1f881ec63815fda47d82429f8684828",
+          "latency_gap": 3.1201219969500755,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 12,
+            "completion_tokens": 152,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 150,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "61a9c03fc35172e0efb0af92adc0cea42eef7f53e57a3e7ed86944d440980223",
+          "family": "machsuite_md_knn",
+          "encoding_sha256": "355a861e80dc26d4654558f1291f556c1b6b4f3e776d3319f6c6107b590d1208",
+          "latency_gap": 46.15361100496752,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "fc655e4a680a2c83ec06002a87109f2cb489ecca87d57da2115e55bc15a1ebbe",
+          "family": "machsuite_spmv_ellpack",
+          "encoding_sha256": "81bcfa21e3a04b1953d8963796703f6d3e9ab5af5e8e38a89dade24830e09346",
+          "latency_gap": 17.074367088607595,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 68,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "210182eb141597008f7b9871c7d0fb1b468efe94ac5a8daf19dfe12cce2c4eb0",
+          "family": "machsuite_stencil2d",
+          "encoding_sha256": "dcaa475f5eeca8a1e07b20d8983d13cba6a36f26a02ea769162b63ca73f2d42e",
+          "latency_gap": 6.850074343300842,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 121,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 121,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "2afd36f526981d0a5fe0a851698d59fed16172c1cac0de2f859ce541c2807d5f",
+          "family": "machsuite_stencil3d",
+          "encoding_sha256": "3fad3030d0d382ead428093c17a57b7b08cbd7d094fbf41d4385b88a1f8a88b3",
+          "latency_gap": 0.6145903479236812,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 18,
+            "completion_tokens": 258,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 18,
+            "completion_tokens": 258,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "848600f260427a2252e63098fef6fd9208bfe6a6395a1eb8780555f8979437c2",
+          "family": "rodinia_backprop",
+          "encoding_sha256": "4babb5ba9b954c539695e815842d46bb9660d8ab34dd885b1dba1ca907170273",
+          "latency_gap": 2.087933997607004,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 395,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 25,
+            "completion_tokens": 392,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 2
+          }
+        },
+        {
+          "pair_id": "8345be7eb0aa9709fc3b7235a544bfc233e6ecc45828b3d2088b554a3ca43124",
+          "family": "rodinia_cfd_flux",
+          "encoding_sha256": "5125eea5ed344c9d36cfa464f1ac5e4fbac41e23582b940683ac9b7fe33e8cd2",
+          "latency_gap": 0.11865062478239019,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "1e584f21c5b7972af487ee5b71001ad9ad9224f4bb225f08f57c9ddbbaf5bc20",
+          "family": "rodinia_cfd_step_factor",
+          "encoding_sha256": "164be501faf6b2e78d2cdd441413b9ef6f8ad405cccd2634ca1f9bf4b689d059",
+          "latency_gap": 3593.7499999999995,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 61,
+            "completion_tokens": 804,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 56,
+            "completion_tokens": 801,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 2
+          }
+        },
+        {
+          "pair_id": "6bbf7cae10d6553dc8ecabf496523162eda99376cdf21b024802c293804017e1",
+          "family": "rodinia_dilate",
+          "encoding_sha256": "5ce87a45b801c8d0e781f5fcfc39de4f9d6c03e3ce403b7666e47ace079eefa9",
+          "latency_gap": 0.4793078284473029,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 31,
+            "completion_tokens": 402,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 398,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "403a0f3bbbb19813fa6289126c770b84f96e7ac02704a255333fe0af92eafca7",
+          "family": "rodinia_hotspot",
+          "encoding_sha256": "3559a33bcdf321190eaf6642a258d340d83c333c11a69a0baca37159a6e0db51",
+          "latency_gap": 1.1998371566282002,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 285,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 290,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "b7e7e3349423a907955777d0f718860fab68e8297e0104798e40cf6d93c4f7fa",
+          "family": "rodinia_kmeans",
+          "encoding_sha256": "55330d87c716150094eac8fd0cfc0aa24d0bf7bbc9a0f866c7310338ec196b2b",
+          "latency_gap": 5.281174750834006,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 32,
+            "completion_tokens": 404,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 29,
+            "completion_tokens": 401,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "58697ed98a6d40dc7ad805e6022c16e46628360912dd5409ec075b03193301fd",
+          "family": "rodinia_knn",
+          "encoding_sha256": "1b60a6589bc5181612fbdb29cfb512722b6fb6ba0cd88b0646b255f3629615bf",
+          "latency_gap": 27.49919869769899,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 70,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "6b8c5e85cc972709548aef9e492f2592236070167da08347b88d776f6d1f408f",
+          "family": "rodinia_lavamd",
+          "encoding_sha256": "6b1e58388c94031fe0498e46fa2a293d1b1412dbb54f7841ab3a472ca581951c",
+          "latency_gap": 8.234840803541841,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 164,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 164,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "c65d902a6befedde94acd5b1d44fd9ca7bd5a84936da6bf07429eb7a0c5993ab",
+          "family": "rodinia_lc_gicov",
+          "encoding_sha256": "b151a51ea5cd248ac5d63daa37a79af9864fc4cf04e2e00e52f6ff9f1d116c71",
+          "latency_gap": 3.3877205313967877,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 402,
+            "weight_sum": 1.0,
+            "complete_partitions": 3
+          },
+          "rejected": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 401,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "4a79d615426c9b0900c032c6328793c9acba1a2d2268e95684cac0a0eed5dbfd",
+          "family": "rodinia_lc_mgvf",
+          "encoding_sha256": "644d538be461b34a9f4bf8c1e96c2d9aff89669521e396c3f01fc4aecacbd9a4",
+          "latency_gap": 23.212149555661288,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 7,
+            "completion_tokens": 97,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 7,
+            "completion_tokens": 97,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "29be9ffcbd7e29ad4d477d499817b078737e656e7ff6c58be0d52606f8bb6f97",
+          "family": "rodinia_streamcluster",
+          "encoding_sha256": "1766c66025f5597bb35d9e1cd2a2d4b0b91c749467144b36361f34680ffee1bd",
+          "latency_gap": 0.2034952422414329,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 56,
+            "completion_tokens": 783,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 61,
+            "completion_tokens": 788,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "62a68addc9bdeccd3c03712d8528a92604d72e7181d7952f4bdea5850bc8a673",
+          "family": "machsuite_gemm",
+          "encoding_sha256": "984dc625bc3f5e2a80396505a8b0f274c0e3ec2de4ad638ea0033fa52a2e0699",
+          "latency_gap": 0.9946534096238628,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 148,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 148,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "56d17ea83de73fd97ab69732b8b8f3f0c8390c066779938b009550892d69e9c8",
+          "family": "machsuite_md_knn",
+          "encoding_sha256": "bd6b8841e8ccb128b894890c5cbc19772cdd08f9186e5062a9301818f8aff3d9",
+          "latency_gap": 36.60351562499999,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 70,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "eebf3eb9a5b4c65e19b648f9db5431c30728d9574ffda9f5375a6e3a3f44f508",
+          "family": "machsuite_spmv_ellpack",
+          "encoding_sha256": "c0f917ef79981eb8571e4eedf89a0a42ed3b48741d4486eb126398d604eb0c60",
+          "latency_gap": 17.643337287465403,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e0ee9abe847b1a103df353aabb93eeb9b3f1bfc29f4c196a9c4202021138d09a",
+          "family": "machsuite_stencil2d",
+          "encoding_sha256": "8fe1afdc3bfa781d1322a1307083c2c79d6162374bdf0de08d232e8ed9780787",
+          "latency_gap": 5.969780449119293,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 122,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 8,
+            "completion_tokens": 121,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "0e2630a01aacb9cc026702cabbc37bf670b50f32618d8cd9293d6b126cb9c5db",
+          "family": "machsuite_stencil3d",
+          "encoding_sha256": "eb49079f77b46946dba2b4e4a6b96f23c7b2e2e1149de39348e3c08b1825d53e",
+          "latency_gap": 1.498759529072128,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 257,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 257,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "fd102ff8b9815b9169820a18f98ee76678bdb2d17d0eb5e68d53cbb85ba8c1fb",
+          "family": "rodinia_backprop",
+          "encoding_sha256": "3bf6d055755a0d044f0f7627a3ccb6a1b46e8918116c57c50da9111fb7dc5296",
+          "latency_gap": 0.27381726843630716,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 391,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 387,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "8f458161d80e0c3470e8c906e9338a3c3e4b64b4cb15ca451a93e25b71e77b45",
+          "family": "rodinia_cfd_flux",
+          "encoding_sha256": "6c00a6dfde2115d237ba66fdcbfb9da4321eb9dc3b757e7b479bae88725e08e6",
+          "latency_gap": 7.196350931677019,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 68,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "f61bdc7db5fe5369ba0870358ed074db7266f86a7358f2ecf2e308ac74b4a432",
+          "family": "rodinia_cfd_step_factor",
+          "encoding_sha256": "5c076b09dc6b04bcd1ea7c7898328a4767a0e36ffff16560ec056e2fa4948e67",
+          "latency_gap": 0.6249999999999998,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 58,
+            "completion_tokens": 802,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 59,
+            "completion_tokens": 804,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "41fdd53a3d5505bf7a6ff29a2dc614e781542b73320a5ffc006969f8285b9e20",
+          "family": "rodinia_dilate",
+          "encoding_sha256": "7bb1c1af7b744cf7e99245ee0cfe398106ceb28b05eb22cf3d4be1bd9f3efdd0",
+          "latency_gap": 4.396652227898732,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 29,
+            "completion_tokens": 403,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 29,
+            "completion_tokens": 403,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "4da3ff0813066da02913e363d74811829ba19a5efa4c105f9693857f530217ac",
+          "family": "rodinia_hotspot",
+          "encoding_sha256": "ad2680be4b82904e55abd989bbd7e9d0aacaa583382c7204d7fe471a503471a2",
+          "latency_gap": 7.691959491357247,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 16,
+            "completion_tokens": 279,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 17,
+            "completion_tokens": 280,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "cfef39b2a8cb1da1e8ca3deaea10fe526430088864fa976a97d05669d8ba5f6a",
+          "family": "rodinia_kmeans",
+          "encoding_sha256": "f24d2849fae22b9510495743a15ed3ed29bcac0c3e544dd547291bada1525fd2",
+          "latency_gap": 13.441710528631077,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 34,
+            "completion_tokens": 405,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 37,
+            "completion_tokens": 408,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e241c3b83142c6a96814e197a57e3183cbe04b6e8abb678bedf80d0a7ada122c",
+          "family": "rodinia_knn",
+          "encoding_sha256": "f5dbbf06268e87a908e34988d8d45fa78466f1e489c1ebe657b188da8dffae5a",
+          "latency_gap": 0.9999880792188358,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "7e2f8053cedaeb0cb04be4edb03cf5fa8ae0a106e17afdd085f5db01c09da1e2",
+          "family": "rodinia_lavamd",
+          "encoding_sha256": "b8f61a74b9ac4f972d1d780df3a1de81435ec9f811204d9ce8327e339d4eba09",
+          "latency_gap": 0.254696517450717,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 167,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 167,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "6ce3e0fa1eac2cf21b1696dba6d9f46af5c58365cb9058821faabcfd7cce576e",
+          "family": "rodinia_lc_gicov",
+          "encoding_sha256": "0559b81e94d6ecccc0e905be1aaa432a5eed41edb230492900cba3e37bc57867",
+          "latency_gap": 16.7989428193313,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 402,
+            "weight_sum": 1.0,
+            "complete_partitions": 2
+          },
+          "rejected": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 400,
+            "weight_sum": 1.0,
+            "complete_partitions": 2
+          }
+        },
+        {
+          "pair_id": "1672c6a186bae6e938b413b4d404adca969ef98bca19c179537e060ce2fe3731",
+          "family": "rodinia_lc_mgvf",
+          "encoding_sha256": "23ff7ef1d32a45f85972214aa5670bd2d6c0458a11ab57ac467f33c45baeb65c",
+          "latency_gap": 8.873921341234887,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 7,
+            "completion_tokens": 95,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 7,
+            "completion_tokens": 95,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e39ca35c6676d3847089b0240373138186e7c0d4060dc25d8244008d644d840e",
+          "family": "rodinia_streamcluster",
+          "encoding_sha256": "dfbc56b7ead106d1b56c49258d9304579d9544b38cf47e999beccdc36bf0e2e8",
+          "latency_gap": 173.52113639189358,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 53,
+            "completion_tokens": 783,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 54,
+            "completion_tokens": 784,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "05d199bbe6ac848601682bb232467ce49184453aaf7223ad14dcecb1ef496c78",
+          "family": "machsuite_gemm",
+          "encoding_sha256": "1c1490914826709ae17a99044c0a09e8b26359b985e52feff5c8f0687cfa0d02",
+          "latency_gap": 1.7738592555485377,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 150,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 151,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "247bb86a40a7986a0c2e1bfdddd45f3f47fa52720b8c2ffff0da09aec47a5676",
+          "family": "machsuite_md_knn",
+          "encoding_sha256": "02327caf00fc3867a566388c41aab14c20af38962e283b1bdd276b6d15ebb9b0",
+          "latency_gap": 40.728820429671664,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "2702a8310d780fff77b435f67755f75ce5d2e0dfd5734d156e90920591a8a064",
+          "family": "machsuite_spmv_ellpack",
+          "encoding_sha256": "05a0774a3be5fc28c3f2161b184d38fc62240ceb2d08981e712b4b3b5cab6a6e",
+          "latency_gap": 26.4697549770291,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 70,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "3d24b426b573165356cf820a81bba718d25e957ece407081ae6d7f9aa6c73636",
+          "family": "machsuite_stencil2d",
+          "encoding_sha256": "fc6bf3795b8e0ccf9f950321341a532171425b617605515de8ba457466f46426",
+          "latency_gap": 7.614880952380952,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 125,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 124,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e3a40206ce08fadecbc6307e155d83625192ea782970db5da7360abb3a777f0a",
+          "family": "machsuite_stencil3d",
+          "encoding_sha256": "07e2cc910a5c587d56f265edbccfb3da72ef3d5b18441c6a82eec6931c5531af",
+          "latency_gap": 1.277365076523763,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 259,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 257,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "b37075582d52aa9873dec174bf06c60ae273d97c9bfef3e80d3f5aab3ac487f0",
+          "family": "rodinia_backprop",
+          "encoding_sha256": "6c34427608694a68bb732f12aa186e4cff87a77e5724fdce59d30d57fe961b04",
+          "latency_gap": 0.1349971674733481,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 29,
+            "completion_tokens": 396,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 33,
+            "completion_tokens": 400,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "3e270b1993d0ed6ab8d2e08c129911619a11f744cd64d658e388eb5c2bebf0b3",
+          "family": "rodinia_cfd_flux",
+          "encoding_sha256": "60831e262611da3a4a211279affb71c8f55e7a33d2d4b2e83199a859741c3cc8",
+          "latency_gap": 7.784974997092686,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "8e9211eaa8612f8e194e3d5fa07d76aa1ee56639c312cfae2a86833cd51e2ed2",
+          "family": "rodinia_cfd_step_factor",
+          "encoding_sha256": "6b492b25812352851f363c3df7a11a2620e7cc2b1dd6486495516de88f48bce4",
+          "latency_gap": 0.6249999999999998,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 54,
+            "completion_tokens": 798,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 59,
+            "completion_tokens": 803,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "143b8e314b564c367e932cd3b78d5c1435d9e4d3e9301cf5c91381d40797673a",
+          "family": "rodinia_dilate",
+          "encoding_sha256": "a1981539877b6fcc87251204f1c6b410446967afc4e0c9e2b17465faa1ec05e5",
+          "latency_gap": 0.800727866143641,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 28,
+            "completion_tokens": 400,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 402,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "67f07d87624eb53781e4c7b421412f042da8b3425f68ac669e6d11e98ba3f0ce",
+          "family": "rodinia_hotspot",
+          "encoding_sha256": "027e3f9a1cddebc586c2d051d38805ccbdce79efbba2547a41c294192346908e",
+          "latency_gap": 4.321868711228192,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 17,
+            "completion_tokens": 281,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 283,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "a806943cb5fba5d738c419d16c1eeeb43f03404afb059872c1f4a5e734eab40b",
+          "family": "rodinia_kmeans",
+          "encoding_sha256": "ff9122f56eac8fc38c687d69ab86131baae2596e25992530b00b21ac31ddcc0a",
+          "latency_gap": 0.11401237686970611,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 34,
+            "completion_tokens": 408,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 404,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "dcd1fcc00dfebc2bbe9b7fb0c80534652b0b1aa2c8aa82f218c13c11d15e499a",
+          "family": "rodinia_knn",
+          "encoding_sha256": "f8062a5209509ee6bfe6ecfeafc8b97ae8814ca14b3358e9a9b08aced1fb2911",
+          "latency_gap": 1.0624628969047736,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 66,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "71bba0014e4c3e462a7dd2f6d9012e1cf25d89245270cffe25d61a1cdd6bc82d",
+          "family": "rodinia_lavamd",
+          "encoding_sha256": "54bffe60e2bb00152ccc4c35817ef6c96b42df91607697ff780a48a391a8fb8d",
+          "latency_gap": 0.16019286756068074,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 166,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 164,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "b0988088fe7083a70865f79f68d9e4e95099b010af58efcfb6340bc2db640eb8",
+          "family": "rodinia_lc_gicov",
+          "encoding_sha256": "4f22df9d6fff931a70ac2d8993bafbe244440488a270f571cd956123defdf676",
+          "latency_gap": 0.9173436991243606,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 407,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 32,
+            "completion_tokens": 409,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "1fe382e752dc5a8948522d4a5bcbb85d97c131169dae729cf3f0c4908031b544",
+          "family": "rodinia_lc_mgvf",
+          "encoding_sha256": "b0ea758b785de30f07612d540aa9bab49864644c60d1745042bf7ea56dbe7742",
+          "latency_gap": 8.863502433237636,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 6,
+            "completion_tokens": 94,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 8,
+            "completion_tokens": 96,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e5b7322686ad1657b8c96add649c91dda06b26d7bf9e2bbf9abbd981f5ef68fe",
+          "family": "rodinia_streamcluster",
+          "encoding_sha256": "13aa1b2f03e53988c18c34cd9b12777e08ebddc9c2942a4f2b6a2611e3d9b238",
+          "latency_gap": 46.03921568627451,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 56,
+            "completion_tokens": 784,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 55,
+            "completion_tokens": 783,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          }
+        },
+        {
+          "pair_id": "c80fe1b65b6cc18a2f973b8ce5e0caa65b517592fd5dc7afb7391ecff0621498",
+          "family": "machsuite_gemm",
+          "encoding_sha256": "689c115e08c2ddebac6afa81c8a60a4dcdfafba020549c5832284b7064ff3467",
+          "latency_gap": 9.142495183298584,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 12,
+            "completion_tokens": 149,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 148,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "24bccb49595b75487db73058b410abbf10d0ff614f2605330bf355485f292046",
+          "family": "machsuite_md_knn",
+          "encoding_sha256": "06fb9c4acf6edf047a34a4340bf60456dfcb9b1994cf2d0557a18cd99172373a",
+          "latency_gap": 55.201255539143276,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "cd73afeab7612912628189c995c08021c9160551d89f838a5b74c3ecf9891a3d",
+          "family": "machsuite_spmv_ellpack",
+          "encoding_sha256": "aa0fb7e9e40f84bc075bde6a506313f741bbf5b316685fff581f873b55763cfa",
+          "latency_gap": 6.190571314422693,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 5,
+            "completion_tokens": 68,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "a89dbb30611780063a2638da35c695a228b7d543e74557569522a90a68a700fa",
+          "family": "machsuite_stencil2d",
+          "encoding_sha256": "5e627d8a6ce48b30f015c76f5355cff4ae6b09f353f3d3ba2e60718c72780521",
+          "latency_gap": 7.207748224021147,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 121,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 121,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "2274d6efed341a6b9964ad1936fca2acc60c146c657797e9938ab1b77b57ef22",
+          "family": "machsuite_stencil3d",
+          "encoding_sha256": "251fbdf00c54934863272eb6c1d2159ed122fa1b1b9be30f654cdf6b62377419",
+          "latency_gap": 0.3844740262650712,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 260,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 259,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "4e59b8056835d8ef10367243c104399de099593ff64ce12a5dc054121ee98c2b",
+          "family": "rodinia_backprop",
+          "encoding_sha256": "95036852a0be640bb121524388e030413584d2bf889a232bdc7b650e498e8f95",
+          "latency_gap": 0.560874175620883,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 25,
+            "completion_tokens": 391,
+            "weight_sum": 1.0,
+            "complete_partitions": 2
+          },
+          "rejected": {
+            "supervised_value_tokens": 27,
+            "completion_tokens": 393,
+            "weight_sum": 1.0,
+            "complete_partitions": 2
+          }
+        },
+        {
+          "pair_id": "bd907685aa8c70037015137f36095ad61a530fa60b9f12c91726f55064129508",
+          "family": "rodinia_cfd_flux",
+          "encoding_sha256": "503e99348f60241ac4833704214f6d85cdb194763c89361480d4c9a08d370f1d",
+          "latency_gap": 6.364052795031056,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 67,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "0c4d959859ab4b650e70eb8614ef9cd19bb1cd894d402879ce5dd153a07c96d0",
+          "family": "rodinia_cfd_step_factor",
+          "encoding_sha256": "8c9c997fb0d91c0aa4b9598870720d7e9415b9e6f44643dd23fdc755fbd8d3f6",
+          "latency_gap": 2178.166666666667,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 60,
+            "completion_tokens": 806,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 57,
+            "completion_tokens": 805,
+            "weight_sum": 1.0,
+            "complete_partitions": 2
+          }
+        },
+        {
+          "pair_id": "463e7e4104b76c876685f1a99881fb5e33e311745d784e575338284276ee039f",
+          "family": "rodinia_dilate",
+          "encoding_sha256": "00413e4b122597f6b05972970a7bcfc19fbf273c9334a0ff6d6ec0d97b501295",
+          "latency_gap": 2.8339619183350373,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 29,
+            "completion_tokens": 400,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 401,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "5f06076ab11e8a9a6ef03c28d2eefd7042ef9ed49b2956fc0e7ba83452ce7a1c",
+          "family": "rodinia_hotspot",
+          "encoding_sha256": "a5fa0aa9f3985dae60440f8d903e6d99bcda36c99c9ab9867c4e99b52c607278",
+          "latency_gap": 0.10116177050061759,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 18,
+            "completion_tokens": 284,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 18,
+            "completion_tokens": 284,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "7081e0b9af0fe2fdd1c1f807f0c45690dc7a7040e33c5050bdfd2f8906687afb",
+          "family": "rodinia_kmeans",
+          "encoding_sha256": "3078b4d3c740e8860913bc58c4522692d28a03e25d29eba5bfe34412cd94ec12",
+          "latency_gap": 4.55122139262506,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 32,
+            "completion_tokens": 404,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 34,
+            "completion_tokens": 406,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e930662da8734be404bb9aad67bd5db86dd4b2e1063b86e6f1da7606a23bf8ef",
+          "family": "rodinia_knn",
+          "encoding_sha256": "b8216e7940565cdb0e0b44812e7fdb47dcea1880fc00335e3567bdb6dc31f1e2",
+          "latency_gap": 0.9999814037055261,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 4,
+            "completion_tokens": 69,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "598607dc08531aef76079785fca8f11624442c38c332b861d59bce748a912727",
+          "family": "rodinia_lavamd",
+          "encoding_sha256": "1b4e7bbcb3d589c0ff7e6f1b54bf3b1d697c2985312a8c68d29921b3961c89b7",
+          "latency_gap": 0.3100535108914839,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 165,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 167,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "90eec4d965d835193a27aa626731fc9269984d811368370bf7a2994d6b07a75c",
+          "family": "rodinia_lc_gicov",
+          "encoding_sha256": "4392cb1a10d33564af165cb15a025cd1dc38ba4dc95bc24a54187aa54697387d",
+          "latency_gap": 16.7989428193313,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 402,
+            "weight_sum": 1.0,
+            "complete_partitions": 2
+          },
+          "rejected": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 400,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 2
+          }
+        },
+        {
+          "pair_id": "39d379ac602b04e0dfba8f3b01de185292e53a56ede2e41b3b2b51a78c9ae036",
+          "family": "rodinia_lc_mgvf",
+          "encoding_sha256": "ee6eaa31428ea276d33a20289ea3dc3143b4b7e5a0f091c631fcc9f84dcd138b",
+          "latency_gap": 22.68213936295871,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 7,
+            "completion_tokens": 97,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 7,
+            "completion_tokens": 97,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "815e4f1065ed7fccb58a7a1ec04cf9ef634bd6a06d37569ffac2d3a74c95ff24",
+          "family": "rodinia_streamcluster",
+          "encoding_sha256": "87934e77aedf76681161d207197d2975acaf46b3fef747e96fa79b0a388d7860",
+          "latency_gap": 125.72006713912721,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 54,
+            "completion_tokens": 784,
+            "weight_sum": 1.0,
+            "complete_partitions": 1
+          },
+          "rejected": {
+            "supervised_value_tokens": 58,
+            "completion_tokens": 789,
+            "weight_sum": 0.9999998807907104,
+            "complete_partitions": 2
+          }
+        }
+      ]
+    },
+    "val": {
+      "pairs": 54,
+      "shorter_preferred": 18,
+      "longer_preferred": 26,
+      "equal_score_lengths": 10,
+      "length_only_accuracy_nontied": 0.4090909090909091,
+      "length_only_half_credit_ties": 0.42592592592592593,
+      "records": [
+        {
+          "pair_id": "54a7f30e9f644581461a63e547dd1cb79c9807639eff2e2437cac971d1c051fc",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "0793ca1e03cbe119fdb0b5d4dfcbed883fe2cf46a543d2a344ca87c3189ad1bd",
+          "latency_gap": 0.395487596646394,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 252,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 252,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "f24b6e21ec447eaddf813713f54d2f4484aaa0416d46e179aa3e95753b2717d4",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "3e36a0e7713a7411edbfbe416956aeccbb05466860b299bbc63460dfafef3b77",
+          "latency_gap": 1.9873645978540275,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 251,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 252,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "c535824f467d7b1330a8028cbac70ab7a6a18d0937d790b78aa55d595ae6095f",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "26bd1b419d47fe284ca0a4ce2e1e2b5fc2ec00526a2c3cebe96814b5c2de1133",
+          "latency_gap": 1.9876893757714122,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 251,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 252,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "864b7d17d8a4f59bde1999fa69c52a1ec264208daa29729f4cff600a81db31d4",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "f8c494a38bf321510585ea57062f213d0c089b48f4852c7e6c46938f2db26b0b",
+          "latency_gap": 1.5625188068607425,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 249,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "9de7f0418801542621a9ee7f344d4bc48ee1a5e4830bc2db55037fe2971866af",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "f8d79a241c8ef6ee4e93753de15ed64bced7a86b16c073e3f4ee1af06da5e277",
+          "latency_gap": 28.476334369456502,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "7010e51affc5ffbc55c63499007ded3c0155bfff24404f509791033e5b6b9bcf",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "e6af821d8d3816173b238df5f077e5d936da023121720fe7743692f3775dabe7",
+          "latency_gap": 1.5702506649213488,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 247,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "3df1eb54b7c3e2877e56d666b4e8801cef2e213b94591676c8ad0fb47272cdd4",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "254f52d340f9dc4f8aa8d57aca89c22eff0cb3706ad233ffb7d1f9a660e66d2b",
+          "latency_gap": 1.4279378865206636,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 18,
+            "completion_tokens": 247,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "225aa59236befd00a94e4cf9481bfd6b18786d878762a7db3e97124d8e5c5167",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "8b1d7aa9ce10f1829f4c6f639872b82043aa932f0cfe070125cd82c4e5341ec3",
+          "latency_gap": 0.1865326999155812,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 249,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 249,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "f8fb6b017437266b725ce3bbdb69468419387f21ba9b29dea570d090b67f7d42",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "60a31e132b75751c57230b8f3b61d178fed889ab16456b6014cdbc9cca60c3fa",
+          "latency_gap": 19.444444444444446,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "5ce180ba4ff41939a7e313e01975cad08b87d792d8202b95b5a46113faeb7027",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "de76746f874a91aaba0f939d1f4ea0552a33685cace3fe51cb93b237f673c80e",
+          "latency_gap": 53.78471240557497,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 251,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "c1472ff552f7584d002315d805dffc81edb3d6dd10753d29f4d32d5a8162e412",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "3506818d5dda7da4cf6246e621c853d26a335c709fe0289d4081bf2ac7627a60",
+          "latency_gap": 3.2995035156379053,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 250,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 253,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "49d37df5255c26cc870a46d7cd530f4bdeff24ed07f53f9005b0168889eddb3f",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "0d972072019cce7d5a69b73197657a5541f1cb61ce75596a08485896083413c3",
+          "latency_gap": 0.14851580310024892,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 251,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "1201eff6ebb973b95e3e662ce7acadf6612b503b976cac2dd06d28d074c85e94",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "b4d24e6dbf8eb364a1e04a77c2546af046fab65520c29e2c5646ee87a5ea100c",
+          "latency_gap": 2.027601589182407,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "4d939020a37241b65d2926981a02909933aae769281f9013cc9b244b396f64df",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "8cdfe53c899733a70588bd21dd89142bc68b4d2a396d4b2a3b603daf66fbb9f6",
+          "latency_gap": 40.43396178238236,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "d69eae3c3ded19e59ad06b4db281124ac3ea51d8dc6ecbdcf9102b1890ee0c37",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "042ef74c6431ee1314348c76cebccf56c217afa7ec8b9c39964343288f7b67e0",
+          "latency_gap": 11.566552803008426,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "d2b00615c7000d104facb3439dde64eadb5159e62978f80bde7d2dbb521b6e19",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "242454c3b4e68e140b1a172232291f337a7a03bc306f8f5391c84a05e4784152",
+          "latency_gap": 1.570635351392247,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "9e2a34367c5bae08f881537abdd875483d53b5af9643b18f8950a7f7e78089f7",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "739612e6aa4fb3452b8194d55c1213045fbd83620e7d042a6a1e39c8744f4825",
+          "latency_gap": 1.5763229330301098,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "2c3252d5140e8f1e32f78c2c527196458812d78823e2fae0b7a05cf971fc4a87",
+          "family": "machsuite_viterbi",
+          "encoding_sha256": "f4311510c563d092866f7202ae719c9ea44e2ca885dc4a5a6b6d7a039a0439ea",
+          "latency_gap": 23.82935609378771,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 250,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 248,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "57d39db04bc072caac632134541764420d07ac45824950b10f8447a8c8703988",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "2a92eb04c92368504eb071cef6e2b8d399b8febaf7174771909f15e053506a8a",
+          "latency_gap": 2.715861351442206,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 8,
+            "completion_tokens": 157,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 12,
+            "completion_tokens": 161,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "821eff61d2bfe7fa7c721f144709b43fa355727ed16f451d424aa52b031328e8",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "e192e6c475166039cd1740e96b13f81afa69111440083e54650d0eca032ef59f",
+          "latency_gap": 2.902015519613814,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 12,
+            "completion_tokens": 161,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 12,
+            "completion_tokens": 161,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "00e0092cde8bd23273c293b0c845850f7f71b7f540ba6b17fee34054fd33b311",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "076d18524d7a2f395d60fb68b3916952afdc504185ef3c9bd5d9de6e21ec54f6",
+          "latency_gap": 2.464462143172075,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 160,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 162,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "9f509b7d43aae0aed861760b062f4ac0ffc6b222ad70108b54910e279314c9fa",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "a9394953ec3d2887db67afd6c2200765263b53d53a407d8aae3c83c57e7a6349",
+          "latency_gap": 2.843139653031272,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 12,
+            "completion_tokens": 158,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 156,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "6d3b6aca13095b13585ab5ee8bf6d71160f25694c099ec4d0deb0d2b481ee023",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "98e24ffcbcb86f35d2ca69d32a58d9bd5a250e559def2ea5004699ef6d42f707",
+          "latency_gap": 5.630512508177121,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 159,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 159,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "d83e3794d39dc3637bcb4ee8d44fdf55c1134536859f39bd3dedc7945a0c2c15",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "8008bd0944d23e6e9908a177349509ddb5f10002213cdc9cd11b2e869758e286",
+          "latency_gap": 0.250714107304834,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 159,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 156,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "83f832298ae74c3e5aeb4f212f5d571d401e7f37c39759f098e2f25a19fcac9f",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "67caa780b16e100da0f944b549155055171dfe8b56aab5f62c027b32fccb9f96",
+          "latency_gap": 4.0601328641357055,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 12,
+            "completion_tokens": 159,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 158,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "b5b47d11c57a716a4813358009536d0efcf2b7ec7cd2c09321f60ae195131760",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "d27b2550ace716c5505dd0f377aaa249b6ba713a82848fabf1528492366579eb",
+          "latency_gap": 7.378335082997955,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 158,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 9,
+            "completion_tokens": 156,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "1b39fc2bb5ccf70915c0d99286d661d51c8fb6901fc49655dd5216d3d94e852f",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "885b4a6140b28ed09d89ed1db5862729a713762d23c1864ac4dde8fedc247b8d",
+          "latency_gap": 3.562971963424184,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 158,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 15,
+            "completion_tokens": 162,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "bbd46e3d31c9f60eb867317412824489db0bda1a0c4a4c68efd9cf468db8de8e",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "8c8205bfc80810cb479557aadfdc4b9a312a6738548a920c4d4e1e138f749487",
+          "latency_gap": 0.11352551570560054,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 162,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 162,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "abd09ce1e3196a21d38d89231e8e3315c4c3c3b8200aa8cdaa467debfcc98900",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "8d966ab53f3a5c97f5e9924d5791b44d8bf46d6b09b2d1d3a6023f1dc4acc228",
+          "latency_gap": 0.23462131034444478,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 162,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 14,
+            "completion_tokens": 163,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "921f7fa0faef0439d93dcb133f6402e1547f51accc716ae8c77a4df641a81639",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "9d68beffd8269ce11be20783527df7973d7a7e5e04ae96ccf6f0c3eb34c3ce5f",
+          "latency_gap": 0.25480006466505745,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 14,
+            "completion_tokens": 163,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 159,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "483a4018b1805e43038d4df67180b847792d2f9cd945c2ec32c7c9412da35c42",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "0439bca35d55ef973aa24855f01d14471272c9ebcf5d0eba52616a8e83d24e24",
+          "latency_gap": 2.421776208018619,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 14,
+            "completion_tokens": 160,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 159,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "9c9d13d76d39c8c5d1e4ef5369049def4aa74c5b4aeabc6af462f95147025001",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "8b89f3d7f7a2e9e35be3546b30ca2cfa2e560e9bb8775486f42bdd4f096cec26",
+          "latency_gap": 9.64503994843568,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 14,
+            "completion_tokens": 160,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 159,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "9176a0bd9814b6f3bc46b045981f121a76b948936abbf31799dd91d4a3415989",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "e323308217dfe5ca112505559c7425906f9c77ad1fd853f1c4f69c8f743f7d9a",
+          "latency_gap": 1.9716695278567342,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 12,
+            "completion_tokens": 158,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 10,
+            "completion_tokens": 156,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "c292426ba6b7cda39574cdd2f31b64a444965a757b5f090bcaa4c1d80c78ad4f",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "56409f9ab03d835bd8eec5bd7c5842a8004dd67e257de992d341758e9e74dfb3",
+          "latency_gap": 3.4628509560378076,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 16,
+            "completion_tokens": 163,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 13,
+            "completion_tokens": 160,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "a7e81ff550a885ea75c700941a3bd6e0cb792a4084d4253b09d6c924d35f0c18",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "b7c749504fdc58d00087ef2b4017674d4e12414050b49f26fc06be72d4fe7559",
+          "latency_gap": 6.5447000505441615,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 14,
+            "completion_tokens": 161,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 158,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "9da02a2e6506240fe631c92993a43743665d1e54b0cb28cb6c472ac8dbdf5579",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "965dedf1fbb4379926375c14abd814bca8b4c69d47f98155f80518042636c226",
+          "latency_gap": 3.509748617017273,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 14,
+            "completion_tokens": 161,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 11,
+            "completion_tokens": 158,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "6445212e1b61c18ccfbae8080265fa8626d2c594a31af6165c5cccf8d174cc9e",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "4d00f28dc2f294cb1c3cb33fb667277a48c99a849b0c94c3851b448ab5ad8ee1",
+          "latency_gap": 0.12891334761199613,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 23,
+            "completion_tokens": 306,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 304,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "0ef6d4f96bf9a7ac623f58e3f0a09087b0b13145b8c080a90866bdde09a207c7",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "2d9347f3dc98399fec2ddbe8db3d8cb215baee3412168e32441b4ef3479c2b62",
+          "latency_gap": 0.6161975721869679,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 25,
+            "completion_tokens": 308,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 309,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "065fba255be38b77913d72a2a4802a384450355a4fc0d081a29da20fa3ae6a50",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "8a0ecd5c5e4702c3fd0f4f315e4594c4694336554416fc9286652c30490bb79e",
+          "latency_gap": 0.3743711088218973,
+          "clock": 3.33,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 304,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 303,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "3547f2990ebac3f0e84ced001a4add9a6fdae40c3b1a86f1bb51648efa5d426f",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "f98948190ba5ae8b0e41f6e7dd4da7dad93b0a553d0c84e27c8b1ee9d59c8f59",
+          "latency_gap": 0.14237167252510408,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 25,
+            "completion_tokens": 305,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 26,
+            "completion_tokens": 306,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "b16c8c83cbbe8e229763844f60b5435a5f7f9ba1b4fc28c56d7931220501a65a",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "5d0c5b1f7f6693b4dece630dbc0f2ecb0bb0423d4d1abd009bbc89875dfc02a9",
+          "latency_gap": 0.8170340047810303,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 304,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 29,
+            "completion_tokens": 309,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "ab6dabe69209698475e4e570d4fe3d09a5373c2bac3a96786147015636dbf2b6",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "c7e7eb64112755d437a1c482bdd15ae0516246b4cc83fcfa14bd380611ab0501",
+          "latency_gap": 0.8163511695378973,
+          "clock": 5.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 304,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 25,
+            "completion_tokens": 305,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "13db48959a2f614d9aa4067f0cd8fa43022818e8e4ae10ab5106d1a9f14773a0",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "b60ed334b62ffef06b3797b995067b3b949245522903a642f0a95b9c99f4defa",
+          "latency_gap": 0.21764827356514482,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 303,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 305,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "bab358843fdb4e0f53c882e1a7515d7b7e58e7ddc4061eb2de2482ee05aa13a6",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "20d91ca7e80045cad1b21d183355be69c08a2cc656806f133fc2aff28af9a1c3",
+          "latency_gap": 0.39080525974872105,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 23,
+            "completion_tokens": 304,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 29,
+            "completion_tokens": 310,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "218ec322559f4a4ff86d36ed67bae4d6cd1dfcc0bde4db284e4b32eda24217cb",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "ee8b4482ea290b84b2fc7b48b9a76abc4d5a6e362a41f1ea335b964fe5df9033",
+          "latency_gap": 0.19669042535844228,
+          "clock": 10.0,
+          "device": "xcu200-fsgd2104-2-e",
+          "preferred": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 305,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 302,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "f385031a0ed7b6618405e49b92c05f5d7f68d8d363144cea068a0101f0b7c1dd",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "4c8072166be61968e33908fe0b0f345e511c6c7d28dab5bc77422b68ec0bd807",
+          "latency_gap": 0.2942073170731707,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 30,
+            "completion_tokens": 313,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 304,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "e5258ea04ae258ae53631116bc74e3766ddc1d2be8a261e88f98469915ab8ea5",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "aa9e5837af78fbe0e4e4cdf357f11ef260fe9806eea3a0276e70d4eba9ebdf7c",
+          "latency_gap": 0.22316484926678193,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 25,
+            "completion_tokens": 308,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 24,
+            "completion_tokens": 307,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "1783bccc4b5a640133c0d02fee2491b6fc804a69f3c80ca5298e977e4138bf86",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "f06114034889f7a464cececf3fa22c288ac93c2884435bce130364d5f9995960",
+          "latency_gap": 0.18844675301259706,
+          "clock": 3.33,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 305,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 28,
+            "completion_tokens": 311,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "f11d7bfa119a6363036d2d6fefda137ef67acb3194a1bef0f67e7d1b38381898",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "207680a98badf1a1bd4e6a527c130fc840e88fe4323774bc6e91b05db974800f",
+          "latency_gap": 0.15020237945360693,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 23,
+            "completion_tokens": 303,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 302,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "402773a13b46b7596a856565e9621a8de8ac194a28a364513a7814e417863d46",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "7f795f91eb8534e0282054f290ccf9f6ab05afefd692e2b4cc1d4c519a489f80",
+          "latency_gap": 0.4517622020270564,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 21,
+            "completion_tokens": 301,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 27,
+            "completion_tokens": 307,
+            "weight_sum": 1.0000001192092896,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "7f196508e799eff276490bbb65e46ce86d8be1aff61ce3a30f82e3556e898f03",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "9f18b789cd90a4174ae00fec3ce188f568e7a33d34bc6a186b37cd323400364a",
+          "latency_gap": 0.8252838333937635,
+          "clock": 5.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 300,
+            "weight_sum": 0.9999999403953552,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 28,
+            "completion_tokens": 308,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "a5f91af916c2643a564f4096ffd02619750e570753c89a4be7fe4c25f51bce04",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "eeedf539e2d94efadb24eca55deeec412028681065e682cd5c73b0c930fb9430",
+          "latency_gap": 0.2133777354061297,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 303,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 19,
+            "completion_tokens": 300,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "692fed6abe8abbc42e95d7f251e18258dbd523d5f982c4a7244ddcb9ff2d4d96",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "4adc54ca4f20d8081235ec950d9cbd466440e18247f59fb63a8e47983d5f724c",
+          "latency_gap": 0.3492441434097424,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 303,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 20,
+            "completion_tokens": 301,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        },
+        {
+          "pair_id": "48232262daf907b9580b3579e8a40361733ff306b9ef805bb3efd3ad8d727a94",
+          "family": "rodinia_pathfinder",
+          "encoding_sha256": "f62e5be64a4ce534fbc82563ac7baaa6d8f0fbe50295af05aed89374ed22d5b4",
+          "latency_gap": 0.22767401215254401,
+          "clock": 10.0,
+          "device": "xczu7ev-ffvc1156-2-e",
+          "preferred": {
+            "supervised_value_tokens": 23,
+            "completion_tokens": 304,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          },
+          "rejected": {
+            "supervised_value_tokens": 22,
+            "completion_tokens": 303,
+            "weight_sum": 1.0,
+            "complete_partitions": 0
+          }
+        }
+      ]
+    }
+  }
+}
