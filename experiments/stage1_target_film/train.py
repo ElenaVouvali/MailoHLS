@@ -14,7 +14,7 @@ from .model import ActionFiLM,features,kind_id,install
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def write(p,x):Path(p).write_text(json.dumps(x,indent=2)+'\n')
 def main():
- p=argparse.ArgumentParser();p.add_argument('--parent',type=Path,required=True);p.add_argument('--pairs',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--gpu-uuid',required=True);p.add_argument('--steps',type=int,default=64);p.add_argument('--resume',type=Path);p.add_argument('--smoke',action='store_true');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--parent',type=Path,required=True);p.add_argument('--pairs',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--gpu-uuid',required=True);p.add_argument('--steps',type=int,default=64);p.add_argument('--resume',type=Path);p.add_argument('--smoke',action='store_true');p.add_argument('--arm',choices=('A','B','both'),default='both');a=p.parse_args()
  from experiments.final_architecture_20261109.run import preflight
  receipt=preflight(a.gpu_uuid);os.environ['CUDA_VISIBLE_DEVICES']=a.gpu_uuid
  if a.out.exists() and not a.resume:raise FileExistsError(a.out)
@@ -59,6 +59,7 @@ def main():
   return accuracy,sum(r['chosen_nll'] for r in result)/len(result),result
  resume_state=torch.load(a.resume/'progress.pt',map_location='cpu',weights_only=False) if a.resume else None
  for arm in ('A','B'):
+  if a.arm!='both' and a.arm!=arm:continue
   if a.resume and arm<a.resume.parent.name:continue
   folder=a.out/arm;folder.mkdir(exist_ok=True);random.seed(123);torch.manual_seed(123)
   for n,pv in model.named_parameters():
@@ -77,11 +78,14 @@ def main():
     if key>best:best=key;write(folder/'selected.json',{'checkpoint':str(dest),'step':step,'macro_pair_accuracy':accuracy,'chosen_nll':nll})
     print('[VAL]',arm,step,accuracy,nll,flush=True)
    if step==a.steps:break
-   model.train();film.train();optimizer.zero_grad(set_to_none=True);losses=[]
-   for ix in schedule[step*2:(step+1)*2]:
-    row,(pos,neg)=encoded['train'][ix];x=score(pos,row,active);y=score(neg,row,active);loss=-x+.1*F.softplus(-(x-y));scaler.scale(loss/2).backward();losses.append({'sft':float(-x.detach()),'rank':float(F.softplus(-(x-y)).detach())})
-   scaler.unscale_(optimizer);grads={n:float(p.grad.norm()) for n,p in film.named_parameters() if p.grad is not None};norm=torch.nn.utils.clip_grad_norm_(parameters,1.);before=scaler.get_scale();scaler.step(optimizer);scaler.update();skipped=scaler.get_scale()<before
-   if skipped:raise FloatingPointError('Skipped optimizer update; preserve checkpoint and diagnose')
+   for retry in range(5):
+    model.train();film.train();optimizer.zero_grad(set_to_none=True);losses=[]
+    for ix in schedule[step*2:(step+1)*2]:
+     row,(pos,neg)=encoded['train'][ix];x=score(pos,row,active);y=score(neg,row,active);loss=-x+.1*F.softplus(-(x-y));scaler.scale(loss/2).backward();losses.append({'sft':float(-x.detach()),'rank':float(F.softplus(-(x-y)).detach())})
+    scaler.unscale_(optimizer);grads={n:float(p.grad.norm()) for n,p in film.named_parameters() if p.grad is not None};norm=torch.nn.utils.clip_grad_norm_(parameters,1.);before=scaler.get_scale();scaler.step(optimizer);scaler.update();skipped=scaler.get_scale()<before
+    if not skipped:break
+    with (folder/'skipped_updates.jsonl').open('a') as f:f.write(json.dumps({'successful_step':successful,'retry':retry,'old_scale':before,'new_scale':scaler.get_scale(),'grad_norm':float(norm)})+'\n')
+   else:raise FloatingPointError('Five consecutive skipped updates; preserve state and diagnose')
    successful+=1
    with (folder/'training.jsonl').open('a') as f:f.write(json.dumps({'step':successful,'losses':losses,'grad_norm':float(norm),'film_gradients':grads,'gate':float(film.gate.tanh()),'elapsed_seconds':time.monotonic()-started})+'\n');f.flush();os.fsync(f.fileno())
    print('[TRAIN]',arm,successful,losses,grads,flush=True)

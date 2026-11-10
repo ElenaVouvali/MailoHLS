@@ -1176,6 +1176,7 @@ def load_base_model(
     use_4bit: bool = True,
     device_map: str = "auto",
     revision: str = "main",
+    compute_dtype=None,
 ):
     quant_config = None
     if use_4bit:
@@ -1189,7 +1190,7 @@ def load_base_model(
             bnb_4bit_quant_type="nf4",
             bnb_4bit_use_double_quant=True,
             bnb_4bit_compute_dtype=(
-                torch.bfloat16 if native_bf16 else torch.float16
+                compute_dtype if compute_dtype is not None else (torch.bfloat16 if native_bf16 else torch.float16)
             ),
         )
 

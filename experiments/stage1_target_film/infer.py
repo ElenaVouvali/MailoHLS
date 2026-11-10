@@ -15,7 +15,7 @@ def main():
  if c['lora_sha256']!=sha(a.adaptation/'device_adapt/adapter_model.safetensors') or c['film_sha256']!=sha(a.adaptation/'film.pt'):raise ValueError('Adaptation weights changed')
  from experiments.final_architecture_20261109.run import preflight
  for attempt in range(16):
-  try:receipt=preflight(a.gpu_uuid);break
+  try:receipt=preflight(a.gpu_uuid,minimum=10000);break
   except RuntimeError:
    if attempt==15:raise
    time.sleep(2)
@@ -24,7 +24,7 @@ def main():
  from LLM_branch.common.mailohls_contract import RESOURCE_KEYS
  originals={k:getattr(inf,k) for k in ('load_stage_model','predict_case','get_rhs_candidates_for_lhs','score_rhs_candidate_suffix')};state={};current={};started=time.monotonic()
  def load(args,tok):
-  base=inf.load_base_model(args.model,revision=args.model_revision);base.resize_token_embeddings(len(tok));model=PeftModel.from_pretrained(base,str(a.parent),adapter_name='mailohls_base',is_trainable=False);da.isolate_parent_token_serialization(model);model.load_adapter(str(a.adaptation/'device_adapt'),adapter_name='device_adapt',is_trainable=False);da.activate(model,trainable=False)
+  base=inf.load_base_model(args.model,revision=args.model_revision,compute_dtype=torch.float16);base.resize_token_embeddings(len(tok));model=PeftModel.from_pretrained(base,str(a.parent),adapter_name='mailohls_base',is_trainable=False);da.isolate_parent_token_serialization(model);model.load_adapter(str(a.adaptation/'device_adapt'),adapter_name='device_adapt',is_trainable=False);da.activate(model,trainable=False)
   if da.frozen_parent_hash(model)!=c['parent_tensor_sha256']:raise ValueError('Frozen parent tensor mismatch')
   film=ActionFiLM(model.config.hidden_size).to(next(model.parameters()).device);film.load_state_dict(torch.load(a.adaptation/'film.pt',map_location=next(model.parameters()).device,weights_only=True));film.eval();s,handle=install(model,film);state.update(s=s,film=film);model.eval();return model
  def predict(**kw):
