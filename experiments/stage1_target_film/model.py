@@ -33,6 +33,7 @@ def install(model,film):
  state={'context':None,'kinds':None}
  def hook(module,args):
   h=args[0]
+  if state.get('capture'):state['raw_hidden']=h
   if state['kinds'] is None:return args
   kinds=state['kinds']
   # Cached decode callers supply current-token kinds explicitly; no prefix inference.
