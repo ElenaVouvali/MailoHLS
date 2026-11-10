@@ -1,0 +1,875 @@
+{
+  "status": "passed",
+  "device": "cpu",
+  "representation_schema": "salt-paper-rc3-transformer4-jkmax-conv1-jk-v1",
+  "checkpoint_sha256": "627e52fae6d0613e346c6ab5e7e0047d511a02af1806600ee67f2b45041f8075",
+  "memory_manifest_sha256": "048b7bf6a856bc22b23610512c16d29ab5c0abe937e7953f2ea939c12e331703",
+  "fresh_fusion_weights": true,
+  "checks": [
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "source_actions": 5,
+      "compiler_memory_actions": 5,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "machsuite-gemm-ncubed",
+      "source_actions": 3,
+      "compiler_memory_actions": 3,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "source_actions": 2,
+      "compiler_memory_actions": 2,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "machsuite-sort-radix",
+      "source_actions": 11,
+      "compiler_memory_actions": 11,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "machsuite-spmv-ellpack",
+      "source_actions": 2,
+      "compiler_memory_actions": 2,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "source_actions": 4,
+      "compiler_memory_actions": 4,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "source_actions": 9,
+      "compiler_memory_actions": 9,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "source_actions": 8,
+      "compiler_memory_actions": 8,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-back",
+      "source_actions": 2,
+      "compiler_memory_actions": 2,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-forward",
+      "source_actions": 6,
+      "compiler_memory_actions": 6,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-backprop-1-tiling-back",
+      "source_actions": 10,
+      "compiler_memory_actions": 10,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-hotspot-0-baseline",
+      "source_actions": 3,
+      "compiler_memory_actions": 3,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-hotspot-1-tiling",
+      "source_actions": 8,
+      "compiler_memory_actions": 8,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "source_actions": 19,
+      "compiler_memory_actions": 19,
+      "unbound_source_actions": 5,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-hotspot-3-unroll",
+      "source_actions": 19,
+      "compiler_memory_actions": 19,
+      "unbound_source_actions": 5,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-kmeans-0-baseline",
+      "source_actions": 3,
+      "compiler_memory_actions": 3,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-kmeans-1-tiling",
+      "source_actions": 12,
+      "compiler_memory_actions": 12,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-kmeans-2-pipeline",
+      "source_actions": 12,
+      "compiler_memory_actions": 12,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-kmeans-3-unroll",
+      "source_actions": 12,
+      "compiler_memory_actions": 12,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-knn-0-baseline",
+      "source_actions": 2,
+      "compiler_memory_actions": 2,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-knn-1-tiling",
+      "source_actions": 9,
+      "compiler_memory_actions": 9,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-knn-2-pipeline",
+      "source_actions": 9,
+      "compiler_memory_actions": 9,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-knn-3-unroll",
+      "source_actions": 10,
+      "compiler_memory_actions": 10,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "source_actions": 12,
+      "compiler_memory_actions": 12,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia-knn-5-coalescing",
+      "source_actions": 13,
+      "compiler_memory_actions": 13,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_cfd_flux_0_baseline_0",
+      "source_actions": 2,
+      "compiler_memory_actions": 2,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_0_baseline_0",
+      "source_actions": 1,
+      "compiler_memory_actions": 1,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+      "source_actions": 4,
+      "compiler_memory_actions": 4,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+      "source_actions": 7,
+      "compiler_memory_actions": 7,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+      "source_actions": 8,
+      "compiler_memory_actions": 8,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "source_actions": 18,
+      "compiler_memory_actions": 18,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_5_coalescing_0",
+      "source_actions": 18,
+      "compiler_memory_actions": 18,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_dilate_0_baseline_0",
+      "source_actions": 5,
+      "compiler_memory_actions": 5,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_dilate_1_tiling_0",
+      "source_actions": 12,
+      "compiler_memory_actions": 12,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "source_actions": 20,
+      "compiler_memory_actions": 20,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_dilate_3_pipeline_0",
+      "source_actions": 35,
+      "compiler_memory_actions": 35,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_0_baseline",
+      "source_actions": 5,
+      "compiler_memory_actions": 5,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_0",
+      "source_actions": 14,
+      "compiler_memory_actions": 14,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_1",
+      "source_actions": 14,
+      "compiler_memory_actions": 14,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "source_actions": 14,
+      "compiler_memory_actions": 14,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_lc_gicov_0_baseline_0",
+      "source_actions": 11,
+      "compiler_memory_actions": 11,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_lc_mgvf_0_baseline_0",
+      "source_actions": 3,
+      "compiler_memory_actions": 3,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_lud_1_tiling_0",
+      "source_actions": 46,
+      "compiler_memory_actions": 46,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "source_actions": 4,
+      "compiler_memory_actions": 4,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "source_actions": 8,
+      "compiler_memory_actions": 8,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_0_baseline_0",
+      "source_actions": 2,
+      "compiler_memory_actions": 2,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_1_tiling_0",
+      "source_actions": 14,
+      "compiler_memory_actions": 14,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_2_pipeline_1",
+      "source_actions": 14,
+      "compiler_memory_actions": 14,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+      "source_actions": 18,
+      "compiler_memory_actions": 18,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_4_coalescing_0",
+      "source_actions": 18,
+      "compiler_memory_actions": 18,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "spcl_example_00",
+      "source_actions": 1,
+      "compiler_memory_actions": 1,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "spcl_example_01",
+      "source_actions": 1,
+      "compiler_memory_actions": 1,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "spcl_example_03",
+      "source_actions": 6,
+      "compiler_memory_actions": 6,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    },
+    {
+      "kernel": "spcl_example_05",
+      "source_actions": 5,
+      "compiler_memory_actions": 5,
+      "unbound_source_actions": 0,
+      "source_actions_without_compiler_node": 0,
+      "modes": [
+        "action_segment",
+        "all",
+        "compiler_relation"
+      ],
+      "real_xattn_forward_backward": true,
+      "nonzero_gradients": true,
+      "zero_gate_exact_identity": true,
+      "unbound_absent_key_identity": true
+    }
+  ],
+  "downstream_llm_improvement_verified": false
+}

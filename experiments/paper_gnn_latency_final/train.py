@@ -90,7 +90,10 @@ def development(model,data,objective,device):
     return evaluate(rows,objective),rows
 
 
-def selection(report):
+def selection(report, policy='original'):
+    if policy == 'ranking':
+        from experiments.paper_gnn_latency_final.selection_policy import ranking_score
+        return ranking_score(report)
     m=report['family_macro']
     return (m['feasible_selection_rate'] or 0.,
             -m['feasible_regret_at_1'] if m['feasible_regret_at_1'] is not None else -math.inf,
@@ -156,6 +159,8 @@ def export(model,data,out,checkpoint,objective,protocol):
 def run(args):
     out=args.output; out.mkdir(parents=True,exist_ok=True)
     if (out/'last.pt').exists() and not args.resume: raise ValueError('Existing run requires --resume')
+    if args.resume_from and ((out/'last.pt').exists() or args.resume or args.selection_policy != 'ranking'):
+        raise ValueError('Selection migration requires fresh output and ranking policy')
     receipt=gpu_receipt(args.expected_gpu); write_json(receipt,out/'gpu_receipt.json')
     data=PaperData(out)
     write_json(data.identity,out/'data_identity.json')
@@ -200,17 +205,37 @@ def run(args):
             [ROOT/'GNN_branch/model.py', ROOT/'GNN_branch/train_GNN.py',ROOT/'GNN_branch/paper_protocol.py',
              ROOT/'experiments/paper_gnn/data.py',ROOT/'GNN_branch/nn_att.py',ROOT/'GNN_branch/config.py',
              ROOT/'GNN_branch/utils.py',ROOT/'Preprocessing/create_jsonl.py',ROOT/'Preprocessing/data_preprocess.py',Path(__file__)]}}
+    if args.selection_policy == 'ranking':
+        from experiments.paper_gnn_latency_final.selection_policy import RANKING_POLICY
+        protocol['selection'] = RANKING_POLICY
     write_json(protocol,out/'protocol.json')
     optimizer=torch.optim.Adam(model.parameters(),lr=3e-5,weight_decay=1e-4)
     scheduler=torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,patience=4,factor=0.5)
     start=0; best=None; stale=0; steps=0; curves=[]
     rng=random.Random(args.seed)
-    if args.resume:
-        state=torch.load(out/'last.pt',map_location='cpu',weights_only=False)
+    if args.resume or args.resume_from:
+        state=torch.load(args.resume_from or out/'last.pt',map_location='cpu',weights_only=False)
+        if args.resume_from:
+            from experiments.paper_gnn_latency_final.selection_policy import migrate_resume
+            state=migrate_resume(state,protocol,args.resume_from,out)
         if state['protocol']!=protocol: raise ValueError('Resume protocol changed')
         model.load_state_dict(state['model'],strict=True); optimizer.load_state_dict(state['optimizer']); scheduler.load_state_dict(state['scheduler'])
         torch.set_rng_state(state['torch_rng']); torch.cuda.set_rng_state_all(state['cuda_rng']); rng.setstate(state['sampler_rng'])
         start=state['epoch']+1; best=state['best']; stale=state['stale']; curves=state['curves']; steps=state['steps']
+        if args.resume_from:
+            # Re-evaluate the available revised best before continuing; preserve
+            # all saved RNG states so this audit cannot change training exposure.
+            rng_cpu=torch.get_rng_state(); rng_cuda=torch.cuda.get_rng_state_all()
+            selected=torch.load(out/'selected.pt',map_location='cpu',weights_only=False)
+            model.load_state_dict(selected['model'],strict=True)
+            report,rows=development(model,data,args.objective,'cuda')
+            write_json(report,out/'selected_metrics.json')
+            with (out/'selected_predictions.jsonl').open('w') as f:
+                for row in rows: f.write(json.dumps(row)+'\n')
+            model.load_state_dict(state['model'],strict=True)
+            torch.set_rng_state(rng_cpu); torch.cuda.set_rng_state_all(rng_cuda)
+            atomic_save(state,out/'last.pt')
+        print(json.dumps({'status':'resumed','start_epoch_one_based':start+1,'preserved_optimizer_steps':steps,'selection':protocol['selection'],'stale':stale}),flush=True)
     train_groups=defaultdict(list)
     for key,records in data.groups.items():
         if records[0]['split']=='train': train_groups[key[0]].append(key)
@@ -269,7 +294,7 @@ def run(args):
         if pair_counts['rank_full']+pair_counts['rank_half']==0 or not any(g['component_gradient_norms']['ranking']>0 for g in gradients): raise RuntimeError('Ranking supervision failed qualification')
         if delta_weight>0 and (pair_counts['delta']==0 or not any(g['component_gradient_norms']['delta']>0 for g in gradients)): raise RuntimeError('Delta supervision failed qualification')
         write_json({'epoch':epoch,'delta_weight':delta_weight,'unique_kernels':len(kernels),'physical_contexts':len({(r['kernel'],r['device'],r['clock']) for r in sampling}),'pair_counts':pair_counts,'batches':sampling,'gradient_samples':gradients},out/('sampling_epoch_%02d.json'%epoch))
-        report,rows=development(model,data,args.objective,'cuda'); score=selection(report)
+        report,rows=development(model,data,args.objective,'cuda'); score=selection(report,args.selection_policy)
         improved=best is None or score>tuple(best)
         if improved: best=score; stale=0
         else: stale+=1
@@ -301,7 +326,9 @@ def run(args):
 def main():
     p=argparse.ArgumentParser(); p.add_argument('--objective',choices=OBJECTIVES,required=True)
     p.add_argument('--output',type=Path,required=True); p.add_argument('--seed',type=int,default=123)
-    p.add_argument('--resume',action='store_true'); p.add_argument('--arm',choices=['A','B'],required=True); p.add_argument('--expected-gpu',default='A30'); args=p.parse_args()
+    p.add_argument('--resume',action='store_true'); p.add_argument('--resume-from',type=Path)
+    p.add_argument('--selection-policy',choices=['original','ranking'],default='original')
+    p.add_argument('--arm',choices=['A','B'],required=True); p.add_argument('--expected-gpu',default='A30'); args=p.parse_args()
     return run(args)
 
 

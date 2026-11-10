@@ -47,14 +47,38 @@ def comparable_improvement(new,old):
     passed=feasibility and calibration and ranking and all(per_family.values())
     return passed,dict(feasibility_nonsevere=feasibility,mae_nonsevere=calibration,ranking_or_selection_gain=ranking,independent_family_support=per_family)
 
+def ranking_improvement(new,old):
+    """User-revised ranking priority; feasibility is reported, never a selector."""
+    from experiments.paper_gnn_latency_final.selection_policy import ranking_score
+    a=new['family_macro'];b=old['family_macro']
+    if a['kendall_tau_b'] is None or b['kendall_tau_b'] is None:
+        return False,{'reason':'undefined ranking correlation'}
+    priority_gain=ranking_score(new)>ranking_score(old)
+    # A freeze upgrade must have support beyond one development family, and
+    # retain usable absolute prediction accuracy. Neither is a feasibility veto.
+    calibration=a['log_qor_mae'] is not None and b['log_qor_mae'] is not None and a['log_qor_mae']<=b['log_qor_mae']*1.1
+    oldfamilies={f['family']:f for f in old['families']}
+    support={f['family']:bool(f['family'] in oldfamilies and
+             ranking_score({'family_macro':f})>ranking_score({'family_macro':oldfamilies[f['family']]}))
+             for f in new['families']}
+    family_support=sum(support.values())>=min(2,len(support))
+    return priority_gain and calibration and family_support,dict(
+        ranking_first_priority_gain=priority_gain,mae_nonsevere=calibration,
+        independent_family_support=support,at_least_two_families_improve=family_support,
+        feasible_selection_rate_is_diagnostic_only=True)
+
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--root',type=Path,required=True);a=p.parse_args();root=a.root
+    p=argparse.ArgumentParser();p.add_argument('--root',type=Path,required=True)
+    p.add_argument('--selection-policy',choices=['original','ranking'],default='original')
+    a=p.parse_args();root=a.root
     os.environ['SALT_CORRECTED_COHORT']=str(root/'cohort/corrected_cohort_v1')
     out=root/'final_evaluation';out.mkdir(exist_ok=True)
     data=PaperData(out)
     from experiments.paper_gnn_latency_final.evaluation_cohort import include_radix_ignoring_l6
     amendment=include_radix_ignoring_l6(data,root/'cohort/corrected_cohort_v1');write_json(amendment,out/'evaluation_cohort_amendment.json')
-    Model,seed=backend();torch.set_num_threads(4)
+    # Match training's deterministic CUDA/scatter behavior. Static-memory
+    # independence is checked with exact equality; do not weaken that check.
+    Model,seed=backend();seed(123,False);torch.set_num_threads(4)
     expected=json.loads((root/'B/gpu_receipt.json').read_text())['device'];gpu_receipt('V100' if 'V100' in expected else 'A30')
     new_schema=data.schema;new_tensors=data.tensors;new_mean=data.mean;new_std=data.std
     preliminary=Path(os.environ.get('SALT_PRELIMINARY_LATENCY',str(root.parent/'paper_gnn_20261110/latency/selected.pt')))
@@ -116,11 +140,12 @@ def main():
     with (out/'four_metrics.csv').open('w') as f:
         writer=csv.DictWriter(f,fieldnames=list(table[0]));writer.writeheader();writer.writerows(table)
     write_json(table,out/'four_metrics.json')
-    allreports=reports['corrected_all_contexts'];b_over_a,bdiag=comparable_improvement(allreports['B'],allreports['A']);candidate='B' if b_over_a else 'A'
-    upgraded,upgrade_diag=comparable_improvement(allreports[candidate],allreports['preliminary'])
-    slice_ok,slice_diag=comparable_improvement(reports['corrected_zcu104_10ns'][candidate],reports['corrected_zcu104_10ns']['preliminary'])
+    compare=ranking_improvement if a.selection_policy=='ranking' else comparable_improvement
+    allreports=reports['corrected_all_contexts'];b_over_a,bdiag=compare(allreports['B'],allreports['A']);candidate='B' if b_over_a else 'A'
+    upgraded,upgrade_diag=compare(allreports[candidate],allreports['preliminary'])
+    slice_ok,slice_diag=compare(reports['corrected_zcu104_10ns'][candidate],reports['corrected_zcu104_10ns']['preliminary'])
     v1reports=reports['v1_matched_zcu104_10ns_intersection']
-    historical_ok,historical_diag=comparable_improvement(v1reports[candidate],v1reports['V1']) if 'V1' in v1reports else (False,{'reason':'No authenticated matched V1 replay; comparative historical upgrade not established'})
+    historical_ok,historical_diag=compare(v1reports[candidate],v1reports['V1']) if 'V1' in v1reports else (False,{'reason':'No authenticated matched V1 replay; comparative historical upgrade not established'})
     upgraded=upgraded and slice_ok and historical_ok
     selected=candidate if upgraded else 'preliminary';decision='FREEZE_RECOMMENDED' if upgraded else 'FREEZE_NOT_YET_JUSTIFIED'
     # Paired scientific integrity and exposure receipts.
@@ -157,6 +182,8 @@ def main():
         receipts[name]={**completion,'last_checkpoint_sha256':sha(root/name/'last.pt'),'selected_checkpoint_sha256':sha(root/name/'selected.pt'),'protocol_sha256':sha(root/name/'protocol.json'),'curves_sha256':sha(root/name/'curves.json'),'rng_saved':['torch_rng','cuda_rng','sampler_rng'],'optimizer_and_scheduler_saved':True,'total_epochs':last['epoch']+1,'total_optimizer_steps':last['steps'],'selected_epoch_one_based':completion['selected_epoch']+1}
     write_json(receipts,out/'training_receipts.json')
     decision_receipt={'status':decision,'selected':selected,'new_arm_candidate':candidate,'B_vs_A':bdiag,'candidate_vs_V1_matched':historical_diag,'candidate_vs_preliminary_all_contexts':upgrade_diag,'candidate_vs_preliminary_zcu104_10ns':slice_diag,'selected_checkpoint_sha256':sha(checkpoint_paths[selected]),'selected_checkpoint_path':str(checkpoint_paths[selected]),'selected_memory_manifest_sha256':sha(selected_dir/'memory/memory_manifest.json'),'xattn_status':'passed','production_promoted':False,'test_used':False,'downstream_llm_improvement_verified':False,'limits':['three development families; limited independent-family uncertainty','Sort-radix L6 explicitly ignored per user amendment; not authenticated','all-context training is not historical single-target training reproduction','resource counts are percentage-derived estimates; exact capacity equality unknown','ambiguous above-range raw latencies excluded conservatively']}
+    decision_receipt['checkpoint_selection_policy']=a.selection_policy
+    decision_receipt['user_directed_post_hoc_selection_revision']=a.selection_policy=='ranking'
     write_json(decision_receipt,root/'decision.json')
     plot_curves(root,out)
     make_report(root,out,reports,table,decision_receipt,receipts)
@@ -195,6 +222,8 @@ def plot_curves(root,out):
 def make_report(root,out,reports,table,decision,receipts):
     reconciliation=json.loads((root/'cohort/cohort_reconciliation.json').read_text());manifest=json.loads((root/'cohort/candidate_pool_manifest.json').read_text())
     lines=['# Final latency-GNN controlled study','',decision['status'],'',f"Selected: **{decision['selected']}**. Candidate checkpoint SHA256: `{decision['selected_checkpoint_sha256']}`. No model or production registration was promoted.",'','The two new arms use the same corrected data, fresh seed-123 initialization, architecture, optimizer and sampling schedule. B adds only delayed within-context delta supervision. Actual early-stopping totals are reported below. The fixed four-layer edge-aware TransformerConv, width 64, JK-max, one post-directive stage and 128-D [first-layer | JK] memory are preserved. No Stage-1/Stage-2 training or architecture search was performed.','','## Data reconciliation','','| Split | Raw rows | Successful measured under documented policy | Recovered >=100% raw rows | Legacy unique rows | Corrected unique rows | GNN eligible unique rows |','|---|---:|---:|---:|---:|---:|---:|']
+    if decision.get('user_directed_post_hoc_selection_revision'):
+        lines[6:6]=['The user revised checkpoint selection after the original runs: family-macro Kendall tau-b first, log2 MAE second, feasible Regret@1 third. Feasible-selection rate is a diagnostic, with no selection veto. Both original runs are preserved; continuation restores each arm\'s own model, optimizer, scheduler and RNG states within the original 40-total-epoch cap and patience 8. This is an explicit post hoc revision, not the originally predeclared policy. Freeze upgrades additionally require ranking support in at least two independent families and no >10% MAE regression.','']
     for tag in ('train','val'):
         rows=[r for r in reconciliation['kernels'] if r['split']==tag]
         sums=[sum(r[n] for r in rows) for n in ('raw_rows','successful_measured_rows','recovered_overcapacity_rows','legacy_preprocessed_rows','output_rows')]

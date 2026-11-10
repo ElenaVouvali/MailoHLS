@@ -15,7 +15,8 @@ if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--root',type=Path,required=True);a=p.parse_args();out=a.root/'available_checkpoint_evaluation';out.mkdir(exist_ok=True)
     assert not torch.cuda.is_available();torch.set_num_threads(4);os.environ['SALT_CORRECTED_COHORT']=str(a.root/'cohort/corrected_cohort_v1')
     data=PaperData(out);amendment=include_radix_ignoring_l6(data,a.root/'cohort/corrected_cohort_v1');write_json(amendment,out/'evaluation_amendment.json');Model,_=backend();current=data.tensors
-    paths={'preliminary':a.root.parent/'paper_gnn_20261110/latency/selected.pt','A':a.root/'A/selected.pt'}
+    preliminary=Path(os.environ.get('SALT_PRELIMINARY_LATENCY',str(a.root/'reference_preliminary/selected.pt' if (a.root/'reference_preliminary/selected.pt').exists() else a.root.parent/'paper_gnn_20261110/latency/selected.pt')))
+    paths={'A':a.root/'A/selected.pt','preliminary':preliminary}
     if (a.root/'B/selected.pt').exists():paths['B']=a.root/'B/selected.pt'
     for name,path in paths.items():
         state=torch.load(path,map_location='cpu',weights_only=False);data.tensors={k:legacy_tensorize(g,state['schema']['vocabulary']) for k,g in data.graphs.items()} if name=='preliminary' else current;data.mean=state['data_mean'];data.std=state['data_std'];first=next(iter(data.tensors.values()));model=Model(first.x.shape[1],first.edge_attr.shape[1]);model.load_state_dict(state['model'],strict=True)
