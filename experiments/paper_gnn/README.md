@@ -1,5 +1,22 @@
 # SALT-HLS paper GNN workflow
 
+The subsequent [canonical data restoration](../../Data/README.md) recovered
+authentic deleted directive columns for six kernels and repaired a cross-kernel
+lavaMD CSV copy. `Data/manifest.json` is now the single live data registry;
+historical tables below remain frozen replay inputs. Direct source inspection
+finds 30 unproven action states across 17 kernels, including four labels omitted
+from the current CFD step-factor metadata. No sort-radix mapping recovery was
+found. Six repaired metadata inventories require new RC3 graphs; the registry
+also flags the preexisting Kalman metadata mismatch. The existing paper loader
+must not mix these repaired inputs with its old graph/checkpoint identities.
+
+The [action-mapping audit](audits/action_mapping_20261110.md) checks all 55
+kernel registries and CSV schemas. It identifies 26 unmapped source loops
+across 14 non-test kernels, plus mapped-column gaps in lavaMD and the frozen
+Kalman test table. All 26 loops are absent from the legacy loop-analysis
+inventory, suggesting a structural-versus-measured-action interface mismatch.
+No missing directive state has been assumed or repaired by this audit.
+
 **Current status: three legacy-filtered-cohort runs are completed; the requested
 resource-filter correction and corrected-cohort reruns are unfinished.** The
 inherited preprocessing excludes utilization >=100% even for records with
@@ -9,7 +26,9 @@ utilization (within the old latency ceiling). These are not automatically HLS
 failures. Consequently, the published runs do not yet satisfy the requirement
 to train resource heads on all successfully measured over-capacity designs.
 
-`retain_measured_overflow=True` has been added to the raw preprocessor, but
+The shared `Data/preprocessed_CSVS` cache uses `retain_measured_overflow=True`
+and preserves recorded constant no-directive columns. It does not invent missing
+states and is not yet wired to the frozen paper cohort. In particular,
 `PaperData` still consumes the legacy preprocessed tables. Do not describe that
 flag alone as a completed data fix. Preserve these checkpoints as preliminary
 results; integrate the corrected raw-data policy and rerun the same frozen

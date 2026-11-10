@@ -1,0 +1,112 @@
+# Canonical SALT-HLS measurements
+
+Use [manifest.json](manifest.json) as the single dataset entry point. It identifies
+the live raw measurements in `Data/CSVS`, their labeled source, APL mapping,
+action metadata, SHA-256 hashes, family split membership, unknown action states,
+and compatibility with the frozen RC3 graph release. GNN and LLM experiments
+should refer to this registry rather than choose an arbitrary older data folder.
+
+There is one shared, reproducible derived cache: `Data/preprocessed_CSVS`.
+The existing maintained preprocessor creates it for all measured device/clock
+contexts. It retains finite measured resource demands at and above capacity,
+uses the paper's existing latency and arithmetic-mean resource-area conventions,
+canonicalizes directive spellings, and aggregates repeated measurements.
+Recorded constant no-directive columns are retained explicitly; absent columns
+are never created.
+Unknown/invalid measurements remain in raw data and are counted in the registry;
+they are not labeled resource-infeasible. Requested clock does not establish
+achieved timing qualification.
+
+```bash
+# Standard library only: verify all canonical inputs and graph identities.
+python -m Preprocessing.consolidate_data verify
+
+# Requires the existing numpy/pandas preprocessing dependencies.
+python -m Preprocessing.consolidate_data tables
+python -m Preprocessing.consolidate_data verify-cache
+
+# Regression checks, including locked-test protection and row identity.
+python -m unittest Preprocessing.tests.test_canonical_data -v
+```
+
+The shared cache contains training/development tables only. Its manifest uses
+`salt-hls-canonical-derived-v1` and explicitly records incomplete source-action
+coverage. It cannot be passed off as an old SFT preprocessing manifest: doing
+so would let the historical JSONL converter silently invent no-directive values
+for unknown actions. Building complete training candidates must require
+`complete_source_configuration_eligible`, or use separately authenticated applied
+states. Do not infer those states from missing columns or optimized-away loops.
+
+Reuse the locked split's **kernel/family membership**, not its old row indices,
+dataset hash, fitted area floor or normalization statistics for the new cache.
+Refit normalization from training families only. The locked Kalman test's rows
+are not read by consolidation, indexing or shared-cache generation.
+
+## Restored measurements
+
+All 15 fetched GitHub branches and reachable Git history were searched. The
+[search receipt](provenance/history_search_20261110.json) records exact refs,
+commits and mapping states. These measurements were recovered from commit
+`25dfef26f3e9d8a4f6356e672e8c552563a76a7b`:
+
+| Kernel | Restored measured columns |
+|---|---|
+| CFD flux baseline | `Array_1` → `L1` |
+| lavaMD baseline | `Array_2` → `L1` |
+| lavaMD tiling-0 | `Array_6` → `L1`; original source-associated CSV |
+| lavaMD tiling-1 | `Array_6` → `L1` |
+| lavaMD pipeline-0 | `Array_1` → `L3`, `Array_6` → `L1` |
+| Pathfinder baseline | `OuterLoop_1` → `L1`, `InnerLoop_1_1` → `L2` |
+
+The [restoration receipt](provenance/restoration_20261110.json) records every
+original/restored file hash, prior Git blob, source/header check and row check.
+For five kernels, all design keys `(Version, Device, numeric clock)` and shared
+measurements/directives match, allowing only numeric formatting tolerance
+`1e-12`. Their original files restore recorded directive values without imputation.
+
+The tiling-0 CSV had instead been replaced by a byte-identical copy of tiling-1
+in `4f3c6ba`, despite distinct source layouts. It is restored as a whole from its
+own original source-associated dataset: 5,685 rows replace the incorrect 5,739-row
+copy. The corresponding source and local headers match the original, permitting
+only whitespace differences immediately after source action labels. Source
+identities, existing action IDs and common metadata definitions are preserved.
+
+`restore` is reproducible and idempotent. It refuses unexpected edits and checks
+all proposed files before writing:
+
+```bash
+python -m Preprocessing.consolidate_data history  # search fetched refs/history
+python -m Preprocessing.consolidate_data restore
+python -m Preprocessing.consolidate_data index    # explicitly register reviewed changes
+python -m Preprocessing.consolidate_data verify
+```
+
+## Remaining gaps and historical replay
+
+No historical mapping supplies sort-radix `L6`, or any of the other 26 previously
+reported unmeasured source actions. The registry also checks labeled source
+directly: four further source labels lack current metadata and measurements in
+three CFD step-factor variants. Their old metadata records do not recover their
+applied directive states. These gaps remain explicit, not filled with defaults.
+
+The older `LLM_branch/Data/preprocessed_CSVS`, `GNN_branch/Data/preprocessed_CSVS`
+and experiment artifact copies are **frozen historical inputs**, not competing
+canonical datasets. They remain in place to replay existing checkpoints and
+locked experiments. In particular, the current Kalman raw CSV already contains
+the originally restored array columns, while its locked historical preprocessing
+snapshot omits them; this is recorded without changing or evaluating the test.
+Snapshot references remain registered when their files are not locally
+materialized; restore those files from the artifact store only for historical
+replay. Canonical verification checks a snapshot's hash when the file is present.
+
+The six restored metadata files change RC3 action inventory hashes. The registry
+lists seven graphs requiring regeneration, including the preexisting Kalman
+metadata/release mismatch. Existing graph releases, checkpoints,
+memory banks, normalization and XAttn weights remain historical artifacts. They
+must not be relabeled as trained on this repaired dataset. Regenerate and validate
+the affected RC3 graphs and candidate interfaces before training a new cohort;
+the existing paper loader's identity checks intentionally reject a mixture.
+
+The published legacy GNN workflow is reproducible at
+`20028e7` on `research/final-architecture-v3-20261110`. Repaired-data training and
+any downstream LLM/synthesis improvement are not established by this restoration.
