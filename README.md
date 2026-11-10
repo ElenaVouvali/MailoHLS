@@ -3723,3 +3723,7 @@ GEMV input cache. Large caches and model checkpoints remain outside Git.
 ### Architecture qualification (Revision3)
 
 The maintained research decision record is [FINAL_SALT_HLS_ARCHITECTURE.md](docs/architecture_freeze/FINAL_SALT_HLS_ARCHITECTURE.md). It distinguishes qualified components, experimental Stage3/refinement paths and pending physical evidence; production checkpoint registries remain unchanged.
+
+## Stage-1 target-adaptation research snapshot
+
+The [residual LoRA / action-aware FiLM experiment](experiments/stage1_target_film/README.md) preserves its completed training and original18-request GAN predictions. [Diagnostics v2 final status](experiments/stage1_target_film/diagnostics_v2/FINAL_STATUS.md) distinguishes completed measurements from canceled work. No production promotion or synthesized QoR improvement is claimed.

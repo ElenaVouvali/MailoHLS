@@ -1,46 +1,51 @@
-# Stage-1 residual target LoRA versus action-aware FiLM
+# Stage-1 residual target LoRA and action-aware FiLM
 
-Research branch `research/stage1-target-film-20261110`, parent `58c098936c14cfb021154884d5ad75cdd5fcf068`.
-No GNN, structural fusion, DPO, synthesis or production promotion is part of this experiment.
+This isolated research branch is `research/stage1-target-film-20261110`, based on `58c098936c14cfb021154884d5ad75cdd5fcf068`. **Investigation stopped at the user request.** No experiment is currently queued. Checkpoints/results are preserved; no production promotion or new HLS synthesis occurred.
 
-Frozen V4 latency adapter SHA256 `28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164`.
-The original base, objective adapter and learned-token rows remain frozen. The new residual uses the parent's rank8, alpha16 and q/k/v/o projection scope, reusing `device_adaptation.activate` and its parent-token serialization fix. Both adapters remain active. The new bundle schema is distinct from the historical single-device bundle; it does not relabel that contract.
+## Actual implementation
 
-## Evidence and limits
+Frozen V4 latency parent SHA256 `28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164`, identical to original Stage-1 final315. Its backbone, original objective LoRA, learned tokens, tokenizer and domains remain active/frozen. The residual reuses PEFT/device-adaptation integrity mechanisms, rank8/alpha16, q/k/v/o projections. No GNN, XAttn, DPO or refinement is involved.
 
-[Exact selected-pair audit](pair_bank_audit.json): 128 training pairs, 16 families, 249 unique physical designs; 54 validation pairs, 2 families, 105 physical designs. No identical candidate-pair switch or stay occurs across target contexts in this selected bank. Unmatched candidate pools cannot establish reversals. These are exploratory same-request latency preferences, with proxy resource feasibility, not exact resource counts or timing qualification.
+A trains only residual target LoRA. B trains the same LoRA plus one shared final-hidden-state FiLM module:15 hardware/context features, five directive kinds (PIPE/UNROLL/ARRAY_T/ARRAY_F/ARRAY_D),8-wide kind embedding,32-wide MLP bottleneck, bounded gamma/beta and tanh gate. Absolute Lk indices are not semantic features. Capacities come from the canonical prompt contract. QoR/winning directives never condition FiLM.
 
-The larger historical common-pool audit has training clock reversal3/stay130, device reversal2 correlated views/stay188, budget proxy boundaries74/no-change525. Validation has clock stay10, device stay16, budget proxy boundaries11/no-change43, and no clock/device reversals. These counts do not describe the sampled 128/54 preferences. Suspect spcl data were excluded from the pair bank. GAN and locked test are excluded from all selection.
+Both use action-normalized nonforced RHS SFT +0.1 same-request logistic rank (temperature1), complete measured assignments and independent causal prefixes. Near-optimal reference sampling is preserved at the sampled-pair level; this pilot uses one authenticated preferred completion per request, not every near-optimal reference. AdamW2e-5, effective batch2, seed123, identical initial residual weights and schedule. Initialization equality is authenticated by SHA256 `dae1f1f1204781c0fca5e2ad4f805a4227cb6a360178ea5421ca75793497a06c`.
 
-Each preferred complete design is within1% of its request's measured feasible proxy pool best; its rejected complete design is at least10% slower. Reference sampling preserves real correlated assignments; this bounded pilot samples one authenticated near-optimal preferred completion per retained request, not all near-optimal references. Neither candidate uses the other's causal prefix.
+## What actually completed
 
-## Mechanism
+|Arm|Successful training updates|Selected checkpoint|Original GAN inference|
+|---|---:|---|---|
+|A: residual LoRA|58, interrupted on a skipped mixed-precision update|32|18/18,4 configurations|
+|B: LoRA + FiLM|64|48|18/18,5 configurations|
 
-A trains only residual LoRA. B trains the same LoRA and one shared final-hidden-state FiLM generator:15 physical/context inputs,8-dimensional directive-kind embedding,32-unit SiLU bottleneck, bounded gamma/beta and tanh gate. Five kinds are PIPE/UNROLL/ARRAY_T/ARRAY_F/ARRAY_D. Lk is never a semantic feature. Device capacities come directly from `mailohls_contract.DEVICE_RESOURCES`, not from preferred QoR. The gate starts at0 with a nonzero random branch.
+Both selected validation family-macro pair accuracies are58.3333%. This is2-family preference validation, not synthesized quality. Unequal completed update budgets prevent a final matched-budget superiority claim. Original GAN A/B differ on9/18 requests (mean1.0556 fields/25; max4). The external GAN was never used for checkpoint selection. [Complete original directives and hashes](results_20261110/DIRECTIVES.md).
 
-FiLM is an LM-head pre-hook. Explicit kinds are assigned at position i-1 to predict RHS token i. Its state includes only request context and current field kind. Prompt/source logits pass through unchanged. Native output head, vocabulary, domain filtering, complete serialization and mean-RHS candidate decoder are preserved. `infer.py` uses the same FiLM class and explicit candidate-position masks; it does not infer actions from free text.
+## Final diagnostics v2
 
-Loss: action-normalized nonforced value-token SFT +0.1 softplus(-(score_preferred-score_rejected)); score is the negative same action-normalized NLL. Ranking temperature1. Fixed coefficient avoids a validation sweep. Both arms independently restore identical initial residual tensors; seed123, AdamW2e-5, effective batch2,64 successful updates, identical pair schedule, validation at0/16/32/48/64. Checkpoint selection: family-macro preference accuracy, then preferred NLL. This is exploratory pair validation, not measured generated QoR.
+[Final preserved status](diagnostics_v2/FINAL_STATUS.md) is authoritative over earlier intermediate descriptions.
 
-## Actual execution
+- Fixed causal inference mask: value tokens only; newline/formatting logits receive no FiLM. Native mean RHS-plus-newline candidate score is unchanged. Historical predictions remain immutable; explicit `--mask-policy legacy` retains the old inference policy.
+- Completed54-pair B48 FiLM ON/OFF/historical-mask ablation shows identical target scores/orderings:28/54 micro,58.3333% family macro.
+- Gate1.86e-6 magnitude, strong FP16 attenuation; max vocabulary-logit effect0.0078125 without target-score changes in this cohort. Five-pair training-preparation precision control reveals a larger score-path difference than FiLM's effect.
+- Full corrected GAN ablation was canceled:10/18 ON,0/18 OFF,0/18 matched-legacy natural outputs.1049 paired candidate traces have no mean-score change. Unrun requests are unknown, not claimed unchanged.
+- Recovered conditional-ranking and proxy-budget candidate banks are versioned and hashed. Canonical restored measurements were checked for compatibility, not silently substituted. No locked-test outcomes were read.
+- Verdict **EXPLORATORY_RETRAIN_ONLY**; no new training. Retain V4 conservatively; no physical-QoR improvement or architecture freeze is claimed.
 
-Davinci V100 UUID `GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f`; A30 untouched. Environment `/home/evouvali/MailoHLS/.venv/bin/python`, persistent root `/home/evouvali/mailohls_runs/stage1_target_film_20261110`.
+See [implementation audit](diagnostics_v2/IMPLEMENTATION_AUDIT.md), [FiLM ablation](diagnostics_v2/FILM_ABLATION.md), [data audit](diagnostics_v2/TARGET_CONTRAST_AUDIT.md), [decision](diagnostics_v2/RETRAINING_DECISION.md) and [persistent artifact hashes](diagnostics_v2/ARTIFACT_MANIFEST.json).
 
-The focused CPU test passed. Real NF4 V100 smoke completed2 updates per arm. A/B step0 validation and first training losses matched. B gate gradient on update1 was0.0003781; generator output-weight gradient on update2 was1.868e-6. A failed initial gradient-checkpointing smoke was preserved; the fix installs the input-gradient hook after PEFT token-wrapper installation. This changes gradient connectivity, not frozen parameter ownership.
-
-The matched64-update run is launched; completion is established only by each arm's `completed.json`. Reports will distinguish selected step0 from an updated checkpoint if validation retains the parent. Checkpoints save residual-only PEFT weights and FiLM, never the backbone/parent. Progress includes optimizer/scaler/RNG for explicit resume. `--resume /path/A/checkpoint-N` restores that arm before proceeding to B.
+## Reproduction interfaces
 
 ```bash
-python -m experiments.stage1_target_film.audit --pairs PAIRS --out NEW_AUDIT.json
-python -m pytest -p no:cacheprovider experiments/stage1_target_film/test_model.py -q
-python -m experiments.stage1_target_film.train --parent V4 --pairs PAIRS --out NEW_RUN \
-  --gpu-uuid VERIFIED_IDLE_UUID --steps 64
-python -m experiments.stage1_target_film.infer --parent V4 --adaptation SELECTED_CHECKPOINT \
-  --prepared SEALED_GAN --out NEW_GAN_OUTPUT --gpu-uuid VERIFIED_IDLE_UUID
-python -m experiments.stage1_target_film.report_gan --v4 V4_PREDICTIONS --a A_PREDICTIONS \
-  --b B_PREDICTIONS --out NEW_REPORT
+python -m experiments.stage1_target_film.audit --pairs ORIGINAL_PAIRS --out NEW_AUDIT.json
+python -m experiments.stage1_target_film.train --parent V4 --pairs ORIGINAL_PAIRS \
+  --out NEW_RUN --gpu-uuid VERIFIED_IDLE_UUID --steps 64 --arm B
+python -m experiments.stage1_target_film.infer --parent V4 --adaptation B48 \
+  --prepared SEALED_GAN --out NEW_OUTPUT --gpu-uuid VERIFIED_IDLE_UUID \
+  --film-mode on --mask-policy value
+python -m experiments.stage1_target_film.diagnostics_v2.run_development \
+  --parent V4 --checkpoint B48 --pairs ORIGINAL_PAIRS --out NEW_DIRECTORY \
+  --gpu-uuid VERIFIED_IDLE_UUID
 ```
 
-`continue_gan` waits for B's completed training receipt, reads the already selected development checkpoints, verifies the historical18-case V4 reference receipt, then executes A/B sequentially through the native decoder and builds the comparison. No HLS command exists in this path. GPU preflight refuses contention. Fresh outputs are required; partial output is preserved for inspection.
+These are supported commands, not instructions to restart canceled work automatically. Standard decoder and source/tool policies are retained. The new variable-target bundle has its own schema; it is not relabeled as the historical single-device bundle. `--resume` restores saved LoRA/FiLM/optimizer/scaler/RNG; partial journals are preserved. GPUs must pass idle-process/memory checks. A2 inference explicitly uses NF4/FP16 to match the V100 precision convention. No process belonging to another experiment was stopped.
 
-Do not claim target adaptation from pair ranking or GAN directive diversity. Exact-count feasible regret, timing-qualified benefit and independent device/clock switches remain unavailable in this cohort.
+Weights, model caches, raw input banks and long logs remain in persistent ignored storage. Git contains code, compact measured reports and SHA manifests; cloning this branch does not copy those weights or raw data. Production registries and historical checkpoints were not overwritten.

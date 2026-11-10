@@ -1,3 +1,5 @@
+> Final snapshot: remaining diagnostics stopped by user request. Completed measurements and explicit limits are in FINAL_STATUS.md.
+
 # Implementation audit — completed and pending checks
 
 Baseline code `e485c0a3f1038908dd53ea91593f8fcd00d581db`; original A32/B48 GAN files are preserved.
@@ -10,7 +12,7 @@ Real B48 forward checks confirm active `mailohls_base` and `device_adapt`, no tr
 
 The real full-prefix versus one-position cached check had a vocabulary-wide max logit difference0.03369140625. This is **not exact cached parity**. It is a one-position diagnostic on NF4/FP16; target-specific score/margin sensitivity still needs qualification. The production candidate decoder uses full-prefix scoring, not this cached path. Tensor-only cache tests are not substituted for this measurement.
 
-The trainer prepares k-bit training, upcasting nonquantized parameters, while inference uses native NF4/FP16 loading. A five-pair no-training preparation-precision control is running to isolate that difference. It does not change the deployed precision or retrain weights.
+The trainer prepares k-bit training, upcasting nonquantized parameters, while inference uses native NF4/FP16 loading. A five-pair no-training preparation-precision control completed to isolate that difference. It does not change the deployed precision or retrain weights.
 
 Full54-pair OFF/value/legacy development evaluation completed. Corrected versus historical GAN outputs and fixed-prefix native candidate effects remain pending their explicit run. No new optimizer update or synthesis occurred.
 

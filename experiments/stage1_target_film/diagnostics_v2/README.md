@@ -1,3 +1,5 @@
+> Final status: canceled remaining work at user request; no jobs queued. [FINAL_STATUS.md](FINAL_STATUS.md) is authoritative.
+
 # FiLM diagnostics v2
 
 Parent branch head at start: `e485c0a3f1038908dd53ea91593f8fcd00d581db`.
@@ -12,7 +14,7 @@ Historical checkpoints/results remain immutable. These diagnostics make no optim
 - `infer --paired-trace FILE`: same-prefix OFF/value/legacy head scores using the identical real backbone hidden state. FiLM acts only before the head, so backbone states do not depend on the intervention. Full-length head evaluation preserves its matrix shape; counterfactual replay is checked against the native score at tolerance1e-5.
 - `infer --replay-trace FILE`: exact prefix/candidate/context cache; uses only the requested condition's score. A new prefix is a cache miss and receives a real forward. This executes natural native constrained decoding without treating divergent trajectories as identical-prefix comparisons.
 
-The queued continuation waits for development and the five-pair precision control, then uses an idle GPU (V100S preferred, A2 fallback) for corrected GAN ON/OFF. The historical-mask natural replay uses the same paired score cache where exact prefixes match. Existing GNN training on V100S is not interrupted. Davinci V100/A30 were occupied when checked.
+The implemented continuation was canceled at the user request after10 corrected ON requests; OFF and legacy natural decoding did not execute. The historical-mask natural replay uses the same paired score cache where exact prefixes match. Existing GNN training on V100S is not interrupted. Davinci V100/A30 were occupied when checked.
 
 ```bash
 python -m experiments.stage1_target_film.diagnostics_v2.run_development \
