@@ -10,6 +10,7 @@ from .train import sha,write
 def main():
  p=argparse.ArgumentParser();p.add_argument('--parent',type=Path,required=True);p.add_argument('--adaptation',type=Path,required=True);p.add_argument('--prepared',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--gpu-uuid',required=True);p.add_argument('--film-mode',choices=('on','off'),default='on');p.add_argument('--mask-policy',choices=('value','legacy'),default='value');p.add_argument('--paired-trace',type=Path);p.add_argument('--replay-trace',type=Path);a=p.parse_args()
  if a.out.exists():raise FileExistsError(a.out)
+ if a.paired_trace and a.paired_trace.exists():raise FileExistsError('Counterfactual trace already exists; preserve it and use a fresh path')
  c=json.loads((a.adaptation/'adaptation_contract.json').read_text())
  if c['schema']!='stage1-target-adaptation-v1' or c['parent_sha256']!=sha(a.parent/'adapter_model.safetensors'):raise ValueError('Parent lineage mismatch')
  if c['lora_sha256']!=sha(a.adaptation/'device_adapt/adapter_model.safetensors') or c['film_sha256']!=sha(a.adaptation/'film.pt'):raise ValueError('Adaptation weights changed')
@@ -24,9 +25,14 @@ def main():
  from LLM_branch.common.mailohls_contract import RESOURCE_KEYS
  replay={}
  if a.replay_trace:
+  provenance=json.loads(Path(str(a.replay_trace)+'.provenance.json').read_text())
+  if provenance.get('adaptation_contract_sha256')!=sha(a.adaptation/'adaptation_contract.json') or provenance.get('prepared_manifest_sha256')!=sha(a.prepared/'manifest.json'):raise ValueError('Counterfactual cache checkpoint/request lineage differs')
+  if provenance.get('gpu_uuid',a.gpu_uuid)!=a.gpu_uuid or provenance.get('host',receipt['host'])!=receipt['host']:raise ValueError('Counterfactual cache GPU precision identity differs')
   for line in a.replay_trace.read_text().splitlines():
    rec=json.loads(line);replay[rec['key']]=rec
  cache_hits=0
+ if a.paired_trace:
+  write(Path(str(a.paired_trace)+'.provenance.json'),{'schema':'film-head-counterfactual-cache-v1','adaptation_contract_sha256':sha(a.adaptation/'adaptation_contract.json'),'prepared_manifest_sha256':sha(a.prepared/'manifest.json'),'precision':'NF4/FP16','gpu_uuid':a.gpu_uuid,'host':receipt['host']})
  originals={k:getattr(inf,k) for k in ('load_stage_model','predict_case','get_rhs_candidates_for_lhs','score_rhs_candidate_suffix')};state={};current={};started=time.monotonic()
  def load(args,tok):
   base=inf.load_base_model(args.model,revision=args.model_revision,compute_dtype=torch.float16);base.resize_token_embeddings(len(tok));model=PeftModel.from_pretrained(base,str(a.parent),adapter_name='mailohls_base',is_trainable=False);da.isolate_parent_token_serialization(model);model.load_adapter(str(a.adaptation/'device_adapt'),adapter_name='device_adapt',is_trainable=False);da.activate(model,trainable=False)
@@ -61,5 +67,5 @@ def main():
  try:inf.main()
  finally:
   for k,v in originals.items():setattr(inf,k,v)
- write(a.out/'execution.json',{'schema':'target-adaptation-inference-v1','status':'PASS','completed_cases':len((a.out/'completed_cases.jsonl').read_text().splitlines()),'predictions_sha256':sha(a.out/'predictions.jsonl'),'adaptation_contract_sha256':sha(a.adaptation/'adaptation_contract.json'),'prepared_manifest_sha256':sha(a.prepared/'manifest.json'),'parent_sha256':sha(a.parent/'adapter_model.safetensors'),'runtime_seconds':time.monotonic()-started,'preflight':receipt,'new_HLS_calls':0,'score_cache_hits':cache_hits,'paired_trace':str(a.paired_trace) if a.paired_trace else None,'replay_trace':str(a.replay_trace) if a.replay_trace else None,'film_mode':a.film_mode,'film_mask_policy':a.mask_policy,'precision':'NF4/FP16; original suffix mean score includes newline'})
+ write(a.out/'execution.json',{'schema':'target-adaptation-inference-v1','status':'PASS','completed_cases':len((a.out/'completed_cases.jsonl').read_text().splitlines()),'predictions_sha256':sha(a.out/'predictions.jsonl'),'adaptation_contract_sha256':sha(a.adaptation/'adaptation_contract.json'),'prepared_manifest_sha256':sha(a.prepared/'manifest.json'),'parent_sha256':sha(a.parent/'adapter_model.safetensors'),'runtime_seconds':time.monotonic()-started,'preflight':receipt,'new_HLS_calls':0,'replay_trace_sha256':sha(a.replay_trace) if a.replay_trace else None,'paired_trace_sha256':sha(a.paired_trace) if a.paired_trace else None,'score_cache_hits':cache_hits,'paired_trace':str(a.paired_trace) if a.paired_trace else None,'replay_trace':str(a.replay_trace) if a.replay_trace else None,'film_mode':a.film_mode,'film_mask_policy':a.mask_policy,'precision':'NF4/FP16; original suffix mean score includes newline'})
 if __name__=='__main__':main()
