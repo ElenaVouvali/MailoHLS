@@ -89,6 +89,18 @@ directly: four further source labels lack current metadata and measurements in
 three CFD step-factor variants. Their old metadata records do not recover their
 applied directive states. These gaps remain explicit, not filled with defaults.
 
+The [latest recheck](provenance/action_state_recheck_20261110.json) compared all
+55 newly supplied CSVs under `Data/CSVS/CSVS` against the canonical measurements:
+every file is byte-identical. Canonical source, metadata and APL mapping hashes
+are unchanged; 30 action states across 17 kernels remain unproven. The duplicate
+CSV directory is not an additional canonical dataset.
+
+Sort-radix `L6` is the `init_1` loop in
+[sort.c, line 45](ApplicationDataset/machsuite-sort-radix/sort.c#L45). It clears
+the 2,048-element bucket array and is called by `ss_sort` at line 85. The loop is
+registered in `kernel_info.txt`, but has no measured CSV-column mapping in its
+APL file. Source existence does not establish the directives applied per design.
+
 The older `LLM_branch/Data/preprocessed_CSVS`, `GNN_branch/Data/preprocessed_CSVS`
 and experiment artifact copies are **frozen historical inputs**, not competing
 canonical datasets. They remain in place to replay existing checkpoints and
