@@ -1727,6 +1727,7 @@ def main():
     )
 
     # stage2 memory
+    ap.add_argument("--allow_memory_extension", action="store_true", help="Explicitly allow an authenticated append-only held-out RC3 bank; preserves every frozen parent tensor")
     ap.add_argument("--memory_dir", type=str, default="")
     ap.add_argument(
         "--allow_memory_ablation",
@@ -1962,6 +1963,18 @@ def main():
                     "checkpoint and is not valid JSON"
                 ) from exc
 
+            valid_extension = False
+            if args.allow_memory_extension:
+                if args.allow_memory_ablation:
+                    raise ValueError("Choose a held-out extension or an ablation, not both")
+                from LLM_branch.common.memory_extension import validate_heldout_extension
+                receipt = validate_heldout_extension(
+                    args.memory_dir, expected_manifest_sha256,
+                    [(case.kernel_name, case.source_text) for case in load_cases(args)],
+                )
+                valid_extension = True
+                print("[MEMORY-EXTENSION] authenticated", receipt)
+
             ablation_name = memory_manifest.get("memory_ablation")
             base_manifest_sha256 = memory_manifest.get(
                 "base_memory_manifest_sha256"
@@ -1978,7 +1991,7 @@ def main():
                 and ablation_name in allowed_ablations
                 and base_manifest_sha256 == expected_manifest_sha256
             )
-            if not valid_derived_bank:
+            if not (valid_derived_bank or valid_extension):
                 raise ValueError(
                     f"Memory manifest does not match the {args.stage} "
                     "checkpoint. Derived diagnostic banks additionally "
@@ -1986,7 +1999,7 @@ def main():
                     "memory_ablation value, and the exact frozen "
                     "base_memory_manifest_sha256."
                 )
-            print(
+            if valid_derived_bank: print(
                 "[MEMORY-ABLATION] validated "
                 f"{ablation_name!r} against frozen parent "
                 f"{expected_manifest_sha256}"

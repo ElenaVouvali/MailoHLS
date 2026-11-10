@@ -1,0 +1,66 @@
+{
+  "schema": "gan-fresh-process-repeat-v1",
+  "checks": [
+    {
+      "context_id": "GAN:U200:10ns:50pct",
+      "same_assignment": true,
+      "same_returned_candidate_keys": true,
+      "maximum_candidate_score_difference": 0.0
+    },
+    {
+      "context_id": "GAN:U200:10ns:100pct",
+      "same_assignment": true,
+      "same_returned_candidate_keys": true,
+      "maximum_candidate_score_difference": 0.0
+    }
+  ],
+  "execution": {
+    "status": "PASS",
+    "checkpoint": "/home/evouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run",
+    "runtime_seconds": 118.20436691795476,
+    "GPU": {
+      "host": "davinci",
+      "uuid": "GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f",
+      "logical_cuda_device": 0,
+      "gpu": [
+        "GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f",
+        "Tesla V100-PCIE-32GB",
+        "32494",
+        "0"
+      ],
+      "processes": "",
+      "python": "/home/evouvali/MailoHLS/.venv/bin/python"
+    },
+    "command": [
+      "/home/evouvali/MailoHLS-gan-stage1-tcad-20261110/experiments/gan_stage1_tcad/execute_prepared.py",
+      "--stage",
+      "stage1",
+      "--adapter_dir",
+      "/home/evouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run",
+      "--directive_domain_registry_json",
+      "/home/evouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run/directive_domain_registry.json",
+      "--application_dataset_dir",
+      "/home/evouvali/mailohls_runs/gan_stage1_tcad_20261110/repeat_prepared/sources",
+      "--input_jsonl",
+      "/home/evouvali/mailohls_runs/gan_stage1_tcad_20261110/repeat_prepared/requests.jsonl",
+      "--output_jsonl",
+      "/home/evouvali/mailohls_runs/gan_stage1_tcad_20261110/repeat_inference/predictions.jsonl",
+      "--score_reduction",
+      "mean",
+      "--debug_topk",
+      "16",
+      "--num_samples",
+      "1",
+      "--print_predictions"
+    ],
+    "prepared_manifest_sha256": "71d454d989db633d869cb1a30ffb785ae40d9587c845d89abbc0a91e1747ed20",
+    "predictions_sha256": "7911f0c830319f0faf3e618eb19353f91c5d42ea1009c90c87cfdc04c14919d5",
+    "script_sha256": "1a3d6655c09f1b841e1083e95aec58cc818299e258451a7341f97684b8d2dcb0",
+    "completed_cases": 2,
+    "checkpoint_unchanged": true,
+    "new_HLS_calls": 0,
+    "optimizer_updates": 0
+  },
+  "no_model_selection": true,
+  "synthesis_started": false
+}

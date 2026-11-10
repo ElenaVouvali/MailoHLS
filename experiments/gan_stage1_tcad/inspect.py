@@ -15,7 +15,7 @@ def main():
  sys.path.insert(0,str(a.policy_package.parent));tool=importlib.import_module(a.policy_package.name+'.source_tool_policy');policy=tool.load_policy(a.policy_package/'policy.json');records=[];configs={}
  for request,prediction in zip(requests,predictions):
   assert request['context_id']==prediction['context_id'];candidate=prediction['candidates'][0];raw=candidate['prediction'];assignment=c.parse_assignment('\n'.join(line for line in raw.splitlines() if not re.fullmatch(r'<L[1-9][0-9]*>',line.strip())));assert set(assignment)==set(fields)
-  assert candidate['schema_compliant'] and candidate['expected_key_match'];key=json.dumps(assignment,sort_keys=True);config=configs.setdefault(key,'C'+str(len(configs)+1));issues=[]
+  assert all(assignment[f] in domains.legacy_site_domains('GAN',request['input'],a.prepared/'sources')[f] for f in fields),'Value outside native source proposal domain';mc.validate_directive_assignments(assignment);key=json.dumps(assignment,sort_keys=True);config=configs.setdefault(key,'C'+str(len(configs)+1));issues=[]
   for label,action in actions.items():
    if action.kind=='array':
     triple=tuple(assignment[f'AUTO{{_{kind}_{label}}}'] for kind in ('ARRAY_T','ARRAY_F','ARRAY_D'));reason=tool.tuple_rejection(triple,action,policy)
