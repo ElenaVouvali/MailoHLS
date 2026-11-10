@@ -1,10 +1,10 @@
 # Execution status
 
-**FREEZE_NOT_YET_JUSTIFIED — the final matched Liono arms have not trained yet.**
+**FREEZE_NOT_YET_JUSTIFIED — final A is training on Liono; final B is pending.**
 
-The active controller is configured to run A (corrected baseline) and B (the identical model plus delayed within-context latency-delta supervision) sequentially on Liono's V100S. It is waiting because another workload occupies that GPU. It never terminates another user's process or shares an occupied GPU.
+The active controller is configured to run A (corrected baseline) and B (the identical model plus delayed within-context latency-delta supervision) sequentially on Liono's V100S. A started when the V100S was idle. B will start after A completes and the device is available. It never terminates another user's process or shares an occupied GPU.
 
-At the recorded GPU check, the V100S had root-owned Ray worker PID 2026593 using 26,272 MiB. The A2 was also occupied. See `receipts/liono_gpu_status.json` for the exact timestamp and device identity. Availability is checked again immediately before CUDA model allocation.
+The earlier GPU-block snapshot is retained in `receipts/liono_gpu_status.json`. The later successful idle-at-launch receipt and actual optimizer progress are in `receipts/liono_execution_progress.json`. Availability is checked again immediately before CUDA model allocation. Other workloads can subsequently appear; no other process is stopped.
 
 An earlier Davinci A attempt genuinely trained for 11 epochs / 3,256 optimizer steps, but failed the stronger full-source-action XAttn routing qualification. It remains preserved as an unqualified result. Additional Davinci v3 progress is also preserved, and is excluded from the final Liono comparison following the user's explicit host instruction. No final B metrics or trained-checkpoint claims are made.
 
