@@ -7054,11 +7054,24 @@ def run_single_training(args):
         mem_bank = {}
         print("[INFO] Structural memory disabled -> skipping memory bank loading")
     else:
+        paper_representation = getattr(args, 'memory_representation_schema', None)
+        saved_representation = getattr(args, '_saved_stage2_contract', {}).get('structural', {}).get('representation_schema')
+        if saved_representation and paper_representation and saved_representation != paper_representation:
+            raise ValueError('Requested memory representation differs from resumed fusion checkpoint')
+        paper_representation = paper_representation or saved_representation
+        if paper_representation and args.resume_from_checkpoint:
+            saved_memory = getattr(args, '_saved_stage2_contract', {}).get('structural', {})
+            if (saved_representation != paper_representation or
+                    saved_memory.get('memory_manifest_sha256') != _file_sha256(Path(args.memory_dir) / 'memory_manifest.json')):
+                raise ValueError('Fusion resume requires the identical paper representation and memory bank')
+        if paper_representation and args.init_structural_xattn_from:
+            raise ValueError('Paper GNN memory requires fresh fusion weights or an authenticated same-bank resume')
         mem_bank, inferred_mem_dim = structural_memory_utils.load_memory_bank(
             args.memory_dir,
             expected_mem_dim=None if args.mem_dim <= 0 else args.mem_dim,
             expected_max_slots=args.max_slots,
             require_pragma_free_memory=args.require_pragma_free_memory,
+            expected_representation_schema=paper_representation,
         )
 
         if inferred_mem_dim is not None and args.mem_dim != inferred_mem_dim:
@@ -7148,11 +7161,28 @@ def run_single_training(args):
                 if args.split_json and normalization_stats.get("split_sha256") != _file_sha256(Path(args.split_json)):
                     raise ValueError("Multiscale normalization was fitted for a different split")
 
+        if paper_representation:
+            if memory_manifest.get('objective') != args.objective:
+                raise ValueError('Objective-specialized GNN bank differs from Stage-2 objective')
+            norm_path = Path(args.memory_dir) / 'normalization.json'
+            normalization_stats_sha256 = _file_sha256(norm_path)
+            if normalization_stats_sha256 != memory_manifest['normalization_sha256']:
+                raise ValueError('Paper normalization identity changed')
+            paper_norm = json.loads(norm_path.read_text())
+            if not args.split_json or paper_norm['split_sha256'] != _file_sha256(Path(args.split_json)):
+                raise ValueError('Paper memory requires the same explicit family split')
+            memory_manifest = dict(memory_manifest,
+                action_relation_schema='salt-paper-rc3-action-relations-v1',
+                experiment_split_sha256=paper_norm['split_sha256'],
+                embedding_mode='static_pre_npt::conv1_jkmax_rms_v1')
+
         if args.structural_routing == "compiler_relational":
             expected_relation_schemas = {
                 "mailohls-action-relations-v1",
                 "salt-hls-rc3-action-relations-v1",
             }
+            if paper_representation:
+                expected_relation_schemas = {"salt-paper-rc3-action-relations-v1"}
 
             actual_relation_schema = memory_manifest.get("action_relation_schema")
 
@@ -7270,6 +7300,10 @@ def run_single_training(args):
             },
         }
         saved_structural = getattr(args, "_saved_stage2_contract", {}).get("structural", {})
+        if paper_representation:
+            structural_config.update(representation_schema=paper_representation,
+                gnn_checkpoint_sha256=memory_manifest['gnn_checkpoint_sha256'],
+                feature_schema_sha256=memory_manifest['feature_schema_sha256'])
         for field in ("stage1_contract_sha256", "stage1_adapter_sha256"):
             if field in saved_structural:
                 structural_config[field] = saved_structural[field]
@@ -8268,6 +8302,8 @@ def main():
         help="Kernel source/action metadata used to derive legal directive domains.",
     )
     ap.add_argument("--memory_dir", type=str, default=str(DEFAULT_STRUCTURAL_MEMORY))
+    ap.add_argument('--memory_representation_schema', default=None,
+                    help='Explicit identity for a new paper GNN bank; initializes fresh fusion weights.')
     ap.add_argument("--model", type=str, default="deepseek-ai/deepseek-coder-6.7b-base")
     ap.add_argument(
         "--model_revision", type=str,

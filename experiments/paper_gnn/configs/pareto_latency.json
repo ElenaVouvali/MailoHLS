@@ -1,0 +1,68 @@
+{
+  "schema": "salt-hls-paper-gnn-policy-v1",
+  "status": "legacy_cohort_trained_exported_checked",
+  "objective": "PARETO_LATENCY",
+  "seed": 123,
+  "architecture": {
+    "backend": "GNN_branch.model.Net",
+    "operator": "TransformerConv",
+    "pre_directive_layers": 4,
+    "hidden_dim": 64,
+    "jumping_knowledge": "max",
+    "action_memory_dim": 128,
+    "memory_layout": [
+      "conv_1",
+      "jkn"
+    ],
+    "candidate_injection": "after_static_encoder",
+    "target_conditioning": "qor_heads_only",
+    "hardware_messages": false,
+    "target_film": false,
+    "post_directive_layers": 1,
+    "representation_schema": "salt-paper-rc3-transformer4-jkmax-conv1-jk-v1"
+  },
+  "loss": {
+    "qor": "mean of Smooth-L1(latency,area) and Smooth-L1(selected objective), training-only scales",
+    "resource": "Smooth-L1 measured physical demands in log1p space, training-only standardization; complete resource labels in authenticated source tables",
+    "resource_weight": 0.1,
+    "ranking": "same_context_feasible_complete_designs",
+    "rank_weight": 0.05,
+    "relative_tie": 0.05
+  },
+  "sampling": "kernel_balanced_unique_physical_designs",
+  "split": "mailohls_runs/mailohls_final_family_split_s123.json",
+  "normalization": "training_only",
+  "selection": {
+    "split": "val",
+    "aggregation": "family_macro",
+    "ordering": [
+      "maximize_feasible_selection_rate",
+      "minimize_feasible_regret_at_1",
+      "maximize_kendall_tau_b",
+      "minimize_log_qor_mae"
+    ],
+    "early_stopping_patience": 8,
+    "locked_test": "not_evaluated"
+  },
+  "training": {
+    "epochs": 40,
+    "lr": 3e-05,
+    "scheduler": "plateau",
+    "resume_requires": [
+      "model",
+      "optimizer",
+      "scheduler",
+      "rng",
+      "sampler",
+      "split_hash",
+      "schema_hash",
+      "protocol_hash"
+    ]
+  },
+  "measurement_policy": "authenticated existing LLM preprocessing: latency ms, area arithmetic mean of four reported resource percentages; train-only area floor; ADP product within fixed-clock pools",
+  "executed_protocol": "artifacts/paper_gnn_20261110/latency/protocol.json",
+  "checkpoint_sha256": "79540c9f27e4807e0c3badbd876322bbde5badd9d4a04f601b316ee75e944ee8",
+  "memory_manifest_sha256": "985f7f44506e698f2827147e3b91a844bf80b87a3cf89b927574e80b81ff3e40",
+  "selected_epoch_zero_based": 15,
+  "resource_filter_correction_pending": true
+}

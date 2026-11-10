@@ -1,0 +1,2422 @@
+{
+  "split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+  "release_manifest_sha256": "1c75bf22bd1bc6263e68118a8438ccf3bbf1eb8e7d675149f010d6f2a0a1a6e3",
+  "archive_sha256": "feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73",
+  "graph_sha256": {
+    "machsuite-gemm-blocked": "9deb17eff7c2c3fe89b3706106d4e4165179c989c172372408ffcd131e3bdfa5",
+    "machsuite-gemm-ncubed": "a57ff324bb8d61b6726e5246c39c072e4514c7153001e98e4bc98f1cb7b31865",
+    "machsuite-md-knn": "1437f81ab62b577d2eae362e91716088e0ffd423f88ab407b680c8ffa86c8df7",
+    "machsuite-sort-radix": "0114d8aff6dcffe9c41dca261d55ae62c67b0cdde77cd3b88a85317591a093c9",
+    "machsuite-spmv-ellpack": "15dba5133a7fe33c7c9cf7729a0f58a85d0b2217ecdae3231eacc68ea72af531",
+    "machsuite-stencil2d": "9f3fbec062a53a25f7210230ab5e6199e01026245f9e71d7308b1589e7744cc0",
+    "machsuite-stencil3d": "2b15233d464452f230926e5f2d83752a2cb5ae75558fddf449cb62a285d3f58c",
+    "machsuite-viterbi": "e1394dd2ba2c64d9cdc9abb70e6785830c4dce4521847d8fa40fdfd4a3d8eb21",
+    "rodinia-backprop-0-baseline-back": "8f44e8223f0e1266c26bce37b2f5c93fe5483c9eef212b7a9106b1ae899a3763",
+    "rodinia-backprop-0-baseline-forward": "5467a42f27071d31ca6d2c4ec66086ee3507c56e560c9792a63ead2d4cd03b31",
+    "rodinia-backprop-1-tiling-back": "53b4e448dbafb9b1b13a4cfb5076fd1d700c32a7ed3476298183a2b9ee1c0da6",
+    "rodinia-hotspot-0-baseline": "257e4e7151ed16754675d771ceaca9ee2cda05ca8c6d50960f50bdceee512f3f",
+    "rodinia-hotspot-1-tiling": "6fb2e1197b328218b421231ead647bb974dde97095b6008d9b8080478d8f51e4",
+    "rodinia-hotspot-2-pipeline": "c2520ba615d89f71b2a0ad434789a57ee81c2dd62dbc21e017df0e21a5a211e8",
+    "rodinia-hotspot-3-unroll": "b62dfd5a3f8964249400bdc143f41a3231f54a8efbcf65bc51c48873f385d515",
+    "rodinia-kmeans-0-baseline": "e7923ef030a1a8fb7c5501bdda87928da198310648e72b0b8b5f52182c770757",
+    "rodinia-kmeans-1-tiling": "42032ebad6632e4ebddbab117d504a1abf1ca43ae951b249381cfda2aecb6722",
+    "rodinia-kmeans-2-pipeline": "927e268c5d547e48f94d65f4827bcafa8984189a52c74fe20b4c7b4b3651cc0c",
+    "rodinia-kmeans-3-unroll": "0f1750b89d3a1144e9f0c804c98ecce3591e5bab94788c059f81d41b49816511",
+    "rodinia-knn-0-baseline": "09333367f3ff8eb8ea25d694b896ede54a90eb9e45ff402ea35963bc58d25c4f",
+    "rodinia-knn-1-tiling": "4e6bd279c364580038a42aaa2757af4fbe28b250c60d22923b9e31ee95966f9c",
+    "rodinia-knn-2-pipeline": "ee478c7800d3592e96f13af202adc297983f5cb4d454f865965c8040744fb324",
+    "rodinia-knn-3-unroll": "04734e8a2e31dc2965fd4c5ad3f971f2a5229e60275cf614db11ed2d85e4ecad",
+    "rodinia-knn-4-doublebuffer": "6e23b653240a1e5460fbda65bb81d30d9487e8a7b8375ed45eddade5f69568ae",
+    "rodinia-knn-5-coalescing": "698ac7e2eee2a0ac8e2c98e650984707350ebfb18e8a0395fe8a94d6538f632d",
+    "rodinia_cfd_flux_0_baseline_0": "6ceda6afeb4e36e16d6e5772d3328a822dffe74b32a742ab6c6ab26a76562e7c",
+    "rodinia_cfd_step_factor_0_baseline_0": "71c497fe17fd968540cc927de075466fb63eee16a3a4b21eee098721c387d773",
+    "rodinia_cfd_step_factor_1_tiling_0": "51571fb35a001987dc9a0ce3f706a519ec03c3c4a0462ee0d972e35e04212965",
+    "rodinia_cfd_step_factor_2_pipeline_0": "ca49c5102532c15c64b76419fa0978f12a6953828b5a4db4a4e47af9e9899660",
+    "rodinia_cfd_step_factor_3_unroll_0": "cc12479a536487c63169b3100059bcc645689bf07638963d5549a29d0c15ceb5",
+    "rodinia_cfd_step_factor_4_doublebuffer_0": "a1a95d6d9ba1f51ad3a26d919e448336cfbf4476cbe1ec66d27a186962ddec15",
+    "rodinia_cfd_step_factor_5_coalescing_0": "bb83c11e8ecc1086e1f30061f453ab139d23ea1c3cbbc6bce943c88b7f76aeb6",
+    "rodinia_dilate_0_baseline_0": "1e97ad2a3055589c862f60870ce4313d470b1b47e738bdc4bb16769780506d48",
+    "rodinia_dilate_1_tiling_0": "235627bb7717ca9722b32ef2c20ee2a0aa8f71f67e5b45817e80518d6ca3ec94",
+    "rodinia_dilate_2_pipeline_0": "bc85890d569d46d87c3575838a1ab1c847c0f84fc1486c5a33c75e871b8931dc",
+    "rodinia_dilate_3_pipeline_0": "9616a33646a25c14865a96758215d42ad253a18d13b946dc27de99881f5e421f",
+    "rodinia_lavaMD_0_baseline": "e606eac93dd8927ceb2fc05e443ffcb154c418d7fa326fad790923bfcf2de438",
+    "rodinia_lavaMD_1_tiling_0": "e77dac56eb1654d1a92eb07b28a977f7e5072f8f0267bef807076d79ec723680",
+    "rodinia_lavaMD_1_tiling_1": "233aba509b7cab735c6cc6d99bf3b3f88d6953e27e0f82599f2a1da7fa9e03c0",
+    "rodinia_lavaMD_2_pipeline_0": "40eaebad9ef24377fad4589040f8b1b5d423024abac0313c93b9671e2bac75db",
+    "rodinia_lc_gicov_0_baseline_0": "125605ae7f109862b1d17d66e0e3a607496565e92b442b70583360c387ac78d6",
+    "rodinia_lc_mgvf_0_baseline_0": "c7f86c9c169d9f8631d14deffd0ef302cf9c5af7ecb3e9ac6f2975f22d712d8d",
+    "rodinia_lud_1_tiling_0": "4079ef94df30fcb07cf07223cf11a0b24a1a981764c8bda67298c644f4440a2e",
+    "rodinia_pathfinder_0_baseline_0": "af67c5ca9c0e87778620074a37776d6d97dfd357a290e7f6dda83903fbb22141",
+    "rodinia_pathfinder_4_doublebuffer_0": "5975fd65843fe54e24e906f1381fffec5cd360180d0aa0f83e9784a8257a3688",
+    "rodinia_streamcluster_0_baseline_0": "d534d6a14da76ca6d193ab6b2809547005838d4b19eaf6e03563779dd59d3d12",
+    "rodinia_streamcluster_1_tiling_0": "5f747fe606dbe2514e2207e5badd2cbf9f4a14fcde03e1a51e06c3f133fdbe6d",
+    "rodinia_streamcluster_2_pipeline_1": "f26832e9fea485347b1d2cbbc0820c9ac882cebe852eb0d798c6673da1b17cd9",
+    "rodinia_streamcluster_3_doublebuffer_0": "1f650c5b5911e47f8c9c8470d68cfcfcf89c2e7a9a3c0227fb4a696132937594",
+    "rodinia_streamcluster_4_coalescing_0": "1a8c0daab9f553bfa144aa513467561e839085c0dfe05fd09f7770c1c4de1ae2",
+    "spcl_example_00": "ef5931ad254c618d2d613aeedba4bdc66b0e2f7d0e0a4e0278e34fa64fe8848c",
+    "spcl_example_01": "b6cc2701842e205378200dfaf776cd291a47b3aa6bc23fdadc16fb0087fab056",
+    "spcl_example_03": "05428a81468451b5465afb7c31f367677c275dca89eafc23cd793a6e9e874f44",
+    "spcl_example_05": "2e43cbf3a17e87616230f5761739e5408659c61821098cd6fcf126e852ce4b73"
+  },
+  "feature_schema": {
+    "schema": "salt-paper-rc3-compiler-tensors-v1",
+    "vocabulary": [
+      "",
+      "<unknown>",
+      "affine.for",
+      "affine.if",
+      "affine.load",
+      "affine.store",
+      "affine.yield",
+      "arith.addf",
+      "arith.addi",
+      "arith.andi",
+      "arith.cmpf",
+      "arith.cmpi",
+      "arith.constant",
+      "arith.divf",
+      "arith.divsi",
+      "arith.extf",
+      "arith.extsi",
+      "arith.extui",
+      "arith.fptosi",
+      "arith.index_cast",
+      "arith.mulf",
+      "arith.muli",
+      "arith.negf",
+      "arith.ori",
+      "arith.remsi",
+      "arith.select",
+      "arith.subf",
+      "arith.subi",
+      "arith.truncf",
+      "arith.xori",
+      "func.call",
+      "func.func",
+      "func.return",
+      "llvm.call",
+      "llvm.getelementptr",
+      "llvm.icmp",
+      "llvm.load",
+      "llvm.mlir.addressof",
+      "llvm.mlir.undef",
+      "llvm.mlir.zero",
+      "llvm.store",
+      "math.absf",
+      "math.exp",
+      "math.sqrt",
+      "memref.alloca",
+      "memref.cast",
+      "memref.get_global",
+      "memref.load",
+      "memref.store",
+      "polygeist.get_func",
+      "polygeist.memref2pointer",
+      "polygeist.pointer2memref",
+      "polygeist.subindex",
+      "scf.condition",
+      "scf.for",
+      "scf.if",
+      "scf.while",
+      "scf.yield"
+    ],
+    "node_categories": [
+      "action_point",
+      "constant_or_feature",
+      "control_region",
+      "memory_object",
+      "operation",
+      "ssa_value"
+    ],
+    "numeric": [
+      "loop_depth",
+      "trip_count",
+      "compiler_proven_trip_count",
+      "tcad_trip_count",
+      "lower_bound",
+      "upper_bound",
+      "step",
+      "operand_count",
+      "result_count",
+      "use_count",
+      "memory_rank",
+      "operand_index",
+      "dimension"
+    ],
+    "relations": [
+      "actual_to_formal",
+      "alias",
+      "analysis_summary",
+      "calls",
+      "contains_block",
+      "contains_operation",
+      "control_flow",
+      "declares_argument",
+      "defines",
+      "depends_on",
+      "feature",
+      "literal",
+      "loop_carried",
+      "loop_child",
+      "memory_access",
+      "next_operation",
+      "operand",
+      "owns_region",
+      "references",
+      "resolves_to",
+      "returns_to",
+      "targets"
+    ],
+    "evidence": [
+      "proven",
+      "possible",
+      "not_established",
+      "not_applicable"
+    ],
+    "reverse_edges": true,
+    "source_edge_metadata": "retained verbatim in authenticated graph JSON",
+    "input_allowlist": "compiler categories, operation text, numeric compiler facts; no target/candidate/QoR/budget fields"
+  },
+  "measurement_manifests": [
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "rows": 1621,
+      "actions": 5,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/machsuite-gemm-blocked/gemm.c",
+      "source_sha256": "b835cc7227c40d848ee273ea36f47db3d05ae744dbe8b9db0a23d7138ae6079c",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-machsuite-gemm-blocked.csv",
+      "table_sha256": "217c72806892b536ee2bcc4ce6964ed5b62a22ae16ce3b5987e4c5d9fd2aca29",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 296
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 306
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 340
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 213
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 277
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 189
+        }
+      ]
+    },
+    {
+      "kernel": "machsuite-gemm-ncubed",
+      "rows": 860,
+      "actions": 3,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/machsuite-gemm-ncubed/gemm.c",
+      "source_sha256": "8aa81b54e905a6caac0b30fa6ede2236c9552efa6c05ca1321f760651d8d64b3",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-machsuite-gemm-ncubed.csv",
+      "table_sha256": "8cf596ae91acbdbf545b99843c96a600d6722ba7f7fa66bcb1ba8d5d0606fe52",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 146
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 155
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 164
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 126
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 121
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 148
+        }
+      ]
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "rows": 208,
+      "actions": 2,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/machsuite-md-knn/md.c",
+      "source_sha256": "a3b531ddc95581c597939738351bdc9b56d1d588fb68b0ef12438769d21d0bd0",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-machsuite-md-knn.csv",
+      "table_sha256": "06773eca72c2ad44ba478b73e43dcbae7df18e545f86d7b1a95ee66823254568",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 35
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 35
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 35
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 33
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 35
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 35
+        }
+      ]
+    },
+    {
+      "kernel": "machsuite-sort-radix",
+      "rows": 4035,
+      "actions": 11,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/machsuite-sort-radix/sort.c",
+      "source_sha256": "8a187d7ac6fb9c4cd78589a51e5316ea2a67f654be6fe208bb0b34afbc8e9e8e",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-machsuite-sort-radix.csv",
+      "table_sha256": "a1df91f18e78566b39fa09e436a1add35c5462c97e870b6b7368fc23608c76d2",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 648
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 623
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 590
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 731
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 760
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 683
+        }
+      ]
+    },
+    {
+      "kernel": "machsuite-spmv-ellpack",
+      "rows": 168,
+      "actions": 2,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/machsuite-spmv-ellpack/spmv.c",
+      "source_sha256": "001e986b36e96b7e0740fde8c4323444cd0dfc945bb672f6ae291404ccd9b672",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-machsuite-spmv-ellpack.csv",
+      "table_sha256": "8b80bd3bd0bd324daa2a4dff9d4df8f1569f8a0f5d1f5aeb6d12d93df0e932a6",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 28
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 28
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 28
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 28
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 28
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 28
+        }
+      ]
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "rows": 551,
+      "actions": 4,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/machsuite-stencil2d/stencil.c",
+      "source_sha256": "3ef918250f199b53c924fad81c94b8ea3e655353b4f2e771c5f5fddba9b8a243",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-machsuite-stencil2d.csv",
+      "table_sha256": "62b0afd68e71911e61e614990dc1259de3a1bf67bc9eb48e11a4f30c3cf5b18a",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 86
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 75
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 107
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 120
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 77
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 86
+        }
+      ]
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "rows": 3459,
+      "actions": 9,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/machsuite-stencil3d/stencil.c",
+      "source_sha256": "d9b9d259a281226c4689d3a3f78bf548ec9756aae6326d9e51d64f86546861b0",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-machsuite-stencil3d.csv",
+      "table_sha256": "928c083c666afd580301741e740e6d3a70c791a31ad4ae98f7073d6cdeb48b1c",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 541
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 589
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 544
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 527
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 721
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 537
+        }
+      ]
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "rows": 3329,
+      "actions": 8,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/machsuite-viterbi/viterbi.c",
+      "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-machsuite-viterbi.csv",
+      "table_sha256": "8fa65d6659b5d42fdf0826b2af38e26c1bef56ae5da835de6cbabedd2d6be4de",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 478
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 571
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 615
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 615
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 531
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 519
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-back",
+      "rows": 119,
+      "actions": 2,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-backprop-0-baseline-back/backprop_kernel.cpp",
+      "source_sha256": "911c4d06de5f47e44c9c4880122dc266dd57003e21a95b3d27a513fa0fd922cf",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-backprop-0-baseline-back.csv",
+      "table_sha256": "1eeed07d02f48e080d237b34d693644ea1c60b8f434868c80e1b65c1ddd72254",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 20
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 20
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 20
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 19
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 20
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 20
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-forward",
+      "rows": 3244,
+      "actions": 6,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-backprop-0-baseline-forward/backprop_kernel.cpp",
+      "source_sha256": "1b525c6c187526b646114d923ed831b5356a9fdf1abafc69eafcfd747e5dfc71",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-backprop-0-baseline-forward.csv",
+      "table_sha256": "6434c326533eeb506becbbb6b9d72f2a4262045135164d509a02a2720cbf2c2a",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 526
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 534
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 467
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 791
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 553
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 373
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-backprop-1-tiling-back",
+      "rows": 4376,
+      "actions": 10,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-backprop-1-tiling-back/backprop_kernel.cpp",
+      "source_sha256": "c87324159db0550e76bca43167c3b7851b7c48dc30c710e8e303fde4dc10da24",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-backprop-1-tiling-back.csv",
+      "table_sha256": "8c5bdb820bda501d8a1cadbc54f16111d9c85a9d7cc26cfe4665034dc423651e",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 835
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 757
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 604
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 785
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 828
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 567
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-hotspot-0-baseline",
+      "rows": 611,
+      "actions": 3,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-hotspot-0-baseline/hotspot.cpp",
+      "source_sha256": "ec11c39a343ff3092d207023ccce72ad363ae9cbd0579aa213ae35231d8d4842",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-hotspot-0-baseline.csv",
+      "table_sha256": "242400f3d974b20909f20259b9a89b7dc025db05132133330f8083aa565b12c3",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 90
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 90
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 91
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 99
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 121
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 120
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-hotspot-1-tiling",
+      "rows": 3361,
+      "actions": 8,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-hotspot-1-tiling/hotspot.cpp",
+      "source_sha256": "ac56f69b3083bc8f826de72bddcdf0f4ce3122c2069d19a8791dab1c58cc1bfc",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-hotspot-1-tiling.csv",
+      "table_sha256": "a1d045f312b695ba4288c6fc4c22caa84fe98dbe679bae304b61287829a2dc86",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 583
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 615
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 611
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 320
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 612
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 620
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "rows": 4119,
+      "actions": 19,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-hotspot-2-pipeline/hotspot.cpp",
+      "source_sha256": "670c535990ff5369e8a6a5a1580aa0efe7e564cd8ebf26e7c44f1f3bcae1f787",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-hotspot-2-pipeline.csv",
+      "table_sha256": "c5d913b688b0ae33eed43252126b273e89e63f4fe4203b3d19c84d6281a5d516",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 670
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 715
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 683
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 639
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 724
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 688
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-hotspot-3-unroll",
+      "rows": 4139,
+      "actions": 19,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-hotspot-3-unroll/hotspot.cpp",
+      "source_sha256": "d8455e97622087c5ee90886533c67c94a5e5d6ff8d422ea6afc4a494378748e8",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-hotspot-3-unroll.csv",
+      "table_sha256": "b6c8cecbe63a27ae5e5c88182aee31e8feb015d195e71a85fac56fe4652675c7",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 764
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 689
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 711
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 647
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 676
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 652
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-kmeans-0-baseline",
+      "rows": 385,
+      "actions": 3,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-kmeans-0-baseline/kmeans.cpp",
+      "source_sha256": "52aec3884b8aacfbf59d37a033153c5770f90d9e1465f72bf2c2302def37b0a7",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-kmeans-0-baseline.csv",
+      "table_sha256": "cdac678e0b34dc2ccce04268b93c61ccd1bd6ab133d8ceeb36f67cb6356b8246",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 67
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 65
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 62
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 64
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 67
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 60
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-kmeans-1-tiling",
+      "rows": 4738,
+      "actions": 12,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-kmeans-1-tiling/kmeans.cpp",
+      "source_sha256": "517d5576751b60a6082a736ca8e72a1ff197652dbec539cddc098a067431d001",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-kmeans-1-tiling.csv",
+      "table_sha256": "f84d433bd98ba0e3598640958dc2ac9a7306ac518defa889a539d652ac0a7081",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 786
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 848
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 796
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 714
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 800
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 794
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-kmeans-2-pipeline",
+      "rows": 4729,
+      "actions": 12,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-kmeans-2-pipeline/kmeans.cpp",
+      "source_sha256": "42599f5e5e0e41632528d3c8b82988198040e7ac358e91787ba7f046dca2c3a0",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-kmeans-2-pipeline.csv",
+      "table_sha256": "d3e93f427cc2f4aaf685f5256b7b0a4e69d986965d87f2d1ac8ef617e3ff85e1",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 783
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 847
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 795
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 710
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 800
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 794
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-kmeans-3-unroll",
+      "rows": 4680,
+      "actions": 12,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-kmeans-3-unroll/kmeans.cpp",
+      "source_sha256": "3e6b97969d83ccb613f45c106ff201a09c4127847b0242d455fe64b995f55c51",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-kmeans-3-unroll.csv",
+      "table_sha256": "88594ce10132b6b57cb5cf721870daf6f9d51ae1d0c01799a95f29c9156fc840",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 773
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 839
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 763
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 710
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 799
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 796
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-knn-0-baseline",
+      "rows": 84,
+      "actions": 2,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-0-baseline/knn.cpp",
+      "source_sha256": "bab9522ed1e36bdb44c20effaae034cb1d487ac60c53468115abdb45e8c7aaa3",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-knn-0-baseline.csv",
+      "table_sha256": "db06b8675d9b237f28e4c02f91a4241018812b119c6f86e41cecfd1320d7019e",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 14
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 14
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 14
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 14
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 14
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 14
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-knn-1-tiling",
+      "rows": 3390,
+      "actions": 9,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-1-tiling/knn.cpp",
+      "source_sha256": "6840fa2f29f79c764a6775fb6173feecac231f8ae02b1bc3c4a4c58f01eeefe7",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-knn-1-tiling.csv",
+      "table_sha256": "e4847b69084453df031fdd43b9955719d8e0f58b7734cad945b674a7c56228e2",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 533
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 490
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 622
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 617
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 498
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 630
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-knn-2-pipeline",
+      "rows": 3745,
+      "actions": 9,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-2-pipeline/knn.cpp",
+      "source_sha256": "8c18afee92636de55949ca7bc69373ea0e29a47f1f27f9bc36466e9b78cce1cf",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-knn-2-pipeline.csv",
+      "table_sha256": "0604e309aa35ef6f3842d2285e9ec3ae79a55027d32960e113382e10bd21d615",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 688
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 413
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 688
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 552
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 679
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 725
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-knn-3-unroll",
+      "rows": 4258,
+      "actions": 10,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-3-unroll/knn.cpp",
+      "source_sha256": "c34152e29d3670e2b400e4ce245ae1c42c8af147a889c7b29791e94dfe97f767",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-knn-3-unroll.csv",
+      "table_sha256": "101ed5239a8bab81c66020df4c84ccdd0156d9a67f1393be8d906bb6a6dcef2d",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 656
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 694
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 684
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 672
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 755
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 797
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "rows": 3951,
+      "actions": 12,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-4-doublebuffer/knn.cpp",
+      "source_sha256": "4d247023e104ef5c028ebbe82ac34c7cccabccadda55a9210365559a1fe91112",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-knn-4-doublebuffer.csv",
+      "table_sha256": "d815c73d3bb59f6a8d923f964d898754c211f9edee870ee249ac283c36788910",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 531
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 537
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 489
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 854
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 830
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 710
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia-knn-5-coalescing",
+      "rows": 4327,
+      "actions": 13,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia-knn-5-coalescing/knn.cpp",
+      "source_sha256": "e6075642c9fa6f87dfb3cc26d5572c8c9f95f7acd124af25e1952051812d0fea",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia-knn-5-coalescing.csv",
+      "table_sha256": "8f49f9ea2d5433b04505e53ad9332ae0d04c339590636d70d4e3212b7d7f2829",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 815
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 812
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 788
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 639
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 650
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 623
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_cfd_flux_0_baseline_0",
+      "rows": 100,
+      "actions": 2,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_flux_0_baseline_0/cfd_flux.cpp",
+      "source_sha256": "61098854da52b9839233f92fc88d1b0c4d011825dfbf6e71a350a7bb94ddc41d",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_cfd_flux_0_baseline_0.csv",
+      "table_sha256": "e1e741eb2ecd1af01cfe7d685cf7adcdc8795798edfcabbf19654a6680ed96c4",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 17
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 18
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 18
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 15
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 15
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 17
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_0_baseline_0",
+      "rows": 42,
+      "actions": 1,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_0_baseline_0/cfd_step_factor.cpp",
+      "source_sha256": "5d7658a114967bd40ad3061b4b7f61b45e651647fa2c2922c50a7b6fc016a5e2",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_cfd_step_factor_0_baseline_0.csv",
+      "table_sha256": "604bd0bdb0a2068afd2e74f26e194d01df57b704e509798819df73a646bfc053",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 7
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 7
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 7
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 7
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 7
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 7
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+      "rows": 2652,
+      "actions": 4,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/cfd_step_factor.cpp",
+      "source_sha256": "53c2eee11d43d51cb07d4f80f04496752dda07b6241d13da133a59d464282ef0",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_cfd_step_factor_1_tiling_0.csv",
+      "table_sha256": "051faac8bf25acb67905cdae20927e0dcce247d4ebb170ae9581bcd0b3dceb54",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 296
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 266
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 282
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 634
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 603
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 571
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+      "rows": 1990,
+      "actions": 7,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/cfd_step_factor.cpp",
+      "source_sha256": "b9544f507fd7df193fbf00acf9367e95dd7c21dd50d79e5a79c5cffe63bab92e",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_cfd_step_factor_2_pipeline_0.csv",
+      "table_sha256": "b99b0723f84a221acd12af518a9646c26f596703f8187f0fc73d4641afc50e5e",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 255
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 253
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 251
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 394
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 340
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 497
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+      "rows": 4402,
+      "actions": 8,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/cfd_step_factor.cpp",
+      "source_sha256": "5c4e8716e38fdf6060a16cc2f85f8cb7528ed25e1b6c5855e60df613cbc7f154",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_cfd_step_factor_3_unroll_0.csv",
+      "table_sha256": "a271211ba15ea5ab9ed23b078030fca74d4baa67778134b43880a1e964a09630",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 527
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 596
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 748
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 854
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 821
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 856
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "rows": 4857,
+      "actions": 18,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_4_doublebuffer_0/cfd_step_factor.cpp",
+      "source_sha256": "c89640f8a0198d891f9a7374dd07f426b66222fff9454c104c5e6e0efe9900c3",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_cfd_step_factor_4_doublebuffer_0.csv",
+      "table_sha256": "e375931f408466c9139e505c471eaf4856d726fa0d883e5e4fa01f80a748b2cf",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 821
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 859
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 664
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 815
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 853
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 845
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_5_coalescing_0",
+      "rows": 4923,
+      "actions": 18,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_cfd_step_factor_5_coalescing_0/cfd_step_factor.cpp",
+      "source_sha256": "9d8ac174f7ac3296ea65545baead60b34410e4fe8caeb7a25aa32f9f0c368559",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_cfd_step_factor_5_coalescing_0.csv",
+      "table_sha256": "45cf35ea5dfd29725144addc892a3acd278f7c1ad7cdf5b83686e36623e176fe",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 823
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 820
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 835
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 778
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 842
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 825
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_dilate_0_baseline_0",
+      "rows": 951,
+      "actions": 5,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_dilate_0_baseline_0/dilate.cpp",
+      "source_sha256": "f9d42cda91bac87e44d52a59534ed45245ffe5b84e095623a4084b5a07228ab2",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_dilate_0_baseline_0.csv",
+      "table_sha256": "c0ab077c0a9be8c93a74c7132d0fb6699893970c1d910846dce9896e00eeaa8d",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 168
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 189
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 172
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 167
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 143
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 112
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_dilate_1_tiling_0",
+      "rows": 3140,
+      "actions": 12,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_dilate_1_tiling_0/dilate.cpp",
+      "source_sha256": "8b555a8401a165b76efcb9cb06dddc4f9f26cf28263caf41bd611c0839a859f3",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_dilate_1_tiling_0.csv",
+      "table_sha256": "c921098a7592b7171baef6e24476805514a325f115daa2c501ae9ba53dd79bf3",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 490
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 490
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 482
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 607
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 589
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 482
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "rows": 4322,
+      "actions": 20,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/dilate.cpp",
+      "source_sha256": "a4cc38e6e928981999c115cb750fa00c991ecb19b79f24684a88201337bacb1c",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_dilate_2_pipeline_0.csv",
+      "table_sha256": "bfc272ee0346c2952b95858dc39139c612c69dba68440de7cad4a4e254ec2444",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 768
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 743
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 634
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 705
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 723
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 749
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_dilate_3_pipeline_0",
+      "rows": 2058,
+      "actions": 35,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/dilate.cpp",
+      "source_sha256": "d7a379e6dd20d23332a0492e62ee048bc64903e7befab236fc1dbfc14c137bbe",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_dilate_3_pipeline_0.csv",
+      "table_sha256": "01ab1590c04635f71811307511bb4b80aabfbe8ff3c8381db9439c3c470a9186",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 218
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 237
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 227
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 899
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 230
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 247
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_lavaMD_0_baseline",
+      "rows": 715,
+      "actions": 5,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_lavaMD_0_baseline/lavaMD.cpp",
+      "source_sha256": "49dd00c693d898f9098121b1315c64a651eaaf96487ab1ee695c0a3307107f3e",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_lavaMD_0_baseline.csv",
+      "table_sha256": "7eb79cb34c24f4ddebc7d69b0e3a17e46fc79bb3fc592610d0916be0d2a9f826",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 104
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 101
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 153
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 135
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 123
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 99
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_0",
+      "rows": 3481,
+      "actions": 14,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_lavaMD_1_tiling_0/lavaMD.cpp",
+      "source_sha256": "5c0b9e9e64326e5eb6b90f72d5963fd932bc679a702506f3603d1b71589e69bb",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_lavaMD_1_tiling_0.csv",
+      "table_sha256": "a199a26d5353cb25f09cd1d138ca169cef6ae2c5065587272cb4e6f7e1dc9bdc",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 562
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 525
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 613
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 583
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 597
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 601
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_1",
+      "rows": 3481,
+      "actions": 14,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_lavaMD_1_tiling_1/lavaMD_flattenedArray.cpp",
+      "source_sha256": "4fedba25e5dff45ec9e20d68d673e2b62e2428a4b11277db7ce17592fc090106",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_lavaMD_1_tiling_1.csv",
+      "table_sha256": "a199a26d5353cb25f09cd1d138ca169cef6ae2c5065587272cb4e6f7e1dc9bdc",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 562
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 525
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 613
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 583
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 597
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 601
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "rows": 3291,
+      "actions": 14,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_lavaMD_2_pipeline_0/lavaMD.cpp",
+      "source_sha256": "e91732f0ac504b601a65f5697ef825879e605f1ab543bd877443319071ac00c1",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_lavaMD_2_pipeline_0.csv",
+      "table_sha256": "127d0b9212c9f08965914390cc163b25fe421ed6afb8e57710158c455c94836e",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 561
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 516
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 565
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 458
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 577
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 614
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_lc_gicov_0_baseline_0",
+      "rows": 3815,
+      "actions": 11,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_lc_gicov_0_baseline_0/lc_gicov.cpp",
+      "source_sha256": "adfee9af46749e8a2b8f5c93c6399afe4c1e8d1dde4fb034d17aa6ce30a44c4e",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_lc_gicov_0_baseline_0.csv",
+      "table_sha256": "08cddb5d978fedc2c074cffab03f4b98aa56d1d0228a208f120d714775a8cb55",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 625
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 527
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 554
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 687
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 819
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 603
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_lc_mgvf_0_baseline_0",
+      "rows": 202,
+      "actions": 3,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_lc_mgvf_0_baseline_0/lc_mgvf.cpp",
+      "source_sha256": "fac7d792ac5746d67f70dfa2cc3a23f941fd9347756f717ba7e13287c6c5587a",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_lc_mgvf_0_baseline_0.csv",
+      "table_sha256": "3de9bd0f64418b28dd81418ad33da73de350cb92a36ab4e3ab18cfe894a3c9b0",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 35
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 35
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 35
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 32
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 34
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 31
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_lud_1_tiling_0",
+      "rows": 1941,
+      "actions": 46,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_lud_1_tiling_0/lud.cpp",
+      "source_sha256": "ab473bcb5318105ecb1aea4251c225d80d00040de3166d307c4f18b718d1e571",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_lud_1_tiling_0.csv",
+      "table_sha256": "001ee47fdac77ea209fbf9e361f86b73ffabac87629ae306645ff124484c60ba",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 317
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 547
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 327
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 369
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 381
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "rows": 1735,
+      "actions": 4,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_pathfinder_0_baseline_0/pathfinder.cpp",
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_pathfinder_0_baseline_0.csv",
+      "table_sha256": "c3f78db55826317aa91239fdef3181b3c5499984232ac5deb39180a306190664",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 234
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 265
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 227
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 261
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 360
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 388
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "rows": 3912,
+      "actions": 8,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_pathfinder_4_doublebuffer_0/pathfinder.cpp",
+      "source_sha256": "60f73965aacdf828c5d2ddc5ac398dd28f7a17118071c811119ad08e84ea7057",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_pathfinder_4_doublebuffer_0.csv",
+      "table_sha256": "8376a96aa5c0cf3035f449cf9dcb7b2a4a5c517563929534c15ac9163c4788b0",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 731
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 748
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 622
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 546
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 514
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 751
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_streamcluster_0_baseline_0",
+      "rows": 253,
+      "actions": 2,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_0_baseline_0/streamcluster.cpp",
+      "source_sha256": "f9d99f680da244d1b57d9de4a695b367b24c3e384f940cdfee46159c24682508",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_streamcluster_0_baseline_0.csv",
+      "table_sha256": "cff8d0cc3c0de69eb1459da134b275f41cd74a4ca1d76046f90e6ce03689c79a",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 42
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 42
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 43
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 43
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 40
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 43
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_streamcluster_1_tiling_0",
+      "rows": 4794,
+      "actions": 14,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_1_tiling_0/streamcluster.cpp",
+      "source_sha256": "07fd1a7a47b840597ce7d9b7c48aef38aaa08fce3bfa80a0ae90ea066fddf687",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_streamcluster_1_tiling_0.csv",
+      "table_sha256": "45c7152a6e3a075a77dabde9182885ae6476613088766835f850cfb87b0e0154",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 866
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 792
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 868
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 757
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 747
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 764
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_streamcluster_2_pipeline_1",
+      "rows": 4809,
+      "actions": 14,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_2_pipeline_1/streamcluster.cpp",
+      "source_sha256": "7bfad21e9099a4e8bacde1bd99cbf9a0b773484ec41c73dc9fc51152297564c7",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_streamcluster_2_pipeline_1.csv",
+      "table_sha256": "4d0360f41a6af78830bf5dc80ce11a97253639882d54c3a86bae72af5b7a8c27",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 775
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 628
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 876
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 817
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 863
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 850
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+      "rows": 4543,
+      "actions": 18,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_3_doublebuffer_0/streamcluster.cpp",
+      "source_sha256": "ca0fe5b125f569469f31fdcad7e27bed55eb55a17b19f89d152545b3501d1f5e",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_streamcluster_3_doublebuffer_0.csv",
+      "table_sha256": "a2bc1a08e6f9548e4f5c7fbe9b1a736cde5317397878630e20f07e79aee9a378",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 625
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 588
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 813
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 799
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 859
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 859
+        }
+      ]
+    },
+    {
+      "kernel": "rodinia_streamcluster_4_coalescing_0",
+      "rows": 4742,
+      "actions": 18,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/rodinia_streamcluster_4_coalescing_0/streamcluster.cpp",
+      "source_sha256": "ba3758d93a96b0bc8639c4ad7707072e35c8b7128ecf120546aebb906dc12272",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-rodinia_streamcluster_4_coalescing_0.csv",
+      "table_sha256": "f7ffbefc5512b0c7f2f12c6ef6ea19aa2e1dbcbe3d076d1250b1d2d424f9f91e",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 818
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 832
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 824
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 653
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 808
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 807
+        }
+      ]
+    },
+    {
+      "kernel": "spcl_example_00",
+      "rows": 42,
+      "actions": 1,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/spcl_example_00/Example0.cpp",
+      "source_sha256": "8d389e03b3d1bfb90cd5e88bf47598c99e667981d957893f65f36524c8b85098",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-spcl_example_00.csv",
+      "table_sha256": "d8e830cc437f74cc66ad9adab07e0f051648a67a0985c14f488ddc3d062df1a5",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 7
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 7
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 7
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 7
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 7
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 7
+        }
+      ]
+    },
+    {
+      "kernel": "spcl_example_01",
+      "rows": 42,
+      "actions": 1,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/spcl_example_01/Example1_Pipelined.cpp",
+      "source_sha256": "36275006eaa68faa38762521cedfd542f70e3c42388f1e3e403ae4988407491f",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-spcl_example_01.csv",
+      "table_sha256": "f199b710c29cb72c2ea7ea5a18847c1daa5ef2a9a167c23fb3687da90e0165cd",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 7
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 7
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 7
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 7
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 7
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 7
+        }
+      ]
+    },
+    {
+      "kernel": "spcl_example_03",
+      "rows": 2378,
+      "actions": 6,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/spcl_example_03/Example3.cpp",
+      "source_sha256": "6a4cfc85a0c7d4cd9294f739c09f5f1e3231af1beb8e7eee2393da4702a96b1b",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-spcl_example_03.csv",
+      "table_sha256": "5616b0307783a3cfae87967c8d8b7cd5d347a44c5248f43a931cc495daeb0890",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 332
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 410
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 398
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 429
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 390
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 419
+        }
+      ]
+    },
+    {
+      "kernel": "spcl_example_05",
+      "rows": 1221,
+      "actions": 5,
+      "source": "/home/evouvali/MailoHLS/Data/ApplicationDataset/spcl_example_05/Example5_Reordered.cpp",
+      "source_sha256": "358e10252144cca5bb428b79ab346b45060f0ed44e9dd9dea4f7c6c7600caa22",
+      "table": "/home/evouvali/MailoHLS/LLM_branch/Data/preprocessed_CSVS/preprocessed-spcl_example_05.csv",
+      "table_sha256": "c4d47a2748cf2ab47bf593c13ac86e504b61a429ef6ceaac2408ecfc8240d37b",
+      "target_rows": [
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 3.33,
+          "rows": 179
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 5.0,
+          "rows": 207
+        },
+        {
+          "device": "xcu200-fsgd2104-2-e",
+          "clock_period": 10.0,
+          "rows": 162
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 3.33,
+          "rows": 192
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 5.0,
+          "rows": 195
+        },
+        {
+          "device": "xczu7ev-ffvc1156-2-e",
+          "clock_period": 10.0,
+          "rows": 286
+        }
+      ]
+    }
+  ],
+  "normalization_mean": [
+    3.015490770339966,
+    2.172504425048828,
+    3.382221221923828,
+    2.2683560848236084,
+    8.752079010009766,
+    10.2958402633667
+  ],
+  "normalization_std": [
+    6.0992865562438965,
+    2.228703022003174,
+    2.3965861797332764,
+    2.4921107292175293,
+    4.124497413635254,
+    1.991765022277832
+  ],
+  "coverage": {
+    "input_rows": 143321,
+    "accepted_unique_designs": 97442,
+    "missing_measured_apl_column": 45879
+  },
+  "locked_test_read": false,
+  "area_floor": 0.0625,
+  "adp_log2_std": 6.775211334228516,
+  "units": {
+    "latency": "ms",
+    "area": "arithmetic mean of resource utilization percentages",
+    "adp": "ms * area; equivalent within clock pools to cycles * area ordering/regret",
+    "resources": "physical BRAM18K,DSP,FF,LUT from measured percentages and authenticated device capacities"
+  },
+  "measurement_policy": "successfully preprocessed complete HLS designs; failures/unknown excluded, never labelled infeasible"
+}

@@ -1,0 +1,48 @@
+{
+  "objective": "PARETO_ADP",
+  "seed": 125,
+  "schema": "salt-paper-rc3-transformer4-jkmax-conv1-jk-v1",
+  "data_identity_sha256": "a7b05830d084b9ea6581bfd02cbca64e5274575829e1ea68dc882673a8d42304",
+  "epochs": 40,
+  "lr": 3e-05,
+  "loss": "0.5*(smooth_l1_latency_area + smooth_l1_selected_objective) + 0.1*smooth_l1_resource + 0.05*feasible_objective_ranking",
+  "architecture": {
+    "pre_directive_transformer_layers": 4,
+    "hidden_dim": 64,
+    "attention_heads": 1,
+    "jumping_knowledge": "max",
+    "memory_layout": [
+      "conv_1",
+      "jk_max"
+    ],
+    "memory_dim": 128,
+    "post_directive_transformer_layers": 1,
+    "activation": "elu",
+    "target_context": "heads_only",
+    "hardware_messages": false,
+    "film": false
+  },
+  "relative_tie": 0.05,
+  "budget_views": [
+    1.0,
+    0.5
+  ],
+  "samples_per_kernel_per_epoch": 128,
+  "batch_candidates": 16,
+  "selection": "family_macro feasible_selection_rate DESC, conditional regret ASC, tau_b DESC, log2 MAE ASC",
+  "patience": 8,
+  "ranking_weight": 0.05,
+  "resource_weight": 0.1,
+  "dropout": 0.1,
+  "source_sha256": {
+    "GNN_branch/model.py": "54c0f35b4d7807a793b7a6ce0801429a6e5620acfe4c4f1bd82bc9c975958cd9",
+    "GNN_branch/train_GNN.py": "05f3f6f7e90932750da1d10ebc1e13a579e99864bda20f9aef5dbef7454782d6",
+    "GNN_branch/paper_protocol.py": "c6d0a596a14d032eccc124c102f901a880f687f8202de3fa248e553c0839becd",
+    "experiments/paper_gnn/data.py": "82a5198d11c5d5714b5cd19ce89ae39bf5bbee87196e751d99435f9d4e4d198a",
+    "GNN_branch/nn_att.py": "52e338c86e3e7a5fad48daaf39cdc8be8dd66cf567beb6cdc1d849dc67183474",
+    "GNN_branch/config.py": "852a0d196d1b2b9502b3d8d04896af3b4ed793b62696680b138177d0ad88167f",
+    "GNN_branch/utils.py": "e6d7522074c29c140736a4e5a5f504a8d719253f5b71baad1714515b3e15f254",
+    "Preprocessing/create_jsonl.py": "7f88cc641001db0720717836109e14a76ef8c82e5723fda4bd269a6c149565a9",
+    "experiments/paper_gnn/train.py": "f2ed9ec10f74d016e834b2cba5517c2f56131f1386e58de826349c58faa5b2b5"
+  }
+}

@@ -463,6 +463,7 @@ def load_memory_bank(
     *,
     expected_mem_dim: int,
     expected_max_slots: int,
+    expected_representation_schema: str | None = None,
 ) -> Dict[str, dict]:
     """Load inference memory through the same validated Stage-2 path.
 
@@ -474,6 +475,7 @@ def load_memory_bank(
         memory_dir,
         expected_mem_dim=expected_mem_dim,
         expected_max_slots=expected_max_slots,
+        expected_representation_schema=expected_representation_schema,
     )
     if inferred_mem_dim != expected_mem_dim:
         raise ValueError(
@@ -2132,6 +2134,7 @@ def main():
             args.memory_dir,
             expected_mem_dim=args.mem_dim,
             expected_max_slots=args.max_slots,
+            expected_representation_schema=training_contract.get('structural', {}).get('representation_schema'),
         )
         if args.stage in {"stage2", "stage3"}
         else None

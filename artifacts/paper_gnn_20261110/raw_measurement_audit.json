@@ -1,0 +1,126 @@
+{
+  "scope": "locked train/development only; no locked-test CSV parsed",
+  "counts": {
+    "train": {
+      "rows": 189925,
+      "nonfinite_or_nonpositive_latency": 32974,
+      "latency_above_legacy_limit": 3082,
+      "unknown_or_negative_resource": 0,
+      "finite_positive_latency_with_ge100_resource": 3215,
+      "finite_positive_latency_with_gt100_resource": 3139,
+      "all_four_resources_exact100": 0
+    },
+    "val": {
+      "rows": 19390,
+      "nonfinite_or_nonpositive_latency": 1571,
+      "latency_above_legacy_limit": 185,
+      "unknown_or_negative_resource": 0,
+      "finite_positive_latency_with_ge100_resource": 118,
+      "finite_positive_latency_with_gt100_resource": 117,
+      "all_four_resources_exact100": 0
+    }
+  },
+  "examples": [
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "Version": "bbgemm_1.c",
+      "Latency_msec": 0.37825,
+      "Synthesis_Time_sec": 709,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 6,
+      "FF_Utilization_percentage": 233,
+      "LUT_Utilization_percentage": 117
+    },
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "Version": "bbgemm_2.c",
+      "Latency_msec": 0.37825,
+      "Synthesis_Time_sec": 735,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 6,
+      "FF_Utilization_percentage": 233,
+      "LUT_Utilization_percentage": 117
+    },
+    {
+      "kernel": "machsuite-gemm-ncubed",
+      "Version": "gemm_5.c",
+      "Latency_msec": 0.18716,
+      "Synthesis_Time_sec": 983,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 12,
+      "FF_Utilization_percentage": 139,
+      "LUT_Utilization_percentage": 34
+    },
+    {
+      "kernel": "machsuite-gemm-ncubed",
+      "Version": "gemm_6.c",
+      "Latency_msec": 0.24962,
+      "Synthesis_Time_sec": 926,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 11,
+      "FF_Utilization_percentage": 119,
+      "LUT_Utilization_percentage": 31
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "Version": "md_kernel_121.c",
+      "Latency_msec": 0.18329985,
+      "Synthesis_Time_sec": 1385,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 1,
+      "FF_Utilization_percentage": 36,
+      "LUT_Utilization_percentage": 104
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "Version": "md_kernel_122.c",
+      "Latency_msec": 0.18329985,
+      "Synthesis_Time_sec": 1387,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 1,
+      "FF_Utilization_percentage": 36,
+      "LUT_Utilization_percentage": 104
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "Version": "stencil_23.c",
+      "Latency_msec": 0.20289,
+      "Synthesis_Time_sec": 105,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 100,
+      "FF_Utilization_percentage": 4,
+      "LUT_Utilization_percentage": 22
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "Version": "stencil_33.c",
+      "Latency_msec": 0.20289,
+      "Synthesis_Time_sec": 101,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 100,
+      "FF_Utilization_percentage": 4,
+      "LUT_Utilization_percentage": 22
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "Version": "stencil3d_155.c",
+      "Latency_msec": 0.22439,
+      "Synthesis_Time_sec": 401,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 100,
+      "FF_Utilization_percentage": 6,
+      "LUT_Utilization_percentage": 51
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "Version": "stencil3d_196.c",
+      "Latency_msec": 0.22431,
+      "Synthesis_Time_sec": 917,
+      "BRAM_Utilization_percentage": 0,
+      "DSP_Utilization_percentage": 130,
+      "FF_Utilization_percentage": 9,
+      "LUT_Utilization_percentage": 77
+    }
+  ],
+  "reason": "Audit legacy preprocessing resource<100 validity rule; no inferred infeasibility labels"
+}

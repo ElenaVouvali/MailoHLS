@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 import re
+import json
+import hashlib
 from typing import Dict, Tuple, Optional
 
 import torch
@@ -92,15 +94,38 @@ def load_memory_bank(
     expected_mem_dim: Optional[int] = None,
     expected_max_slots: Optional[int] = None,
     require_pragma_free_memory: bool = False,
+    expected_representation_schema: Optional[str] = None,
 ) -> Tuple[Dict[str, dict], Optional[int]]:
     bank = {}
     inferred_mem_dim = None
+    paper_manifest = None
 
     for fn in sorted(os.listdir(memory_dir)):
         if not fn.endswith(".memory.pt"):
             continue
 
         pack = torch.load(os.path.join(memory_dir, fn), map_location="cpu", weights_only=False)
+        representation = pack.get('representation_schema')
+        if pack.get('schema') == 'salt-paper-action-memory-v1' and expected_representation_schema is None:
+            raise ValueError(f'{fn}: paper GNN memory requires an explicit representation identity; historical fusion weights are incompatible')
+        if expected_representation_schema is not None and representation != expected_representation_schema:
+            raise ValueError(f'{fn}: incompatible structural representation {representation!r}')
+        if pack.get('schema') == 'salt-paper-action-memory-v1':
+            if paper_manifest is None:
+                with open(os.path.join(memory_dir, 'memory_manifest.json')) as handle:
+                    paper_manifest = json.load(handle)
+                with open(os.path.join(memory_dir, 'normalization.json'), 'rb') as handle:
+                    norm_bytes = handle.read()
+                if hashlib.sha256(norm_bytes).hexdigest() != paper_manifest['normalization_sha256']:
+                    raise ValueError('Paper memory normalization hash differs from manifest')
+                if paper_manifest['representation_schema'] != expected_representation_schema:
+                    raise ValueError('Paper memory manifest representation differs')
+            for field in ('gnn_checkpoint_sha256', 'feature_schema_sha256', 'normalization_sha256'):
+                if pack.get(field) != paper_manifest.get(field):
+                    raise ValueError(f'{fn}: paper bank has mixed {field}')
+            with open(os.path.join(memory_dir, fn), 'rb') as handle:
+                if hashlib.sha256(handle.read()).hexdigest() != paper_manifest['files'].get(fn):
+                    raise ValueError(f'{fn}: paper memory pack hash changed')
 
         kv = pack["node_embs"].float()
         mask = pack["node_embs_mask"].bool()

@@ -1,0 +1,22 @@
+{
+  "schema": "salt-paper-decoder-abi-check-v1",
+  "status": "passed",
+  "gpu": {
+    "torch": "2.6.0+cu124",
+    "cuda": "12.4",
+    "device": "Tesla V100-PCIE-32GB",
+    "visible_devices": "GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f",
+    "inventory": "index, name, uuid, memory.used [MiB], memory.total [MiB], utilization.gpu [%]\n0, NVIDIA A30, GPU-ac0112df-7098-6c59-5c4f-a57fa666f808, 667 MiB, 24576 MiB, 26 %\n1, Tesla V100-PCIE-32GB, GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f, 3 MiB, 32768 MiB, 0 %\n",
+    "compute_processes": "GPU-ac0112df-7098-6c59-5c4f-a57fa666f808, 1752388, 658\n"
+  },
+  "bank_manifest_sha256": "499e31811026fa1c23e663051e962464ecc97bf3e272a11a15338a90230138ef",
+  "implementation_sha256": "ace98fb2596d72cd340fddba50615d5b9f56a0f2126d14c605c77cbf8208344b",
+  "kernel": "machsuite-gemm-blocked",
+  "memory_dim": 128,
+  "decoder": "random initialized LlamaForCausalLM, hidden32, two decoder layers, frozen base",
+  "zero_gate_max_logit_difference": 0.0,
+  "finite_xattn_backward": true,
+  "fusion_blocks": 2,
+  "pretrained_quality_evaluation": false,
+  "released_optimizer_updates": 0
+}

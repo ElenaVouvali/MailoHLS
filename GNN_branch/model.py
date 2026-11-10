@@ -22,6 +22,66 @@ from typing import Dict, Any, List, Tuple
 RESOURCE_NAMES = ("bram", "dsp", "ff", "lut")
 
 
+class PaperRC3Net(nn.Module):
+    """Historical four-layer encoder with a separately conditioned RC3 head.
+
+    Newly initialized weights only. The adapter owns its input vocabulary;
+    neither V1 nor V4b state dictionaries are compatible with this model.
+    """
+    schema = 'salt-paper-rc3-transformer4-jkmax-conv1-jk-v1'
+
+    def __init__(self, node_dim, edge_dim):
+        super().__init__()
+        if FLAGS.num_layers != 4 or FLAGS.D != 64 or FLAGS.jkn_mode != 'max':
+            raise ValueError('Paper architecture requires four layers, D64, JK max')
+        historical = Net(node_dim, edge_dim=edge_dim, target=['perf', 'area'])
+        self.conv_first = historical.conv_first
+        self.conv_layers = nn.ModuleList(list(historical.conv_layers[:3]))
+        self.post_directive = historical.conv_layers[3]
+        self.jkn = historical.jkn
+        self.injection = nn.Sequential(nn.Linear(64 + 8, 64), nn.ReLU(), nn.Linear(64, 64))
+        # Preserve complete source assignments even when an action has no
+        # compiler binding. This path is strictly candidate-conditioned and
+        # never participates in encode()/memory().
+        self.candidate_summary = nn.Sequential(nn.Linear(64 * 8, 64), nn.ReLU())
+        self.qor_heads = nn.ModuleDict({name: MLP(69, 1, activation_type='relu',
+            hidden_channels=[32, 16, 8], num_hidden_lyr=3) for name in ('perf','area')})
+        self.resource_heads = make_resource_heads(69, 64, {})
+
+    def encode(self, graph):
+        # Read only the compiler tensor adapter's allowlisted fields.
+        activation = F.elu if FLAGS.activation == 'elu' else F.relu
+        out = activation(self.conv_first(graph.x, graph.edge_index, graph.edge_attr))
+        layers = [out]
+        for conv in self.conv_layers:
+            out = activation(conv(out, graph.edge_index, graph.edge_attr))
+            layers.append(out)
+        return layers[0], self.jkn(layers)
+
+    def memory(self, graph):
+        first, jk = self.encode(graph)
+        result = first.new_zeros((64,128))
+        result[graph.action_slots] = torch.cat((first[graph.action_nodes], jk[graph.action_nodes]), -1)
+        return result
+
+    def forward(self, graph, candidates, context):
+        _, static = self.encode(graph)
+        return self.from_static(graph, candidates, context, static)
+
+    def from_static(self, graph, candidates, context, static):
+        outputs = []
+        for candidate in candidates:
+            changed = static.clone()
+            nodes = graph.action_nodes
+            changed[nodes] = self.injection(torch.cat((static[nodes], candidate[graph.action_slots]), -1))
+            changed = F.relu(self.post_directive(changed, graph.edge_index, graph.edge_attr))
+            outputs.append(changed.mean(0))
+        pooled = torch.stack(outputs) + self.candidate_summary(candidates.flatten(1))
+        joined = torch.cat((pooled, context.expand(len(outputs), -1)), -1)
+        return torch.cat([self.qor_heads[n](joined) for n in ('perf','area')] +
+                         [self.resource_heads[n](joined) for n in RESOURCE_NAMES], -1)
+
+
 def make_resource_heads(response_in_D, hidden_dim, resource_stats):
     if resource_stats is None:
         return None

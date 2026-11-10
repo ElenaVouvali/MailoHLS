@@ -296,6 +296,7 @@ def preprocess_kernel(
     minimum_weight: float,
     gamma: float,
     all_targets: bool = False,
+    retain_measured_overflow: bool = False,
 ) -> tuple[pd.DataFrame, dict[str, object]]:
     kernel = csv_path.stem
     frame = pd.read_csv(csv_path, dtype={"Device": str})
@@ -334,9 +335,13 @@ def preprocess_kernel(
         frame[column] = [canonicalize_directive(value, action) for value in frame[column]]
 
     finite_qor = np.isfinite(frame["Latency_msec"])
-    finite_qor &= frame["Latency_msec"].gt(0) & frame["Latency_msec"].le(100000)
+    finite_qor &= frame["Latency_msec"].gt(0)
+    if not retain_measured_overflow:
+        finite_qor &= frame["Latency_msec"].le(100000)
     for column in UTILIZATION_COLUMNS:
-        finite_qor &= np.isfinite(frame[column]) & frame[column].ge(0) & frame[column].lt(100)
+        finite_qor &= np.isfinite(frame[column]) & frame[column].ge(0)
+        if not retain_measured_overflow:
+            finite_qor &= frame[column].lt(100)
     valid = frame.loc[finite_qor].copy()
     if valid.empty:
         raise ValueError(f"{kernel} contains no valid QoR rows")

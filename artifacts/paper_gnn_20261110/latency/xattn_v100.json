@@ -1,0 +1,556 @@
+{
+  "schema": "salt-paper-xattn-check-v1",
+  "status": "passed",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "gpu_uuid": "GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f",
+  "implementation_sha256": "38b6f1c641f3e0e6a5e2be904611a4c9d95d03afc1809ae68d85552e8f52e3d5",
+  "memory_loader_sha256": "28b65bfb91856449c292bda877019ae5391c575467e8581fcf326c636c8d7044",
+  "xattn_module_sha256": "95b237b0527ab5e1c2a32ea0e3599ad3e3504f79bd9743e7ded2114e2e6b1041",
+  "torch": "2.6.0+cu124",
+  "memory_manifest_sha256": "985f7f44506e698f2827147e3b91a844bf80b87a3cf89b927574e80b81ff3e40",
+  "checks": [
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "machsuite-gemm-ncubed",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "machsuite-sort-radix",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "machsuite-spmv-ellpack",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-back",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-forward",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-backprop-1-tiling-back",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-hotspot-0-baseline",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-hotspot-1-tiling",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-hotspot-3-unroll",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-kmeans-0-baseline",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-kmeans-1-tiling",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-kmeans-2-pipeline",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-kmeans-3-unroll",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-knn-0-baseline",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-knn-1-tiling",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-knn-2-pipeline",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-knn-3-unroll",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia-knn-5-coalescing",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_cfd_flux_0_baseline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_0_baseline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_5_coalescing_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_dilate_0_baseline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_dilate_1_tiling_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_dilate_3_pipeline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_0_baseline",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_1",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_lc_gicov_0_baseline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_lc_mgvf_0_baseline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_lud_1_tiling_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_0_baseline_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_1_tiling_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_2_pipeline_1",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_4_coalescing_0",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "spcl_example_00",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "spcl_example_01",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "spcl_example_03",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    },
+    {
+      "kernel": "spcl_example_05",
+      "modes": [
+        "segment",
+        "all",
+        "relation"
+      ],
+      "zero_gate_exact": true,
+      "forward_backward_finite": true
+    }
+  ],
+  "fresh_fusion_weights": true,
+  "real_backbone_generation": false,
+  "downstream_qor_improvement_established": false
+}
