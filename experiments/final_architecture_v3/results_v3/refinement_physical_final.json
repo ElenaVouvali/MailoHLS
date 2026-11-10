@@ -1,0 +1,83 @@
+{
+  "schema": "v3-stage3-latency-refinement-physical-final-v1",
+  "status": "INCONCLUSIVE",
+  "interface_qualification": "AVAILABLE_EXPERIMENTAL",
+  "no_refinement": "Exact Stage3 assignment/zero oracle calls: disabled_parity.json; CPU contract regression tests passed",
+  "causal_coordinate_trial": {
+    "logical_queries_charged": 6,
+    "completed_in_original_controller_journal": 5,
+    "pending_journal_query_physically_finished_after_cancel": 1,
+    "physical_statuses": [
+      "timeout",
+      "timeout",
+      "timeout",
+      "timeout",
+      "timeout",
+      "timeout"
+    ],
+    "budgets_1_and_4": "No verified feasible incumbent; baseline remains unverified",
+    "budget_8": "NOT_RUN_TO_COMPLETION; canceled after repeated300s per-job timeouts",
+    "structural_policy_comparison": "NOT_RUN after no finite baseline; do not infer inferiority"
+  },
+  "exact_baseline_confirmation": {
+    "timeout_seconds": 1200,
+    "measurement": {
+      "estimated_clock_ns": null,
+      "latency_cycles": null,
+      "resources": null,
+      "synthesis_status": "timeout"
+    },
+    "report_sha256": {
+      "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/stage3_anchor_confirmation/physical/4923dc62858cb338be5cc4c578161a8cc93cf8503fb078f1622057c0254499fa/results/batch_provenance.json": "1824b1f770ee304af5966fd6422099024fc178187a67281139b88afba3f140b9",
+      "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/stage3_anchor_confirmation/physical/4923dc62858cb338be5cc4c578161a8cc93cf8503fb078f1622057c0254499fa/results/query/result.json": "2bc2e022762192ab8bacce308ecabbb99825fbc1c105f9e023048c4ed718de39",
+      "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/stage3_anchor_confirmation/physical/4923dc62858cb338be5cc4c578161a8cc93cf8503fb078f1622057c0254499fa/results/query/synthesis.log": "d48b9eaa55d625eed5b56c82df062ef0cc816d319983a44b7286ebf15c83949e"
+    }
+  },
+  "exploratory_log_feedback_diagnostic": {
+    "origin": "Existing policies.single_proposals; disable only AUTO{_PIPE_L1}, all other Stage3 fields fixed",
+    "selection_evidence": "Authenticated Vitis log: parent pipelining fully unrolls two512-trip child loops, overriding child directives; proof_crosscheck.json verifies exact baseline and identifies earlier neighbour snippet",
+    "prospective_protocol_sha256": "6b13e498844e52fb19d30319a530435ef47306ed6805ea87d19adde464f74881",
+    "measurement": {
+      "estimated_clock_ns": 7.3,
+      "latency_cycles": 3788075,
+      "resources": {
+        "BRAM_18K": 74,
+        "DSP": 0,
+        "FF": 1899,
+        "LUT": 3776
+      },
+      "synthesis_status": "success"
+    },
+    "resource_feasible": true,
+    "hls_estimated_timing_qualified": true,
+    "headroom_fraction": {
+      "BRAM_18K": 0.8814102564102564,
+      "DSP": 1.0,
+      "FF": 0.99587890625,
+      "LUT": 0.9836111111111111
+    },
+    "report_sha256": {
+      "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/pipeline_diagnostic/physical/ac391e051f8f5dc06f3ea2ceebfe63b9004271f785c2a511eabefb01cd8b0e27/results/batch_provenance.json": "78f68861e9dde7332e174dddf937a23c7d0fd40523ccdf85da459ed065b7803d",
+      "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/pipeline_diagnostic/physical/ac391e051f8f5dc06f3ea2ceebfe63b9004271f785c2a511eabefb01cd8b0e27/results/query/hls_project/solution1/syn/report/workload_csynth.xml": "4abd43e69e024f15035c251cc83b0064a94370730c72ccbc128c37abdbf983e8",
+      "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/pipeline_diagnostic/physical/ac391e051f8f5dc06f3ea2ceebfe63b9004271f785c2a511eabefb01cd8b0e27/results/query/result.json": "a9ec895482091181730ea882fa45fbd54ec962d56e0bf287ade5203c9130fe92",
+      "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/pipeline_diagnostic/physical/ac391e051f8f5dc06f3ea2ceebfe63b9004271f785c2a511eabefb01cd8b0e27/results/query/synthesis.log": "19ada09b0b31aa986e95af283d7d13fd42bf39efe4ffe15c013bb4ba2f50e28f"
+    },
+    "conditional_regret_against_exact_three_candidate_bank": 0.168128185653462,
+    "best_measured_bank_cycles": 3242859,
+    "baseline_latency_speedup": null,
+    "why_no_speedup": "Exact Stage3 baseline timed out at300 and1200seconds; its latency is unknown",
+    "scope": "Single post-timeout diagnostic, not a completed matched coordinate-vs-structural1/4/8 trial or a learned model gain; no C/RTL or post-route validation"
+  },
+  "physical_attempts": {
+    "prior_including_historical": 11,
+    "new_candidate_bank": 12,
+    "coordinate_including_active_after_cancel": 6,
+    "baseline_confirmation": 1,
+    "pipeline_diagnostic": 1,
+    "total": 31,
+    "ceiling": 48,
+    "new_v3_attempts": 20,
+    "all_physical_calls_coroni_only": true
+  },
+  "next_release_gate": "A finite same-context Stage3 baseline or predeclared censored-baseline protocol, then matched causal1/4/8-query coordinate and compiler-pair policies on independent development families; retain all attempt/logical costs and never impute speedup."
+}

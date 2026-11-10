@@ -202,13 +202,33 @@ logical queries, exact opaque cache and best verified feasible incumbent.
 Unknown latency/resources/timing and failures never score. Default candidate policy
 is coordinate/feedback; compiler-pair proposals remain an experimental comparison.
 
-The actual Stage3 Pathfinder4 assignment, not an old ADP prediction, starts a
-sealed coordinate-versus-structural trial with logical budgets1/4/8,300s/job,
-maximum15 new physical calls and prior23 attempts. Its first queries timed out;
-see the final machine receipt for completion/cancellation and exact spend. Timeout
-means unknown hardware outcome, not infeasibility or zero latency. Until a finite,
-resource- and timing-qualified baseline/incumbent exists, refinement gain is
-**unmeasured** and the mode remains **AVAILABLE_EXPERIMENTAL**.
+The actual Stage3 Pathfinder4 assignment, not an old ADP prediction, started a
+sealed coordinate-versus-structural trial with logical budgets1/4/8 and300s/job.
+Six charged coordinate queries timed out, including the baseline; five completed
+in the original journal and the sixth finished physically after local orchestration
+cancellation. Its pending query remains charged and resumable. Budgets1/4 have no
+verified incumbent;8 was not completed and the structural arm did not start. No
+conclusion about policy superiority is justified.
+
+One separate1200s exact-baseline confirmation also timed out. Vitis logs show
+parent pipelining fully unrolls two512-trip child loops and overrides child
+directives. A prospectively recorded **single existing legal coordinate proposal**
+then disabled only `AUTO{_PIPE_L1}`, leaving all other Stage3 fields fixed. It
+synthesized in the300s cap: **3,788,075cycles; BRAM18K74, DSP0, FF1899, LUT3776;
+estimated7.3ns at requested10ns**. Exact counts fit full budgets. This provides a
+measurable feasible alternative after censored baseline runs, **not a speedup**
+against the unknown baseline, a learned fusion/DPO gain, or a completed matched
+refinement comparison. It is16.8128% slower than the best of the three authenticated
+same-source/part/clock/tool bank contenders (3,242,859cycles), illustrating a
+resource/latency trade-off rather than optimality. There is no new C/RTL or P&R proof.
+
+[Final physical refinement receipt](../../experiments/final_architecture_v3/results_v3/refinement_physical_final.json)
+records all raw report/log hashes, the explicit provenance crosscheck for the
+compiler-warning snippet, actual31 charged HLS attempts (11 inherited+20 new),
+and the31/48 ceiling accounting. Conservative GPU accounting is5.94hours including
+an explicit prior-session reserve, not an assertion every old load was timed exactly.
+The normal refinement interface remains **AVAILABLE_EXPERIMENTAL**; finite paired
+policy benefit and default DPO quality remain unqualified.
 
 Mandatory remaining release work: exact-resource/timing preference labels and
 independent latency switch/stay families; a non-regressing useful fusion endpoint;
