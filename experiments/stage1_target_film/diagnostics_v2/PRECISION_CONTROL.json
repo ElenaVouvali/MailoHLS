@@ -1,0 +1,88 @@
+{
+  "pairs": 5,
+  "scope": "five Viterbi pairs only; no selection or training",
+  "max_score_difference_from_native": 0.0022230148315429688,
+  "max_FiLM_score_effect_training_precision": 1.5497207641601562e-06,
+  "training_precision_order_flips_ON_OFF": 0,
+  "summary": {
+    "conditions": {
+      "off": {
+        "family": {
+          "machsuite_viterbi": {
+            "n": 5,
+            "ranking_accuracy": 0.8
+          }
+        },
+        "family_macro_accuracy": 0.8,
+        "accuracy": 0.8
+      },
+      "value": {
+        "family": {
+          "machsuite_viterbi": {
+            "n": 5,
+            "ranking_accuracy": 0.8
+          }
+        },
+        "family_macro_accuracy": 0.8,
+        "accuracy": 0.8
+      },
+      "legacy": {
+        "family": {
+          "machsuite_viterbi": {
+            "n": 5,
+            "ranking_accuracy": 0.8
+          }
+        },
+        "family_macro_accuracy": 0.8,
+        "accuracy": 0.8
+      }
+    },
+    "pairs": 5,
+    "runtime_seconds": 95.97984652698506,
+    "pair_file_sha256": "99e042ec3325c1ef0bb13e038cb7ebe7523d64925e041896697c712147e67211",
+    "new_HLS_calls": 0,
+    "training_updates": 0
+  },
+  "integrity": {
+    "training_precision_control": true,
+    "parameter_dtype_counts": {
+      "torch.float32": 580,
+      "torch.uint8": 224
+    },
+    "active_adapters": [
+      "mailohls_base",
+      "device_adapt"
+    ],
+    "parent_hash_verified": true,
+    "parent_tensor_sha256": "97686da3a3b1e74a9288d901a5b537c6061860fa0ce1d6d0ac9ebc01638e9c91",
+    "any_trainable_model_parameters": false,
+    "residual_on_off_max_logit_change": 0.27202653884887695,
+    "real_cached_vs_full_max_logit_change": 0.015291929244995117,
+    "scope": "one actual first RHS causal position; no blanket exact-cache-equivalence claim",
+    "checkpoint_hashes": {
+      "schema": "stage1-target-adaptation-v1",
+      "arm": "B",
+      "parent": "/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run",
+      "parent_sha256": "28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+      "parent_tensor_sha256": "97686da3a3b1e74a9288d901a5b537c6061860fa0ce1d6d0ac9ebc01638e9c91",
+      "steps": 48,
+      "film_enabled": true,
+      "frozen_parent_verified": true,
+      "lora_sha256": "bfcdfc9d8dece6ea512c737227ec8b9c42d8d15ac7201ba5f174175f212654b6",
+      "film_sha256": "36ce059955c655ac39cf473337accc5c1ea4122552a5f41a342ca5d5eb9965a1"
+    },
+    "preflight": {
+      "host": "liono",
+      "uuid": "GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35",
+      "logical_cuda_device": 0,
+      "gpu": [
+        "GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35",
+        "NVIDIA A2",
+        "14878",
+        "0"
+      ],
+      "processes": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb, 2220124, 768\n",
+      "python": "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python"
+    }
+  }
+}
