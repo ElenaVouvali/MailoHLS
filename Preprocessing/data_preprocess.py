@@ -336,12 +336,20 @@ def preprocess_kernel(
 
     finite_qor = np.isfinite(frame["Latency_msec"])
     finite_qor &= frame["Latency_msec"].gt(0)
-    if not retain_measured_overflow:
-        finite_qor &= frame["Latency_msec"].le(100000)
+    # Above the historical measured range, raw tables contain ambiguous finite
+    # sentinels (including 1e6); do not turn these into successful labels.
+    finite_qor &= frame["Latency_msec"].le(100000)
     for column in UTILIZATION_COLUMNS:
         finite_qor &= np.isfinite(frame[column]) & frame[column].ge(0)
         if not retain_measured_overflow:
             finite_qor &= frame[column].lt(100)
+    latency_ok = np.isfinite(frame["Latency_msec"]) & frame["Latency_msec"].gt(0)
+    range_ok = frame["Latency_msec"].le(100000)
+    resource_ok = np.isfinite(frame[list(UTILIZATION_COLUMNS)]).all(axis=1) & frame[list(UTILIZATION_COLUMNS)].ge(0).all(axis=1)
+    synthesis_columns = [c for c in ("Synthesis_Time_sec", "Synthesis_Time") if c in frame]
+    synthesis_ok = (np.isfinite(frame[synthesis_columns]).all(axis=1) & frame[synthesis_columns].gt(0).all(axis=1)) if synthesis_columns else pd.Series(False, index=frame.index)
+    if retain_measured_overflow:
+        finite_qor &= synthesis_ok
     valid = frame.loc[finite_qor].copy()
     if valid.empty:
         raise ValueError(f"{kernel} contains no valid QoR rows")
@@ -378,6 +386,15 @@ def preprocess_kernel(
 
     stats = {
         "kernel": kernel,
+        "retain_measured_overflow": retain_measured_overflow,
+        "successful_measured_rows": int((latency_ok & range_ok & resource_ok & synthesis_ok).sum()),
+        "recovered_overcapacity_rows": int((finite_qor & frame[list(UTILIZATION_COLUMNS)].ge(100).any(axis=1)).sum()) if retain_measured_overflow else 0,
+        "rejected_by_reason": {
+            "nonpositive_or_nonfinite_latency_failure_or_unknown": int((~latency_ok).sum()),
+            "ambiguous_above_historical_latency_range": int((latency_ok & ~range_ok).sum()),
+            "unknown_or_negative_resource": int((latency_ok & range_ok & ~resource_ok).sum()),
+            "missing_positive_synthesis_evidence": int((latency_ok & range_ok & resource_ok & ~synthesis_ok).sum()),
+        },
         "raw_rows": int(len(frame)),
         "valid_rows": int(len(valid)),
         "output_rows": int(len(aggregated)),
@@ -411,6 +428,8 @@ def parse_arguments() -> argparse.Namespace:
         default="",
         help="Comma-separated locked kernels whose measured GNN tables must not be read.",
     )
+    parser.add_argument("--retain-measured-overflow", action="store_true")
+    parser.add_argument("--selected-kernels", default="", help="Only these kernels are parsed; keeps locked-test labels unread.")
     parser.add_argument("--minimum-weight", type=float, default=0.1)
     parser.add_argument("--gamma", type=float, default=2.0)
     parser.add_argument("--force", action="store_true", help="overwrite existing outputs")
@@ -435,6 +454,9 @@ def main() -> int:
     csv_files = sorted(arguments.input_dir.glob("*.csv"))
     if not csv_files:
         raise SystemExit(f"No CSV files found in {arguments.input_dir}")
+    if arguments.selected_kernels:
+        selected = set(arguments.selected_kernels.split(","))
+        csv_files = [p for p in csv_files if p.stem in selected]
     unknown_exclusions = excluded_kernels - {path.stem for path in csv_files}
     if unknown_exclusions:
         raise SystemExit(f"Unknown excluded GNN kernels: {sorted(unknown_exclusions)}")
@@ -459,6 +481,8 @@ def main() -> int:
             else "single_measured_target"
         ),
         "input_dir": str(arguments.input_dir.resolve()),
+        "retain_measured_overflow": arguments.retain_measured_overflow,
+        "measurement_policy": "positive finite latency <=100000 ms, nonnegative finite resource percentages; overflow mode additionally requires positive finite synthesis duration; above-range outcomes unknown",
         "utilization_policy": "reported_percentages_unchanged",
         "area_metric": "arithmetic_mean_of_bram_dsp_ff_lut_percentages",
         "excluded_kernels": sorted(excluded_kernels),
@@ -476,6 +500,7 @@ def main() -> int:
             arguments.minimum_weight,
             arguments.gamma,
             all_targets=arguments.all_targets,
+            retain_measured_overflow=arguments.retain_measured_overflow,
         )
         processed.to_csv(output_path, index=False, float_format="%.12g")
         stats["input_sha256"] = file_sha256(csv_path)

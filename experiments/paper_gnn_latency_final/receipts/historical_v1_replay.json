@@ -1,0 +1,57 @@
+{
+  "status": "passed",
+  "device": "cpu",
+  "checkpoint_sha256": "34b2b2c6405aae715001d6763e735e2163668a724008fbf13867aa575df61623",
+  "contract_sha256": "9c6df7735eacd9c8b261051f49b55c0b5be8118aeb16f2300260ef5b01c168e7",
+  "source_commit": "e79daf6f5abedd98f149b352921a965b10802f48",
+  "checks": [
+    {
+      "kernel": "machsuite-sort-radix",
+      "candidates": 683,
+      "exact_cached_flat_directives": true,
+      "exact_training_tree_authenticated_cached_scope_inputs": true,
+      "current_gexf_reconstruction_differences": 0,
+      "latency_resource_labels_authenticated": true,
+      "label_invariance": true,
+      "graph_sha256": "98e4de87ef421c61cf6186e456bf4279ed5ceb36314402e1c1ffe6a32ce29d9b",
+      "points_sha256": "aa5468329fcbac51336d0f8854f9800d1e51e040f81fa39842de643aae704b64"
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "candidates": 519,
+      "exact_cached_flat_directives": true,
+      "exact_training_tree_authenticated_cached_scope_inputs": true,
+      "current_gexf_reconstruction_differences": 0,
+      "latency_resource_labels_authenticated": true,
+      "label_invariance": true,
+      "graph_sha256": "2459163f6080c54272cdf813b24b4eb0393528aec9ddf29ac8f88779b4e9873f",
+      "points_sha256": "71860828657f881f30f475dcaeecd4b8f302a8b3dc4d12d0f5d919458e2bb4e1"
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "candidates": 388,
+      "exact_cached_flat_directives": true,
+      "exact_training_tree_authenticated_cached_scope_inputs": true,
+      "current_gexf_reconstruction_differences": 0,
+      "latency_resource_labels_authenticated": true,
+      "label_invariance": true,
+      "graph_sha256": "52604444035d38c9bebffcb9af1ba5b1785d5dbec91d81000f6d6692138bfa24",
+      "points_sha256": "f2378e0fe19877691f6cdd17086483ce3ee50f09889baaae7fbedfefe25d9516"
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "candidates": 751,
+      "exact_cached_flat_directives": true,
+      "exact_training_tree_authenticated_cached_scope_inputs": true,
+      "current_gexf_reconstruction_differences": 0,
+      "latency_resource_labels_authenticated": true,
+      "label_invariance": true,
+      "graph_sha256": "2a14193c9d03c017c1429fde4b1a5cfe2e0b8c2eddfd316bf54652405cd6a870",
+      "points_sha256": "cf604117a81a34a1f4b2acb8f39952877f65f68e2bb82fac59e2aca809012cf2"
+    }
+  ],
+  "target_policy": "single-reference ZCU104 10ns only; no claims for other targets",
+  "predicted_resource_units": "fractions from historical log1p resource heads times authenticated capacity",
+  "transform_correction": "historical predicts log2(ms+1e-6); inverse then log2(ms) for shared evaluation",
+  "locked_test_labels_read": false
+}

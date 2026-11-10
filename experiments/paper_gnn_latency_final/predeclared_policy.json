@@ -1,0 +1,43 @@
+{
+  "schema": "salt-latency-final-predeclared-v1",
+  "source_commit": "20028e7",
+  "seed": 123,
+  "arms": {
+    "A": "corrected baseline",
+    "B": "identical + within physical context log2 delta"
+  },
+  "architecture": "unchanged PaperRC3Net: 4x64 edge TransformerConv, JK max, one candidate stage, conv1|JK 128D memory",
+  "training": {
+    "optimizer": "Adam",
+    "lr": 3e-05,
+    "weight_decay": 0.0001,
+    "beta": 0.5,
+    "clip": 1,
+    "dropout": 0.1,
+    "max_epochs": 40,
+    "patience": 8,
+    "plateau_patience": 4,
+    "plateau_factor": 0.5,
+    "updates_per_kernel_epoch": 8,
+    "max_distinct_candidates_per_update": 16,
+    "resource_weight": 0.1,
+    "ranking_weight": 0.05,
+    "delta_weight": 0.05,
+    "delta_epochs_1_to_5": [
+      0,
+      0,
+      0,
+      0.025,
+      0.05
+    ]
+  },
+  "selection": "Within-arm existing family macro lexicographic feasibility DESC, conditional regret ASC, tau DESC, MAE ASC on all measured development contexts. Between arms: require integrity and nonzero supervision; reject >5 percentage-point feasible-selection regression or >10% MAE regression; require family-consistent ranking/selection gains; compare preliminary checkpoint on exact frozen candidate pools, single target and all-target separately; no upgrade for one pathological context alone. If gains not convincing preserve preliminary.",
+  "cohort": "corrected raw measured train/development only; original family assignments unchanged; missing complete mappings excluded; no locked-test labels parsed",
+  "evaluation_protocols": {
+    "historical_physical_slice": "ZCU104 10ns evaluation only; all-context training does NOT reproduce historical single-target training",
+    "all_measured": "separate target-conditioned head evaluation"
+  },
+  "feasibility": "Select only by predicted resources and latency. Measured reported-percent equality at a budget is unknown due rounded precision, never exact counts. No measured-feasible candidate => omit selection rate/regret for impossible pool and report it. Report nominal and conservative precision sensitivity separately.",
+  "uncertainty": "family-grouped bootstrap exploratory only with two eligible families; no strong significance claim",
+  "promotion": false
+}

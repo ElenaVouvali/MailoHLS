@@ -5,6 +5,7 @@ import json
 import math
 from pathlib import Path
 import tarfile
+import os
 
 import torch
 from torch_geometric.data import Data
@@ -16,13 +17,24 @@ from LLM_branch.common.mailohls_contract import family_id_from_kernel_name
 from Preprocessing.create_jsonl import build_examples, application_sources, load_actions, validate_preprocessing_manifest
 
 ROOT = Path(__file__).resolve().parents[2]
-SCHEMA = 'salt-paper-rc3-compiler-tensors-v1'
+SCHEMA = 'salt-paper-rc3-compiler-tensors-v3-complete-source-actions'
 NUMERIC = ('loop_depth','trip_count','compiler_proven_trip_count','tcad_trip_count',
-           'lower_bound','upper_bound','step','operand_count','result_count','use_count',
-           'memory_rank','operand_index','dimension')
+           'loop_lower','loop_upper','loop_step','operand_count','result_count','ssa_use_count',
+           'memory_rank','operand_index','dimension','memory_volume_log2',
+           'trip_count_static','is_block_argument','is_memory','memory_static_shape',
+           'compiler_operation_effect_read','compiler_operation_effect_write',
+           'compiler_operation_effect_allocate','compiler_operation_effect_free',
+           'compiler_operation_effect_unknown','compiler_effect_analysis_unknown')
 CATEGORIES = tuple(sorted(compiler.NODE_KINDS))
 RELATIONS = tuple(sorted(compiler.EDGE_KINDS))
 EVIDENCE = ('proven','possible','not_established','not_applicable')
+CATEGORICAL_FIELDS = ('ssa_kind','value_type','action_kind','root_kind','feature_kind','feature_role')
+
+def compiler_tokens(a):
+    tokens={str(a.get('text',''))} if a['category']=='operation' else set()
+    tokens.update(name+'::'+str(a[name]) for name in CATEGORICAL_FIELDS if name in a)
+    return tokens
+
 RESOURCE_ORDER = ('BRAM_18K','DSP','FF','LUT')
 
 
@@ -56,13 +68,19 @@ def tensorize(graph, vocabulary):
     index = {n:i for i,n in enumerate(nodes)}
     features = []
     for node in nodes:
-        a = graph.nodes[node]
+        a = dict(graph.nodes[node])
+        shape = a.get('memory_shape')
+        if isinstance(shape,str):
+            try: shape=json.loads(shape)
+            except (ValueError,TypeError): shape=None
+        if isinstance(shape,list) and shape and all(isinstance(v,int) and v>0 for v in shape):
+            a['memory_volume_log2']=math.log2(math.prod(shape))
         if a.get('_target_overlay') or a['category'] not in CATEGORIES:
             raise ValueError('Only original compiler nodes allowed')
         row = [float(a['category']==c) for c in CATEGORIES]
-        token = str(a.get('text','')) if a['category']=='operation' else ''
-        token = token if token in vocabulary else '<unknown>'
-        row += [float(token==v) for v in vocabulary]
+        tokens=compiler_tokens(a)
+        if tokens-set(vocabulary): tokens.add('<unknown>')
+        row += [float(v in tokens) for v in vocabulary]
         for name in NUMERIC:
             value = a.get(name)
             known = isinstance(value,(int,float)) and math.isfinite(value)
@@ -107,22 +125,46 @@ class PaperData:
                 if hashlib.sha256(raw).hexdigest()!=release['files_sha256'][member.name]: raise ValueError('RC3 member hash changed')
                 path=extracted/Path(member.name).name; path.write_bytes(raw)
                 self.graphs[kernel]=compiler.read_graph(path); self.graph_hashes[kernel]=sha(path)
+        # Keep the authenticated compiler graphs byte-identical. The tensor
+        # adapter additionally represents registered source actions lacking any
+        # compiler node, with source metadata only and no invented bindings.
+        self.actions={k:domains.tcad.load_source_actions(k, ROOT/'Data/ApplicationDataset') for k in selected}
+        self.tensor_graphs={}; self.source_only_nodes={}
+        for kernel, original in self.graphs.items():
+            adapted=original.copy(); present={a['action_id'] for _,a in original.nodes(data=True) if a['category']=='action_point'}
+            additions={}
+            for label,action in self.actions[kernel].items():
+                if label in present:continue
+                attrs={'category':'action_point','action_id':label,'action_kind':action.kind,
+                    'absolute_index':int(label[1:]),'source_only_unbound':True,
+                    'evidence_provenance':'authenticated kernel_info.txt; no compiler binding established'}
+                if action.kind=='array':
+                    dimensions=sorted(action.dimensions)
+                    if [d for d,n in dimensions]==list(range(1,len(dimensions)+1)):
+                        attrs.update(memory_rank=len(dimensions),memory_shape=[n for d,n in dimensions])
+                elif action.trip_count is not None:attrs['tcad_trip_count']=action.trip_count
+                adapted.add_node('source-unbound:'+label,**attrs);additions[label]=attrs
+            self.tensor_graphs[kernel]=adapted
+            if additions:self.source_only_nodes[kernel]=additions
         vocabulary={'<unknown>',''}
         for kernel in self.split['train_kernels']:
-            vocabulary.update(str(a.get('text','')) for _,a in self.graphs[kernel].nodes(data=True) if a['category']=='operation')
+            for _,a in self.tensor_graphs[kernel].nodes(data=True): vocabulary.update(compiler_tokens(a))
         self.schema={'schema':SCHEMA,'vocabulary':sorted(vocabulary),'node_categories':CATEGORIES,
-            'numeric':NUMERIC,'relations':RELATIONS,'evidence':EVIDENCE,'reverse_edges':True,
+            'numeric':NUMERIC,'categorical_fields':CATEGORICAL_FIELDS,'relations':RELATIONS,'evidence':EVIDENCE,'reverse_edges':True,
             'source_edge_metadata':'retained verbatim in authenticated graph JSON',
-            'input_allowlist':'compiler categories, operation text, numeric compiler facts; no target/candidate/QoR/budget fields'}
-        self.tensors={k:tensorize(g,self.schema['vocabulary']) for k,g in self.graphs.items()}
+            'source_only_unbound_action_nodes':self.source_only_nodes,
+            'unbound_adapter_policy':'isolated registered source-action nodes carrying authenticated source metadata only; no compiler targets/dependence edges invented',
+            'input_allowlist':'authenticated compiler and registered source-action facts only; no target/candidate/QoR/budget fields'}
+        self.tensors={k:tensorize(g,self.schema['vocabulary']) for k,g in self.tensor_graphs.items()}
         registry=load_registry(); device_map={'xczu7ev-ffvc1156-2-e':'zcu104','xcu200-fsgd2104-2-e':'u200'}
         # Existing builder authenticates source/APL preprocessing manifests;
         # selecting train+val prevents parsing locked-test measurements.
-        preprocessing=validate_preprocessing_manifest(ROOT/'LLM_branch/Data/preprocessed_CSVS')
+        table_root=Path(os.environ.get('SALT_CORRECTED_COHORT',str(ROOT/'LLM_branch/Data/preprocessed_CSVS')))
+        preprocessing=validate_preprocessing_manifest(table_root)
         dataset_manifest=json.loads((ROOT/'artifacts/llm/mailohls_sft.manifest.json').read_text())
-        if dataset_manifest['preprocessing_manifest_sha256']!=sha(preprocessing) or dataset_manifest['output_sha256']!=self.split['dataset_sha256']:
+        if (not os.environ.get('SALT_CORRECTED_COHORT') and dataset_manifest['preprocessing_manifest_sha256']!=sha(preprocessing)) or dataset_manifest['output_sha256']!=self.split['dataset_sha256']:
             raise ValueError('Selected preprocessing/dataset/split identities differ')
-        rows, manifests, _=build_examples(ROOT/'LLM_branch/Data/preprocessed_CSVS', selected_kernels=selected)
+        rows, manifests, _=build_examples(table_root, selected_kernels=selected)
         self.actions={k:domains.tcad.load_source_actions(k, ROOT/'Data/ApplicationDataset') for k in selected}
         sources=application_sources(selected)
         for kernel, source in sources.items():
@@ -157,7 +199,7 @@ class PaperData:
                 'split':'train' if k in self.split['train_kernels'] else 'val',
                 'design_id':design,'target':target,'resources':resources,'capacities':caps,
                 'candidate':candidate_vector(assignment,self.actions[k]),'assignment':assignment,
-                'row_index':row['preprocessed_row']}
+                'row_index':row['preprocessed_row'], 'resource_percentages':[row[c] for c in ('bram_util_%','dsp_util_%','ff_util_%','lut_util_%')]}
             self.groups[key].append(record); coverage['accepted_unique_designs']+=1
         self.coverage=dict(coverage)
         training=[r['target'] for rows in self.groups.values() for r in rows if r['split']=='train']
@@ -166,11 +208,11 @@ class PaperData:
         self.adp_std=(raw[:,0]+raw[:,1]).std(unbiased=False).clamp_min(1e-6).float()
         self.identity={'split_sha256':sha(self.split_path),'release_manifest_sha256':sha(release_path),
             'archive_sha256':sha(archive),'graph_sha256':self.graph_hashes,'feature_schema':self.schema,
-            'measurement_manifests':manifests,'normalization_mean':self.mean.tolist(),'normalization_std':self.std.tolist(),
+            'corrected_preprocessing_sha256':sha(preprocessing),'measurement_manifests':manifests,'normalization_mean':self.mean.tolist(),'normalization_std':self.std.tolist(),
             'coverage':self.coverage,'locked_test_read':False,'area_floor':floor,'adp_log2_std':float(self.adp_std),
             'units':{'latency':'ms','area':'arithmetic mean of resource utilization percentages',
                      'adp':'ms * area; equivalent within clock pools to cycles * area ordering/regret',
-                     'resources':'physical BRAM18K,DSP,FF,LUT from measured percentages and authenticated device capacities'},
+                     'resources':'estimated physical demands from rounded measured percentages; fractional proxies, not exact resource counts'},
             'measurement_policy':'successfully preprocessed complete HLS designs; failures/unknown excluded, never labelled infeasible'}
 
     @staticmethod

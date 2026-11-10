@@ -105,6 +105,8 @@ def evaluate(rows, objective):
         candidates = []
         for design, row in sorted(unique.items()):
             measured = feasibility(row['resources'], row['budget'], measured_success=row['measured_success'])
+            if measured is True and row.get('measured_resource_precision')=='rounded_percentages' and any(math.isclose(x,b,rel_tol=0,abs_tol=1e-9) for x,b in zip(row['resources'],row['budget'])):
+                measured=None  # Rounded equality cannot establish physical capacity compliance.
             predicted = feasibility(row['predicted_resources'], row['budget'], measured_success=True)
             coverage['resource_' + {True: 'feasible', False: 'infeasible', None: 'unknown'}[measured]] += 1
             coverage['timing_' + str(row.get('timing_qualified', 'unknown'))] += 1
@@ -131,7 +133,10 @@ def evaluate(rows, objective):
             kendall_tau_b=float(tau) if math.isfinite(tau) else None,
             feasible_regret_at_1=regret,
             log_qor_mae=sum(abs(r[1]-r[2]) for r in candidates)/len(candidates) if candidates else None,
-            feasible_selection_rate=float(selected is not None and selected[3] is True),
+            feasible_selection_rate=float(selected is not None and selected[3] is True) if known else None,
+            no_measured_feasible_candidate=not bool(known),
+            selection_status='no_predicted_feasible_candidate' if selected is None else {True:'measured_feasible',False:'measured_infeasible',None:'unknown_physical_feasibility'}[selected[3]],
+            conditional_regret_covered=regret is not None,
             selected_design=selected[0] if selected else None))
     metrics = ('kendall_tau_b', 'feasible_regret_at_1', 'log_qor_mae', 'feasible_selection_rate')
     def aggregate(items):
@@ -140,12 +145,18 @@ def evaluate(rows, objective):
     # Average budget views inside contexts, then contexts inside kernels,
     # kernels inside families, and finally independent families.
     level = reports
+    aggregated_levels=[]
     for fields in (('family','kernel','device','clock'), ('family','kernel'), ('family',)):
         groups = defaultdict(list)
         for row in level:
             groups[tuple(row[f] for f in fields)].append(row)
         level = [dict(zip(fields, key), **aggregate(items)) for key, items in sorted(groups.items())]
+        aggregated_levels.append(level)
     return {'objective': objective, 'coverage': dict(coverage), 'pools': reports,
+            'contexts':aggregated_levels[0],'kernels':aggregated_levels[1],
+            'impossible_pool_count':sum(r['no_measured_feasible_candidate'] for r in reports),
+            'conditional_regret_pool_count':sum(r['conditional_regret_covered'] for r in reports),
+            'undefined_tau_pool_count':sum(r['kendall_tau_b'] is None for r in reports),
             'families': level, 'family_macro': aggregate(level),
             'regret_policy': 'conditional on measured-feasible selection; failures counted in feasible_selection_rate',
             'pool_policy': 'unique complete measured configurations within kernel/device/clock/requested budget; no synthesized or imputed labels',

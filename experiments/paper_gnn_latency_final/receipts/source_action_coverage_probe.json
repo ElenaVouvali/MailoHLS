@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "purpose": "representation compatibility probe only; not a new training run",
+  "weights_from_preserved_v2_checkpoint_sha256": "302976becdd634d24b5138d8d49921db7ea5b864e70445be94f40300fce86d08",
+  "optimizer_updates": 0,
+  "checks": [
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "source_only_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L6"
+      ],
+      "all_source_slots_present": true,
+      "no_compiler_edges_invented": true,
+      "unbound_candidate_path_live": true,
+      "static_no_leakage": true
+    },
+    {
+      "kernel": "rodinia-hotspot-3-unroll",
+      "source_only_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L6"
+      ],
+      "all_source_slots_present": true,
+      "no_compiler_edges_invented": true,
+      "unbound_candidate_path_live": true,
+      "static_no_leakage": true
+    }
+  ]
+}

@@ -1,0 +1,374 @@
+{
+  "status": "passed",
+  "source_commit": "20028e7",
+  "split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+  "release_manifest_sha256": "1c75bf22bd1bc6263e68118a8438ccf3bbf1eb8e7d675149f010d6f2a0a1a6e3",
+  "archive_sha256": "feb2c2d469bf6672248ad0f3a88099ac9627b3b10b8e139a0fab050d532a1b73",
+  "totals": {
+    "train": {
+      "raw_rows": 189925,
+      "successful_measured_rows": 153869,
+      "recovered_overcapacity_rows": 3215,
+      "legacy_preprocessed_rows": 130310,
+      "output_rows": 133404,
+      "rejected_by_reason": {
+        "nonpositive_or_nonfinite_latency_failure_or_unknown": 32974,
+        "ambiguous_above_historical_latency_range": 3082,
+        "unknown_or_negative_resource": 0,
+        "missing_positive_synthesis_evidence": 0
+      },
+      "accepted_unique_observed_configurations": 90248,
+      "eligible_kernels": 37,
+      "eligible_families": 17,
+      "full_split_kernels": 50,
+      "full_split_families": 18
+    },
+    "val": {
+      "raw_rows": 19390,
+      "successful_measured_rows": 17634,
+      "recovered_overcapacity_rows": 118,
+      "legacy_preprocessed_rows": 13011,
+      "output_rows": 13119,
+      "rejected_by_reason": {
+        "nonpositive_or_nonfinite_latency_failure_or_unknown": 1571,
+        "ambiguous_above_historical_latency_range": 185,
+        "unknown_or_negative_resource": 0,
+        "missing_positive_synthesis_evidence": 0
+      },
+      "accepted_unique_observed_configurations": 13119,
+      "eligible_kernels": 4,
+      "eligible_families": 3,
+      "full_split_kernels": 4,
+      "full_split_families": 3
+    }
+  },
+  "per_kernel_checks": [
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "machsuite-gemm-ncubed",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "machsuite-sort-radix",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "machsuite-spmv-ellpack",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-back",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-forward",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-backprop-1-tiling-back",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-hotspot-0-baseline",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-hotspot-1-tiling",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-hotspot-3-unroll",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-kmeans-0-baseline",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-kmeans-1-tiling",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-kmeans-2-pipeline",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-kmeans-3-unroll",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-knn-0-baseline",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-knn-1-tiling",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-knn-2-pipeline",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-knn-3-unroll",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia-knn-5-coalescing",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_cfd_flux_0_baseline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_0_baseline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_5_coalescing_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_dilate_0_baseline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_dilate_1_tiling_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_dilate_3_pipeline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_0_baseline",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_1",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_lc_gicov_0_baseline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_lc_mgvf_0_baseline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_lud_1_tiling_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_0_baseline_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_1_tiling_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_2_pipeline_1",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "rodinia_streamcluster_4_coalescing_0",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "spcl_example_00",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "spcl_example_01",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "spcl_example_03",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    },
+    {
+      "kernel": "spcl_example_05",
+      "raw_table_hash_matches": true,
+      "corrected_table_hash_matches": true,
+      "all_raw_measurement_provenance_hash_matches": true
+    }
+  ],
+  "duplicate_candidate_identities": 0,
+  "locked_test_measurements_deserialized": false,
+  "sort_radix_qualification": "ten observed action assignments, L6 explicitly ignored by user; not an authenticated eleventh directive"
+}
