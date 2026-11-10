@@ -13,3 +13,11 @@ The real full-prefix versus one-position cached check had a vocabulary-wide max 
 The trainer prepares k-bit training, upcasting nonquantized parameters, while inference uses native NF4/FP16 loading. A five-pair no-training preparation-precision control is running to isolate that difference. It does not change the deployed precision or retrain weights.
 
 Full54-pair OFF/value/legacy development evaluation completed. Corrected versus historical GAN outputs and fixed-prefix native candidate effects remain pending their explicit run. No new optimizer update or synthesis occurred.
+
+## Completed precision and contract follow-up
+
+The five-pair training-preparation control completed: max same-completion score difference from native inference0.0022230148; max FiLM ON/OFF score effect under prepared precision1.54972e-6; zero ordering changes. This is five Viterbi pairs, not general evidence of convergence or usefulness. See PRECISION_CONTROL.json.
+
+Canonical restoration adds three fields absent from frozen V4 in each CFD-flux/lavaMD restored cohort, and four in Pathfinder baseline. They cannot be silently inserted while preserving the original registry. RESTORATION_COMPATIBILITY.json pins the metadata and registry hashes.
+
+Three GAN contexts (ZCU10420% at each clock) encode fractional capacity in FiLM while prompts round available counts to integers. Differences are0.2 BRAM18K and0.4 DSP. Contexts/weights were held fixed in the mask intervention; no isolated rounding-benefit claim is made. CONTEXT_ROUNDING.json records the complete18-request check.

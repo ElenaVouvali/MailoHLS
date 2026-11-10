@@ -1,0 +1,8 @@
+"""CPU historical sampler counterfactual: remove family cap only, no optimization."""
+import sys,json,hashlib
+from pathlib import Path
+from experiments.stage1_target_film.train import sha,write
+p=Path('experiments/final_architecture_v3/prepare_preferences.py');original=p.read_text();line="allpairs['train']=ns['balance'](allpairs['train'],8,123)";assert original.count(line)==1;changed=original.replace(line,"# Audit-only: preserve all one-pair-per-request selections; no family cap")
+out=Path('artifacts/stage1_target_film/diagnostics_v2/historical_sampler_unbalanced');sys.argv=[str(p),'--bank','/home/elvouvali/MailoHLS-final-architecture-20261109/artifacts/final_architecture_20261109/reaudit/non_test_records.json','--pilot','/home/elvouvali/MailoHLS-rc3-stage2-multikernel-c/artifacts/rc3_stage2_multikernel/v1/audit/stage2_pilot.jsonl','--split','/home/elvouvali/MailoHLS-rc3-stage2-multikernel-c/artifacts/rc3_stage2_multikernel/v1/audit/split.json','--registry','/home/elvouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run/directive_domain_registry.json','--policy-package','/home/elvouvali/MailoHLS-final-architecture-20261109/artifacts/final_architecture_20261109/references/salt_qualification_contract','--out',str(out)]
+exec(compile(changed,str(p),'exec'),{'__name__':'__main__','__package__':'experiments.final_architecture_v3'})
+write(out/'AUDIT_OVERRIDE.json',{'role':'Historical sampling-loss replay only; not a new optimization bank','original_wrapper_sha256':hashlib.sha256(original.encode()).hexdigest(),'executed_wrapper_sha256':hashlib.sha256(changed.encode()).hexdigest(),'change':'Disable only train family balancing; all source/legal filters and one_pair choices unchanged','training_updates':0,'original_bank_modified':False})

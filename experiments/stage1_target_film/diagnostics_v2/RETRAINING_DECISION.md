@@ -2,7 +2,7 @@
 
 **No fresh A/B training is launched.** The completed data investigation recovers useful conditional information, but it does not pass the requested gate for an automatic qualified retraining.
 
-- Budget:26 conservative proxy training winner switches across6 families, but zero qualified validation winner switches. Resource intervals are sensitivity assumptions, not exact counts or an authenticated reporting contract. This fails independent development switch coverage.
+- Budget:26 conservative proxy training winner switches across6 families, but zero qualified validation winner switches. Resource intervals are sensitivity assumptions, not exact counts or an authenticated reporting contract. This fails in-grid independent development switch coverage. Two reauthenticated exact-count Viterbi pairs exist at7.37% BRAM, but share one boundary/design and lie outside the training/evaluation budget grid; they do not resolve the distribution/precision limitation.
 - Clock:715 source-legal training pair reversals and20 validation pair reversals can test conditional ranking. None places the pair's winner within1% of the pool best in both contexts. A ranking-only exploratory study is possible, but these labels do not yet discriminate useful optimum adaptation from improved ranking of dominated alternatives.
 - Device: no held-out reversal established; capacity changes confound device identity.
 - FiLM: the completed54-pair native-precision ablation changes no target score or pair ordering. The tiny learned gate loses most correction through FP16. The five-pair preparation-precision control reveals a numerical path difference larger than FiLM's own score contribution. This must be qualified before spending on a new matched study.

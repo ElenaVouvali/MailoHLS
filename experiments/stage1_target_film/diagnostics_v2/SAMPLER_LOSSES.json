@@ -1,0 +1,63 @@
+{
+  "schema": "source-legal-clock-sampler-losses-v1",
+  "source": "same source-qualified clock audit, no locked test or GAN",
+  "by_split": {
+    "train": {
+      "legal_clock_reversals_before_near_optimal_filter": {
+        "views": 715,
+        "unique_candidate_pairs": 501,
+        "independent_kernels": 5,
+        "independent_families": [
+          "machsuite_gemm",
+          "machsuite_stencil2d",
+          "rodinia_cfd_step_factor",
+          "rodinia_dilate",
+          "rodinia_lc_gicov"
+        ]
+      },
+      "lost_by_requiring_pair_winner_near_optimal_in_both_contexts": {
+        "views": 715,
+        "unique_candidate_pairs": 501,
+        "independent_kernels": 5,
+        "independent_families": [
+          "machsuite_gemm",
+          "machsuite_stencil2d",
+          "rodinia_cfd_step_factor",
+          "rodinia_dilate",
+          "rodinia_lc_gicov"
+        ]
+      },
+      "retained_after_near_optimal_filter": {
+        "views": 0,
+        "unique_candidate_pairs": 0,
+        "independent_kernels": 0,
+        "independent_families": []
+      }
+    },
+    "val": {
+      "legal_clock_reversals_before_near_optimal_filter": {
+        "views": 20,
+        "unique_candidate_pairs": 20,
+        "independent_kernels": 1,
+        "independent_families": [
+          "machsuite_viterbi"
+        ]
+      },
+      "lost_by_requiring_pair_winner_near_optimal_in_both_contexts": {
+        "views": 20,
+        "unique_candidate_pairs": 20,
+        "independent_kernels": 1,
+        "independent_families": [
+          "machsuite_viterbi"
+        ]
+      },
+      "retained_after_near_optimal_filter": {
+        "views": 0,
+        "unique_candidate_pairs": 0,
+        "independent_kernels": 0,
+        "independent_families": []
+      }
+    }
+  },
+  "other_stage_losses": "One-pair hashing, family balancing, source/action restoration and source legality overlap with the near-optimal filter; their separate causal loss counts are not identified by this counterfactual. Do not double-count."
+}
