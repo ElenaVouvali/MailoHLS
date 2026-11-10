@@ -11,7 +11,7 @@ from experiments.refinement import configurations as c
 from experiments.refinement_search.deployment import optimize,ExactReceiptOracle
 
 def main():
- p=argparse.ArgumentParser(add_help=False);p.add_argument('--allow-unqualified-checkpoint',action='store_true');p.add_argument('--refinement-enabled',action='store_true');p.add_argument('--refinement-budget',type=int,default=4);p.add_argument('--refinement-policy',choices=['coordinate','structural','hybrid'],default='coordinate');p.add_argument('--refinement-request',type=Path);p.add_argument('--refinement-run-dir',type=Path);p.add_argument('--refinement-archive',type=Path);p.add_argument('--refinement-coroni-runner',type=Path);p.add_argument('--refinement-coroni-directory');p.add_argument('--refinement-max-new-calls',type=int,default=8);a,argv=p.parse_known_args()
+ p=argparse.ArgumentParser(add_help=False);p.add_argument('--allow-unqualified-checkpoint',action='store_true');p.add_argument('--refinement-enabled',action='store_true');p.add_argument('--refinement-budget',type=int,default=4);p.add_argument('--refinement-policy',choices=['coordinate','structural','hybrid'],default='coordinate');p.add_argument('--refinement-request',type=Path);p.add_argument('--refinement-run-dir',type=Path);p.add_argument('--refinement-archive',type=Path);p.add_argument('--refinement-coroni-runner',type=Path);p.add_argument('--refinement-coroni-directory');p.add_argument('--refinement-max-new-calls',type=int,default=8);p.add_argument('--refinement-prior-physical-calls',type=int);a,argv=p.parse_known_args()
  if '--stage' not in argv:argv=['--stage','stage3',*argv]
  if argv[argv.index('--stage')+1]!='stage3':p.error('Normal endpoint requires Stage3; invoke the original decoder directly for Stage1/2 ablations')
  if '--adapter_dir' not in argv:p.error('Stage3 adapter directory required')
@@ -41,7 +41,8 @@ def main():
   if a.refinement_coroni_runner:
    from experiments.refinement_search.coroni import CoroniOracle
    if not a.refinement_coroni_directory:p.error('Explicit run-specific Coroni directory required')
-   oracle=CoroniOracle(request,request['source_template'],[directory/n for n in request['headers_sha256']],a.refinement_coroni_runner,a.refinement_run_dir/'physical',a.refinement_coroni_directory,cache=a.refinement_archive,max_new_calls=a.refinement_max_new_calls)
+   if a.refinement_prior_physical_calls is None:p.error('Coroni execution requires the current aggregate --refinement-prior-physical-calls ledger charge')
+   oracle=CoroniOracle(request,request['source_template'],[directory/n for n in request['headers_sha256']],a.refinement_coroni_runner,a.refinement_run_dir/'physical',a.refinement_coroni_directory,cache=a.refinement_archive,max_new_calls=a.refinement_max_new_calls,prior_calls=a.refinement_prior_physical_calls)
   elif a.refinement_archive:oracle=ExactReceiptOracle(a.refinement_archive)
   else:p.error('Select authenticated replay archive or the Coroni runner explicitly')
   refined=optimize(request,assignment,problem=problem,refinement_enabled=True,refinement_budget=a.refinement_budget,refinement_policy=a.refinement_policy,run_dir=a.refinement_run_dir/'policies'/a.refinement_policy,oracle=oracle,stage3_sha256=stage3_sha)

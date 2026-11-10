@@ -1,0 +1,2273 @@
+{
+  "schema": "v3-exact-historical-physical-joins-v1",
+  "input_bundles": [
+    {
+      "bundle_sha256": "f2160fc568ccd4fdbeca247433f5af1cd5c32a277e7a30ad0da0353ee9e7b1d9",
+      "results_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845"
+    },
+    {
+      "bundle_sha256": "c23b84e75065b1b719c8f2a560ca90ce5e3041c5c26e003f81535b67ec930a2c",
+      "results_provenance_sha256": "5ce8dfb510ab7e1d78cc78a4273d618a6fff21009a731ff7ce8660bf3916bfe5"
+    },
+    {
+      "bundle_sha256": "383683b48b731d6a378a2fa3336464b45bece7defdfc712362ff745338494348",
+      "results_provenance_sha256": "ec630dd01fec4cc68187e801f88e3753b4463aef6cadb7fd8c51450ec9c6c1a4"
+    }
+  ],
+  "rows": [
+    {
+      "model": "stage1",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+      "exact_receipts": [
+        {
+          "job_id": "cp_05",
+          "checkpoint_step": 0,
+          "kernel": "machsuite-viterbi",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L1}": "complete",
+            "AUTO{_ARRAY_F_L1}": "0",
+            "AUTO{_ARRAY_D_L1}": "2",
+            "AUTO{_PIPE_L2}": "0",
+            "AUTO{_UNROLL_L2}": "2",
+            "AUTO{_PIPE_L3}": "1",
+            "AUTO{_UNROLL_L3}": "0",
+            "AUTO{_PIPE_L4}": "1",
+            "AUTO{_UNROLL_L4}": "0",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0",
+            "AUTO{_PIPE_L7}": "1",
+            "AUTO{_UNROLL_L7}": "0",
+            "AUTO{_PIPE_L8}": "0",
+            "AUTO{_UNROLL_L8}": "4"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "machsuite-viterbi::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1173",
+              "request_jsonl_idx": 1173,
+              "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+              "assignment_sha256": "a667ff416a5fcf25e8291e216e95509fadf3b868fbbb2db35c64e1ecf9357d14",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "e51629be471e4abcc8a7bca1c6ae4efccdbd51f6fe73b8b536e57edfe6659143",
+              "input_source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+              "requested_budget": {
+                "BRAM": 624,
+                "DSP": 1728,
+                "FF": 460800,
+                "LUT": 230400
+              }
+            }
+          ],
+          "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+          "headers": {
+            "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+            "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+          },
+          "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+          "runner_status": "timeout",
+          "runtime_seconds": 1200.0052487950015,
+          "error": "Exceeded 1200 seconds",
+          "csynth_completed": false,
+          "latency_cycles": null,
+          "resources": null,
+          "resource_feasible": null,
+          "hls_estimated_timing_qualified": null,
+          "receipt_sha256": "af03d98cd36289fd386a5642903cb5675abca60ee87267db8ec38ca65ff1e6d1",
+          "log_sha256": "a42a0c073ca047039ba631c021a1c2eb724cd646ac81e0134ee9009944767138",
+          "report_sha256": null,
+          "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": null
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage1",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage1",
+      "context_id": "machsuite-viterbi:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "0",
+        "AUTO{_UNROLL_L6}": "4",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "1",
+        "AUTO{_UNROLL_L8}": "0"
+      },
+      "materialized_source_sha256": "f21940e430102c7c7f07a3f8d09a95bac68c4aba69824a89ffeb2ab0b2db837a",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "cp_01",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1191",
+              "request_jsonl_idx": 1191,
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "c95be45a051b54977ad4b275f264c81e065ef3fff416bb53a2d200d4457bdf9b",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "requested_budget": {
+                "BRAM": 624,
+                "DSP": 1728,
+                "FF": 460800,
+                "LUT": 230400
+              }
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 11.806995018007001,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 14,
+            "DSP": 0,
+            "FF": 1515,
+            "LUT": 3418
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "48b8bdb05059e5ced23559e311f4bc0bda79585742bebf0a44c5f0bd41ecb78b",
+          "log_sha256": "bb9e058a57eecab4035b8734b33f08f89221f44750e96de79e3385835e23313d",
+          "report_sha256": "136e9134f15208dfc6a8febe2d7aab1b929555aa0c51c1ff6c2de67b4d727561",
+          "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9775641025641025,
+            "DSP": 1.0,
+            "FF": 0.9967122395833333,
+            "LUT": 0.9851649305555555
+          },
+          "estimated_clock_ns": 7.3,
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "clock5_0",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 5.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "request_sha256": "b2a9bf78c1c87b694cc74342974da8633abc2b5d723be2bc55731eb78314b112",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "reference_10ns_evaluation_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47"
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 11.708711114013568,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 14,
+            "DSP": 0,
+            "FF": 2039,
+            "LUT": 3546
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "a447961aef96403b32d8fd51bb597e418acab7ab3b10de66a7c7dc9234d15a03",
+          "log_sha256": "1bf9982e92bb35dc4b6262d0e890326b5fbaad7df5f9d522f126721797fa251f",
+          "report_sha256": "b85f9c3402e4b237058c4ec110019c1505683356c4d0a7d43a962a90ffabb37d",
+          "batch_provenance_sha256": "ec630dd01fec4cc68187e801f88e3753b4463aef6cadb7fd8c51450ec9c6c1a4",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9775641025641025,
+            "DSP": 1.0,
+            "FF": 0.9955750868055555,
+            "LUT": 0.984609375
+          },
+          "estimated_clock_ns": 3.65,
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "cp_03",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xcu200-fsgd2104-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 2160,
+            "DSP": 3420,
+            "FF": 1182240,
+            "LUT": 591120
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xcu200-fsgd2104-2-e::uniform-050::10.0::1183",
+              "request_jsonl_idx": 1183,
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "a8a7925e659f49a680e373d9089f80d410473f8b8497806cc9a5fe1d431ef02d",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "requested_budget": {
+                "BRAM": 2160,
+                "DSP": 3420,
+                "FF": 1182240,
+                "LUT": 591120
+              }
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 12.512018849985907,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 6,
+            "DSP": 0,
+            "FF": 1515,
+            "LUT": 3409
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "709458d0567ca3ba5c8e78e53693dd764cd0c1e0b6e6ed3ade004900e8bc5f99",
+          "log_sha256": "9e5b3b2d315d74cea189ab4cff962b0318ac03212ec663f6dd5c4d7786db69f3",
+          "report_sha256": "879dfb7a1d46616caf791f4529077f4293856d75c32174553205ca4f9562ecaa",
+          "batch_provenance_sha256": "5ce8dfb510ab7e1d78cc78a4273d618a6fff21009a731ff7ce8660bf3916bfe5",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9972222222222222,
+            "DSP": 1.0,
+            "FF": 0.9987185343077548,
+            "LUT": 0.9942329814589255
+          },
+          "estimated_clock_ns": 7.3,
+          "current_budgets": {
+            "BRAM_18K": 4320,
+            "DSP": 6840,
+            "FF": 2364480,
+            "LUT": 1182240
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage2",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+      "exact_receipts": [
+        {
+          "job_id": "cp_05",
+          "checkpoint_step": 0,
+          "kernel": "machsuite-viterbi",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L1}": "complete",
+            "AUTO{_ARRAY_F_L1}": "0",
+            "AUTO{_ARRAY_D_L1}": "2",
+            "AUTO{_PIPE_L2}": "0",
+            "AUTO{_UNROLL_L2}": "2",
+            "AUTO{_PIPE_L3}": "1",
+            "AUTO{_UNROLL_L3}": "0",
+            "AUTO{_PIPE_L4}": "1",
+            "AUTO{_UNROLL_L4}": "0",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0",
+            "AUTO{_PIPE_L7}": "1",
+            "AUTO{_UNROLL_L7}": "0",
+            "AUTO{_PIPE_L8}": "0",
+            "AUTO{_UNROLL_L8}": "4"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "machsuite-viterbi::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1173",
+              "request_jsonl_idx": 1173,
+              "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+              "assignment_sha256": "a667ff416a5fcf25e8291e216e95509fadf3b868fbbb2db35c64e1ecf9357d14",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "e51629be471e4abcc8a7bca1c6ae4efccdbd51f6fe73b8b536e57edfe6659143",
+              "input_source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+              "requested_budget": {
+                "BRAM": 624,
+                "DSP": 1728,
+                "FF": 460800,
+                "LUT": 230400
+              }
+            }
+          ],
+          "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+          "headers": {
+            "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+            "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+          },
+          "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+          "runner_status": "timeout",
+          "runtime_seconds": 1200.0052487950015,
+          "error": "Exceeded 1200 seconds",
+          "csynth_completed": false,
+          "latency_cycles": null,
+          "resources": null,
+          "resource_feasible": null,
+          "hls_estimated_timing_qualified": null,
+          "receipt_sha256": "af03d98cd36289fd386a5642903cb5675abca60ee87267db8ec38ca65ff1e6d1",
+          "log_sha256": "a42a0c073ca047039ba631c021a1c2eb724cd646ac81e0134ee9009944767138",
+          "report_sha256": null,
+          "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": null
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage2",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage2",
+      "context_id": "machsuite-viterbi:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "0",
+        "AUTO{_UNROLL_L6}": "4",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "1",
+        "AUTO{_UNROLL_L8}": "0"
+      },
+      "materialized_source_sha256": "f21940e430102c7c7f07a3f8d09a95bac68c4aba69824a89ffeb2ab0b2db837a",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "cp_01",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1191",
+              "request_jsonl_idx": 1191,
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "c95be45a051b54977ad4b275f264c81e065ef3fff416bb53a2d200d4457bdf9b",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "requested_budget": {
+                "BRAM": 624,
+                "DSP": 1728,
+                "FF": 460800,
+                "LUT": 230400
+              }
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 11.806995018007001,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 14,
+            "DSP": 0,
+            "FF": 1515,
+            "LUT": 3418
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "48b8bdb05059e5ced23559e311f4bc0bda79585742bebf0a44c5f0bd41ecb78b",
+          "log_sha256": "bb9e058a57eecab4035b8734b33f08f89221f44750e96de79e3385835e23313d",
+          "report_sha256": "136e9134f15208dfc6a8febe2d7aab1b929555aa0c51c1ff6c2de67b4d727561",
+          "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9775641025641025,
+            "DSP": 1.0,
+            "FF": 0.9967122395833333,
+            "LUT": 0.9851649305555555
+          },
+          "estimated_clock_ns": 7.3,
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "clock5_0",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 5.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "request_sha256": "b2a9bf78c1c87b694cc74342974da8633abc2b5d723be2bc55731eb78314b112",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "reference_10ns_evaluation_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47"
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 11.708711114013568,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 14,
+            "DSP": 0,
+            "FF": 2039,
+            "LUT": 3546
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "a447961aef96403b32d8fd51bb597e418acab7ab3b10de66a7c7dc9234d15a03",
+          "log_sha256": "1bf9982e92bb35dc4b6262d0e890326b5fbaad7df5f9d522f126721797fa251f",
+          "report_sha256": "b85f9c3402e4b237058c4ec110019c1505683356c4d0a7d43a962a90ffabb37d",
+          "batch_provenance_sha256": "ec630dd01fec4cc68187e801f88e3753b4463aef6cadb7fd8c51450ec9c6c1a4",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9775641025641025,
+            "DSP": 1.0,
+            "FF": 0.9955750868055555,
+            "LUT": 0.984609375
+          },
+          "estimated_clock_ns": 3.65,
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "cp_03",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xcu200-fsgd2104-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 2160,
+            "DSP": 3420,
+            "FF": 1182240,
+            "LUT": 591120
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xcu200-fsgd2104-2-e::uniform-050::10.0::1183",
+              "request_jsonl_idx": 1183,
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "a8a7925e659f49a680e373d9089f80d410473f8b8497806cc9a5fe1d431ef02d",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "requested_budget": {
+                "BRAM": 2160,
+                "DSP": 3420,
+                "FF": 1182240,
+                "LUT": 591120
+              }
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 12.512018849985907,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 6,
+            "DSP": 0,
+            "FF": 1515,
+            "LUT": 3409
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "709458d0567ca3ba5c8e78e53693dd764cd0c1e0b6e6ed3ade004900e8bc5f99",
+          "log_sha256": "9e5b3b2d315d74cea189ab4cff962b0318ac03212ec663f6dd5c4d7786db69f3",
+          "report_sha256": "879dfb7a1d46616caf791f4529077f4293856d75c32174553205ca4f9562ecaa",
+          "batch_provenance_sha256": "5ce8dfb510ab7e1d78cc78a4273d618a6fff21009a731ff7ce8660bf3916bfe5",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9972222222222222,
+            "DSP": 1.0,
+            "FF": 0.9987185343077548,
+            "LUT": 0.9942329814589255
+          },
+          "estimated_clock_ns": 7.3,
+          "current_budgets": {
+            "BRAM_18K": 4320,
+            "DSP": 6840,
+            "FF": 2364480,
+            "LUT": 1182240
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "sft",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+      "exact_receipts": [
+        {
+          "job_id": "cp_05",
+          "checkpoint_step": 0,
+          "kernel": "machsuite-viterbi",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L1}": "complete",
+            "AUTO{_ARRAY_F_L1}": "0",
+            "AUTO{_ARRAY_D_L1}": "2",
+            "AUTO{_PIPE_L2}": "0",
+            "AUTO{_UNROLL_L2}": "2",
+            "AUTO{_PIPE_L3}": "1",
+            "AUTO{_UNROLL_L3}": "0",
+            "AUTO{_PIPE_L4}": "1",
+            "AUTO{_UNROLL_L4}": "0",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0",
+            "AUTO{_PIPE_L7}": "1",
+            "AUTO{_UNROLL_L7}": "0",
+            "AUTO{_PIPE_L8}": "0",
+            "AUTO{_UNROLL_L8}": "4"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "machsuite-viterbi::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1173",
+              "request_jsonl_idx": 1173,
+              "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+              "assignment_sha256": "a667ff416a5fcf25e8291e216e95509fadf3b868fbbb2db35c64e1ecf9357d14",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "e51629be471e4abcc8a7bca1c6ae4efccdbd51f6fe73b8b536e57edfe6659143",
+              "input_source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+              "requested_budget": {
+                "BRAM": 624,
+                "DSP": 1728,
+                "FF": 460800,
+                "LUT": 230400
+              }
+            }
+          ],
+          "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+          "headers": {
+            "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+            "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+          },
+          "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+          "runner_status": "timeout",
+          "runtime_seconds": 1200.0052487950015,
+          "error": "Exceeded 1200 seconds",
+          "csynth_completed": false,
+          "latency_cycles": null,
+          "resources": null,
+          "resource_feasible": null,
+          "hls_estimated_timing_qualified": null,
+          "receipt_sha256": "af03d98cd36289fd386a5642903cb5675abca60ee87267db8ec38ca65ff1e6d1",
+          "log_sha256": "a42a0c073ca047039ba631c021a1c2eb724cd646ac81e0134ee9009944767138",
+          "report_sha256": null,
+          "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": null
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "sft",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "sft",
+      "context_id": "machsuite-viterbi:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "0",
+        "AUTO{_UNROLL_L6}": "2",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "1",
+        "AUTO{_UNROLL_L8}": "0"
+      },
+      "materialized_source_sha256": "84c29e5dc0061483840b65ee32e0e0068955fcad445bf95e8efea57876e56963",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "cp_01",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1191",
+              "request_jsonl_idx": 1191,
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "c95be45a051b54977ad4b275f264c81e065ef3fff416bb53a2d200d4457bdf9b",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "requested_budget": {
+                "BRAM": 624,
+                "DSP": 1728,
+                "FF": 460800,
+                "LUT": 230400
+              }
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 11.806995018007001,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 14,
+            "DSP": 0,
+            "FF": 1515,
+            "LUT": 3418
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "48b8bdb05059e5ced23559e311f4bc0bda79585742bebf0a44c5f0bd41ecb78b",
+          "log_sha256": "bb9e058a57eecab4035b8734b33f08f89221f44750e96de79e3385835e23313d",
+          "report_sha256": "136e9134f15208dfc6a8febe2d7aab1b929555aa0c51c1ff6c2de67b4d727561",
+          "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9775641025641025,
+            "DSP": 1.0,
+            "FF": 0.9967122395833333,
+            "LUT": 0.9851649305555555
+          },
+          "estimated_clock_ns": 7.3,
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "clock5_0",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 5.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "request_sha256": "b2a9bf78c1c87b694cc74342974da8633abc2b5d723be2bc55731eb78314b112",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "reference_10ns_evaluation_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47"
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 11.708711114013568,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 14,
+            "DSP": 0,
+            "FF": 2039,
+            "LUT": 3546
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "a447961aef96403b32d8fd51bb597e418acab7ab3b10de66a7c7dc9234d15a03",
+          "log_sha256": "1bf9982e92bb35dc4b6262d0e890326b5fbaad7df5f9d522f126721797fa251f",
+          "report_sha256": "b85f9c3402e4b237058c4ec110019c1505683356c4d0a7d43a962a90ffabb37d",
+          "batch_provenance_sha256": "ec630dd01fec4cc68187e801f88e3753b4463aef6cadb7fd8c51450ec9c6c1a4",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9775641025641025,
+            "DSP": 1.0,
+            "FF": 0.9955750868055555,
+            "LUT": 0.984609375
+          },
+          "estimated_clock_ns": 3.65,
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "cp_03",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xcu200-fsgd2104-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 2160,
+            "DSP": 3420,
+            "FF": 1182240,
+            "LUT": 591120
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xcu200-fsgd2104-2-e::uniform-050::10.0::1183",
+              "request_jsonl_idx": 1183,
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "a8a7925e659f49a680e373d9089f80d410473f8b8497806cc9a5fe1d431ef02d",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "requested_budget": {
+                "BRAM": 2160,
+                "DSP": 3420,
+                "FF": 1182240,
+                "LUT": 591120
+              }
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 12.512018849985907,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 6,
+            "DSP": 0,
+            "FF": 1515,
+            "LUT": 3409
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "709458d0567ca3ba5c8e78e53693dd764cd0c1e0b6e6ed3ade004900e8bc5f99",
+          "log_sha256": "9e5b3b2d315d74cea189ab4cff962b0318ac03212ec663f6dd5c4d7786db69f3",
+          "report_sha256": "879dfb7a1d46616caf791f4529077f4293856d75c32174553205ca4f9562ecaa",
+          "batch_provenance_sha256": "5ce8dfb510ab7e1d78cc78a4273d618a6fff21009a731ff7ce8660bf3916bfe5",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9972222222222222,
+            "DSP": 1.0,
+            "FF": 0.9987185343077548,
+            "LUT": 0.9942329814589255
+          },
+          "estimated_clock_ns": 7.3,
+          "current_budgets": {
+            "BRAM_18K": 4320,
+            "DSP": 6840,
+            "FF": 2364480,
+            "LUT": 1182240
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage3",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+      "exact_receipts": [
+        {
+          "job_id": "cp_05",
+          "checkpoint_step": 0,
+          "kernel": "machsuite-viterbi",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L1}": "complete",
+            "AUTO{_ARRAY_F_L1}": "0",
+            "AUTO{_ARRAY_D_L1}": "2",
+            "AUTO{_PIPE_L2}": "0",
+            "AUTO{_UNROLL_L2}": "2",
+            "AUTO{_PIPE_L3}": "1",
+            "AUTO{_UNROLL_L3}": "0",
+            "AUTO{_PIPE_L4}": "1",
+            "AUTO{_UNROLL_L4}": "0",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0",
+            "AUTO{_PIPE_L7}": "1",
+            "AUTO{_UNROLL_L7}": "0",
+            "AUTO{_PIPE_L8}": "0",
+            "AUTO{_UNROLL_L8}": "4"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "machsuite-viterbi::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1173",
+              "request_jsonl_idx": 1173,
+              "prediction": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+              "assignment_sha256": "a667ff416a5fcf25e8291e216e95509fadf3b868fbbb2db35c64e1ecf9357d14",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "e51629be471e4abcc8a7bca1c6ae4efccdbd51f6fe73b8b536e57edfe6659143",
+              "input_source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+              "requested_budget": {
+                "BRAM": 624,
+                "DSP": 1728,
+                "FF": 460800,
+                "LUT": 230400
+              }
+            }
+          ],
+          "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+          "headers": {
+            "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+            "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+          },
+          "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+          "runner_status": "timeout",
+          "runtime_seconds": 1200.0052487950015,
+          "error": "Exceeded 1200 seconds",
+          "csynth_completed": false,
+          "latency_cycles": null,
+          "resources": null,
+          "resource_feasible": null,
+          "hls_estimated_timing_qualified": null,
+          "receipt_sha256": "af03d98cd36289fd386a5642903cb5675abca60ee87267db8ec38ca65ff1e6d1",
+          "log_sha256": "a42a0c073ca047039ba631c021a1c2eb724cd646ac81e0134ee9009944767138",
+          "report_sha256": null,
+          "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": null
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage3",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "4"
+      },
+      "materialized_source_sha256": "7d85a194fa695fb6de19c242abc5f69164d557eab078706bd940102ee92ccad8",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage3",
+      "context_id": "machsuite-viterbi:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L1}": "complete",
+        "AUTO{_ARRAY_F_L1}": "0",
+        "AUTO{_ARRAY_D_L1}": "2",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_PIPE_L4}": "1",
+        "AUTO{_UNROLL_L4}": "0",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "0",
+        "AUTO{_UNROLL_L6}": "4",
+        "AUTO{_PIPE_L7}": "1",
+        "AUTO{_UNROLL_L7}": "0",
+        "AUTO{_PIPE_L8}": "1",
+        "AUTO{_UNROLL_L8}": "0"
+      },
+      "materialized_source_sha256": "f21940e430102c7c7f07a3f8d09a95bac68c4aba69824a89ffeb2ab0b2db837a",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "cp_01",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xczu7ev-ffvc1156-2-e::uniform-100::10.0::1191",
+              "request_jsonl_idx": 1191,
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "c95be45a051b54977ad4b275f264c81e065ef3fff416bb53a2d200d4457bdf9b",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "requested_budget": {
+                "BRAM": 624,
+                "DSP": 1728,
+                "FF": 460800,
+                "LUT": 230400
+              }
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 11.806995018007001,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 14,
+            "DSP": 0,
+            "FF": 1515,
+            "LUT": 3418
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "48b8bdb05059e5ced23559e311f4bc0bda79585742bebf0a44c5f0bd41ecb78b",
+          "log_sha256": "bb9e058a57eecab4035b8734b33f08f89221f44750e96de79e3385835e23313d",
+          "report_sha256": "136e9134f15208dfc6a8febe2d7aab1b929555aa0c51c1ff6c2de67b4d727561",
+          "batch_provenance_sha256": "950963561ae1839fd56326eabea0db31163b10049287cc1d01cdc5f662385845",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9775641025641025,
+            "DSP": 1.0,
+            "FF": 0.9967122395833333,
+            "LUT": 0.9851649305555555
+          },
+          "estimated_clock_ns": 7.3,
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "clock5_0",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xczu7ev-ffvc1156-2-e",
+          "clock_ns": 5.0,
+          "budget": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "request_sha256": "b2a9bf78c1c87b694cc74342974da8633abc2b5d723be2bc55731eb78314b112",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "reference_10ns_evaluation_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47"
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 11.708711114013568,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 14,
+            "DSP": 0,
+            "FF": 2039,
+            "LUT": 3546
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "a447961aef96403b32d8fd51bb597e418acab7ab3b10de66a7c7dc9234d15a03",
+          "log_sha256": "1bf9982e92bb35dc4b6262d0e890326b5fbaad7df5f9d522f126721797fa251f",
+          "report_sha256": "b85f9c3402e4b237058c4ec110019c1505683356c4d0a7d43a962a90ffabb37d",
+          "batch_provenance_sha256": "ec630dd01fec4cc68187e801f88e3753b4463aef6cadb7fd8c51450ec9c6c1a4",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9775641025641025,
+            "DSP": 1.0,
+            "FF": 0.9955750868055555,
+            "LUT": 0.984609375
+          },
+          "estimated_clock_ns": 3.65,
+          "current_budgets": {
+            "BRAM_18K": 624,
+            "DSP": 1728,
+            "FF": 460800,
+            "LUT": 230400
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_ARRAY_T_L3}": "block",
+        "AUTO{_ARRAY_F_L3}": "2",
+        "AUTO{_ARRAY_D_L3}": "1",
+        "AUTO{_ARRAY_T_L4}": "cyclic",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_PIPE_L5}": "0",
+        "AUTO{_UNROLL_L5}": "2",
+        "AUTO{_PIPE_L6}": "1",
+        "AUTO{_UNROLL_L6}": "0"
+      },
+      "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+      "exact_receipts": [
+        {
+          "job_id": "cp_03",
+          "checkpoint_step": 0,
+          "kernel": "rodinia_pathfinder_0_baseline_0",
+          "part": "xcu200-fsgd2104-2-e",
+          "clock_ns": 10.0,
+          "budget": {
+            "BRAM_18K": 2160,
+            "DSP": 3420,
+            "FF": 1182240,
+            "LUT": 591120
+          },
+          "assignment": {
+            "AUTO{_ARRAY_T_L3}": "block",
+            "AUTO{_ARRAY_F_L3}": "2",
+            "AUTO{_ARRAY_D_L3}": "1",
+            "AUTO{_ARRAY_T_L4}": "cyclic",
+            "AUTO{_ARRAY_F_L4}": "2",
+            "AUTO{_ARRAY_D_L4}": "1",
+            "AUTO{_PIPE_L5}": "0",
+            "AUTO{_UNROLL_L5}": "2",
+            "AUTO{_PIPE_L6}": "1",
+            "AUTO{_UNROLL_L6}": "0"
+          },
+          "attributions": [
+            {
+              "checkpoint_step": 0,
+              "case_id": "rodinia_pathfinder_0_baseline_0::PARETO_LATENCY::xcu200-fsgd2104-2-e::uniform-050::10.0::1183",
+              "request_jsonl_idx": 1183,
+              "prediction": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+              "assignment_sha256": "719d53abfb0d19f9049d8f3003e6845634046237d559fd7336b386514aaaa27b",
+              "evaluation_receipt_sha256": "ee4caadb8e33a8732356e80b3e45d4e0a20e3fd0170a279389f5ccc65c1eeb47",
+              "request_sha256": "a8a7925e659f49a680e373d9089f80d410473f8b8497806cc9a5fe1d431ef02d",
+              "input_source_sha256": "e198f5f80b6b3dc2a9a88e66e78412985560a1e58643f70c57bd5dbf88451cf1",
+              "requested_budget": {
+                "BRAM": 2160,
+                "DSP": 3420,
+                "FF": 1182240,
+                "LUT": 591120
+              }
+            }
+          ],
+          "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+          "headers": {
+            "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+            "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+            "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+            "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+            "pathfinder.h": "9cc2f9b220d4da4f06bb03cc8db82021686565395661005e1bcf388881ab4987"
+          },
+          "materialized_source_sha256": "a1d0262f970a17669ed4af80b907e6fb42c72cb9c4784fc4225247a05577a52e",
+          "runner_status": "failed",
+          "runtime_seconds": 12.512018849985907,
+          "error": "ValueError(\"Missing/noninteger measured count: .//SummaryOfOverallLatency/Worst-caseLatency='undef'\",)",
+          "csynth_completed": true,
+          "latency_cycles": null,
+          "resources": {
+            "BRAM_18K": 6,
+            "DSP": 0,
+            "FF": 1515,
+            "LUT": 3409
+          },
+          "resource_feasible": true,
+          "hls_estimated_timing_qualified": true,
+          "receipt_sha256": "709458d0567ca3ba5c8e78e53693dd764cd0c1e0b6e6ed3ade004900e8bc5f99",
+          "log_sha256": "9e5b3b2d315d74cea189ab4cff962b0318ac03212ec663f6dd5c4d7786db69f3",
+          "report_sha256": "879dfb7a1d46616caf791f4529077f4293856d75c32174553205ca4f9562ecaa",
+          "batch_provenance_sha256": "5ce8dfb510ab7e1d78cc78a4273d618a6fff21009a731ff7ce8660bf3916bfe5",
+          "latency_tag": "undef",
+          "headroom": {
+            "BRAM_18K": 0.9972222222222222,
+            "DSP": 1.0,
+            "FF": 0.9987185343077548,
+            "LUT": 0.9942329814589255
+          },
+          "estimated_clock_ns": 7.3,
+          "current_budgets": {
+            "BRAM_18K": 4320,
+            "DSP": 6840,
+            "FF": 2364480,
+            "LUT": 1182240
+          },
+          "current_resource_feasible": true
+        }
+      ],
+      "missing_status": null,
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:5.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xcu200-fsgd2104-2-e:10.0",
+      "normalized_assignment": {
+        "AUTO{_PIPE_L1}": "1",
+        "AUTO{_UNROLL_L1}": "0",
+        "AUTO{_PIPE_L2}": "0",
+        "AUTO{_UNROLL_L2}": "2",
+        "AUTO{_PIPE_L3}": "1",
+        "AUTO{_UNROLL_L3}": "0",
+        "AUTO{_ARRAY_T_L4}": "block",
+        "AUTO{_ARRAY_F_L4}": "2",
+        "AUTO{_ARRAY_D_L4}": "1",
+        "AUTO{_ARRAY_T_L5}": "cyclic",
+        "AUTO{_ARRAY_F_L5}": "2",
+        "AUTO{_ARRAY_D_L5}": "1",
+        "AUTO{_ARRAY_T_L6}": "cyclic",
+        "AUTO{_ARRAY_F_L6}": "4",
+        "AUTO{_ARRAY_D_L6}": "1",
+        "AUTO{_ARRAY_T_L7}": "cyclic",
+        "AUTO{_ARRAY_F_L7}": "4",
+        "AUTO{_ARRAY_D_L7}": "1",
+        "AUTO{_PIPE_L8}": "0",
+        "AUTO{_UNROLL_L8}": "2"
+      },
+      "materialized_source_sha256": "29462986a864dcf4c3d4a325f5a453d640cb8d8aa4ed838e54f78412674bd4f9",
+      "exact_receipts": [],
+      "missing_status": "unknown",
+      "latency_regret": null,
+      "regret_scope": "No shared measured contender pool for this generated assignment; exact receipt alone cannot establish regret."
+    }
+  ],
+  "matched_model_request_rows": 16,
+  "scope": "Exact source/materialization/header/action-schema/complete assignment/part/clock/tool/settings joins only;50%-budget historical U200 physical counts may be reused under new full budget after re-evaluation. No nearest-candidate substitution."
+}

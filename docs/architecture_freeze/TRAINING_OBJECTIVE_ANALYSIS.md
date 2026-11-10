@@ -1,3 +1,7 @@
+> Revision3 repairs the Stage2 uniform/top1 mismatch. Compatible Stage3 summed-value DPO(beta.1) and matched action-normalized chosen-only SFT completed34updates each; validation ranking ties25/54. The requested normal DPO default remains DPO_REQUIRED_BUT_NOT_QUALIFIED. The earlier text-only negative pilot is not the matched comparator.
+>
+> Current evidence: [Revision-3 results](RESULTS_V3.md); [technical architecture](FINAL_SALT_HLS_ARCHITECTURE.md).
+
 # Training objective decision
 
 The research parent remains V4 latency near-optimal multi-reference SFT. It uses rank8 attention Q/K/V/O LoRA and trained added-token embeddings; the saved adapters do not target FFN projections. Preserve action-normalized nonforced RHS supervision and complete correlated assignments. Do not select labels field by field from different measured designs.

@@ -1,3 +1,5 @@
+Current authoritative completed-run update: [Revision-3 results](RESULTS_V3.md). Historical reports below retain their original scope.
+
 > **Current Revision3:** see [Final technical architecture and qualification status](FINAL_SALT_HLS_ARCHITECTURE.md) and [executable experiment package](../../experiments/final_architecture_v3/README.md). The Revision2 status below is a historical snapshot; consult machine receipts before interpreting RUNNING/BLOCKED text.
 
 # SALT-HLS architecture qualification — Revision2

@@ -1,0 +1,1176 @@
+{
+  "schema": "v3-exact-count-switch-stay-analysis-v1",
+  "inputs_sha256": {
+    "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/results.json": "8e96370622e804a16e8cfab1c3349eb07b81ca1806c258d84ae0fb5495ff4cb9",
+    "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/results.json": "a0459bf18acd101d1eb5793e8bc3919174c4d33b2248283fe5d5df7cf228b7db"
+  },
+  "records": [
+    {
+      "id": "machsuite-viterbi:0:10.0",
+      "kernel": "machsuite-viterbi",
+      "candidate": "0187514fe6eb6dccb5c17480ebec8b37b0d0f3d1e7011422796d1b63584ec845",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "cycles": 730163,
+      "nominal_ns": 7301630.0,
+      "estimated_clock_ns": 8.007,
+      "hls_timing_qualified": true,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 36,
+        "DSP": 6,
+        "FF": 21261,
+        "LUT": 30271
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.9423076923076923,
+        "DSP": 0.9965277777777778,
+        "FF": 0.9538606770833333,
+        "LUT": 0.8686154513888888
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/1d77e00c9f90700fb92fe288433cd47907069e823566b338f0bbb2e90b009256",
+      "physical_identity": {
+        "top": "viterbi",
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 10.0,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L1}": "1",
+          "AUTO{_ARRAY_F_L1}": "2",
+          "AUTO{_ARRAY_T_L1}": "cyclic",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "0",
+          "AUTO{_PIPE_L4}": "1",
+          "AUTO{_PIPE_L5}": "1",
+          "AUTO{_PIPE_L6}": "1",
+          "AUTO{_PIPE_L7}": "0",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "2",
+          "AUTO{_UNROLL_L4}": "0",
+          "AUTO{_UNROLL_L5}": "0",
+          "AUTO{_UNROLL_L6}": "0",
+          "AUTO{_UNROLL_L7}": "4",
+          "AUTO{_UNROLL_L8}": "2"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/1d77e00c9f90700fb92fe288433cd47907069e823566b338f0bbb2e90b009256/results/query/result.json": "0d38cee4ae837ec7357e5501b2efb5e2785f88253830774814970c7de125cd2e",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/1d77e00c9f90700fb92fe288433cd47907069e823566b338f0bbb2e90b009256/results/batch_provenance.json": "342018ed861c546d12c929cc7af6499ccf44d3f794df5b45cd6aab0cce299fdc",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/1d77e00c9f90700fb92fe288433cd47907069e823566b338f0bbb2e90b009256/results/query/synthesis.log": "3642ad4493bddf316f7148e81a08d1284718591cf0c0e4ab12c5e0bd1dbdc359",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/1d77e00c9f90700fb92fe288433cd47907069e823566b338f0bbb2e90b009256/results/query/hls_project/solution1/syn/report/viterbi_csynth.xml": "e8c47451048269d49dd135e279d89786bf88e9853f30c1d9d99d65b955b2de2a"
+      }
+    },
+    {
+      "id": "machsuite-viterbi:0:3.33",
+      "kernel": "machsuite-viterbi",
+      "candidate": "0187514fe6eb6dccb5c17480ebec8b37b0d0f3d1e7011422796d1b63584ec845",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 3.33,
+      "cycles": 1495738,
+      "nominal_ns": 4980807.54,
+      "estimated_clock_ns": 5.405,
+      "hls_timing_qualified": false,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 36,
+        "DSP": 3,
+        "FF": 29094,
+        "LUT": 31331
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.9423076923076923,
+        "DSP": 0.9982638888888888,
+        "FF": 0.9368619791666667,
+        "LUT": 0.8640147569444444
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/e41ed375396d2e7e5c8b0eb2bfa720fa309de4cd2af57dbcc6d11b713e9ab7a2",
+      "physical_identity": {
+        "top": "viterbi",
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 3.33,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L1}": "1",
+          "AUTO{_ARRAY_F_L1}": "2",
+          "AUTO{_ARRAY_T_L1}": "cyclic",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "0",
+          "AUTO{_PIPE_L4}": "1",
+          "AUTO{_PIPE_L5}": "1",
+          "AUTO{_PIPE_L6}": "1",
+          "AUTO{_PIPE_L7}": "0",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "2",
+          "AUTO{_UNROLL_L4}": "0",
+          "AUTO{_UNROLL_L5}": "0",
+          "AUTO{_UNROLL_L6}": "0",
+          "AUTO{_UNROLL_L7}": "4",
+          "AUTO{_UNROLL_L8}": "2"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/e41ed375396d2e7e5c8b0eb2bfa720fa309de4cd2af57dbcc6d11b713e9ab7a2/results/query/result.json": "d7c5b41b049c1dc471971f7438eec4d28a417c88bc0a38e8520b3ffd128ea1fc",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/e41ed375396d2e7e5c8b0eb2bfa720fa309de4cd2af57dbcc6d11b713e9ab7a2/results/batch_provenance.json": "07cd1f43696837c61c081664617aa06e3324227224cc5e843064f4ab12154671",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/e41ed375396d2e7e5c8b0eb2bfa720fa309de4cd2af57dbcc6d11b713e9ab7a2/results/query/synthesis.log": "ea0c1d84d8aa8c56e43eadbbac4ab9953c1f197006d1d462d0df5782c3b17912",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/e41ed375396d2e7e5c8b0eb2bfa720fa309de4cd2af57dbcc6d11b713e9ab7a2/results/query/hls_project/solution1/syn/report/viterbi_csynth.xml": "945e28d1f569892371249b1dc03182bc061d4d3b285b65467c8b4a812b9e9bf0"
+      }
+    },
+    {
+      "id": "machsuite-viterbi:1:10.0",
+      "kernel": "machsuite-viterbi",
+      "candidate": "889dbe3f125c98c36d481a88da2e115d27f33f39b9f3936605d13d7df2043d93",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "cycles": 730172,
+      "nominal_ns": 7301720.0,
+      "estimated_clock_ns": 8.007,
+      "hls_timing_qualified": true,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 36,
+        "DSP": 6,
+        "FF": 20823,
+        "LUT": 28994
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.9423076923076923,
+        "DSP": 0.9965277777777778,
+        "FF": 0.9548111979166667,
+        "LUT": 0.8741579861111111
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/f0494fd0fbc1609cf31dc66e505ee8ff34576b21154b17dd7ae2d76e13cc8643",
+      "physical_identity": {
+        "top": "viterbi",
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 10.0,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L1}": "1",
+          "AUTO{_ARRAY_F_L1}": "2",
+          "AUTO{_ARRAY_T_L1}": "cyclic",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "0",
+          "AUTO{_PIPE_L4}": "1",
+          "AUTO{_PIPE_L5}": "1",
+          "AUTO{_PIPE_L6}": "1",
+          "AUTO{_PIPE_L7}": "0",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "2",
+          "AUTO{_UNROLL_L4}": "0",
+          "AUTO{_UNROLL_L5}": "0",
+          "AUTO{_UNROLL_L6}": "0",
+          "AUTO{_UNROLL_L7}": "2",
+          "AUTO{_UNROLL_L8}": "2"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/f0494fd0fbc1609cf31dc66e505ee8ff34576b21154b17dd7ae2d76e13cc8643/results/query/result.json": "eb2150e6210274353987496876ca6212dfb761616171b9ba74e7174d7fcc5d79",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/f0494fd0fbc1609cf31dc66e505ee8ff34576b21154b17dd7ae2d76e13cc8643/results/batch_provenance.json": "09e48db1be3db34ab20296274c1035e7e74f424539000bfb47f509f806244cf7",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/f0494fd0fbc1609cf31dc66e505ee8ff34576b21154b17dd7ae2d76e13cc8643/results/query/synthesis.log": "02b9e96991a650a41c1b99fc01aade7c9865e41b5218fd33682c304cae0283ff",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/f0494fd0fbc1609cf31dc66e505ee8ff34576b21154b17dd7ae2d76e13cc8643/results/query/hls_project/solution1/syn/report/viterbi_csynth.xml": "4fd9384b9eabd546908dccb2b15cccdb258f8734ba601a780312fa150961551b"
+      }
+    },
+    {
+      "id": "machsuite-viterbi:1:3.33",
+      "kernel": "machsuite-viterbi",
+      "candidate": "889dbe3f125c98c36d481a88da2e115d27f33f39b9f3936605d13d7df2043d93",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 3.33,
+      "cycles": 1495705,
+      "nominal_ns": 4980697.65,
+      "estimated_clock_ns": 5.405,
+      "hls_timing_qualified": false,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 36,
+        "DSP": 3,
+        "FF": 28528,
+        "LUT": 29712
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.9423076923076923,
+        "DSP": 0.9982638888888888,
+        "FF": 0.9380902777777778,
+        "LUT": 0.8710416666666667
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/ad0b7a7804fc6c51383f12aff7765ba4ec2197826ccedfb9c3abbf46d8307191",
+      "physical_identity": {
+        "top": "viterbi",
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 3.33,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L1}": "1",
+          "AUTO{_ARRAY_F_L1}": "2",
+          "AUTO{_ARRAY_T_L1}": "cyclic",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "0",
+          "AUTO{_PIPE_L4}": "1",
+          "AUTO{_PIPE_L5}": "1",
+          "AUTO{_PIPE_L6}": "1",
+          "AUTO{_PIPE_L7}": "0",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "2",
+          "AUTO{_UNROLL_L4}": "0",
+          "AUTO{_UNROLL_L5}": "0",
+          "AUTO{_UNROLL_L6}": "0",
+          "AUTO{_UNROLL_L7}": "2",
+          "AUTO{_UNROLL_L8}": "2"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/ad0b7a7804fc6c51383f12aff7765ba4ec2197826ccedfb9c3abbf46d8307191/results/query/result.json": "3a869666820be53044fd7715840d234f395eda056cd8cd7a424c32e20ce180f9",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/ad0b7a7804fc6c51383f12aff7765ba4ec2197826ccedfb9c3abbf46d8307191/results/batch_provenance.json": "bb88c11bfe7ac7b7d07d3ce1f3d0acaf54a33ef0467d9b1ad9f4af09321d73f6",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/ad0b7a7804fc6c51383f12aff7765ba4ec2197826ccedfb9c3abbf46d8307191/results/query/synthesis.log": "3ccc12e80a656b5751070035f5c12f027f7dee1dbd565d384f1f734d8d0ebed2",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/ad0b7a7804fc6c51383f12aff7765ba4ec2197826ccedfb9c3abbf46d8307191/results/query/hls_project/solution1/syn/report/viterbi_csynth.xml": "2c8fb53d774b665d706121d335339a9e5e9afb11b30e8521fe133eb159a309f2"
+      }
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:0:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "candidate": "0178d1d217e8c8e0805acaeb5d8337af23742021009c22d4324c1c22c1cb18ea",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "cycles": 3242863,
+      "nominal_ns": 32428630.0,
+      "estimated_clock_ns": 7.3,
+      "hls_timing_qualified": true,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 76,
+        "DSP": 0,
+        "FF": 2095,
+        "LUT": 5231
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.8782051282051282,
+        "DSP": 1.0,
+        "FF": 0.9954535590277778,
+        "LUT": 0.9772960069444444
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/ba283e08344efa52fbbb7549f82dc7209994406436f96d32f682119da6da0924",
+      "physical_identity": {
+        "top": "workload",
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 10.0,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L4}": "1",
+          "AUTO{_ARRAY_D_L5}": "1",
+          "AUTO{_ARRAY_D_L6}": "1",
+          "AUTO{_ARRAY_D_L7}": "1",
+          "AUTO{_ARRAY_F_L4}": "4",
+          "AUTO{_ARRAY_F_L5}": "4",
+          "AUTO{_ARRAY_F_L6}": "2",
+          "AUTO{_ARRAY_F_L7}": "2",
+          "AUTO{_ARRAY_T_L4}": "block",
+          "AUTO{_ARRAY_T_L5}": "cyclic",
+          "AUTO{_ARRAY_T_L6}": "cyclic",
+          "AUTO{_ARRAY_T_L7}": "cyclic",
+          "AUTO{_PIPE_L1}": "0",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "1",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L1}": "2",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "0",
+          "AUTO{_UNROLL_L8}": "4"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/ba283e08344efa52fbbb7549f82dc7209994406436f96d32f682119da6da0924/results/query/result.json": "1e313bbe847d04e33e8210cf4967cd42c81f41d64105eb8f5d63401f723012be",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/ba283e08344efa52fbbb7549f82dc7209994406436f96d32f682119da6da0924/results/batch_provenance.json": "05e3cebbedfc2a1e4fc803af4c7a657033cb4d51f10b752fa3059758cc387841",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/ba283e08344efa52fbbb7549f82dc7209994406436f96d32f682119da6da0924/results/query/synthesis.log": "7e1085c8b6636957253c6dc2a948cc7f17f3b99cc19f1fcfc625b2b76c25a0be",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/ba283e08344efa52fbbb7549f82dc7209994406436f96d32f682119da6da0924/results/query/hls_project/solution1/syn/report/workload_csynth.xml": "cfef3d5fd960464b9662d7f51f02a0a703a18786765a1442db99e9158f1200f3"
+      }
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:0:3.33",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "candidate": "0178d1d217e8c8e0805acaeb5d8337af23742021009c22d4324c1c22c1cb18ea",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 3.33,
+      "cycles": 3242895,
+      "nominal_ns": 10798840.35,
+      "estimated_clock_ns": 2.431,
+      "hls_timing_qualified": true,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 76,
+        "DSP": 0,
+        "FF": 2466,
+        "LUT": 5258
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.8782051282051282,
+        "DSP": 1.0,
+        "FF": 0.9946484375,
+        "LUT": 0.9771788194444444
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/49e5bcfb44286041e4f06bcf4d7723c8c5095c83ac3e67de9d2a0cfccd260f78",
+      "physical_identity": {
+        "top": "workload",
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 3.33,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L4}": "1",
+          "AUTO{_ARRAY_D_L5}": "1",
+          "AUTO{_ARRAY_D_L6}": "1",
+          "AUTO{_ARRAY_D_L7}": "1",
+          "AUTO{_ARRAY_F_L4}": "4",
+          "AUTO{_ARRAY_F_L5}": "4",
+          "AUTO{_ARRAY_F_L6}": "2",
+          "AUTO{_ARRAY_F_L7}": "2",
+          "AUTO{_ARRAY_T_L4}": "block",
+          "AUTO{_ARRAY_T_L5}": "cyclic",
+          "AUTO{_ARRAY_T_L6}": "cyclic",
+          "AUTO{_ARRAY_T_L7}": "cyclic",
+          "AUTO{_PIPE_L1}": "0",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "1",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L1}": "2",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "0",
+          "AUTO{_UNROLL_L8}": "4"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/49e5bcfb44286041e4f06bcf4d7723c8c5095c83ac3e67de9d2a0cfccd260f78/results/query/result.json": "1456291d40691acacfe4013fd31c4c9eebe7a9e0ec01ad3497534f5586c27bba",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/49e5bcfb44286041e4f06bcf4d7723c8c5095c83ac3e67de9d2a0cfccd260f78/results/batch_provenance.json": "2705c3f8f1e86528408eaece3e57a65097efaf2f5c50711a41cce3b4c78eb51a",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/49e5bcfb44286041e4f06bcf4d7723c8c5095c83ac3e67de9d2a0cfccd260f78/results/query/synthesis.log": "824ac764bec007b83e372d8fa0908bbc00133285c1e66a864215a70415454e82",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/49e5bcfb44286041e4f06bcf4d7723c8c5095c83ac3e67de9d2a0cfccd260f78/results/query/hls_project/solution1/syn/report/workload_csynth.xml": "8fd94b6f63834b968a3c531e9dcfa72fb967f07c4dc243a4c0e8825e1ad93f08"
+      }
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "candidate": "e93fcf6c18795f8948b28bde9a0adf039a6937f42b77f2c427a28bb89556795c",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "cycles": 3242859,
+      "nominal_ns": 32428590.0,
+      "estimated_clock_ns": 7.3,
+      "hls_timing_qualified": true,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 76,
+        "DSP": 0,
+        "FF": 2039,
+        "LUT": 5061
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.8782051282051282,
+        "DSP": 1.0,
+        "FF": 0.9955750868055555,
+        "LUT": 0.9780338541666667
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/d2a5f823a454cd25a6ff50dd0aefb96bec1dba9adf1dff882ec3c98b1ce350c2",
+      "physical_identity": {
+        "top": "workload",
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 10.0,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L4}": "1",
+          "AUTO{_ARRAY_D_L5}": "1",
+          "AUTO{_ARRAY_D_L6}": "1",
+          "AUTO{_ARRAY_D_L7}": "1",
+          "AUTO{_ARRAY_F_L4}": "4",
+          "AUTO{_ARRAY_F_L5}": "4",
+          "AUTO{_ARRAY_F_L6}": "2",
+          "AUTO{_ARRAY_F_L7}": "2",
+          "AUTO{_ARRAY_T_L4}": "block",
+          "AUTO{_ARRAY_T_L5}": "cyclic",
+          "AUTO{_ARRAY_T_L6}": "cyclic",
+          "AUTO{_ARRAY_T_L7}": "cyclic",
+          "AUTO{_PIPE_L1}": "0",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "1",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L1}": "2",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "0",
+          "AUTO{_UNROLL_L8}": "2"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/d2a5f823a454cd25a6ff50dd0aefb96bec1dba9adf1dff882ec3c98b1ce350c2/results/query/result.json": "c89f0f87d1ccede9b614072dd3a6a5b6f921473c868c27cd60b9a476c6968bf6",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/d2a5f823a454cd25a6ff50dd0aefb96bec1dba9adf1dff882ec3c98b1ce350c2/results/batch_provenance.json": "e644fbe4f7b81cd14a0238a40b0c434e73eeddf591acdb2821e55720910e3695",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/d2a5f823a454cd25a6ff50dd0aefb96bec1dba9adf1dff882ec3c98b1ce350c2/results/query/synthesis.log": "f5ec9553eb1aeb212340e905a0f3b74db3db6abd54643c39babae3bce03a9534",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/d2a5f823a454cd25a6ff50dd0aefb96bec1dba9adf1dff882ec3c98b1ce350c2/results/query/hls_project/solution1/syn/report/workload_csynth.xml": "9698793809a3a9f9359c0a60a541f82ee2923d3d758359860922599f66117f3b"
+      }
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "candidate": "e93fcf6c18795f8948b28bde9a0adf039a6937f42b77f2c427a28bb89556795c",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 3.33,
+      "cycles": 3242891,
+      "nominal_ns": 10798827.03,
+      "estimated_clock_ns": 2.431,
+      "hls_timing_qualified": true,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 76,
+        "DSP": 0,
+        "FF": 2411,
+        "LUT": 5097
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.8782051282051282,
+        "DSP": 1.0,
+        "FF": 0.9947677951388889,
+        "LUT": 0.9778776041666667
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/e6e1841e2b149126cf085ea601d343147c1f484b716670a1bebc1288a646d184",
+      "physical_identity": {
+        "top": "workload",
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 3.33,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L4}": "1",
+          "AUTO{_ARRAY_D_L5}": "1",
+          "AUTO{_ARRAY_D_L6}": "1",
+          "AUTO{_ARRAY_D_L7}": "1",
+          "AUTO{_ARRAY_F_L4}": "4",
+          "AUTO{_ARRAY_F_L5}": "4",
+          "AUTO{_ARRAY_F_L6}": "2",
+          "AUTO{_ARRAY_F_L7}": "2",
+          "AUTO{_ARRAY_T_L4}": "block",
+          "AUTO{_ARRAY_T_L5}": "cyclic",
+          "AUTO{_ARRAY_T_L6}": "cyclic",
+          "AUTO{_ARRAY_T_L7}": "cyclic",
+          "AUTO{_PIPE_L1}": "0",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "1",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L1}": "2",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "0",
+          "AUTO{_UNROLL_L8}": "2"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/e6e1841e2b149126cf085ea601d343147c1f484b716670a1bebc1288a646d184/results/query/result.json": "4bfedca4600325641dc509174ca349044844c022836943dc6090f9b60e06033b",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/e6e1841e2b149126cf085ea601d343147c1f484b716670a1bebc1288a646d184/results/batch_provenance.json": "4a9fd9bac12bb815ede4fb31f0f583760251d9d6b6c40727e22bfccb5e138fe8",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/e6e1841e2b149126cf085ea601d343147c1f484b716670a1bebc1288a646d184/results/query/synthesis.log": "8c31189d5c3d8651a9f1bca696f3a136b1394aa1a6c5f7df3129466f93f95b16",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_measurements/physical/e6e1841e2b149126cf085ea601d343147c1f484b716670a1bebc1288a646d184/results/query/hls_project/solution1/syn/report/workload_csynth.xml": "3b2b2e8b3d9b081efe2596bdcba6b97a884be51da978a923b52e5bb65e4dfda9"
+      }
+    },
+    {
+      "id": "machsuite-viterbi:coedit8:10.0",
+      "kernel": "machsuite-viterbi",
+      "candidate": "5b3080f6a1961791fe258d54925b54db6c9e3b1e299c539d03119f9ccff4d8e0",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "cycles": 372816,
+      "nominal_ns": 3728160.0,
+      "estimated_clock_ns": 7.784,
+      "hls_timing_qualified": true,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 56,
+        "DSP": 12,
+        "FF": 25822,
+        "LUT": 53297
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.9102564102564102,
+        "DSP": 0.9930555555555556,
+        "FF": 0.9439626736111111,
+        "LUT": 0.7686762152777777
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/cf3e386089ba283fb097543ef7346fd00c4647e0edd50669f1ca8142ac095349",
+      "physical_identity": {
+        "top": "viterbi",
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 10.0,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L1}": "1",
+          "AUTO{_ARRAY_F_L1}": "8",
+          "AUTO{_ARRAY_T_L1}": "cyclic",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "0",
+          "AUTO{_PIPE_L4}": "1",
+          "AUTO{_PIPE_L5}": "1",
+          "AUTO{_PIPE_L6}": "1",
+          "AUTO{_PIPE_L7}": "0",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "2",
+          "AUTO{_UNROLL_L4}": "0",
+          "AUTO{_UNROLL_L5}": "0",
+          "AUTO{_UNROLL_L6}": "0",
+          "AUTO{_UNROLL_L7}": "4",
+          "AUTO{_UNROLL_L8}": "8"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/cf3e386089ba283fb097543ef7346fd00c4647e0edd50669f1ca8142ac095349/results/query/result.json": "a105e60686a48ea643c4a603600bd5e025213f40ad7503616c53bb3a7b6925e0",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/cf3e386089ba283fb097543ef7346fd00c4647e0edd50669f1ca8142ac095349/results/batch_provenance.json": "aabef7ff8a25572ed8dc8ee707635fd4f2af514a59cf57bbbe87364b02231380",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/cf3e386089ba283fb097543ef7346fd00c4647e0edd50669f1ca8142ac095349/results/query/synthesis.log": "985fe23ca41509e3c941f602897c613def89c9645caf8c600b9a5963a7847868",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/cf3e386089ba283fb097543ef7346fd00c4647e0edd50669f1ca8142ac095349/results/query/hls_project/solution1/syn/report/viterbi_csynth.xml": "ab4586d0d5bd9a273f878d05d7df04aeb5bc3c19364202beb9807a5332a3121e"
+      }
+    },
+    {
+      "id": "machsuite-viterbi:coedit8:3.33",
+      "kernel": "machsuite-viterbi",
+      "candidate": "5b3080f6a1961791fe258d54925b54db6c9e3b1e299c539d03119f9ccff4d8e0",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 3.33,
+      "cycles": 506753,
+      "nominal_ns": 1687487.49,
+      "estimated_clock_ns": 3.485,
+      "hls_timing_qualified": false,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 56,
+        "DSP": 12,
+        "FF": 51914,
+        "LUT": 57210
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.9102564102564102,
+        "DSP": 0.9930555555555556,
+        "FF": 0.8873394097222222,
+        "LUT": 0.7516927083333333
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/6a4bc636d046dc66c54d9d6bf9680b9edca374fa7d4b9939e8135e78ecdfe649",
+      "physical_identity": {
+        "top": "viterbi",
+        "source_sha256": "a76f7ef75f0318f63b0cf02efc483f4ace3397bd4b464811ededeedbf5303404",
+        "headers_sha256": {
+          "support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "viterbi.h": "4c9fd476f7a493687423f5ffd15f982f9e687070eb8899bb1880ab9bce9d22fa"
+        },
+        "action_metadata_sha256": "9a4eb052af28b40deea395152c13f202dda019e2cfa49ca5948a30767acb5182",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 3.33,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L1}": "1",
+          "AUTO{_ARRAY_F_L1}": "8",
+          "AUTO{_ARRAY_T_L1}": "cyclic",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "0",
+          "AUTO{_PIPE_L4}": "1",
+          "AUTO{_PIPE_L5}": "1",
+          "AUTO{_PIPE_L6}": "1",
+          "AUTO{_PIPE_L7}": "0",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "2",
+          "AUTO{_UNROLL_L4}": "0",
+          "AUTO{_UNROLL_L5}": "0",
+          "AUTO{_UNROLL_L6}": "0",
+          "AUTO{_UNROLL_L7}": "4",
+          "AUTO{_UNROLL_L8}": "8"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/6a4bc636d046dc66c54d9d6bf9680b9edca374fa7d4b9939e8135e78ecdfe649/results/query/result.json": "d642336cfed2c87d8091315bd34a00d273eb6a3ac9f0a2aed2746a640d26589c",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/6a4bc636d046dc66c54d9d6bf9680b9edca374fa7d4b9939e8135e78ecdfe649/results/batch_provenance.json": "0d130d43abee746493460a524f2c43b0d802f3defded3e78a15a0180eff61e98",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/6a4bc636d046dc66c54d9d6bf9680b9edca374fa7d4b9939e8135e78ecdfe649/results/query/synthesis.log": "8c7ba68cc0e2b711dde61c5f50d68baf13e0a7cc02c3c4d050c524aa6af70298",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/6a4bc636d046dc66c54d9d6bf9680b9edca374fa7d4b9939e8135e78ecdfe649/results/query/hls_project/solution1/syn/report/viterbi_csynth.xml": "1a91c7eaf40988eaa59f631258a0ecc7bdec0cf66b1cb7d287ea96cbdeb010e8"
+      }
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:coedit8:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "candidate": "4a3d2b5f544d187043d313d1dfec5789fb3d70a3bba81da29a24ba9a48f1f935",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "cycles": 3243895,
+      "nominal_ns": 32438950.0,
+      "estimated_clock_ns": 7.3,
+      "hls_timing_qualified": true,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 108,
+        "DSP": 0,
+        "FF": 2408,
+        "LUT": 7552
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.8269230769230769,
+        "DSP": 1.0,
+        "FF": 0.9947743055555556,
+        "LUT": 0.9672222222222222
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/9a4a4ff310fa4ef90013b052c294ca7f8f917228b80e016d0d734bf579d16f42",
+      "physical_identity": {
+        "top": "workload",
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 10.0,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L4}": "1",
+          "AUTO{_ARRAY_D_L5}": "1",
+          "AUTO{_ARRAY_D_L6}": "1",
+          "AUTO{_ARRAY_D_L7}": "1",
+          "AUTO{_ARRAY_F_L4}": "8",
+          "AUTO{_ARRAY_F_L5}": "8",
+          "AUTO{_ARRAY_F_L6}": "8",
+          "AUTO{_ARRAY_F_L7}": "8",
+          "AUTO{_ARRAY_T_L4}": "cyclic",
+          "AUTO{_ARRAY_T_L5}": "cyclic",
+          "AUTO{_ARRAY_T_L6}": "cyclic",
+          "AUTO{_ARRAY_T_L7}": "cyclic",
+          "AUTO{_PIPE_L1}": "0",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "1",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L1}": "2",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "0",
+          "AUTO{_UNROLL_L8}": "8"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/9a4a4ff310fa4ef90013b052c294ca7f8f917228b80e016d0d734bf579d16f42/results/query/result.json": "9bcf9c36cfcdd81724a2a46ea68c94fd75444ee59df24edac62bcfa137a0c84c",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/9a4a4ff310fa4ef90013b052c294ca7f8f917228b80e016d0d734bf579d16f42/results/batch_provenance.json": "b183178d9326bb28e825e907bc2361ab3462a9d05615c4832fd61b16c6a191fe",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/9a4a4ff310fa4ef90013b052c294ca7f8f917228b80e016d0d734bf579d16f42/results/query/synthesis.log": "e4c8611bb5f1c804eb9b7ab7d83d4171767aac8bb4bd63a7609a4b4957efe955",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/9a4a4ff310fa4ef90013b052c294ca7f8f917228b80e016d0d734bf579d16f42/results/query/hls_project/solution1/syn/report/workload_csynth.xml": "040b33ec1995e2ecbdd1c79d5c2d05e6d0f2b01e0a92a1ccfa74eb5d90c473af"
+      }
+    },
+    {
+      "id": "rodinia_pathfinder_4_doublebuffer_0:coedit8:3.33",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "candidate": "4a3d2b5f544d187043d313d1dfec5789fb3d70a3bba81da29a24ba9a48f1f935",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 3.33,
+      "cycles": 3243943,
+      "nominal_ns": 10802330.19,
+      "estimated_clock_ns": 2.431,
+      "hls_timing_qualified": true,
+      "full_resource_feasible": true,
+      "resources": {
+        "BRAM_18K": 108,
+        "DSP": 0,
+        "FF": 4308,
+        "LUT": 8113
+      },
+      "normalized_headroom": {
+        "BRAM_18K": 0.8269230769230769,
+        "DSP": 1.0,
+        "FF": 0.9906510416666666,
+        "LUT": 0.9647873263888889
+      },
+      "coroni": "architecture_v3_switch_bank_20261110/2d57608c7f91a9d29045a431b2293e33c49c8ab4b9ea62a65d7b848be562c592",
+      "physical_identity": {
+        "top": "workload",
+        "source_sha256": "2223ed5b16eb565ff610828d791e8f1e282204aa1e19313794423a83aaa7b930",
+        "headers_sha256": {
+          "mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "pathfinder.h": "df19c014e580a027d224b348b94e672b955474e62d9060fc064d428076211db8",
+          "mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        "action_metadata_sha256": "4c66423b1f9a571efe2a51e046fab312d920e2b34d3ae937edba3c197d5ef878",
+        "domain_identity": "vitis_hls_2021_1_array_partition_guard_v2",
+        "part": "xczu7ev-ffvc1156-2-e",
+        "clock_ns": 3.33,
+        "capacities": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "tool_identity": {
+          "executable_sha256": "18046ed76282160f2290b0fa36ffcf8e9e6068e883e14e6325a10bdfe9315896",
+          "version_output": "Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)\nSW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021\nIP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021\nCopyright 1986-2021 Xilinx, Inc. All Rights Reserved.",
+          "vendor_headers": {
+            "ap_fixed.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed.h",
+              "sha256": "bb9b88dae1a2d39a81f5f068632e9a217ed3e6e1b6c3baed92041c5dbcdf9e11"
+            },
+            "ap_int.h": {
+              "path": "/opt/Xilinx/Vitis_HLS/2021.1/include/ap_int.h",
+              "sha256": "a8695b7a66192b2b4300c64883a01e3911c619f9686b0018876d5af4176d0445"
+            }
+          }
+        },
+        "flow_settings": [
+          "config_array_partition -complete_threshold 0 -throughput_driven off",
+          "config_compile -pipeline_loops 0"
+        ],
+        "assignment": {
+          "AUTO{_ARRAY_D_L4}": "1",
+          "AUTO{_ARRAY_D_L5}": "1",
+          "AUTO{_ARRAY_D_L6}": "1",
+          "AUTO{_ARRAY_D_L7}": "1",
+          "AUTO{_ARRAY_F_L4}": "8",
+          "AUTO{_ARRAY_F_L5}": "8",
+          "AUTO{_ARRAY_F_L6}": "8",
+          "AUTO{_ARRAY_F_L7}": "8",
+          "AUTO{_ARRAY_T_L4}": "cyclic",
+          "AUTO{_ARRAY_T_L5}": "cyclic",
+          "AUTO{_ARRAY_T_L6}": "cyclic",
+          "AUTO{_ARRAY_T_L7}": "cyclic",
+          "AUTO{_PIPE_L1}": "0",
+          "AUTO{_PIPE_L2}": "1",
+          "AUTO{_PIPE_L3}": "1",
+          "AUTO{_PIPE_L8}": "0",
+          "AUTO{_UNROLL_L1}": "2",
+          "AUTO{_UNROLL_L2}": "0",
+          "AUTO{_UNROLL_L3}": "0",
+          "AUTO{_UNROLL_L8}": "8"
+        }
+      },
+      "report_sha256": {
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/2d57608c7f91a9d29045a431b2293e33c49c8ab4b9ea62a65d7b848be562c592/results/query/result.json": "81a44afff9487a63e6d6e1bb3bddd25e34852e8c2a4e7de9a63dbb2efa97660e",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/2d57608c7f91a9d29045a431b2293e33c49c8ab4b9ea62a65d7b848be562c592/results/batch_provenance.json": "63e1c8c74c894fe6749e26e0acb1facb2620ff83131aa6e2341a8f6f7c666c8f",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/2d57608c7f91a9d29045a431b2293e33c49c8ab4b9ea62a65d7b848be562c592/results/query/synthesis.log": "3f0a8646f74df1a7455a4ae1ba96f4ddb609aadc54da949ea1ae68665a7a80fe",
+        "/home/elvouvali/MailoHLS-final-architecture-v3-20261110/artifacts/final_architecture_v3/switch_coedit_measurements/physical/2d57608c7f91a9d29045a431b2293e33c49c8ab4b9ea62a65d7b848be562c592/results/query/hls_project/solution1/syn/report/workload_csynth.xml": "d83b0e077213df14209312b5e7f8a471c3b46847cff2e2c09490cf0246f3ecb8"
+      }
+    }
+  ],
+  "clock_contrasts": [
+    {
+      "kernel": "machsuite-viterbi",
+      "axis": "clock",
+      "common_configuration_hashes": [
+        "0187514fe6eb6dccb5c17480ebec8b37b0d0f3d1e7011422796d1b63584ec845",
+        "5b3080f6a1961791fe258d54925b54db6c9e3b1e299c539d03119f9ccff4d8e0",
+        "889dbe3f125c98c36d481a88da2e115d27f33f39b9f3936605d13d7df2043d93"
+      ],
+      "candidate_counts": {
+        "10.0": 3,
+        "3.33": 3
+      },
+      "acceptable_sets_1percent": {
+        "10.0": [
+          "5b3080f6a1961791fe258d54925b54db6c9e3b1e299c539d03119f9ccff4d8e0"
+        ],
+        "3.33": [
+          "5b3080f6a1961791fe258d54925b54db6c9e3b1e299c539d03119f9ccff4d8e0"
+        ]
+      },
+      "classification": "stay",
+      "directional_latency_regrets": [
+        0.0,
+        0.0
+      ],
+      "timing_qualified_counts": {
+        "10.0": 3,
+        "3.33": 0
+      },
+      "timing_scope": "HLS estimate only; no post-route evidence"
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "axis": "clock",
+      "common_configuration_hashes": [
+        "0178d1d217e8c8e0805acaeb5d8337af23742021009c22d4324c1c22c1cb18ea",
+        "4a3d2b5f544d187043d313d1dfec5789fb3d70a3bba81da29a24ba9a48f1f935",
+        "e93fcf6c18795f8948b28bde9a0adf039a6937f42b77f2c427a28bb89556795c"
+      ],
+      "candidate_counts": {
+        "10.0": 3,
+        "3.33": 3
+      },
+      "acceptable_sets_1percent": {
+        "10.0": [
+          "0178d1d217e8c8e0805acaeb5d8337af23742021009c22d4324c1c22c1cb18ea",
+          "4a3d2b5f544d187043d313d1dfec5789fb3d70a3bba81da29a24ba9a48f1f935",
+          "e93fcf6c18795f8948b28bde9a0adf039a6937f42b77f2c427a28bb89556795c"
+        ],
+        "3.33": [
+          "0178d1d217e8c8e0805acaeb5d8337af23742021009c22d4324c1c22c1cb18ea",
+          "4a3d2b5f544d187043d313d1dfec5789fb3d70a3bba81da29a24ba9a48f1f935",
+          "e93fcf6c18795f8948b28bde9a0adf039a6937f42b77f2c427a28bb89556795c"
+        ]
+      },
+      "classification": "stay",
+      "directional_latency_regrets": [
+        0.0,
+        0.0
+      ],
+      "timing_qualified_counts": {
+        "10.0": 3,
+        "3.33": 3
+      },
+      "timing_scope": "HLS estimate only; no post-route evidence"
+    }
+  ],
+  "binding_budget_contrasts": [
+    {
+      "kernel": "machsuite-viterbi",
+      "axis": "component_budget",
+      "resource": "BRAM_18K",
+      "absolute_limit": 46,
+      "fraction_of_device": 0.07371794871794872,
+      "full_winner": "5b3080f6a1961791fe258d54925b54db6c9e3b1e299c539d03119f9ccff4d8e0",
+      "limited_winner": "0187514fe6eb6dccb5c17480ebec8b37b0d0f3d1e7011422796d1b63584ec845",
+      "full_winner_excluded": true,
+      "fast_cycles": 372816,
+      "limited_best_cycles": 730163,
+      "cycles_reduction_full": 0.4894071597711743,
+      "hls_timing_qualified_both": true,
+      "classification": "measured_feasibility_boundary",
+      "independence": "same physical designs; correlated budget views",
+      "scope": "bank-derived diagnostic; below V4 training minimum25percent when fraction<.25"
+    }
+  ],
+  "physical_calls": 12,
+  "independent_families": 2,
+  "locked_test_used": false,
+  "selection_threshold_latency": 0.05,
+  "acceptable_tolerance": 0.01,
+  "policy_improvement": null,
+  "limitations": [
+    "Only three measured contenders per source and clock; best in this pool is not global optimum.",
+    "No common timing-qualified Viterbi design at3.33ns; requested-period products are nominal.",
+    "No new device contrast; resource flip is one family and an unusually tight bank-derived budget.",
+    "HLS synthesis only; new jobs have no C/RTL functional or post-route validation."
+  ]
+}

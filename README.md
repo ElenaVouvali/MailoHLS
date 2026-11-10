@@ -1,3 +1,5 @@
+Current research qualification: [completed Revision-3 evidence](docs/architecture_freeze/RESULTS_V3.md). The intended DPO-default architecture is **not frozen**; registered production artifacts remain unchanged.
+
 # MailoHLS / SALT-HLS
 
 Revision-2 architecture evidence and Davinci handoff: [Architecture decisions](docs/architecture_freeze/ARCHITECTURE_DECISIONS.md). GPU qualification remains pending.

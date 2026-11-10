@@ -1,3 +1,7 @@
+> **Current Revision-3 verdict: FREEZE=NO.** Corrected Stage2 selected50 after150updates; mandatory compatible DPO/SFT34updates and36 real generations completed. DPO ties25/54 validation ranking and reproduces Stage1 on9/9 generated requests. Useful target-adapted feasible latency/default DPO and physical refinement benefit remain unqualified. The material below is the preserved older recommendation, not the current run status.
+>
+> Current evidence: [Revision-3 results](RESULTS_V3.md); [technical architecture](FINAL_SALT_HLS_ARCHITECTURE.md).
+
 # Final recommendation
 
 Architecture freeze: **NO** for a newly qualified target-conditioned Stage2. Preserve the existing registered production paths. Use frozen V4 multi-reference latency as the research Stage1 parent and static RC3 memory with fresh compatible fusion as the next experimental baseline. No alternative won a matched end-task comparison here.

@@ -1,0 +1,1121 @@
+{
+  "schema": "v3-completed-decoder-descriptive-v1",
+  "inputs": {
+    "artifacts/final_architecture_v3/davinci_generated/stage1.jsonl": "5a78ef375e299141b2fc7983a6cf96e3045d495f9820a2c276f675c0430aaea3",
+    "artifacts/final_architecture_v3/davinci_generated/stage2.jsonl": "3fdd671c1201758abdd9a403a0becbc27baebc6f22abb738adefcb2a642353e2",
+    "artifacts/final_architecture_v3/davinci_generated/sft.jsonl": "9a7b978100079cc2e2d6306dd5c4c4007d8748496eb89d2d5cf44a249e80fae2",
+    "artifacts/final_architecture_v3/davinci_generated/stage3.jsonl": "dafd30e8fc0131c3cd7dad839a4c68416519fa16989a1f7c67bcb9ef8eb3aec4",
+    "artifacts/final_architecture_v3/a2_step50_controls/controls.jsonl": "e30db257a10ee98b26f9169594162aa1a21cc4ed8777ee31449bd3ab30d2c9cd"
+  },
+  "summary": {
+    "stage1": {
+      "family_mean_reference_field_accuracy": {
+        "viterbi": 0.5098039215686274,
+        "pathfinder": 0.35
+      },
+      "family_macro_reference_field_accuracy": 0.4299019607843137,
+      "changed_assignments_vs_stage1": 0,
+      "requests": 9,
+      "families": 2
+    },
+    "stage2": {
+      "family_mean_reference_field_accuracy": {
+        "viterbi": 0.5098039215686274,
+        "pathfinder": 0.35
+      },
+      "family_macro_reference_field_accuracy": 0.4299019607843137,
+      "changed_assignments_vs_stage1": 0,
+      "requests": 9,
+      "families": 2
+    },
+    "sft": {
+      "family_mean_reference_field_accuracy": {
+        "viterbi": 0.5098039215686274,
+        "pathfinder": 0.35
+      },
+      "family_macro_reference_field_accuracy": 0.4299019607843137,
+      "changed_assignments_vs_stage1": 1,
+      "requests": 9,
+      "families": 2
+    },
+    "stage3": {
+      "family_mean_reference_field_accuracy": {
+        "viterbi": 0.5098039215686274,
+        "pathfinder": 0.35
+      },
+      "family_macro_reference_field_accuracy": 0.4299019607843137,
+      "changed_assignments_vs_stage1": 0,
+      "requests": 9,
+      "families": 2
+    }
+  },
+  "per_request": [
+    {
+      "model": "stage1",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.5294117647058824,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0,
+        "max_absolute_score_change": 0.0
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage1",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.47058823529411764,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0,
+        "max_absolute_score_change": 0.0
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage1",
+      "context_id": "machsuite-viterbi:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.5294117647058824,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 4\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0,
+        "max_absolute_score_change": 0.0
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.2,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.0,
+        "max_absolute_score_change": 0.0
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.3,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.0,
+        "max_absolute_score_change": 0.0
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.3,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.0,
+        "max_absolute_score_change": 0.0
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.45,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 86,
+        "mean_absolute_score_change": 0.0,
+        "max_absolute_score_change": 0.0
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.4,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 86,
+        "mean_absolute_score_change": 0.0,
+        "max_absolute_score_change": 0.0
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage1",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.45,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 86,
+        "mean_absolute_score_change": 0.0,
+        "max_absolute_score_change": 0.0
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage2",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.5294117647058824,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.002554402909507709,
+        "max_absolute_score_change": 0.015460491180419922
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage2",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.47058823529411764,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0035261842632150677,
+        "max_absolute_score_change": 0.021620869636535645
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage2",
+      "context_id": "machsuite-viterbi:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.5294117647058824,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 4\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0023167367299070716,
+        "max_absolute_score_change": 0.015412092208862305
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.2,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.002616984378123148,
+        "max_absolute_score_change": 0.015754222869873047
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.3,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.0033796103671193123,
+        "max_absolute_score_change": 0.011823415756225586
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.3,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.0032596629303456707,
+        "max_absolute_score_change": 0.015790939331054688
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.45,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 86,
+        "mean_absolute_score_change": 0.004242295376295874,
+        "max_absolute_score_change": 0.042233407497406006
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.4,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 85,
+        "mean_absolute_score_change": 0.004093894822632565,
+        "max_absolute_score_change": 0.0471915602684021
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage2",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.45,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 86,
+        "mean_absolute_score_change": 0.0033698507914926078,
+        "max_absolute_score_change": 0.06544876098632812
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "sft",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.5294117647058824,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0031045190466102214,
+        "max_absolute_score_change": 0.023162126541137695
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "sft",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.47058823529411764,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0034931155672113944,
+        "max_absolute_score_change": 0.015587091445922852
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "sft",
+      "context_id": "machsuite-viterbi:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.5294117647058824,
+      "changed_assignment_vs_stage1": true,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 2\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.018305350811819412,
+        "max_absolute_score_change": 0.3113255500793457
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.2,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.003135590464808047,
+        "max_absolute_score_change": 0.015720129013061523
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.3,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.002688639384525066,
+        "max_absolute_score_change": 0.015790939331054688
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.3,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.0032354330813342876,
+        "max_absolute_score_change": 0.02360844612121582
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.45,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 86,
+        "mean_absolute_score_change": 0.004270157531759334,
+        "max_absolute_score_change": 0.05064284801483154
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.4,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 85,
+        "mean_absolute_score_change": 0.004424316240200663,
+        "max_absolute_score_change": 0.05193459987640381
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "sft",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.45,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 86,
+        "mean_absolute_score_change": 0.0037967632152410874,
+        "max_absolute_score_change": 0.07218563556671143
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage3",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.5294117647058824,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0027087255123270943,
+        "max_absolute_score_change": 0.007888317108154297
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage3",
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.47058823529411764,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0026555069327254648,
+        "max_absolute_score_change": 0.015565872192382812
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage3",
+      "context_id": "machsuite-viterbi:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "machsuite-viterbi",
+      "family": "viterbi",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.5294117647058824,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_ARRAY_T_L1} = complete\nauto{_ARRAY_F_L1} = 0\nauto{_ARRAY_D_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 4\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 70,
+        "mean_absolute_score_change": 0.0023537781054203933,
+        "max_absolute_score_change": 0.015411615371704102
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.2,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.002514994015324522,
+        "max_absolute_score_change": 0.015719294548034668
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.3,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.0019943913000381804,
+        "max_absolute_score_change": 0.010558843612670898
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_0_baseline_0:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "family": "pathfinder",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.3,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L3>\nauto{_ARRAY_T_L3} = block\nauto{_ARRAY_F_L3} = 2\nauto{_ARRAY_D_L3} = 1\n<L4>\nauto{_ARRAY_T_L4} = cyclic\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 44,
+        "mean_absolute_score_change": 0.0029218469492413783,
+        "max_absolute_score_change": 0.015778541564941406
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.45,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 86,
+        "mean_absolute_score_change": 0.0031909318762658122,
+        "max_absolute_score_change": 0.027684390544891357
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xczu7ev-ffvc1156-2-e:5.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xczu7ev-ffvc1156-2-e",
+      "clock_ns": 5.0,
+      "budget": {
+        "BRAM_18K": 624,
+        "DSP": 1728,
+        "FF": 460800,
+        "LUT": 230400
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.4,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 85,
+        "mean_absolute_score_change": 0.0038372484611018617,
+        "max_absolute_score_change": 0.02786165475845337
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    },
+    {
+      "model": "stage3",
+      "context_id": "rodinia_pathfinder_4_doublebuffer_0:xcu200-fsgd2104-2-e:10.0",
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "family": "pathfinder",
+      "part": "xcu200-fsgd2104-2-e",
+      "clock_ns": 10.0,
+      "budget": {
+        "BRAM_18K": 4320,
+        "DSP": 6840,
+        "FF": 2364480,
+        "LUT": 1182240
+      },
+      "schema_compliant": true,
+      "expected_key_match": true,
+      "exact_reference_match": false,
+      "reference_field_accuracy": 0.45,
+      "changed_assignment_vs_stage1": false,
+      "assignment": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_ARRAY_T_L4} = block\nauto{_ARRAY_F_L4} = 2\nauto{_ARRAY_D_L4} = 1\n<L5>\nauto{_ARRAY_T_L5} = cyclic\nauto{_ARRAY_F_L5} = 2\nauto{_ARRAY_D_L5} = 1\n<L6>\nauto{_ARRAY_T_L6} = cyclic\nauto{_ARRAY_F_L6} = 4\nauto{_ARRAY_D_L6} = 1\n<L7>\nauto{_ARRAY_T_L7} = cyclic\nauto{_ARRAY_F_L7} = 4\nauto{_ARRAY_D_L7} = 1\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 2",
+      "stage1_candidate_score_changes": {
+        "common_topk_scores": 86,
+        "mean_absolute_score_change": 0.0030879041939421534,
+        "max_absolute_score_change": 0.03902244567871094
+      },
+      "physical_feasibility": null,
+      "physical_latency": null,
+      "physical_scope": "No exact physical receipt joined; identical assignment alone is not a new measured hardware outcome."
+    }
+  ],
+  "evidence_controls": [
+    {
+      "context_id": "machsuite-viterbi:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "machsuite-viterbi",
+      "evidence_records_moved": 228,
+      "moved_between_routes": 213,
+      "mean_relative_vector_change": 0.5685401979735297,
+      "variants": {
+        "authentic": {
+          "changed_assignment": false,
+          "common_topk_scores": 70,
+          "mean_absolute_score_change": 0.0,
+          "max_absolute_score_change": 0.0
+        },
+        "cross_route_evidence": {
+          "changed_assignment": false,
+          "common_topk_scores": 70,
+          "mean_absolute_score_change": 0.0022204500718674223,
+          "max_absolute_score_change": 0.010417461395263672
+        },
+        "gate_off": {
+          "changed_assignment": false,
+          "common_topk_scores": 70,
+          "mean_absolute_score_change": 0.0025683762210454526,
+          "max_absolute_score_change": 0.015521526336669922
+        }
+      },
+      "scope": "A2 NF4 FP16 supplementary selected-Step50 control; natural prefixes identical when all chosen values match; eligibility/types/status preserved but cross-route content moved."
+    },
+    {
+      "context_id": "rodinia_pathfinder_0_baseline_0:xczu7ev-ffvc1156-2-e:10.0",
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "evidence_records_moved": 131,
+      "moved_between_routes": 77,
+      "mean_relative_vector_change": 0.4585611303343695,
+      "variants": {
+        "authentic": {
+          "changed_assignment": false,
+          "common_topk_scores": 44,
+          "mean_absolute_score_change": 0.0,
+          "max_absolute_score_change": 0.0
+        },
+        "cross_route_evidence": {
+          "changed_assignment": false,
+          "common_topk_scores": 44,
+          "mean_absolute_score_change": 0.0018477758964185011,
+          "max_absolute_score_change": 0.012274742126464844
+        },
+        "gate_off": {
+          "changed_assignment": false,
+          "common_topk_scores": 44,
+          "mean_absolute_score_change": 0.003593913903883235,
+          "max_absolute_score_change": 0.01571899652481079
+        }
+      },
+      "scope": "A2 NF4 FP16 supplementary selected-Step50 control; natural prefixes identical when all chosen values match; eligibility/types/status preserved but cross-route content moved."
+    }
+  ],
+  "scope": "Three validation kernels, two families, nine correlated requests; no locked test. Teacher-reference field agreement is not QoR. Truncated top-k score comparisons cover only shared returned candidates; full score parity was checked separately. No architecture promoted."
+}

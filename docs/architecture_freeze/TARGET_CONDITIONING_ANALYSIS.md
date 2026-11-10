@@ -1,3 +1,7 @@
+> Revision3 added twelve exact-count Coroni measurements. The same three configurations are measured at both clocks in two families: no meaningful clock winner reversal, plus one unusually tight Viterbi resource boundary. V4/Stage2/DPO change Viterbi PIPE_L6 from1 to0 for U200 under an identical preceding prefix, but full-device budgets differ and physical usefulness is unverified. This is transmission/decision sensitivity, not adaptation benefit.
+>
+> Current evidence: [Revision-3 results](RESULTS_V3.md); [technical architecture](FINAL_SALT_HLS_ARCHITECTURE.md).
+
 # Target-conditioning data audit
 
 [All per-contrast rows](../../experiments/final_architecture_20261109/results/target_contrasts.csv) and [complete sets/counts](../../experiments/final_architecture_20261109/results/target_contrasts.json) derive from97,442 authenticated non-test complete measurements across40 kernels. There are no conflicting duplicate physical labels in this reconstruction. No test labels were loaded.

@@ -1,3 +1,7 @@
+> Revision3 completed twelve additional Coroni2021.1 candidate-bank jobs. Stage3-start latency refinement hit repeated300s timeouts and a separate1200s exact-baseline confirmation is recorded in the final snapshot. Timeout/unknown latency is never physical infeasibility. No new P&R result or learned-policy gain is claimed.
+>
+> Current evidence: [Revision-3 results](RESULTS_V3.md); [technical architecture](FINAL_SALT_HLS_ARCHITECTURE.md).
+
 # Synthesis evidence and limits
 
 Coroni access was verified; Vitis resolves to /opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls with322GiB disk free at preflight. No new synthesis was launched in Revision2. No post-route checks ran. The prior architecture-finalization receipts are retained independently:2 new physical calls, one300s timeout and one completed Pathfinder synthesis with undefined worst-case latency. The latter reports14 BRAM18K,0DSP,1515FF,3418LUT and7.3ns HLS estimate at requested10ns. It cannot support latency ranking. Parser failure due to undefined latency is distinct from synthesis failure.

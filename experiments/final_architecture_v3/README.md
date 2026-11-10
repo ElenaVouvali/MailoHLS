@@ -100,3 +100,80 @@ python -m pytest -p no:cacheprovider experiments/final_architecture_v3/tests \
 
 Large pair manifests, model weights, caches and logs are ignored. Compact results,
 figures, scripts and source hashes are tracked. Locked test labels remain unopened.
+
+## Completed continuation and executable endpoints
+
+[Completed evidence](../../docs/architecture_freeze/RESULTS_V3.md) and
+[deep architecture README](../../docs/architecture_freeze/FINAL_SALT_HLS_ARCHITECTURE.md)
+are authoritative over the initial waiting descriptions above. Selected research
+Stage2 is corrected Step50. Mandatory DPO/SFT34-update arms and all36 decoder
+outputs actually completed. DPO-default qualification and physical adaptation
+remain unresolved; locked test is unopened.
+
+The maintained sequence is:
+
+1. `launch --stage smoke`/`baseline` validates model/data/memory SHA and safe UUID;
+   `supervision` applies only the scoped V4 loss/exposure repair. Fresh output or
+   explicit `--resume` is required. No historical launcher defaults change.
+2. `train_preferences --parent ... --pairs ... --memory-dir ... --out ... --steps34`
+   is the executed mandatory Stage3/SFT path. Use the actual flag spelling
+   `--steps 34`; saved optimizer/scaler/RNG enables explicit `--resume checkpoint`.
+   A completed experiment needs no restart. Never reuse a cache against changed
+   checkpoint/source identity or quietly restart its optimizer.
+3. `decode_bundle --bundle ... --stage1 ... --memory-dir ... --gpu-uuid ... --out ...`
+   is checksum-validating/dry-run by default; `--execute` runs four identical
+   constrained-decoder cohorts. Completed per-model hashes are reused; partial
+   outputs cause an inspection error. The actual Davinci receipt provides commands.
+4. `evaluate_completed --generated artifacts/final_architecture_v3/davinci_generated
+   --evidence-controls artifacts/final_architecture_v3/a2_step50_controls/controls.jsonl
+   --out NEW_ANALYSIS_DIRECTORY` compares predictions/scores without assigning QoR.
+5. `prepare_refinement` seals source/headers/top/actions/physical request and optional
+   RC3 graph; `run_refinement` dry-runs first, then `--execute` uses only Coroni.
+   `retry_anchor` is the logged one-job1200s confirmation following300s timeouts.
+6. `summarize --out NEW_FINAL_SNAPSHOT --dry-run`, then without `--dry-run`, requires
+   the completed physical confirmation. It creates immutable machine reports and
+   refuses an existing snapshot directory. No locked-test selection occurs.
+
+### Normal user-controlled inference
+
+Use a currently idle UUID verified by the reusable `preflight`, not GPU indices
+or a claim that a GPU was idle yesterday. The normal public endpoint is:
+
+```bash
+CUDA_VISIBLE_DEVICES=VERIFIED_IDLE_UUID python -m LLM_branch.inference.optimize \
+  --adapter_dir /path/to/QUALIFIED_STAGE3 \
+  --memory_dir /path/to/authenticated/memory \
+  --directive_domain_registry_json /path/to/QUALIFIED_STAGE3/directive_domain_registry.json \
+  --input_jsonl /path/to/one_request.jsonl --output_jsonl /path/to/result.jsonl \
+  --score_reduction mean --num_samples 1
+```
+
+Default `refinement_enabled=false`: exact Stage3 assignment, **zero HLS queries**.
+Current pilot weights are **not qualified**; the explicit research-only
+`--allow-unqualified-checkpoint` override is required to inspect them through this
+endpoint. The original decoder remains available for transparent Stage1/Stage2
+ablations. Neither this example nor a CLI stage name promotes a checkpoint.
+
+For opt-in physical refinement, add:
+
+```bash
+--refinement-enabled --refinement-budget 8 --refinement-policy coordinate \
+--refinement-request /path/to/sealed/request.json \
+--refinement-run-dir /path/to/persistent/run \
+--refinement-coroni-runner /path/to/authenticated/run_batch.py \
+--refinement-coroni-directory UNIQUE_RELATIVE_CORONI_DIRECTORY \
+--refinement-max-new-calls 8 --refinement-prior-physical-calls CURRENT_GLOBAL_CHARGE
+```
+
+Accepted policies: `coordinate`, `structural`, `hybrid`; structural relations must
+come from the authenticated RC3 graph, never a hand-entered relation table. The
+logical budget1–16 includes the baseline and charges cache hits. Resume requires
+identical code/context/checkpoint; reuse the same run directory. Unknown/failure
+returns the original baseline unverified unless a verified feasible incumbent
+exists. Missing timing/resources never become latency scores. All new Vitis calls
+use Coroni2021.1; `--refinement-archive` supports exact authenticated replay without
+new physical calls. Read the current global ledger before permitting new jobs.
+
+The canceled policy trial preserves pending/failed jobs; do not restart it as if
+its logical budget or physical attempts were zero. Its1200s anchor confirmation
+is a separate charged attempt, not a replacement for the failed300s receipt.

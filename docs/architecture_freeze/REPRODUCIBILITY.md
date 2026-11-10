@@ -1,3 +1,7 @@
+> Revision3 executable commands and immutable snapshot generation are in experiments/final_architecture_v3/README.md. GPU training completed on Liono, matched inference on Davinci after safe UUID/checksum preflight, new HLS only on Coroni. Runtime artifacts are not transferred by Git. Current source/receipt caveats and reconstruction proof are recorded; historical commands below retain their original scope.
+>
+> Current evidence: [Revision-3 results](RESULTS_V3.md); [technical architecture](FINAL_SALT_HLS_ARCHITECTURE.md).
+
 # Reproduction and Davinci handoff
 
 Pull research/final-architecture-decision-20261109 into an isolated persistent worktree. Git contains code and compact receipts, not large checkpoints/tables/caches/memory packs. Verify SHA identities in artifact_manifest.json before use. Install pinned dependencies in an isolated environment; do not alter shared server packages.

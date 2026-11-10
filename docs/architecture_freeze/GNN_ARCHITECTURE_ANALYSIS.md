@@ -1,3 +1,7 @@
+> Revision3 retains frozen two-layer V4b only as the compatible research extractor. The actual20-source LLM/GNN trip-count probe is complete, with13 validation actions in two families and a competitive lexical baseline. No new latency-oriented GNN/depth/hardware-message winner has been trained or qualified; historical ADP conclusions remain scoped.
+>
+> Current evidence: [Revision-3 results](RESULTS_V3.md); [technical architecture](FINAL_SALT_HLS_ARCHITECTURE.md).
+
 # GNN architecture and supervision
 
 The V1 paper encoder is four TransformerConv layers with JK-max and concatenated first/JK states. RC3 V4b is two typed64D layers and a learned64-to-128 projection. Equal64x128 export shape does not establish compatibility. V1 attention weights must never read RC3 memory without fresh matched fusion training.

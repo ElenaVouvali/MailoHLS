@@ -13,6 +13,8 @@ Current research branch: `research/final-architecture-v3-20261110`, based on
 [protocol](../../experiments/final_architecture_v3/protocol.json) and
 [executable commands](../../experiments/final_architecture_v3/README.md).
 
+**Current completed results:** [Revision-3 evidence and release decision](RESULTS_V3.md). The corrected150-update Stage2 selected50; mandatory34-update DPO/SFT and36 matched generations completed. Neither fusion nor DPO changes the nine Stage1 configurations. Twelve new exact-count syntheses establish one unusually tight resource boundary, no meaningful clock reversal. Refinement physical validation remains limited by per-job timeouts.
+
 ## 1. Optimization problem and information flow
 
 Given pristine source P, deployment part D, requested period T, four absolute
@@ -199,13 +201,10 @@ and family-disjoint splits. Ridge regularization is selected only inside trainin
 family folds. Validation MAE in log2 units: mean1.6434, lexical1.1217, GNN1.1487,
 shuffled-label GNN1.9824. Only two validation families exist. Trip count is an
 explicit compiler input, so this does not establish compiler-like inference or
-useful directive selection. The source baseline is essential. Cached older LLM
-states alone lack independent training-family coverage; planned additional
-selected-position captures must exist before claiming an LLM/GNN probe comparison.
+useful directive selection. The source baseline is essential. Actual frozen V4 states were subsequently captured for20 kernels on A2; the family-disjoint joint comparison is now complete. See [current probe results and limitations](RESULTS_V3.md#embeddingevidence-semantics).
 
 Large vector motion is not quality. Attention weight is not causal importance.
-A shuffle within narrow type/status/route groups may be weak; invariance does not
-prove source facts are absent. Verified witness removal, score changes toward
+A shuffle within identical eligibility routes is a permutation symmetry/placebo, not a semantic negative control. A subsequent cross-route matched-type/status intervention changes scores slightly but no selected directives in two corrected-Step50 cases. Invariance does not prove source facts are absent. Verified witness removal, score changes toward
 measured feasible winners and physical validation are stronger evidence.
 
 ## 7. Mandatory Stage3 DPO
@@ -244,9 +243,7 @@ Logical budgets include measuring/reusing the baseline; cache hits still cost a
 logical query. The physical cache cannot reveal unqueried results to the policy.
 
 The backend extends the existing search controller rather than replacing its
-policies. Coordinate/feedback is the simplest candidate default. The public CLI
-currently rejects unsupported RC3 relation translation; no invented inter-action
-links are accepted. Resume reconstructs the policy's own paid history, verifies
+policies. Coordinate/feedback is the simplest candidate default. The public CLI derives verified action pairs directly from the authenticated RC3 graph. No invented inter-action links are accepted. Resume reconstructs the policy's own paid history, verifies
 context/signatures and refuses changed code/request/model. Failure, unknown latency,
 missing resource counts and unknown/missed timing never become scores.
 
@@ -254,8 +251,7 @@ All new synthesis runs only on `bonus24@coroni.microlab.ntua.gr`, pinned Vitis H
 Each job has sealed source/headers/assignment/part/period/settings/Tcl and checksums.
 A durable reservation precedes the remote call; completed exact matches are reused.
 The API returns the best verified feasible, HLS-estimated-timing-qualified incumbent,
-or the unchanged baseline as unverified. This is **AVAILABLE_EXPERIMENTAL** until
-real Stage3-start1/4/8-query evaluations complete. No current latency benefit is
+or the unchanged baseline as unverified. This is **AVAILABLE_EXPERIMENTAL**. A real Stage3-start1/4/8-query comparison is executing with300s/job caps; initial queries time out, so no physical gain is established. No current latency benefit is
 inferred from the older ADP R11 results.
 
 ## 9. Physical evidence and target identifiability

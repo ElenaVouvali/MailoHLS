@@ -1,0 +1,48 @@
+{
+  "arms": {
+    "sft": {
+      "successful_updates": 34,
+      "attempts": 34,
+      "runtime_seconds": 511.4570143930032,
+      "ranking_accuracy": {
+        "train": 0.8046875,
+        "val": 0.46296296296296297
+      },
+      "chosen_nll": {
+        "train": 0.5556418116029818,
+        "val": 1.1845012859061912
+      },
+      "frozen_stage1_verified": true,
+      "checkpoint": "/home/elvouvali/mailohls_runs/final_architecture_v3/qualification/preferences/sft/checkpoint-34"
+    },
+    "dpo": {
+      "successful_updates": 34,
+      "attempts": 34,
+      "runtime_seconds": 753.5088945549796,
+      "ranking_accuracy": {
+        "train": 0.8046875,
+        "val": 0.46296296296296297
+      },
+      "chosen_nll": {
+        "train": 0.5558728110045195,
+        "val": 1.1852570518299386
+      },
+      "frozen_stage1_verified": true,
+      "checkpoint": "/home/elvouvali/mailohls_runs/final_architecture_v3/qualification/preferences/dpo/checkpoint-34"
+    }
+  },
+  "reference_accuracy": {
+    "train": 0.8125,
+    "val": 0.46296296296296297
+  },
+  "qualification": "DPO_REQUIRED_BUT_NOT_QUALIFIED pending constrained generation and physical validation",
+  "peak_cuda_allocated_bytes": 12753344000,
+  "source_receipts": {
+    "/home/elvouvali/mailohls_runs/final_architecture_v3/qualification/preferences/result.json": "28fc6eced15a70f955729de465cbe4f9fae55f03b64460efb2bbe7446bda5230",
+    "/home/elvouvali/mailohls_runs/final_architecture_v3/qualification/preferences/reference.json": "7c6eb988338380ddb4cc2a434db27913bde328fd13a24d5b004b982b86b8d7b6",
+    "/home/elvouvali/mailohls_runs/final_architecture_v3/qualification/preferences/schedule.json": "77aa24b0c6ec769a4c9c84b14f79d365b3ba2e5e8891661322c2da47fe7f7174",
+    "/home/elvouvali/mailohls_runs/final_architecture_v3/qualification/preferences/sft/training.jsonl": "f012a3270edfafe5b36f487ebba78044b3fa69e2b806dc23bb2d1e8172ba89a1",
+    "/home/elvouvali/mailohls_runs/final_architecture_v3/qualification/preferences/dpo/training.jsonl": "0b7e4fd313cfb9670ad4d5650e8c226cf27905bb578cefff03cbee62b4b4fd37"
+  },
+  "source_provenance_limit": "Executed Python3.10 bytecode preserved; two post-start edits changed lineage guards and checkpoint role metadata only. Runtime cache records parent commit dbeaa77 plus dirty tree, not a falsely clean newer commit."
+}

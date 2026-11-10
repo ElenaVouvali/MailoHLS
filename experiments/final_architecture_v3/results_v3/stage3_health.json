@@ -1,0 +1,83 @@
+{
+  "schema": "v3-stage3-health-v1",
+  "source_reference_sha256": "7c6eb988338380ddb4cc2a434db27913bde328fd13a24d5b004b982b86b8d7b6",
+  "metrics": {
+    "sft": {
+      "train": {
+        "mean_reference_corrected_margin": -0.010317842825315893,
+        "min_reference_corrected_margin": -0.138580322265625,
+        "max_reference_corrected_margin": 0.062652587890625,
+        "chosen_nll": 0.5556418116029818,
+        "reference_chosen_nll": 0.555831370089436,
+        "relative_chosen_nll_drift": -0.0003410359628023274,
+        "sum_ranking_accuracy": 0.8046875,
+        "mean_token_ranking_accuracy": 0.828125,
+        "action_normalized_ranking_accuracy": 0.859375
+      },
+      "val": {
+        "mean_reference_corrected_margin": -0.002167684060555917,
+        "min_reference_corrected_margin": -0.045248985290527344,
+        "max_reference_corrected_margin": 0.04148674011230469,
+        "chosen_nll": 1.1845012859061912,
+        "reference_chosen_nll": 1.1847687915519431,
+        "relative_chosen_nll_drift": -0.0002257872149059592,
+        "sum_ranking_accuracy": 0.46296296296296297,
+        "mean_token_ranking_accuracy": 0.46296296296296297,
+        "action_normalized_ranking_accuracy": 0.5185185185185185
+      },
+      "optimizer": {
+        "successful_updates": 34,
+        "skipped_updates": 0,
+        "first_loss": 0.37048719823360443,
+        "last_loss": 0.4909759075380862,
+        "max_grad_norm": 0.6041352152824402,
+        "mean_loss": 0.5483419891748139,
+        "last_gates": {
+          "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate": -0.004958702716976404,
+          "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate": -0.005466429516673088,
+          "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate": 0.005745277274399996,
+          "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate": 0.004974076524376869
+        }
+      }
+    },
+    "dpo": {
+      "train": {
+        "mean_reference_corrected_margin": 0.009031442576088011,
+        "min_reference_corrected_margin": -0.10345077514648438,
+        "max_reference_corrected_margin": 0.099395751953125,
+        "chosen_nll": 0.5558728110045195,
+        "reference_chosen_nll": 0.555831370089436,
+        "relative_chosen_nll_drift": 7.45566323052671e-05,
+        "sum_ranking_accuracy": 0.8046875,
+        "mean_token_ranking_accuracy": 0.828125,
+        "action_normalized_ranking_accuracy": 0.8671875
+      },
+      "val": {
+        "mean_reference_corrected_margin": 0.0077307312576859084,
+        "min_reference_corrected_margin": -0.0735321044921875,
+        "max_reference_corrected_margin": 0.07169532775878906,
+        "chosen_nll": 1.1852570518299386,
+        "reference_chosen_nll": 1.1847687915519431,
+        "relative_chosen_nll_drift": 0.0004121143985873488,
+        "sum_ranking_accuracy": 0.46296296296296297,
+        "mean_token_ranking_accuracy": 0.46296296296296297,
+        "action_normalized_ranking_accuracy": 0.5185185185185185
+      },
+      "optimizer": {
+        "successful_updates": 34,
+        "skipped_updates": 0,
+        "first_loss": 0.6931471824645996,
+        "last_loss": 0.6937547326087952,
+        "max_grad_norm": 0.4953632652759552,
+        "mean_loss": 0.6931158207795199,
+        "last_gates": {
+          "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate": -0.004225938580930233,
+          "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate": -0.00466599315404892,
+          "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate": 0.0050078206695616245,
+          "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn_gate": 0.00449152709916234
+        }
+      }
+    }
+  },
+  "scope": "One-seed34-update bounded pilot; no claim of convergence or physical utility; standard sum DPO primary, normalized rankings descriptive."
+}

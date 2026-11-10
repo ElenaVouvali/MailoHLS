@@ -1,3 +1,7 @@
+> Revision3 completed the corrected action-normalized multi-reference baseline (150updates, selected50). Four heads×64,8,683,524trainable scalars; no nine-request assignment change versus Stage1. Same-route evidence shuffle is a mathematical placebo; cross-route interventions slightly change scores but no choices on two reference cases. No fair layer/gate-layout superiority claim follows.
+>
+> Current evidence: [Revision-3 results](RESULTS_V3.md); [technical architecture](FINAL_SALT_HLS_ARCHITECTURE.md).
+
 # Cross-attention qualification
 
 The existing gated block and `post_self_attention_residual` native layernorm pre-hook preserve the decoder MLP. RC3 already corrected native residual dtype handling. Selected RHS positions use forward-filled absolute action IDs, including the causal position scoring the first RHS token. A single prefix vector does not determine a multi-token candidate score.

@@ -1,3 +1,7 @@
+> Revision3 completed frozen V4 action-position captures on20 sources and family-disjoint LLM/GNN trip-count probes. Descriptive decodability is not decision utility. Corrected-Step50 cross-route evidence changes candidate scores weakly without changing either reference assignment. Same-route permutations preserve accessible K/V multisets and therefore are placebo controls.
+>
+> Current evidence: [Revision-3 results](RESULTS_V3.md); [technical architecture](FINAL_SALT_HLS_ARCHITECTURE.md).
+
 # Information availability versus decision use
 
 Compiler facts are explicit and action-aligned in RC3. Real hardware-message gradients and direct numeric-head ablations verify information paths. They do not show that an LLM decodes a recurrence fact or uses it to improve latency. Compiler-only cached memory is target invariant by design; a target-aware LLM query may still retrieve it differently.
