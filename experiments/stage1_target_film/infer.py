@@ -14,7 +14,12 @@ def main():
  if c['schema']!='stage1-target-adaptation-v1' or c['parent_sha256']!=sha(a.parent/'adapter_model.safetensors'):raise ValueError('Parent lineage mismatch')
  if c['lora_sha256']!=sha(a.adaptation/'device_adapt/adapter_model.safetensors') or c['film_sha256']!=sha(a.adaptation/'film.pt'):raise ValueError('Adaptation weights changed')
  from experiments.final_architecture_20261109.run import preflight
- receipt=preflight(a.gpu_uuid);os.environ['CUDA_VISIBLE_DEVICES']=a.gpu_uuid;a.out.mkdir(parents=True)
+ for attempt in range(16):
+  try:receipt=preflight(a.gpu_uuid);break
+  except RuntimeError:
+   if attempt==15:raise
+   time.sleep(2)
+ os.environ['CUDA_VISIBLE_DEVICES']=a.gpu_uuid;a.out.mkdir(parents=True)
  from LLM_branch.inference import eval_stage1_stage2_stage3 as inf
  from LLM_branch.common.mailohls_contract import RESOURCE_KEYS
  originals={k:getattr(inf,k) for k in ('load_stage_model','predict_case','get_rhs_candidates_for_lhs','score_rhs_candidate_suffix')};state={};current={};started=time.monotonic()
