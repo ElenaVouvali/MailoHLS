@@ -20,6 +20,10 @@ def main():
  dpo.apply_parent_contract(production,args,parent);tok=dpo.build_tokenizer(production,args,parent);registry=inference.load_directive_domain_registry(str(a.bundle/'stage2/directive_domain_registry.json'));cases=[json.loads(s) for s in a.cases.read_text().splitlines()]
  with corrected(production):dataset=production.SFTDataset([r['row'] for r in cases],tok,parent['max_length'],directive_domain_registry=registry,supervise_eos=False,input_only_special_ids=parent['special_token_ids'])
  assert len(dataset.samples)==len(cases)
+ for case,sample in zip(cases,dataset.samples):
+  assert production.build_rhs_map_from_target(case['row']['target']),'Empty RHS map: use native auto{...} serialization'
+  if case['row'].get('avail_bram')==46:
+   prompt=tok.decode(sample['input_ids'][:int(sample['routing_start_idx'])]);assert 'BRAM_18K=46 ' in prompt,'Binding budget was not preserved in actual prompt'
  model=dpo.build_structural_model(production,args,tok,trainable=False);model.requires_grad_(False);model.eval();device=next(model.parameters()).device;bank=inference.load_memory_bank(str(a.memory_dir),expected_mem_dim=128,expected_max_slots=64);records=[]
  for mode,checkpoint in [('stage1_gateoff','stage2'),('stage2','stage2'),('stage3','dpo')]:
   production.load_partial_structural_xattn(model,str(a.bundle/checkpoint/'structural_xattn.pt'),'SCORE_'+mode)
