@@ -1,0 +1,193 @@
+{
+  "schema": "salt-v3-architecture-decisions-v1",
+  "freeze": "NO",
+  "reference": {
+    "objective": "PARETO_LATENCY",
+    "part": "xczu7ev-ffvc1156-2-e",
+    "clock_ns": 10,
+    "budgets": {
+      "BRAM_18K": 624,
+      "DSP": 1728,
+      "FF": 460800,
+      "LUT": 230400
+    }
+  },
+  "matrix": [
+    {
+      "component": "Stage1 objective",
+      "verdict": "CONSERVATIVELY_RETAINED",
+      "selected_configuration": "Frozen V4 near-optimal multi-reference, action-normalized nonforced RHS, Q/K/V/O LoRA r8 alpha16; PARETO_LATENCY",
+      "measured_development_evidence": "No alternative demonstrates measured held-out feasible-latency improvement",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Authenticated independent-family target-contrast continuation improves feasible latency and preserves reference",
+      "checkpoint_or_code_lineage": "stage1_quality_sft_latency_v4/multi_reference/run"
+    },
+    {
+      "component": "Graph schema",
+      "verdict": "QUALIFIED",
+      "selected_configuration": "Authenticated RC3 compiler facts/knownness/provenance, absolute64 slots",
+      "measured_development_evidence": "Integrity and routing qualification only; no QoR superiority claimed",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "mechanism-specific only",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "New compiler/action-map defect or reproducible coverage improvement",
+      "checkpoint_or_code_lineage": "rc3-fusion-foundation"
+    },
+    {
+      "component": "GNN depth/supervision",
+      "verdict": "CONSERVATIVELY_RETAINED",
+      "selected_configuration": "Frozen V4b two64D typed layers ->128D export, historical physical-QoR/ADP auxiliary selection",
+      "measured_development_evidence": "Not scientifically selected as latency-optimal; no new latency encoder winner",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Matched latency downstream deficit followed by controlled depth/readout improvement",
+      "checkpoint_or_code_lineage": "corrected_v3_full37/compiler_selected.pt"
+    },
+    {
+      "component": "Memory A/B/C",
+      "verdict": "NOT_IDENTIFIABLE",
+      "selected_configuration": "Static variable-length C is the compatible research bridge; fresh fusion only",
+      "measured_development_evidence": "No trained matched A/B/C comparison; explicit type/status metadata not consumed as learned bias",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Matched trained alternative improves source-aligned interventions and feasible latency",
+      "checkpoint_or_code_lineage": "static_corrected_s123"
+    },
+    {
+      "component": "Fusion routing/insertion",
+      "verdict": "QUALIFIED",
+      "selected_configuration": "Compiler-relational absolute slots, nonforced RHS application, post_self_attention_residual, native residual dtype",
+      "measured_development_evidence": "Mechanism and parity qualification only; masks/padding/checkpointing tested",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "mechanism-specific only",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "A real decoder/cache mismatch invalidates the contract",
+      "checkpoint_or_code_lineage": "LLM_branch/common/structural_xattn.py"
+    },
+    {
+      "component": "Fusion gate/layers",
+      "verdict": "CONSERVATIVELY_RETAINED",
+      "selected_configuration": "Zero-init tanh gate, four heads\u00d764, layers8/16/24/32 for compatible corrected pilot",
+      "measured_development_evidence": "No matched gate-init/layer winner established;150-update budget, checkpoint50 selected",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Matched convergence-qualified smaller/nonzero arm improves measured endpoint under informative labels",
+      "checkpoint_or_code_lineage": "static_corrected_s123/selected50"
+    },
+    {
+      "component": "Target location: static query",
+      "verdict": "CONSERVATIVELY_RETAINED",
+      "selected_configuration": "Target/objective/budget in frozen LLM query; static compiler cache target-independent",
+      "measured_development_evidence": "Features transmitted and scores can move; useful target adaptation unproven",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Independent-family switch/stay improvements under exact physical receipts",
+      "checkpoint_or_code_lineage": "Stage1 prompt -> Stage2 Q"
+    },
+    {
+      "component": "Direct numeric head",
+      "verdict": "NOT_IDENTIFIABLE",
+      "selected_configuration": "Both historical compiler/hardware standalone heads receive target numeric vector",
+      "measured_development_evidence": "Standalone predictor is not Stage2 generation; no matched latency H0-H5 result",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Informative matched latency pools and controlled head-only/graph-only/both comparison",
+      "checkpoint_or_code_lineage": "V4b historical ADP"
+    },
+    {
+      "component": "Hardware messages",
+      "verdict": "NOT_IDENTIFIABLE",
+      "selected_configuration": "Verified target-message path, not promoted into the latency policy",
+      "measured_development_evidence": "Historical ADP incremental result cannot reject hardware-aware Stage2",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Independent matched latency generation benefit justifies per-target graph cost",
+      "checkpoint_or_code_lineage": "V4b historical hardware arm"
+    },
+    {
+      "component": "FiLM memory",
+      "verdict": "NOT_IDENTIFIABLE",
+      "selected_configuration": "Not promoted; cacheable static bridge retained",
+      "measured_development_evidence": "Historical ADP capacity control beats FiLM combined score, not latency rejection",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Matched capacity/data/optimizer end-task improvement across selection families",
+      "checkpoint_or_code_lineage": "V4b historical FiLM"
+    },
+    {
+      "component": "Target-conditioned gate",
+      "verdict": "NOT_IDENTIFIABLE",
+      "selected_configuration": "NOT_RUN; budget remains policy feasibility, not physical graph fact",
+      "measured_development_evidence": "No qualified signal to justify additional conditional module",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Valid switch/stay labels and a diagnosed gate-specific failure",
+      "checkpoint_or_code_lineage": "none"
+    },
+    {
+      "component": "Stage3 DPO default",
+      "verdict": "NOT_IDENTIFIABLE",
+      "selected_configuration": "Mandatory beta.1 summed-value DPO actually trained34 updates; default qualification blocked",
+      "measured_development_evidence": "Tied25/54 development ranking and identical9/9 Stage1 outputs; no physical gain demonstrated",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Non-regressing independently measured feasible-latency benefit or well-supported safe tie and physical qualification",
+      "checkpoint_or_code_lineage": "qualification/preferences/dpo/checkpoint-34"
+    },
+    {
+      "component": "User-controlled refinement",
+      "verdict": "CONSERVATIVELY_RETAINED",
+      "selected_configuration": "Normal API defaultoff; coordinate candidate default; RC3-pair alternative; exact opaque cache, logical budgets, Coroni-only",
+      "measured_development_evidence": "AVAILABLE_EXPERIMENTAL; repeated300s timeouts, one1200s baseline confirmation; quality unresolved",
+      "test_status": "LOCKED_TEST_UNOPENED",
+      "confidence": "limited; two validation families",
+      "direct_hardware_outcome_evidence": "New twelve-job candidate bank; no learned-policy gain established",
+      "resource_cost": "See resource_ledger.json and completed receipts",
+      "leakage_risk": "No locked-test use; correlated budget/device views explicitly clustered",
+      "condition_to_reverse": "Finite same-context Stage3 baseline and matched1/4/8-query measured benefit with transparent cost",
+      "checkpoint_or_code_lineage": "LLM_branch/inference/optimize.py"
+    }
+  ],
+  "blocked_release_gates": [
+    "Useful compiler-evidence fusion not established",
+    "Independent-family meaningful target switches incomplete; new exact boundary is OOD one-family",
+    "DPO_REQUIRED_BUT_NOT_QUALIFIED despite completed training/decoding",
+    "Stage3-start finite physical refinement baseline and benefit pending",
+    "Final locked test correctly withheld until finalists qualify"
+  ]
+}
