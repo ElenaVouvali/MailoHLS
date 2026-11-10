@@ -192,6 +192,33 @@ switch cohort, or a reason to train a larger target-conditioned architecture.
 No new device reversal established. Latency-specific useful target adaptation
 remains **NOT_IDENTIFIABLE** across independent selection families.
 
+## Frozen-policy scores on the measured bank
+
+A final61.50-second DavinciV100 inference audit scored15 complete-design views
+under Stage1(gates off), corrected Stage2 and Stage3. It uses the exact native
+nonforced RHS masks, each completion's own causal history, authentic static C,
+and the same frozen parent. Native directive spelling and actual tokenized
+BRAM46 prompt were checked before model execution. One initial serialization
+attempt failed before model loading; its log is retained. No optimizer update or
+new synthesis was performed by this audit.
+
+All three policies choose the **same contender in each of five request pools**;
+summed-value, mean-value and action-normalized scoring agree on these winners.
+At Viterbi10ns/full budget they prefer730,163cycles over the feasible372,816-cycle
+co-edit: **95.85% conditional measured-pool ranking regret**. Under the OOD BRAM46
+limit the same conservative choice is the best eligible measured contender, giving
+zero restricted-pool regret. For Pathfinder both clock pools choose the best
+measured contender. Viterbi3.33ns has no timing-qualified contender, so its qualified
+regret is undefined. Thus no latency-ranking winner switch is learned by fusion
+or DPO here. Score changes are not useful target adaptation merely because the
+correct budget-limited choice happens to match an invariant preference.
+
+This is **teacher-forced likelihood ranking of a restricted measured pool**, not
+natural constrained generation, a new predictor averaged with the LLM, a globally
+optimality claim, or measured latency of the nine generated assignments. It adds
+an end-task-relevant diagnostic while preserving those distinctions.
+[Scores/feasibility/coverage](../../experiments/final_architecture_v3/results_v3/measured_policy_score_analysis.json).
+
 ## Refinement and next release gate
 
 The maintained `LLM_branch.inference.optimize` path supports DPO Stage3 outputs and
@@ -225,7 +252,7 @@ resource/latency trade-off rather than optimality. There is no new C/RTL or P&R 
 [Final physical refinement receipt](../../experiments/final_architecture_v3/results_v3/refinement_physical_final.json)
 records all raw report/log hashes, the explicit provenance crosscheck for the
 compiler-warning snippet, actual31 charged HLS attempts (11 inherited+20 new),
-and the31/48 ceiling accounting. Conservative GPU accounting is5.94hours including
+and the31/48 ceiling accounting. Conservative GPU accounting is5.96hours including
 an explicit prior-session reserve, not an assertion every old load was timed exactly.
 The normal refinement interface remains **AVAILABLE_EXPERIMENTAL**; finite paired
 policy benefit and default DPO quality remain unqualified.

@@ -1,0 +1,1297 @@
+{
+  "schema": "v3-measured-pool-score-analysis-v1",
+  "input_sha256": "3da1ebee10cc719636d51df1fcafce62278165889debff8d9ea02a9dbf1c9aff",
+  "runtime_seconds": 61.501148476003436,
+  "hardware": {
+    "host": "davinci",
+    "uuid": "GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f",
+    "logical_cuda_device": 0,
+    "gpu": [
+      "GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f",
+      "Tesla V100-PCIE-32GB",
+      "32494",
+      "0"
+    ],
+    "processes": "",
+    "python": "/home/evouvali/MailoHLS/.venv/bin/python"
+  },
+  "outcomes": [
+    {
+      "mode": "stage1_gateoff",
+      "request": "machsuite-viterbi:10.0:bram46",
+      "chosen_case": "machsuite-viterbi:0:10.0:bram46",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 2,
+      "conditional_measured_pool_latency_regret": 0.0,
+      "chosen_cycles": 730163,
+      "best_qualified_pool_cycles": 730163,
+      "conventions": {
+        "sum_value_logp": "machsuite-viterbi:0:10.0:bram46",
+        "mean_value_logp": "machsuite-viterbi:0:10.0:bram46",
+        "action_normalized_logp": "machsuite-viterbi:0:10.0:bram46"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "machsuite-viterbi:0:10.0:bram46",
+          "request_id": "machsuite-viterbi:10.0:bram46",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.163700103759766,
+          "mean_value_logp": -0.9559842159873561,
+          "action_normalized_logp": -0.952363133430481,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730163,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 21261,
+              "LUT": 30271
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "OOD bank-derived bindingBRAM46; physical labels unchanged"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "machsuite-viterbi:1:10.0:bram46",
+          "request_id": "machsuite-viterbi:10.0:bram46",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.230236053466797,
+          "mean_value_logp": -0.9594861080771998,
+          "action_normalized_logp": -0.9565215706825256,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730172,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 20823,
+              "LUT": 28994
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "OOD bank-derived bindingBRAM46; physical labels unchanged"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "machsuite-viterbi:coedit8:10.0:bram46",
+          "request_id": "machsuite-viterbi:10.0:bram46",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -19.069684982299805,
+          "mean_value_logp": -1.0036676306473582,
+          "action_normalized_logp": -0.9913361072540283,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 372816,
+            "resources": {
+              "BRAM_18K": 56,
+              "DSP": 12,
+              "FF": 25822,
+              "LUT": 53297
+            },
+            "estimated_clock_ns": 7.784
+          },
+          "scope": "OOD bank-derived bindingBRAM46; physical labels unchanged"
+        }
+      ]
+    },
+    {
+      "mode": "stage1_gateoff",
+      "request": "machsuite-viterbi:10.0:full",
+      "chosen_case": "machsuite-viterbi:0:10.0",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 3,
+      "conditional_measured_pool_latency_regret": 0.9585076820737308,
+      "chosen_cycles": 730163,
+      "best_qualified_pool_cycles": 372816,
+      "conventions": {
+        "sum_value_logp": "machsuite-viterbi:0:10.0",
+        "mean_value_logp": "machsuite-viterbi:0:10.0",
+        "action_normalized_logp": "machsuite-viterbi:0:10.0"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "machsuite-viterbi:0:10.0",
+          "request_id": "machsuite-viterbi:10.0:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -17.95702362060547,
+          "mean_value_logp": -0.9451065063476562,
+          "action_normalized_logp": -0.9422892332077026,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730163,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 21261,
+              "LUT": 30271
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "machsuite-viterbi:1:10.0",
+          "request_id": "machsuite-viterbi:10.0:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.01495361328125,
+          "mean_value_logp": -0.9481554533305921,
+          "action_normalized_logp": -0.9459096789360046,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730172,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 20823,
+              "LUT": 28994
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "machsuite-viterbi:coedit8:10.0",
+          "request_id": "machsuite-viterbi:10.0:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.968202590942383,
+          "mean_value_logp": -0.9983264521548623,
+          "action_normalized_logp": -0.9859765768051147,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 372816,
+            "resources": {
+              "BRAM_18K": 56,
+              "DSP": 12,
+              "FF": 25822,
+              "LUT": 53297
+            },
+            "estimated_clock_ns": 7.784
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage1_gateoff",
+      "request": "machsuite-viterbi:3.33:full",
+      "chosen_case": "machsuite-viterbi:0:3.33",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": false,
+      "qualified_pool_size": 0,
+      "conditional_measured_pool_latency_regret": null,
+      "chosen_cycles": 1495738,
+      "best_qualified_pool_cycles": null,
+      "conventions": {
+        "sum_value_logp": "machsuite-viterbi:0:3.33",
+        "mean_value_logp": "machsuite-viterbi:0:3.33",
+        "action_normalized_logp": "machsuite-viterbi:0:3.33"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "machsuite-viterbi:0:3.33",
+          "request_id": "machsuite-viterbi:3.33:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.20787811279297,
+          "mean_value_logp": -0.9583093743575247,
+          "action_normalized_logp": -0.9627125859260559,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 1495738,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 3,
+              "FF": 29094,
+              "LUT": 31331
+            },
+            "estimated_clock_ns": 5.405
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "machsuite-viterbi:1:3.33",
+          "request_id": "machsuite-viterbi:3.33:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.405498504638672,
+          "mean_value_logp": -0.9687104476125616,
+          "action_normalized_logp": -0.9750639200210571,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 1495705,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 3,
+              "FF": 28528,
+              "LUT": 29712
+            },
+            "estimated_clock_ns": 5.405
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "machsuite-viterbi:coedit8:3.33",
+          "request_id": "machsuite-viterbi:3.33:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -19.196001052856445,
+          "mean_value_logp": -1.0103158448871814,
+          "action_normalized_logp": -1.0025863647460938,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 506753,
+            "resources": {
+              "BRAM_18K": 56,
+              "DSP": 12,
+              "FF": 51914,
+              "LUT": 57210
+            },
+            "estimated_clock_ns": 3.485
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage1_gateoff",
+      "request": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+      "chosen_case": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 3,
+      "conditional_measured_pool_latency_regret": 0.0,
+      "chosen_cycles": 3242859,
+      "best_qualified_pool_cycles": 3242859,
+      "conventions": {
+        "sum_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+        "mean_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+        "action_normalized_logp": "rodinia_pathfinder_4_doublebuffer_0:1:10.0"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:0:10.0",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -11.264710426330566,
+          "mean_value_logp": -0.5120322921059348,
+          "action_normalized_logp": -0.5950397849082947,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242863,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2095,
+              "LUT": 5231
+            },
+            "estimated_clock_ns": 7.3
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -10.780335426330566,
+          "mean_value_logp": -0.4900152466513894,
+          "action_normalized_logp": -0.5647663474082947,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242859,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2039,
+              "LUT": 5061
+            },
+            "estimated_clock_ns": 7.3
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:coedit8:10.0",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -15.134025573730469,
+          "mean_value_logp": -0.6305843989054362,
+          "action_normalized_logp": -0.7786846160888672,
+          "nonforced_value_tokens": 24,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3243895,
+            "resources": {
+              "BRAM_18K": 108,
+              "DSP": 0,
+              "FF": 2408,
+              "LUT": 7552
+            },
+            "estimated_clock_ns": 7.3
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage1_gateoff",
+      "request": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+      "chosen_case": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 3,
+      "conditional_measured_pool_latency_regret": 0.0,
+      "chosen_cycles": 3242891,
+      "best_qualified_pool_cycles": 3242891,
+      "conventions": {
+        "sum_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+        "mean_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+        "action_normalized_logp": "rodinia_pathfinder_4_doublebuffer_0:1:3.33"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:0:3.33",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -11.680957794189453,
+          "mean_value_logp": -0.5309526270086115,
+          "action_normalized_logp": -0.6188281774520874,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242895,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2466,
+              "LUT": 5258
+            },
+            "estimated_clock_ns": 2.431
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -11.149707794189453,
+          "mean_value_logp": -0.5068048997358843,
+          "action_normalized_logp": -0.5856250524520874,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242891,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2411,
+              "LUT": 5097
+            },
+            "estimated_clock_ns": 2.431
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage1_gateoff",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:coedit8:3.33",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -15.438582420349121,
+          "mean_value_logp": -0.6432742675145467,
+          "action_normalized_logp": -0.7914994955062866,
+          "nonforced_value_tokens": 24,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3243943,
+            "resources": {
+              "BRAM_18K": 108,
+              "DSP": 0,
+              "FF": 4308,
+              "LUT": 8113
+            },
+            "estimated_clock_ns": 2.431
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage2",
+      "request": "machsuite-viterbi:10.0:bram46",
+      "chosen_case": "machsuite-viterbi:0:10.0:bram46",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 2,
+      "conditional_measured_pool_latency_regret": 0.0,
+      "chosen_cycles": 730163,
+      "best_qualified_pool_cycles": 730163,
+      "conventions": {
+        "sum_value_logp": "machsuite-viterbi:0:10.0:bram46",
+        "mean_value_logp": "machsuite-viterbi:0:10.0:bram46",
+        "action_normalized_logp": "machsuite-viterbi:0:10.0:bram46"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage2",
+          "case_id": "machsuite-viterbi:0:10.0:bram46",
+          "request_id": "machsuite-viterbi:10.0:bram46",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.165729522705078,
+          "mean_value_logp": -0.9560910275107936,
+          "action_normalized_logp": -0.9515710473060608,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730163,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 21261,
+              "LUT": 30271
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "OOD bank-derived bindingBRAM46; physical labels unchanged"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "machsuite-viterbi:1:10.0:bram46",
+          "request_id": "machsuite-viterbi:10.0:bram46",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.251995086669922,
+          "mean_value_logp": -0.9606313203510485,
+          "action_normalized_logp": -0.9569627046585083,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730172,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 20823,
+              "LUT": 28994
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "OOD bank-derived bindingBRAM46; physical labels unchanged"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "machsuite-viterbi:coedit8:10.0:bram46",
+          "request_id": "machsuite-viterbi:10.0:bram46",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -19.083229064941406,
+          "mean_value_logp": -1.0043804771021794,
+          "action_normalized_logp": -0.991588830947876,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 372816,
+            "resources": {
+              "BRAM_18K": 56,
+              "DSP": 12,
+              "FF": 25822,
+              "LUT": 53297
+            },
+            "estimated_clock_ns": 7.784
+          },
+          "scope": "OOD bank-derived bindingBRAM46; physical labels unchanged"
+        }
+      ]
+    },
+    {
+      "mode": "stage2",
+      "request": "machsuite-viterbi:10.0:full",
+      "chosen_case": "machsuite-viterbi:0:10.0",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 3,
+      "conditional_measured_pool_latency_regret": 0.9585076820737308,
+      "chosen_cycles": 730163,
+      "best_qualified_pool_cycles": 372816,
+      "conventions": {
+        "sum_value_logp": "machsuite-viterbi:0:10.0",
+        "mean_value_logp": "machsuite-viterbi:0:10.0",
+        "action_normalized_logp": "machsuite-viterbi:0:10.0"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage2",
+          "case_id": "machsuite-viterbi:0:10.0",
+          "request_id": "machsuite-viterbi:10.0:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -17.987428665161133,
+          "mean_value_logp": -0.9467067718505859,
+          "action_normalized_logp": -0.9438822269439697,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730163,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 21261,
+              "LUT": 30271
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "machsuite-viterbi:1:10.0",
+          "request_id": "machsuite-viterbi:10.0:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.05571746826172,
+          "mean_value_logp": -0.9503009193821957,
+          "action_normalized_logp": -0.9481502771377563,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730172,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 20823,
+              "LUT": 28994
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "machsuite-viterbi:coedit8:10.0",
+          "request_id": "machsuite-viterbi:10.0:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -19.00444793701172,
+          "mean_value_logp": -1.0002341019479852,
+          "action_normalized_logp": -0.9879345893859863,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 372816,
+            "resources": {
+              "BRAM_18K": 56,
+              "DSP": 12,
+              "FF": 25822,
+              "LUT": 53297
+            },
+            "estimated_clock_ns": 7.784
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage2",
+      "request": "machsuite-viterbi:3.33:full",
+      "chosen_case": "machsuite-viterbi:0:3.33",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": false,
+      "qualified_pool_size": 0,
+      "conditional_measured_pool_latency_regret": null,
+      "chosen_cycles": 1495738,
+      "best_qualified_pool_cycles": null,
+      "conventions": {
+        "sum_value_logp": "machsuite-viterbi:0:3.33",
+        "mean_value_logp": "machsuite-viterbi:0:3.33",
+        "action_normalized_logp": "machsuite-viterbi:0:3.33"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage2",
+          "case_id": "machsuite-viterbi:0:3.33",
+          "request_id": "machsuite-viterbi:3.33:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.26953125,
+          "mean_value_logp": -0.9615542763157895,
+          "action_normalized_logp": -0.9657132625579834,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 1495738,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 3,
+              "FF": 29094,
+              "LUT": 31331
+            },
+            "estimated_clock_ns": 5.405
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "machsuite-viterbi:1:3.33",
+          "request_id": "machsuite-viterbi:3.33:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.46822166442871,
+          "mean_value_logp": -0.9720116665488795,
+          "action_normalized_logp": -0.9781313538551331,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 1495705,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 3,
+              "FF": 28528,
+              "LUT": 29712
+            },
+            "estimated_clock_ns": 5.405
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "machsuite-viterbi:coedit8:3.33",
+          "request_id": "machsuite-viterbi:3.33:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -19.24534034729004,
+          "mean_value_logp": -1.0129126498573704,
+          "action_normalized_logp": -1.0049481391906738,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 506753,
+            "resources": {
+              "BRAM_18K": 56,
+              "DSP": 12,
+              "FF": 51914,
+              "LUT": 57210
+            },
+            "estimated_clock_ns": 3.485
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage2",
+      "request": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+      "chosen_case": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 3,
+      "conditional_measured_pool_latency_regret": 0.0,
+      "chosen_cycles": 3242859,
+      "best_qualified_pool_cycles": 3242859,
+      "conventions": {
+        "sum_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+        "mean_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+        "action_normalized_logp": "rodinia_pathfinder_4_doublebuffer_0:1:10.0"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage2",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:0:10.0",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -11.19948959350586,
+          "mean_value_logp": -0.5090677087957208,
+          "action_normalized_logp": -0.5896734595298767,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242863,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2095,
+              "LUT": 5231
+            },
+            "estimated_clock_ns": 7.3
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -10.71511459350586,
+          "mean_value_logp": -0.4870506633411754,
+          "action_normalized_logp": -0.5594000220298767,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242859,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2039,
+              "LUT": 5061
+            },
+            "estimated_clock_ns": 7.3
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:coedit8:10.0",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -15.075182914733887,
+          "mean_value_logp": -0.6281326214472452,
+          "action_normalized_logp": -0.7740746736526489,
+          "nonforced_value_tokens": 24,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3243895,
+            "resources": {
+              "BRAM_18K": 108,
+              "DSP": 0,
+              "FF": 2408,
+              "LUT": 7552
+            },
+            "estimated_clock_ns": 7.3
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage2",
+      "request": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+      "chosen_case": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 3,
+      "conditional_measured_pool_latency_regret": 0.0,
+      "chosen_cycles": 3242891,
+      "best_qualified_pool_cycles": 3242891,
+      "conventions": {
+        "sum_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+        "mean_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+        "action_normalized_logp": "rodinia_pathfinder_4_doublebuffer_0:1:3.33"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage2",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:0:3.33",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -11.600381851196289,
+          "mean_value_logp": -0.5272900841452859,
+          "action_normalized_logp": -0.6125628352165222,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242895,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2466,
+              "LUT": 5258
+            },
+            "estimated_clock_ns": 2.431
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -11.069131851196289,
+          "mean_value_logp": -0.5031423568725586,
+          "action_normalized_logp": -0.5793597102165222,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242891,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2411,
+              "LUT": 5097
+            },
+            "estimated_clock_ns": 2.431
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage2",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:coedit8:3.33",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -15.380908966064453,
+          "mean_value_logp": -0.6408712069193522,
+          "action_normalized_logp": -0.7859888076782227,
+          "nonforced_value_tokens": 24,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3243943,
+            "resources": {
+              "BRAM_18K": 108,
+              "DSP": 0,
+              "FF": 4308,
+              "LUT": 8113
+            },
+            "estimated_clock_ns": 2.431
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage3",
+      "request": "machsuite-viterbi:10.0:bram46",
+      "chosen_case": "machsuite-viterbi:0:10.0:bram46",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 2,
+      "conditional_measured_pool_latency_regret": 0.0,
+      "chosen_cycles": 730163,
+      "best_qualified_pool_cycles": 730163,
+      "conventions": {
+        "sum_value_logp": "machsuite-viterbi:0:10.0:bram46",
+        "mean_value_logp": "machsuite-viterbi:0:10.0:bram46",
+        "action_normalized_logp": "machsuite-viterbi:0:10.0:bram46"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage3",
+          "case_id": "machsuite-viterbi:0:10.0:bram46",
+          "request_id": "machsuite-viterbi:10.0:bram46",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.2081241607666,
+          "mean_value_logp": -0.9583223242508737,
+          "action_normalized_logp": -0.9539856910705566,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730163,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 21261,
+              "LUT": 30271
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "OOD bank-derived bindingBRAM46; physical labels unchanged"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "machsuite-viterbi:1:10.0:bram46",
+          "request_id": "machsuite-viterbi:10.0:bram46",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.280094146728516,
+          "mean_value_logp": -0.9621102182488692,
+          "action_normalized_logp": -0.9584838151931763,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730172,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 20823,
+              "LUT": 28994
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "OOD bank-derived bindingBRAM46; physical labels unchanged"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "machsuite-viterbi:coedit8:10.0:bram46",
+          "request_id": "machsuite-viterbi:10.0:bram46",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -19.095943450927734,
+          "mean_value_logp": -1.005049655311986,
+          "action_normalized_logp": -0.9918231964111328,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 372816,
+            "resources": {
+              "BRAM_18K": 56,
+              "DSP": 12,
+              "FF": 25822,
+              "LUT": 53297
+            },
+            "estimated_clock_ns": 7.784
+          },
+          "scope": "OOD bank-derived bindingBRAM46; physical labels unchanged"
+        }
+      ]
+    },
+    {
+      "mode": "stage3",
+      "request": "machsuite-viterbi:10.0:full",
+      "chosen_case": "machsuite-viterbi:0:10.0",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 3,
+      "conditional_measured_pool_latency_regret": 0.9585076820737308,
+      "chosen_cycles": 730163,
+      "best_qualified_pool_cycles": 372816,
+      "conventions": {
+        "sum_value_logp": "machsuite-viterbi:0:10.0",
+        "mean_value_logp": "machsuite-viterbi:0:10.0",
+        "action_normalized_logp": "machsuite-viterbi:0:10.0"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage3",
+          "case_id": "machsuite-viterbi:0:10.0",
+          "request_id": "machsuite-viterbi:10.0:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.015512466430664,
+          "mean_value_logp": -0.9481848666542455,
+          "action_normalized_logp": -0.945496678352356,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730163,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 21261,
+              "LUT": 30271
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "machsuite-viterbi:1:10.0",
+          "request_id": "machsuite-viterbi:10.0:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.077116012573242,
+          "mean_value_logp": -0.9514271585564864,
+          "action_normalized_logp": -0.9493468999862671,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 730172,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 6,
+              "FF": 20823,
+              "LUT": 28994
+            },
+            "estimated_clock_ns": 8.007
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "machsuite-viterbi:coedit8:10.0",
+          "request_id": "machsuite-viterbi:10.0:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.978607177734375,
+          "mean_value_logp": -0.9988740619860197,
+          "action_normalized_logp": -0.986312747001648,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 372816,
+            "resources": {
+              "BRAM_18K": 56,
+              "DSP": 12,
+              "FF": 25822,
+              "LUT": 53297
+            },
+            "estimated_clock_ns": 7.784
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage3",
+      "request": "machsuite-viterbi:3.33:full",
+      "chosen_case": "machsuite-viterbi:0:3.33",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": false,
+      "qualified_pool_size": 0,
+      "conditional_measured_pool_latency_regret": null,
+      "chosen_cycles": 1495738,
+      "best_qualified_pool_cycles": null,
+      "conventions": {
+        "sum_value_logp": "machsuite-viterbi:0:3.33",
+        "mean_value_logp": "machsuite-viterbi:0:3.33",
+        "action_normalized_logp": "machsuite-viterbi:0:3.33"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage3",
+          "case_id": "machsuite-viterbi:0:3.33",
+          "request_id": "machsuite-viterbi:3.33:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.248950958251953,
+          "mean_value_logp": -0.9604711030658922,
+          "action_normalized_logp": -0.9641082286834717,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 1495738,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 3,
+              "FF": 29094,
+              "LUT": 31331
+            },
+            "estimated_clock_ns": 5.405
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "machsuite-viterbi:1:3.33",
+          "request_id": "machsuite-viterbi:3.33:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -18.446533203125,
+          "mean_value_logp": -0.9708701685855263,
+          "action_normalized_logp": -0.9764569997787476,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 1495705,
+            "resources": {
+              "BRAM_18K": 36,
+              "DSP": 3,
+              "FF": 28528,
+              "LUT": 29712
+            },
+            "estimated_clock_ns": 5.405
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "machsuite-viterbi:coedit8:3.33",
+          "request_id": "machsuite-viterbi:3.33:full",
+          "kernel": "machsuite-viterbi",
+          "sum_value_logp": -19.237524032592773,
+          "mean_value_logp": -1.0125012648733038,
+          "action_normalized_logp": -1.004140853881836,
+          "nonforced_value_tokens": 19,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 506753,
+            "resources": {
+              "BRAM_18K": 56,
+              "DSP": 12,
+              "FF": 51914,
+              "LUT": 57210
+            },
+            "estimated_clock_ns": 3.485
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage3",
+      "request": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+      "chosen_case": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 3,
+      "conditional_measured_pool_latency_regret": 0.0,
+      "chosen_cycles": 3242859,
+      "best_qualified_pool_cycles": 3242859,
+      "conventions": {
+        "sum_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+        "mean_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+        "action_normalized_logp": "rodinia_pathfinder_4_doublebuffer_0:1:10.0"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage3",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:0:10.0",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -11.2351655960083,
+          "mean_value_logp": -0.5106893452731046,
+          "action_normalized_logp": -0.5918353796005249,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242863,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2095,
+              "LUT": 5231
+            },
+            "estimated_clock_ns": 7.3
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:1:10.0",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -10.7507905960083,
+          "mean_value_logp": -0.48867229981855914,
+          "action_normalized_logp": -0.5615619421005249,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242859,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2039,
+              "LUT": 5061
+            },
+            "estimated_clock_ns": 7.3
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:coedit8:10.0",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:10.0:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -15.142727851867676,
+          "mean_value_logp": -0.6309469938278198,
+          "action_normalized_logp": -0.7773610949516296,
+          "nonforced_value_tokens": 24,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3243895,
+            "resources": {
+              "BRAM_18K": 108,
+              "DSP": 0,
+              "FF": 2408,
+              "LUT": 7552
+            },
+            "estimated_clock_ns": 7.3
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    },
+    {
+      "mode": "stage3",
+      "request": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+      "chosen_case": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+      "all_score_conventions_same_choice": true,
+      "resource_feasible": true,
+      "hls_estimated_timing_qualified": true,
+      "qualified_pool_size": 3,
+      "conditional_measured_pool_latency_regret": 0.0,
+      "chosen_cycles": 3242891,
+      "best_qualified_pool_cycles": 3242891,
+      "conventions": {
+        "sum_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+        "mean_value_logp": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+        "action_normalized_logp": "rodinia_pathfinder_4_doublebuffer_0:1:3.33"
+      },
+      "raw_scores": [
+        {
+          "mode": "stage3",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:0:3.33",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -11.623611450195312,
+          "mean_value_logp": -0.5283459750088778,
+          "action_normalized_logp": -0.6144094467163086,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242895,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2466,
+              "LUT": 5258
+            },
+            "estimated_clock_ns": 2.431
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:1:3.33",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -11.092361450195312,
+          "mean_value_logp": -0.5041982477361505,
+          "action_normalized_logp": -0.5812063217163086,
+          "nonforced_value_tokens": 22,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3242891,
+            "resources": {
+              "BRAM_18K": 76,
+              "DSP": 0,
+              "FF": 2411,
+              "LUT": 5097
+            },
+            "estimated_clock_ns": 2.431
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        },
+        {
+          "mode": "stage3",
+          "case_id": "rodinia_pathfinder_4_doublebuffer_0:coedit8:3.33",
+          "request_id": "rodinia_pathfinder_4_doublebuffer_0:3.33:full",
+          "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+          "sum_value_logp": -15.392723083496094,
+          "mean_value_logp": -0.6413634618123373,
+          "action_normalized_logp": -0.7875170707702637,
+          "nonforced_value_tokens": 24,
+          "measured": {
+            "synthesis_status": "success",
+            "latency_cycles": 3243943,
+            "resources": {
+              "BRAM_18K": 108,
+              "DSP": 0,
+              "FF": 4308,
+              "LUT": 8113
+            },
+            "estimated_clock_ns": 2.431
+          },
+          "scope": "full-budget clock contrast, exact same configurations at both clocks"
+        }
+      ]
+    }
+  ],
+  "scope": "Restricted authenticated three-design pools, two validation families; teacher-forced each-completion causal prefixes, not generated output, not normalized whole-configuration production decoder probability. No independent confidence intervals from correlated clock/budget views. One OOD budget diagnostic; no data/test selection or model updates.",
+  "decision": "No changed contender winner across Stage1/Stage2/DPO. Context-sensitive scores do not deliver needed full-budget Viterbi preference."
+}

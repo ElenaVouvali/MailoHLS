@@ -177,3 +177,9 @@ new physical calls. Read the current global ledger before permitting new jobs.
 The canceled policy trial preserves pending/failed jobs; do not restart it as if
 its logical budget or physical attempts were zero. Its1200s anchor confirmation
 is a separate charged attempt, not a replacement for the failed300s receipt.
+
+Final authoritative snapshot: [`results_v3/final_20261110_v2/`](results_v3/final_20261110_v2/).
+The earlier `final_20261110` snapshot is preserved; the v2 adds the final61.5s
+frozen-policy measured-bank score audit. All syntheses and GPU jobs are complete.
+The successful parent-pipeline-off intervention is a diagnostic only; the matched
+1/4/8-query refinement comparison is not qualified after repeated timeouts.
