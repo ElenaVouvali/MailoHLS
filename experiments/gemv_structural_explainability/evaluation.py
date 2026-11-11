@@ -144,6 +144,50 @@ def score_field(inference,model,tok,record,memory,*,recorder=None,model_name='',
     return values,rows
 
 
+def gradient_audit(model,tok,module,args,contract,production):
+    """One authenticated training-batch replay; no optimizer update or GEMV label."""
+    from experiments.final_architecture_v3.supervision import corrected
+    path=args.data_dir/'stage2_pilot.jsonl'
+    row=next(json.loads(line) for line in path.read_text().splitlines()
+             if json.loads(line)['_quality_split']=='train')
+    flags=[(p,p.requires_grad) for p in model.parameters()]
+    device=next(model.parameters()).device
+    try:
+        model.requires_grad_(False)
+        for name,p in model.named_parameters():
+            if 'gated_cross_attn_layer.attn.' in name or name.endswith('gated_cross_attn_layer.attn_gate'):
+                p.requires_grad_(True)
+        registry=production.load_directive_domain_registry(str(args.checkpoint/'directive_domain_registry.json'))
+        with corrected(production):
+            dataset=production.SFTDataset([row],tok,contract['max_length'],
+                directive_domain_registry=registry,supervise_eos=False,
+                input_only_special_ids=contract['special_token_ids'])
+        sample=dataset.samples[0]
+        raw=torch.load(args.raw_dir/(row['kernel_name']+'.pt'),map_location='cpu',weights_only=False)
+        with torch.enable_grad():
+            memory=module(to_device(raw,device))
+            model.condition_structural_memory(memory['memory'],memory['mask'],action_relation_mask=memory['relation'])
+            logits=model(input_ids=sample['input_ids'][None].to(device),
+                attention_mask=sample['attention_mask'][None].to(device),
+                routing_start_idx=sample['routing_start_idx'][None].to(device),
+                xattn_apply_mask=sample['xattn_apply_mask'][None].to(device)).logits[:,:-1].float()
+            labels=sample['labels'][None,1:].to(device)
+            weight=sample['token_weights'][None,1:].to(device)*labels.ne(-100)
+            loss=(torch.nn.functional.cross_entropy(logits.flatten(0,1),labels.flatten(),
+                    ignore_index=-100,reduction='none').view_as(weight)*weight).sum()/weight.sum().clamp_min(1e-20)
+            loss.backward()
+        gradients={name:dict(l2=float(p.grad.float().norm()),rms=float(p.grad.float().square().mean().sqrt()),
+                            finite=bool(torch.isfinite(p.grad).all()))
+                   for name,p in module.named_parameters() if p.grad is not None}
+        if not gradients or not all(r['finite'] for r in gradients.values()):raise ValueError('Gradient audit failed')
+        write_json(args.out/'gradient_audit.json',dict(loss=float(loss.detach()),kernel=row['kernel_name'],
+            corpus_sha256=sha(path),gradients=gradients,optimizer_updates=0,
+            interpretation='Post-training action-normalized training-batch replay; not a per-update convergence trace'))
+    finally:
+        model.clear_structural_memory();model.zero_grad(set_to_none=True)
+        for p,flag in flags:p.requires_grad_(flag)
+
+
 def evaluate(args):
     if not args.checkpoint:raise ValueError('--checkpoint requires a completed trained arm directory')
     completion=args.checkpoint/'alignment_completion.json'
@@ -250,6 +294,8 @@ def evaluate(args):
                                     summary_rows.append(dict(action='L'+str(k+1),head=h,summary=s,
                                         evidence_id=raw['records'][i]['id'],evidence_type=raw['records'][i]['type'],
                                         eligible=bool(raw['routes'][0,k,i]),attention=weight))
+                if args.gradient_audit and args.mode=='gmt':
+                    gradient_audit(model,tok,module,args,contract,production)
                 if args.stage=='intervene':
                     specs=plan(raw)
                     write_json(args.out/'intervention_plan.json',[asdict(s) for s in specs])
@@ -286,7 +332,7 @@ def evaluate(args):
             '--code_file',str(ROOT/'evaluation_set/gemv/code_to_memory_outputs/meta/gemv.c'),
             '--application_dataset_dir',str(ROOT/'evaluation_set/gemv/code_to_memory_outputs/meta'),
             '--directive_domain_registry_json',str(args.out/'gemv_domains.json'),
-            '--objective','latency','--clock_period','10','--avail_bram','624','--avail_dsp','1728',
+            '--objective','latency','--clock_period','10','--available_clock_periods','10','--avail_bram','624','--avail_dsp','1728',
             '--avail_ff','460800','--avail_lut','230400','--debug_topk','10000',
             '--score_reduction','mean','--num_samples','1','--output_json',str(args.out/'native_generation.json')]
         try:inference.main()

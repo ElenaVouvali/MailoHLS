@@ -42,6 +42,9 @@ def plan(pack,seed=123):
         # eligible type (no post-hoc selection by observed effect magnitude).
         individuals=[next(i for i in eligible if rows[i]['type']==family)
                      for family in sorted({rows[i]['type'] for i in eligible})]
+        individuals=sorted(set(individuals)|{i for i in eligible if
+            (k==4 and rows[i]['type'] in ('memory_access','access','arithmetic','loop_carried','loop'))
+            or (k<3 and rows[i]['type'] in ('memory_access','access'))})
         for i in individuals:
             specs.append(Intervention('remove_record:'+rows[i]['id'],k,(i,)))
             # Content-changing cross-route control matched on type/status/all

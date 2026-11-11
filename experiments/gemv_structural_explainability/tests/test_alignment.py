@@ -129,3 +129,37 @@ def test_causal_multitoken_suffix_includes_newline():
     expected=logits.log_softmax(-1)[torch.arange(3),torch.tensor(ids)].mean()
     assert score['token_count']==3
     assert score['mean_logprob']==pytest.approx(float(expected))
+
+
+def test_maintained_checkpoint_roundtrip_keeps_shared_alignment(pack,tmp_path):
+    from types import SimpleNamespace
+    from experiments.gemv_structural_explainability.audit import sha,write_json,GNN_SHA
+    from experiments.gemv_structural_explainability.integration import aligned_runtime
+    from LLM_branch.train import train_SFT_xattn_new as production
+    class Model(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.gated_cross_attn_layer=GatedCrossAttentionBlock(dim=32,dim_memory=128,heads=2,dim_head=8)
+        def condition_structural_memory(self,*args,**kwargs):self.conditioned=args
+    torch.save(pack,tmp_path/'gemv.pt')
+    write_json(tmp_path/'manifest.json',dict(gnn_sha256=GNN_SHA,edge_dim=pack['edge_dim'],
+        packs={'gemv':dict(file='gemv.pt',sha256=sha(tmp_path/'gemv.pt'))}))
+    original_condition=production.LengthGroupedTrainer._condition_structural_memory_from_kernel_names
+    with aligned_runtime(production,tmp_path,'gmt') as holder:
+        model=Model()
+        production.move_structural_modules_to_model_device(model)
+        alignment=holder['alignment']
+        with torch.no_grad():alignment.queries.add_(.125)
+        before=alignment.queries.detach().clone()
+        state=production.get_structural_xattn_state_dict(model)
+        assert any('.alignment.queries' in k for k in state)
+        torch.save(state,tmp_path/'structural_xattn.pt')
+        with torch.no_grad():alignment.queries.zero_()
+        production.load_partial_structural_xattn(model,str(tmp_path/'structural_xattn.pt'),'UNIT')
+        assert holder['alignment'] is alignment
+        assert torch.equal(alignment.queries,before)
+        production.LengthGroupedTrainer._condition_structural_memory_from_kernel_names(
+            SimpleNamespace(mem_bank={}),model,['gemv'])
+        assert model.conditioned[0].shape==(1,255,128)
+        assert model.conditioned[0].requires_grad
+    assert production.LengthGroupedTrainer._condition_structural_memory_from_kernel_names is original_condition

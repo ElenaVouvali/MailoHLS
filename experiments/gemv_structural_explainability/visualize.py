@@ -127,18 +127,25 @@ def learned_figures(results,out,catalog):
         with (results/name).open() as stream:return list(csv.DictReader(stream))
     rows=read('memory_attention.csv')
     evidence={r['id']:r for r in catalog['records']}
+    def record_label(key):
+        r=evidence[key]
+        identifier=r['node'].replace('gemv:','') if r['kind']=='node' else r['edge_key'][:8]
+        return r['type']+'\n'+identifier
+    maximum=max(float(r['attention']) for r in rows)
     fig,axes=plt.subplots(5,1,figsize=(14,13),layout='constrained')
     for k,ax in enumerate(axes,1):
         label='L'+str(k);selected=[r for r in rows if r['action']==label and r['eligible']=='True']
         ids=list(dict.fromkeys(r['evidence_id'] for r in selected))
         mat=np.array([[np.mean([float(r['attention']) for r in selected if r['evidence_id']==key and int(r['summary'])==s])
                        for key in ids] for s in range(2)])
-        im=ax.imshow(mat,aspect='auto',cmap='Blues',vmin=0,vmax=max(.01,float(mat.max())))
+        im=ax.imshow(mat,aspect='auto',cmap='Blues',vmin=0,vmax=maximum)
         ax.set_yticks([0,1],[label+' summary 0',label+' summary 1'])
-        ax.set_xticks(range(len(ids)),[evidence[key]['type']+'\n'+key.split(':')[-1][:8] for key in ids],rotation=55,ha='right',fontsize=7)
+        ax.set_xticks(range(len(ids)),[record_label(key) for key in ids],rotation=55,ha='right',fontsize=7)
         ax.set_title(label+': actual trained summary→evidence weights (mean of four heads)',loc='left',fontsize=10)
         fig.colorbar(im,ax=ax,shrink=.7,pad=.01)
     save(fig,out,'memory_tokenization')
+    if not (results/'decoder_attention.csv').is_file():
+        return
     decoder=read('decoder_attention.csv')
     fields=list(dict.fromkeys(r['lhs'] for r in decoder));keys=list(dict.fromkeys(r['memory_id'] for r in decoder))
     keys.sort(key=lambda key:(0 if key.startswith('action:') else 2 if key.startswith('summary:') else 1,key))
@@ -152,7 +159,7 @@ def learned_figures(results,out,catalog):
         return mat
     def key_label(key):
         if key.startswith(('action:','summary:')):return key
-        return evidence[key]['type']+':'+key.split(':')[-1][:6]
+        return record_label(key).replace('\n',':')
     fig,ax=plt.subplots(figsize=(16,7))
     im=ax.imshow(matrix(),aspect='auto',cmap='Blues',vmin=0)
     ax.set_yticks(range(len(fields)),[f.replace('AUTO{_','').replace('}','') for f in fields],fontsize=9)

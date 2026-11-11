@@ -75,6 +75,16 @@ def summarize_tokenizer(run,raw_dir,out):
         diagnostics=diagnostics,gates=gates,
         caveat='Nonzero attention denotes aggregation weight; does not establish useful interpretation or causality')
     write_json(out/'alignment_embedding_metrics.json',metrics)
+    from experiments.gemv_structural_explainability.evaluation import write_csv
+    attention_rows=[]
+    for k in range(5):
+        for h in range(4):
+            for s in range(2):
+                for i,w in enumerate(attention[k,h,s].tolist()):
+                    attention_rows.append(dict(action='L'+str(k+1),head=h,summary=s,
+                        evidence_id=raw['records'][i]['id'],evidence_type=raw['records'][i]['type'],
+                        eligible=bool(raw['routes'][0,k,i]),attention=w))
+    write_csv(out/'memory_attention.csv',attention_rows)
     np.savez_compressed(out/'learned_summaries.npz',summaries=summary.numpy(),evidence=evidence.numpy(),
                         summary_attention=attention.numpy())
     return metrics

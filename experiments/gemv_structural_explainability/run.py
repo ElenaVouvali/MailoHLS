@@ -209,6 +209,7 @@ def main():
     p.add_argument('--checkpoint',type=Path)
     p.add_argument('--reference-prefixes',type=Path,
                    help='Score all matched arms under the same saved complete prefixes')
+    p.add_argument('--gradient-audit',action='store_true',help='Replay one training batch without an optimizer update')
     args = p.parse_args()
     if args.stage=='preflight': preflight(args.out)
     elif args.stage=='export': export(args)
