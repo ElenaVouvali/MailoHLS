@@ -167,3 +167,11 @@ The descriptive GEMV source also has uninitialized local inputs; this artifact
 does not establish a functional/synthesis benchmark. Physical claims require
 authenticated source/assignment/target/clock-matched HLS measurements and
 functional qualification.
+
+## Frozen representation diagnosis
+
+The subsequent CPU-only [representation diagnosis](representation_diagnostics.md)
+measures all four layers, normalized memory, feature ablations and independent-family
+probes. It recommends keeping the encoder for a controlled typed-evidence trial;
+trained GMT retrieval and physical QoR remain unevaluated. Historical exports and
+figures above are preserved.
