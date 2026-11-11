@@ -104,7 +104,7 @@ def export(args):
         slot_ids=torch.arange(64),gnn_sha256=GNN_SHA,graph_identity=graph.graph['graph_identity'],
         tensor_schema=schema,layout=['first_layer:0:64','jk_max:64:128']),args.out/'action_memory.pt')
     with (args.out/'active_action_embeddings.csv').open('w',newline='') as stream:
-        writer=csv.writer(stream)
+        writer=csv.writer(stream,lineterminator='\n')
         writer.writerow(['action','slot','construct','source_file','source_line',*['d'+str(i) for i in range(128)]])
         for record in actions:
             writer.writerow([record['action'],record['slot'],record['construct'],record['source_path'],record['line'],
