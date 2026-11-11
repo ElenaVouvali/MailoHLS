@@ -14,7 +14,11 @@ from experiments.gemv_structural_explainability.audit import write_json,sha
 
 def save(fig,out,name):
     for suffix in ('svg','png','pdf'):
-        fig.savefig(out/(name+'.'+suffix),dpi=300,bbox_inches='tight',facecolor='white')
+        path=out/(name+'.'+suffix)
+        metadata={'Date':None} if suffix=='svg' else {'CreationDate':None,'ModDate':None} if suffix=='pdf' else None
+        fig.savefig(path,dpi=300,bbox_inches='tight',facecolor='white',metadata=metadata)
+        if suffix=='svg':
+            path.write_text('\n'.join(line.rstrip() for line in path.read_text().splitlines())+'\n')
     plt.close(fig)
 
 
@@ -22,7 +26,8 @@ def generate(results,out):
     results,out = Path(results),Path(out)
     out.mkdir(parents=True,exist_ok=True)
     plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,
-                         'svg.fonttype':'none','pdf.fonttype':42,'axes.spines.top':False,
+                         'svg.fonttype':'none','svg.hashsalt':'salt-gemv-four-layer-v1',
+                         'pdf.fonttype':42,'axes.spines.top':False,
                          'axes.spines.right':False})
     actions = json.loads((results/'action_provenance.json').read_text())
     metrics = json.loads((results/'embedding_metrics.json').read_text())
