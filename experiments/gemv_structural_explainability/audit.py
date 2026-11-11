@@ -10,7 +10,7 @@ import torch
 from GNN_branch.mlir_graph_v2 import read_graph
 from experiments.rc3_fusion_foundation.rc3_action_relations import build_action_relations
 from experiments.rc3_fusion_foundation.structural_memory_v1 import _action_evidence_scopes
-from experiments.gemv_structural_explainability.constants import TYPES, STATUS, KNOWN
+from experiments.gemv_structural_explainability.constants import TYPES, STATUS, KNOWN, EVIDENCE_CAPACITY
 
 ROOT = Path(__file__).resolve().parents[2]
 GEMV = ROOT/'paper_figures/gemv_rc3_20261105'
@@ -104,7 +104,7 @@ def load_encoder(path=GNN):
     return model,schema,identity
 
 
-def catalog(graph, relations, capacity=1024):
+def catalog(graph, relations, capacity=EVIDENCE_CAPACITY):
     """Individually addressable records; eligibility reuses audited RC3 scopes.
 
     Complete compiler payloads are retained; known bits describe particular facts,

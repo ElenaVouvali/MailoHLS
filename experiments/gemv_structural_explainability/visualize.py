@@ -109,9 +109,111 @@ def generate(results,out):
     ax.set_title('Compiler-authorized evidence accessibility (record counts)',loc='left',weight='bold')
     fig.colorbar(im,ax=ax,shrink=.8,label='Records');fig.text(.01,-.02,'Evidence availability only; learned retrieval and causal decision influence have not been evaluated.',fontsize=9)
     save(fig,out,'action_evidence_coverage')
+    if (results/'memory_attention.csv').is_file():
+        learned_figures(results,out,catalog)
     write_json(out/'figure_manifest.json',dict(schema='salt-gemv-figure-provenance-v1',
         checkpoint_sha256=manifest['gnn_sha256'],graph_identity=actions[0]['graph_identity'],
         inputs={n:sha(results/n) for n in ('action_embeddings.npz','action_provenance.json','embedding_metrics.json','evidence_catalog.json')},
         display_normalization='embedding heatmap: each full 128D row divided by its L2 norm; shared symmetric color scale',
         files={f.name:sha(f) for f in sorted(out.iterdir()) if f.suffix in ('.svg','.png','.pdf')},
-        learned_attention_figures_generated=False))
+        learned_attention_figures_generated=(results/'memory_attention.csv').is_file()))
+
+
+def learned_figures(results,out,catalog):
+    """Called only with measured trained attention/score files present."""
+    import csv
+    from collections import defaultdict
+    def read(name):
+        with (results/name).open() as stream:return list(csv.DictReader(stream))
+    rows=read('memory_attention.csv')
+    evidence={r['id']:r for r in catalog['records']}
+    fig,axes=plt.subplots(5,1,figsize=(14,13),layout='constrained')
+    for k,ax in enumerate(axes,1):
+        label='L'+str(k);selected=[r for r in rows if r['action']==label and r['eligible']=='True']
+        ids=list(dict.fromkeys(r['evidence_id'] for r in selected))
+        mat=np.array([[np.mean([float(r['attention']) for r in selected if r['evidence_id']==key and int(r['summary'])==s])
+                       for key in ids] for s in range(2)])
+        im=ax.imshow(mat,aspect='auto',cmap='Blues',vmin=0,vmax=max(.01,float(mat.max())))
+        ax.set_yticks([0,1],[label+' summary 0',label+' summary 1'])
+        ax.set_xticks(range(len(ids)),[evidence[key]['type']+'\n'+key.split(':')[-1][:8] for key in ids],rotation=55,ha='right',fontsize=7)
+        ax.set_title(label+': actual trained summary→evidence weights (mean of four heads)',loc='left',fontsize=10)
+        fig.colorbar(im,ax=ax,shrink=.7,pad=.01)
+    save(fig,out,'memory_tokenization')
+    decoder=read('decoder_attention.csv')
+    fields=list(dict.fromkeys(r['lhs'] for r in decoder));keys=list(dict.fromkeys(r['memory_id'] for r in decoder))
+    keys.sort(key=lambda key:(0 if key.startswith('action:') else 2 if key.startswith('summary:') else 1,key))
+    def matrix(layer=None,head=None):
+        mat=np.zeros((len(fields),len(keys)))
+        for i,field in enumerate(fields):
+            for j,key in enumerate(keys):
+                values=[float(r['attention']) for r in decoder if r['lhs']==field and r['memory_id']==key
+                        and (layer is None or int(r['layer'])==layer) and (head is None or int(r['head'])==head)]
+                if values:mat[i,j]=np.mean(values)
+        return mat
+    def key_label(key):
+        if key.startswith(('action:','summary:')):return key
+        return evidence[key]['type']+':'+key.split(':')[-1][:6]
+    fig,ax=plt.subplots(figsize=(16,7))
+    im=ax.imshow(matrix(),aspect='auto',cmap='Blues',vmin=0)
+    ax.set_yticks(range(len(fields)),[f.replace('AUTO{_','').replace('}','') for f in fields],fontsize=9)
+    ax.set_xticks(range(len(keys)),[key_label(k) for k in keys],rotation=90,fontsize=6)
+    ax.set_title('GEMV directive retrieval: selected RHS, mean across query tokens / layers / heads',loc='left',weight='bold')
+    for j in range(1,len(keys)):
+        if keys[j].split(':')[0]!=keys[j-1].split(':')[0]:ax.axvline(j-.5,color='#555555',lw=.8)
+    fig.colorbar(im,ax=ax,shrink=.7,label='Attention weight');save(fig,out,'decoder_retrieval')
+    np.savez_compressed(results/'decoder_layer_head_attention.npz',
+        attention=np.array([[matrix(layer,head) for head in range(4)] for layer in (8,16,24,32)]),
+        layers=np.array([8,16,24,32]),fields=np.array(fields),memory_ids=np.array(keys))
+    fig,axes=plt.subplots(4,4,figsize=(16,10),layout='constrained')
+    for i,layer in enumerate((8,16,24,32)):
+        for h in range(4):
+            axes[i,h].imshow(matrix(layer,h),aspect='auto',cmap='Blues',vmin=0)
+            axes[i,h].set_title(f'Layer {layer} · head {h}',fontsize=9)
+            axes[i,h].set_xticks([]);axes[i,h].set_yticks([])
+    save(fig,out,'decoder_retrieval_layer_heads')
+    if (results/'intervention_results.csv').is_file():
+        effects=read('intervention_results.csv')
+        names=list(dict.fromkeys(r['intervention'] for r in effects if r['intervention'].startswith(('remove_family:','random_for:'))))
+        mat=np.full((len(names),len(fields)),np.nan)
+        changes=np.zeros_like(mat,dtype=bool)
+        for r in effects:
+            if r['intervention'] not in names or not r['delta_margin']:continue
+            i,j=names.index(r['intervention']),fields.index(r['lhs'])
+            mat[i,j]=float(r['delta_margin']);changes[i,j]=r['winner_changed']=='True'
+        lim=max(1e-6,float(np.nanmax(abs(mat))))
+        fig,ax=plt.subplots(figsize=(12,max(5,len(names)*.23)))
+        cmap=plt.colormaps['RdBu_r'].copy();cmap.set_bad('#eeeeee')
+        im=ax.imshow(mat,aspect='auto',cmap=cmap,vmin=-lim,vmax=lim)
+        ax.set_yticks(range(len(names)),names,fontsize=8)
+        ax.set_xticks(range(len(fields)),[f.replace('AUTO{_','').replace('}','') for f in fields],rotation=55,ha='right',fontsize=8)
+        for i,j in zip(*np.nonzero(changes)):ax.text(j,i,'*',ha='center',va='center',color='black')
+        ax.set_title('Evidence removal and matched random controls: fixed-prefix preference shift',loc='left',weight='bold')
+        fig.colorbar(im,ax=ax,shrink=.7,label='Δ margin: same reference top-two complete RHSs')
+        save(fig,out,'evidence_interventions')
+        for k in range(1,6):
+            selected=[r for r in effects if r['action']=='L'+str(k) and r['intervention'].startswith(('remove_family:','random_for:')) and r['delta_margin']]
+            labels=list(dict.fromkeys(r['intervention'] for r in selected))
+            own_fields=list(dict.fromkeys(r['lhs'] for r in selected))
+            fig,ax=plt.subplots(figsize=(10,max(4,len(labels)*.28)))
+            for f,field in enumerate(own_fields):
+                values=[next(float(r['delta_margin']) for r in selected if r['lhs']==field and r['intervention']==name) for name in labels]
+                ax.barh(np.arange(len(labels))+(f-(len(own_fields)-1)/2)*.22,values,height=.21,label=field.replace('AUTO{_','').replace('}',''))
+            ax.set_yticks(range(len(labels)),labels,fontsize=8);ax.axvline(0,color='#444444',lw=.7)
+            ax.set_xlabel('Δ fixed-pair candidate margin');ax.legend(frameon=False,fontsize=8)
+            ax.set_title('L'+str(k)+': all eligible evidence families and matched random removals',loc='left')
+            save(fig,out,'evidence_interventions_L'+str(k))
+    if (results/'model_comparison.json').is_file():
+        comparison=json.loads((results/'model_comparison.json').read_text())
+        training=json.loads((results/'training_metrics.json').read_text())
+        modes=['action','evidence','gmt']
+        fig,axes=plt.subplots(1,2,figsize=(10,4))
+        times=[comparison['models'][m]['evaluation']['native_generation_seconds'] for m in modes]
+        losses=[]
+        for m in modes:
+            history=training['runs'][m]['log_history']
+            values=[r['eval_loss'] for r in history if 'eval_loss' in r]
+            losses.append(values[-1] if values else np.nan)
+        axes[0].bar(modes,losses,color=['#708ca3','#589a91','#ba8a50']);axes[0].set_ylabel('Development directive cross entropy')
+        axes[1].bar(modes,times,color=['#708ca3','#589a91','#ba8a50']);axes[1].set_ylabel('Native GEMV decode time (seconds)')
+        axes[0].set_title('Matched 20-update pilots',loc='left');axes[1].set_title('One source/context; no QoR measurement',loc='left')
+        fig.tight_layout();save(fig,out,'model_comparison')

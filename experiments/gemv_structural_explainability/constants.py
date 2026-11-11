@@ -5,3 +5,6 @@ TYPES = ('memory_root', 'memory_ssa', 'loop', 'control', 'access', 'arithmetic',
 STATUS = ('proven', 'possible', 'unknown', 'not_established', 'not_applicable')
 KNOWN = ('class', 'proven', 'shape', 'trip_count', 'affine_map', 'access_role',
          'operation_family', 'loop_carried', 'dependence_kind')
+# Expanded catalog retains individual SSA edges, including globally unrouted
+# records. Full cohort maximum audited as 2675 (no records silently dropped).
+EVIDENCE_CAPACITY = 4096

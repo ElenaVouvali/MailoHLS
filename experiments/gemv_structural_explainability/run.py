@@ -67,6 +67,8 @@ def export(args):
         graph_file_sha256=sha(GEMV/'gemv.canonical.json'),
         source_sha256=graph.graph['provenance']['source_sha256'],
         learned_alignment_status='NOT_TRAINED',physical_qor_improvement='NOT EVALUATED')
+    from experiments.gemv_structural_explainability.constants import EVIDENCE_CAPACITY
+    manifest['evidence_capacity']=EVIDENCE_CAPACITY
     write_bank(args.raw_dir,'gemv',pack,manifest)
     if args.graphs_dir:
         if not args.cohort_audit: raise ValueError('--graphs-dir requires --cohort-audit')
@@ -104,7 +106,7 @@ def export(args):
         slot_ids=torch.arange(64),gnn_sha256=GNN_SHA,graph_identity=graph.graph['graph_identity'],
         tensor_schema=schema,layout=['first_layer:0:64','jk_max:64:128']),args.out/'action_memory.pt')
     with (args.out/'active_action_embeddings.csv').open('w',newline='') as stream:
-        writer=csv.writer(stream,lineterminator='\n')
+        writer=csv.writer(stream,lineterminator="\n")
         writer.writerow(['action','slot','construct','source_file','source_line',*['d'+str(i) for i in range(128)]])
         for record in actions:
             writer.writerow([record['action'],record['slot'],record['construct'],record['source_path'],record['line'],
@@ -118,20 +120,105 @@ def export(args):
                           results=str(args.out)),indent=2))
 
 
+def train(args):
+    # Refuse allocation while other processes own the selected GPU.
+    from experiments.final_architecture_20261109.run import preflight as gpu_preflight
+    started = time.monotonic()
+    try:
+        receipt = gpu_preflight(args.gpu_uuid)
+    except Exception as exc:
+        write_json(args.out/'alignment_attempt.json',dict(status='BLOCKED_BEFORE_ALLOCATION',
+            reason=str(exc),mode=args.mode,updates=0,learned_results_available=False))
+        raise
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_uuid
+    if sha(STAGE1/'adapter_model.safetensors')!=STAGE1_SHA: raise ValueError('Wrong Stage1')
+    manifest = json.loads((args.raw_dir/'manifest.json').read_text())
+    # Explicit identity transform preserves the supervisor-published raw vectors.
+    # This is not represented as a fitted training RMS normalization.
+    normalization=dict(schema='salt-gemv-identity-normalization-v1',
+        rule='identity; preserve exact published raw [first|JK] action states',
+        fitted=False,split_sha256=sha(args.data_dir/'split.json'))
+    norm_path=args.raw_dir/'memory/normalization.json'
+    write_json(norm_path,normalization)
+    bank_manifest=dict(manifest,objective='PARETO_LATENCY',
+        action_relation_schema='salt-paper-rc3-action-relations-v1',
+        gnn_checkpoint_sha256=GNN_SHA,
+        feature_schema_sha256=__import__('hashlib').sha256(json.dumps(
+            manifest['encoder']['tensor_schema'],sort_keys=True,separators=(',',':')).encode()).hexdigest(),
+        normalization_sha256=sha(norm_path),embedding_mode='static_pre_npt::conv1_jkmax_raw_v1')
+    write_json(args.raw_dir/'memory/memory_manifest.json',bank_manifest)
+    rows = [json.loads(s) for s in (args.data_dir/'stage2_pilot.jsonl').read_text().splitlines()]
+    from LLM_branch.common.structural_memory import normalize_kname
+    available = {normalize_kname(k) for k in manifest['packs']}
+    if any(normalize_kname(r['kernel_name'])=='gemv' for r in rows):
+        raise ValueError('GEMV must remain outside alignment training')
+    if not {normalize_kname(r['kernel_name']) for r in rows}<=available:
+        raise ValueError('Export all cohort memories before training')
+    if args.out.exists() and any(args.out.iterdir()) and not args.resume:
+        raise FileExistsError('Fresh output directory or explicit --resume required')
+    args.out.mkdir(parents=True,exist_ok=True)
+    from experiments.rc3_stage2_multikernel.train import command
+    argv = command('pilot',args.data_dir,args.raw_dir/'memory',args.out)[3:]
+    def setarg(key,value): argv[argv.index(key)+1]=str(value)
+    setarg('--epochs',100);setarg('--max_steps',args.steps)
+    setarg('--selection_num_val_kernels',3)
+    setarg('--initial_state_reference',args.out.parent/('initial_'+args.mode+'.json'))
+    for flag in ('--eval_steps','--save_steps','--selection_eval_steps'): setarg(flag,min(50,args.steps))
+    argv += ['--batch_size','1','--grad_accum','8','--budget_target_max_duplicates','0','--no-eval_on_start',
+        '--memory_representation_schema',manifest['representation_schema']]
+    if args.resume: argv += ['--resume_from_checkpoint',str(args.resume)]
+    write_json(args.out/'alignment_protocol.json',dict(schema='salt-gemv-alignment-training-v1',
+        mode=args.mode,seed=123,steps=args.steps,argv=argv,preflight=receipt,
+        raw_manifest_sha256=sha(args.raw_dir/'manifest.json'),
+        data_sha256=sha(args.data_dir/'stage2_pilot.jsonl'),split_sha256=sha(args.data_dir/'split.json'),
+        stage1_sha256=STAGE1_SHA,gnn_sha256=GNN_SHA,summary_tokens_per_action=2,
+        objective='sealed multireference, equal actions/equal nonforced fields/value tokens',
+        target_film=False,locked_test_evaluated=False))
+    # Existing NumPy 1.26 exposes this lazy compatibility namespace only after
+    # import; Accelerate's mixed metadata detection otherwise fails on Liono.
+    import numpy._core.multiarray
+    from LLM_branch.train import train_SFT_xattn_new as production
+    from experiments.final_architecture_v3.supervision import corrected
+    from experiments.gemv_structural_explainability.integration import aligned_runtime
+    sys.argv = [sys.argv[0],*argv]
+    with corrected(production),aligned_runtime(production,args.raw_dir,args.mode):
+        production.main()
+    state_files=list(args.out.rglob('trainer_state.json'))
+    updates=max((json.loads(p.read_text()).get('global_step',0) for p in state_files),default=0)
+    if updates<=0:raise RuntimeError('Trainer returned without authenticated optimizer-update state')
+    write_json(args.out/'alignment_completion.json',dict(status='TRAINER_RETURNED',updates=updates,
+        mode=args.mode,seconds=time.monotonic()-started,
+        peak_cuda_allocated_bytes=torch.cuda.max_memory_allocated(),
+        checkpoint_sha256=sha(args.out/'structural_xattn.pt'),
+        qualification='Inspect selected step, validation curves and all matched arms before any superiority claim'))
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('stage',choices=('preflight','export','figures'))
+    p.add_argument('stage',choices=('preflight','export','train','evaluate','intervene','figures'))
     p.add_argument('--out',type=Path,default=HERE/'results')
     p.add_argument('--raw-dir',type=Path,default=DEFAULT_RAW)
     p.add_argument('--gnn',type=Path,default=GNN)
     p.add_argument('--graphs-dir',type=Path)
     p.add_argument('--cohort-audit',type=Path)
+    p.add_argument('--data-dir',type=Path,default=Path('/home/elvouvali/MailoHLS-rc3-stage2-multikernel-c/artifacts/rc3_stage2_multikernel/v1/audit'))
+    p.add_argument('--mode',choices=('action','evidence','gmt'),default='gmt')
+    p.add_argument('--gpu-uuid',default='GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb')
+    p.add_argument('--steps',type=int,default=150)
+    p.add_argument('--resume',type=Path)
+    p.add_argument('--checkpoint',type=Path)
+    p.add_argument('--reference-prefixes',type=Path,
+                   help='Score all matched arms under the same saved complete prefixes')
     args = p.parse_args()
     if args.stage=='preflight': preflight(args.out)
     elif args.stage=='export': export(args)
+    elif args.stage=='train': train(args)
     elif args.stage=='figures':
         from experiments.gemv_structural_explainability.visualize import generate
         generate(args.out,HERE/'figures')
+    else:
+        from experiments.gemv_structural_explainability.evaluation import evaluate
+        evaluate(args)
 
 
 if __name__=='__main__': main()

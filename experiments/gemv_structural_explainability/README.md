@@ -167,3 +167,90 @@ The descriptive GEMV source also has uninitialized local inputs; this artifact
 does not establish a functional/synthesis benchmark. Physical claims require
 authenticated source/assignment/target/clock-matched HLS measurements and
 functional qualification.
+
+## Alignment implementation and execution
+
+The subsequent implementation is separate from the independently published
+visualization. Read the [implementation decision](IMPLEMENTATION_DECISION.md).
+`memory_alignment.py` provides trainable typed node/ordered-edge encoders and two
+action-conditioned summary queries; `integration.py` connects one shared module
+to the maintained Stage-2 trainer and its checkpoint/freeze/optimizer paths.
+`evaluation.py` uses the real constrained decoder and full causal continuation
+scorer. `interventions.py` defines reproducible family/record deletions, matched
+random and cross-route content controls, and summary interventions. Numerical
+test fixtures are never emitted as learned results.
+
+CPU export also completed for the established 20-source alignment cohort plus
+GEMV, using this same checkpoint. See
+[`alignment_input_audit.json`](results/alignment_input_audit.json) for actual
+counts, tensor shapes, parameter counts, raw-bank hash and recovery path. All
+source-action slots remain absolute. The larger catalog explicitly admits 4,096
+records (observed maximum 2,675), retaining globally unrouted records with no
+permission to retrieve them. GEMV has 63 catalog records; L1–L5 can respectively
+access 10, 10, 14, 37 and 31. These counts differ from the earlier V4b memory's
+selection policy and do not measure retrieval quality.
+
+The frozen vectors use an explicit, hashed **identity normalization**, preserving
+exact equality to the independently published raw tensor. This is documented
+through the trainer's existing normalization contract, not described as a fitted
+RMS statistic. The raw bank is target-independent; target context stays in the
+decoder request. Alignment and all fusion layers use fresh weights.
+
+```bash
+# Export the existing authenticated cohort; use a fresh raw output directory.
+$PY -m experiments.gemv_structural_explainability.run export \
+  --raw-dir artifacts/gemv_structural_explainability/multikernel_4096 \
+  --out /tmp/gemv-multikernel-results \
+  --graphs-dir /home/elvouvali/MailoHLS-rc3-stage2-multikernel-c/artifacts/rc3_stage2_multikernel/v1/memory_c/graphs \
+  --cohort-audit /home/elvouvali/MailoHLS-rc3-stage2-multikernel-c/artifacts/rc3_stage2_multikernel/v1/audit/coverage.json
+
+# Run separately for action, evidence and gmt with the identical budget/seed.
+HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 \
+$PY -m experiments.gemv_structural_explainability.run train --mode gmt --steps 20 \
+  --raw-dir artifacts/gemv_structural_explainability/multikernel_4096 \
+  --out artifacts/gemv_structural_explainability/runs/gmt
+
+# Evaluation requires a positive-update completion receipt and exact bank identity.
+$PY -m experiments.gemv_structural_explainability.run evaluate --mode gmt \
+  --checkpoint artifacts/gemv_structural_explainability/runs/gmt \
+  --raw-dir artifacts/gemv_structural_explainability/multikernel_4096 \
+  --out artifacts/gemv_structural_explainability/evaluation/gmt
+
+# Use the action arm's natural_prefixes.json across all matched fixed-prefix runs.
+# 'intervene' additionally runs the registered interventions and native free decode.
+$PY -m experiments.gemv_structural_explainability.run intervene --mode gmt \
+  --checkpoint artifacts/gemv_structural_explainability/runs/gmt \
+  --reference-prefixes artifacts/gemv_structural_explainability/evaluation/action/natural_prefixes.json \
+  --raw-dir artifacts/gemv_structural_explainability/multikernel_4096 \
+  --out artifacts/gemv_structural_explainability/evaluation/gmt_interventions
+```
+
+The launcher checks exclusive GPU ownership before allocation; it never stops
+another job. Stage-1 LoRA/token deltas, backbone and GNN remain frozen. The
+20-update pilot uses batch 1/accumulation 8, seed 123, LR 1e-4 for attention and
+alignment / 2e-4 for gates, no structural FF, no FiLM, no DPO. Frozen multireference
+exposures and action-normalized nonforced-value supervision come from the
+maintained V3 correction. Native development evaluation remains enabled. Resume
+with `--resume <checkpoint-N>` and the identical raw bank/arm.
+
+Inference may use the separately preflighted A2 by explicit `--gpu-uuid`; NF4
+compute stays FP16. Device and runtime receipts distinguish training from
+inference. Runtime/throughput comparisons must use matched hardware. The NumPy
+compatibility namespace is imported explicitly for the existing Liono stack;
+no dependency installation or environment replacement is required.
+
+The evaluation keeps exact whole-prefix continuation semantics and scores even
+source-forced singleton fields. For intervention generation it may memoize an
+**identical** score with the same complete prefix, continuation, visible routed
+memory values/masks and gates. Earlier prefix positions receive no structural
+update under the maintained causal RHS mask. New prefixes or visible content
+force real model forwards. Attention capture always forces real forwards and
+verifies replay parity. Cache counts and maximum replay differences are recorded.
+This is computational reuse, not an additional independence experiment.
+
+The focused export/alignment tests and maintained structural-XAttn / inference
+schema tests passed together: **42 tests**. Coverage includes actual trained GNN
+reload, source/provenance, exact exports, summary routing/padding, nonzero
+tokenizer/edge gradients, zero-gate full-decoder behavior, checkpoint context,
+and full multi-token RHS/newline scoring. A completed GPU run and its validation
+receipt are required before learned attention figures are generated.
