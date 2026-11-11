@@ -1,0 +1,13 @@
+{
+  "schema": "salt-latency-selection-revision-v2",
+  "selection": "family_macro tau_b DESC, log2 MAE ASC, conditional regret ASC; feasible_selection_rate diagnostic only",
+  "authorization": "User requested tau-b, MAE, regret priority and continuation of B",
+  "original_policy_sha256": "6df36f6a0572b1f03935d806f94f44b3caca68137835719d3e55819b24c095fd",
+  "post_hoc_revision": true,
+  "original_runs_preserved": true,
+  "max_total_epochs": 40,
+  "patience": 8,
+  "architecture_losses_optimizer_sampling_unchanged": true,
+  "matched_comparison": "Continue B first, then A under the identical revised stopping rule",
+  "controller_sha256": "f7a2ee8ece1b76ce8aac835f9a363ecc759220d10c61c87a06e11519aa4d3bc3"
+}

@@ -1,0 +1,466 @@
+{
+  "schema": "salt-hls-consolidation-audit-v1",
+  "generated_utc": "2026-11-11T11:16:42.369272+00:00",
+  "head": "3bd533b5c489a0ad7487c32d0fccfcdaf6657180",
+  "branch": "final-architecture",
+  "tracked_files": 2896,
+  "tracked_bytes": 386506218,
+  "top_level_counts": {
+    ".gitignore": 1,
+    "ASPLOS_experiments.jsonl": 1,
+    "Checkpoints": 32,
+    "Data": 456,
+    "FINAL_ARTIFACTS.json": 1,
+    "GNN_branch": 228,
+    "HARP-rep": 345,
+    "Histogram": 11,
+    "LIFT_pareto": 41,
+    "LIFT_perf": 47,
+    "LLM_branch": 51,
+    "LLM_target_conditioning.csv": 1,
+    "MailoHLS_ASPLOS_evaluation_workload_kit": 71,
+    "Notebooks": 3,
+    "Preprocessing": 11,
+    "README.md": 1,
+    "_2026_MICRO__MailoHLS__Multi_Adapter_Structure_Aware_Learning_for_Pareto_Driven_HLS_Pragma_Optimization.pdf": 1,
+    "artifacts": 342,
+    "asplos_paper": 1,
+    "asplos_results": 24,
+    "configs": 3,
+    "docs": 76,
+    "evaluation_set": 69,
+    "experiments": 327,
+    "figures": 44,
+    "fix_mailohls_static_domain_teacher_eval.py": 1,
+    "hls_results_all.csv": 1,
+    "import_gnosis_lud0.py": 1,
+    "latency_target_search": 3,
+    "mailohls_runs": 46,
+    "mailohls_u50_adaptation": 173,
+    "old_GNN_checkpoint": 1,
+    "old_harp_graphs": 234,
+    "paper_examples": 5,
+    "paper_figures": 65,
+    "paper_plots": 8,
+    "plots": 23,
+    "requirements-llm-colab.txt": 1,
+    "requirements.txt": 1,
+    "scripts": 58,
+    "src": 48,
+    "tests": 25,
+    "toolchain": 14
+  },
+  "largest_files": [
+    {
+      "path": "GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc3.tar.gz",
+      "bytes": 14004404
+    },
+    {
+      "path": "GNN_branch/MLIR_graphs/salt-hls-graphs-v22-20261027-rc2.tar.gz",
+      "bytes": 13698314
+    },
+    {
+      "path": "GNN_branch/MLIR_graphs/salt-hls-graphs-v21-20261027.tar.gz",
+      "bytes": 13211001
+    },
+    {
+      "path": "artifacts/paper_gnn_20261110/area/selected_predictions.jsonl",
+      "bytes": 11453782
+    },
+    {
+      "path": "artifacts/paper_gnn_20261110/adp/selected_predictions.jsonl",
+      "bytes": 11444450
+    },
+    {
+      "path": "artifacts/paper_gnn_20261110/latency/selected_predictions.jsonl",
+      "bytes": 11443782
+    },
+    {
+      "path": "mailohls_runs/stage3_adp_semantic_action_s789_rep2/selected_debug/val_selected.jsonl",
+      "bytes": 9568281
+    },
+    {
+      "path": "experiments/v22_gnn_training/results/directive_preference_v1/preference_target_coverage.json",
+      "bytes": 7845712
+    },
+    {
+      "path": "experiments/v22_gnn_training/v4b/receipts/preference_pair_audit.json",
+      "bytes": 5881100
+    },
+    {
+      "path": "Data/CSVS/serrano-kalman-filter.csv",
+      "bytes": 5548067
+    },
+    {
+      "path": "experiments/v22_gnn_training/v4b/receipts_v3/matched14_validation.json",
+      "bytes": 4586678
+    },
+    {
+      "path": "experiments/v22_gnn_training/v4b/receipts_v3/full37_validation.json",
+      "bytes": 4566219
+    },
+    {
+      "path": "experiments/v22_gnn_training/v4b/receipts_v3/global_quality_audit.json",
+      "bytes": 3900171
+    },
+    {
+      "path": "experiments/v22_gnn_training/v4b/receipts_v2/full_audit.json",
+      "bytes": 3789360
+    },
+    {
+      "path": "Data/CSVS/rodinia_lud_1_tiling_0.csv",
+      "bytes": 3722977
+    },
+    {
+      "path": "Data/CSVS/rodinia_dilate_3_pipeline_0.csv",
+      "bytes": 3323750
+    },
+    {
+      "path": "Data/CSVS/rodinia_cfd_step_factor_5_coalescing_0.csv",
+      "bytes": 3219291
+    },
+    {
+      "path": "Data/CSVS/rodinia_streamcluster_4_coalescing_0.csv",
+      "bytes": 3185662
+    },
+    {
+      "path": "Data/CSVS/rodinia-hotspot-2-pipeline.csv",
+      "bytes": 3175595
+    },
+    {
+      "path": "Data/CSVS/rodinia-hotspot-3-unroll.csv",
+      "bytes": 3174412
+    },
+    {
+      "path": "Data/CSVS/rodinia_cfd_step_factor_4_doublebuffer_0.csv",
+      "bytes": 3117079
+    },
+    {
+      "path": "Data/CSVS/rodinia_streamcluster_1_tiling_0.csv",
+      "bytes": 3033108
+    },
+    {
+      "path": "Data/CSVS/rodinia_lavaMD_1_tiling_1.csv",
+      "bytes": 3024568
+    },
+    {
+      "path": "Data/CSVS/rodinia_dilate_2_pipeline_0.csv",
+      "bytes": 3011549
+    },
+    {
+      "path": "Data/CSVS/rodinia_lavaMD_2_pipeline_0.csv",
+      "bytes": 2991212
+    },
+    {
+      "path": "Data/CSVS/rodinia_lavaMD_1_tiling_0.csv",
+      "bytes": 2987778
+    },
+    {
+      "path": "Data/CSVS/rodinia-kmeans-1-tiling.csv",
+      "bytes": 2929325
+    },
+    {
+      "path": "Data/CSVS/rodinia-kmeans-2-pipeline.csv",
+      "bytes": 2928774
+    },
+    {
+      "path": "Data/CSVS/rodinia-kmeans-3-unroll.csv",
+      "bytes": 2918014
+    },
+    {
+      "path": "Data/CSVS/rodinia-knn-5-coalescing.csv",
+      "bytes": 2916553
+    },
+    {
+      "path": "Data/CSVS/rodinia_streamcluster_2_pipeline_1.csv",
+      "bytes": 2899964
+    },
+    {
+      "path": "Data/CSVS/rodinia_streamcluster_3_doublebuffer_0.csv",
+      "bytes": 2894472
+    },
+    {
+      "path": "Data/CSVS/rodinia_dilate_1_tiling_0.csv",
+      "bytes": 2882715
+    },
+    {
+      "path": "experiments/v22_gnn_training/v4b/receipts/preference_target_coverage.json",
+      "bytes": 2864942
+    },
+    {
+      "path": "Data/CSVS/machsuite-sort-radix.csv",
+      "bytes": 2743946
+    },
+    {
+      "path": "Data/CSVS/rodinia-knn-3-unroll.csv",
+      "bytes": 2729642
+    },
+    {
+      "path": "Data/CSVS/rodinia-backprop-1-tiling-back.csv",
+      "bytes": 2606043
+    },
+    {
+      "path": "Data/CSVS/rodinia-hotspot-1-tiling.csv",
+      "bytes": 2545004
+    },
+    {
+      "path": "Data/CSVS/machsuite-stencil3d.csv",
+      "bytes": 2467343
+    },
+    {
+      "path": "Data/CSVS/rodinia_cfd_step_factor_3_unroll_0.csv",
+      "bytes": 2465567
+    },
+    {
+      "path": "Data/CSVS/spcl_example_03.csv",
+      "bytes": 2456608
+    },
+    {
+      "path": "Data/CSVS/rodinia-knn-2-pipeline.csv",
+      "bytes": 2432789
+    },
+    {
+      "path": "Data/CSVS/rodinia-backprop-0-baseline-forward.csv",
+      "bytes": 2412121
+    },
+    {
+      "path": "Data/CSVS/rodinia_pathfinder_4_doublebuffer_0.csv",
+      "bytes": 2372049
+    },
+    {
+      "path": "Data/CSVS/machsuite-viterbi.csv",
+      "bytes": 2304402
+    },
+    {
+      "path": "Data/CSVS/rodinia_lc_gicov_0_baseline_0.csv",
+      "bytes": 2295156
+    },
+    {
+      "path": "Data/CSVS/rodinia-knn-1-tiling.csv",
+      "bytes": 2235719
+    },
+    {
+      "path": "Data/CSVS/rodinia-knn-4-doublebuffer.csv",
+      "bytes": 2200863
+    },
+    {
+      "path": "GNN_branch/MLIR_graphs/rodinia_lud_1_tiling_0.gexf",
+      "bytes": 2135786
+    },
+    {
+      "path": "Data/CSVS/rodinia_pathfinder_0_baseline_0.csv",
+      "bytes": 2094912
+    }
+  ],
+  "errors": [],
+  "tracked_bytes_scope": "Worktree bytes at tracked index paths, before adding new consolidation files; README was already edited",
+  "cleanup_candidates": {
+    "old_GNN_checkpoint": {
+      "tracked_files": 1,
+      "tracked_bytes": 15510,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 0
+    },
+    "old_harp_graphs": {
+      "tracked_files": 234,
+      "tracked_bytes": 1235989,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 110
+    },
+    "HARP-rep": {
+      "tracked_files": 345,
+      "tracked_bytes": 4630593,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 407
+    },
+    "Checkpoints": {
+      "tracked_files": 32,
+      "tracked_bytes": 4228094,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 1770
+    },
+    "LIFT_perf": {
+      "tracked_files": 47,
+      "tracked_bytes": 300697,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 1
+    },
+    "LIFT_pareto": {
+      "tracked_files": 41,
+      "tracked_bytes": 274660,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 0
+    },
+    "Histogram": {
+      "tracked_files": 11,
+      "tracked_bytes": 221031,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 5
+    },
+    "mailohls_runs": {
+      "tracked_files": 46,
+      "tracked_bytes": 22665870,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 415
+    },
+    "mailohls_u50_adaptation": {
+      "tracked_files": 173,
+      "tracked_bytes": 4314092,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 26
+    },
+    "asplos_results": {
+      "tracked_files": 24,
+      "tracked_bytes": 590943,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 3
+    },
+    "asplos_paper": {
+      "tracked_files": 1,
+      "tracked_bytes": 870,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 0
+    },
+    "paper_plots": {
+      "tracked_files": 8,
+      "tracked_bytes": 144851,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 14
+    },
+    "Notebooks": {
+      "tracked_files": 3,
+      "tracked_bytes": 1676500,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 0
+    },
+    "artifacts": {
+      "tracked_files": 342,
+      "tracked_bytes": 77813853,
+      "disposition": "RETAIN: no signed-off removal inventory",
+      "tracked_source_reference_lines": 522
+    }
+  },
+  "local_remote_tracking_inventory": [
+    {
+      "ref": "refs/remotes/origin/llvm-ir",
+      "sha": "0b5581b2b22becf1d20f476e22e92ea3fd533a64",
+      "commits_not_in_foundation": 1,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 2903
+    },
+    {
+      "ref": "refs/remotes/origin/main",
+      "sha": "b547733916c9f7a83c5431ee6af1536d4e00434b",
+      "commits_not_in_foundation": 7,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 662
+    },
+    {
+      "ref": "refs/remotes/origin/mlir-target",
+      "sha": "bf82c648273a5cd5eb30363059a3809e7b3979db",
+      "commits_not_in_foundation": 0,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 3153
+    },
+    {
+      "ref": "refs/remotes/origin/research/final-architecture-decision-20261109",
+      "sha": "8ad95155ec38d9a389e3b8c70dc4a1127dacc28e",
+      "commits_not_in_foundation": 0,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 400
+    },
+    {
+      "ref": "refs/remotes/origin/research/final-architecture-v3-20261110",
+      "sha": "3bd533b5c489a0ad7487c32d0fccfcdaf6657180",
+      "commits_not_in_foundation": 0,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 0
+    },
+    {
+      "ref": "refs/remotes/origin/research/gan-stage1-tcad-20261110",
+      "sha": "58c098936c14cfb021154884d5ad75cdd5fcf068",
+      "commits_not_in_foundation": 5,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 432
+    },
+    {
+      "ref": "refs/remotes/origin/research/gemv-stage1-full-depth",
+      "sha": "97ed75ed3f41ad80247d739888d9ee488881872c",
+      "commits_not_in_foundation": 30,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 873
+    },
+    {
+      "ref": "refs/remotes/origin/research/gnn-refinement",
+      "sha": "172e05a69650a666c323955ea78cb501fd9364c2",
+      "commits_not_in_foundation": 0,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 512
+    },
+    {
+      "ref": "refs/remotes/origin/research/paper-gnn-latency-final-20261110",
+      "sha": "6bffed751f951298714fd4541e188a02478ef46a",
+      "commits_not_in_foundation": 3,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 101
+    },
+    {
+      "ref": "refs/remotes/origin/research/rc3-fusion-foundation",
+      "sha": "98d9d2d41cded4b184bd432c2cc4d8c676d0110c",
+      "commits_not_in_foundation": 0,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 469
+    },
+    {
+      "ref": "refs/remotes/origin/research/rc3-stage2-multikernel-c",
+      "sha": "ca1b9fc7dd8ce81aebc8f13278b1481f2256f0dd",
+      "commits_not_in_foundation": 0,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 458
+    },
+    {
+      "ref": "refs/remotes/origin/research/rc3-structural-memory-audit",
+      "sha": "bb4bc8f8261e33f7a229d92f30e36a0a53f986a7",
+      "commits_not_in_foundation": 1,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 518
+    },
+    {
+      "ref": "refs/remotes/origin/research/refinement-mechanism",
+      "sha": "c8e0b9c1912e4b59b5692f5f26918a23fbf82114",
+      "commits_not_in_foundation": 6,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 681
+    },
+    {
+      "ref": "refs/remotes/origin/research/stage1-gnn-representation-audit",
+      "sha": "0098ea5c8e7c5d054e0fc311eab1541b2f52d820",
+      "commits_not_in_foundation": 1,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 487
+    },
+    {
+      "ref": "refs/remotes/origin/research/stage1-qor-preference",
+      "sha": "3aeb704967714aa08d6ca68e4e6bf1136cb0b464",
+      "commits_not_in_foundation": 30,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 892
+    },
+    {
+      "ref": "refs/remotes/origin/research/stage1-refinement",
+      "sha": "63afcfc7a54e573a544678e728cdb7d99d865981",
+      "commits_not_in_foundation": 29,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 835
+    },
+    {
+      "ref": "refs/remotes/origin/research/stage1-target-film-20261110",
+      "sha": "96853cb81d8f3b23e9a195a4b42a887cad7220c6",
+      "commits_not_in_foundation": 14,
+      "disposition": "RETAIN: content inventory, not retirement approval",
+      "changed_path_count": 491
+    }
+  ],
+  "full_inventory": "Regenerate with scripts/maintenance/audit_final_architecture.py; detailed local output is ignored under maintenance-results/",
+  "branch_path_diff_policy": "git diff --no-renames --name-status foundation ref"
+}

@@ -1,0 +1,11 @@
+> Revision3 completed twelve additional Coroni2021.1 candidate-bank jobs. Stage3-start latency refinement hit repeated300s timeouts and a separate1200s exact-baseline confirmation is recorded in the final snapshot. Timeout/unknown latency is never physical infeasibility. No new P&R result or learned-policy gain is claimed.
+>
+> Current evidence: [Revision-3 results](RESULTS_V3.md); [technical architecture](FINAL_SALT_HLS_ARCHITECTURE.md).
+
+# Synthesis evidence and limits
+
+Coroni access was verified; Vitis resolves to /opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls with322GiB disk free at preflight. No new synthesis was launched in Revision2. No post-route checks ran. The prior architecture-finalization receipts are retained independently:2 new physical calls, one300s timeout and one completed Pathfinder synthesis with undefined worst-case latency. The latter reports14 BRAM18K,0DSP,1515FF,3418LUT and7.3ns HLS estimate at requested10ns. It cannot support latency ranking. Parser failure due to undefined latency is distinct from synthesis failure.
+
+The previous sealed10-job continuation remains gated; do not launch it blindly. New jobs must be development-only, checksum sealed, deduplicated by source/headers/full assignment/part/clock/tool/settings, transferred to fresh Coroni directories, and retrieved with raw XML/log hashes. Budgets reuse physical receipts. Validate finite latency for an anchor first. HLS estimated clock is not post-route timing, and synthesis is not functional verification.
+
+Next high-information physical work: verify the lavaMD training clock reversal with the identical two complete assignments at both clocks, including original units, finite cycle reports and unrounded resource counts. The suspicious spcl latency ratio must be resolved before amplification. Validation needs an independent-family meaningful switch; do not move test/external workloads into selection.

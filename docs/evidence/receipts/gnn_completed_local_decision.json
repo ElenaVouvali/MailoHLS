@@ -1,0 +1,65 @@
+{
+  "status": "FREEZE_NOT_YET_JUSTIFIED",
+  "selected": "preliminary",
+  "new_arm_candidate": "A",
+  "B_vs_A": {
+    "ranking_first_priority_gain": false,
+    "mae_nonsevere": true,
+    "independent_family_support": {
+      "machsuite_sort_radix": false,
+      "machsuite_viterbi": false,
+      "rodinia_pathfinder": true
+    },
+    "at_least_two_families_improve": false,
+    "feasible_selection_rate_is_diagnostic_only": true
+  },
+  "candidate_vs_V1_matched": {
+    "ranking_first_priority_gain": false,
+    "mae_nonsevere": false,
+    "independent_family_support": {
+      "machsuite_sort_radix": false,
+      "machsuite_viterbi": true,
+      "rodinia_pathfinder": false
+    },
+    "at_least_two_families_improve": false,
+    "feasible_selection_rate_is_diagnostic_only": true
+  },
+  "candidate_vs_preliminary_all_contexts": {
+    "ranking_first_priority_gain": true,
+    "mae_nonsevere": true,
+    "independent_family_support": {
+      "machsuite_sort_radix": true,
+      "machsuite_viterbi": true,
+      "rodinia_pathfinder": true
+    },
+    "at_least_two_families_improve": true,
+    "feasible_selection_rate_is_diagnostic_only": true
+  },
+  "candidate_vs_preliminary_zcu104_10ns": {
+    "ranking_first_priority_gain": true,
+    "mae_nonsevere": true,
+    "independent_family_support": {
+      "machsuite_sort_radix": true,
+      "machsuite_viterbi": false,
+      "rodinia_pathfinder": true
+    },
+    "at_least_two_families_improve": true,
+    "feasible_selection_rate_is_diagnostic_only": true
+  },
+  "selected_checkpoint_sha256": "79540c9f27e4807e0c3badbd876322bbde5badd9d4a04f601b316ee75e944ee8",
+  "selected_checkpoint_path": "/home/elvouvali/MailoHLS/worktrees/paper-gnn-latency-final-20261110/experiments/paper_gnn_latency_final/runs/liono_v3_20261110/qualified_v3/ranking_selection_v2/reference_preliminary/selected.pt",
+  "selected_memory_manifest_sha256": "2d55b9919764fbe206def203033da4024e49df8fbcc4e29d2dc9f0b23b8925e7",
+  "xattn_status": "passed",
+  "production_promoted": false,
+  "test_used": false,
+  "downstream_llm_improvement_verified": false,
+  "limits": [
+    "three development families; limited independent-family uncertainty",
+    "Sort-radix L6 explicitly ignored per user amendment; not authenticated",
+    "all-context training is not historical single-target training reproduction",
+    "resource counts are percentage-derived estimates; exact capacity equality unknown",
+    "ambiguous above-range raw latencies excluded conservatively"
+  ],
+  "checkpoint_selection_policy": "ranking",
+  "user_directed_post_hoc_selection_revision": true
+}
