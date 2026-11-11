@@ -1,0 +1,456 @@
+[
+  {
+    "action": "L1",
+    "column": 19,
+    "compiler_anchor": "memory:gemv:op3:r0",
+    "compiler_metadata": {
+      "category": "memory_object",
+      "function": 0,
+      "global_symbol": "",
+      "memory_rank": 2,
+      "memory_shape": [
+        32,
+        32
+      ],
+      "root_kind": "allocation",
+      "root_value": "value:gemv:op3:r0",
+      "root_values": [
+        "value:gemv:op3:r0"
+      ],
+      "value_type": "memref<32x32xf32>"
+    },
+    "construct": "A",
+    "directives": [
+      "array_partition"
+    ],
+    "edge_ids": [
+      "747d647e24d67e00bfbc7c32"
+    ],
+    "evidence_status": "proven",
+    "graph_file_sha256": "7d295d791f8438eeda62a6b230ab80c8d3a051ecda43b822c7a3827ec0cb43a6",
+    "graph_identity": "42fe84cb8b8c2f5665dc016fcfb6a969f93b848a3407c7343100b6b4bcabae21",
+    "line": 5,
+    "node_ids": [
+      "action:L1",
+      "memory:gemv:op3:r0"
+    ],
+    "slot": 0,
+    "source_file": "gemv.c",
+    "source_metadata": {
+      "absolute_index": 1,
+      "action_id": "L1",
+      "action_kind": "array",
+      "array_binding_evidence": {
+        "action_id": "L1",
+        "compiler_shape": [
+          32,
+          32
+        ],
+        "function": 0,
+        "operation": "op:gemv:op3",
+        "root_value": "value:gemv:op3:r0",
+        "selection": "all exact compiler candidates enumerated before selection; no heuristic candidate consulted",
+        "shape_role": "consistency_only; optimized compiler shape does not redefine source dimensions",
+        "source_line": 5,
+        "source_shape": [
+          32,
+          32
+        ],
+        "tier": "native_action_attribute",
+        "value": "value:gemv:op3:r0"
+      },
+      "array_variable": "A",
+      "category": "action_point",
+      "function": 0,
+      "legacy_array_root_values": [
+        "value:gemv:op3:r0"
+      ],
+      "legacy_target_disagreement": false,
+      "source_array_dimensions": [
+        32,
+        32
+      ],
+      "source_column": 19,
+      "source_declared_type": {
+        "bit_width": null,
+        "evidence": "source_text_not_compiler_verified",
+        "signedness": null,
+        "spelling": "float"
+      },
+      "source_file": "gemv.c",
+      "source_line": 5,
+      "supported_directives": [
+        "array_partition"
+      ],
+      "target_binding_rule": "native_evidence_first_array"
+    },
+    "source_path": "evaluation_set/gemv/code_to_memory_outputs/meta/gemv.c",
+    "source_sha256": "c6e8b0aab3919a433803bacf29c7af6b56a6a5cb4d7a511a6875a21593a7e8f6"
+  },
+  {
+    "action": "L2",
+    "column": 19,
+    "compiler_anchor": "memory:gemv:op2:r0",
+    "compiler_metadata": {
+      "category": "memory_object",
+      "function": 0,
+      "global_symbol": "",
+      "memory_rank": 1,
+      "memory_shape": [
+        32
+      ],
+      "root_kind": "allocation",
+      "root_value": "value:gemv:op2:r0",
+      "root_values": [
+        "value:gemv:op2:r0"
+      ],
+      "value_type": "memref<32xf32>"
+    },
+    "construct": "x",
+    "directives": [
+      "array_partition"
+    ],
+    "edge_ids": [
+      "fb2a130590d6018a83bda3d8"
+    ],
+    "evidence_status": "proven",
+    "graph_file_sha256": "7d295d791f8438eeda62a6b230ab80c8d3a051ecda43b822c7a3827ec0cb43a6",
+    "graph_identity": "42fe84cb8b8c2f5665dc016fcfb6a969f93b848a3407c7343100b6b4bcabae21",
+    "line": 7,
+    "node_ids": [
+      "action:L2",
+      "memory:gemv:op2:r0"
+    ],
+    "slot": 1,
+    "source_file": "gemv.c",
+    "source_metadata": {
+      "absolute_index": 2,
+      "action_id": "L2",
+      "action_kind": "array",
+      "array_binding_evidence": {
+        "action_id": "L2",
+        "compiler_shape": [
+          32
+        ],
+        "function": 0,
+        "operation": "op:gemv:op2",
+        "root_value": "value:gemv:op2:r0",
+        "selection": "all exact compiler candidates enumerated before selection; no heuristic candidate consulted",
+        "shape_role": "consistency_only; optimized compiler shape does not redefine source dimensions",
+        "source_line": 7,
+        "source_shape": [
+          32
+        ],
+        "tier": "native_action_attribute",
+        "value": "value:gemv:op2:r0"
+      },
+      "array_variable": "x",
+      "category": "action_point",
+      "function": 0,
+      "legacy_array_root_values": [
+        "value:gemv:op2:r0"
+      ],
+      "legacy_target_disagreement": false,
+      "source_array_dimensions": [
+        32
+      ],
+      "source_column": 19,
+      "source_declared_type": {
+        "bit_width": null,
+        "evidence": "source_text_not_compiler_verified",
+        "signedness": null,
+        "spelling": "float"
+      },
+      "source_file": "gemv.c",
+      "source_line": 7,
+      "supported_directives": [
+        "array_partition"
+      ],
+      "target_binding_rule": "native_evidence_first_array"
+    },
+    "source_path": "evaluation_set/gemv/code_to_memory_outputs/meta/gemv.c",
+    "source_sha256": "c6e8b0aab3919a433803bacf29c7af6b56a6a5cb4d7a511a6875a21593a7e8f6"
+  },
+  {
+    "action": "L3",
+    "column": 19,
+    "compiler_anchor": "memory:gemv:op1:r0",
+    "compiler_metadata": {
+      "category": "memory_object",
+      "function": 0,
+      "global_symbol": "",
+      "memory_rank": 0,
+      "memory_shape": [],
+      "root_kind": "allocation",
+      "root_value": "value:gemv:op1:r0",
+      "root_values": [
+        "value:gemv:op1:r0"
+      ],
+      "value_type": "memref<f32>"
+    },
+    "construct": "y",
+    "directives": [
+      "array_partition"
+    ],
+    "edge_ids": [
+      "54c6762c5c1f89cb15492be6"
+    ],
+    "evidence_status": "proven",
+    "graph_file_sha256": "7d295d791f8438eeda62a6b230ab80c8d3a051ecda43b822c7a3827ec0cb43a6",
+    "graph_identity": "42fe84cb8b8c2f5665dc016fcfb6a969f93b848a3407c7343100b6b4bcabae21",
+    "line": 9,
+    "node_ids": [
+      "action:L3",
+      "memory:gemv:op1:r0"
+    ],
+    "slot": 2,
+    "source_file": "gemv.c",
+    "source_metadata": {
+      "absolute_index": 3,
+      "action_id": "L3",
+      "action_kind": "array",
+      "array_binding_evidence": {
+        "action_id": "L3",
+        "compiler_shape": [],
+        "function": 0,
+        "operation": "op:gemv:op1",
+        "root_value": "value:gemv:op1:r0",
+        "selection": "all exact compiler candidates enumerated before selection; no heuristic candidate consulted",
+        "shape_role": "consistency_only; optimized compiler shape does not redefine source dimensions",
+        "source_line": 9,
+        "source_shape": [
+          32
+        ],
+        "tier": "native_action_attribute",
+        "value": "value:gemv:op1:r0"
+      },
+      "array_variable": "y",
+      "category": "action_point",
+      "function": 0,
+      "legacy_array_root_values": [
+        "value:gemv:op1:r0"
+      ],
+      "legacy_target_disagreement": false,
+      "source_array_dimensions": [
+        32
+      ],
+      "source_column": 19,
+      "source_declared_type": {
+        "bit_width": null,
+        "evidence": "source_text_not_compiler_verified",
+        "signedness": null,
+        "spelling": "float"
+      },
+      "source_file": "gemv.c",
+      "source_line": 9,
+      "supported_directives": [
+        "array_partition"
+      ],
+      "target_binding_rule": "native_evidence_first_array"
+    },
+    "source_path": "evaluation_set/gemv/code_to_memory_outputs/meta/gemv.c",
+    "source_sha256": "c6e8b0aab3919a433803bacf29c7af6b56a6a5cb4d7a511a6875a21593a7e8f6"
+  },
+  {
+    "action": "L4",
+    "column": 13,
+    "compiler_anchor": "op:gemv:op4",
+    "compiler_metadata": {
+      "action_id": "L4",
+      "action_resolution": "source_location",
+      "action_source_column": 13,
+      "action_source_file": "gemv.c",
+      "action_source_line": 12,
+      "block": 0,
+      "block_order": 4,
+      "category": "operation",
+      "compiler_effect_analysis_unknown": 1,
+      "compiler_operation_effect_allocate": 0,
+      "compiler_operation_effect_count": 0,
+      "compiler_operation_effect_free": 0,
+      "compiler_operation_effect_read": 0,
+      "compiler_operation_effect_unknown": 0,
+      "compiler_operation_effect_write": 0,
+      "compiler_operation_effects": "",
+      "full_text": "affine.for %arg0 = 0 to 32 {",
+      "function": 0,
+      "is_loop": 1,
+      "kernel_info_loop_value": 32,
+      "kernel_info_loop_value_relation": "equal",
+      "legacy_node_id": "24",
+      "loop_context": [],
+      "loop_depth": 0,
+      "loop_lower": 0,
+      "loop_ordinal": 0,
+      "loop_step": 1,
+      "loop_upper": 32,
+      "memory_effect_status": "not_established",
+      "mlir_attrs": {
+        "lower_bound": "affine_map<() -> (0)>",
+        "step": "1 : index",
+        "upper_bound": "affine_map<() -> (32)>"
+      },
+      "op_ordinal": 4,
+      "op_uid": "gemv:op4",
+      "operand_count": 0,
+      "operand_types": [],
+      "operation_family": "loop",
+      "parent_operation": "op:gemv:function",
+      "result_count": 0,
+      "result_types": [],
+      "source_column": 31,
+      "source_file": "gemv.c",
+      "source_line": 12,
+      "source_location": "loc(\"gemv.c\":12:31)",
+      "text": "affine.for",
+      "trip_count": 32,
+      "trip_count_source": "mlir_affine_analysis",
+      "trip_count_static": 1,
+      "type": 0
+    },
+    "construct": "outer loop",
+    "directives": [
+      "pipeline",
+      "unroll"
+    ],
+    "edge_ids": [
+      "ab6bce5a702d4e16f7e08a7f"
+    ],
+    "evidence_status": "proven",
+    "graph_file_sha256": "7d295d791f8438eeda62a6b230ab80c8d3a051ecda43b822c7a3827ec0cb43a6",
+    "graph_identity": "42fe84cb8b8c2f5665dc016fcfb6a969f93b848a3407c7343100b6b4bcabae21",
+    "line": 12,
+    "node_ids": [
+      "action:L4",
+      "op:gemv:op4"
+    ],
+    "slot": 3,
+    "source_file": "gemv.c",
+    "source_metadata": {
+      "absolute_index": 4,
+      "action_id": "L4",
+      "action_kind": "loop",
+      "category": "action_point",
+      "compiler_proven_trip_count": 32,
+      "function": 0,
+      "metadata_value": 32,
+      "source_column": 13,
+      "source_file": "gemv.c",
+      "source_line": 12,
+      "source_loop_metadata_value": 32,
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ],
+      "target_binding_rule": "exact_compiler_loop_source_binding",
+      "tcad_trip_count": 32,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    "source_path": "evaluation_set/gemv/code_to_memory_outputs/meta/gemv.c",
+    "source_sha256": "c6e8b0aab3919a433803bacf29c7af6b56a6a5cb4d7a511a6875a21593a7e8f6"
+  },
+  {
+    "action": "L5",
+    "column": 17,
+    "compiler_anchor": "op:gemv:op5",
+    "compiler_metadata": {
+      "action_id": "L5",
+      "action_resolution": "source_location",
+      "action_source_column": 17,
+      "action_source_file": "gemv.c",
+      "action_source_line": 16,
+      "block": 1,
+      "block_order": 0,
+      "category": "operation",
+      "compiler_effect_analysis_unknown": 1,
+      "compiler_operation_effect_allocate": 0,
+      "compiler_operation_effect_count": 0,
+      "compiler_operation_effect_free": 0,
+      "compiler_operation_effect_read": 0,
+      "compiler_operation_effect_unknown": 0,
+      "compiler_operation_effect_write": 0,
+      "compiler_operation_effects": "",
+      "full_text": "%1 = affine.for %arg1 = 0 to 32 iter_args(%arg2 = %cst) -> (f32) {",
+      "function": 0,
+      "is_loop": 1,
+      "kernel_info_loop_value": 32,
+      "kernel_info_loop_value_relation": "equal",
+      "legacy_node_id": "46",
+      "loop_context": [
+        "op:gemv:op4"
+      ],
+      "loop_depth": 1,
+      "loop_lower": 0,
+      "loop_ordinal": 1,
+      "loop_step": 1,
+      "loop_upper": 32,
+      "memory_effect_status": "not_established",
+      "mlir_attrs": {
+        "lower_bound": "affine_map<() -> (0)>",
+        "step": "1 : index",
+        "upper_bound": "affine_map<() -> (32)>"
+      },
+      "op_ordinal": 5,
+      "op_uid": "gemv:op5",
+      "operand_count": 1,
+      "operand_types": [
+        "f32"
+      ],
+      "operation_family": "loop",
+      "parent_operation": "op:gemv:op4",
+      "result_count": 1,
+      "result_types": [
+        "f32"
+      ],
+      "source_column": 35,
+      "source_file": "gemv.c",
+      "source_line": 16,
+      "source_location": "loc(\"gemv.c\":16:35)",
+      "text": "affine.for",
+      "trip_count": 32,
+      "trip_count_source": "mlir_affine_analysis",
+      "trip_count_static": 1,
+      "type": 0
+    },
+    "construct": "inner reduction loop",
+    "directives": [
+      "pipeline",
+      "unroll"
+    ],
+    "edge_ids": [
+      "0d4f1e6b426d80615925ce12"
+    ],
+    "evidence_status": "proven",
+    "graph_file_sha256": "7d295d791f8438eeda62a6b230ab80c8d3a051ecda43b822c7a3827ec0cb43a6",
+    "graph_identity": "42fe84cb8b8c2f5665dc016fcfb6a969f93b848a3407c7343100b6b4bcabae21",
+    "line": 16,
+    "node_ids": [
+      "action:L5",
+      "op:gemv:op5"
+    ],
+    "slot": 4,
+    "source_file": "gemv.c",
+    "source_metadata": {
+      "absolute_index": 5,
+      "action_id": "L5",
+      "action_kind": "loop",
+      "category": "action_point",
+      "compiler_proven_trip_count": 32,
+      "function": 0,
+      "metadata_value": 32,
+      "source_column": 17,
+      "source_file": "gemv.c",
+      "source_line": 16,
+      "source_loop_metadata_value": 32,
+      "supported_directives": [
+        "pipeline",
+        "unroll"
+      ],
+      "target_binding_rule": "exact_compiler_loop_source_binding",
+      "tcad_trip_count": 32,
+      "trip_count_provenance": "mlir_affine_analysis"
+    },
+    "source_path": "evaluation_set/gemv/code_to_memory_outputs/meta/gemv.c",
+    "source_sha256": "c6e8b0aab3919a433803bacf29c7af6b56a6a5cb4d7a511a6875a21593a7e8f6"
+  }
+]

@@ -7,6 +7,9 @@ Start with the [component status and evidence matrix](docs/ARCHITECTURE_EVIDENCE
 [reproduction guide](docs/REPRODUCIBILITY.md), [limitations](docs/LIMITATIONS.md),
 and [current consolidation checks](docs/CONSOLIDATION_STATUS.md). A small
 [GEMV inspection walkthrough](examples/README.md) connects source, actions and graph.
+The [GEMV four-layer structural-memory study](experiments/gemv_structural_explainability/README.md)
+exports actual trained action vectors and authenticated source/compiler/slot figures;
+learned GMT retrieval and physical improvement remain unevaluated.
 
 > **Central idea.** Select a **complete, source-valid HLS directive configuration** by combining a target- and objective-conditioned language model with **compiler-verified, action-aligned graph evidence**. Improve the policy using authentic measured whole-configuration preferences and, when explicitly requested, a small number of synthesis-guided refinements. FPGA constraints are feasibility requirements, not rhetorical prompt preferences.
 
