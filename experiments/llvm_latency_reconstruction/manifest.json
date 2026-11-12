@@ -1,0 +1,49 @@
+{
+  "status": "training_in_progress_no_completed_framework_checkpoint_yet",
+  "original_branch": "llvm-ir",
+  "original_commit": "0b5581b2b22becf1d20f476e22e92ea3fd533a64",
+  "paper_snapshot": "c9b2f43e97508115c4d8d58bc24900adf437b41a",
+  "reconstruction_branch": "research/llvm-latency-reconstruction-20261112",
+  "runtime_host": "davinci.microlab.ntua.gr",
+  "runtime_root": "/home/evouvali/mailohls_runs/llvm_latency_reconstruction_20261112/runtime",
+  "gpu": "NVIDIA A30",
+  "gpu_uuid": "GPU-ac0112df-7098-6c59-5c4f-a57fa666f808",
+  "precision": "BF16 compute; NF4 double-quantized frozen base",
+  "objective": "PARETO_LATENCY_EXTREME",
+  "seed": 123,
+  "memory_shape": [
+    64,
+    64
+  ],
+  "gnn_checkpoint_sha256": "c6bbba75fa8dffb9e29d0cbcf2da689bd875d54d5e67f038dff76cbf4d8409f3",
+  "base_model": "deepseek-ai/deepseek-coder-6.7b-base",
+  "base_revision": "ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+  "archived_base_alias": "deepseek-ai/deepseek-coder-7b-base",
+  "base_alias_note": "Both local aliases resolve to the same cached revision/config; use the existing 6.7b cache on Davinci.",
+  "base_config_sha256": "d6e95333839ce9726d6619ae3e055dd2cbf854f003bc45c426e0550860fa6448",
+  "base_model_index": {
+    "total_size": 13481025536
+  },
+  "physical_qor_improvement": "NOT EVALUATED",
+  "later_mlir_or_gmt_weights_used": false,
+  "planned_training": {
+    "stage1_epochs": 4,
+    "stage2_epochs": 4,
+    "stage3_updates": 60,
+    "micro_batch_size": 1,
+    "gradient_accumulation": 8,
+    "effective_batch_size": 8,
+    "max_length": 7168,
+    "validation_interval": 40,
+    "structural_fusion_every_n_layers": 8,
+    "stage1_lora_rank": 8,
+    "stage1_lora_alpha": 16
+  },
+  "notes": [
+    "This is a newly trained reconstruction, not recovered original LLM weights.",
+    "The original 1.1 GB archived JSONL exceeded the Drive connector download limit; the reconstructed measured ZCU104/10 ns cohort is hashed separately.",
+    "An initial run was stopped before checkpoint publication to correct validation cadence; its startup log is preserved under runtime/startup_validation_cadence_correction.",
+    "Archived graph+checkpoint replay did not reproduce the archived memory values. The recovered bank is preserved under memory_recovered_legacy and excluded from Stage 2; all memories were regenerated from the same weights used for the four external kernels."
+  ],
+  "structural_memory_status": "55 original LLVM graph memories regenerated from exact recovered checkpoint; archived source-action/node identities preserved"
+}

@@ -28,3 +28,8 @@ paths; configure those paths and provide the original data/checkpoints before
 running them. Generated checkpoints, weights, logs, and caches are not committed.
 The reorganization adds this README and ignore rules without changing the
 historical implementation or rewriting its history.
+
+The separate [LLVM latency reconstruction experiment](experiments/llvm_latency_reconstruction/README.md)
+trains new framework weights from this implementation and records asset
+compatibility, training status and four external-kernel inference. These are
+newly reconstructed weights, not the recovered original paper checkpoint.

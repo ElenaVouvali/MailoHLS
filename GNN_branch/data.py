@@ -412,7 +412,7 @@ def compute_global_max_pragma_length():
 
 TARGET = ['perf', 'area']
 
-save_folder = '/home/ubuntu/save'
+save_folder = join(get_root_path(), 'save')
 SAVE_DIR = join(save_folder, FLAGS.dataset, "all_kernels_fixed")
 GRAPH_DIR = join(SAVE_DIR, "graphs")
 POINT_DIR = join(SAVE_DIR, "points")

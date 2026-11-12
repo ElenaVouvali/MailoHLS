@@ -1411,6 +1411,7 @@ def main():
     else:
         trainer.train()
 
+    trainer.save_state()
     trainer.save_model(args.output_dir)
     tokenizer.save_pretrained(args.output_dir)
 

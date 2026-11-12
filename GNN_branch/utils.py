@@ -51,7 +51,7 @@ def natural_keys(text):
 
 def get_root_path():
     # return dirname(dirname(abspath(__file__)))
-    return '/home/ubuntu'
+    return environ.get('MAILOHLS_LLVM_RUNTIME_ROOT', '/home/ubuntu')
 
 def get_save_path():
     return join(get_root_path(), 'save')

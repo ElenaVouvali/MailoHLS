@@ -1545,13 +1545,14 @@ def move_harp_modules_to_model_device(model):
 
 def load_partial_harp_xattn(model, harp_xattn_path: str, tag: str):
     if not harp_xattn_path or not os.path.isfile(harp_xattn_path):
-        print(f"[{tag}] no harp_xattn.pt found at: {harp_xattn_path}")
-        return
+        raise FileNotFoundError(f"[{tag}] missing trained fusion checkpoint: {harp_xattn_path}")
 
     harp_sd = torch.load(harp_xattn_path, map_location="cpu")
     missing, unexpected = model.load_state_dict(harp_sd, strict=False)
 
     harp_missing = [k for k in missing if "gated_cross_attn_layer" in k]
+    if harp_missing or unexpected:
+        raise ValueError(f"[{tag}] incompatible fusion checkpoint: missing={harp_missing}, unexpected={unexpected}")
     print(f"[{tag}] harp_missing[:10]={harp_missing[:10]}")
     print(f"[{tag}] unexpected[:10]={unexpected[:10]}")
 
@@ -2387,6 +2388,14 @@ class LengthGroupedTrainer(Trainer):
         if other_trainables:
             opt_groups.append({"params": [p for _, p in other_trainables], "lr": self.lr_lora})
 
+        # Zero-LR groups are frozen in the reconstructed run. With weight_decay=0
+        # this preserves their updates while avoiding gradients/optimizer states.
+        for group in opt_groups:
+            if group["lr"] == 0:
+                for param in group["params"]:
+                    param.requires_grad_(False)
+        opt_groups = [group for group in opt_groups if group["lr"] > 0]
+
         try:
             from bitsandbytes.optim import PagedAdamW8bit
             self.optimizer = PagedAdamW8bit(opt_groups, weight_decay=0.0)
@@ -2919,6 +2928,11 @@ def build_default_stage_configs(args):
 # =================================
 def run_single_training(args):
 
+    use_bf16 = (args.precision == "bf16" or
+                (args.precision == "auto" and torch.cuda.is_bf16_supported()))
+    compute_dtype = torch.bfloat16 if use_bf16 else torch.float16
+    print(f"[PRECISION] {compute_dtype}")
+
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -3037,7 +3051,7 @@ def run_single_training(args):
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
         bnb_4bit_use_double_quant=True,
-        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_compute_dtype=compute_dtype,
     )
 
     base = AutoModelForCausalLM.from_pretrained(
@@ -3204,15 +3218,15 @@ def run_single_training(args):
         learning_rate=max(args.lr_lora, args.lr_xattn, args.lr_gate, args.lr_embed),
         warmup_steps=warmup_steps,
         lr_scheduler_type="cosine",
-        bf16=True,
-        fp16=False,
+        bf16=use_bf16,
+        fp16=not use_bf16,
         optim="paged_adamw_8bit",
         logging_steps=10,
         eval_strategy="steps" if val_ds is not None else "no",
         eval_steps=args.eval_steps,
         save_steps=args.save_steps,
         load_best_model_at_end=False,
-        save_total_limit=6,
+        save_total_limit=args.save_total_limit,
         report_to="none",
         dataloader_num_workers=args.num_workers,
         dataloader_pin_memory=True,
@@ -3270,6 +3284,12 @@ def run_single_training(args):
     else:
         print(f"[INFO] No checkpoint found. Starting from scratch.")
         trainer.train()
+
+    # Preserve the actual final optimizer-update count, including a final step
+    # that does not coincide with save_steps, and always validate the parent.
+    if val_ds is not None and trainer.state.global_step % args.eval_steps:
+        trainer.evaluate()
+    trainer.save_state()
 
     best_dir = os.path.join(args.output_dir, args.best_dir_name)
     if not os.path.isdir(best_dir):
@@ -3383,6 +3403,8 @@ def main():
     ap.add_argument("--stage2_lr_gate_ff", type=float, default=0.0)
 
     ap.add_argument("--seed", type=int, default=123)
+    ap.add_argument("--precision", choices=["auto", "bf16", "fp16"], default="auto")
+    ap.add_argument("--save_total_limit", type=int, default=2)
     args = ap.parse_args()
 
     goal_tag = GOALS[args.objective]["tag"]
