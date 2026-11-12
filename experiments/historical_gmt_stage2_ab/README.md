@@ -4,6 +4,12 @@ This ports the supplied A30 package to Liono's UUID-selected **A2 (15 GiB)**.
 The independent original LLVM reconstruction continues on Liono's V100S.
 No Davinci training is launched by these scripts.
 
+For the measured validation workload, reasons for the silent `0/2` smoke phase,
+and settings to review before a full run, see
+[VALIDATION_COST.md](VALIDATION_COST.md). It also explains the existing early
+stopping policy and why 300 updates are a cap rather than a guaranteed matched
+realized budget. The running launch is unchanged.
+
 A uses the authenticated historical epoch-9 four-layer GNN's 64x128 action
 anchors. B preserves those exact anchors and adds up to three typed, learned
 compiler-evidence summaries per action. GMT receives compiler-only auxiliary
