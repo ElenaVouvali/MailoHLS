@@ -38,18 +38,29 @@ def audit(data,archive):
  rows=[json.loads(x) for x in data.read_text().splitlines() if x.strip()]
  graphs=graph_index(archive); grouped=defaultdict(list)
  for r in rows: grouped[r['kernel_name']].append(r)
+ from LLM_branch.common import directive_domains as domains
  inv={}; usable=set()
  for k,rs in sorted(grouped.items()):
   r=rs[0]; g=graphs.get(k); sp=ROOT/r['source_file']; source_sha=sha(sp) if sp.is_file() else None
   if g and len(g.get('archive_variants', [])) != 1:
    raise ValueError(f'{k}: ambiguous RC3 variants require an explicit graph identity')
   actions=sorted({f'L{n}' for n in re.findall(r'\bL(\d+)\s*:',r['input'])},key=lambda x:int(x[1:]))
-  complete=bool(g and set(actions).issubset(g['matched_actions'])); source_match=bool(g and source_sha==g['source_sha256'])
+  try:
+   source_actions=domains.load_source_actions(k,ROOT/'Data/ApplicationDataset')
+   expected=set(domains.domains_from_actions(source_actions))
+   placeholder_match=all(
+    {m[1].upper() for m in domains.DIRECTIVE_RE.finditer(x.get('input',''))}==expected for x in rs)
+  except (KeyError,ValueError,FileNotFoundError):
+   placeholder_match=False
+  complete=bool(g and set(actions).issubset(g['matched_actions']) and placeholder_match)
+  source_match=bool(g and source_sha==g['source_sha256'])
   ok=bool(g and complete and source_match and k not in INCOMPLETE)
   if ok: usable.add(k)
   inv[k]={'family':r['_family'],'split':r['_quality_split'],'rows':len(rs),'request_count':len({x['_quality_request_id'] for x in rs}),
    'source_file':r['source_file'],'source_sha256':source_sha,'action_ids':actions,'graph':g,'source_hash_matches_graph':source_match,
-   'complete_action_mapping':complete,'usable':ok,'exclusion_reason':None if ok else ('no_rc3_graph' if not g else 'source_hash_mismatch' if not source_match else 'incomplete_compiler_action_mapping')}
+   'source_action_placeholders_match':placeholder_match,'complete_action_mapping':complete,'usable':ok,
+   'exclusion_reason':None if ok else ('no_rc3_graph' if not g else 'source_hash_mismatch' if not source_match else
+       'source_action_placeholder_mismatch' if not placeholder_match else 'incomplete_compiler_action_mapping')}
  splits={}
  for split in ('train','validation'):
   rr=[r for r in rows if r['_quality_split']==split and r['kernel_name'] in usable]
@@ -62,7 +73,6 @@ def audit(data,archive):
  selected={f:max(ks,key=lambda k:(len(inv[k]['graph']['matched_actions']),inv[k]['request_count'],k)) for f,ks in sorted(byfam.items())}
  schedule=[r for r in rows if r['_quality_split']=='train' and r['kernel_name']==selected.get(r['_family'])]
  # Validate complete target assignments against the current source-aware tuple registry.
- from LLM_branch.common import directive_domains as domains
  legal_rows=0
  for r in rows:
   if r['kernel_name'] not in usable: continue
