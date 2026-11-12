@@ -12,6 +12,10 @@ A_selected: u200_10ns_100pct changes 2 generated fields; zcu104_3p33ns_100pct ch
 
 B_selected_ON: u200_10ns_100pct changes 0 generated fields; zcu104_3p33ns_100pct changes 3 generated fields; zcu104_10ns_20pct changes 0 generated fields.
 
+parent still requests complete partitioning at the 20% budget for L1 (in_local, dimensions [262144]), L2 (out_local, dimensions [262144]). This is a source-level request that needs feasibility scrutiny. The candidate-domain check does not enforce physical resource capacity; no synthesized resource usage is inferred here.
+
+B_selected_ON still requests complete partitioning at the 20% budget for L1 (in_local, dimensions [262144]), L2 (out_local, dimensions [262144]). This is a source-level request that needs feasibility scrutiny. The candidate-domain check does not enforce physical resource capacity; no synthesized resource usage is inferred here.
+
 zcu104_10ns_100pct: turning B FiLM off changes AUTO{_UNROLL_L11}: 2 (on) → 4 (off).
 
 The first difference is auto{_UNROLL_L11}, with identical preceding directive tokens. Its top-two margins are 0.008418 (on) and 0.005632 (off).

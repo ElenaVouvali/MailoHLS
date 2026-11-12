@@ -128,15 +128,32 @@ def analyze(run):
     (run/'observations.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n')
     with (run/'directive_comparison.csv').open('w',newline='') as stream:
         columns=['directive']+[m+'/'+c for m in MODELS for c in CONTEXTS]
-        writer=csv.DictWriter(stream,fieldnames=columns);writer.writeheader()
+        writer=csv.DictWriter(stream,fieldnames=columns,lineterminator='\n');writer.writeheader()
         for field in [s['lhs'].upper() for s in records['parent',CONTEXTS[0]]['candidate_scores']]:
             writer.writerow(dict(directive=field,**{m+'/'+c:records[m,c]['directives'][field] for m in MODELS for c in CONTEXTS}))
     observed=[]
+    metadata=repo/'evaluation_set/serrano-kalman-filter/kernel_info.txt'
+    if hashlib.sha256(metadata.read_bytes()).hexdigest() != manifest['action_metadata_sha256']:
+        raise ValueError('Local Kalman action metadata differs from executed metadata')
+    arrays={}
+    for line in metadata.read_text().splitlines()[1:]:
+        values=line.split(',')
+        if len(values)>=5 and values[1]=='array':
+            arrays[values[0]]=dict(name=values[2],dimensions=[int(x) for x in values[4:]])
     for model in MODELS[:3]:
         entries=[x for x in context_effects if x['model']==model]
         observed += [model+': '+ '; '.join(
             f"{x['contrast']} changes {len(x['changed_directives'])} generated fields"
             for x in entries)+'.','']
+    for model in MODELS[:3]:
+        directives=records[model,CONTEXTS[-1]]['directives']
+        large=[f"{action} ({spec['name']}, dimensions {spec['dimensions']})"
+               for action,spec in arrays.items() if max(spec['dimensions'])>=262144
+               and directives.get(f'AUTO{{_ARRAY_T_{action}}}')=='complete']
+        if large:
+            observed += [model+' still requests complete partitioning at the 20% budget for '
+                +', '.join(large)+'. This is a source-level request that needs feasibility scrutiny. '
+                'The candidate-domain check does not enforce physical resource capacity; no synthesized resource usage is inferred here.','']
     controls=[x for x in model_effects if x['before']=='B_selected_ON']
     for x in controls:
         fields=x['changed_directives']
