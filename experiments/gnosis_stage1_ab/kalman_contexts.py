@@ -66,7 +66,7 @@ def prompt_tokens(tok, row):
             + mc.selected_clock_response_token_ids(row, tok))
 
 
-def causal_kind_mask(tok, source, registry, full_ids, attention_mask, prompt_length):
+def causal_kind_mask(tok, source, registry, full_ids, attention_mask, prompt_length, kernel_name=KERNEL):
     """Reconstruct partial candidate serialization exactly, including prior values.
 
     FiLM applies at logits predicting nonforced *value* tokens, excluding newline.
@@ -79,7 +79,7 @@ def causal_kind_mask(tok, source, registry, full_ids, attention_mask, prompt_len
         target = tok.decode(target_ids, skip_special_tokens=False,
                             clean_up_tokenization_spaces=False)
         pack = prod.build_deterministic_rhs_pack(
-            source, target, tok, directive_domain_registry=registry, kernel_name=KERNEL)
+            source, target, tok, directive_domain_registry=registry, kernel_name=kernel_name)
         if pack.input_ids != target_ids:
             raise ValueError('Candidate FiLM mask cannot reproduce target tokenization')
         apply_decision_policy(pack, tok, prod.build_rhs_map_from_target(target), 'decision')
@@ -112,7 +112,7 @@ class CandidateModel:
         if ids.shape[1] > self.max_length:
             raise ValueError('Complete source + directive candidate exceeds context; no truncation')
         kinds = causal_kind_mask(self.tok, self.row['input'], self.registry,
-                                 ids, mask, len(self.prompt))
+                                 ids, mask, len(self.prompt), self.row['kernel_name'])
         context = trained.context_features(self.row).to(ids.device)[None, None, :]
         self.film.last.clear()
         with self.hooks.bind(context, kinds, enabled=self.enabled):
@@ -208,7 +208,7 @@ def preparation(args):
     return manifest, tok, registry, rows, checkpoints, contract
 
 
-def validate_assignment(row, source, registry):
+def validate_assignment(row, source, registry, kernel_name=KERNEL):
     plan = prod.extract_ordered_lhs_plan(source)
     assignment = prod.parse_assignment_dict(row)
     expected = {lhs.upper() for _, lhs in plan}
@@ -216,7 +216,7 @@ def validate_assignment(row, source, registry):
         raise ValueError('Incomplete Kalman assignment')
     prior = {}
     for _, lhs in plan:
-        _, choices = prod.constrained_rhs_candidates(KERNEL, lhs, registry, prior)
+        _, choices = prod.constrained_rhs_candidates(kernel_name, lhs, registry, prior)
         if assignment[lhs.upper()] not in choices:
             raise ValueError('Out-of-domain directive')
         prior[lhs.upper()] = assignment[lhs.upper()]

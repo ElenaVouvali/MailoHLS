@@ -6,6 +6,9 @@ Revision-2 architecture evidence and Davinci handoff: [Architecture decisions](d
 
 [Target-conditioned architecture qualification](docs/architecture-finalization/README.md): retained latency endpoint, measured limits, and executable configuration.
 
+Stage-1 FiLM research update (12 November 2026): [GAN predictions and matched synthesis for all 18 TCAD requests](experiments/gnosis_stage1_ab/results/gan_tcad_film_20261112/FINDINGS.md).
+The latency-supervised B checkpoint selected at update 600 yields 14.62×–34.09× HLS estimated speedup over same-device/same-clock pragma-free baselines. All requested budgets and HLS estimated periods are met; this single-program result does not establish a causal FiLM advantage or change production qualification.
+
 ## Research branch status — 5 November 2026
 
 Production remains on the existing V1 GNN and its current Stage-2 contract.

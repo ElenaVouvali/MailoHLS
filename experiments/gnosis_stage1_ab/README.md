@@ -47,6 +47,37 @@ FiLM changes L11's unroll factor in one context, with identical earlier directiv
 tokens; no matched physical QoR is available to establish whether that change
 helps. All source, checkpoint and backend identities are retained in the results.
 
+## Completed GAN TCAD grid and synthesis
+
+The selected **B checkpoint at update 600, FiLM ON**, has now completed all 18 GAN
+requests from the TCAD target-conditioning case study: ZCU104/U200 × 3.33/5/10 ns
+× 20/50/100% resource budgets. B completed 720 continuation updates in total;
+validation selected update 600. It is a latency-supervised Stage-1 continuation
+from the frozen V4 parent, with a residual LoRA and FiLM, objective `PARETO_LATENCY`.
+
+All 18 requests have matched Vitis HLS 2021.1 results from Coroni. Twelve distinct
+predicted design/device/clock combinations and six pragma-free baselines cover
+the grid. Speedup is **14.620×–34.094×** against the same-part/same-clock baseline;
+mean BRAM18K/DSP/FF/LUT utilization is **1.0017%–6.3547%** of full device capacities.
+Every request fits its budget and meets the period according to HLS estimates.
+This does not establish a causal FiLM gain: parent/A/B-off synthesis controls,
+functional simulation and post-route timing were not run. The held-out A/B
+qualification remains inconclusive.
+
+See [checkpoint identity, methods and findings](results/gan_tcad_film_20261112/FINDINGS.md),
+[all predicted directives](results/gan_tcad_film_20261112/inference/DIRECTIVES.md),
+[all synthesis results](results/gan_tcad_film_20261112/synthesis/RESULTS.md), and
+[the 18-request map](results/gan_tcad_film_20261112/synthesis/request_map.png).
+Original XML reports, sources/Tcl, receipts, CSVs and PDF are included with the results.
+
+The scripts are `gan_tcad_contexts.py` (FiLM inference), `analyze_gan_tcad.py`
+(directive tables), `gan_tcad_synthesis.py` (prepare/run/summarize Vitis jobs),
+`plot_gan_tcad_synthesis.py` (map), and `verify_gan_tcad_results.py` (offline evidence verification).
+
+```bash
+python -m experiments.gnosis_stage1_ab.verify_gan_tcad_results
+```
+
 Run the Kalman comparison from the original experiment checkout, using the
 matching existing GPU environment and an idle GPU. Checkpoint `best.json` files
 and receipts are authenticated before model loading. Existing output directories
