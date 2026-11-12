@@ -2,10 +2,11 @@
 
 This experiment trains a **new** latency-oriented framework checkpoint from the
 original `llvm-ir` implementation. It does not recover the original paper's LLM
-weights and does not use an MLIR encoder or GMT tokenizer. Training is currently
-in progress on Liono's V100S after resuming Davinci's A30 checkpoint 80;
-no completed framework checkpoint or predictions
-are claimed yet. See [manifest.json](manifest.json) for the run identity.
+weights and does not use an MLIR encoder or GMT tokenizer. All three training
+stages and inference on the four requested kernels have completed. Training
+began on Davinci's A30 and resumed on Liono's V100S from Stage-2 checkpoint 80.
+See [manifest.json](manifest.json) for the run identity and
+[the predicted directives](results/predicted_directives.json) for the executed outputs.
 
 ## Architecture and assets
 
@@ -115,12 +116,42 @@ memories for all 19 action sites, covering 38 directive fields. Their compiler
 graphs contain respectively 203/411/455/293 nodes and 706/1462/1600/1024 edges.
 Bindings and hashes are in [external_memory_manifest.json](external_memory_manifest.json).
 
-After training completes, inference uses the selected Stage-1 LoRA parent plus
+Completed inference uses the selected Stage-1 LoRA parent plus
 the selected Stage-3 fusion weights. DPO leaves the LoRA frozen. Candidate
 domains come only from selected training rows. The original decoder scores each
 complete RHS and newline continuation causally, with mean token log-probability
 and full preceding directive context. Output is
 `runtime/predictions/llvm_latency_four_kernels.jsonl`.
+
+The four complete predictions contain **38 directive fields**, matching every
+placeholder in the four source cases. The native loader reports clean Stage-1
+LoRA and Stage-3 fusion loading, with no missing/unexpected fusion keys.
+Machine-readable outputs are retained as
+[compact JSON](results/predicted_directives.json),
+[compact JSONL](results/predicted_directives.jsonl), and
+[native candidate/score results](results/llvm_latency_four_kernels.jsonl).
+The [framework component manifest](results/framework_checkpoint.json) has SHA-256
+`12100f6f617f5f5101d37918d2ce9b5e174b2e8bb1c66f7fc93e15b49407f702`.
+
+| Stage | Completed updates | Selected update | Validation mean per-kernel directive agreement |
+| --- | ---: | ---: | ---: |
+| Stage-1 SFT | 160 | 80 | 0.600126 |
+| Stage-2 fusion | 160 | 40 | 0.607702 |
+| Stage-3 DPO | 60 | 60 | 0.583460 |
+
+These are the original selector's six-kernel validation scores. DPO's selected
+score is below the selected Stage-1 and Stage-2 scores; this reconstruction does
+not establish a DPO improvement or qualify a production checkpoint. Step-level
+metrics are in [training_summary.json](results/training_summary.json). The
+resumed Stage-2 Trainer runtime/loss aggregation covers the continuation and
+must not be interpreted as a complete A30-plus-V100S training benchmark.
+
+The first inference attempt failed before model loading because the migration
+had omitted the saved training-selection candidate-bank input. The original
+322-row file was restored from Davinci, SHA-256
+`367a60b90b5560e611090c6af487f28d419f81175d40ea603627df9f8e905140`;
+every row index was checked against the training split. The retry completed all
+four predictions. No validation/test rows supplied candidate domains.
 
 **Physical QoR improvement: NOT EVALUATED.** New synthesis is required for these
 exact assignments, sources, target and requested clock. Likelihoods and

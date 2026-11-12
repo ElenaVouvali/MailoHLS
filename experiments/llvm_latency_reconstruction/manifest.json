@@ -1,5 +1,5 @@
 {
-  "status": "training_in_progress_no_completed_framework_checkpoint_yet",
+  "status": "completed_new_reconstruction_framework_and_four_kernel_inference",
   "original_branch": "llvm-ir",
   "original_commit": "0b5581b2b22becf1d20f476e22e92ea3fd533a64",
   "paper_snapshot": "c9b2f43e97508115c4d8d58bc24900adf437b41a",
@@ -43,7 +43,9 @@
     "This is a newly trained reconstruction, not recovered original LLM weights.",
     "The original 1.1 GB archived JSONL exceeded the Drive connector download limit; the reconstructed measured ZCU104/10 ns cohort is hashed separately.",
     "An initial run was stopped before checkpoint publication to correct validation cadence; its startup log is preserved under runtime/startup_validation_cadence_correction.",
-    "Archived graph+checkpoint replay did not reproduce the archived memory values. The recovered bank is preserved under memory_recovered_legacy and excluded from Stage 2; all memories were regenerated from the same weights used for the four external kernels."
+    "Archived graph+checkpoint replay did not reproduce the archived memory values. The recovered bank is preserved under memory_recovered_legacy and excluded from Stage 2; all memories were regenerated from the same weights used for the four external kernels.",
+    "Stage-3 selected validation agreement is below Stage-1 and Stage-2; completing the reconstruction does not qualify it as a superior or production model.",
+    "The first inference launch failed because the migration omitted Stage-1 selected_debug training rows. The original 322-row file was restored and SHA-verified; all row indices are in the training split. Inference then completed."
   ],
   "structural_memory_status": "55 original LLVM graph memories regenerated from exact recovered checkpoint; archived source-action/node identities preserved",
   "migration": {
@@ -56,5 +58,22 @@
     "backup_relative_path": "migration_backup/stage2/checkpoint-80",
     "verification_relative_path": "migration_backup/checkpoint80_verified.json",
     "same_numerical_trajectory_claimed": false
+  },
+  "framework_manifest_sha256": "12100f6f617f5f5101d37918d2ce9b5e174b2e8bb1c66f7fc93e15b49407f702",
+  "predicted_kernel_count": 4,
+  "predicted_directive_field_count": 38,
+  "selected_validation": {
+    "stage1": {
+      "selected_step": 80,
+      "selected_mean_per_kernel_directive_agreement": 0.6001262626262626
+    },
+    "stage2": {
+      "selected_step": 40,
+      "selected_mean_per_kernel_directive_agreement": 0.6077020202020201
+    },
+    "stage3": {
+      "selected_step": 60,
+      "selected_mean_per_kernel_directive_agreement": 0.583459595959596
+    }
   }
 }

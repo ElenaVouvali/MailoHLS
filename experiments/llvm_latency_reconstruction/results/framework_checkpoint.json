@@ -1,0 +1,209 @@
+{
+  "status": "completed_new_LLVM_latency_framework_checkpoint",
+  "created_utc": "2026-11-12T12:54:54.753855+00:00",
+  "original_weights_recovered": false,
+  "components": {
+    "stage1_adapter": {
+      "path": "/home/elvouvali/MailoHLS/artifacts/llvm_latency_reconstruction_20261112/stage1/best_custom_stage1/adapter_model.safetensors",
+      "sha256": "979fd11306764b6be895255e86e33674f2a5e4864f3b57cee21cf695c1ac76b6",
+      "bytes": 1133604760
+    },
+    "stage1_tokenizer": {
+      "path": "/home/elvouvali/MailoHLS/artifacts/llvm_latency_reconstruction_20261112/stage1/best_custom_stage1/tokenizer.json",
+      "sha256": "93eddc0f123e9597b5c69e37f316ba57bb803bc2df41adc50b27e6a9b0d45835",
+      "bytes": 2313815
+    },
+    "stage2_fusion": {
+      "path": "/home/elvouvali/MailoHLS/artifacts/llvm_latency_reconstruction_20261112/stage2/best_custom_stage2/harp_xattn.pt",
+      "sha256": "19f6527a2c45695c565d5ccd34626e1ce99a123b8ccc6dc9e98fea81bd445c28",
+      "bytes": 571227170
+    },
+    "stage3_fusion": {
+      "path": "/home/elvouvali/MailoHLS/artifacts/llvm_latency_reconstruction_20261112/stage3/best_custom_stage3/harp_xattn.pt",
+      "sha256": "8f55870731057bdfbf5001738b5cc69ecc5f2c4d1f2bb132081de3411b940748",
+      "bytes": 571227170
+    },
+    "gnn": {
+      "path": "/home/elvouvali/MailoHLS/artifacts/llvm_latency_reconstruction_20261112/assets/gnn_val.pth",
+      "sha256": "c6bbba75fa8dffb9e29d0cbcf2da689bd875d54d5e67f038dff76cbf4d8409f3",
+      "bytes": 3137052
+    },
+    "encoders": {
+      "path": "/home/elvouvali/MailoHLS/artifacts/llvm_latency_reconstruction_20261112/assets/encoders.klepto",
+      "sha256": "22aaf32d3fd0df4a902488785ad75d674de0b67d5177aa3b848cabac3f8a72e7",
+      "bytes": 19214
+    }
+  },
+  "base_model_snapshot": "/home/elvouvali/.cache/huggingface/hub/models--deepseek-ai--deepseek-coder-6.7b-base/snapshots/ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912",
+  "objective": "PARETO_LATENCY_EXTREME",
+  "target": "ZCU104",
+  "clock_period_ns": 10,
+  "memory_shape": [
+    64,
+    64
+  ],
+  "tokenizer_vocab_size": 32153,
+  "stage_updates": {
+    "stage1": 160,
+    "stage2": 160,
+    "stage3": 60
+  },
+  "selected_validation": {
+    "stage1": {
+      "step": 80,
+      "mean_value_acc": 0.6001262626262626,
+      "selection_score": 0.6001262626262626,
+      "rows": [
+        {
+          "kernel_name": "machsuite-gemm-blocked",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 8\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2",
+          "value_accuracy_over_expected": 0.9
+        },
+        {
+          "kernel_name": "machsuite-gemm-ncubed",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 32\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 64",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2",
+          "value_accuracy_over_expected": 0.6666666666666666
+        },
+        {
+          "kernel_name": "machsuite-md-knn",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 32\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2",
+          "value_accuracy_over_expected": 0.5
+        },
+        {
+          "kernel_name": "machsuite-sort-radix",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 64\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 4\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 1\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0",
+          "value_accuracy_over_expected": 0.4090909090909091
+        },
+        {
+          "kernel_name": "machsuite-spmv-ellpack",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 10",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2",
+          "value_accuracy_over_expected": 0.75
+        },
+        {
+          "kernel_name": "machsuite-stencil2d",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 8\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 3\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 3",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2",
+          "value_accuracy_over_expected": 0.375
+        }
+      ]
+    },
+    "stage2": {
+      "step": 40,
+      "mean_value_acc": 0.6077020202020201,
+      "selection_score": 0.6077020202020201,
+      "rows": [
+        {
+          "kernel_name": "machsuite-gemm-blocked",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 8\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2",
+          "value_accuracy_over_expected": 0.9
+        },
+        {
+          "kernel_name": "machsuite-gemm-ncubed",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 32\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 64",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2",
+          "value_accuracy_over_expected": 0.6666666666666666
+        },
+        {
+          "kernel_name": "machsuite-md-knn",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 32\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2",
+          "value_accuracy_over_expected": 0.5
+        },
+        {
+          "kernel_name": "machsuite-sort-radix",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 64\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 4\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 2\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 2\n<L11>\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0",
+          "value_accuracy_over_expected": 0.45454545454545453
+        },
+        {
+          "kernel_name": "machsuite-spmv-ellpack",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 10",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2",
+          "value_accuracy_over_expected": 0.75
+        },
+        {
+          "kernel_name": "machsuite-stencil2d",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 8\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 3\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 3",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2",
+          "value_accuracy_over_expected": 0.375
+        }
+      ]
+    },
+    "stage3": {
+      "step": 60,
+      "mean_value_acc": 0.583459595959596,
+      "selection_score": 0.583459595959596,
+      "rows": [
+        {
+          "kernel_name": "machsuite-gemm-blocked",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 8\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 1\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 2",
+          "value_accuracy_over_expected": 0.8
+        },
+        {
+          "kernel_name": "machsuite-gemm-ncubed",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 32\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 64",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 0",
+          "value_accuracy_over_expected": 0.6666666666666666
+        },
+        {
+          "kernel_name": "machsuite-md-knn",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 32\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2",
+          "value_accuracy_over_expected": 0.5
+        },
+        {
+          "kernel_name": "machsuite-sort-radix",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 16\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 64\n<L4>\nauto{_PIPE_L4} = 1\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 0\nauto{_UNROLL_L5} = 4\n<L6>\nauto{_PIPE_L6} = 0\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 1\nauto{_UNROLL_L7} = 0\n<L8>\nauto{_PIPE_L8} = 0\nauto{_UNROLL_L8} = 4\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 4\n<L11>\nauto{_PIPE_L11} = 0\nauto{_UNROLL_L11} = 8",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 0\n<L5>\nauto{_PIPE_L5} = 1\nauto{_UNROLL_L5} = 0\n<L6>\nauto{_PIPE_L6} = 1\nauto{_UNROLL_L6} = 0\n<L7>\nauto{_PIPE_L7} = 0\nauto{_UNROLL_L7} = 2\n<L8>\nauto{_PIPE_L8} = 1\nauto{_UNROLL_L8} = 0\n<L9>\nauto{_PIPE_L9} = 1\nauto{_UNROLL_L9} = 0\n<L10>\nauto{_PIPE_L10} = 0\nauto{_UNROLL_L10} = 0\n<L11>\nauto{_PIPE_L11} = 1\nauto{_UNROLL_L11} = 0",
+          "value_accuracy_over_expected": 0.4090909090909091
+        },
+        {
+          "kernel_name": "machsuite-spmv-ellpack",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 10",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 2",
+          "value_accuracy_over_expected": 0.75
+        },
+        {
+          "kernel_name": "machsuite-stencil2d",
+          "obj_mode": "PARETO_LATENCY_EXTREME",
+          "reference_target": "<L1>\nauto{_PIPE_L1} = 1\nauto{_UNROLL_L1} = 0\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 8\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 3\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 3",
+          "prediction": "<L1>\nauto{_PIPE_L1} = 0\nauto{_UNROLL_L1} = 2\n<L2>\nauto{_PIPE_L2} = 0\nauto{_UNROLL_L2} = 0\n<L3>\nauto{_PIPE_L3} = 0\nauto{_UNROLL_L3} = 2\n<L4>\nauto{_PIPE_L4} = 0\nauto{_UNROLL_L4} = 2",
+          "value_accuracy_over_expected": 0.375
+        }
+      ]
+    }
+  },
+  "dataset_sha256": "fe0482594c546ef0ee6bc526d72dddc813bdb501b8b55ae985112f953eb35865",
+  "split_sha256": "e40a73a21de93db6948591c99666e750bb6630a1bdfd4b58e21a9b013b8d1810",
+  "source_sha256": {
+    "LLM_branch/train/train_SFT_xattn.py": "8f3374bc9cb49a6832fe8c041eecce2a4ef5ed0e182631a4378ebc1021c306b5",
+    "LLM_branch/train/train_DPO_harp_xattn.py": "659889c4bdc6591aebd03365a6be6027994f01f9eac21280cdc118a00f4eb40b",
+    "LLM_branch/inference/eval_stage1_stage2_stage3.py": "114234e85c5173b270ac086d9c9c7ff54f259d309d20124457e9fd0c36b457c4",
+    "GNN_branch/model.py": "bae9b82f6d057898f5c0850075ae35bc5194978b2bad29949e1c9cba72bac789"
+  },
+  "physical_qor_improvement": "NOT EVALUATED"
+}
