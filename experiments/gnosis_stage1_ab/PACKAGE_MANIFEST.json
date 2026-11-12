@@ -1,0 +1,39 @@
+{
+  "base_branch": "research/final-architecture-v3-20261110",
+  "execution_target": {
+    "compatibility_entrypoint": "run_v100s.sh",
+    "gpu_name": "Tesla V100-PCIE-32GB",
+    "gpu_uuid": "GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f",
+    "host": "davinci",
+    "launcher": "run_davinci.sh"
+  },
+  "files": {
+    "README.md": "21f8f61f13f5743c5950850bccd2f8feb8b4cfbd9df6e3ee5b6a0986ec4cf0a7",
+    "compare_ab.py": "873792055e642d28793a0bd850a4a1ec73e998f6564149705c08c27f1a11f0fd",
+    "prepare_gnosis_ab.py": "fdbf843c78cf30ba12cc4572b09162ffe8350fcfe006f02d95651d79be795c06",
+    "rebuild_non_test.py": "d150a75217b69fde3b96a839c270057d6af5d6014cd21ac0308960a20392cbdd",
+    "results/stage1_ab_smoke_20261112.json": "82a55e18256d7f4a081542f4c76db8a0854c6e49290af5e307320e6378b4e285",
+    "run_davinci.sh": "34241d72174930b1012f16549da36bb5b2ab23228a4f93b025b4d69ae7fb233b",
+    "run_v100s.sh": "1595a9d2200dc048e70bbc5cb9f6c2ef5980edef2b6cdbcb870e45def80a3cf4",
+    "test_bank_validation.py": "49c2373bad0d9169a7d8e8826e6968c5050e6eb8fdccda84237475deb73ac5e1",
+    "test_film_mechanism.py": "e79f392e91f85c31984d72c514e339be47ee59bbc1e6f8f39e359741c1a1ce8e",
+    "train_gnosis_ab.py": "a0ca497432426866fefac207ec69a91cb3cde6a848debfc477df5aa2cea64013"
+  },
+  "fixes": [
+    "Liono launcher dispatches to pinned Davinci V100 with early and pre-training occupancy checks.",
+    "Evaluation output now iterates over actual arm result keys.",
+    "Gradient logging uses the returned clip_grad_norm_ value (norms).",
+    "A prior failed step-zero output is preserved before retry; other outputs are not overwritten."
+  ],
+  "repository": "ElenaVouvali/MailoHLS",
+  "result_summary": "results/stage1_ab_smoke_20261112.json",
+  "revision": "v1.3-davinci-v100-smoke-and-logging-fixes",
+  "runtime_artifacts_policy": "Large model checkpoints, raw runtime data, and caches remain outside Git.",
+  "stage1_parent": {
+    "adapter_sha256": "28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+    "path": "/home/evouvali/mailohls_runs/stage1_quality_sft_latency_v4/multi_reference/run",
+    "source": "final-architecture docs/evidence/receipts/stage1_asset_preflight.json; experiments/final_architecture_v3/capture_stage1.py"
+  },
+  "status": "Both Stage-1 A/B arms completed a six-update Davinci V100 smoke. Comparison is inconclusive and does not establish a QoR or release benefit.",
+  "validation": "Seven CPU mechanism/bank tests passed on Davinci before the smoke; shell/Python syntax checks passed. Six updates completed in each arm; no HLS calls. Full A/B comparison is inconclusive due to limited independent validation coverage."
+}
