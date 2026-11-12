@@ -1,6 +1,13 @@
 # MailoHLS / GNOSIS Stage-1 target conditioning A/B — Davinci V100
 
-**Status:** the 6-step Davinci V100 smoke completed for both arms. It is a *matched continuation from an authenticated common Stage-1 SFT parent*, not a clean retrain of DeepSeek-Coder from pretrained initialization. The comparison is **inconclusive**: it has one independent validation family and two complete groups. It does not qualify a final deployable Stage-1 checkpoint or physical FPGA QoR.
+**Status:** both full-pilot arms completed 720 updates on Davinci's V100;
+selected checkpoints are A=60 and B=600. The full comparison is **inconclusive**:
+its 14 complete target-switch groups cover one validation family, B-on and B-off
+have the same selected-checkpoint pair/group accuracy, and B's SFT NLL is worse
+than A's. This is a matched continuation from an authenticated common Stage-1
+SFT parent, not a clean retrain from pretrained initialization. It does not
+qualify a final deployable Stage-1 model or physical FPGA QoR. The earlier
+six-step smoke results are retained below as historical integration evidence.
 
 ## Contents
 
@@ -11,6 +18,64 @@
 - `run_v100s.sh`: compatibility entry point that forwards Liono launches to Davinci. On Davinci it runs A and B sequentially on the pinned **Tesla V100-PCIE-32GB** and refuses another host, an occupied GPU, model mismatch, or pre-existing result directories.
 - `run_davinci.sh`: verifies the remote V100, Stage-1 Python environment, authenticated parent, and cached base-model config before transferring the experiment code and already-built non-test data. It runs in an isolated Davinci work directory and copies the result artifacts back to Liono. It never selects Liono's V100S or falls back to another GPU.
 - `test_film_mechanism.py`: CPU forward/backward, gradient checkpoint hook, kind-mask, and context-effect tests.
+- `kalman_contexts.py`: external Kalman inference for the authenticated common
+  V4 parent, selected A and selected B, plus B with FiLM disabled. Evaluates
+  ZCU104/10 ns/full budget, U200/10 ns/full budget, ZCU104/3.33 ns/full budget,
+  and ZCU104/10 ns/20% uniform resource budget. Uses the production constrained
+  complete-RHS/newline scorer with candidate batches of four. FiLM causal masks
+  match the actual training encoder exactly on all four full-source fixtures.
+- `analyze_kalman_contexts.py`: compares complete generated assignments and
+  separately compares candidate scores under one shared preceding-directive
+  prefix, taken from the parent baseline prediction. It refuses to publish a
+  final comparison before all 16 computations finish. No Kalman QoR labels or
+  GNN memories are used by this Stage-1 experiment.
+- `test_kalman_contexts.py`: partial and multi-token FiLM mask alignment,
+  forced-field/newline exclusion, padding, exact target budgets, and fixed-prefix
+  ranking/margin arithmetic. Together with the existing FiLM tests, eleven tests pass.
+
+The common parent is the already trained V4 Stage-1 SFT adapter (SHA-256
+`28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164`).
+Both A and B begin with its frozen weights and token deltas. A trains a new
+residual LoRA; B trains a new residual LoRA plus FiLM. The selected full-pilot
+checkpoints are **A step 60** and **B step 600**, after 720 updates in each arm.
+
+The Kalman comparison has **completed all 12 requested configurations plus four
+B-off controls**. See [executed findings](results/kalman_selected_20261112/FINDINGS.md),
+[predicted directives](results/kalman_selected_20261112/predicted_directives.json),
+and [field comparison CSV](results/kalman_selected_20261112/directive_comparison.csv).
+FiLM changes L11's unroll factor in one context, with identical earlier directive
+tokens; no matched physical QoR is available to establish whether that change
+helps. All source, checkpoint and backend identities are retained in the results.
+
+Run the Kalman comparison from the original experiment checkout, using the
+matching existing GPU environment and an idle GPU. Checkpoint `best.json` files
+and receipts are authenticated before model loading. Existing output directories
+are never overwritten. `--preflight-only` performs CPU source, identity,
+tokenization and training-mask checks without loading the decoder:
+
+```bash
+CUDA_VISIBLE_DEVICES='' python experiments/gnosis_stage1_ab/kalman_contexts.py \
+  --parent /path/to/stage1_quality_sft_latency_v4/multi_reference/run \
+  --training-run /path/to/stage1_ab_pilot_20261112_retry2 \
+  --source evaluation_set/serrano-kalman-filter \
+  --out /path/to/new_cpu_preflight --preflight-only
+
+CUDA_VISIBLE_DEVICES=GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f \
+  python experiments/gnosis_stage1_ab/kalman_contexts.py \
+  --parent /path/to/stage1_quality_sft_latency_v4/multi_reference/run \
+  --training-run /path/to/stage1_ab_pilot_20261112_retry2 \
+  --source evaluation_set/serrano-kalman-filter --out /path/to/new_kalman_results
+
+python experiments/gnosis_stage1_ab/analyze_kalman_contexts.py \
+  --run /path/to/new_kalman_results
+```
+
+Every completed case is saved immediately, with progress printed every five
+candidate batches. Full source/action context is preserved; no prefix cache is
+introduced. The 20% budget is applied to all four resource capacities using the
+existing integer-rounding convention. Source-domain validity does not establish
+that an assignment fits the device/budget or achieves its requested clock;
+**physical QoR improvement remains NOT EVALUATED**.
 
 ## Completed smoke run
 
