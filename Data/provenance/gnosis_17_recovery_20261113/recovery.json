@@ -1,0 +1,3104 @@
+{
+  "base_commit": "5fa470038b93427f24e2582a075c1eafe74eef35",
+  "directive_dictionary_sha256": "9dc19d660a5eff667efd20b8880e796faab8d9b700675d0709b673984715ba73",
+  "generator_commit": "7acb82f43f1bd94cf502e4fb384ca6c648e5a11c",
+  "generator_repository": "https://github.com/aferikoglou/GenHLSOptimizer",
+  "imputed_states": 0,
+  "kernels": [
+    {
+      "actions": [
+        {
+          "action": "L6",
+          "canonical_state_proven": true,
+          "dse_vector_index": 5,
+          "historically_variable": true,
+          "metadata_record": "L6,loop,2048",
+          "observed_states": {
+            "pipeline": 282,
+            "pipeline_1": 158,
+            "unroll_16": 811,
+            "unroll_2": 1572,
+            "unroll_32": 577,
+            "unroll_4": 841,
+            "unroll_64": 682,
+            "unroll_8": 638
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 45,
+          "upstream_statement": "L6:    init_1 : for (i=0; i<BUCKETSIZE; i++) {"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/machsuite-sort-radix.txt": "0bcb47684fa7ff78d7b56fb436f723caf15d04bb741a267ee9e5ec8b6828db55",
+        "Data/ApplicationDataset/machsuite-sort-radix/kernel_info.txt": "d320dba3d8e91c8eb2e33f38cf0234ce3701353c7e10ec765be2350163f97d1a",
+        "Data/ApplicationDataset/machsuite-sort-radix/sort.c": "8a187d7ac6fb9c4cd78589a51e5316ea2a67f654be6fe208bb0b34afbc8e9e8e",
+        "Data/ApplicationDataset/machsuite-sort-radix/sort.h": "e5febcf0b99634460c672935406c71019cf2457baebf5c4d7bcb4cac30a0352c",
+        "Data/ApplicationDataset/machsuite-sort-radix/support.h": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+        "Data/CSVS/machsuite-sort-radix.csv": "af26502c573a2483c5bdd81a90bbd913f9d222f1c9f316cb1fe4ea91ca2d3bb2"
+      },
+      "canonical_measurements": "Data/CSVS/machsuite-sort-radix.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "InnerLoop_1_1": "L2",
+        "InnerLoop_1_2": "L5",
+        "InnerLoop_1_3": "L8",
+        "InnerLoop_1_4": "L10",
+        "OuterLoop_1": "L1",
+        "OuterLoop_2": "L3",
+        "OuterLoop_3": "L4",
+        "OuterLoop_4": "L7",
+        "OuterLoop_5": "L9",
+        "OuterLoop_6": "L11"
+      },
+      "databases": [
+        {
+          "blob": "89250988e296787fe39e5b478e5a65c9dcfbc7e4",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "machsuite-sort-radix",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/machsuite-sort-radix_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 933,
+          "sha256": "d555e3955f44310f06df00f1de9512d52bc495f69808f74f854d04562291d8ab",
+          "size": 188416,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "3687661ae8b626a630b0b3bbf9dbcc074ffe5dae",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "machsuite-sort-radix",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/machsuite-sort-radix_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 951,
+          "sha256": "da5403e72f133ea00461fb0a78f1fea611d3ed981ebfb2d82eddd9887a7f87a4",
+          "size": 192512,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "eeaeee9294cf54c65769269e410bb3799bb22938",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "machsuite-sort-radix",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/machsuite-sort-radix_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 935,
+          "sha256": "d6110afa409eced810abb135d5b2f8f51b4aefaf7c22e755cb19fc3274feb756",
+          "size": 192512,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "416f8bdf203d473c7e01fff555d2f572db9e2df9",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "machsuite-sort-radix",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/machsuite-sort-radix_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 884,
+          "sha256": "d054dbc6d68fa2d2aa7b21487b33b7bf9f13631baf30e95e23e940b84fdac95b",
+          "size": 176128,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "fc006f6f5ea919ba8032408dff34e7a123c9b9d8",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "machsuite-sort-radix",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/machsuite-sort-radix_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 929,
+          "sha256": "26e0eb126c71e71a27bc3a37bceb9359b5f3ffe54961c20a9d04c2d31edad1bc",
+          "size": 188416,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "c413a0989f66ee35a08eddb0a73d9c23f17bd9fa",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "machsuite-sort-radix",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/machsuite-sort-radix_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 929,
+          "sha256": "1ed66a99410cf2f28658c6474c9f1a7d7109ed27d8fd58b81a6ba508f1e5488e",
+          "size": 188416,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "machsuite-sort-radix",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L6"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "8a187d7ac6fb9c4cd78589a51e5316ea2a67f654be6fe208bb0b34afbc8e9e8e",
+          "path": "Data/ApplicationDataset/machsuite-sort-radix/sort.c",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/machsuite-sort-radix/sort.c",
+          "upstream_sha256": "8a187d7ac6fb9c4cd78589a51e5316ea2a67f654be6fe208bb0b34afbc8e9e8e"
+        },
+        {
+          "canonical_sha256": "e5febcf0b99634460c672935406c71019cf2457baebf5c4d7bcb4cac30a0352c",
+          "path": "Data/ApplicationDataset/machsuite-sort-radix/sort.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/machsuite-sort-radix/sort.h",
+          "upstream_sha256": "e5febcf0b99634460c672935406c71019cf2457baebf5c4d7bcb4cac30a0352c"
+        },
+        {
+          "canonical_sha256": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038",
+          "path": "Data/ApplicationDataset/machsuite-sort-radix/support.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/machsuite-sort-radix/support.h",
+          "upstream_sha256": "18780dfeef20f45d4aa1ed23e7d24cc83685463ca31305aa95b22bb1ab7d8038"
+        }
+      ],
+      "split": "val",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/machsuite-sort-radix.jsonl.gz",
+        "rows": 5561,
+        "sha256": "b3821dc2bb467603a20d5f894575268319ff8179324988b1a03a997dbb364029"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L8",
+          "canonical_state_proven": true,
+          "dse_vector_index": 7,
+          "historically_variable": true,
+          "metadata_record": "L8,loop,2",
+          "observed_states": {
+            "pipeline": 525,
+            "pipeline_1": 640,
+            "unroll": 3341
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 50,
+          "upstream_statement": "L8:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia-knn-1-tiling.txt": "987946be7e4fa530275592064042e5d7e693791db8a1d241c75a96f77cf1b766",
+        "Data/ApplicationDataset/rodinia-knn-1-tiling/kernel_info.txt": "8534d6a5caa67d9d953753f51b6a4f965c7c470b0099e3adf432c2e525afff0e",
+        "Data/ApplicationDataset/rodinia-knn-1-tiling/knn.cpp": "6840fa2f29f79c764a6775fb6173feecac231f8ae02b1bc3c4a4c58f01eeefe7",
+        "Data/ApplicationDataset/rodinia-knn-1-tiling/knn.h": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96",
+        "Data/CSVS/rodinia-knn-1-tiling.csv": "a919b08277d8aed3a217b3a3bf0e78a652bb5797d10b43bdb46a8a77bffe8dc7"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia-knn-1-tiling.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L6",
+        "Array_2": "L7",
+        "Array_3": "L5",
+        "InnerLoop_1_1": "L3",
+        "OuterLoop_1": "L1",
+        "OuterLoop_2": "L2",
+        "OuterLoop_3": "L4",
+        "OuterLoop_4": "L9"
+      },
+      "databases": [
+        {
+          "blob": "f043b2db1aeccb07ce709649ffbce1ff0fd827e9",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-1-tiling",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia-knn-1-tiling_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 868,
+          "sha256": "5ab48f431c7491c8cb33768fbff610f82893aed786d5aca6fd92c3dd81d14176",
+          "size": 176128,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "868750f4f6abf4c20f254a81913944b98793a403",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-1-tiling",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia-knn-1-tiling_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 705,
+          "sha256": "544fe7097f9b985b6fc690ac50a814c9d58f29a5f7124451128baf5be3719f35",
+          "size": 147456,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "b7cb8be1e6a72d6e4ade6adc885274666c16dfb4",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-1-tiling",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia-knn-1-tiling_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 889,
+          "sha256": "87f1fc1ac47b23856c9de3ff7e97100eb71fcddeabef87c163f53bbf791d7a0c",
+          "size": 188416,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "8988635569f2a664053cea918cda478a934ad137",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-1-tiling",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia-knn-1-tiling_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 766,
+          "sha256": "8aa4ea0a5213e9c56323d6856170725278320bace29d2bd5e676d9169d36a894",
+          "size": 163840,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "3ea656e005bd1551d1b24486312b8110d878d44c",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-1-tiling",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia-knn-1-tiling_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 623,
+          "sha256": "e2aa22a47332097abd48c88f0d90ddefe1b3cd46536d030d83460428be711ef5",
+          "size": 131072,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "a20fa4a1628456fbab9ee4b4da1d6228312b2b6f",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-1-tiling",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia-knn-1-tiling_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 655,
+          "sha256": "ec8165e8db0d4231e8bb5c8de39b4ddc077454bbd8e9096fce36dc3360d0da6e",
+          "size": 143360,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia-knn-1-tiling",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L8"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "6840fa2f29f79c764a6775fb6173feecac231f8ae02b1bc3c4a4c58f01eeefe7",
+          "path": "Data/ApplicationDataset/rodinia-knn-1-tiling/knn.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-1-tiling/knn.cpp",
+          "upstream_sha256": "6840fa2f29f79c764a6775fb6173feecac231f8ae02b1bc3c4a4c58f01eeefe7"
+        },
+        {
+          "canonical_sha256": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96",
+          "path": "Data/ApplicationDataset/rodinia-knn-1-tiling/knn.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-1-tiling/knn.h",
+          "upstream_sha256": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-1-tiling.jsonl.gz",
+        "rows": 4506,
+        "sha256": "1d34142f6a2e201a296b978a04d7795fd92e715901b716403bb41996b378f03f"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L8",
+          "canonical_state_proven": true,
+          "dse_vector_index": 7,
+          "historically_variable": true,
+          "metadata_record": "L8,loop,2",
+          "observed_states": {
+            "pipeline": 320,
+            "pipeline_1": 799,
+            "unroll": 3781
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 50,
+          "upstream_statement": "L8:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia-knn-2-pipeline.txt": "987946be7e4fa530275592064042e5d7e693791db8a1d241c75a96f77cf1b766",
+        "Data/ApplicationDataset/rodinia-knn-2-pipeline/kernel_info.txt": "8534d6a5caa67d9d953753f51b6a4f965c7c470b0099e3adf432c2e525afff0e",
+        "Data/ApplicationDataset/rodinia-knn-2-pipeline/knn.cpp": "8c18afee92636de55949ca7bc69373ea0e29a47f1f27f9bc36466e9b78cce1cf",
+        "Data/ApplicationDataset/rodinia-knn-2-pipeline/knn.h": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96",
+        "Data/CSVS/rodinia-knn-2-pipeline.csv": "3a85e5ef9a48f890d0ae9f4854fccf2ff42a22231e6546acf053917ba458c801"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia-knn-2-pipeline.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L6",
+        "Array_2": "L7",
+        "Array_3": "L5",
+        "InnerLoop_1_1": "L3",
+        "OuterLoop_1": "L1",
+        "OuterLoop_2": "L2",
+        "OuterLoop_3": "L4",
+        "OuterLoop_4": "L9"
+      },
+      "databases": [
+        {
+          "blob": "e26cef27641fc341ad744e708043538bda54268c",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-2-pipeline",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia-knn-2-pipeline_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 888,
+          "sha256": "ce26f1bce49c7253251035ef1582bafd4d245b9f0e1edb7327299a64bb54f5f7",
+          "size": 184320,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "04420ce0ff6deed08c71ee58f14a11b2948ce240",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-2-pipeline",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia-knn-2-pipeline_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 888,
+          "sha256": "2510e4497bd609058ab37d01ca32c07024a0912c72d389a30426f60f7cf820cb",
+          "size": 180224,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "0f81a468551698272604e7c8e0296597059aea5a",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-2-pipeline",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia-knn-2-pipeline_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 793,
+          "sha256": "04996e1b8f10297da067651110c8aee19ae1dbc27a85cd568a105eb4373d388f",
+          "size": 172032,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "583bd14bc7e927283985a1097007d9959ea86cca",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-2-pipeline",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia-knn-2-pipeline_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 880,
+          "sha256": "7926b43066ee1e9372d96650ae3eba244186874ba59dc578a7b7a77100a7a4ea",
+          "size": 184320,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "15894c191c65a59d840e692f607d36a6d698bb1f",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-2-pipeline",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia-knn-2-pipeline_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 547,
+          "sha256": "fcbc155f9300f4aa0204f727977eb3bd16a3aa3d6e10cdeb979e92cffbbd5de9",
+          "size": 118784,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "8454d6c4dfc44ea3915853cd50f9a040324a5416",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-2-pipeline",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia-knn-2-pipeline_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 904,
+          "sha256": "403a295611eccf8a5ac6554d593f9c92f98ea356f8ba8382c1d59e4f2d0f1fbc",
+          "size": 184320,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia-knn-2-pipeline",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L8"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "8c18afee92636de55949ca7bc69373ea0e29a47f1f27f9bc36466e9b78cce1cf",
+          "path": "Data/ApplicationDataset/rodinia-knn-2-pipeline/knn.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-2-pipeline/knn.cpp",
+          "upstream_sha256": "8c18afee92636de55949ca7bc69373ea0e29a47f1f27f9bc36466e9b78cce1cf"
+        },
+        {
+          "canonical_sha256": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96",
+          "path": "Data/ApplicationDataset/rodinia-knn-2-pipeline/knn.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-2-pipeline/knn.h",
+          "upstream_sha256": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-2-pipeline.jsonl.gz",
+        "rows": 4900,
+        "sha256": "edd40054246041b2e6ff8507c6253892f1e060f00a8b21a44bb5e55a5bfe8ea3"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L9",
+          "canonical_state_proven": true,
+          "dse_vector_index": 8,
+          "historically_variable": true,
+          "metadata_record": "L9,loop,2",
+          "observed_states": {
+            "pipeline": 1547,
+            "pipeline_1": 1420,
+            "unroll": 2495
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 55,
+          "upstream_statement": "L9:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia-knn-3-unroll.txt": "04e017b815fa9cf5d83996bd0544d052ca3a7501d4485d4c17257680cf6340e6",
+        "Data/ApplicationDataset/rodinia-knn-3-unroll/kernel_info.txt": "28510fb7544c172ec6fdff73e338cefeeaa8bcd9cc50c45785f9c9d771be2983",
+        "Data/ApplicationDataset/rodinia-knn-3-unroll/knn.cpp": "c34152e29d3670e2b400e4ce245ae1c42c8af147a889c7b29791e94dfe97f767",
+        "Data/ApplicationDataset/rodinia-knn-3-unroll/knn.h": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96",
+        "Data/CSVS/rodinia-knn-3-unroll.csv": "68094dd6a0bd75fbad7145c579899bb6d52235e5011db4a88ebb86fa45d7a8cf"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia-knn-3-unroll.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L7",
+        "Array_2": "L8",
+        "Array_3": "L6",
+        "InnerLoop_1_1": "L3",
+        "InnerLoop_2_1": "L4",
+        "OuterLoop_1": "L1",
+        "OuterLoop_2": "L2",
+        "OuterLoop_3": "L5",
+        "OuterLoop_4": "L10"
+      },
+      "databases": [
+        {
+          "blob": "07177f25d76afe97c679819b897d12c3b08b619b",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-3-unroll",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia-knn-3-unroll_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 935,
+          "sha256": "8db41990f0925ca54319eef32ca3264b6fc23d908fca2f33bab07fa4d0285c71",
+          "size": 192512,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "7abbe40079a4fa47da31ed924e0188c21b8c7a7e",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-3-unroll",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia-knn-3-unroll_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 941,
+          "sha256": "38e5edb18dee9b872faa78d51019a36d413681e54e3af03d722dde45e46a192b",
+          "size": 196608,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "9f15d384541aba4c571e61057676db3422c8d315",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-3-unroll",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia-knn-3-unroll_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 885,
+          "sha256": "c0f32d8a3c42c90e6f327599f427ad2676124025c189705339acd6a257e2da7e",
+          "size": 188416,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "d11b918daa0b50d6ee638ff5154571a4d421e5b5",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-3-unroll",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia-knn-3-unroll_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 870,
+          "sha256": "ac04df8ad88f8de965ee1910cb5336026255f39e2f52ccceac3cd5badd70ff8d",
+          "size": 184320,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "fa3654583285864875cd60e2a07a4ae89d5c4592",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-3-unroll",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia-knn-3-unroll_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 911,
+          "sha256": "56fff1d566b3909dd859d565351fa4da04e8db08d1a1a5e167d8c43c49e2c61e",
+          "size": 192512,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "ca2560ee71d3ace9f89202829d3a89eedf99c9e2",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-3-unroll",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia-knn-3-unroll_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 920,
+          "sha256": "2a91166411deb2e236a370328e8857766d3e874f623098bc6d361a19ab7b00e0",
+          "size": 200704,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia-knn-3-unroll",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L9"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "c34152e29d3670e2b400e4ce245ae1c42c8af147a889c7b29791e94dfe97f767",
+          "path": "Data/ApplicationDataset/rodinia-knn-3-unroll/knn.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-3-unroll/knn.cpp",
+          "upstream_sha256": "c34152e29d3670e2b400e4ce245ae1c42c8af147a889c7b29791e94dfe97f767"
+        },
+        {
+          "canonical_sha256": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96",
+          "path": "Data/ApplicationDataset/rodinia-knn-3-unroll/knn.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-3-unroll/knn.h",
+          "upstream_sha256": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-3-unroll.jsonl.gz",
+        "rows": 5462,
+        "sha256": "c373f14751547316f41b3c821198e35505743c7bd134ab6414cd68cc73a4353b"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L11",
+          "canonical_state_proven": true,
+          "dse_vector_index": 10,
+          "historically_variable": true,
+          "metadata_record": "L11,loop,2",
+          "observed_states": {
+            "pipeline": 663,
+            "pipeline_1": 470,
+            "unroll": 3184
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 65,
+          "upstream_statement": "L11:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia-knn-4-doublebuffer.txt": "2c0c04867afb0f665384dd3733fad2246e837b56d66b4ec48218bbac154e039e",
+        "Data/ApplicationDataset/rodinia-knn-4-doublebuffer/kernel_info.txt": "a81b851fd8501a38da83f9b6c814b3b45b543e4fee6f7f7811a123af21a3fd59",
+        "Data/ApplicationDataset/rodinia-knn-4-doublebuffer/knn.cpp": "4d247023e104ef5c028ebbe82ac34c7cccabccadda55a9210365559a1fe91112",
+        "Data/ApplicationDataset/rodinia-knn-4-doublebuffer/knn.h": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96",
+        "Data/CSVS/rodinia-knn-4-doublebuffer.csv": "788bc44251a3a3ab526aab9145f4d972be9eb79096d646e0c3530774086c0b7f"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia-knn-4-doublebuffer.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L7",
+        "Array_2": "L8",
+        "Array_3": "L9",
+        "Array_4": "L10",
+        "Array_5": "L6",
+        "InnerLoop_1_1": "L3",
+        "InnerLoop_2_1": "L4",
+        "OuterLoop_1": "L1",
+        "OuterLoop_2": "L2",
+        "OuterLoop_3": "L5",
+        "OuterLoop_4": "L12"
+      },
+      "databases": [
+        {
+          "blob": "fe0d98d84ffdcea092e1ba01ab6fa6c3c76b362e",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-4-doublebuffer",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia-knn-4-doublebuffer_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 790,
+          "sha256": "b8520e15d2b736184ff15b5df44c4f8e1c55ce8d8d5f1132c78b1c8992cff58d",
+          "size": 180224,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "180929474a82d96cec322059bf379e7588da467e",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-4-doublebuffer",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia-knn-4-doublebuffer_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 945,
+          "sha256": "cd2f427579d6c193f84918692d6e65e147f5d7789386b4e0c75a42fc1791a288",
+          "size": 212992,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "31c7e16ee389b82f308df529cbca539f5221b7d3",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-4-doublebuffer",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia-knn-4-doublebuffer_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 946,
+          "sha256": "087d39c6cd45690d396afa5d817b95ababb0c4d5dce04215481683c581efa7bd",
+          "size": 217088,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "d24a38b93885b3910c04435894f6822b5cdaf0bb",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-4-doublebuffer",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia-knn-4-doublebuffer_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 519,
+          "sha256": "e9d2bc1492b28282c291e2a472742cec0ecd5dee851192121fc2f8170b71b649",
+          "size": 122880,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "06474402784146b655bf47209abe67c14396a460",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-4-doublebuffer",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia-knn-4-doublebuffer_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 559,
+          "sha256": "3269616fbf8b24d68e7077ff7e703fb3f8a58d7254e572ac7bb0984e819d1351",
+          "size": 135168,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "183904aa292ee8b046d6702a5b10b12055beb4de",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-4-doublebuffer",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia-knn-4-doublebuffer_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 558,
+          "sha256": "7f8197a69292798ca60b74045cd920d04d1bd47d200eba24bf6243fb7c206720",
+          "size": 131072,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L11"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "4d247023e104ef5c028ebbe82ac34c7cccabccadda55a9210365559a1fe91112",
+          "path": "Data/ApplicationDataset/rodinia-knn-4-doublebuffer/knn.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-4-doublebuffer/knn.cpp",
+          "upstream_sha256": "4d247023e104ef5c028ebbe82ac34c7cccabccadda55a9210365559a1fe91112"
+        },
+        {
+          "canonical_sha256": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96",
+          "path": "Data/ApplicationDataset/rodinia-knn-4-doublebuffer/knn.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-4-doublebuffer/knn.h",
+          "upstream_sha256": "e96e77d35b5de2d105bb43e44ef59b3059fa557fa1cf5f4e7444043d58855b96"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-4-doublebuffer.jsonl.gz",
+        "rows": 4317,
+        "sha256": "ba50cab92363fbd7a2aa4119acdeccc314662bc85d4d982e879937011467a49f"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L12",
+          "canonical_state_proven": false,
+          "dse_vector_index": 11,
+          "historically_variable": true,
+          "metadata_record": "L12,loop,2",
+          "observed_states": {
+            "pipeline": 813,
+            "pipeline_1": 654,
+            "unroll": 4209
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 71,
+          "upstream_statement": "L12:\tLOAD_INPUTQUERY: for (int i(0); i<NUM_FEATURE; ++i){"
+        }
+      ],
+      "canonical_eligible": false,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia-knn-5-coalescing.txt": "54bc30e3c76f3600c5997950a0e88f20dabf4187093a110fad19c08b071bb178",
+        "Data/ApplicationDataset/rodinia-knn-5-coalescing/kernel_info.txt": "346c9a46a9324b41e623cecda329f6c3f292e6e4cb1b16176446d8f2d6754875",
+        "Data/ApplicationDataset/rodinia-knn-5-coalescing/knn.cpp": "e6075642c9fa6f87dfb3cc26d5572c8c9f95f7acd124af25e1952051812d0fea",
+        "Data/ApplicationDataset/rodinia-knn-5-coalescing/knn.h": "8c869bcf35fd9f55c18c8f190a39801232a229376e90d662625197a560a0bd52",
+        "Data/CSVS/rodinia-knn-5-coalescing.csv": "e1bd87a7d04bb7c1d60f07b7a6b28eff299a260acc0bfb9e361d79b393174a8e"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia-knn-5-coalescing.csv",
+      "clamped_indices": 0,
+      "contract": "historical-upstream-only-source-identity-blocked",
+      "csv_to_action": {
+        "Array_1": "L8",
+        "Array_2": "L9",
+        "Array_3": "L10",
+        "Array_4": "L11",
+        "Array_5": "L7",
+        "InnerLoop_1_1": "L3",
+        "InnerLoop_2_1": "L4",
+        "InnerLoop_3_1": "L5",
+        "OuterLoop_1": "L1",
+        "OuterLoop_2": "L2",
+        "OuterLoop_3": "L6",
+        "OuterLoop_4": "L13"
+      },
+      "databases": [
+        {
+          "blob": "5e2280b9c49f410171405cf9d3c81fb705fb68da",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-5-coalescing",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia-knn-5-coalescing_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 938,
+          "sha256": "e8f2ff63676a70c4c32281f483021cccb3359081cdcc1bdfb1d0ab26bf94928e",
+          "size": 200704,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "62620be0e2b089041e7bb75d7e6bd096d44462b9",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-5-coalescing",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia-knn-5-coalescing_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 947,
+          "sha256": "844775be1aee59cc3e99c1cde5ef220be195fd6d842ac7382d4f59a7cb43a73c",
+          "size": 200704,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "fd8b2cf6f5f81230a4b1752038adaa588bd431c6",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia-knn-5-coalescing",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia-knn-5-coalescing_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 949,
+          "sha256": "e10b6c3423f6b7970e71ec4d6fd61a7755d50157a8d36a565daee5e399ebe3e9",
+          "size": 200704,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "e98d9bc4b14bacf02b1b8770c7dbc44d72fcf2b5",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-5-coalescing",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia-knn-5-coalescing_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 956,
+          "sha256": "f1b9bc23fe49cc0b33fbbba5f6104489c3796fdda93da859e90ab1561af88319",
+          "size": 204800,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "2b3f2a6ae2931e5b1b04c4d1adac61b36d167323",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-5-coalescing",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia-knn-5-coalescing_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 938,
+          "sha256": "ce298e6fc415a24348e3dab444a210f7e1a5bad613181d8ef891ed0100b8ead4",
+          "size": 200704,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "359bb707ca3fbf91f14f97b82bac3a9ec5a21180",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia-knn-5-coalescing",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia-knn-5-coalescing_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 948,
+          "sha256": "c76c956a8a5580eaa5e618b121e896403da80cd10cbe6150709704a97ca97f4e",
+          "size": 204800,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia-knn-5-coalescing",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L12"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "e6075642c9fa6f87dfb3cc26d5572c8c9f95f7acd124af25e1952051812d0fea",
+          "path": "Data/ApplicationDataset/rodinia-knn-5-coalescing/knn.cpp",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-5-coalescing/knn.cpp",
+          "upstream_sha256": "abe1fb2642d2128d19cd2814ca0c98eed0cd181eb2e11a3df62e15e80b1a697f"
+        },
+        {
+          "canonical_sha256": "8c869bcf35fd9f55c18c8f190a39801232a229376e90d662625197a560a0bd52",
+          "path": "Data/ApplicationDataset/rodinia-knn-5-coalescing/knn.h",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/rodinia-knn-5-coalescing/knn.h",
+          "upstream_sha256": "5ca1dfd4d626470f4545d6974851091608bdd916a85d431d9a068e5fa7321373"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-5-coalescing.jsonl.gz",
+        "rows": 5676,
+        "sha256": "9fe74732fe99e179bf84eeb939a3cfdbd6b72af154fe988deb146612f81e9e91"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L5",
+          "canonical_state_proven": true,
+          "dse_vector_index": 4,
+          "historically_variable": true,
+          "metadata_record": "L5,loop,1",
+          "observed_states": {
+            "pipeline": 1469,
+            "pipeline_1": 852,
+            "unroll": 1296
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 66,
+          "upstream_statement": "L5:    for (int k = 0; k < SIZE / TILE_ROWS; k++){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia_cfd_step_factor_1_tiling_0.txt": "4ab612c80e4a3868d38a84b5ce6e94d4771866bcd54f80172a9d77c42f01dbc4",
+        "Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/cfd_step_factor.cpp": "53c2eee11d43d51cb07d4f80f04496752dda07b6241d13da133a59d464282ef0",
+        "Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/cfd_step_factor.h": "e3eaf9833d1203c9b9f1ea723e698f346f6fdd2e8c7a83a0a1f8ede321f7a7eb",
+        "Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/kernel_info.txt": "32d4950cd99b2ee0e81fb2f28ce148b4bb3893d356bce579c2a7d20a6e9092f3",
+        "Data/CSVS/rodinia_cfd_step_factor_1_tiling_0.csv": "1abd8a5e6b103a5d1564a7029e46ed255480605591a8081b106aed8eb288ce62"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia_cfd_step_factor_1_tiling_0.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L3",
+        "Array_2": "L2",
+        "Array_3": "L4",
+        "OuterLoop_1": "L1"
+      },
+      "databases": [
+        {
+          "blob": "bad64a25c5477b87d85e9209e2136bad8be03564",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia_cfd_step_factor_1_tiling_0_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 770,
+          "sha256": "59a6aabc5f453e8f4fe16a7f8c6c66b0051e212a42c59b81002aaf041149431e",
+          "size": 133120,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "0ebca3744ffec70ef7edbba7dfc359f307ae9198",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia_cfd_step_factor_1_tiling_0_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 816,
+          "sha256": "0be7ac1be6561a02884ecbfa95a0602601c9eed894374551f873bd7f8c2dd65e",
+          "size": 142336,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "b3c7aded6ed6949a32b95478871c3e8b6a858c28",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia_cfd_step_factor_1_tiling_0_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 804,
+          "sha256": "b0730220badcb31f1d6e996c008039a633f435554917d4feca8820f92b8cea3f",
+          "size": 151552,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "f8e2cb85c9af667c594cb8860f290a03e5585ca4",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia_cfd_step_factor_1_tiling_0_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 400,
+          "sha256": "abab2d7bb07651166b1db082ec3fac6d006b7608a4c8b4e6169d7660ebf561c6",
+          "size": 71680,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "29f3d9d950703328610386aead6cdf0845bc8291",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia_cfd_step_factor_1_tiling_0_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 415,
+          "sha256": "bafdca005cb83ef87e51a7432824e5f60a55f00fdea7d7c39ec49fb718ee6edc",
+          "size": 73728,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "78e79587d93c3caffbb56616ecb8924ec4c4a36f",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia_cfd_step_factor_1_tiling_0_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 412,
+          "sha256": "634e1401b7719a13d7e120c9f54dc85708ac7079b962a5d067225361527f2d44",
+          "size": 73728,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L5"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "53c2eee11d43d51cb07d4f80f04496752dda07b6241d13da133a59d464282ef0",
+          "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/cfd_step_factor.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/cfd_step_factor.cpp",
+          "upstream_sha256": "53c2eee11d43d51cb07d4f80f04496752dda07b6241d13da133a59d464282ef0"
+        },
+        {
+          "canonical_sha256": "e3eaf9833d1203c9b9f1ea723e698f346f6fdd2e8c7a83a0a1f8ede321f7a7eb",
+          "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/cfd_step_factor.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/cfd_step_factor.h",
+          "upstream_sha256": "e3eaf9833d1203c9b9f1ea723e698f346f6fdd2e8c7a83a0a1f8ede321f7a7eb"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_cfd_step_factor_1_tiling_0.jsonl.gz",
+        "rows": 3617,
+        "sha256": "fba13b795beaabacb118e6ebf43462a86fe517ba571524cd979e6bf1ebca9cf7"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L5",
+          "canonical_state_proven": true,
+          "dse_vector_index": 4,
+          "historically_variable": true,
+          "metadata_record": "L5,loop,1",
+          "observed_states": {
+            "pipeline": 1059,
+            "pipeline_1": 816,
+            "unroll": 1135
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 49,
+          "upstream_statement": "L5:        for (int ii = 0; ii < PARA_FACTOR; ii++) {"
+        },
+        {
+          "action": "L9",
+          "canonical_state_proven": true,
+          "dse_vector_index": 8,
+          "historically_variable": true,
+          "metadata_record": "L9,loop,1",
+          "observed_states": {
+            "pipeline": 859,
+            "pipeline_1": 1236,
+            "unroll": 915
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 77,
+          "upstream_statement": "L9:    for (int k = 0; k < SIZE / TILE_ROWS; k++){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia_cfd_step_factor_2_pipeline_0.txt": "9036357ddcdebb4b1b3604cb85bd21b91eed4ffe643db061d61ddb5506ea14fa",
+        "Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/cfd_step_factor.cpp": "b9544f507fd7df193fbf00acf9367e95dd7c21dd50d79e5a79c5cffe63bab92e",
+        "Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/cfd_step_factor.h": "6fc89c846aac3ec7824187bef01146ed3abd57d2cf9cbd6de41ccc34ae9d5721",
+        "Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/kernel_info.txt": "7e8c08b8463b89f668630ee4fdeec7d3a9ae2d8736ad8dcb3d2796e7b3192833",
+        "Data/CSVS/rodinia_cfd_step_factor_2_pipeline_0.csv": "c3a038d5b4c67b8e91d189f608840df74eea29aa7d792da4126af48de75fafe3"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia_cfd_step_factor_2_pipeline_0.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L7",
+        "Array_2": "L6",
+        "Array_3": "L8",
+        "Array_4": "L2",
+        "Array_5": "L3",
+        "Array_6": "L4",
+        "OuterLoop_1": "L1"
+      },
+      "databases": [
+        {
+          "blob": "f24a2bb03ef3619adc1f87a0fbe825387c56f00d",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia_cfd_step_factor_2_pipeline_0_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 801,
+          "sha256": "e0a2f270b9cb10bc8751f36535e95077ffdb80e40984c044984561671b032b7d",
+          "size": 166912,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "db03ce6e28179c8305d53e1746fe084fc5de2fd8",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia_cfd_step_factor_2_pipeline_0_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 433,
+          "sha256": "36d5342eb1a718bd6ff2befc9aa5cd4a8df7b7d0044f41355f680161d884a8d8",
+          "size": 91136,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "bfcddc1eeba4d28ab7c258244e86bbcb3d0a7441",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia_cfd_step_factor_2_pipeline_0_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 538,
+          "sha256": "fc7625ce32bb89c63f6fd0a9d967d759d90ab15a84c2510ba7cb37642390360f",
+          "size": 116736,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "677a120c4d4e4ce28de8bab238a1809fbfa0d726",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia_cfd_step_factor_2_pipeline_0_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 402,
+          "sha256": "9e3e48c84cf9c3671662ba7cc2bed392926ef04cb032b99bf5634f43bdced099",
+          "size": 86016,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "ffd1cdafd225131925ae01f091ba2f1931152f67",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia_cfd_step_factor_2_pipeline_0_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 419,
+          "sha256": "514d906ee46368d4e0015b76ddee1e14def0e38c56370a6be839fe31ce268f29",
+          "size": 88064,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "f75d51413df3a29ff7326fc771eb93c8814072a7",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia_cfd_step_factor_2_pipeline_0_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 417,
+          "sha256": "c4f8147bd74ec63646edbfac5a961fd2f0a8b86efcb16d77d3c5d81331278e9d",
+          "size": 88064,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L5",
+        "L9"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "b9544f507fd7df193fbf00acf9367e95dd7c21dd50d79e5a79c5cffe63bab92e",
+          "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/cfd_step_factor.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/cfd_step_factor.cpp",
+          "upstream_sha256": "b9544f507fd7df193fbf00acf9367e95dd7c21dd50d79e5a79c5cffe63bab92e"
+        },
+        {
+          "canonical_sha256": "6fc89c846aac3ec7824187bef01146ed3abd57d2cf9cbd6de41ccc34ae9d5721",
+          "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/cfd_step_factor.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/cfd_step_factor.h",
+          "upstream_sha256": "6fc89c846aac3ec7824187bef01146ed3abd57d2cf9cbd6de41ccc34ae9d5721"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_cfd_step_factor_2_pipeline_0.jsonl.gz",
+        "rows": 3010,
+        "sha256": "0955558a8a66a443e30bd85d3df49a1175029a1449892b56842711fa54318931"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L9",
+          "canonical_state_proven": true,
+          "dse_vector_index": 8,
+          "historically_variable": true,
+          "metadata_record": "L9,loop,1",
+          "observed_states": {
+            "pipeline": 1159,
+            "pipeline_1": 2320,
+            "unroll": 1465
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 175,
+          "upstream_statement": "L9:    for (int k = 0; k < SIZE / TILE_ROWS; k++){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia_cfd_step_factor_3_unroll_0.txt": "c740410efbad489c98d9118e1e10af9e9fc4f3b023dda5c8b180ee46d61eb697",
+        "Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/cfd_step_factor.cpp": "5c4e8716e38fdf6060a16cc2f85f8cb7528ed25e1b6c5855e60df613cbc7f154",
+        "Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/cfd_step_factor.h": "f323c8b3c68a88e375cbe45a2b0f057f566a33f0f3a1000baa062c72d7c94b82",
+        "Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/kernel_info.txt": "afd915867c1dfca26a430126f8eabf6460531604e160bfb5a878010c1e7bf24a",
+        "Data/CSVS/rodinia_cfd_step_factor_3_unroll_0.csv": "febf3f3a630b0e2114f58318be8dad9329a228344f327daa4f2f5ebf8eaea9bf"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia_cfd_step_factor_3_unroll_0.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L7",
+        "Array_2": "L6",
+        "Array_3": "L8",
+        "Array_4": "L2",
+        "Array_5": "L3",
+        "Array_6": "L4",
+        "InnerLoop_1_1": "L5",
+        "OuterLoop_1": "L1"
+      },
+      "databases": [
+        {
+          "blob": "728cafc1adaadb4758acf3d9c80b08f5751cd037",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia_cfd_step_factor_3_unroll_0_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 932,
+          "sha256": "67a97e9e122b7e9a33ba11e01b237bda6cf69aa5c61ae4bb9b803acb63196da2",
+          "size": 200704,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "8439fd9e288544b4f93eb4c19dbe2ce122a97235",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia_cfd_step_factor_3_unroll_0_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 924,
+          "sha256": "795aa5423f1d3286241f9919a3282f5b9c83382848fb5b14cbc7c8fe2c44d201",
+          "size": 193536,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "81d76fbf8a8e2567816f70445a8f4c4127c0b84d",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia_cfd_step_factor_3_unroll_0_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 949,
+          "sha256": "05f7fb0d3ff6ece60023521e08fbadfc7804a238c4cc7df72800fe4e414836c9",
+          "size": 207872,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "03809dced1ecee52965649eb936f4c6b57ec32f2",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia_cfd_step_factor_3_unroll_0_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 863,
+          "sha256": "e8a5c727628b636318e25dcd25ca829430d018ff127d69bb3d506d89560afa6d",
+          "size": 186368,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "5760afba2a27cf0d07f93167178bbdfd5054caf5",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia_cfd_step_factor_3_unroll_0_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 664,
+          "sha256": "0b0003fec855538719fd19f2d8a423718712e3cf624cead24c13c4b29659ad15",
+          "size": 133120,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "9ef0f022b5f0df79d65bb04bd9f05db796c11256",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia_cfd_step_factor_3_unroll_0_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 612,
+          "sha256": "38e99c82040493b4a583ce4f21b91415aa66c16473154b2d143a5888f7b3a124",
+          "size": 132096,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L9"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "5c4e8716e38fdf6060a16cc2f85f8cb7528ed25e1b6c5855e60df613cbc7f154",
+          "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/cfd_step_factor.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/cfd_step_factor.cpp",
+          "upstream_sha256": "5c4e8716e38fdf6060a16cc2f85f8cb7528ed25e1b6c5855e60df613cbc7f154"
+        },
+        {
+          "canonical_sha256": "f323c8b3c68a88e375cbe45a2b0f057f566a33f0f3a1000baa062c72d7c94b82",
+          "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/cfd_step_factor.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/cfd_step_factor.h",
+          "upstream_sha256": "f323c8b3c68a88e375cbe45a2b0f057f566a33f0f3a1000baa062c72d7c94b82"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_cfd_step_factor_3_unroll_0.jsonl.gz",
+        "rows": 4944,
+        "sha256": "563d90f9a2416fbf57beae569364719e333c103c425c1d27abaf700057c8b9d7"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L5",
+          "canonical_state_proven": false,
+          "dse_vector_index": 4,
+          "historically_variable": true,
+          "metadata_record": "L5,loop,2",
+          "observed_states": {
+            "pipeline": 2147,
+            "pipeline_1": 2036,
+            "unroll": 1417
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 28,
+          "upstream_statement": "L5:\t    for (int i = 0; i < MAX_RADIUS; i++) {"
+        },
+        {
+          "action": "L6",
+          "canonical_state_proven": false,
+          "dse_vector_index": 5,
+          "historically_variable": true,
+          "metadata_record": "L6,loop,2082",
+          "observed_states": {
+            "pipeline": 717,
+            "pipeline_1": 965,
+            "unroll_16": 428,
+            "unroll_2": 463,
+            "unroll_32": 182,
+            "unroll_4": 546,
+            "unroll_64": 1792,
+            "unroll_8": 507
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 32,
+          "upstream_statement": "L6:\t    for (int i = 0; i < GRID_COLS * (2 * MAX_RADIUS) + MAX_RADIUS + PARA_FACTOR; i++) {"
+        },
+        {
+          "action": "L12",
+          "canonical_state_proven": false,
+          "dse_vector_index": 11,
+          "historically_variable": true,
+          "metadata_record": "L12,loop,2052",
+          "observed_states": {
+            "pipeline": 580,
+            "pipeline_1": 290,
+            "unroll_16": 907,
+            "unroll_2": 124,
+            "unroll_32": 1436,
+            "unroll_4": 318,
+            "unroll_64": 1806,
+            "unroll_8": 139
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 59,
+          "upstream_statement": "L12:\t        for (int k = 0; k < GRID_COLS * (2 * MAX_RADIUS) + MAX_RADIUS * 2; k++) {"
+        }
+      ],
+      "canonical_eligible": false,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia_dilate_2_pipeline_0.txt": "52c4a9890079d2ce8d4cafc5f79c978aec1df220b5385fa7cc2e0cbc5df3dd73",
+        "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/dilate.cpp": "a4cc38e6e928981999c115cb750fa00c991ecb19b79f24684a88201337bacb1c",
+        "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/dilate.h": "a87d7fe2f649de20215892612d4118c1dc418360b93ab71b98a148f3ad49c551",
+        "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/kernel_info.txt": "2db217e84d19fd8c3f3693051cafa8160f7c304095715256eb17de3f403af757",
+        "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+        "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+        "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+        "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+        "Data/CSVS/rodinia_dilate_2_pipeline_0.csv": "3e84fd38b9c0dbdcdbcd14227d8ff4c35803890718f7ee6e4a0885cd38ff0968"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia_dilate_2_pipeline_0.csv",
+      "clamped_indices": 0,
+      "contract": "historical-upstream-only-source-identity-blocked",
+      "csv_to_action": {
+        "Array_1": "L19",
+        "Array_2": "L18",
+        "Array_3": "L4",
+        "Array_4": "L3",
+        "Array_5": "L9",
+        "InnerLoop_1_1": "L2",
+        "InnerLoop_1_2": "L8",
+        "InnerLoop_1_3": "L13",
+        "InnerLoop_1_4": "L15",
+        "InnerLoop_1_5": "L17",
+        "InnerLoop_2_1": "L10",
+        "InnerLoop_3_1": "L11",
+        "OuterLoop_1": "L1",
+        "OuterLoop_2": "L7",
+        "OuterLoop_3": "L14",
+        "OuterLoop_4": "L16",
+        "OuterLoop_5": "L20"
+      },
+      "databases": [
+        {
+          "blob": "079c6f94e2256ade458bfe592920cfd3b0911a97",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_dilate_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia_dilate_2_pipeline_0_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 959,
+          "sha256": "13a2b6866d53bbe6f2128d5a7a4e5f9fd1d53dc8fabe6d96a4f7d6b693dbfafd",
+          "size": 275456,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "c7a5f8cc5e4e8894bb881ef7f33a8c0dc0079ac6",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_dilate_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia_dilate_2_pipeline_0_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 960,
+          "sha256": "8bf8881dbf12203eb1df7ecaaab38cf63b6754d551726823172d3be78c8b8d2c",
+          "size": 269312,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "3712563f6f2f852c0703f369337de650911cff84",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_dilate_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia_dilate_2_pipeline_0_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 960,
+          "sha256": "a4d264f39d8bca3bf86984498786fe5c090b04ecab901257a80d53cc313c92c1",
+          "size": 282624,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "490eebc3d642b40725acb41ada72dd1dc97327b0",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_dilate_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia_dilate_2_pipeline_0_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 802,
+          "sha256": "3ec85292f3e1b27c0d4202179b93e18023832af7b2a6390dcd7c7c0f2b354dfd",
+          "size": 234496,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "f9091e93c09a3ee708d2c5676b55ce2f5d57f1af",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_dilate_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia_dilate_2_pipeline_0_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 960,
+          "sha256": "8646cb06b7e78308be5aafae5519b8e3e4f54f8c7470c7a759f055d7f1aeeba4",
+          "size": 266240,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "dd089b9c6d5556a06c3701dff8981c914746d6e9",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_dilate_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia_dilate_2_pipeline_0_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 959,
+          "sha256": "73e7d42326f456fbfe9ee63df5f851b2eead1d54b22f34b13e6aee3302ee3496",
+          "size": 258048,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L5",
+        "L6",
+        "L12"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17",
+        "L18",
+        "L19",
+        "L20"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "a4cc38e6e928981999c115cb750fa00c991ecb19b79f24684a88201337bacb1c",
+          "path": "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/dilate.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_2_pipeline_0/dilate.cpp",
+          "upstream_sha256": "a4cc38e6e928981999c115cb750fa00c991ecb19b79f24684a88201337bacb1c"
+        },
+        {
+          "canonical_sha256": "a87d7fe2f649de20215892612d4118c1dc418360b93ab71b98a148f3ad49c551",
+          "path": "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/dilate.h",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_2_pipeline_0/dilate.h",
+          "upstream_sha256": "2324be76c16f0c6722808744756b556c838bcc5539820dc7c36f574f2666dc53"
+        },
+        {
+          "canonical_sha256": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "path": "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mars_wide_bus.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mars_wide_bus.h",
+          "upstream_sha256": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23"
+        },
+        {
+          "canonical_sha256": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+          "path": "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mars_wide_bus_2d.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mars_wide_bus_2d.h",
+          "upstream_sha256": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        {
+          "canonical_sha256": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "path": "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mars_wide_bus_4d.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mars_wide_bus_4d.h",
+          "upstream_sha256": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db"
+        },
+        {
+          "canonical_sha256": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "path": "Data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mc.h",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_2_pipeline_0/mc.h",
+          "upstream_sha256": "d70bcc843e27493766957eeb7e3ea5e16808f8f3023e57aa3660327a556bbdf6"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_dilate_2_pipeline_0.jsonl.gz",
+        "rows": 5600,
+        "sha256": "dd4b08e711bda7b7a33111bba020e1e9fa318ddf8c0f02eaf546e2cca4a8fac7"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L5",
+          "canonical_state_proven": false,
+          "dse_vector_index": 4,
+          "historically_variable": true,
+          "metadata_record": "L5,loop,2",
+          "observed_states": {
+            "pipeline": 3745,
+            "pipeline_1": 474,
+            "unroll": 1541
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 28,
+          "upstream_statement": "L5:\t    LOAD_WORKING_IMG_SET_BLANK : for (int i = 0; i < MAX_RADIUS; i++) {"
+        },
+        {
+          "action": "L6",
+          "canonical_state_proven": false,
+          "dse_vector_index": 5,
+          "historically_variable": true,
+          "metadata_record": "L6,loop,538",
+          "observed_states": {
+            "pipeline": 1769,
+            "pipeline_1": 1414,
+            "unroll_16": 435,
+            "unroll_2": 372,
+            "unroll_32": 178,
+            "unroll_4": 459,
+            "unroll_64": 829,
+            "unroll_8": 304
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 32,
+          "upstream_statement": "L6:\t    LOAD_WORKING_IMG_SET : for (int i = 0; i < (TILE_COLS+2*MAX_RADIUS) * (2 * MAX_RADIUS) + MAX_RADIUS + PARA_FACTOR; i++) {"
+        },
+        {
+          "action": "L12",
+          "canonical_state_proven": false,
+          "dse_vector_index": 11,
+          "historically_variable": true,
+          "metadata_record": "L12,loop,532",
+          "observed_states": {
+            "pipeline": 744,
+            "pipeline_1": 170,
+            "unroll_16": 261,
+            "unroll_2": 367,
+            "unroll_32": 857,
+            "unroll_4": 672,
+            "unroll_64": 1148,
+            "unroll_8": 1541
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 63,
+          "upstream_statement": "L12:\t        SHIFT_AHEAD_BODY_INDEX : for (int k = 0; k < (TILE_COLS+2*MAX_RADIUS) * (2 * MAX_RADIUS) + MAX_RADIUS * 2; k++) {"
+        },
+        {
+          "action": "L25",
+          "canonical_state_proven": false,
+          "dse_vector_index": 24,
+          "historically_variable": true,
+          "metadata_record": "L25,loop,130",
+          "observed_states": {
+            "pipeline": 1653,
+            "pipeline_1": 265,
+            "unroll_16": 204,
+            "unroll_2": 464,
+            "unroll_32": 747,
+            "unroll_4": 1679,
+            "unroll_64": 316,
+            "unroll_8": 432
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 128,
+          "upstream_statement": "L25:\t\t\t\t\t\tLOAD_IMG_COL_LEFTMOST : for (int col=0; col<(TILE_COLS + MAX_RADIUS); ++col){"
+        },
+        {
+          "action": "L27",
+          "canonical_state_proven": false,
+          "dse_vector_index": 26,
+          "historically_variable": true,
+          "metadata_record": "L27,loop,2",
+          "observed_states": {
+            "pipeline": 2643,
+            "pipeline_1": 822,
+            "unroll": 2295
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 133,
+          "upstream_statement": "L27:\t\t\t\t\t\tLOAD_IMG_COL_LEFTMOST_BLANK : for (int col=0; col<MAX_RADIUS; ++col){"
+        },
+        {
+          "action": "L29",
+          "canonical_state_proven": false,
+          "dse_vector_index": 28,
+          "historically_variable": true,
+          "metadata_record": "L29,loop,130",
+          "observed_states": {
+            "pipeline": 1400,
+            "pipeline_1": 1073,
+            "unroll_16": 930,
+            "unroll_2": 266,
+            "unroll_32": 264,
+            "unroll_4": 310,
+            "unroll_64": 253,
+            "unroll_8": 1264
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 141,
+          "upstream_statement": "L29:\t\t\t\t\t\tLOAD_IMG_COL_RIGHTMOST : for (int col=0; col<(TILE_COLS + MAX_RADIUS); ++col){"
+        },
+        {
+          "action": "L31",
+          "canonical_state_proven": false,
+          "dse_vector_index": 30,
+          "historically_variable": true,
+          "metadata_record": "L31,loop,2",
+          "observed_states": {
+            "pipeline": 1064,
+            "pipeline_1": 2963,
+            "unroll": 1733
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 146,
+          "upstream_statement": "L31:\t\t\t\t\t\tLOAD_IMG_COL_RIGHTMOST_BLANK : for (int col=0; col<MAX_RADIUS; ++col){"
+        },
+        {
+          "action": "L33",
+          "canonical_state_proven": false,
+          "dse_vector_index": 32,
+          "historically_variable": true,
+          "metadata_record": "L33,loop,132",
+          "observed_states": {
+            "pipeline": 1261,
+            "pipeline_1": 942,
+            "unroll_16": 479,
+            "unroll_2": 219,
+            "unroll_32": 106,
+            "unroll_4": 459,
+            "unroll_64": 407,
+            "unroll_8": 1887
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 154,
+          "upstream_statement": "L33:\t\t\t\t\t\tLOAD_IMG_COL_REST : for (int col=0; col<(TILE_COLS + 2 * MAX_RADIUS); ++col){"
+        },
+        {
+          "action": "L35",
+          "canonical_state_proven": false,
+          "dse_vector_index": 34,
+          "historically_variable": true,
+          "metadata_record": "L35,loop,128",
+          "observed_states": {
+            "pipeline": 369,
+            "pipeline_1": 1727,
+            "unroll_16": 1131,
+            "unroll_2": 174,
+            "unroll_32": 491,
+            "unroll_4": 285,
+            "unroll_64": 1087,
+            "unroll_8": 496
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 164,
+          "upstream_statement": "L35:\t\t\t\t\tSTORE_RST_COL : for (int col=0; col<TILE_COLS; ++col){"
+        }
+      ],
+      "canonical_eligible": false,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia_dilate_3_pipeline_0.txt": "8b8887ddb7721ed4ad67035f22d644a01ea2392f1dc5dae74b10fcd695522a10",
+        "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/dilate.cpp": "d7a379e6dd20d23332a0492e62ee048bc64903e7befab236fc1dbfc14c137bbe",
+        "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/dilate.h": "a87d7fe2f649de20215892612d4118c1dc418360b93ab71b98a148f3ad49c551",
+        "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/kernel_info.txt": "d1453278a65bf7f91cb027e49a60945ad290faf66f74abf7abbcbd54d7bfa821",
+        "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mars_wide_bus.h": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+        "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mars_wide_bus_2d.h": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+        "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mars_wide_bus_4d.h": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+        "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mc.h": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+        "Data/CSVS/rodinia_dilate_3_pipeline_0.csv": "6762dda7848cf474330eabc3a55e8e7c19c2b91a2ba4c2c24f70060233fdc05d"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia_dilate_3_pipeline_0.csv",
+      "clamped_indices": 0,
+      "contract": "historical-upstream-only-source-identity-blocked",
+      "csv_to_action": {
+        "Array_1": "L19",
+        "Array_2": "L18",
+        "Array_3": "L21",
+        "Array_4": "L20",
+        "Array_5": "L4",
+        "Array_6": "L3",
+        "Array_7": "L9",
+        "InnerLoop_1_1": "L2",
+        "InnerLoop_1_2": "L8",
+        "InnerLoop_1_3": "L13",
+        "InnerLoop_1_4": "L15",
+        "InnerLoop_1_5": "L17",
+        "InnerLoop_1_6": "L23",
+        "InnerLoop_2_1": "L10",
+        "InnerLoop_2_2": "L28",
+        "InnerLoop_2_3": "L30",
+        "InnerLoop_2_4": "L24",
+        "InnerLoop_2_5": "L26",
+        "InnerLoop_2_6": "L32",
+        "InnerLoop_2_7": "L34",
+        "InnerLoop_3_1": "L11",
+        "OuterLoop_1": "L1",
+        "OuterLoop_2": "L7",
+        "OuterLoop_3": "L14",
+        "OuterLoop_4": "L16",
+        "OuterLoop_5": "L22"
+      },
+      "databases": [
+        {
+          "blob": "8da43a968a8d9f6d9d50515788376b39fa71a13e",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_dilate_3_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia_dilate_3_pipeline_0_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 960,
+          "sha256": "a75592ba522e9e98c1c406eaf3a723f5e6d6a9ce921e02cbc694cb10047aa9d9",
+          "size": 386048,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "2e9a23ce38050208109f157f361fcaa019faeda7",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_dilate_3_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia_dilate_3_pipeline_0_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 960,
+          "sha256": "90c5b00c4ba347a2d84b05d4d4d870a7565f16519f725c69a210a61304063bd3",
+          "size": 386048,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "613864d7333a8c2e7a5c20951de6b805d1a8fb1d",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_dilate_3_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia_dilate_3_pipeline_0_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 960,
+          "sha256": "c2d03b976436df1c9623c85fd498aab903e293cbe34c61effb391ae8f3f9b438",
+          "size": 372736,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "370129ca85797d21c93641031ae8127a4343edd9",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_dilate_3_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia_dilate_3_pipeline_0_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 960,
+          "sha256": "c05615c9f4df9050764706105ad2c37d5e9c555391e059b064320d79c0d91aae",
+          "size": 384000,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "d0cecef1b8436f99503aaf8304cbfe52b5a1ab36",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_dilate_3_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia_dilate_3_pipeline_0_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 960,
+          "sha256": "b21659ca528dac287f28e7032b1822cafe99c3c10392eb403d9fcdb193dea524",
+          "size": 393216,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "40412fcbb19c1545d48dc0a5005f2ea70cba06bd",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_dilate_3_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia_dilate_3_pipeline_0_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 960,
+          "sha256": "076554694014fbbe18966105d773526f46fefc13539956bc55831aee35aa3783",
+          "size": 392192,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia_dilate_3_pipeline_0",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L5",
+        "L6",
+        "L12",
+        "L25",
+        "L27",
+        "L29",
+        "L31",
+        "L33",
+        "L35"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17",
+        "L18",
+        "L19",
+        "L20",
+        "L21",
+        "L22",
+        "L23",
+        "L24",
+        "L25",
+        "L26",
+        "L27",
+        "L28",
+        "L29",
+        "L30",
+        "L31",
+        "L32",
+        "L33",
+        "L34",
+        "L35"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "d7a379e6dd20d23332a0492e62ee048bc64903e7befab236fc1dbfc14c137bbe",
+          "path": "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/dilate.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_3_pipeline_0/dilate.cpp",
+          "upstream_sha256": "d7a379e6dd20d23332a0492e62ee048bc64903e7befab236fc1dbfc14c137bbe"
+        },
+        {
+          "canonical_sha256": "a87d7fe2f649de20215892612d4118c1dc418360b93ab71b98a148f3ad49c551",
+          "path": "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/dilate.h",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_3_pipeline_0/dilate.h",
+          "upstream_sha256": "2324be76c16f0c6722808744756b556c838bcc5539820dc7c36f574f2666dc53"
+        },
+        {
+          "canonical_sha256": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23",
+          "path": "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mars_wide_bus.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mars_wide_bus.h",
+          "upstream_sha256": "c180bd3941a34e79388a4a70148c7d995d258d157bda59db2d83f173c95abd23"
+        },
+        {
+          "canonical_sha256": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609",
+          "path": "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mars_wide_bus_2d.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mars_wide_bus_2d.h",
+          "upstream_sha256": "4759d404ca10577db4b00420dbf860258c663200aa4319d6e7e34f35657e0609"
+        },
+        {
+          "canonical_sha256": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db",
+          "path": "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mars_wide_bus_4d.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mars_wide_bus_4d.h",
+          "upstream_sha256": "00e1f1bb0b97bd043c75e6b3d1f827dec2947c0f74f7e561a2a3838ea62613db"
+        },
+        {
+          "canonical_sha256": "2fff5375444d0837fb12a5e48f1fe0852d101a60ad014c81c399020e9efc0a36",
+          "path": "Data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mc.h",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/rodinia_dilate_3_pipeline_0/mc.h",
+          "upstream_sha256": "d70bcc843e27493766957eeb7e3ea5e16808f8f3023e57aa3660327a556bbdf6"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_dilate_3_pipeline_0.jsonl.gz",
+        "rows": 5760,
+        "sha256": "3c0d3c73aa6c90eb1bab764732d10d1039be1dc15e7ae5ae3cc795012f6a4e61"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L8",
+          "canonical_state_proven": true,
+          "dse_vector_index": 7,
+          "historically_variable": true,
+          "metadata_record": "L8,loop,100",
+          "observed_states": {
+            "pipeline": 327,
+            "pipeline_1": 281,
+            "unroll_16": 1880,
+            "unroll_2": 275,
+            "unroll_32": 1258,
+            "unroll_4": 309,
+            "unroll_64": 786,
+            "unroll_8": 569
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 26,
+          "upstream_statement": "L8:        WIPE_LOCAL_POS_O: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia_lavaMD_1_tiling_0.txt": "4d7bb8fa4034c88698e2ee68d5f1d6c2cf313a67b1e5eeb16930e94aa5c67984",
+        "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_0/kernel_info.txt": "1816e0238c32c1aa1f0ab97a9c1a7f05792172a8d1a8e9e0b9963dca4953dc69",
+        "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_0/lavaMD.cpp": "5c0b9e9e64326e5eb6b90f72d5963fd932bc679a702506f3603d1b71589e69bb",
+        "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_0/lavaMD.h": "72b60d68b0b05d874233b606c8793319ed5119f9b3be16f5844e64efcf904b31",
+        "Data/CSVS/rodinia_lavaMD_1_tiling_0.csv": "a6b6308b929175bec9cf5c2757539d851f3acb4230b2dd77fd0102007af34395"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia_lavaMD_1_tiling_0.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L3",
+        "Array_2": "L4",
+        "Array_3": "L6",
+        "Array_4": "L5",
+        "Array_5": "L2",
+        "Array_6": "L1",
+        "InnerLoop_1_1": "L9",
+        "InnerLoop_1_2": "L10",
+        "InnerLoop_1_3": "L15",
+        "InnerLoop_2_1": "L11",
+        "InnerLoop_2_2": "L12",
+        "InnerLoop_2_3": "L13",
+        "InnerLoop_3_1": "L14",
+        "OuterLoop_1": "L7"
+      },
+      "databases": [
+        {
+          "blob": "50a62db8164f1aa39ae50449dd2c5559c2fdb343",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia_lavaMD_1_tiling_0_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 942,
+          "sha256": "e0905e9e784b71f214e65819e2425bc04570dfbf73673bbced86f6d981f7855d",
+          "size": 224256,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "e19d8ae423e30e98e8965bb22dc360cf9961f3dc",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia_lavaMD_1_tiling_0_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 957,
+          "sha256": "1426cb375b072095c20b505355422584d0c634141224d401630a590686e49689",
+          "size": 238592,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "1e8b5faf2d3fa2aafe5669278339ef89e6390e28",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia_lavaMD_1_tiling_0_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 916,
+          "sha256": "8971d81a14437b2413dc4c0fb9cdd2d891267ad08aa5c70a8246a1de153f8b59",
+          "size": 217088,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "a5be38c2baa0acd6ce183a6caba3df682b8a124a",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia_lavaMD_1_tiling_0_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 957,
+          "sha256": "bedd7b0092527137b85829951d7314ccd60da9b8f8a61d0cfe3bc243a5208c15",
+          "size": 250880,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "2aa0ba30430631b3b7db61845c1f66cf823700f0",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia_lavaMD_1_tiling_0_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 959,
+          "sha256": "9acd1be97598492c7957a658daf061edcbfbc54acec616d5452a086a94eac2ba",
+          "size": 252928,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "9358565f4562a855bb0debfd97058977341535c1",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia_lavaMD_1_tiling_0_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 954,
+          "sha256": "334f5efa88244b4e6401ea82382f9cc68b5f70c6099af10e4f47e74190c8c906",
+          "size": 250880,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia_lavaMD_1_tiling_0",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L8"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "5c0b9e9e64326e5eb6b90f72d5963fd932bc679a702506f3603d1b71589e69bb",
+          "path": "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_0/lavaMD.cpp",
+          "proof": "label-spacing-only",
+          "upstream_path": "data/ApplicationDataset/rodinia_lavaMD_1_tiling_0/lavaMD.cpp",
+          "upstream_sha256": "7db0edbf6330493f47a632f8f4459bf1dc2db845c4706a2f153251105ed4111c"
+        },
+        {
+          "canonical_sha256": "72b60d68b0b05d874233b606c8793319ed5119f9b3be16f5844e64efcf904b31",
+          "path": "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_0/lavaMD.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_lavaMD_1_tiling_0/lavaMD.h",
+          "upstream_sha256": "72b60d68b0b05d874233b606c8793319ed5119f9b3be16f5844e64efcf904b31"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_lavaMD_1_tiling_0.jsonl.gz",
+        "rows": 5685,
+        "sha256": "ea5cdb812e4d059590b378ef684cf46e5160ca91a092784952a1939c912db124"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L8",
+          "canonical_state_proven": true,
+          "dse_vector_index": 7,
+          "historically_variable": true,
+          "metadata_record": "L8,loop,100",
+          "observed_states": {
+            "pipeline": 94,
+            "pipeline_1": 839,
+            "unroll_16": 853,
+            "unroll_2": 810,
+            "unroll_32": 804,
+            "unroll_4": 895,
+            "unroll_64": 1095,
+            "unroll_8": 349
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 26,
+          "upstream_statement": "L8:        WIPE_LOCAL_POS_O: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia_lavaMD_1_tiling_1.txt": "4d7bb8fa4034c88698e2ee68d5f1d6c2cf313a67b1e5eeb16930e94aa5c67984",
+        "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_1/kernel_info.txt": "6c7d0e700b2c6f62d826a19555eb00344fcdd402b6fc9c7c5488b78e3008bdea",
+        "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_1/lavaMD.h": "72b60d68b0b05d874233b606c8793319ed5119f9b3be16f5844e64efcf904b31",
+        "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_1/lavaMD_flattenedArray.cpp": "4fedba25e5dff45ec9e20d68d673e2b62e2428a4b11277db7ce17592fc090106",
+        "Data/CSVS/rodinia_lavaMD_1_tiling_1.csv": "9ee36be0c8ddb3094df83d285834af955c235f1efe54be89e3339c8617c72f0b"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia_lavaMD_1_tiling_1.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L3",
+        "Array_2": "L4",
+        "Array_3": "L6",
+        "Array_4": "L5",
+        "Array_5": "L2",
+        "Array_6": "L1",
+        "InnerLoop_1_1": "L9",
+        "InnerLoop_1_2": "L10",
+        "InnerLoop_1_3": "L15",
+        "InnerLoop_2_1": "L11",
+        "InnerLoop_2_2": "L12",
+        "InnerLoop_2_3": "L13",
+        "InnerLoop_3_1": "L14",
+        "OuterLoop_1": "L7"
+      },
+      "databases": [
+        {
+          "blob": "83f11b956058134f1ba888c00be212ebfd1a1c8b",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_1",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia_lavaMD_1_tiling_1_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 959,
+          "sha256": "8dc54178d37add7d84f6bacb6edef950655cd0b40a7358c169ad629c1d7eac08",
+          "size": 245760,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "9b12b2e0eff715893b32d8a83027c701aa038bef",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_1",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia_lavaMD_1_tiling_1_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 954,
+          "sha256": "18c83fcbc6202848a9cee483d1aac4268cbb63eb05fe4c0efa46ace55de3a609",
+          "size": 237568,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "de968a3ce6aab337126fb6989d32a6c6fa935c8f",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_1",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia_lavaMD_1_tiling_1_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 956,
+          "sha256": "299c237004bd6027e8e4032d29ea65c38c9d8ffacb4a69ee234356c517754766",
+          "size": 229376,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "72069c1658d956a32036e3e4041e7e915f4a53c1",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_1",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia_lavaMD_1_tiling_1_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 957,
+          "sha256": "2ed9fba10970747b0d8fa1b209864ce60ff6a335ef4f293952edbd688b87b231",
+          "size": 225280,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "c5a75132099d44854e1cdf7f9eca98cb3b5876e1",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_1",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia_lavaMD_1_tiling_1_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 956,
+          "sha256": "acd81aaf809797c4d736d7f922577341ddd12b2e0b848df333de329a9eecdc2b",
+          "size": 227328,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "d06461616ce67465b68632de787146e7422b3e70",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lavaMD_1_tiling_1",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia_lavaMD_1_tiling_1_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 957,
+          "sha256": "e4ed413e1f28ffdee99788ea78908f8f1dc35cf0ce2df4829eed2a02a804a747",
+          "size": 227328,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia_lavaMD_1_tiling_1",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L8"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "4fedba25e5dff45ec9e20d68d673e2b62e2428a4b11277db7ce17592fc090106",
+          "path": "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_1/lavaMD_flattenedArray.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_lavaMD_1_tiling_1/lavaMD_flattenedArray.cpp",
+          "upstream_sha256": "4fedba25e5dff45ec9e20d68d673e2b62e2428a4b11277db7ce17592fc090106"
+        },
+        {
+          "canonical_sha256": "72b60d68b0b05d874233b606c8793319ed5119f9b3be16f5844e64efcf904b31",
+          "path": "Data/ApplicationDataset/rodinia_lavaMD_1_tiling_1/lavaMD.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_lavaMD_1_tiling_1/lavaMD.h",
+          "upstream_sha256": "72b60d68b0b05d874233b606c8793319ed5119f9b3be16f5844e64efcf904b31"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_lavaMD_1_tiling_1.jsonl.gz",
+        "rows": 5739,
+        "sha256": "46d61f813f8a3a4f6174960158f0c9c6dd4d6e72042006dd890740f4578ef738"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L8",
+          "canonical_state_proven": true,
+          "dse_vector_index": 7,
+          "historically_variable": true,
+          "metadata_record": "L8,loop,100",
+          "observed_states": {
+            "pipeline": 165,
+            "pipeline_1": 825,
+            "unroll_16": 971,
+            "unroll_2": 360,
+            "unroll_32": 705,
+            "unroll_4": 307,
+            "unroll_64": 1008,
+            "unroll_8": 1354
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 26,
+          "upstream_statement": "L8:        WIPE_LOCAL_POS_O: for (ii=0; ii<NUMBER_PAR_PER_BOX; ++ii){"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia_lavaMD_2_pipeline_0.txt": "4d7bb8fa4034c88698e2ee68d5f1d6c2cf313a67b1e5eeb16930e94aa5c67984",
+        "Data/ApplicationDataset/rodinia_lavaMD_2_pipeline_0/kernel_info.txt": "1816e0238c32c1aa1f0ab97a9c1a7f05792172a8d1a8e9e0b9963dca4953dc69",
+        "Data/ApplicationDataset/rodinia_lavaMD_2_pipeline_0/lavaMD.cpp": "e91732f0ac504b601a65f5697ef825879e605f1ab543bd877443319071ac00c1",
+        "Data/ApplicationDataset/rodinia_lavaMD_2_pipeline_0/lavaMD.h": "72b60d68b0b05d874233b606c8793319ed5119f9b3be16f5844e64efcf904b31",
+        "Data/CSVS/rodinia_lavaMD_2_pipeline_0.csv": "0042d3427c4c6b7015b6defb1ed3692823bd9f01a91597ff2efb6002319d6dc2"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia_lavaMD_2_pipeline_0.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L3",
+        "Array_2": "L4",
+        "Array_3": "L6",
+        "Array_4": "L5",
+        "Array_5": "L2",
+        "Array_6": "L1",
+        "InnerLoop_1_1": "L9",
+        "InnerLoop_1_2": "L10",
+        "InnerLoop_1_3": "L15",
+        "InnerLoop_2_1": "L11",
+        "InnerLoop_2_2": "L12",
+        "InnerLoop_2_3": "L13",
+        "InnerLoop_3_1": "L14",
+        "OuterLoop_1": "L7"
+      },
+      "databases": [
+        {
+          "blob": "72054e1abe0d5d89e9931abe5d3320476322c233",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lavaMD_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia_lavaMD_2_pipeline_0_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 956,
+          "sha256": "99f450e62700d7175e1edb9d7937c87dc3ec7717e9b254620424c1c82820ae1a",
+          "size": 245760,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "43406ca58e09de8fcbbb5f91964c5e22efeed5cc",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lavaMD_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia_lavaMD_2_pipeline_0_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 951,
+          "sha256": "52c681c44c42ba8869ac00234b6d8ba5e219c999c628ea9b5654440db02c4c4a",
+          "size": 249856,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "20646db8e18c1b9871fe816f62bb0720bd54a4e3",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lavaMD_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia_lavaMD_2_pipeline_0_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 916,
+          "sha256": "8ce69fb8663e2ee50a987b11c03147c7949802f77ac4a57a2f960e1632da2cfd",
+          "size": 212992,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "6f35c4c5c8154c21d3f77d8303ed6213b00e49ec",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lavaMD_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia_lavaMD_2_pipeline_0_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 957,
+          "sha256": "55d388a0fee79b781519ab6ef651d380349ec43e449b460a624c8b2f50fe6b00",
+          "size": 236544,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "fa4960364c4310432372e6c8277d2284c6e16c66",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lavaMD_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia_lavaMD_2_pipeline_0_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 960,
+          "sha256": "d7c2dcb3b769b5c9827737eae0da9d15de9cb982cc9e6e02d0f41fc634b44ba5",
+          "size": 247808,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "7c9900672ea68431d1387163edca8af06e95f6fa",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lavaMD_2_pipeline_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia_lavaMD_2_pipeline_0_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 955,
+          "sha256": "0573b29a8664931e3b4ad5a371ecb4f1dbf202530f10583554e76f5db07c3855",
+          "size": 245760,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L8"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "e91732f0ac504b601a65f5697ef825879e605f1ab543bd877443319071ac00c1",
+          "path": "Data/ApplicationDataset/rodinia_lavaMD_2_pipeline_0/lavaMD.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_lavaMD_2_pipeline_0/lavaMD.cpp",
+          "upstream_sha256": "e91732f0ac504b601a65f5697ef825879e605f1ab543bd877443319071ac00c1"
+        },
+        {
+          "canonical_sha256": "72b60d68b0b05d874233b606c8793319ed5119f9b3be16f5844e64efcf904b31",
+          "path": "Data/ApplicationDataset/rodinia_lavaMD_2_pipeline_0/lavaMD.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_lavaMD_2_pipeline_0/lavaMD.h",
+          "upstream_sha256": "72b60d68b0b05d874233b606c8793319ed5119f9b3be16f5844e64efcf904b31"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_lavaMD_2_pipeline_0.jsonl.gz",
+        "rows": 5695,
+        "sha256": "c831bcaafe01c5383c54a72c636ff8ae19310333fbe4698218ff2cb7ee8a1e10"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L20",
+          "canonical_state_proven": true,
+          "dse_vector_index": 19,
+          "historically_variable": true,
+          "metadata_record": "L20,array,top_buffer,1,256",
+          "observed_states": {
+            "block_128_1": 684,
+            "block_16_1": 416,
+            "block_2_1": 300,
+            "block_32_1": 714,
+            "block_4_1": 439,
+            "block_64_1": 144,
+            "block_8_1": 210,
+            "complete_1": 18,
+            "cyclic_128_1": 91,
+            "cyclic_16_1": 129,
+            "cyclic_2_1": 594,
+            "cyclic_32_1": 1070,
+            "cyclic_4_1": 292,
+            "cyclic_64_1": 225,
+            "cyclic_8_1": 434
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 107,
+          "upstream_statement": "L20:    float top_buffer[BSIZE * BSIZE];"
+        },
+        {
+          "action": "L21",
+          "canonical_state_proven": true,
+          "dse_vector_index": 20,
+          "historically_variable": true,
+          "metadata_record": "L21,array,left_buffer,1,256",
+          "observed_states": {
+            "block_128_1": 61,
+            "block_16_1": 517,
+            "block_2_1": 18,
+            "block_32_1": 763,
+            "block_4_1": 575,
+            "block_64_1": 631,
+            "block_8_1": 364,
+            "complete_1": 9,
+            "cyclic_128_1": 67,
+            "cyclic_16_1": 382,
+            "cyclic_2_1": 427,
+            "cyclic_32_1": 428,
+            "cyclic_4_1": 1164,
+            "cyclic_64_1": 22,
+            "cyclic_8_1": 332
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 108,
+          "upstream_statement": "L21:    float left_buffer[BSIZE * BSIZE];"
+        }
+      ],
+      "canonical_eligible": true,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/rodinia_lud_1_tiling_0.txt": "b1214578aaa67d83194b9fb2b646e8769d3bf5fcec8a4fb10de6b69c81e82f12",
+        "Data/ApplicationDataset/rodinia_lud_1_tiling_0/kernel_info.txt": "87847a808062d94b03ccb7096a7198f2de85f61194e046755d85bd7fd837bd96",
+        "Data/ApplicationDataset/rodinia_lud_1_tiling_0/lud.cpp": "ab473bcb5318105ecb1aea4251c225d80d00040de3166d307c4f18b718d1e571",
+        "Data/ApplicationDataset/rodinia_lud_1_tiling_0/lud.h": "4fd794f8d47c187291d84374c1694a15fbde50d2a3c17e2ad970c67327599e49",
+        "Data/CSVS/rodinia_lud_1_tiling_0.csv": "23e6c8519e62a477b67d10d88ab0339950a79004fcc5c163140057e102eb85c5"
+      },
+      "canonical_measurements": "Data/CSVS/rodinia_lud_1_tiling_0.csv",
+      "clamped_indices": 0,
+      "contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "csv_to_action": {
+        "Array_1": "L5",
+        "Array_2": "L19",
+        "Array_3": "L39",
+        "Array_4": "L40",
+        "Array_5": "L41",
+        "InnerLoop_1_1": "L2",
+        "InnerLoop_1_10": "L25",
+        "InnerLoop_1_11": "L28",
+        "InnerLoop_1_12": "L32",
+        "InnerLoop_1_13": "L34",
+        "InnerLoop_1_14": "L36",
+        "InnerLoop_1_15": "L38",
+        "InnerLoop_1_16": "L43",
+        "InnerLoop_1_2": "L4",
+        "InnerLoop_1_3": "L7",
+        "InnerLoop_1_4": "L9",
+        "InnerLoop_1_5": "L12",
+        "InnerLoop_1_6": "L14",
+        "InnerLoop_1_7": "L16",
+        "InnerLoop_1_8": "L18",
+        "InnerLoop_1_9": "L23",
+        "InnerLoop_2_1": "L8",
+        "InnerLoop_2_2": "L10",
+        "InnerLoop_2_3": "L26",
+        "InnerLoop_2_4": "L29",
+        "InnerLoop_2_5": "L44",
+        "InnerLoop_3_1": "L27",
+        "InnerLoop_3_2": "L30",
+        "InnerLoop_3_3": "L45",
+        "OuterLoop_1": "L1",
+        "OuterLoop_10": "L31",
+        "OuterLoop_11": "L33",
+        "OuterLoop_12": "L35",
+        "OuterLoop_13": "L37",
+        "OuterLoop_14": "L42",
+        "OuterLoop_15": "L46",
+        "OuterLoop_2": "L3",
+        "OuterLoop_3": "L6",
+        "OuterLoop_4": "L11",
+        "OuterLoop_5": "L13",
+        "OuterLoop_6": "L15",
+        "OuterLoop_7": "L17",
+        "OuterLoop_8": "L22",
+        "OuterLoop_9": "L24"
+      },
+      "databases": [
+        {
+          "blob": "fa639c89b38ec6a7e2fb628a785c9f9be02ca9c7",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lud_1_tiling_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/rodinia_lud_1_tiling_0_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 960,
+          "sha256": "17233dd28e78d43cd0d4fb984feb904c05f1c8e0ab573e11adc3ff914e787cf4",
+          "size": 425984,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "b54bb6637ed6d5b72074bc262fc3268038dd85b9",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lud_1_tiling_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/rodinia_lud_1_tiling_0_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 960,
+          "sha256": "c2df5f14c5d43172966bdd3d098b9866497f51ca4ce109ea03ba3899306a767d",
+          "size": 442368,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "dffc19ba51f0025c8f730870cc70d287694972fd",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "rodinia_lud_1_tiling_0",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/rodinia_lud_1_tiling_0_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 960,
+          "sha256": "1b816a164cb4b2879aa689c3cc5114509613add1a673ce905b55d81db4c1f64d",
+          "size": 513024,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "572909548c9e5fe1547933239d11d9ae07b46344",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lud_1_tiling_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/rodinia_lud_1_tiling_0_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 960,
+          "sha256": "a24ad41c5616a5a177de31b179f3ad1c41186ff29273b25f8a8983ca0eaef8fb",
+          "size": 438272,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "7a38f5cebb093ba443c15183e26eced09b144f1b",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lud_1_tiling_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/rodinia_lud_1_tiling_0_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 960,
+          "sha256": "23a41efca5875e33ff548611e2481a5001cef435bf555dc22174fa708fd41430",
+          "size": 417792,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "d5fb4b6e660ff064f7f27c1a81e13429ea190af4",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "rodinia_lud_1_tiling_0",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/rodinia_lud_1_tiling_0_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 960,
+          "sha256": "75bd9b7a8afdccff6ab1e48f8b599126ced7a874a17439a42b85f98e9e73475b",
+          "size": 430080,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "rodinia_lud_1_tiling_0",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L20",
+        "L21"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17",
+        "L18",
+        "L19",
+        "L20",
+        "L21",
+        "L22",
+        "L23",
+        "L24",
+        "L25",
+        "L26",
+        "L27",
+        "L28",
+        "L29",
+        "L30",
+        "L31",
+        "L32",
+        "L33",
+        "L34",
+        "L35",
+        "L36",
+        "L37",
+        "L38",
+        "L39",
+        "L40",
+        "L41",
+        "L42",
+        "L43",
+        "L44",
+        "L45",
+        "L46"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "ab473bcb5318105ecb1aea4251c225d80d00040de3166d307c4f18b718d1e571",
+          "path": "Data/ApplicationDataset/rodinia_lud_1_tiling_0/lud.cpp",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_lud_1_tiling_0/lud.cpp",
+          "upstream_sha256": "ab473bcb5318105ecb1aea4251c225d80d00040de3166d307c4f18b718d1e571"
+        },
+        {
+          "canonical_sha256": "4fd794f8d47c187291d84374c1694a15fbde50d2a3c17e2ad970c67327599e49",
+          "path": "Data/ApplicationDataset/rodinia_lud_1_tiling_0/lud.h",
+          "proof": "byte-identical",
+          "upstream_path": "data/ApplicationDataset/rodinia_lud_1_tiling_0/lud.h",
+          "upstream_sha256": "4fd794f8d47c187291d84374c1694a15fbde50d2a3c17e2ad970c67327599e49"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_lud_1_tiling_0.jsonl.gz",
+        "rows": 5760,
+        "sha256": "2305b500d5b319e1fa92d3b283be8bf9c83a9fcb256a9558af5721cfd8fbd181"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L3",
+          "canonical_state_proven": false,
+          "dse_vector_index": 2,
+          "historically_variable": true,
+          "metadata_record": "L3,loop,1000",
+          "observed_states": {
+            "pipeline": 482,
+            "pipeline_1": 183,
+            "unroll_16": 1487,
+            "unroll_2": 178,
+            "unroll_32": 1065,
+            "unroll_4": 55,
+            "unroll_64": 1284,
+            "unroll_8": 408
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 8,
+          "upstream_statement": "L3:  for (int i = 0; i < M; ++i) {"
+        },
+        {
+          "action": "L4",
+          "canonical_state_proven": false,
+          "dse_vector_index": 3,
+          "historically_variable": true,
+          "metadata_record": "L4,loop,1000",
+          "observed_states": {
+            "pipeline": 436,
+            "pipeline_1": 530,
+            "unroll_16": 579,
+            "unroll_2": 133,
+            "unroll_32": 935,
+            "unroll_4": 138,
+            "unroll_64": 1782,
+            "unroll_8": 609
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 12,
+          "upstream_statement": "L4:  for (int i = 0; i < M; ++i) {"
+        }
+      ],
+      "canonical_eligible": false,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/spcl_example_03.txt": "7e71bde1436e45d63a6069ac4012a1343f97a16859851e8c386a91aea6f3f1c3",
+        "Data/ApplicationDataset/spcl_example_03/Example3.cpp": "6a4cfc85a0c7d4cd9294f739c09f5f1e3231af1beb8e7eee2393da4702a96b1b",
+        "Data/ApplicationDataset/spcl_example_03/Example3.h": "5c95b38c815fc14a416058a809ca2edad13319444baf435c811873686fe77bb8",
+        "Data/ApplicationDataset/spcl_example_03/kernel_info.txt": "1d8c0b4743f6ba778a3571162865dd1412cb5357890e504826a979ec626c9b7b",
+        "Data/CSVS/spcl_example_03.csv": "e80a7df13589b471e68d68c7fc75f67bb6701ff79619d6f819121ea15c425b4b"
+      },
+      "canonical_measurements": "Data/CSVS/spcl_example_03.csv",
+      "clamped_indices": 0,
+      "contract": "historical-upstream-only-source-identity-blocked",
+      "csv_to_action": {
+        "Array_1": "L1",
+        "Array_2": "L2",
+        "InnerLoop_1_1": "L6",
+        "OuterLoop_1": "L5"
+      },
+      "databases": [
+        {
+          "blob": "088a6274f697522b01d37c08ebecbe6f6d0a9eec",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "spcl_example_03",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/spcl_example_03_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 882,
+          "sha256": "dd6f8451de687158e96a400041d30f1f03b90e5f32e7ad8c1678b31172435eef",
+          "size": 167936,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "82145dfa184807f997e56bb93ccceee024978311",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "spcl_example_03",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/spcl_example_03_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 894,
+          "sha256": "ace56d6f290fbe34e10b941324dd5a56e988fc2574a632558e68ec55d2e6c6d2",
+          "size": 167936,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "cfd9930c1d52d3bd1f1e87e1479850f7f1828c3a",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "spcl_example_03",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/spcl_example_03_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 866,
+          "sha256": "74b996fd839725549bdec20bd5d50f9eca95ab72f1c666a7ef351e95404377ed",
+          "size": 163840,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "0f2d6eb33d516e9b603c591a04b2705b51594f58",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "spcl_example_03",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/spcl_example_03_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 835,
+          "sha256": "813e05047be8cb50596eb477672a276864b186713de34a141a0a4f09e5572423",
+          "size": 159744,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "38196974a71c6bfe073dd4eca3c2d82761781117",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "spcl_example_03",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/spcl_example_03_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 876,
+          "sha256": "8fdf7d96c4972bb2eac2110d27d7b62778480171e9a176cff48155f362cc572c",
+          "size": 167936,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "040ef27defabc433ee0d82a2a067f15344b9b674",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "spcl_example_03",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/spcl_example_03_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 789,
+          "sha256": "42b30f86ffb6dfc7b8c2e2ea052c725d6a310f696c61cf31772b2be858a432be",
+          "size": 151552,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "spcl_example_03",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L3",
+        "L4"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "6a4cfc85a0c7d4cd9294f739c09f5f1e3231af1beb8e7eee2393da4702a96b1b",
+          "path": "Data/ApplicationDataset/spcl_example_03/Example3.cpp",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/spcl_example_03/Example3.cpp",
+          "upstream_sha256": "d05e9929d8ffc04977ee535b26f76f5404c268876b80030a2b199f23d5894450"
+        },
+        {
+          "canonical_sha256": "5c95b38c815fc14a416058a809ca2edad13319444baf435c811873686fe77bb8",
+          "path": "Data/ApplicationDataset/spcl_example_03/Example3.h",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/spcl_example_03/Example3.h",
+          "upstream_sha256": "00edc68d8b3cf11005e6943f6e1cf5680dd0fef442cd9b6f54d228a7b3fb782d"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/spcl_example_03.jsonl.gz",
+        "rows": 5142,
+        "sha256": "d7d6fa7fc38a4858877eb2cd8fd6c050aa13b0b7e5f0ece4346bf43958d92117"
+      }
+    },
+    {
+      "actions": [
+        {
+          "action": "L5",
+          "canonical_state_proven": false,
+          "dse_vector_index": 4,
+          "historically_variable": true,
+          "metadata_record": "L5,loop,1024",
+          "observed_states": {
+            "pipeline": 443,
+            "pipeline_1": 284,
+            "unroll_16": 438,
+            "unroll_2": 324,
+            "unroll_32": 481,
+            "unroll_4": 314,
+            "unroll_64": 1140,
+            "unroll_8": 320
+          },
+          "root_cause": "Full SQLite DSE vector projected through incomplete compiler-feature APL; exporter skips unmapped labels",
+          "upstream_source_line": 19,
+          "upstream_statement": "L5:    for (int m = 0; m < M; ++m) {"
+        }
+      ],
+      "canonical_eligible": false,
+      "canonical_files": {
+        "Data/ApplicationAPLMapping/spcl_example_05.txt": "f9400abf7571c27fe2eb6e7ef431d3170be4a95a736c3c72c67721d4178614c9",
+        "Data/ApplicationDataset/spcl_example_05/Example5.h": "ac5a92ba3ef45b89d121382d5032335cd511a5c04e5f6bebc1f06c17213f3599",
+        "Data/ApplicationDataset/spcl_example_05/Example5_Reordered.cpp": "358e10252144cca5bb428b79ab346b45060f0ed44e9dd9dea4f7c6c7600caa22",
+        "Data/ApplicationDataset/spcl_example_05/kernel_info.txt": "023e7b776fc8607bef7aaeb321757c5651b50b349c7dac369594cde5999beda0",
+        "Data/CSVS/spcl_example_05.csv": "fc75be9ad6faf9fdfa4b105348e5ea0c60b7c3a0ebab3fdc7800c3074f5f39ec"
+      },
+      "canonical_measurements": "Data/CSVS/spcl_example_05.csv",
+      "clamped_indices": 0,
+      "contract": "historical-upstream-only-source-identity-blocked",
+      "csv_to_action": {
+        "Array_1": "L2",
+        "InnerLoop_1_1": "L3",
+        "InnerLoop_2_1": "L4",
+        "OuterLoop_1": "L1"
+      },
+      "databases": [
+        {
+          "blob": "744cc5249fd3ade65bb5622b31dd85820c107acb",
+          "clock": "10",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "spcl_example_05",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_10/spcl_example_05_xczu7ev-ffvc1156-2-e_10.sqlite",
+          "rows": 785,
+          "sha256": "0ae7f18d846466e9e76face24f09c30b7809863d2831050cf86f482ef9c6bf86",
+          "size": 143360,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "1ee44b2709ac9c0a6fd372fd12f1edf18ad87438",
+          "clock": "5",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "spcl_example_05",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_5/spcl_example_05_xczu7ev-ffvc1156-2-e_5.sqlite",
+          "rows": 549,
+          "sha256": "607d42a52bbeb7100f76eb14f7cbe4e12db317fd93119bc35aadb3a2673907ec",
+          "size": 102400,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "c4167003606f491e562c9df20a50cbe8708bc2c7",
+          "clock": "3.33",
+          "device": "xczu7ev-ffvc1156-2-e",
+          "kernel": "spcl_example_05",
+          "path": "data/ApplicationDatabases/xczu7ev-ffvc1156-2-e_3.33/spcl_example_05_xczu7ev-ffvc1156-2-e_3.33.sqlite",
+          "rows": 533,
+          "sha256": "41755d7092e5050e7ceeffeac70d91a8491081808ee2f4a0628a31beb565b542",
+          "size": 94208,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "66e193c24d6e941a45b82cb8d58867441e2ab43f",
+          "clock": "10",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "spcl_example_05",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_10/spcl_example_05_xcu200-fsgd2104-2-e_10.sqlite",
+          "rows": 426,
+          "sha256": "3a3f1b39239a850e9db725bd23e7fe4d8fea3e2853ed8a939dbfe947894d59a0",
+          "size": 86016,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "658e358cdf220aca59efdd958fcfb8bb8bdadb6c",
+          "clock": "5",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "spcl_example_05",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_5/spcl_example_05_xcu200-fsgd2104-2-e_5.sqlite",
+          "rows": 749,
+          "sha256": "c15cd8cfb9d9cdb97aaf043b8ac722f91e074dabe480105b4ee78bfb3acfe9d7",
+          "size": 139264,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        },
+        {
+          "blob": "ccaf0652b42b9dcb9ebd634e00ac292cb0148432",
+          "clock": "3.33",
+          "device": "xcu200-fsgd2104-2-e",
+          "kernel": "spcl_example_05",
+          "path": "data/ApplicationDatabases/xcu200-fsgd2104-2-e_3.33/spcl_example_05_xcu200-fsgd2104-2-e_3.33.sqlite",
+          "rows": 702,
+          "sha256": "5606f732fe7065585a20ec3550be2a8fa832ba9b376e1d6b99b571d779965601",
+          "size": 126976,
+          "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093"
+        }
+      ],
+      "imputed_states": 0,
+      "kernel": "spcl_example_05",
+      "matching_qor_and_existing_directives": true,
+      "missing_actions": [
+        "L5"
+      ],
+      "source_actions": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "source_identity": [
+        {
+          "canonical_sha256": "358e10252144cca5bb428b79ab346b45060f0ed44e9dd9dea4f7c6c7600caa22",
+          "path": "Data/ApplicationDataset/spcl_example_05/Example5_Reordered.cpp",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/spcl_example_05/Example5_Reordered.cpp",
+          "upstream_sha256": "7a4917d323b57a8f247548373ca4458b896c6a34682308d749d544191623fff8"
+        },
+        {
+          "canonical_sha256": "ac5a92ba3ef45b89d121382d5032335cd511a5c04e5f6bebc1f06c17213f3599",
+          "path": "Data/ApplicationDataset/spcl_example_05/Example5.h",
+          "proof": "unproven-source-equivalence",
+          "upstream_path": "data/ApplicationDataset/spcl_example_05/Example5.h",
+          "upstream_sha256": "eac253a3eae41c0904039c71034ab7225eeded92c67fac8dd92ac04db86206db"
+        }
+      ],
+      "split": "train",
+      "states": {
+        "path": "Data/provenance/gnosis_17_recovery_20261113/states/spcl_example_05.jsonl.gz",
+        "rows": 3744,
+        "sha256": "23617525c1a9424bf8d783a8fe4c79d5ab4e911fef884a0e4952141109593cfc"
+      }
+    }
+  ],
+  "metadata_repairs": [
+    {
+      "added_records": [
+        "L5,loop,1"
+      ],
+      "after_sha256": "32d4950cd99b2ee0e81fb2f28ce148b4bb3893d356bce579c2a7d20a6e9092f3",
+      "before_sha256": "d0c101565426aa0d50bb2333cee4a6dd2d20b5baa52b0a1264b5cee21bedba62",
+      "historical_commit": "25dfef26f3e9d8a4f6356e672e8c552563a76a7b",
+      "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/kernel_info.txt"
+    },
+    {
+      "added_records": [
+        "L5,loop,1",
+        "L9,loop,1"
+      ],
+      "after_sha256": "7e8c08b8463b89f668630ee4fdeec7d3a9ae2d8736ad8dcb3d2796e7b3192833",
+      "before_sha256": "81273be5e900fccbfae91baec725369a9f0e05cab6c1fefcf9f8e219c9f47094",
+      "historical_commit": "25dfef26f3e9d8a4f6356e672e8c552563a76a7b",
+      "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/kernel_info.txt"
+    },
+    {
+      "added_records": [
+        "L9,loop,1"
+      ],
+      "after_sha256": "afd915867c1dfca26a430126f8eabf6460531604e160bfb5a878010c1e7bf24a",
+      "before_sha256": "fdc6d051c65a0bf4a72503ef8af41efb09058f3e128e48e0ab2be75ad51a239f",
+      "historical_commit": "25dfef26f3e9d8a4f6356e672e8c552563a76a7b",
+      "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/kernel_info.txt"
+    }
+  ],
+  "raw_measurements_modified": false,
+  "schema": "salt-hls-gnosis-action-recovery-v1",
+  "split": {
+    "path": "mailohls_runs/mailohls_final_family_split_s123.json",
+    "sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c"
+  },
+  "summary": {
+    "audited_kernels": 17,
+    "blocked_source_actions": 16,
+    "canonical_recovered_actions": 14,
+    "fixed_or_non_dse_actions": 0,
+    "historical_action_histories": 30,
+    "matched_rows": 85118,
+    "newly_canonical_eligible": 12
+  },
+  "test_rows_read": false,
+  "upstream_commit": "8888db17a6f344307de0a27cb431582f3f6fd093",
+  "upstream_repository": "https://github.com/aferikoglou/GNWSIS"
+}

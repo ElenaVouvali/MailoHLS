@@ -230,6 +230,7 @@ def graph_provenance():
 
 
 def canonical_index():
+    from Preprocessing import gnosis_recovery
     split, split_record = split_identity()
     graphs = graph_provenance()
     # Frozen snapshots may be restored separately from the artifact store.
@@ -278,7 +279,12 @@ def canonical_index():
                     if complete and any(v >= 100 for v in resources):
                         counts['measured_resource_at_or_above_capacity_rows'] += 1
         valid = {c: a for c, a in mapping.items() if a in definitions and a in labels and c in columns}
-        unknown = sorted((labels | set(definitions))-set(valid.values()), key=lambda a: int(a[1:]))
+        csv_uncovered = sorted((labels | set(definitions))-set(valid.values()), key=lambda a: int(a[1:]))
+        recovery = gnosis_recovery.validated_entry(k, ROOT)
+        proven = set(recovery['missing_actions']) if recovery and recovery['canonical_eligible'] else set()
+        if not proven.issubset(csv_uncovered):
+            raise ValueError('Recovery conflicts with canonical CSV/APL coverage: ' + k)
+        unknown = sorted(set(csv_uncovered)-proven, key=lambda a: int(a[1:]))
         defects = {'mapped_columns_missing_raw': sorted(set(mapping)-set(columns)),
                    'mapping_labels_missing_metadata': sorted(set(mapping.values())-set(definitions)),
                    'mapping_labels_missing_source': sorted(set(mapping.values())-labels),
@@ -297,9 +303,18 @@ def canonical_index():
                 snapshots.extend(s for s in snapshot_refs.get(k, [])
                                  if s['path'] == str(path.relative_to(ROOT)))
         kernels.append({'kernel': k, 'split': cohort, 'files': files, 'csv_to_action': valid,
+                        'csv_uncovered_source_actions': csv_uncovered,
                         'unproven_source_actions': unknown, 'source_labels_absent_metadata': sorted(labels-set(definitions)),
                         'defects': defects, 'measurement_counts': dict(counts), 'test_rows_parsed': False,
+                        'raw_csv_complete_source_configuration_eligible': not csv_uncovered and not any(defects.values()),
                         'complete_source_configuration_eligible': not unknown and not any(defects.values()),
+                        'complete_source_configuration_contract': (
+                            gnosis_recovery.CONTRACT if proven else 'canonical-csv-apl-v1' if not unknown else 'partial-csv-apl-v1'),
+                        'action_state_recovery': None if recovery is None else {
+                            'registry': str(gnosis_recovery.REGISTRY),
+                            'registry_sha256': sha((ROOT/gnosis_recovery.REGISTRY).read_bytes()),
+                            'states': recovery['states'], 'canonical_source_compatible': recovery['canonical_eligible'],
+                            'proven_canonical_actions': sorted(proven, key=lambda a: int(a[1:]))},
                         'rc3_release_source_and_metadata_match': compatible, 'historical_snapshots': snapshots})
     return {'schema': 'salt-hls-canonical-data-v1', 'split': split_record, 'kernels': kernels,
             'canonical_raw_root': 'Data/CSVS', 'shared_derived_cache': 'Data/preprocessed_CSVS',
@@ -310,7 +325,10 @@ def canonical_index():
                          'unknown_measurements': 'not evidence of resource infeasibility',
                          'timing': 'requested clock is context; these CSVs do not prove achieved timing qualification',
                          'snapshots': 'preserved for replay; not canonical live inputs'},
-            'summary': {'kernels': len(kernels), 'kernels_with_unproven_source_actions': sum(bool(k['unproven_source_actions']) for k in kernels),
+            'summary': {'kernels': len(kernels),
+                        'complete_source_configuration_eligible_kernels': sum(k['complete_source_configuration_eligible'] for k in kernels),
+                        'raw_csv_complete_source_configuration_eligible_kernels': sum(k['raw_csv_complete_source_configuration_eligible'] for k in kernels),
+                        'kernels_with_unproven_source_actions': sum(bool(k['unproven_source_actions']) for k in kernels),
                         'unproven_source_actions': sum(len(k['unproven_source_actions']) for k in kernels),
                         'rc3_graphs_requiring_regeneration': [k['kernel'] for k in kernels if not k['rc3_release_source_and_metadata_match']]}}
 
@@ -358,9 +376,12 @@ def tables():
                                          preserve_measured_actions=True)
         path = output/('preprocessed-'+entry['kernel']+'.csv')
         table.to_csv(path, index=False, float_format='%.12g')
+        # This cache is a CSV/APL projection, not a joined source-action sidecar.
+        # Never promote its rows merely because the separate recovery is complete.
         stats.update({'path': str(path.relative_to(ROOT)), 'sha256': sha(path.read_bytes()),
-                      'complete_source_configuration_eligible': entry['complete_source_configuration_eligible'],
-                      'unproven_source_actions': entry['unproven_source_actions']})
+                      'complete_source_configuration_eligible': entry['raw_csv_complete_source_configuration_eligible'],
+                      'authenticated_complete_source_configuration_eligible': entry['complete_source_configuration_eligible'],
+                      'unproven_source_actions': entry['csv_uncovered_source_actions']})
         receipt['kernels'].append(stats)
         print(entry['kernel'], stats['output_rows'], flush=True)
     write_json(output/'manifest.json', receipt)
@@ -405,7 +426,9 @@ def verify_cache():
             if rows != entry['output_rows']:
                 raise ValueError('Derived row count differs: ' + entry['kernel'])
             totals['unique_design_rows'] += rows
-            if k['complete_source_configuration_eligible']:
+            if entry['complete_source_configuration_eligible'] != k['raw_csv_complete_source_configuration_eligible']:
+                raise ValueError('CSV projection mislabeled as joined complete-action supervision')
+            if entry['complete_source_configuration_eligible']:
                 totals['complete_source_eligible_rows'] += rows
     print(json.dumps(dict(totals), indent=2))
     return dict(totals)

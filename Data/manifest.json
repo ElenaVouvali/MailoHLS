@@ -2,6 +2,8 @@
   "canonical_raw_root": "Data/CSVS",
   "kernels": [
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
@@ -10,6 +12,7 @@
         "InnerLoop_4_1": "L5",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -71,6 +74,7 @@
         "measured_resource_at_or_above_capacity_rows": 126,
         "raw_rows": 3736
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -78,12 +82,15 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "InnerLoop_2_1": "L3",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -149,6 +156,7 @@
         "measured_resource_at_or_above_capacity_rows": 125,
         "raw_rows": 1710
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -156,11 +164,14 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -217,6 +228,7 @@
         "measured_resource_at_or_above_capacity_rows": 3,
         "raw_rows": 288
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -224,7 +236,21 @@
       "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L6"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/machsuite-sort-radix.jsonl.gz",
+          "rows": 5561,
+          "sha256": "b3821dc2bb467603a20d5f894575268319ff8179324988b1a03a997dbb364029"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "InnerLoop_1_2": "L5",
@@ -237,6 +263,9 @@
         "OuterLoop_5": "L9",
         "OuterLoop_6": "L11"
       },
+      "csv_uncovered_source_actions": [
+        "L6"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -290,20 +319,22 @@
         "measured_resource_at_or_above_capacity_rows": 14,
         "raw_rows": 5561
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "val",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L6"
-      ]
+      "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -359,6 +390,7 @@
         "finite_positive_latency_and_known_resources": 240,
         "raw_rows": 240
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -366,6 +398,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
@@ -373,6 +407,7 @@
         "InnerLoop_3_1": "L4",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -430,6 +465,7 @@
         "measured_resource_at_or_above_capacity_rows": 20,
         "raw_rows": 1437
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -437,6 +473,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
@@ -449,6 +487,7 @@
         "OuterLoop_3": "L5",
         "OuterLoop_4": "L7"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -506,6 +545,7 @@
         "measured_resource_at_or_above_capacity_rows": 19,
         "raw_rows": 5032
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -513,6 +553,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L1",
@@ -524,6 +566,7 @@
         "OuterLoop_3": "L6",
         "OuterLoop_4": "L7"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -581,6 +624,7 @@
         "measured_resource_at_or_above_capacity_rows": 7,
         "raw_rows": 4718
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "val",
@@ -588,11 +632,14 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -637,6 +684,7 @@
         "invalid_or_unknown_measurement_rows": 103,
         "raw_rows": 240
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -644,6 +692,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L1",
@@ -653,6 +703,7 @@
         "InnerLoop_2_1": "L6",
         "OuterLoop_1": "L4"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -698,6 +749,7 @@
         "measured_resource_at_or_above_capacity_rows": 121,
         "raw_rows": 4944
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -705,6 +757,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L4",
@@ -718,6 +772,7 @@
         "OuterLoop_1": "L7",
         "OuterLoop_2": "L10"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -767,6 +822,7 @@
         "measured_resource_at_or_above_capacity_rows": 54,
         "raw_rows": 5140
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -774,12 +830,15 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "OuterLoop_1": "L1",
         "OuterLoop_2": "L3"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -828,6 +887,7 @@
         "invalid_or_unknown_measurement_rows": 538,
         "raw_rows": 1287
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -835,6 +895,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L4",
@@ -846,6 +908,7 @@
         "OuterLoop_1": "L1",
         "OuterLoop_2": "L6"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -895,6 +958,7 @@
         "measured_resource_at_or_above_capacity_rows": 56,
         "raw_rows": 5156
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -902,6 +966,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L15",
@@ -924,6 +990,7 @@
         "OuterLoop_2": "L10",
         "OuterLoop_3": "L17"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -973,6 +1040,7 @@
         "measured_resource_at_or_above_capacity_rows": 74,
         "raw_rows": 5755
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -980,6 +1048,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L15",
@@ -1002,6 +1072,7 @@
         "OuterLoop_2": "L10",
         "OuterLoop_3": "L17"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1051,6 +1122,7 @@
         "measured_resource_at_or_above_capacity_rows": 164,
         "raw_rows": 5754
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -1058,12 +1130,15 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "InnerLoop_2_1": "L3",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1132,6 +1207,7 @@
         "invalid_or_unknown_measurement_rows": 24,
         "raw_rows": 766
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -1139,6 +1215,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L10",
@@ -1154,6 +1232,7 @@
         "OuterLoop_4": "L8",
         "OuterLoop_5": "L12"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1223,6 +1302,7 @@
         "measured_resource_at_or_above_capacity_rows": 134,
         "raw_rows": 5702
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -1230,6 +1310,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L10",
@@ -1245,6 +1327,7 @@
         "OuterLoop_4": "L8",
         "OuterLoop_5": "L12"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1314,6 +1397,7 @@
         "measured_resource_at_or_above_capacity_rows": 133,
         "raw_rows": 5701
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -1321,6 +1405,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L10",
@@ -1336,6 +1422,7 @@
         "OuterLoop_4": "L8",
         "OuterLoop_5": "L12"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1405,6 +1492,7 @@
         "measured_resource_at_or_above_capacity_rows": 117,
         "raw_rows": 5670
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -1412,11 +1500,14 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1464,6 +1555,7 @@
         "finite_positive_latency_and_known_resources": 144,
         "raw_rows": 144
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -1471,7 +1563,21 @@
       "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L8"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-1-tiling.jsonl.gz",
+          "rows": 4506,
+          "sha256": "1d34142f6a2e201a296b978a04d7795fd92e715901b716403bb41996b378f03f"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L6",
         "Array_2": "L7",
@@ -1482,6 +1588,9 @@
         "OuterLoop_3": "L4",
         "OuterLoop_4": "L9"
       },
+      "csv_uncovered_source_actions": [
+        "L8"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1531,16 +1640,29 @@
         "measured_resource_at_or_above_capacity_rows": 11,
         "raw_rows": 4506
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L8"
-      ]
+      "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L8"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-2-pipeline.jsonl.gz",
+          "rows": 4900,
+          "sha256": "edd40054246041b2e6ff8507c6253892f1e060f00a8b21a44bb5e55a5bfe8ea3"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L6",
         "Array_2": "L7",
@@ -1551,6 +1673,9 @@
         "OuterLoop_3": "L4",
         "OuterLoop_4": "L9"
       },
+      "csv_uncovered_source_actions": [
+        "L8"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1600,16 +1725,29 @@
         "measured_resource_at_or_above_capacity_rows": 45,
         "raw_rows": 4900
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L8"
-      ]
+      "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L9"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-3-unroll.jsonl.gz",
+          "rows": 5462,
+          "sha256": "c373f14751547316f41b3c821198e35505743c7bd134ab6414cd68cc73a4353b"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L7",
         "Array_2": "L8",
@@ -1621,6 +1759,9 @@
         "OuterLoop_3": "L5",
         "OuterLoop_4": "L10"
       },
+      "csv_uncovered_source_actions": [
+        "L9"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1670,16 +1811,29 @@
         "measured_resource_at_or_above_capacity_rows": 19,
         "raw_rows": 5462
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L9"
-      ]
+      "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L11"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-4-doublebuffer.jsonl.gz",
+          "rows": 4317,
+          "sha256": "ba50cab92363fbd7a2aa4119acdeccc314662bc85d4d982e879937011467a49f"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L7",
         "Array_2": "L8",
@@ -1693,6 +1847,9 @@
         "OuterLoop_3": "L5",
         "OuterLoop_4": "L12"
       },
+      "csv_uncovered_source_actions": [
+        "L11"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1742,15 +1899,26 @@
         "measured_resource_at_or_above_capacity_rows": 38,
         "raw_rows": 4317
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L11"
-      ]
+      "unproven_source_actions": []
     },
     {
+      "action_state_recovery": {
+        "canonical_source_compatible": false,
+        "proven_canonical_actions": [],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia-knn-5-coalescing.jsonl.gz",
+          "rows": 5676,
+          "sha256": "9fe74732fe99e179bf84eeb939a3cfdbd6b72af154fe988deb146612f81e9e91"
+        }
+      },
+      "complete_source_configuration_contract": "partial-csv-apl-v1",
       "complete_source_configuration_eligible": false,
       "csv_to_action": {
         "Array_1": "L8",
@@ -1766,6 +1934,9 @@
         "OuterLoop_3": "L6",
         "OuterLoop_4": "L13"
       },
+      "csv_uncovered_source_actions": [
+        "L12"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1815,6 +1986,7 @@
         "measured_resource_at_or_above_capacity_rows": 836,
         "raw_rows": 5676
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -1824,12 +1996,15 @@
       ]
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L1",
         "InnerLoop_1_1": "L3",
         "OuterLoop_1": "L2"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1883,6 +2058,7 @@
         "measured_resource_at_or_above_capacity_rows": 2,
         "raw_rows": 192
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": false,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -1890,10 +2066,13 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1941,6 +2120,7 @@
         "finite_positive_latency_and_known_resources": 48,
         "raw_rows": 48
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -1948,13 +2128,30 @@
       "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L5"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_cfd_step_factor_1_tiling_0.jsonl.gz",
+          "rows": 3617,
+          "sha256": "fba13b795beaabacb118e6ebf43462a86fe517ba571524cd979e6bf1ebca9cf7"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L3",
         "Array_2": "L2",
         "Array_3": "L4",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [
+        "L5"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -1976,7 +2173,7 @@
         },
         "metadata": {
           "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/kernel_info.txt",
-          "sha256": "d0c101565426aa0d50bb2333cee4a6dd2d20b5baa52b0a1264b5cee21bedba62"
+          "sha256": "32d4950cd99b2ee0e81fb2f28ce148b4bb3893d356bce579c2a7d20a6e9092f3"
         },
         "source": {
           "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_1_tiling_0/cfd_step_factor.cpp",
@@ -2004,18 +2201,30 @@
         "measured_resource_at_or_above_capacity_rows": 67,
         "raw_rows": 3617
       },
-      "rc3_release_source_and_metadata_match": true,
-      "source_labels_absent_metadata": [
-        "L5"
-      ],
+      "raw_csv_complete_source_configuration_eligible": false,
+      "rc3_release_source_and_metadata_match": false,
+      "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L5"
-      ]
+      "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L5",
+          "L9"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_cfd_step_factor_2_pipeline_0.jsonl.gz",
+          "rows": 3010,
+          "sha256": "0955558a8a66a443e30bd85d3df49a1175029a1449892b56842711fa54318931"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L7",
         "Array_2": "L6",
@@ -2025,6 +2234,10 @@
         "Array_6": "L4",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [
+        "L5",
+        "L9"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2046,7 +2259,7 @@
         },
         "metadata": {
           "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/kernel_info.txt",
-          "sha256": "81273be5e900fccbfae91baec725369a9f0e05cab6c1fefcf9f8e219c9f47094"
+          "sha256": "7e8c08b8463b89f668630ee4fdeec7d3a9ae2d8736ad8dcb3d2796e7b3192833"
         },
         "source": {
           "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_2_pipeline_0/cfd_step_factor.cpp",
@@ -2074,20 +2287,29 @@
         "measured_resource_at_or_above_capacity_rows": 23,
         "raw_rows": 3010
       },
-      "rc3_release_source_and_metadata_match": true,
-      "source_labels_absent_metadata": [
-        "L5",
-        "L9"
-      ],
+      "raw_csv_complete_source_configuration_eligible": false,
+      "rc3_release_source_and_metadata_match": false,
+      "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L5",
-        "L9"
-      ]
+      "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L9"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_cfd_step_factor_3_unroll_0.jsonl.gz",
+          "rows": 4944,
+          "sha256": "563d90f9a2416fbf57beae569364719e333c103c425c1d27abaf700057c8b9d7"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L7",
         "Array_2": "L6",
@@ -2098,6 +2320,9 @@
         "InnerLoop_1_1": "L5",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [
+        "L9"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2119,7 +2344,7 @@
         },
         "metadata": {
           "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/kernel_info.txt",
-          "sha256": "fdc6d051c65a0bf4a72503ef8af41efb09058f3e128e48e0ab2be75ad51a239f"
+          "sha256": "afd915867c1dfca26a430126f8eabf6460531604e160bfb5a878010c1e7bf24a"
         },
         "source": {
           "path": "Data/ApplicationDataset/rodinia_cfd_step_factor_3_unroll_0/cfd_step_factor.cpp",
@@ -2147,17 +2372,16 @@
         "measured_resource_at_or_above_capacity_rows": 12,
         "raw_rows": 4944
       },
-      "rc3_release_source_and_metadata_match": true,
-      "source_labels_absent_metadata": [
-        "L9"
-      ],
+      "raw_csv_complete_source_configuration_eligible": false,
+      "rc3_release_source_and_metadata_match": false,
+      "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L9"
-      ]
+      "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L7",
@@ -2179,6 +2403,7 @@
         "OuterLoop_1": "L1",
         "OuterLoop_2": "L18"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2228,6 +2453,7 @@
         "measured_resource_at_or_above_capacity_rows": 27,
         "raw_rows": 5595
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -2235,6 +2461,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L7",
@@ -2256,6 +2484,7 @@
         "OuterLoop_1": "L1",
         "OuterLoop_2": "L18"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2321,6 +2550,7 @@
         "measured_resource_at_or_above_capacity_rows": 30,
         "raw_rows": 5754
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -2328,6 +2558,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L1",
@@ -2336,6 +2568,7 @@
         "InnerLoop_3_1": "L5",
         "OuterLoop_1": "L2"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2401,6 +2634,7 @@
         "measured_resource_at_or_above_capacity_rows": 43,
         "raw_rows": 2388
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -2408,6 +2642,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L11",
@@ -2423,6 +2659,7 @@
         "OuterLoop_3": "L8",
         "OuterLoop_4": "L12"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2488,6 +2725,7 @@
         "measured_resource_at_or_above_capacity_rows": 92,
         "raw_rows": 5656
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -2495,6 +2733,18 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": {
+        "canonical_source_compatible": false,
+        "proven_canonical_actions": [],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_dilate_2_pipeline_0.jsonl.gz",
+          "rows": 5600,
+          "sha256": "dd4b08e711bda7b7a33111bba020e1e9fa318ddf8c0f02eaf546e2cca4a8fac7"
+        }
+      },
+      "complete_source_configuration_contract": "partial-csv-apl-v1",
       "complete_source_configuration_eligible": false,
       "csv_to_action": {
         "Array_1": "L19",
@@ -2515,6 +2765,11 @@
         "OuterLoop_4": "L16",
         "OuterLoop_5": "L20"
       },
+      "csv_uncovered_source_actions": [
+        "L5",
+        "L6",
+        "L12"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2580,6 +2835,7 @@
         "measured_resource_at_or_above_capacity_rows": 69,
         "raw_rows": 5600
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -2591,6 +2847,18 @@
       ]
     },
     {
+      "action_state_recovery": {
+        "canonical_source_compatible": false,
+        "proven_canonical_actions": [],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_dilate_3_pipeline_0.jsonl.gz",
+          "rows": 5760,
+          "sha256": "3c0d3c73aa6c90eb1bab764732d10d1039be1dc15e7ae5ae3cc795012f6a4e61"
+        }
+      },
+      "complete_source_configuration_contract": "partial-csv-apl-v1",
       "complete_source_configuration_eligible": false,
       "csv_to_action": {
         "Array_1": "L19",
@@ -2620,6 +2888,17 @@
         "OuterLoop_4": "L16",
         "OuterLoop_5": "L22"
       },
+      "csv_uncovered_source_actions": [
+        "L5",
+        "L6",
+        "L12",
+        "L25",
+        "L27",
+        "L29",
+        "L31",
+        "L33",
+        "L35"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2685,6 +2964,7 @@
         "measured_resource_at_or_above_capacity_rows": 15,
         "raw_rows": 5760
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -2702,6 +2982,8 @@
       ]
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L2",
@@ -2711,6 +2993,7 @@
         "InnerLoop_3_1": "L6",
         "OuterLoop_1": "L3"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2764,6 +3047,7 @@
         "measured_resource_at_or_above_capacity_rows": 38,
         "raw_rows": 3617
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": false,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -2771,7 +3055,21 @@
       "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L8"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_lavaMD_1_tiling_0.jsonl.gz",
+          "rows": 5685,
+          "sha256": "ea5cdb812e4d059590b378ef684cf46e5160ca91a092784952a1939c912db124"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L3",
         "Array_2": "L4",
@@ -2788,6 +3086,9 @@
         "InnerLoop_3_1": "L14",
         "OuterLoop_1": "L7"
       },
+      "csv_uncovered_source_actions": [
+        "L8"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2841,16 +3142,29 @@
         "measured_resource_at_or_above_capacity_rows": 80,
         "raw_rows": 5685
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": false,
       "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L8"
-      ]
+      "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L8"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_lavaMD_1_tiling_1.jsonl.gz",
+          "rows": 5739,
+          "sha256": "46d61f813f8a3a4f6174960158f0c9c6dd4d6e72042006dd890740f4578ef738"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L3",
         "Array_2": "L4",
@@ -2867,6 +3181,9 @@
         "InnerLoop_3_1": "L14",
         "OuterLoop_1": "L7"
       },
+      "csv_uncovered_source_actions": [
+        "L8"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -2920,16 +3237,29 @@
         "measured_resource_at_or_above_capacity_rows": 61,
         "raw_rows": 5739
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": false,
       "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L8"
-      ]
+      "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L8"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_lavaMD_2_pipeline_0.jsonl.gz",
+          "rows": 5695,
+          "sha256": "c831bcaafe01c5383c54a72c636ff8ae19310333fbe4698218ff2cb7ee8a1e10"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L3",
         "Array_2": "L4",
@@ -2946,6 +3276,9 @@
         "InnerLoop_3_1": "L14",
         "OuterLoop_1": "L7"
       },
+      "csv_uncovered_source_actions": [
+        "L8"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3001,15 +3334,16 @@
         "measured_resource_at_or_above_capacity_rows": 26,
         "raw_rows": 5695
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": false,
       "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L8"
-      ]
+      "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L3",
@@ -3024,6 +3358,7 @@
         "InnerLoop_3_3": "L11",
         "OuterLoop_1": "L5"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3073,6 +3408,7 @@
         "measured_resource_at_or_above_capacity_rows": 21,
         "raw_rows": 4524
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -3080,12 +3416,15 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "OuterLoop_1": "L1",
         "OuterLoop_2": "L3"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3134,6 +3473,7 @@
         "invalid_or_unknown_measurement_rows": 481,
         "raw_rows": 1388
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -3141,7 +3481,22 @@
       "unproven_source_actions": []
     },
     {
-      "complete_source_configuration_eligible": false,
+      "action_state_recovery": {
+        "canonical_source_compatible": true,
+        "proven_canonical_actions": [
+          "L20",
+          "L21"
+        ],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/rodinia_lud_1_tiling_0.jsonl.gz",
+          "rows": 5760,
+          "sha256": "2305b500d5b319e1fa92d3b283be8bf9c83a9fcb256a9558af5721cfd8fbd181"
+        }
+      },
+      "complete_source_configuration_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L5",
         "Array_2": "L19",
@@ -3188,6 +3543,10 @@
         "OuterLoop_8": "L22",
         "OuterLoop_9": "L24"
       },
+      "csv_uncovered_source_actions": [
+        "L20",
+        "L21"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3237,16 +3596,16 @@
         "measured_resource_at_or_above_capacity_rows": 239,
         "raw_rows": 5760
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
       "test_rows_parsed": false,
-      "unproven_source_actions": [
-        "L20",
-        "L21"
-      ]
+      "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L3",
@@ -3256,6 +3615,7 @@
         "OuterLoop_1": "L1",
         "OuterLoop_2": "L5"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3327,6 +3687,7 @@
         "measured_resource_at_or_above_capacity_rows": 87,
         "raw_rows": 4320
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": false,
       "source_labels_absent_metadata": [],
       "split": "val",
@@ -3334,6 +3695,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L6",
@@ -3345,6 +3708,7 @@
         "OuterLoop_1": "L1",
         "OuterLoop_2": "L8"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3410,6 +3774,7 @@
         "measured_resource_at_or_above_capacity_rows": 14,
         "raw_rows": 4791
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "val",
@@ -3417,11 +3782,14 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "InnerLoop_1_1": "L2",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3470,6 +3838,7 @@
         "invalid_or_unknown_measurement_rows": 46,
         "raw_rows": 384
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -3477,6 +3846,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L12",
@@ -3494,6 +3865,7 @@
         "OuterLoop_2": "L3",
         "OuterLoop_3": "L14"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3543,6 +3915,7 @@
         "measured_resource_at_or_above_capacity_rows": 249,
         "raw_rows": 5667
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -3550,6 +3923,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L12",
@@ -3567,6 +3942,7 @@
         "OuterLoop_2": "L3",
         "OuterLoop_3": "L14"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3616,6 +3992,7 @@
         "measured_resource_at_or_above_capacity_rows": 10,
         "raw_rows": 5429
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -3623,6 +4000,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L13",
@@ -3644,6 +4023,7 @@
         "OuterLoop_2": "L3",
         "OuterLoop_3": "L18"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3693,6 +4073,7 @@
         "measured_resource_at_or_above_capacity_rows": 48,
         "raw_rows": 5196
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -3700,6 +4081,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L13",
@@ -3721,6 +4104,7 @@
         "OuterLoop_2": "L3",
         "OuterLoop_3": "L18"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3786,6 +4170,7 @@
         "measured_resource_at_or_above_capacity_rows": 79,
         "raw_rows": 5678
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -3793,6 +4178,8 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "Array_1": "L1",
@@ -3809,6 +4196,7 @@
         "OuterLoop_3": "L10",
         "OuterLoop_4": "L12"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3854,6 +4242,7 @@
       ],
       "kernel": "serrano-kalman-filter",
       "measurement_counts": {},
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": false,
       "source_labels_absent_metadata": [],
       "split": "test",
@@ -3861,10 +4250,13 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3908,6 +4300,7 @@
         "finite_positive_latency_and_known_resources": 48,
         "raw_rows": 48
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -3915,10 +4308,13 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": null,
+      "complete_source_configuration_contract": "canonical-csv-apl-v1",
       "complete_source_configuration_eligible": true,
       "csv_to_action": {
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -3962,6 +4358,7 @@
         "finite_positive_latency_and_known_resources": 48,
         "raw_rows": 48
       },
+      "raw_csv_complete_source_configuration_eligible": true,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -3969,6 +4366,18 @@
       "unproven_source_actions": []
     },
     {
+      "action_state_recovery": {
+        "canonical_source_compatible": false,
+        "proven_canonical_actions": [],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/spcl_example_03.jsonl.gz",
+          "rows": 5142,
+          "sha256": "d7d6fa7fc38a4858877eb2cd8fd6c050aa13b0b7e5f0ece4346bf43958d92117"
+        }
+      },
+      "complete_source_configuration_contract": "partial-csv-apl-v1",
       "complete_source_configuration_eligible": false,
       "csv_to_action": {
         "Array_1": "L1",
@@ -3976,6 +4385,10 @@
         "InnerLoop_1_1": "L6",
         "OuterLoop_1": "L5"
       },
+      "csv_uncovered_source_actions": [
+        "L3",
+        "L4"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -4025,6 +4438,7 @@
         "measured_resource_at_or_above_capacity_rows": 21,
         "raw_rows": 5142
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -4035,6 +4449,18 @@
       ]
     },
     {
+      "action_state_recovery": {
+        "canonical_source_compatible": false,
+        "proven_canonical_actions": [],
+        "registry": "Data/provenance/gnosis_17_recovery_20261113/recovery.json",
+        "registry_sha256": "a7626350e491caffff8a48e918f376e5216336473fccd4c316f2d0d71c101cf9",
+        "states": {
+          "path": "Data/provenance/gnosis_17_recovery_20261113/states/spcl_example_05.jsonl.gz",
+          "rows": 3744,
+          "sha256": "23617525c1a9424bf8d783a8fe4c79d5ab4e911fef884a0e4952141109593cfc"
+        }
+      },
+      "complete_source_configuration_contract": "partial-csv-apl-v1",
       "complete_source_configuration_eligible": false,
       "csv_to_action": {
         "Array_1": "L2",
@@ -4042,6 +4468,9 @@
         "InnerLoop_2_1": "L4",
         "OuterLoop_1": "L1"
       },
+      "csv_uncovered_source_actions": [
+        "L5"
+      ],
       "defects": {
         "active_unmapped_columns": [],
         "mapped_columns_missing_raw": [],
@@ -4090,6 +4519,7 @@
         "invalid_or_unknown_measurement_rows": 1200,
         "raw_rows": 3744
       },
+      "raw_csv_complete_source_configuration_eligible": false,
       "rc3_release_source_and_metadata_match": true,
       "source_labels_absent_metadata": [],
       "split": "train",
@@ -4115,10 +4545,15 @@
     "sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c"
   },
   "summary": {
+    "complete_source_configuration_eligible_kernels": 50,
     "kernels": 55,
-    "kernels_with_unproven_source_actions": 17,
+    "kernels_with_unproven_source_actions": 5,
+    "raw_csv_complete_source_configuration_eligible_kernels": 38,
     "rc3_graphs_requiring_regeneration": [
       "rodinia_cfd_flux_0_baseline_0",
+      "rodinia_cfd_step_factor_1_tiling_0",
+      "rodinia_cfd_step_factor_2_pipeline_0",
+      "rodinia_cfd_step_factor_3_unroll_0",
       "rodinia_lavaMD_0_baseline",
       "rodinia_lavaMD_1_tiling_0",
       "rodinia_lavaMD_1_tiling_1",
@@ -4126,6 +4561,6 @@
       "rodinia_pathfinder_0_baseline_0",
       "serrano-kalman-filter"
     ],
-    "unproven_source_actions": 30
+    "unproven_source_actions": 16
   }
 }

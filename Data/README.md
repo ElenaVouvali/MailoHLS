@@ -6,6 +6,20 @@ action metadata, SHA-256 hashes, family split membership, unknown action states,
 and compatibility with the frozen RC3 graph release. GNN and LLM experiments
 should refer to this registry rather than choose an arbitrary older data folder.
 
+**13 November recovery:** [the 17-kernel audit](../docs/gnosis_17_kernel_recovery.md)
+recovers 14 canonical action histories for 12 kernels from original SQLite vectors.
+Complete source-action eligibility is now 50/55 **with the authenticated sidecar
+join**, while CSV/APL-only eligibility remains 38/55. The manifest records both
+flags and the required contract. Five source/header-incompatible kernels remain
+ineligible. Original measurements, sources and mappings are unchanged; four CFD
+metadata records are restored with explicit before/after provenance.
+
+`Preprocessing.gnosis_recovery.complete_rows` provides the strict complete-action
+join; `python -m Preprocessing.gnosis_recovery --verify` checks its evidence.
+Legacy CSV cache tables and the existing FiLM bank are not relabeled or expanded.
+Do not use the new complete-action flag with a consumer that ignores its contract
+and sidecar. Graph/memory qualification is separate from this source-state recovery.
+
 There is one shared, reproducible derived cache: `Data/preprocessed_CSVS`.
 The existing maintained preprocessor creates it for all measured device/clock
 contexts. It retains finite measured resource demands at and above capacity,
@@ -81,7 +95,11 @@ python -m Preprocessing.consolidate_data index    # explicitly register reviewed
 python -m Preprocessing.consolidate_data verify
 ```
 
-## Remaining gaps and historical replay
+## Earlier gap assessment (10 November) and historical replay
+
+The following describes the earlier CSV/mapping-only search. The linked
+13 November SQLite audit supersedes its state-recoverability conclusion, while
+preserving its source-identity, snapshot and graph-compatibility restrictions.
 
 No historical mapping supplies sort-radix `L6`, or any of the other 26 previously
 reported unmeasured source actions. The registry also checks labeled source

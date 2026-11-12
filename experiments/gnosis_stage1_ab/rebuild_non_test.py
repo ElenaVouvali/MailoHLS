@@ -13,13 +13,20 @@ def sha(p):
         for b in iter(lambda:f.read(1024*1024),b''):d.update(b)
     return d.hexdigest()
 
+def select_complete_csv_kernels(man):
+    """Keep recovery-only rows out of a serializer that cannot join their states."""
+    return {x['kernel']:x for x in man['kernels'] if x['split'] in ('train','val')
+            and x.get('raw_csv_complete_source_configuration_eligible',x['complete_source_configuration_eligible'])}
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,required=True)
     ap.add_argument('--canonical-manifest',type=Path,default=Path('Data/manifest.json'))
     args=ap.parse_args();z=args.out
     if z.exists():raise FileExistsError('Immutable output exists: '+str(z))
     man=json.loads(args.canonical_manifest.read_text());assert man['schema']=='salt-hls-canonical-data-v1'
-    selected={x['kernel']:x for x in man['kernels'] if x['split'] in ('train','val') and x['complete_source_configuration_eligible']}
+    # The legacy serializer does not join recovery sidecars. Keep its cohort
+    # unchanged; a new complete-action bank must explicitly consume that contract.
+    selected=select_complete_csv_kernels(man)
     if not selected or not any(x['split']=='val' for x in selected.values()):raise ValueError('No valid train/val canonical cohort')
     source=z/'raw';source.mkdir(parents=True);read_hashes={}
     for name,x in sorted(selected.items()):
