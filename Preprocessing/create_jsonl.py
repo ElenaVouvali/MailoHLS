@@ -364,8 +364,11 @@ def boolean(value: Any) -> bool:
 
 def build_examples(
     preprocessed_dir: Path,
+    selected_kernels: set[str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, str]]:
     tables = sorted(preprocessed_dir.glob("preprocessed-*.csv"))
+    if selected_kernels is not None:
+        tables = [p for p in tables if kernel_name_from_preprocessed_path(p) in selected_kernels]
     if not tables:
         raise FileNotFoundError(f"No preprocessed CSV files in {preprocessed_dir}")
     table_kernels = {

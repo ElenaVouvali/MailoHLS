@@ -1,5 +1,11 @@
 import torch
-from torch_scatter import scatter_add
+try:
+    from torch_scatter import scatter_add
+except ImportError:
+    # Modern PyG supports native PyTorch scatter; preserve the historical API.
+    from torch_geometric.utils import scatter as _scatter
+    def scatter_add(src, index, dim=0, dim_size=None):
+        return _scatter(src, index, dim=dim, dim_size=dim_size, reduce='sum')
 from torch_geometric.utils import softmax
 
 from torch_geometric.nn.inits import reset

@@ -1,0 +1,66 @@
+{
+  "schema": "salt-hls-paper-gnn-preflight-v2",
+  "status": "connected_gpu_inventory_captured",
+  "utc": "2026-11-10T10:31:10.149540+00:00",
+  "remote": {
+    "command": [
+      "ssh",
+      "-o",
+      "BatchMode=yes",
+      "-o",
+      "ConnectTimeout=12",
+      "evouvali@davinci.microlab.ntua.gr",
+      "hostname; nvidia-smi --query-gpu=index,name,uuid,memory.used,memory.total,utilization.gpu --format=csv; nvidia-smi --query-compute-apps=gpu_uuid,pid,used_memory --format=csv"
+    ],
+    "returncode": 0,
+    "stdout": "davinci\nindex, name, uuid, memory.used [MiB], memory.total [MiB], utilization.gpu [%]\n0, NVIDIA A30, GPU-ac0112df-7098-6c59-5c4f-a57fa666f808, 673 MiB, 24576 MiB, 11 %\n1, Tesla V100-PCIE-32GB, GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f, 3 MiB, 32768 MiB, 0 %\ngpu_uuid, pid, used_gpu_memory [MiB]\nGPU-ac0112df-7098-6c59-5c4f-a57fa666f808, 3998306, 664 MiB\n",
+    "stderr": ""
+  },
+  "local_dependencies": {
+    "torch": false,
+    "torch_geometric": false,
+    "scipy": false
+  },
+  "split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+  "split_families": {
+    "train": [
+      "machsuite_gemm",
+      "machsuite_md_knn",
+      "machsuite_spmv_ellpack",
+      "machsuite_stencil2d",
+      "machsuite_stencil3d",
+      "rodinia_backprop",
+      "rodinia_cfd_flux",
+      "rodinia_cfd_step_factor",
+      "rodinia_dilate",
+      "rodinia_hotspot",
+      "rodinia_kmeans",
+      "rodinia_knn",
+      "rodinia_lavamd",
+      "rodinia_lc_gicov",
+      "rodinia_lc_mgvf",
+      "rodinia_lud",
+      "rodinia_streamcluster",
+      "spcl_example"
+    ],
+    "val": [
+      "machsuite_sort_radix",
+      "machsuite_viterbi",
+      "rodinia_pathfinder"
+    ],
+    "test": [
+      "serrano_kalman_filter"
+    ]
+  },
+  "code_sha256": {
+    "GNN_branch/model.py": "54c0f35b4d7807a793b7a6ce0801429a6e5620acfe4c4f1bd82bc9c975958cd9",
+    "GNN_branch/train_GNN.py": "05f3f6f7e90932750da1d10ebc1e13a579e99864bda20f9aef5dbef7454782d6",
+    "GNN_branch/mlir_data.py": "30562aa6aecae23bd91a3a4b4c87fa87da24f874005b76dac7b43f6deb2fb9b7",
+    "GNN_branch/build_multiscale_memory.py": "c28b30e6adc3191ef3e81520ab49934993e45431e16d2e04cfabcc5db803f2ac",
+    "GNN_branch/paper_protocol.py": "c6d0a596a14d032eccc124c102f901a880f687f8202de3fa248e553c0839becd",
+    "GNN_branch/MLIR_dataset/all_kernels/feature_schema.json": "5d80dc0253c0a862ee2146859842ce1f4c0b8f0d9c394b1ede839838969370c6"
+  },
+  "blockers": [],
+  "scope": "connectivity/inventory only; actual experiment completion is recorded under each objective output",
+  "locked_test_evaluated": false
+}

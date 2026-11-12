@@ -1,0 +1,463 @@
+{
+  "capabilities": {
+    "BRAM_18K": {
+      "primitive": "RAMB18/RAMB36 halves",
+      "properties": {
+        "physical_36k_block_bits": {
+          "known": true,
+          "meaning": "physical_primitive_characteristic",
+          "sources": [
+            "ug573"
+          ],
+          "unit": "bit",
+          "value": 36864
+        },
+        "sdp_max_port_width_bits": {
+          "known": true,
+          "meaning": "physical_primitive_characteristic",
+          "sources": [
+            "ug573"
+          ],
+          "unit": "bit",
+          "value": 36
+        },
+        "tdp_max_port_width_bits": {
+          "known": true,
+          "meaning": "physical_primitive_characteristic",
+          "sources": [
+            "ug573"
+          ],
+          "unit": "bit",
+          "value": 18
+        },
+        "unit_storage_bits": {
+          "known": true,
+          "meaning": "physical_primitive_characteristic",
+          "sources": [
+            "ug573"
+          ],
+          "unit": "bit",
+          "value": 18432
+        },
+        "units_per_36k_block": {
+          "known": true,
+          "meaning": "physical_primitive_characteristic",
+          "sources": [
+            "ug573"
+          ],
+          "unit": "18-Kibit RAM equivalent",
+          "value": 2
+        }
+      },
+      "sources": [
+        "ug573",
+        "hls_partition"
+      ],
+      "supported_modes": [
+        "true_dual_port",
+        "simple_dual_port"
+      ]
+    },
+    "DSP": {
+      "primitive": "DSP48E2",
+      "properties": {
+        "alu_width_bits": {
+          "known": true,
+          "meaning": "physical_primitive_characteristic",
+          "sources": [
+            "ug579"
+          ],
+          "unit": "bit",
+          "value": 48
+        },
+        "multiplier_a_bits": {
+          "known": true,
+          "meaning": "physical_primitive_characteristic",
+          "sources": [
+            "ug579"
+          ],
+          "unit": "bit",
+          "value": 27
+        },
+        "multiplier_b_bits": {
+          "known": true,
+          "meaning": "physical_primitive_characteristic",
+          "sources": [
+            "ug579"
+          ],
+          "unit": "bit",
+          "value": 18
+        }
+      },
+      "sources": [
+        "ug579",
+        "hls_bind_op"
+      ]
+    },
+    "FF": {
+      "primitive": "CLB flip-flop",
+      "properties": {},
+      "sources": [
+        "ds891",
+        "hls_partition"
+      ]
+    },
+    "LUT": {
+      "primitive": "CLB LUT; distributed RAM on SLICEM subset",
+      "properties": {
+        "available_distributed_storage_luts": {
+          "known": false,
+          "meaning": "physical_primitive_characteristic",
+          "sources": [
+            "ug574"
+          ],
+          "unit": "LUT",
+          "value": null
+        }
+      },
+      "sources": [
+        "ug574",
+        "hls_bind_op"
+      ]
+    }
+  },
+  "profiles": {
+    "u200": {
+      "external_memory": {
+        "architecture": "DDR4",
+        "bandwidth_bytes_per_second": null,
+        "bandwidth_known": false,
+        "kernel_binding": null,
+        "kernel_binding_known": false,
+        "sources": [
+          "ug1289"
+        ]
+      },
+      "family": "UltraScale+",
+      "identity_sources": [
+        "ug1289",
+        "vendor_u200"
+      ],
+      "part": "xcu200-fsgd2104-2-e",
+      "platform_availability_status": "unknown: no platforminfo/xpfm allocation supplied",
+      "platform_available_resources": null,
+      "profile_version": "1.0.0",
+      "resources": {
+        "BRAM_18K": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_u200",
+            "ds962"
+          ],
+          "unit": "18-Kibit RAM equivalent",
+          "value": 4320,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        },
+        "DSP": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_u200",
+            "ds962"
+          ],
+          "unit": "DSP slice",
+          "value": 6840,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        },
+        "FF": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_u200",
+            "ds962"
+          ],
+          "unit": "flip-flop",
+          "value": 2364480,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        },
+        "LUT": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_u200",
+            "ds962"
+          ],
+          "unit": "LUT",
+          "value": 1182240,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        }
+      },
+      "unmodeled": [
+        "UltraRAM resource graph",
+        "SLICEM availability",
+        "external-memory binding and throughput",
+        "interconnect topology",
+        "operator delay and achieved clock"
+      ]
+    },
+    "u50": {
+      "external_memory": {
+        "architecture": "HBM2",
+        "bandwidth_bytes_per_second": null,
+        "bandwidth_known": false,
+        "kernel_binding": null,
+        "kernel_binding_known": false,
+        "sources": [
+          "ug1371"
+        ]
+      },
+      "family": "UltraScale+",
+      "identity_sources": [
+        "ug1371",
+        "vendor_u50"
+      ],
+      "part": "xcu50-fsvh2104-2-e",
+      "platform_availability_status": "unknown: no platforminfo/xpfm allocation supplied",
+      "platform_available_resources": null,
+      "profile_version": "1.0.0",
+      "resources": {
+        "BRAM_18K": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_u50",
+            "ds965"
+          ],
+          "unit": "18-Kibit RAM equivalent",
+          "value": 2688,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        },
+        "DSP": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_u50",
+            "ds965"
+          ],
+          "unit": "DSP slice",
+          "value": 5952,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        },
+        "FF": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_u50",
+            "ds965"
+          ],
+          "unit": "flip-flop",
+          "value": 1743360,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        },
+        "LUT": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_u50",
+            "ds965"
+          ],
+          "unit": "LUT",
+          "value": 871680,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        }
+      },
+      "unmodeled": [
+        "UltraRAM resource graph",
+        "SLICEM availability",
+        "external-memory binding and throughput",
+        "interconnect topology",
+        "operator delay and achieved clock"
+      ]
+    },
+    "zcu104": {
+      "external_memory": {
+        "architecture": "PS/PL DDR4",
+        "bandwidth_bytes_per_second": null,
+        "bandwidth_known": false,
+        "kernel_binding": null,
+        "kernel_binding_known": false,
+        "sources": [
+          "ug1267"
+        ]
+      },
+      "family": "Zynq UltraScale+ MPSoC",
+      "identity_sources": [
+        "ug1267",
+        "vendor_zcu104"
+      ],
+      "part": "xczu7ev-ffvc1156-2-e",
+      "platform_availability_status": "unknown: no platforminfo/xpfm allocation supplied",
+      "platform_available_resources": null,
+      "profile_version": "1.0.0",
+      "resources": {
+        "BRAM_18K": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_zcu104",
+            "ds891"
+          ],
+          "unit": "18-Kibit RAM equivalent",
+          "value": 624,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        },
+        "DSP": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_zcu104",
+            "ds891"
+          ],
+          "unit": "DSP slice",
+          "value": 1728,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        },
+        "FF": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_zcu104",
+            "ds891"
+          ],
+          "unit": "flip-flop",
+          "value": 460800,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        },
+        "LUT": {
+          "known": true,
+          "meaning": "physical_device_capacity",
+          "sources": [
+            "vendor_zcu104",
+            "ds891"
+          ],
+          "unit": "LUT",
+          "value": 230400,
+          "verification": "Exact vendor part enumeration; official board/device specification corroborates architecture and capacity (LUT/FF tables may round)."
+        }
+      },
+      "unmodeled": [
+        "UltraRAM resource graph",
+        "SLICEM availability",
+        "external-memory binding and throughput",
+        "interconnect topology",
+        "operator delay and achieved clock"
+      ]
+    }
+  },
+  "registry_version": "1.0.0",
+  "schema": "salt-hls-fpga-profiles-v1",
+  "sources": {
+    "ds891": {
+      "scope": "ZU7EV programmable-logic physical resources; 312 36-Kbit blocks",
+      "title": "AMD DS891 v1.11.1, 2025-03-18, EV feature table",
+      "url": "https://docs.amd.com/api/khub/documents/sbPbXcMUiRSJ2O5STvuGNQ/content"
+    },
+    "ds962": {
+      "scope": "U200 physical resources, LUT/FF counts rounded in public table",
+      "title": "AMD DS962 v1.7, 2023-06-23, product details",
+      "url": "https://docs.amd.com/r/en-US/ds962-u200-u250/Alveo-Product-Details"
+    },
+    "ds965": {
+      "scope": "U50: 1344 36-Kbit BRAMs and 5952 DSPs; LUT/FF counts rounded",
+      "title": "AMD DS965 v1.8, 2023-06-23, product details",
+      "url": "https://docs.amd.com/r/en-US/ds965-u50/Product-Details"
+    },
+    "hls_bind_op": {
+      "scope": "Add/subtract/multiply fabric/DSP alternatives; actual implementation is synthesis-dependent",
+      "title": "AMD UG1399 2021.1, 2021-06-16, BIND_OP",
+      "url": "https://docs.amd.com/r/2021.1-English/ug1399-vitis-hls/pragma-HLS-bind_op"
+    },
+    "hls_clock": {
+      "scope": "Requested period is a constraint, not exact timing prediction",
+      "title": "AMD UG1399 2021.1, 2021-06-16, Specifying the Clock Frequency",
+      "url": "https://docs.amd.com/r/2021.1-English/ug1399-vitis-hls/Specifying-the-Clock-Frequency"
+    },
+    "hls_partition": {
+      "scope": "Arrays may be realized as memories or individual registers; no candidate directive selected",
+      "title": "AMD UG1399 2021.1, 2021-06-16, ARRAY_PARTITION",
+      "url": "https://docs.amd.com/r/2021.1-English/ug1399-vitis-hls/pragma-HLS-array_partition"
+    },
+    "ug1267": {
+      "scope": "ZCU104 board and XCZU7EV part identity",
+      "title": "AMD UG1267 v1.1, 2018-10-09",
+      "url": "https://docs.amd.com/v/u/en-US/ug1267-zcu104-eval-bd"
+    },
+    "ug1289": {
+      "scope": "UltraScale+ XCU200-2FSGD2104E identity",
+      "title": "AMD UG1289 v1.1, 2023-06-13, card features",
+      "url": "https://docs.amd.com/r/en-US/ug1289-u200-u250-reconfig-accel/Card-Features"
+    },
+    "ug1371": {
+      "scope": "UltraScale+ XCU50 and external HBM architecture",
+      "title": "AMD UG1371 v1.1, 2023-06-15, card features",
+      "url": "https://docs.amd.com/r/en-US/ug1371-u50-reconfig-accel/Card-Features"
+    },
+    "ug573": {
+      "scope": "UltraScale/UltraScale+ RAMB18/36 organization; architectural applicability, not HLS binding",
+      "title": "AMD UG573 v1.14, 2025-11-18, Block RAM Summary",
+      "url": "https://docs.amd.com/r/en-US/ug573-ultrascale-memory-resources/Block-RAM-Summary"
+    },
+    "ug574": {
+      "scope": "Distributed memory uses SLICEM subset, not every LUT",
+      "title": "AMD UG574 v1.6, 2025-01-22, distributed RAM applications",
+      "url": "https://docs.amd.com/r/en-US/ug574-ultrascale-clb/Distributed-RAM-Applications"
+    },
+    "ug579": {
+      "scope": "UltraScale/UltraScale+ DSP48E2 integer arithmetic capability",
+      "title": "AMD UG579 v1.11, 2021-08-30, DSP48E2 functionality",
+      "url": "https://docs.amd.com/api/khub/documents/pTysoma4TYgNH95BrY1Sbw/content"
+    },
+    "vendor_u200": {
+      "excerpt": {
+        "AvailableResources": {
+          "BRAM_18K": 4320,
+          "DSP": 6840,
+          "FF": 2364480,
+          "LUT": 1182240
+        },
+        "part": "xcu200-fsgd2104-2-e"
+      },
+      "excerpt_sha256": "426424c5c0a25ee2259bff10252b7117d1ce1f51815336f2ec9e5760a0c2e813",
+      "scope": "Full-part capacity enumeration; not design Resources/consumption and not a platform-shell allocation",
+      "selector": "UserAssignments/Part; AreaEstimates/AvailableResources only",
+      "title": "Existing vendor HLS report device-capacity excerpt, independently read 2026-10-27",
+      "tool_version": "not read; not asserted",
+      "uri": "ssh://bonus24@coroni.microlab.ntua.gr/home/bonus24/gan_target_responsiveness/cases/gan__C4__anthropic__action_matched_rag__r0/hls_project/solution1/syn/report/csynth.xml"
+    },
+    "vendor_u50": {
+      "excerpt": {
+        "AvailableResources": {
+          "BRAM_18K": 2688,
+          "DSP": 5952,
+          "FF": 1743360,
+          "LUT": 871680
+        },
+        "part": "xcu50-fsvh2104-2-e"
+      },
+      "excerpt_sha256": "feccc6cd28db89f6a6acc2d34fa63053719eeb57e1839ed7e2dba16776480f72",
+      "scope": "Full-part capacity enumeration; not design Resources/consumption and not a platform-shell allocation",
+      "selector": "UserAssignments/Part; AreaEstimates/AvailableResources only",
+      "title": "Existing vendor HLS report device-capacity excerpt, independently read 2026-10-27",
+      "tool_version": "not read; not asserted",
+      "uri": "ssh://bonus24@coroni.microlab.ntua.gr/home/bonus24/mailohls_target_generalization_hls/gan_u50_10/solution1/syn/report/forward_propagation_csynth.xml"
+    },
+    "vendor_zcu104": {
+      "excerpt": {
+        "AvailableResources": {
+          "BRAM_18K": 624,
+          "DSP": 1728,
+          "FF": 460800,
+          "LUT": 230400
+        },
+        "part": "xczu7ev-ffvc1156-2-e"
+      },
+      "excerpt_sha256": "df6c12600cb62fc16adc56ad68dda3b6daf26ea50d51a326096e6151fdff4b7b",
+      "scope": "Full-part capacity enumeration; not design Resources/consumption and not a platform-shell allocation",
+      "selector": "UserAssignments/Part; AreaEstimates/AvailableResources only",
+      "title": "Existing vendor HLS report device-capacity excerpt, independently read 2026-10-27",
+      "tool_version": "not read; not asserted",
+      "uri": "ssh://bonus24@coroni.microlab.ntua.gr/home/bonus24/mailohls_target_generalization_hls/covariance_zcu104_10/solution1/syn/report/kernel_covariance_Pipeline_VITIS_LOOP_15_1_csynth.xml"
+    }
+  }
+}

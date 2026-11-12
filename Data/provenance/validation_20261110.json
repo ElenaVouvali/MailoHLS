@@ -1,0 +1,91 @@
+{
+  "cache_counts": {
+    "complete_source_eligible_rows": 94102,
+    "known_measured_raw_rows": 174958,
+    "rows_with_resource_at_or_above_capacity": 3358,
+    "tables": 54,
+    "unique_design_rows": 152560
+  },
+  "cache_generation_command": [
+    "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python",
+    "-m",
+    "Preprocessing.consolidate_data",
+    "tables"
+  ],
+  "commands": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "Preprocessing.consolidate_data",
+        "verify-cache"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "{\n  \"kernels\": 55,\n  \"kernels_with_unproven_source_actions\": 17,\n  \"unproven_source_actions\": 30,\n  \"rc3_graphs_requiring_regeneration\": [\n    \"rodinia_cfd_flux_0_baseline_0\",\n    \"rodinia_lavaMD_0_baseline\",\n    \"rodinia_lavaMD_1_tiling_0\",\n    \"rodinia_lavaMD_1_tiling_1\",\n    \"rodinia_lavaMD_2_pipeline_0\",\n    \"rodinia_pathfinder_0_baseline_0\",\n    \"serrano-kalman-filter\"\n  ]\n}\n{\n  \"tables\": 54,\n  \"unique_design_rows\": 152560,\n  \"known_measured_raw_rows\": 174958,\n  \"rows_with_resource_at_or_above_capacity\": 3358,\n  \"complete_source_eligible_rows\": 94102\n}\n"
+    },
+    {
+      "command": [
+        "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python",
+        "-m",
+        "unittest",
+        "Preprocessing.tests.test_canonical_data",
+        "Preprocessing.tests.test_canonical_preprocessing",
+        "Preprocessing.tests.test_final_experiment_contract",
+        "-v"
+      ],
+      "returncode": 0,
+      "stderr": "test_locked_test_only_reads_headers_and_hashes (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests) ... ok\ntest_overflow_is_retained_and_unknown_measurement_is_separate (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests) ... ok\ntest_unknown_source_action_is_not_imputed_or_silently_eligible (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests) ... ok\ntest_changed_qor_or_directive_is_not_a_matching_measurement (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests) ... ok\ntest_different_clocks_and_ambiguous_versions_are_rejected (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests) ... ok\ntest_numeric_formatting_and_recorded_column_recovery (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests) ... ok\ntest_source_equivalence_only_allows_spacing_after_labels (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests) ... ok\ntest_recorded_ndir_and_over_capacity_measurements_are_retained (Preprocessing.tests.test_canonical_preprocessing.CanonicalPreprocessingTests) ... ok\ntest_unmapped_active_directive_still_fails (Preprocessing.tests.test_canonical_preprocessing.CanonicalPreprocessingTests) ... ok\ntest_canonical_preprocessing_manifest_rejects_target_mismatch (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_directive_tensors_are_reused_across_measured_targets (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_explicit_holdouts_and_area_floor_use_training_rows_only (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_final_gnn_launcher_options_resolve_shared_split (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_csv_hash_never_reads_locked_test_measurements (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_gradient_accumulation_handles_partial_final_window (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_preprocessing_excludes_locked_kernel_and_removes_stale_csv (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_preprocessing_keeps_all_targets_and_zero_utilization (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_retains_zero_area_without_logarithmic_singularity (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_locked_test_kernel_needs_no_materialized_qor_records (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_ranking_batches_never_mix_device_clock_targets (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_split_rejects_partial_holdout_family (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_target_condition_distinguishes_devices_and_clocks (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\n\n----------------------------------------------------------------------\nRan 22 tests in 0.306s\n\nOK\n",
+      "stdout": "[01/01] train: 1 valid -> 1 unique, 1 target(s), 1 action(s)\nWrote 1 preprocessed tables to /tmp/tmp9gh7ayoo/outputs\nManifest: /tmp/tmp9gh7ayoo/outputs/preprocessing_manifest.json\n"
+    }
+  ],
+  "locked_test_input_files_changed": false,
+  "new_gnn_checkpoints_trained": false,
+  "publication_worktree_validation": {
+    "commands": [
+      {
+        "command": [
+          "python",
+          "-m",
+          "Preprocessing.consolidate_data",
+          "verify-cache"
+        ],
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\n  \"kernels\": 55,\n  \"kernels_with_unproven_source_actions\": 17,\n  \"unproven_source_actions\": 30,\n  \"rc3_graphs_requiring_regeneration\": [\n    \"rodinia_cfd_flux_0_baseline_0\",\n    \"rodinia_lavaMD_0_baseline\",\n    \"rodinia_lavaMD_1_tiling_0\",\n    \"rodinia_lavaMD_1_tiling_1\",\n    \"rodinia_lavaMD_2_pipeline_0\",\n    \"rodinia_pathfinder_0_baseline_0\",\n    \"serrano-kalman-filter\"\n  ]\n}\n{\n  \"tables\": 54,\n  \"unique_design_rows\": 152560,\n  \"known_measured_raw_rows\": 174958,\n  \"rows_with_resource_at_or_above_capacity\": 3358,\n  \"complete_source_eligible_rows\": 94102\n}\n"
+      },
+      {
+        "command": [
+          "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python",
+          "-m",
+          "unittest",
+          "Preprocessing.tests.test_canonical_data",
+          "Preprocessing.tests.test_canonical_preprocessing",
+          "Preprocessing.tests.test_final_experiment_contract",
+          "-v"
+        ],
+        "returncode": 0,
+        "stderr": "test_locked_test_only_reads_headers_and_hashes (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests) ... ok\ntest_optional_frozen_snapshot_reference_survives_without_local_copy (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests) ... ok\ntest_overflow_is_retained_and_unknown_measurement_is_separate (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests) ... ok\ntest_unknown_source_action_is_not_imputed_or_silently_eligible (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests) ... ok\ntest_changed_qor_or_directive_is_not_a_matching_measurement (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests) ... ok\ntest_different_clocks_and_ambiguous_versions_are_rejected (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests) ... ok\ntest_numeric_formatting_and_recorded_column_recovery (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests) ... ok\ntest_source_equivalence_only_allows_spacing_after_labels (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests) ... ok\ntest_recorded_ndir_and_over_capacity_measurements_are_retained (Preprocessing.tests.test_canonical_preprocessing.CanonicalPreprocessingTests) ... ok\ntest_unmapped_active_directive_still_fails (Preprocessing.tests.test_canonical_preprocessing.CanonicalPreprocessingTests) ... ok\ntest_canonical_preprocessing_manifest_rejects_target_mismatch (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_directive_tensors_are_reused_across_measured_targets (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_explicit_holdouts_and_area_floor_use_training_rows_only (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_final_gnn_launcher_options_resolve_shared_split (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_csv_hash_never_reads_locked_test_measurements (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_gradient_accumulation_handles_partial_final_window (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_preprocessing_excludes_locked_kernel_and_removes_stale_csv (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_preprocessing_keeps_all_targets_and_zero_utilization (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_gnn_retains_zero_area_without_logarithmic_singularity (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_locked_test_kernel_needs_no_materialized_qor_records (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_ranking_batches_never_mix_device_clock_targets (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_split_rejects_partial_holdout_family (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\ntest_target_condition_distinguishes_devices_and_clocks (Preprocessing.tests.test_final_experiment_contract.FinalExperimentContractTests) ... ok\n\n----------------------------------------------------------------------\nRan 23 tests in 0.267s\n\nOK\n",
+        "stdout": "[01/01] train: 1 valid -> 1 unique, 1 target(s), 1 action(s)\nWrote 1 preprocessed tables to /tmp/tmp0o4y8k53/outputs\nManifest: /tmp/tmp0o4y8k53/outputs/preprocessing_manifest.json\n"
+      }
+    ],
+    "existing_kalman_recovery_adopted_from_active_worktree": true,
+    "frozen_test_tables_changed": false,
+    "source_sha256": {
+      "Preprocessing/consolidate_data.py": "72b22719d8905ee09eaf57692302480408f2949733fc9041572681cba4212c6d",
+      "Preprocessing/data_preprocess.py": "4980665193e52669bccc5132ca1cdcc6190af0eec46eda87f3fa1a160cd44351",
+      "Preprocessing/tests/test_canonical_data.py": "c810d9bfe12d3125eeb2ba898e203a285a99e690f8f5f7da922789561c2f86ee"
+    }
+  },
+  "schema": "salt-hls-data-consolidation-validation-v1",
+  "source_and_manifest_sha256_at_validation": {
+    "Data/manifest.json": "a6d78996ea297ca4fedbd0da2ed6ae1f7f0dcd6c0c8548480ed134426374dac9",
+    "Data/preprocessed_CSVS/manifest.json": "48756b2a417705ef6afc6dd6cda0536675c003e96d033a6585a50d2383be5f2f",
+    "Preprocessing/consolidate_data.py": "c9c0c4a63f719763fc9bc5880f146458d91a3e245a7e1aa9c66cb4e2d30f3db6",
+    "Preprocessing/data_preprocess.py": "4980665193e52669bccc5132ca1cdcc6190af0eec46eda87f3fa1a160cd44351",
+    "Preprocessing/tests/test_canonical_data.py": "91a4143c776b7a4bd322abcc18df099b05cbc3edca5b22e8e37008ccdec0a44f",
+    "Preprocessing/tests/test_canonical_preprocessing.py": "f9df6d4d4e95f10383637deae18f482db49a5dd8800860ff4ac1c2a0872a1649"
+  },
+  "test_metrics_computed": false,
+  "validated_at_utc": "2026-11-10T12:31:29.296002+00:00"
+}

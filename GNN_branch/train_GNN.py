@@ -2,6 +2,16 @@
 #                       train_GNN.py
 #-----------------------------------------------------------
 
+# Explicit entry into the paper protocol retains the maintained model, data
+# utilities, loss helpers and exporter contracts without legacy CLI side effects.
+import sys
+if __name__ == '__main__' and '--paper-workflow' in sys.argv:
+    from pathlib import Path as _Path
+    sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+    sys.argv.remove('--paper-workflow')
+    from experiments.paper_gnn.train import main as _paper_main
+    raise SystemExit(_paper_main())
+
 from config import FLAGS
 from saver import saver
 from utils import (

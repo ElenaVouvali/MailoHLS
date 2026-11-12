@@ -2354,6 +2354,7 @@ def main():
             expected_mem_dim=args.mem_dim,
             expected_max_slots=args.max_slots,
             require_pragma_free_memory=True,
+            expected_representation_schema=parent_contract.get('structural', {}).get('representation_schema'),
         )
     )
     if inferred_mem_dim != args.mem_dim:

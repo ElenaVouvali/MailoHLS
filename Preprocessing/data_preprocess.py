@@ -296,6 +296,8 @@ def preprocess_kernel(
     minimum_weight: float,
     gamma: float,
     all_targets: bool = False,
+    retain_measured_overflow: bool = False,
+    preserve_measured_actions: bool = False,
 ) -> tuple[pd.DataFrame, dict[str, object]]:
     kernel = csv_path.stem
     frame = pd.read_csv(csv_path, dtype={"Device": str})
@@ -317,8 +319,14 @@ def preprocess_kernel(
         if frame.empty:
             raise ValueError(f"{kernel} has no measurements for ({device}, {clock_period_ns} ns)")
 
-    directive_columns = active_directive_columns(frame)
+    active_columns = active_directive_columns(frame)
+    directive_columns = active_columns
     action_definitions = load_action_definitions(kernel)
+    if preserve_measured_actions:
+        # A recorded constant NDIR column is evidence; an absent column is not.
+        # Keep the former explicitly, without inventing any missing columns.
+        directive_columns = [c for c in frame.columns
+                             if c in action_definitions or c in active_columns]
     missing_actions = [column for column in directive_columns if column not in action_definitions]
     if missing_actions:
         raise ValueError(
@@ -334,9 +342,13 @@ def preprocess_kernel(
         frame[column] = [canonicalize_directive(value, action) for value in frame[column]]
 
     finite_qor = np.isfinite(frame["Latency_msec"])
-    finite_qor &= frame["Latency_msec"].gt(0) & frame["Latency_msec"].le(100000)
+    finite_qor &= frame["Latency_msec"].gt(0)
+    if not retain_measured_overflow:
+        finite_qor &= frame["Latency_msec"].le(100000)
     for column in UTILIZATION_COLUMNS:
-        finite_qor &= np.isfinite(frame[column]) & frame[column].ge(0) & frame[column].lt(100)
+        finite_qor &= np.isfinite(frame[column]) & frame[column].ge(0)
+        if not retain_measured_overflow:
+            finite_qor &= frame[column].lt(100)
     valid = frame.loc[finite_qor].copy()
     if valid.empty:
         raise ValueError(f"{kernel} contains no valid QoR rows")
@@ -377,7 +389,8 @@ def preprocess_kernel(
         "valid_rows": int(len(valid)),
         "output_rows": int(len(aggregated)),
         "targets": int(len(targets)),
-        "active_actions": len(directive_columns),
+        "active_actions": len(active_columns),
+        "measured_actions": len(directive_columns),
     }
     return aggregated, stats
 
