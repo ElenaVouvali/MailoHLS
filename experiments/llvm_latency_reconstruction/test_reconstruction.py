@@ -1,9 +1,13 @@
 import json
+import random
 from pathlib import Path
 import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
+
+import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "LLM_branch/train"))
@@ -76,6 +80,78 @@ class ReconstructionTests(unittest.TestCase):
     def test_missing_fusion_checkpoint_fails(self):
         with self.assertRaises(FileNotFoundError):
             original.load_partial_harp_xattn(None, "/unavailable/trained_fusion.pt", "TEST")
+
+    def test_resumed_selection_preserves_previous_winner(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            best = Path(tmp) / "best_custom_stage2"
+            best.mkdir()
+            (best / "best_selection_metrics.json").write_text(json.dumps(
+                {"selection_score": .75, "step": 40}))
+            callback = original.StageValSelectionCallback(None, [], {}, tmp,
+                best_dir_name="best_custom_stage2")
+            self.assertEqual((callback.best_score, callback.best_step), (.75, 40))
+
+    def test_numpy_rng_checkpoint_restores_with_weights_only_loading(self):
+        before = (random.getstate(), np.random.get_state(), torch.get_rng_state())
+        try:
+            random.seed(123)
+            np.random.seed(123)
+            torch.manual_seed(123)
+            state = dict(python=random.getstate(), numpy=np.random.get_state(),
+                         cpu=torch.get_rng_state())
+            expected = (random.random(), np.random.rand(), torch.rand(3))
+            with tempfile.TemporaryDirectory() as tmp:
+                torch.save(state, Path(tmp) / "rng_state.pth")
+                trainer = object.__new__(original.LengthGroupedTrainer)
+                trainer.args = SimpleNamespace(world_size=1, parallel_mode=None)
+                with patch("torch.cuda.is_available", return_value=False):
+                    trainer._load_rng_state(tmp)
+                self.assertEqual(random.random(), expected[0])
+                self.assertEqual(np.random.rand(), expected[1])
+                torch.testing.assert_close(torch.rand(3), expected[2], rtol=0, atol=0)
+        finally:
+            random.setstate(before[0])
+            np.random.set_state(before[1])
+            torch.set_rng_state(before[2])
+
+    def test_wrapped_peft_checkpoint_restores_after_parent_installation(self):
+        from transformers import LlamaConfig, LlamaForCausalLM, TrainingArguments
+        config = LlamaConfig(vocab_size=128, hidden_size=16, intermediate_size=32,
+                             num_hidden_layers=2, num_attention_heads=2, num_key_value_heads=2)
+        base = LlamaForCausalLM(config)
+        base_state = {k: v.clone() for k, v in base.state_dict().items()}
+        parent = original.get_peft_model(base, original.LoraConfig(r=2, lora_alpha=4,
+            target_modules=["q_proj", "v_proj"], task_type="CAUSAL_LM"))
+        for name, value in parent.named_parameters():
+            if "lora_" in name:
+                value.data.uniform_(-.2, .2)
+
+        def wrap(model):
+            original.extend_instance(model, original.HARPLMMixin)
+            model.set_decoder_layers_attr_name(original.infer_decoder_layers_attr_name(model))
+            model.init_harp_flamingo(placeholder_token_ids=list(range(10, 74)),
+                lang_hidden_size=16, mem_hidden_size=64, cross_attn_every_n_layers=1,
+                gradient_checkpointing=False, xattn_heads=2, xattn_dim_head=4,
+                xattn_ff_mult=1, only_attend_immediate_memory=True, mask_mode="segment")
+            return model
+
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            parent.save_pretrained(folder / "parent")
+            trained = wrap(parent)
+            trained.save_pretrained(folder / "checkpoint")
+            torch.save(original.get_harp_xattn_state_dict(trained), folder / "checkpoint/harp_xattn.pt")
+            expected = {k: v.clone() for k, v in trained.state_dict().items()
+                        if "lora_" in k or "gated_cross_attn_layer" in k}
+            fresh_base = LlamaForCausalLM(config)
+            fresh_base.load_state_dict(base_state, strict=True)
+            resumed = wrap(original.PeftModel.from_pretrained(fresh_base, folder / "parent", is_trainable=True))
+            original.load_partial_harp_xattn(resumed, str(folder / "checkpoint/harp_xattn.pt"), "TEST")
+            trainer = original.Trainer(model=resumed, args=TrainingArguments(
+                output_dir=str(folder / "trainer"), use_cpu=True, report_to="none"))
+            trainer._load_from_checkpoint(str(folder / "checkpoint"))
+            for key, value in expected.items():
+                torch.testing.assert_close(resumed.state_dict()[key], value, rtol=0, atol=0)
 
 
 if __name__ == "__main__":

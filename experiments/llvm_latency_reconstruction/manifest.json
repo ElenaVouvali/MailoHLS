@@ -4,11 +4,11 @@
   "original_commit": "0b5581b2b22becf1d20f476e22e92ea3fd533a64",
   "paper_snapshot": "c9b2f43e97508115c4d8d58bc24900adf437b41a",
   "reconstruction_branch": "research/llvm-latency-reconstruction-20261112",
-  "runtime_host": "davinci.microlab.ntua.gr",
-  "runtime_root": "/home/evouvali/mailohls_runs/llvm_latency_reconstruction_20261112/runtime",
-  "gpu": "NVIDIA A30",
-  "gpu_uuid": "GPU-ac0112df-7098-6c59-5c4f-a57fa666f808",
-  "precision": "BF16 compute; NF4 double-quantized frozen base",
+  "runtime_host": "liono",
+  "runtime_root": "/home/elvouvali/MailoHLS/artifacts/llvm_latency_reconstruction_20261112",
+  "gpu": "Tesla V100S-PCIE-32GB",
+  "gpu_uuid": "GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb",
+  "precision": "A30 BF16 through checkpoint 80; V100S FP16 continuation; NF4 double-quantized frozen base",
   "objective": "PARETO_LATENCY_EXTREME",
   "seed": 123,
   "memory_shape": [
@@ -45,5 +45,16 @@
     "An initial run was stopped before checkpoint publication to correct validation cadence; its startup log is preserved under runtime/startup_validation_cadence_correction.",
     "Archived graph+checkpoint replay did not reproduce the archived memory values. The recovered bank is preserved under memory_recovered_legacy and excluded from Stage 2; all memories were regenerated from the same weights used for the four external kernels."
   ],
-  "structural_memory_status": "55 original LLVM graph memories regenerated from exact recovered checkpoint; archived source-action/node identities preserved"
+  "structural_memory_status": "55 original LLVM graph memories regenerated from exact recovered checkpoint; archived source-action/node identities preserved",
+  "migration": {
+    "source_host": "davinci.microlab.ntua.gr",
+    "source_gpu": "NVIDIA A30",
+    "stopped_after_observed_update": 99,
+    "resumed_saved_update": 80,
+    "verified_checkpoint_files": 9,
+    "verified_checkpoint_bytes": 1802279539,
+    "backup_relative_path": "migration_backup/stage2/checkpoint-80",
+    "verification_relative_path": "migration_backup/checkpoint80_verified.json",
+    "same_numerical_trajectory_claimed": false
+  }
 }

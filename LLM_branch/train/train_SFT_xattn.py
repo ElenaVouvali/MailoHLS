@@ -1262,6 +1262,12 @@ class StageValSelectionCallback(TrainerCallback):
         self.max_slots = max_slots
         self.best_score = -1e18
         self.best_step = -1
+        previous = os.path.join(output_dir, best_dir_name, "best_selection_metrics.json")
+        if os.path.isfile(previous):
+            with open(previous, encoding="utf-8") as stream:
+                saved_selection = json.load(stream)
+            self.best_score = float(saved_selection["selection_score"])
+            self.best_step = int(saved_selection["step"])
 
     def _run_case(self, model, case: SelectionCase) -> dict:
         prompt = build_prompt(case.source_text, case.obj_mode)
@@ -2438,6 +2444,16 @@ class LengthGroupedTrainer(Trainer):
             persistent_workers=(self.args.dataloader_num_workers > 0),
         )
 
+    def _load_rng_state(self, checkpoint):
+        # Our authenticated Trainer RNG checkpoint contains NumPy MT19937
+        # arrays. Torch 2.6 weights-only loading needs these specific globals.
+        reconstruct = np.core.multiarray._reconstruct
+        allowed = [(reconstruct, "numpy.core.multiarray._reconstruct"),
+                   (reconstruct, "numpy._core.multiarray._reconstruct"),
+                   np.ndarray, np.dtype, type(np.dtype("uint32"))]
+        with torch.serialization.safe_globals(allowed):
+            return super()._load_rng_state(checkpoint)
+
     def training_step(self, model, inputs, num_items_in_batch=None):
         model.train()
         inputs = self._prepare_inputs(inputs)
@@ -2929,7 +2945,8 @@ def build_default_stage_configs(args):
 def run_single_training(args):
 
     use_bf16 = (args.precision == "bf16" or
-                (args.precision == "auto" and torch.cuda.is_bf16_supported()))
+                (args.precision == "auto" and torch.cuda.is_available()
+                 and torch.cuda.get_device_capability()[0] >= 8))
     compute_dtype = torch.bfloat16 if use_bf16 else torch.float16
     print(f"[PRECISION] {compute_dtype}")
 
@@ -3092,12 +3109,18 @@ def run_single_training(args):
     init_adapter_dir = os.path.abspath(args.init_adapter_dir) if args.init_adapter_dir else ""
 
     if resume_ckpt and os.path.isdir(resume_ckpt):
+        # Stage-2 checkpoint LoRA keys include HARPLayer.decoder_layer. Start
+        # from the unwrapped parent, then let Trainer restore the wrapped
+        # adapter after HARP installation. Otherwise PEFT can silently miss keys.
+        if not args.disable_harp and not init_adapter_dir:
+            raise ValueError("Stage-2 resume requires --init_adapter_dir with its Stage-1 parent")
+        adapter_source = init_adapter_dir if not args.disable_harp else resume_ckpt
         model = PeftModel.from_pretrained(
             base,
-            resume_ckpt,
+            adapter_source,
             is_trainable=True,
         )
-        print(f"[INIT] Loaded PEFT adapter from resume checkpoint: {resume_ckpt}")
+        print(f"[INIT] Adapter initialization={adapter_source}; Trainer resume={resume_ckpt}")
 
     elif init_adapter_dir and os.path.isdir(init_adapter_dir):
         model = PeftModel.from_pretrained(
@@ -3140,7 +3163,7 @@ def run_single_training(args):
     else:
         print("[HARP-XATTN] disabled for Stage 1 format-only training")
 
-    if resume_ckpt and os.path.isdir(resume_ckpt):
+    if resume_ckpt and os.path.isdir(resume_ckpt) and not args.disable_harp:
         resume_harp_xattn = os.path.join(resume_ckpt, "harp_xattn.pt")
         load_partial_harp_xattn(model, resume_harp_xattn, tag="HARP-RESUME")
     elif args.init_harp_xattn_from:

@@ -1020,7 +1020,7 @@ def build_harp_model(mod, args, tokenizer, trainable: bool):
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
         bnb_4bit_use_double_quant=True,
-        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_compute_dtype=torch.bfloat16 if args.use_bf16 else torch.float16,
     )
 
     base = AutoModelForCausalLM.from_pretrained(
@@ -1207,7 +1207,11 @@ def main():
     ap.add_argument("--resume_from_checkpoint", type=str, default="")
     ap.add_argument("--seed", type=int, default=123)
 
+    ap.add_argument("--precision", choices=["auto", "bf16", "fp16"], default="auto")
     args = ap.parse_args()
+    args.use_bf16 = (args.precision == "bf16" or
+                      (args.precision == "auto" and torch.cuda.is_available()
+                       and torch.cuda.get_device_capability()[0] >= 8))
 
     set_seed(args.seed)
     os.makedirs(args.output_dir, exist_ok=True)
@@ -1348,8 +1352,8 @@ def main():
         learning_rate=max(args.lr_lora, args.lr_xattn, args.lr_gate, args.lr_embed, 1e-8),
         warmup_steps=warmup_steps,
         lr_scheduler_type="cosine",
-        bf16=True,
-        fp16=False,
+        bf16=args.use_bf16,
+        fp16=not args.use_bf16,
         optim="paged_adamw_8bit",
         logging_steps=args.logging_steps,
         eval_strategy="steps" if val_ds is not None else "no",

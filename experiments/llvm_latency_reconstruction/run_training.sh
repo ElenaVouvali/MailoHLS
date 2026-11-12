@@ -34,7 +34,16 @@ run_sft_stage() {
     echo "Skipping completed $name"
     return
   fi
-  if compgen -G "$LLVM_RUN_ROOT/$name/checkpoint-*" >/dev/null; then
+  local resume_var="LLVM_RESUME_${name^^}"
+  local resume_path="${!resume_var:-}"
+  local resume_args=()
+  if [[ -n "$resume_path" ]]; then
+    test -f "$resume_path/trainer_state.json"
+    test -f "$resume_path/optimizer.pt"
+    test -f "$resume_path/scheduler.pt"
+    test -f "$resume_path/rng_state.pth"
+    resume_args=(--resume_from_checkpoint "$resume_path")
+  elif compgen -G "$LLVM_RUN_ROOT/$name/checkpoint-*" >/dev/null; then
     echo "Incomplete $name has optimizer checkpoints. Resume with the native trainer's --resume_from_checkpoint; refusing to overwrite it." >&2
     exit 1
   fi
@@ -46,8 +55,8 @@ run_sft_stage() {
   "$LLVM_PYTHON" -u LLM_branch/train/train_SFT_xattn.py \
     "${common[@]}" --run_mode single --precision auto \
     --epochs 4 --eval_steps 40 --save_steps 40 --save_total_limit 2 \
-    --output_dir "$LLVM_RUN_ROOT/$name" "$@" \
-    >"$LLVM_RUN_ROOT/logs/$name.log" 2>&1
+    --output_dir "$LLVM_RUN_ROOT/$name" "${resume_args[@]}" "$@" \
+    >>"$LLVM_RUN_ROOT/logs/$name.log" 2>&1
   "$LLVM_PYTHON" experiments/llvm_latency_reconstruction/record_checkpoint.py \
     --checkpoint "$LLVM_RUN_ROOT/$name" --output "$LLVM_RUN_ROOT/$name.complete.json"
 }

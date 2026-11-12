@@ -3,7 +3,8 @@
 This experiment trains a **new** latency-oriented framework checkpoint from the
 original `llvm-ir` implementation. It does not recover the original paper's LLM
 weights and does not use an MLIR encoder or GMT tokenizer. Training is currently
-in progress on Davinci's A30; no completed framework checkpoint or predictions
+in progress on Liono's V100S after resuming Davinci's A30 checkpoint 80;
+no completed framework checkpoint or predictions
 are claimed yet. See [manifest.json](manifest.json) for the run identity.
 
 ## Architecture and assets
@@ -80,7 +81,8 @@ validation pairs and 94 test pairs under the archived filters. These partitions
 remain separate. See [preference_preflight.json](preference_preflight.json).
 
 Microbatch 1 and accumulation 8 preserve effective batch 8. Seed is 123.
-The A30 uses BF16 compute and NF4 double quantization. Validation and saving
+The initial A30 phases use BF16 compute; the V100S continuation uses FP16 compute
+with the same NF4 double quantization. Validation and saving
 occur every 40 SFT updates; the installed Trainer schedules 160 updates for
 four epochs. Six validation kernels use the archived candidate-scoring selection.
 The initial startup run was stopped solely to correct an archived validation
@@ -91,6 +93,18 @@ precision, two retained optimizer checkpoints, true freezing of zero-LR groups,
 final Trainer-state saving, final validation if required, and failure on missing
 or incompatible fusion checkpoints. The original objective, prompt, RHS-only
 loss, graph representation and action-routing architecture are retained.
+
+At the user's request, the A30 process was stopped after update 99 and resumed
+from the last complete checkpoint, update 80, on Liono's V100S. All nine saved
+files (1,802,279,539 bytes) were SHA-256 verified after transfer and preserved
+under `runtime/migration_backup/stage2/checkpoint-80`. The 19 unsaved updates are
+replayed. Optimizer, scheduler, RNG and previous best-selection state are
+restored. The precision change means this is not an identical numerical
+trajectory. Resume first installs the authenticated Stage-1 adapter before HARP
+wrapping, then restores the wrapped checkpoint; NumPy RNG restoration uses a
+narrow Torch 2.6 weights-only allowlist. The first V100S launch failed on that
+RNG import before an update; its log is retained and the corrected run passed
+update 111 without a traceback.
 
 ## Four-kernel inference
 
@@ -115,12 +129,18 @@ directive changes cannot establish hardware improvement.
 ## Reproduction
 
 Run from this isolated LLVM worktree, using an existing environment with the
-original dependencies. The executing LLM environment is Davinci's
-`/home/evouvali/MailoHLS/.venv/bin/python` (PyTorch 2.6.0+cu124, Transformers
+original dependencies. The initial LLM environment was Davinci's
+`/home/evouvali/MailoHLS/.venv/bin/python`; the current continuation uses Liono's
+`/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python` (PyTorch 2.6.0+cu124, Transformers
 4.51.0, PEFT 0.18.1, bitsandbytes 0.49.2). The CPU graph export uses Liono's
 `/home/elvouvali/.hls-llm/bin/python` with LLVM10 and ProGraML.
 
 ```bash
+export LLVM_RUN_ROOT=/home/elvouvali/MailoHLS/artifacts/llvm_latency_reconstruction_20261112
+export LLVM_BASE_MODEL=/home/elvouvali/.cache/huggingface/hub/models--deepseek-ai--deepseek-coder-6.7b-base/snapshots/ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912
+export LLVM_PYTHON=/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python
+export CUDA_VISIBLE_DEVICES=GPU-cea3d9e4-d189-a5b9-cf2e-9bd77b8218fb
+
 python experiments/llvm_latency_reconstruction/prepare.py \
   --compact /path/to/mailohls_sft.jsonl \
   --sources /path/to/mailohls_sft.sources.json \
@@ -143,11 +163,9 @@ PYTHONHASHSEED=0 CUDA_VISIBLE_DEVICES='' python \
   --gnn "$LLVM_RUN_ROOT/assets/gnn_val.pth" \
   --encoders "$LLVM_RUN_ROOT/assets/encoders.klepto"
 
-export LLVM_RUN_ROOT=/home/evouvali/mailohls_runs/llvm_latency_reconstruction_20261112/runtime
-export LLVM_BASE_MODEL=/home/evouvali/.cache/huggingface/hub/models--deepseek-ai--deepseek-coder-6.7b-base/snapshots/ce2207a8bfef3ee92bd7dd4cc31c52cfa0046912
-export LLVM_PYTHON=/home/evouvali/MailoHLS/.venv/bin/python
-export CUDA_VISIBLE_DEVICES=GPU-ac0112df-7098-6c59-5c4f-a57fa666f808
 # Recheck occupancy before allocating the selected GPU.
+# For the migrated run, resume its verified checkpoint:
+export LLVM_RESUME_STAGE2="$LLVM_RUN_ROOT/stage2/checkpoint-80"
 bash experiments/llvm_latency_reconstruction/run_training.sh
 python experiments/llvm_latency_reconstruction/progress.py --runtime "$LLVM_RUN_ROOT"
 bash experiments/llvm_latency_reconstruction/run_inference.sh
@@ -161,9 +179,10 @@ python -m unittest discover -s experiments/llvm_latency_reconstruction \
   -p 'test_reconstruction.py' -v
 ```
 
-The six focused CPU tests pass: measured-data filtering/schema, absolute action
+The nine focused CPU tests cover: measured-data filtering/schema, absolute action
 routing, zero-gate parity/invalid memory, complete multi-token causal RHS scoring
 including newline, rejection of untrained completion markers, and missing fusion
-checkpoint rejection. Static Python and shell checks pass. Training completion,
+checkpoint rejection, restored selection state, wrapped-adapter restoration and
+NumPy RNG restoration under weights-only loading. Training completion,
 validation outcomes and final checkpoint identities must be read from executed
 stage completion reports, not inferred from this planned protocol.
