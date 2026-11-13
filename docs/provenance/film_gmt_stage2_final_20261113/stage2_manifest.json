@@ -1,0 +1,142 @@
+{
+  "base_stage1_bank_manifest_sha256": "2b5745ab029a32f3f0088367b80a7478212249912a7ee8e7b890fdaffc2cbf0c",
+  "cohort": "original-film-31+2",
+  "complete_recovered_49_4_bank": false,
+  "coverage": {
+    "schema": "film-gmt-exposure-coverage-v1",
+    "selected_context_order_sha256": "2a29ed69be00b98c971746646ed9f9fb6805bfb83f31beaae59c2cbc2e2abfce",
+    "sft_microbatches": 1800,
+    "train": {
+      "all_preference_groups_visited": true,
+      "both_contexts_per_preference_visit": true,
+      "budget_contexts": 1237,
+      "distinct_contexts_visited": 1237,
+      "kernels": [
+        "machsuite-gemm-blocked",
+        "machsuite-gemm-ncubed",
+        "machsuite-md-knn",
+        "machsuite-spmv-ellpack",
+        "machsuite-stencil2d",
+        "machsuite-stencil3d",
+        "rodinia-backprop-0-baseline-back",
+        "rodinia-backprop-0-baseline-forward",
+        "rodinia-backprop-1-tiling-back",
+        "rodinia-hotspot-0-baseline",
+        "rodinia-hotspot-1-tiling",
+        "rodinia-hotspot-2-pipeline",
+        "rodinia-hotspot-3-unroll",
+        "rodinia-kmeans-0-baseline",
+        "rodinia-kmeans-1-tiling",
+        "rodinia-kmeans-2-pipeline",
+        "rodinia-kmeans-3-unroll",
+        "rodinia-knn-0-baseline",
+        "rodinia_cfd_step_factor_0_baseline_0",
+        "rodinia_cfd_step_factor_4_doublebuffer_0",
+        "rodinia_cfd_step_factor_5_coalescing_0",
+        "rodinia_dilate_0_baseline_0",
+        "rodinia_dilate_1_tiling_0",
+        "rodinia_lc_gicov_0_baseline_0",
+        "rodinia_lc_mgvf_0_baseline_0",
+        "rodinia_streamcluster_0_baseline_0",
+        "rodinia_streamcluster_1_tiling_0",
+        "rodinia_streamcluster_2_pipeline_1",
+        "rodinia_streamcluster_3_doublebuffer_0",
+        "rodinia_streamcluster_4_coalescing_0",
+        "spcl_example_01"
+      ],
+      "maximum_context_visits": 2,
+      "minimum_context_visits": 1,
+      "per_kernel_contexts": {
+        "machsuite-gemm-blocked": 44,
+        "machsuite-gemm-ncubed": 55,
+        "machsuite-md-knn": 46,
+        "machsuite-spmv-ellpack": 30,
+        "machsuite-stencil2d": 46,
+        "machsuite-stencil3d": 56,
+        "rodinia-backprop-0-baseline-back": 40,
+        "rodinia-backprop-0-baseline-forward": 40,
+        "rodinia-backprop-1-tiling-back": 30,
+        "rodinia-hotspot-0-baseline": 39,
+        "rodinia-hotspot-1-tiling": 39,
+        "rodinia-hotspot-2-pipeline": 38,
+        "rodinia-hotspot-3-unroll": 39,
+        "rodinia-kmeans-0-baseline": 41,
+        "rodinia-kmeans-1-tiling": 50,
+        "rodinia-kmeans-2-pipeline": 50,
+        "rodinia-kmeans-3-unroll": 49,
+        "rodinia-knn-0-baseline": 32,
+        "rodinia_cfd_step_factor_0_baseline_0": 27,
+        "rodinia_cfd_step_factor_4_doublebuffer_0": 45,
+        "rodinia_cfd_step_factor_5_coalescing_0": 39,
+        "rodinia_dilate_0_baseline_0": 46,
+        "rodinia_dilate_1_tiling_0": 44,
+        "rodinia_lc_gicov_0_baseline_0": 30,
+        "rodinia_lc_mgvf_0_baseline_0": 38,
+        "rodinia_streamcluster_0_baseline_0": 42,
+        "rodinia_streamcluster_1_tiling_0": 44,
+        "rodinia_streamcluster_2_pipeline_1": 36,
+        "rodinia_streamcluster_3_doublebuffer_0": 29,
+        "rodinia_streamcluster_4_coalescing_0": 43,
+        "spcl_example_01": 10
+      },
+      "physical_targets": 181,
+      "preference_groups": 249,
+      "preference_groups_by_kind": {
+        "budget_switch": 128,
+        "clock_switch": 121
+      },
+      "sft_exposures_in_bank": 3276
+    },
+    "updates": 450,
+    "validation": {
+      "full_bank": {
+        "budget_contexts": 72,
+        "kernels": [
+          "machsuite-viterbi",
+          "rodinia_pathfinder_4_doublebuffer_0"
+        ],
+        "physical_targets": 12
+      },
+      "pair_examples": 16,
+      "pair_groups": 8,
+      "selected_sft": {
+        "budget_contexts": 20,
+        "kernels": [
+          "machsuite-viterbi",
+          "rodinia_pathfinder_4_doublebuffer_0"
+        ],
+        "physical_targets": 12
+      },
+      "sft_examples": 24
+    }
+  },
+  "dataset_identity_sha256": "958da104bb3ad1a20f4d4cae3c1bc9464e6ac1c3b1a9e2ad3144a4b7c339a9cf",
+  "full_source_action_assignments_validated": true,
+  "locked_test_measurements_read": false,
+  "outputs_sha256": {
+    "train_pairs.jsonl": "e78537adab63da3337881ca107b4f337d352462a332c250d913900067b81d1e7",
+    "train_sft.jsonl": "59effe60f714b1585ac11fc753e7fbd34fa590c4b27985ceb177ffc9badb5ccd",
+    "val_pairs.jsonl": "63e58706546ce4486903a71953fb8f91e600c861a5299e53c7f30646c11914c2",
+    "val_sft.jsonl": "ec24b74f6fdca0d046b038b901587accaaea6e0043d58bf5bbe431b6cdaa7d66"
+  },
+  "recovered_sidecars_applied": false,
+  "schema": "film-gmt-stage2-supervision-snapshot-v1",
+  "source_contract": "canonical-csv-apl-v1",
+  "source_files_sha256": {
+    "experiments/film_gmt_stage2_final/assets.py": "f973dc7d4d2734a22ee57bd44f98bf0209ca004b75ee33f833fc0ddf9c33d6e0",
+    "experiments/film_gmt_stage2_final/bank_contract.py": "cddadc078d5696717ca765d2d0f512927b24ae2ac1c6911414fd6191f63488f8",
+    "experiments/film_gmt_stage2_final/coverage.py": "62b77f4fefe824f5574c07b094ab3382e20f8e884f876fd3ac45b1e0fc3c9523",
+    "experiments/film_gmt_stage2_final/prepare_memory.py": "eaf971578fbe5f341e8fee50fcf7351edef690c1bbe5ec198120bf1c110cf76e",
+    "experiments/film_gmt_stage2_final/report.py": "743abecc1cde700289a28f6a3f1284174f7cf6d328b8eb10ef62b3786632cc78",
+    "experiments/film_gmt_stage2_final/test_integration.py": "4247e75410b4c43422bb29ddb628f023ed21b24b8364b37f4e11d4b33c0e3edf",
+    "experiments/film_gmt_stage2_final/train.py": "ee43bc54dbaaa9a89b88c44bf6ceff0fc8350ac4f081f9907e537b26ddd9f233",
+    "experiments/historical_gmt_stage2_ab/prepare_banks.py": "67c529c74f7fa20a7a1884fb76e85f0fdd12413155e76408fdd326de299fd0f7",
+    "experiments/historical_mlir_gmt_gemv/__init__.py": "aa5a5c94ae23e42cab75ca5829c8464b4e5cde7ea6623125b427430495e8eb0d",
+    "experiments/historical_mlir_gmt_gemv/historical.py": "48631082d408840db2cef0be11c4669091a6e3916fd5180b6c7cbabf257b6b50",
+    "experiments/historical_mlir_gmt_gemv/historical_gmt_slots.py": "c3cdc778b8a692cbe0f465f3d3b32b8ef3a2fec8b4b49e5aa8663f251e286786",
+    "experiments/historical_mlir_gmt_gemv/test_historical_gmt_slots.py": "43c583780e163d33fcaacdc6f270b877cf53f21db364dc0749766dbae4871d53"
+  },
+  "status": "QUALIFIED_EXPLICIT_FALLBACK",
+  "unknown_states_imputed": false,
+  "version": "20261113-original-film-31+2-v1"
+}

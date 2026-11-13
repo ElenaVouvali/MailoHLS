@@ -1,0 +1,558 @@
+{
+  "aggregation_or_selection_started": false,
+  "blockers": {
+    "rodinia_cfd_flux_0_baseline_0": {
+      "missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "reason": "source_action_missing_from_frozen_V4_registry",
+      "split": "train"
+    },
+    "rodinia_cfd_step_factor_1_tiling_0": {
+      "missing_lhs": [
+        "AUTO{_PIPE_L5}",
+        "AUTO{_UNROLL_L5}"
+      ],
+      "reason": "source_action_missing_from_frozen_V4_registry",
+      "split": "train"
+    },
+    "rodinia_cfd_step_factor_2_pipeline_0": {
+      "missing_lhs": [
+        "AUTO{_PIPE_L5}",
+        "AUTO{_PIPE_L9}",
+        "AUTO{_UNROLL_L5}",
+        "AUTO{_UNROLL_L9}"
+      ],
+      "reason": "source_action_missing_from_frozen_V4_registry",
+      "split": "train"
+    },
+    "rodinia_cfd_step_factor_3_unroll_0": {
+      "missing_lhs": [
+        "AUTO{_PIPE_L9}",
+        "AUTO{_UNROLL_L9}"
+      ],
+      "reason": "source_action_missing_from_frozen_V4_registry",
+      "split": "train"
+    },
+    "rodinia_lavaMD_0_baseline": {
+      "missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "reason": "source_action_missing_from_frozen_V4_registry",
+      "split": "train"
+    },
+    "rodinia_lavaMD_1_tiling_0": {
+      "missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "reason": "source_action_missing_from_frozen_V4_registry",
+      "split": "train"
+    },
+    "rodinia_lavaMD_1_tiling_1": {
+      "missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "reason": "source_action_missing_from_frozen_V4_registry",
+      "split": "train"
+    },
+    "rodinia_lavaMD_2_pipeline_0": {
+      "missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "reason": "source_action_missing_from_frozen_V4_registry",
+      "split": "train"
+    },
+    "rodinia_pathfinder_0_baseline_0": {
+      "missing_lhs": [
+        "AUTO{_PIPE_L1}",
+        "AUTO{_PIPE_L2}",
+        "AUTO{_UNROLL_L1}",
+        "AUTO{_UNROLL_L2}"
+      ],
+      "reason": "source_action_missing_from_frozen_V4_registry",
+      "split": "val"
+    }
+  },
+  "canonical_manifest_sha256": "d089de80cf625dc0fcb5b33286e890d74ca82cd8370552870677995840888b61",
+  "decision": "Do not invent domains, drop source actions, or silently subset the recovered cohort.",
+  "expected_train_kernels": 49,
+  "expected_val_kernels": 4,
+  "kernel_inventory": {
+    "machsuite-gemm-blocked": {
+      "actions": 5,
+      "lhs_count": 10,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "b835cc7227c40d848ee273ea36f47db3d05ae744dbe8b9db0a23d7138ae6079c",
+      "split": "train"
+    },
+    "machsuite-gemm-ncubed": {
+      "actions": 3,
+      "lhs_count": 6,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "8aa81b54e905a6caac0b30fa6ede2236c9552efa6c05ca1321f760651d8d64b3",
+      "split": "train"
+    },
+    "machsuite-md-knn": {
+      "actions": 2,
+      "lhs_count": 4,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "a3b531ddc95581c597939738351bdc9b56d1d588fb68b0ef12438769d21d0bd0",
+      "split": "train"
+    },
+    "machsuite-sort-radix": {
+      "actions": 11,
+      "lhs_count": 22,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "8a187d7ac6fb9c4cd78589a51e5316ea2a67f654be6fe208bb0b34afbc8e9e8e",
+      "split": "val"
+    },
+    "machsuite-spmv-ellpack": {
+      "actions": 2,
+      "lhs_count": 4,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "001e986b36e96b7e0740fde8c4323444cd0dfc945bb672f6ae291404ccd9b672",
+      "split": "train"
+    },
+    "machsuite-stencil2d": {
+      "actions": 4,
+      "lhs_count": 8,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "3ef918250f199b53c924fad81c94b8ea3e655353b4f2e771c5f5fddba9b8a243",
+      "split": "train"
+    },
+    "machsuite-stencil3d": {
+      "actions": 9,
+      "lhs_count": 18,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "d9b9d259a281226c4689d3a3f78bf548ec9756aae6326d9e51d64f86546861b0",
+      "split": "train"
+    },
+    "machsuite-viterbi": {
+      "actions": 8,
+      "lhs_count": 17,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "e5061db6879a77a65ea8f5877962c0359f4b53d0d8327c1510ead68515ac5213",
+      "split": "val"
+    },
+    "rodinia-backprop-0-baseline-back": {
+      "actions": 2,
+      "lhs_count": 4,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "911c4d06de5f47e44c9c4880122dc266dd57003e21a95b3d27a513fa0fd922cf",
+      "split": "train"
+    },
+    "rodinia-backprop-0-baseline-forward": {
+      "actions": 6,
+      "lhs_count": 15,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "1b525c6c187526b646114d923ed831b5356a9fdf1abafc69eafcfd747e5dfc71",
+      "split": "train"
+    },
+    "rodinia-backprop-1-tiling-back": {
+      "actions": 10,
+      "lhs_count": 26,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "c87324159db0550e76bca43167c3b7851b7c48dc30c710e8e303fde4dc10da24",
+      "split": "train"
+    },
+    "rodinia-hotspot-0-baseline": {
+      "actions": 3,
+      "lhs_count": 6,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "ec11c39a343ff3092d207023ccce72ad363ae9cbd0579aa213ae35231d8d4842",
+      "split": "train"
+    },
+    "rodinia-hotspot-1-tiling": {
+      "actions": 8,
+      "lhs_count": 19,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "ac56f69b3083bc8f826de72bddcdf0f4ce3122c2069d19a8791dab1c58cc1bfc",
+      "split": "train"
+    },
+    "rodinia-hotspot-2-pipeline": {
+      "actions": 19,
+      "lhs_count": 48,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "670c535990ff5369e8a6a5a1580aa0efe7e564cd8ebf26e7c44f1f3bcae1f787",
+      "split": "train"
+    },
+    "rodinia-hotspot-3-unroll": {
+      "actions": 19,
+      "lhs_count": 48,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "d8455e97622087c5ee90886533c67c94a5e5d6ff8d422ea6afc4a494378748e8",
+      "split": "train"
+    },
+    "rodinia-kmeans-0-baseline": {
+      "actions": 3,
+      "lhs_count": 6,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "52aec3884b8aacfbf59d37a033153c5770f90d9e1465f72bf2c2302def37b0a7",
+      "split": "train"
+    },
+    "rodinia-kmeans-1-tiling": {
+      "actions": 12,
+      "lhs_count": 27,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "517d5576751b60a6082a736ca8e72a1ff197652dbec539cddc098a067431d001",
+      "split": "train"
+    },
+    "rodinia-kmeans-2-pipeline": {
+      "actions": 12,
+      "lhs_count": 27,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "42599f5e5e0e41632528d3c8b82988198040e7ac358e91787ba7f046dca2c3a0",
+      "split": "train"
+    },
+    "rodinia-kmeans-3-unroll": {
+      "actions": 12,
+      "lhs_count": 27,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "3e6b97969d83ccb613f45c106ff201a09c4127847b0242d455fe64b995f55c51",
+      "split": "train"
+    },
+    "rodinia-knn-0-baseline": {
+      "actions": 2,
+      "lhs_count": 4,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "bab9522ed1e36bdb44c20effaae034cb1d487ac60c53468115abdb45e8c7aaa3",
+      "split": "train"
+    },
+    "rodinia-knn-1-tiling": {
+      "actions": 9,
+      "lhs_count": 21,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "6840fa2f29f79c764a6775fb6173feecac231f8ae02b1bc3c4a4c58f01eeefe7",
+      "split": "train"
+    },
+    "rodinia-knn-2-pipeline": {
+      "actions": 9,
+      "lhs_count": 21,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "8c18afee92636de55949ca7bc69373ea0e29a47f1f27f9bc36466e9b78cce1cf",
+      "split": "train"
+    },
+    "rodinia-knn-3-unroll": {
+      "actions": 10,
+      "lhs_count": 23,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "c34152e29d3670e2b400e4ce245ae1c42c8af147a889c7b29791e94dfe97f767",
+      "split": "train"
+    },
+    "rodinia-knn-4-doublebuffer": {
+      "actions": 12,
+      "lhs_count": 29,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "4d247023e104ef5c028ebbe82ac34c7cccabccadda55a9210365559a1fe91112",
+      "split": "train"
+    },
+    "rodinia_cfd_flux_0_baseline_0": {
+      "actions": 3,
+      "lhs_count": 7,
+      "parent_missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "61098854da52b9839233f92fc88d1b0c4d011825dfbf6e71a350a7bb94ddc41d",
+      "split": "train"
+    },
+    "rodinia_cfd_step_factor_0_baseline_0": {
+      "actions": 1,
+      "lhs_count": 2,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "5d7658a114967bd40ad3061b4b7f61b45e651647fa2c2922c50a7b6fc016a5e2",
+      "split": "train"
+    },
+    "rodinia_cfd_step_factor_1_tiling_0": {
+      "actions": 5,
+      "lhs_count": 13,
+      "parent_missing_lhs": [
+        "AUTO{_PIPE_L5}",
+        "AUTO{_UNROLL_L5}"
+      ],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "53c2eee11d43d51cb07d4f80f04496752dda07b6241d13da133a59d464282ef0",
+      "split": "train"
+    },
+    "rodinia_cfd_step_factor_2_pipeline_0": {
+      "actions": 9,
+      "lhs_count": 24,
+      "parent_missing_lhs": [
+        "AUTO{_PIPE_L5}",
+        "AUTO{_PIPE_L9}",
+        "AUTO{_UNROLL_L5}",
+        "AUTO{_UNROLL_L9}"
+      ],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "b9544f507fd7df193fbf00acf9367e95dd7c21dd50d79e5a79c5cffe63bab92e",
+      "split": "train"
+    },
+    "rodinia_cfd_step_factor_3_unroll_0": {
+      "actions": 9,
+      "lhs_count": 24,
+      "parent_missing_lhs": [
+        "AUTO{_PIPE_L9}",
+        "AUTO{_UNROLL_L9}"
+      ],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "5c4e8716e38fdf6060a16cc2f85f8cb7528ed25e1b6c5855e60df613cbc7f154",
+      "split": "train"
+    },
+    "rodinia_cfd_step_factor_4_doublebuffer_0": {
+      "actions": 18,
+      "lhs_count": 51,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "c89640f8a0198d891f9a7374dd07f426b66222fff9454c104c5e6e0efe9900c3",
+      "split": "train"
+    },
+    "rodinia_cfd_step_factor_5_coalescing_0": {
+      "actions": 18,
+      "lhs_count": 51,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "9d8ac174f7ac3296ea65545baead60b34410e4fe8caeb7a25aa32f9f0c368559",
+      "split": "train"
+    },
+    "rodinia_dilate_0_baseline_0": {
+      "actions": 5,
+      "lhs_count": 11,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "f9d42cda91bac87e44d52a59534ed45245ffe5b84e095623a4084b5a07228ab2",
+      "split": "train"
+    },
+    "rodinia_dilate_1_tiling_0": {
+      "actions": 12,
+      "lhs_count": 27,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "8b555a8401a165b76efcb9cb06dddc4f9f26cf28263caf41bd611c0839a859f3",
+      "split": "train"
+    },
+    "rodinia_dilate_2_pipeline_0": {
+      "actions": 20,
+      "lhs_count": 45,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-vitis2021.1-source-correspondence-v2",
+      "source_sha256": "a4cc38e6e928981999c115cb750fa00c991ecb19b79f24684a88201337bacb1c",
+      "split": "train"
+    },
+    "rodinia_dilate_3_pipeline_0": {
+      "actions": 35,
+      "lhs_count": 77,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-vitis2021.1-source-correspondence-v2",
+      "source_sha256": "d7a379e6dd20d23332a0492e62ee048bc64903e7befab236fc1dbfc14c137bbe",
+      "split": "train"
+    },
+    "rodinia_lavaMD_0_baseline": {
+      "actions": 6,
+      "lhs_count": 14,
+      "parent_missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "49dd00c693d898f9098121b1315c64a651eaaf96487ab1ee695c0a3307107f3e",
+      "split": "train"
+    },
+    "rodinia_lavaMD_1_tiling_0": {
+      "actions": 15,
+      "lhs_count": 36,
+      "parent_missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "5c0b9e9e64326e5eb6b90f72d5963fd932bc679a702506f3603d1b71589e69bb",
+      "split": "train"
+    },
+    "rodinia_lavaMD_1_tiling_1": {
+      "actions": 15,
+      "lhs_count": 36,
+      "parent_missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "4fedba25e5dff45ec9e20d68d673e2b62e2428a4b11277db7ce17592fc090106",
+      "split": "train"
+    },
+    "rodinia_lavaMD_2_pipeline_0": {
+      "actions": 15,
+      "lhs_count": 36,
+      "parent_missing_lhs": [
+        "AUTO{_ARRAY_D_L1}",
+        "AUTO{_ARRAY_F_L1}",
+        "AUTO{_ARRAY_T_L1}"
+      ],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "e91732f0ac504b601a65f5697ef825879e605f1ab543bd877443319071ac00c1",
+      "split": "train"
+    },
+    "rodinia_lc_gicov_0_baseline_0": {
+      "actions": 11,
+      "lhs_count": 27,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "adfee9af46749e8a2b8f5c93c6399afe4c1e8d1dde4fb034d17aa6ce30a44c4e",
+      "split": "train"
+    },
+    "rodinia_lc_mgvf_0_baseline_0": {
+      "actions": 3,
+      "lhs_count": 6,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "fac7d792ac5746d67f70dfa2cc3a23f941fd9347756f717ba7e13287c6c5587a",
+      "split": "train"
+    },
+    "rodinia_lud_1_tiling_0": {
+      "actions": 46,
+      "lhs_count": 99,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-authenticated-sqlite-states-v1",
+      "source_sha256": "ab473bcb5318105ecb1aea4251c225d80d00040de3166d307c4f18b718d1e571",
+      "split": "train"
+    },
+    "rodinia_pathfinder_0_baseline_0": {
+      "actions": 6,
+      "lhs_count": 14,
+      "parent_missing_lhs": [
+        "AUTO{_PIPE_L1}",
+        "AUTO{_PIPE_L2}",
+        "AUTO{_UNROLL_L1}",
+        "AUTO{_UNROLL_L2}"
+      ],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "e81dad5f2b6646fbcd6c5146245ba3a2f64d073cef3b76e5408441a0dd859c1c",
+      "split": "val"
+    },
+    "rodinia_pathfinder_4_doublebuffer_0": {
+      "actions": 8,
+      "lhs_count": 20,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "60f73965aacdf828c5d2ddc5ac398dd28f7a17118071c811119ad08e84ea7057",
+      "split": "val"
+    },
+    "rodinia_streamcluster_0_baseline_0": {
+      "actions": 2,
+      "lhs_count": 4,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "f9d99f680da244d1b57d9de4a695b367b24c3e384f940cdfee46159c24682508",
+      "split": "train"
+    },
+    "rodinia_streamcluster_1_tiling_0": {
+      "actions": 14,
+      "lhs_count": 38,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "07fd1a7a47b840597ce7d9b7c48aef38aaa08fce3bfa80a0ae90ea066fddf687",
+      "split": "train"
+    },
+    "rodinia_streamcluster_2_pipeline_1": {
+      "actions": 14,
+      "lhs_count": 38,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "7bfad21e9099a4e8bacde1bd99cbf9a0b773484ec41c73dc9fc51152297564c7",
+      "split": "train"
+    },
+    "rodinia_streamcluster_3_doublebuffer_0": {
+      "actions": 18,
+      "lhs_count": 50,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "ca0fe5b125f569469f31fdcad7e27bed55eb55a17b19f89d152545b3501d1f5e",
+      "split": "train"
+    },
+    "rodinia_streamcluster_4_coalescing_0": {
+      "actions": 18,
+      "lhs_count": 50,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "ba3758d93a96b0bc8639c4ad7707072e35c8b7128ecf120546aebb906dc12272",
+      "split": "train"
+    },
+    "spcl_example_00": {
+      "actions": 1,
+      "lhs_count": 2,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "8d389e03b3d1bfb90cd5e88bf47598c99e667981d957893f65f36524c8b85098",
+      "split": "train"
+    },
+    "spcl_example_01": {
+      "actions": 1,
+      "lhs_count": 2,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-v1",
+      "source_sha256": "36275006eaa68faa38762521cedfd542f70e3c42388f1e3e403ae4988407491f",
+      "split": "train"
+    },
+    "spcl_example_03": {
+      "actions": 6,
+      "lhs_count": 14,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-vitis2021.1-source-correspondence-v2",
+      "source_sha256": "6a4cfc85a0c7d4cd9294f739c09f5f1e3231af1beb8e7eee2393da4702a96b1b",
+      "split": "train"
+    },
+    "spcl_example_05": {
+      "actions": 5,
+      "lhs_count": 11,
+      "parent_missing_lhs": [],
+      "recovery_contract": "canonical-csv-apl-plus-vitis2021.1-source-correspondence-v2",
+      "source_sha256": "358e10252144cca5bb428b79ab346b45060f0ed44e9dd9dea4f7c6c7600caa22",
+      "split": "train"
+    }
+  },
+  "locked_test_qor_rows_read": false,
+  "non_test_qor_rows_read": false,
+  "parent_registry_sha256": "41d0f6f90db4c2370bdc02fbcdda4e114ec65cf57b89a567bfab56606d8d0c1c",
+  "schema": "film-gmt-expanded-qualification-v1",
+  "separate_measured_knn": "Preserved at Data/provenance/gnosis_5_compilation_20261113; excluded from canonical bank",
+  "status": "NOT_READY"
+}

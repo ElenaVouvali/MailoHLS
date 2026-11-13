@@ -1,0 +1,145 @@
+{
+  "dtype": "torch.float16",
+  "frozen_composite_sha256": "a14a805f989afdbd03a015f45c3586e05cc2f3c8cbc90211af6abb4e7f926b59",
+  "gate_gradient_norms": [
+    0.5793260335922241,
+    1.8027865886688232,
+    0.2970407009124756,
+    0.13391144573688507
+  ],
+  "longest_training_example": {
+    "fold": "train",
+    "index": 2165,
+    "kernel": "rodinia_cfd_step_factor_5_coalescing_0",
+    "kind": "sft",
+    "tokens": 6659
+  },
+  "parity_self": -0.7212986946105957,
+  "probe_gate_tanh": 0.05,
+  "projection_gradient_norms_at_probe_gate": {
+    "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias": 6.027464405633509e-05,
+    "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight": 7.442268542945385e-05,
+    "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight": 0.006604110822081566,
+    "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight": 0.00917874462902546,
+    "base_model.model.model.layers.15.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight": 0.006762341596186161,
+    "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias": 3.4418695577187464e-05,
+    "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight": 3.429443313507363e-05,
+    "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight": 0.0040671685710549355,
+    "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight": 0.00563953910022974,
+    "base_model.model.model.layers.23.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight": 0.003888215869665146,
+    "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias": 1.9397872165427543e-05,
+    "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight": 1.797120967239607e-05,
+    "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight": 0.002273299964144826,
+    "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight": 0.003049371996894479,
+    "base_model.model.model.layers.31.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight": 0.002036148216575384,
+    "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.bias": 5.6060565839288756e-05,
+    "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.norm.weight": 6.891041266499087e-05,
+    "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_kv.weight": 0.007379595655947924,
+    "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_out.weight": 0.010169269517064095,
+    "base_model.model.model.layers.7.structural_post_self_attention_residual.gated_cross_attn_layer.attn.to_q.weight": 0.006405823864042759
+  },
+  "score": -0.7212986946105957,
+  "status": "SMOKE_PASS",
+  "structural_effect_probe": {
+    "mean_abs_score_delta": 0.0009504556655883789,
+    "n_samples": 2,
+    "per_layer": [
+      {
+        "diagnostic_samples": [
+          {
+            "gate_tanh": 0.05000000074505806,
+            "legal_keys_per_query_mean": 8.483193397521973,
+            "multi_key_token_fraction": 1.0,
+            "pre_add_gated_to_hidden_rms": 0.010293767572069436
+          },
+          {
+            "gate_tanh": 0.05000000074505806,
+            "legal_keys_per_query_mean": 8.483193397521973,
+            "multi_key_token_fraction": 1.0,
+            "pre_add_gated_to_hidden_rms": 0.010287293838802987
+          }
+        ],
+        "effective_post_rounding_rms_ratio_max": 0.010293766856193542,
+        "effective_post_rounding_rms_ratio_mean": 0.010290529578924179,
+        "gate_tanh": 0.05000000074505806,
+        "layer": 8
+      },
+      {
+        "diagnostic_samples": [
+          {
+            "gate_tanh": 0.05000000074505806,
+            "legal_keys_per_query_mean": 8.483193397521973,
+            "multi_key_token_fraction": 1.0,
+            "pre_add_gated_to_hidden_rms": 0.004494353872989866
+          },
+          {
+            "gate_tanh": 0.05000000074505806,
+            "legal_keys_per_query_mean": 8.483193397521973,
+            "multi_key_token_fraction": 1.0,
+            "pre_add_gated_to_hidden_rms": 0.004499351895855394
+          }
+        ],
+        "effective_post_rounding_rms_ratio_max": 0.004499351605772972,
+        "effective_post_rounding_rms_ratio_mean": 0.004496852634474635,
+        "gate_tanh": 0.05000000074505806,
+        "layer": 16
+      },
+      {
+        "diagnostic_samples": [
+          {
+            "gate_tanh": 0.05000000074505806,
+            "legal_keys_per_query_mean": 8.483193397521973,
+            "multi_key_token_fraction": 1.0,
+            "pre_add_gated_to_hidden_rms": 0.0019223144257493946
+          },
+          {
+            "gate_tanh": 0.05000000074505806,
+            "legal_keys_per_query_mean": 8.483193397521973,
+            "multi_key_token_fraction": 1.0,
+            "pre_add_gated_to_hidden_rms": 0.0019157326029624095
+          }
+        ],
+        "effective_post_rounding_rms_ratio_max": 0.0019223145209252834,
+        "effective_post_rounding_rms_ratio_mean": 0.0019190235761925578,
+        "gate_tanh": 0.05000000074505806,
+        "layer": 24
+      },
+      {
+        "diagnostic_samples": [
+          {
+            "gate_tanh": 0.05000000074505806,
+            "legal_keys_per_query_mean": 8.483193397521973,
+            "multi_key_token_fraction": 1.0,
+            "pre_add_gated_to_hidden_rms": 0.0008089620814495851
+          },
+          {
+            "gate_tanh": 0.05000000074505806,
+            "legal_keys_per_query_mean": 8.483193397521973,
+            "multi_key_token_fraction": 1.0,
+            "pre_add_gated_to_hidden_rms": 0.0008007119380080531
+          }
+        ],
+        "effective_post_rounding_rms_ratio_max": 0.0008089620969258249,
+        "effective_post_rounding_rms_ratio_mean": 0.0008048370364122093,
+        "gate_tanh": 0.05000000074505806,
+        "layer": 32
+      }
+    ],
+    "per_sample": [
+      {
+        "film_only_score": -1.4495209455490112,
+        "film_plus_xattn_score": -1.44828462600708,
+        "kernel": "machsuite-viterbi",
+        "score_delta": 0.0012363195419311523
+      },
+      {
+        "film_only_score": -1.238363265991211,
+        "film_plus_xattn_score": -1.2390278577804565,
+        "kernel": "machsuite-viterbi",
+        "score_delta": -0.0006645917892456055
+      }
+    ]
+  },
+  "training_optimizer_updates": 1,
+  "zero_gate_film_parity_abs_delta": 0.0
+}
