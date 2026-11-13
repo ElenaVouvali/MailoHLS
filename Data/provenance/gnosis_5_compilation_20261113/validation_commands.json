@@ -1,0 +1,79 @@
+{
+  "commands": [
+    {
+      "command": "python -m unittest Preprocessing.tests.test_canonical_data Preprocessing.tests.test_canonical_preprocessing Preprocessing.tests.test_final_experiment_contract Preprocessing.tests.test_placeholder_contract Preprocessing.tests.test_gnosis_recovery Preprocessing.tests.test_gnosis_compilation_recovery -v",
+      "output": "test_locked_test_only_reads_headers_and_hashes (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests.test_locked_test_only_reads_headers_and_hashes) ... ok\ntest_optional_frozen_snapshot_reference_survives_without_local_copy (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests.test_optional_frozen_snapshot_reference_survives_without_local_copy) ... ok\ntest_overflow_is_retained_and_unknown_measurement_is_separate (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests.test_overflow_is_retained_and_unknown_measurement_is_separate) ... ok\ntest_unknown_source_action_is_not_imputed_or_silently_eligible (Preprocessing.tests.test_canonical_data.CanonicalRegistryTests.test_unknown_source_action_is_not_imputed_or_silently_eligible) ... ok\ntest_changed_qor_or_directive_is_not_a_matching_measurement (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests.test_changed_qor_or_directive_is_not_a_matching_measurement) ... ok\ntest_different_clocks_and_ambiguous_versions_are_rejected (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests.test_different_clocks_and_ambiguous_versions_are_rejected) ... ok\ntest_numeric_formatting_and_recorded_column_recovery (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests.test_numeric_formatting_and_recorded_column_recovery) ... ok\ntest_source_equivalence_only_allows_spacing_after_labels (Preprocessing.tests.test_canonical_data.MeasurementIdentityTests.test_source_equivalence_only_allows_spacing_after_labels) ... ok\ntest_canonical_preprocessing (unittest.loader._FailedTest.test_canonical_preprocessing) ... ERROR\ntest_final_experiment_contract (unittest.loader._FailedTest.test_final_experiment_contract) ... ERROR\ntest_placeholder_contract (unittest.loader._FailedTest.test_placeholder_contract) ... ERROR\ntest_changed_source_or_sidecar_is_rejected (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_changed_source_or_sidecar_is_rejected) ... ok\ntest_historical_states_for_another_source_do_not_promote_canonical_rows (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_historical_states_for_another_source_do_not_promote_canonical_rows) ... ok\ntest_identically_named_arrays_keep_distinct_source_action_states (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_identically_named_arrays_keep_distinct_source_action_states) ... ok\ntest_invalid_indices_are_rejected_instead_of_clamped (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_invalid_indices_are_rejected_instead_of_clamped) ... ok\ntest_legacy_bank_does_not_silently_include_sidecar_only_eligibility (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_legacy_bank_does_not_silently_include_sidecar_only_eligibility) ... ok\ntest_locked_test_is_rejected_before_a_measurement_is_opened (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_locked_test_is_rejected_before_a_measurement_is_opened) ... ok\ntest_missing_action_and_wrong_qor_association_fail_after_hash_validation (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_missing_action_and_wrong_qor_association_fail_after_hash_validation) ... ok\ntest_missing_or_duplicate_configuration_is_not_complete (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_missing_or_duplicate_configuration_is_not_complete) ... ok\ntest_only_exact_or_label_spacing_equivalence_is_accepted (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_only_exact_or_label_spacing_equivalence_is_accepted) ... ok\ntest_pickle_globals_are_not_executed (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_pickle_globals_are_not_executed) ... ok\ntest_recover_variable_loop_without_editing_original_measurements (Preprocessing.tests.test_gnosis_recovery.RecoveryTests.test_recover_variable_loop_without_editing_original_measurements) ... ok\ntest_all_four_correspondences_recompute_from_sealed_compiler_output (Preprocessing.tests.test_gnosis_compilation_recovery.CompilerCorrespondenceTests.test_all_four_correspondences_recompute_from_sealed_compiler_output) ... ok\ntest_canonical_drift_and_modified_ir_fail_even_when_new_fixture_hashes_match (Preprocessing.tests.test_gnosis_compilation_recovery.CompilerCorrespondenceTests.test_canonical_drift_and_modified_ir_fail_even_when_new_fixture_hashes_match) ... ok\ntest_knn_canonical_rejected_while_original_source_has_all_13_measured_actions (Preprocessing.tests.test_gnosis_compilation_recovery.CompilerCorrespondenceTests.test_knn_canonical_rejected_while_original_source_has_all_13_measured_actions) ... ok\ntest_linkage_normalization_does_not_erase_types_operations_or_hls_annotations (Preprocessing.tests.test_gnosis_compilation_recovery.CompilerCorrespondenceTests.test_linkage_normalization_does_not_erase_types_operations_or_hls_annotations) ... ok\n\n======================================================================\nERROR: test_canonical_preprocessing (unittest.loader._FailedTest.test_canonical_preprocessing)\n----------------------------------------------------------------------\nImportError: Failed to import test module: test_canonical_preprocessing\nTraceback (most recent call last):\n  File \"/home/elvouvali/miniforge3/lib/python3.13/unittest/loader.py\", line 137, in loadTestsFromName\n    module = __import__(module_name)\n  File \"/home/elvouvali/MailoHLS/worktrees/gnosis-17-kernel-recovery/Preprocessing/tests/test_canonical_preprocessing.py\", line 7, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'\n\n\n======================================================================\nERROR: test_final_experiment_contract (unittest.loader._FailedTest.test_final_experiment_contract)\n----------------------------------------------------------------------\nImportError: Failed to import test module: test_final_experiment_contract\nTraceback (most recent call last):\n  File \"/home/elvouvali/miniforge3/lib/python3.13/unittest/loader.py\", line 137, in loadTestsFromName\n    module = __import__(module_name)\n  File \"/home/elvouvali/MailoHLS/worktrees/gnosis-17-kernel-recovery/Preprocessing/tests/test_final_experiment_contract.py\", line 18, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'\n\n\n======================================================================\nERROR: test_placeholder_contract (unittest.loader._FailedTest.test_placeholder_contract)\n----------------------------------------------------------------------\nImportError: Failed to import test module: test_placeholder_contract\nTraceback (most recent call last):\n  File \"/home/elvouvali/miniforge3/lib/python3.13/unittest/loader.py\", line 137, in loadTestsFromName\n    module = __import__(module_name)\n  File \"/home/elvouvali/MailoHLS/worktrees/gnosis-17-kernel-recovery/Preprocessing/tests/test_placeholder_contract.py\", line 3, in <module>\n    import pytest\nModuleNotFoundError: No module named 'pytest'\n\n\n----------------------------------------------------------------------\nRan 26 tests in 2.620s\n\nFAILED (errors=3)\n",
+      "output_sha256": "8b218471e79368363b6179d3ca591140cf434088aecfa511b7e921e7e767d265",
+      "returncode": 1
+    },
+    {
+      "command": "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python -m pytest <the six canonical/recovery test modules> -q",
+      "output": "..........................................            [100%]\n42 passed, 19 subtests passed in 3.67s\n",
+      "output_sha256": "ab9d61cb0dec1719a29d2e4e7f0afaba448d2c013e0e9801f404e100448c6ebc",
+      "returncode": 0
+    },
+    {
+      "command": "/home/elvouvali/miniforge3/envs/mailohls-llm-v2/bin/python -m pytest <the six canonical/recovery test modules> -q",
+      "output": "..........................................            [100%]\n42 passed, 19 subtests passed in 3.93s\n",
+      "output_sha256": "574c9c792eafdb5d9c2e82251309dba741d0e0759d7963c68a8e2670898e349a",
+      "returncode": 0
+    },
+    {
+      "command": "python -m Preprocessing.gnosis_recovery --verify",
+      "output": "{\n  \"status\": \"PASS\",\n  \"historical_measured_rows_verified\": 85118,\n  \"canonical_complete_rows_verified\": 59196,\n  \"all_55_raw_csvs_byte_unchanged\": true,\n  \"source_and_headers_byte_unchanged\": true,\n  \"metadata_files_restored\": 3,\n  \"metadata_records_restored\": 4,\n  \"split_byte_unchanged\": true,\n  \"locked_test_rows_read\": false,\n  \"imputed_states\": 0\n}\n",
+      "output_sha256": "0d3c9192501aca18d252c066568380d4893d5744af9e7c59c254e882a2de9a77",
+      "returncode": 0
+    },
+    {
+      "command": "python -m Preprocessing.gnosis_compilation_recovery --verify",
+      "output": "{\n  \"status\": \"PASS\",\n  \"new_canonical_kernels\": 4,\n  \"new_canonical_action_histories\": 15,\n  \"canonical_joined_rows\": 20246,\n  \"separate_measured_source_kernels\": 1,\n  \"separate_measured_source_rows\": 5676,\n  \"imputed_states\": 0\n}\n",
+      "output_sha256": "5e25b4c06f4170aae7398b9d3365b67636d00413f8f5a3d01fb4e63278366776",
+      "returncode": 0
+    },
+    {
+      "command": "python -m Preprocessing.consolidate_data verify",
+      "output": "{\n  \"kernels\": 55,\n  \"complete_source_configuration_eligible_kernels\": 54,\n  \"raw_csv_complete_source_configuration_eligible_kernels\": 38,\n  \"kernels_with_unproven_source_actions\": 1,\n  \"unproven_source_actions\": 1,\n  \"rc3_graphs_requiring_regeneration\": [\n    \"rodinia_cfd_flux_0_baseline_0\",\n    \"rodinia_cfd_step_factor_1_tiling_0\",\n    \"rodinia_cfd_step_factor_2_pipeline_0\",\n    \"rodinia_cfd_step_factor_3_unroll_0\",\n    \"rodinia_lavaMD_0_baseline\",\n    \"rodinia_lavaMD_1_tiling_0\",\n    \"rodinia_lavaMD_1_tiling_1\",\n    \"rodinia_lavaMD_2_pipeline_0\",\n    \"rodinia_pathfinder_0_baseline_0\",\n    \"serrano-kalman-filter\"\n  ]\n}\n",
+      "output_sha256": "f39b0dd10a5e28e38dee8d9f0056588395610dc111f4dcb4b339578ea228362c",
+      "returncode": 0
+    },
+    {
+      "command": "/home/elvouvali/.hls-llm/bin/python -m Preprocessing.consolidate_data tables",
+      "output": "{\n  \"kernels\": 55,\n  \"complete_source_configuration_eligible_kernels\": 54,\n  \"raw_csv_complete_source_configuration_eligible_kernels\": 38,\n  \"kernels_with_unproven_source_actions\": 1,\n  \"unproven_source_actions\": 1,\n  \"rc3_graphs_requiring_regeneration\": [\n    \"rodinia_cfd_flux_0_baseline_0\",\n    \"rodinia_cfd_step_factor_1_tiling_0\",\n    \"rodinia_cfd_step_factor_2_pipeline_0\",\n    \"rodinia_cfd_step_factor_3_unroll_0\",\n    \"rodinia_lavaMD_0_baseline\",\n    \"rodinia_lavaMD_1_tiling_0\",\n    \"rodinia_lavaMD_1_tiling_1\",\n    \"rodinia_lavaMD_2_pipeline_0\",\n    \"rodinia_pathfinder_0_baseline_0\",\n    \"serrano-kalman-filter\"\n  ]\n}\nmachsuite-gemm-blocked 1721\nmachsuite-gemm-ncubed 959\nmachsuite-md-knn 210\nmachsuite-sort-radix 4049\nmachsuite-spmv-ellpack 168\nmachsuite-stencil2d 564\nmachsuite-stencil3d 3477\nmachsuite-viterbi 3336\nrodinia-backprop-0-baseline-back 119\nrodinia-backprop-0-baseline-forward 3362\nrodinia-backprop-1-tiling-back 4430\nrodinia-hotspot-0-baseline 611\nrodinia-hotspot-1-tiling 3415\nrodinia-hotspot-2-pipeline 4194\nrodinia-hotspot-3-unroll 4302\nrodinia-kmeans-0-baseline 385\nrodinia-kmeans-1-tiling 4872\nrodinia-kmeans-2-pipeline 4862\nrodinia-kmeans-3-unroll 4797\nrodinia-knn-0-baseline 84\nrodinia-knn-1-tiling 3401\nrodinia-knn-2-pipeline 3786\nrodinia-knn-3-unroll 4277\nrodinia-knn-4-doublebuffer 3988\nrodinia-knn-5-coalescing 5148\nrodinia_cfd_flux_0_baseline_0 101\nrodinia_cfd_step_factor_0_baseline_0 42\nrodinia_cfd_step_factor_1_tiling_0 2714\nrodinia_cfd_step_factor_2_pipeline_0 2012\nrodinia_cfd_step_factor_3_unroll_0 4414\nrodinia_cfd_step_factor_4_doublebuffer_0 4884\nrodinia_cfd_step_factor_5_coalescing_0 4953\nrodinia_dilate_0_baseline_0 992\nrodinia_dilate_1_tiling_0 3945\nrodinia_dilate_2_pipeline_0 4391\nrodinia_dilate_3_pipeline_0 2073\nrodinia_lavaMD_0_baseline 1397\nrodinia_lavaMD_1_tiling_0 3691\nrodinia_lavaMD_1_tiling_1 3613\nrodinia_lavaMD_2_pipeline_0 3600\nrodinia_lc_gicov_0_baseline_0 3836\nrodinia_lc_mgvf_0_baseline_0 691\nrodinia_lud_1_tiling_0 3688\nrodinia_pathfinder_0_baseline_0 3857\nrodinia_pathfinder_4_doublebuffer_0 3926\nrodinia_streamcluster_0_baseline_0 253\nrodinia_streamcluster_1_tiling_0 5042\nrodinia_streamcluster_2_pipeline_1 4819\nrodinia_streamcluster_3_doublebuffer_0 4591\nrodinia_streamcluster_4_coalescing_0 4821\nspcl_example_00 42\nspcl_example_01 42\nspcl_example_03 2392\nspcl_example_05 1221\n",
+      "output_sha256": "a4e512567a061625ffd77c4e5e4d6345e5b8452d0d336cafea11bba54ad05101",
+      "returncode": 0
+    },
+    {
+      "command": "python -m Preprocessing.consolidate_data verify-cache",
+      "output": "{\n  \"kernels\": 55,\n  \"complete_source_configuration_eligible_kernels\": 54,\n  \"raw_csv_complete_source_configuration_eligible_kernels\": 38,\n  \"kernels_with_unproven_source_actions\": 1,\n  \"unproven_source_actions\": 1,\n  \"rc3_graphs_requiring_regeneration\": [\n    \"rodinia_cfd_flux_0_baseline_0\",\n    \"rodinia_cfd_step_factor_1_tiling_0\",\n    \"rodinia_cfd_step_factor_2_pipeline_0\",\n    \"rodinia_cfd_step_factor_3_unroll_0\",\n    \"rodinia_lavaMD_0_baseline\",\n    \"rodinia_lavaMD_1_tiling_0\",\n    \"rodinia_lavaMD_1_tiling_1\",\n    \"rodinia_lavaMD_2_pipeline_0\",\n    \"rodinia_pathfinder_0_baseline_0\",\n    \"serrano-kalman-filter\"\n  ]\n}\n{\n  \"tables\": 54,\n  \"unique_design_rows\": 152560,\n  \"known_measured_raw_rows\": 174958,\n  \"rows_with_resource_at_or_above_capacity\": 3358,\n  \"complete_source_eligible_rows\": 94102\n}\n",
+      "output_sha256": "9099f3baf940e3eeac08d0af2ed92162c90f05b2f1ab4d068ddc4361dcf43649",
+      "returncode": 0
+    },
+    {
+      "command": "coroni: python3 compare_five_compilation.py (Python 3.6)",
+      "output": "Traceback (most recent call last):\n  File \"compare_five_compilation.py\", line 78, in <module>\n    run(parser.parse_args())\n  File \"compare_five_compilation.py\", line 43, in run\n    capture_output=True, text=True).stdout,\n  File \"/usr/lib/python3.6/subprocess.py\", line 423, in run\n    with Popen(*popenargs, **kwargs) as process:\nTypeError: __init__() got an unexpected keyword argument 'capture_output'\n",
+      "output_sha256": "02eddbc7777ca6c7dfc8f282299cb78a179f5e09988ffc18115052ffea2d31ca",
+      "returncode": 1
+    },
+    {
+      "command": "coroni: python3.8 compare_five_compilation.py --output results_final",
+      "output": "",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "returncode": 0
+    }
+  ],
+  "notes": [
+    "Initial interpreter lacked dependencies; the existing mailohls-llm-v2 environment passed all tests.",
+    "The initial remote Python 3.6 lacked capture_output support; its existing Python 3.8 completed frontend comparisons.",
+    "Initial local graph attempt used Python 3.8 with Python 3.11 bindings; the existing .mlir-python311 environment generated all five graphs.",
+    "No installation, model training, synthesis or new QoR measurements."
+  ],
+  "schema": "gnosis-five-recovery-validation-v1",
+  "tests": [
+    "Preprocessing/tests/test_canonical_data.py",
+    "Preprocessing/tests/test_canonical_preprocessing.py",
+    "Preprocessing/tests/test_final_experiment_contract.py",
+    "Preprocessing/tests/test_placeholder_contract.py",
+    "Preprocessing/tests/test_gnosis_recovery.py",
+    "Preprocessing/tests/test_gnosis_compilation_recovery.py"
+  ]
+}

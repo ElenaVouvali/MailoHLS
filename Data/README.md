@@ -7,15 +7,21 @@ and compatibility with the frozen RC3 graph release. GNN and LLM experiments
 should refer to this registry rather than choose an arbitrary older data folder.
 
 **13 November recovery:** [the 17-kernel audit](../docs/gnosis_17_kernel_recovery.md)
-recovers 14 canonical action histories for 12 kernels from original SQLite vectors.
-Complete source-action eligibility is now 50/55 **with the authenticated sidecar
-join**, while CSV/APL-only eligibility remains 38/55. The manifest records both
-flags and the required contract. Five source/header-incompatible kernels remain
-ineligible. Original measurements, sources and mappings are unchanged; four CFD
+recovers 29 canonical action histories for 16 kernels from original SQLite vectors
+and authenticated compiler correspondences. Complete source-action eligibility is
+now 54/55 **with the explicit sidecar/correspondence joins**, while CSV/APL-only
+eligibility remains 38/55. The original recovery at `3053f67` remains frozen at 50.
+The manifest records both flags and each required contract. Coalescing KNN remains
+canonically ineligible: its measured 512-bit source has a separately versioned
+complete dataset and compiler graph, accessed only with
+`Preprocessing.gnosis_compilation_recovery.complete_original_rows`. Original
+measurements, sources and mappings are unchanged; four CFD
 metadata records are restored with explicit before/after provenance.
 
 `Preprocessing.gnosis_recovery.complete_rows` provides the strict complete-action
 join; `python -m Preprocessing.gnosis_recovery --verify` checks its evidence.
+`python -m Preprocessing.gnosis_compilation_recovery --verify` checks the four
+Vitis-2021.1-bounded correspondences and the separate original-source KNN dataset.
 Legacy CSV cache tables and the existing FiLM bank are not relabeled or expanded.
 Do not use the new complete-action flag with a consumer that ignores its contract
 and sidecar. Graph/memory qualification is separate from this source-state recovery.

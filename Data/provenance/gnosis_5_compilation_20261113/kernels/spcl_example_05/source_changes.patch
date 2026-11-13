@@ -1,0 +1,29 @@
+--- measured_source/Example5.h
++++ canonical/Example5.h
+@@ -4,5 +4,14 @@
+ constexpr int K = N;
+ constexpr int M = N;
+ 
+-void MatrixMultiplication(const double A[], const double B[], double C[]);
+-void Entry(double const A[], double const B[], double C[]);
++extern "C" void MatrixMultiplication(
++    const double A[],
++    const double B[],
++    double C[]
++);
++
++void Entry(
++    double const A[],
++    double const B[],
++    double C[]
++);
+--- measured_source/Example5_Reordered.cpp
++++ canonical/Example5_Reordered.cpp
+@@ -1,6 +1,6 @@
+ #include "Example5.h"
+ 
+-void MatrixMultiplication(const double A[], const double B[], double C[]) {
++extern "C" void MatrixMultiplication(const double A[], const double B[], double C[]) {
+ L1:  for (int n = 0; n < N; ++n) {
+ L2:    double acc[M];  // Buffer an output row of C
+ 

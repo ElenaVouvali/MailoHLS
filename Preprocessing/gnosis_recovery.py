@@ -111,8 +111,16 @@ def complete_rows(kernel, root=ROOT):
     if kernel in split['test_kernels']:
         raise ValueError('Locked-test rows cannot be loaded by the recovery join')
     entry=validated_entry(kernel,root)
+    if entry is not None and not entry['canonical_eligible']:
+        from Preprocessing.gnosis_compilation_recovery import canonical_entry
+        entry=canonical_entry(entry,root)
     if entry is None or not entry['canonical_eligible']:
         raise ValueError('No authenticated complete canonical recovery for '+kernel)
+    yield from _joined_rows(entry, root, entry.get('contract', CONTRACT))
+
+
+def _joined_rows(entry, root, contract):
+    """The same strict design/QoR/action join for explicitly bound source versions."""
     path=root/entry['canonical_measurements']
     with path.open(newline='') as handle:
         raw=list(csv.DictReader(handle))
@@ -134,7 +142,7 @@ def complete_rows(kernel, root=ROOT):
         states.update(recovered['states'])
         if set(states)!=set(entry['source_actions']) or any(not v for v in states.values()):
             raise ValueError('Partial action configuration cannot be called complete')
-        yield {'measurement':row,'source_action_states':states,'contract':CONTRACT,
+        yield {'measurement':row,'source_action_states':states,'contract':contract,
                'sqlite_key':recovered['sqlite_key'],'sqlite_rowid':recovered['sqlite_rowid']}
 
 

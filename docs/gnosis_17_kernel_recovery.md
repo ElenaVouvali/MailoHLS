@@ -4,12 +4,16 @@ Recovery branch: `research/gnosis-17-kernel-recovery-20261113`, isolated at
 `worktrees/gnosis-17-kernel-recovery`, from GNOSIS FiLM commit
 `5fa470038b93427f24e2582a075c1eafe74eef35`. No model training or synthesis ran.
 
-**Result: 12 additional canonical kernels and 14 action histories are recovered.**
-Complete source-action eligibility rises from **38 to 50 of 55**, provided the new
-authenticated SQLite-state sidecars are joined. The untouched CSV/APL projection
-alone still qualifies **38**. Five kernels/16 canonical action states remain
-unresolved because their source/header equivalence to the measured upstream
-version is unproven. This is not a relaxation of the eligibility test.
+**Combined result: 54/55 canonical kernels qualify; the remaining KNN kernel
+qualifies only as a separately versioned exact measured-source dataset.**
+The first recovery, frozen at `3053f674f88a3562796e96d9b9cecd6be3ec09fd`, raised
+eligibility from 38 to 50. The compiler investigation below authenticates four
+more kernels and 15 more canonical action histories under a distinct Vitis-2021.1
+correspondence contract. Together, 16 additional canonical kernels / 29 action
+histories are recovered. The untouched CSV/APL projection still qualifies **38**.
+Canonical coalescing KNN retains one unproven action: its current effective
+32-bit representation cannot inherit measurements of the original 512-bit design.
+No training or HLS measurement campaign ran; frontend compilation alone ran.
 
 ## Evidence and root cause
 
@@ -81,7 +85,7 @@ all have multiple recorded states in the original databases.
 | `rodinia-knn-2-pipeline` | L8 | Same source-level loading action, separate measured variant | 9-entry vectors; 4,900 matching rows; exact source/headers | Recover its own L8 states | No values copied from tiling variant | Eligible + sidecar |
 | `rodinia-knn-3-unroll` | L9 | Loading loop omitted from optimized feature map | 10-entry vectors; 5,462 matching rows; exact source/headers | Recover L9 | No unknown state | Eligible + sidecar |
 | `rodinia-knn-4-doublebuffer` | L11 | Loading loop omitted from optimized feature map | 12-entry vectors; 4,317 matching rows; exact source/headers | Recover L11 | No unknown state | Eligible + sidecar |
-| `rodinia-knn-5-coalescing` | L12 | Loading loop projection loss; canonical source/header adaptation | 13-entry vectors; 5,676 matching rows; original L12 recovered | Preserve historical evidence only | Canonical `.range()` replacement and `__VIVADO_HLS__`-conditional 512-bit/32-bit representations are not proven experimentally equivalent | **Ineligible** |
+| `rodinia-knn-5-coalescing` | L12 | Loading loop projection loss; changed AP representation | 13-entry vectors; 5,676 matched rows; Vitis original `i512` versus canonical `i32` | Exact measured-source bundle, complete join and separate compiler graph | Original run defines unavailable; new graph is AP simulation representation, not a historical numeric memory | **Canonical ineligible; original-source eligible** |
 | `rodinia_cfd_step_factor_1_tiling_0` | L5 | Outer tile loop absent from feature map and current metadata | 5-entry vectors; 3,617 matching rows; historical `L5,loop,1` | Restore exact metadata; recover L5 states | Regenerate affected RC3 metadata binding | Eligible + sidecar |
 | `rodinia_cfd_step_factor_2_pipeline_0` | L5, L9 | Single-iteration compute/tile loops absent from feature map and metadata | 9-entry vectors; 3,010 matching rows; historical `L5,loop,1`, `L9,loop,1` | Restore both metadata records; recover both states | `.cpp` defines `PARA_FACTOR=1` after the header; do not infer 16 from the header; RC3 binding changes | Eligible + sidecar |
 | `rodinia_cfd_step_factor_3_unroll_0` | L9 | Outer tile loop absent from feature map and metadata | 9-entry vectors; 4,944 matching rows; historical `L9,loop,1` | Restore metadata; recover L9 | Existing L5 remains the distinct 16-iteration action; RC3 binding changes | Eligible + sidecar |
@@ -89,32 +93,33 @@ all have multiple recorded states in the original databases.
 | `rodinia_lavaMD_1_tiling_0` | L8 | `WIPE_LOCAL_POS_O` initialization loop absent from feature map | 15-entry vectors; 5,685 matching rows from its own restored CSV | Recover L8; source differs only in documented whitespace after labels | Existing RC3 source/metadata mismatch remains | Eligible + sidecar |
 | `rodinia_lavaMD_1_tiling_1` | L8 | Same projection loss, flattened-array source variant | 15-entry vectors; 5,739 matching rows; exact source/headers | Recover its own L8 | No cross-variant join; existing RC3 mismatch remains | Eligible + sidecar |
 | `rodinia_lavaMD_2_pipeline_0` | L8 | Same initialization-loop projection loss | 15-entry vectors; 5,695 matching rows; exact source/headers | Recover its own L8 | Existing RC3 mismatch remains | Eligible + sidecar |
-| `rodinia_dilate_2_pipeline_0` | L5, L6, L12 | Initialization/load/shift loops absent from optimized feature map | 20-entry vectors; 5,600 matching rows; original states recovered | Preserve historical evidence only | Top source matches, but `dilate.h` removes `<iostream>` and `mc.h` disables AP/wide-bus definitions/includes; full header equivalence not proven | **Ineligible** |
-| `rodinia_dilate_3_pipeline_0` | L5, L6, L12, L25, L27, L29, L31, L33, L35 | Initialization, shift, boundary loading/blanking and storage loops omitted from feature map | 35-entry vectors; 5,760 matching rows; all nine original histories recovered | Preserve historical evidence only | Same header-identity restriction; do not transfer values from pipeline-0 or repair source semantics | **Ineligible** |
-| `spcl_example_03` | L3, L4 | Buffer-loading loops absent from feature map | 6-entry vectors; 5,142 matching rows; both original states recovered | Preserve historical evidence only | Canonical source/header adds `extern "C"`; numerical-body similarity alone does not authenticate historical compilation identity | **Ineligible** |
-| `spcl_example_05` | L5 | Result-storage loop absent from feature map | 5-entry vectors; 3,744 matching rows; original state recovered | Preserve historical evidence only | Source/header linkage edits; no authenticated same-version measurements supplied | **Ineligible** |
+| `rodinia_dilate_2_pipeline_0` | L5, L6, L12 | Initialization/load/shift loops omitted; unused header dependencies removed | 20-entry vectors; 5,600 matched rows; complete HLS LLVM module and expanded source body identical | Attach its own histories through compiler-correspondence v2 | Bounded reconstructed Vitis environment; no original per-run flag receipt | **Eligible + v2** |
+| `rodinia_dilate_3_pipeline_0` | L5, L6, L12, L25, L27, L29, L31, L33, L35 | Initialization/load/shift/storage loops omitted; same unused includes | 35-entry vectors; 5,760 matched rows; independently identical complete module/body | Attach its own nine histories through v2 | Same environment bound; no cross-variant directive transfer | **Eligible + v2** |
+| `spcl_example_03` | L3, L4 | Buffer-loading loops omitted; linkage-only source adaptation | 6-entry vectors; 5,142 matched rows; complete HLS module identical under explicit top-symbol correspondence | Attach its own histories through v2 | HLS top binding only; no claim of host ABI equivalence | **Eligible + v2** |
+| `spcl_example_05` | L5 | Result-storage loop omitted; linkage-only adaptation | 5-entry vectors; 3,744 matched rows; independently identical module under its top-symbol correspondence | Attach its own L5 through v2 | Same restriction; unused `Entry` prototype only reformatted | **Eligible + v2** |
 
 ## Counts and supervision contract
 
 | Category | Before | After |
 |---|---:|---:|
 | Canonical kernels | 55 | 55 |
-| Authenticated complete source-action configurations | 38 | **50** |
+| Authenticated complete source-action configurations | 38 | **54** |
 | Complete using original CSV/APL alone | 38 | **38** |
-| Ineligible/explicitly partial canonical kernels | 17 | **5** |
-| Canonical unproven actions | 30 | **16** |
-| Train / validation / locked-test complete kernels | 34 / 3 / 1 | **45 / 4 / 1** |
+| Ineligible/explicitly partial canonical kernels | 17 | **1** |
+| Canonical unproven actions | 30 | **1** |
+| Train / validation / locked-test complete kernels | 34 / 3 / 1 | **49 / 4 / 1** |
 | Original measured rows changed | 0 | **0** |
 
 **30 historical action histories** are genuinely reconstructed for original
-upstream inputs; **14** of them, covering **59,196 original configurations in 12
-kernels**, are transferable to the current canonical inputs under exact hashes
-or the existing narrow label-spacing rule. The remaining **16 histories** are
-authenticated only for different upstream source/header bundles. They are not
-counted as recovered canonical states. **Zero** fixed/non-DSE declarations,
-default assignments, or new measurements are introduced.
+upstream inputs. The first **14**, covering **59,196 configurations in 12 kernels**,
+transfer under exact hashes or the narrow label-spacing rule. Another **15**,
+covering **20,246 configurations in four kernels**, transfer only under the new
+compiler correspondence. KNN's one history / **5,676 configurations** stays bound
+to its original bundle. **Zero** fixed/non-DSE declarations, defaults or new
+measurements are introduced. The earlier v1 receipt and its original decisions
+remain byte-identical; the new receipt explicitly extends them.
 
-The new contract is `canonical-csv-apl-plus-authenticated-sqlite-states-v1`:
+The first recovery contract is `canonical-csv-apl-plus-authenticated-sqlite-states-v1`:
 
 ```python
 from Preprocessing.gnosis_recovery import complete_rows
@@ -161,8 +166,9 @@ LUD L20/L21 bind to `lud_perimeter`, independently of L39/L40. The three correct
 CFD variants have four `not_registered` actions with no action nodes in the frozen
 archive. LavaMD has action nodes but mismatched source/metadata provenance. These
 are different failure modes. No numerical historical-GNN or GMT memory is newly
-qualified by this audit. Even a matching RC3 source/metadata hash cannot establish
-the measured header identity of the five source-incompatible kernels.
+qualified by this audit. Matching RC3 source/metadata hashes alone did not
+establish the five measured header identities; the compiler evidence below
+resolves four correspondences while preserving the KNN source distinction.
 
 All missing loop labels exist in exact original sources and metadata (with the
 four recovered CFD records), but not in the old optimized loop-feature inventory.
@@ -181,7 +187,8 @@ Executed checks and their captured output are recorded in
 `Data/provenance/gnosis_17_recovery_20261113/validation_commands.json`; final integrity
 checks are in `verification.json`. Re-run without GPU or synthesis:
 
-Final results: **34 regression tests pass**; canonical verification and cache
+The first recovery passed 34 regression tests. The follow-up passes **42 tests
+and 19 subtests**, including the pytest placeholder cases; canonical and cache
 verification pass. Cache totals remain 54 tables / 152,560 unique design rows /
 174,958 known measured raw rows / 94,102 CSV-projection-complete rows. All 54 cache
 table hashes match their pre-recovery values. The first cache-generation attempt
@@ -191,13 +198,15 @@ passed. That initial refusal is retained in the command log.
 
 ```bash
 python -m Preprocessing.gnosis_recovery --verify
+python -m Preprocessing.gnosis_compilation_recovery --verify
 python -m Preprocessing.consolidate_data verify
 python -m Preprocessing.consolidate_data verify-cache
-python -m unittest Preprocessing.tests.test_canonical_data \
-  Preprocessing.tests.test_canonical_preprocessing \
-  Preprocessing.tests.test_final_experiment_contract \
-  Preprocessing.tests.test_placeholder_contract \
-  Preprocessing.tests.test_gnosis_recovery -v
+python -m pytest Preprocessing/tests/test_canonical_data.py \
+  Preprocessing/tests/test_canonical_preprocessing.py \
+  Preprocessing/tests/test_final_experiment_contract.py \
+  Preprocessing/tests/test_placeholder_contract.py \
+  Preprocessing/tests/test_gnosis_recovery.py \
+  Preprocessing/tests/test_gnosis_compilation_recovery.py -q
 ```
 
 The new regression cases cover vector bounds/clamping, executable-pickle
@@ -217,10 +226,144 @@ the recovery provenance/sidecars; `Data/README.md`; and this report. Existing
 CSV cache table hashes, raw measurements, sources, mappings, family split and
 locked-test inputs are checked separately from these intentional changes.
 
+## Follow-up: the five remaining source/header bundles
+
+Full evidence is in
+[`gnosis_5_compilation_20261113`](../Data/provenance/gnosis_5_compilation_20261113/).
+Every original source/header/metadata file is retained by the pinned upstream
+Git blob and SHA-256. `source_changes.patch` records all original/canonical
+differences; `correspondence.json` binds each bundle, CSV, sidecar, expanded body,
+LLVM module and newly derived graph. Before-manifests and protected-input hashes
+are retained independently. The parent recovery receipt and its 17 sidecars
+are not rewritten.
+
+### Compiler environment and limits
+
+The archived generator documents Ubuntu 18.04.6, Python 3.6.9 and Vitis 2021.1.
+It emits `set_top <kernel_info first line>` and `add_files <source>` with **no
+explicit `-cflags`**, sets device/clock, disables automatic loop pipelining with
+`config_compile -pipeline_loops 0`, and sets array partition threshold 0 /
+throughput-driven off. Directive insertion follows the same stable source labels
+used by the recovered vectors. Original per-measurement compiler invocations,
+environment variables, installation build IDs and injected defines were not
+retained. They cannot be retroactively authenticated.
+
+Coroni's installed Vitis HLS 2021.1 frontend reports Clang 7.0.0. A retained
+completed HLS experiment's `autopilot.flow.log` supplies an observed invocation:
+`-fhls -std=gnu++14 -target fpga64-xilinx-linux-gnu`, the vendor GCC-6.2 toolchain,
+AP/autopilot include paths and forced `autopilot_ssdm_op.h`, disabled exceptions,
+thread-safe statics and cxa-atexit, and defines `__VITIS_HLS__`, `AESL_SYN`,
+`__SYNTHESIS__`, `__HLS_SYN__`, `__DSP48E2__`. Its macro dump does **not** define
+`__VIVADO_HLS__`. This is corroboration from the installed tool, **not an original
+GNOSIS log**. The evidence records the full command/log hash, compiler and
+disassembler hashes, installed AP header hashes, 42 successful preprocessing /
+macro / LLVM emission / disassembly commands and their outputs. No `vitis_hls`,
+`csynth_design`, export, implementation or new QoR measurement was run.
+
+The v2 contract is deliberately bounded to the reconstructed Vitis-2021.1 HLS
+compilation. It establishes compiler correspondence, not identical historical
+files, equivalent host executables or newly replayed timing/QoR. Whole modules
+are compared without removing declarations, instructions, types, HLS annotations
+or attributes. Only `ModuleID` / `source_filename` paths and the enumerated SPCL
+top symbols are normalized. The expanded source bodies must also match.
+
+### Exact differences and decisions
+
+| Kernel | Effective compilation differences | Evidence and decision |
+|---|---|---|
+| `spcl_example_03` | `extern "C"` added to declaration and definition of `Stencil2D`; N=M=T=1000, float widths, arrays, loops, labels and body unchanged | Original `_Z9Stencil2DPKfPf` maps uniquely to canonical `Stencil2D`. Expanded tokens and complete HLS modules match after that symbol correspondence. Same source-level `set_top Stencil2D`, one definition, no overload/wrapper. **Canonical eligible under v2; original eligible.** |
+| `spcl_example_05` | `extern "C"` added to `MatrixMultiplication` prototype/definition; prototype formatting and unused `Entry` declaration formatting change; N=K=M=1024 and double widths unchanged | Original `_Z20MatrixMultiplicationPKdS0_Pd` maps uniquely to canonical `MatrixMultiplication`. All other module bytes match after path normalization. `set_top MatrixMultiplication` remains uniquely bound. **Canonical eligible under v2; original eligible.** |
+| `rodinia_dilate_2_pipeline_0` | Source byte-identical; `dilate.h` comments `<iostream>` and adds EOF newline; `mc.h` comments `MARS_WIDE_BUS_TYPE`, `ap_int.h` and the three `mars_wide_bus*.h` includes | Original wide-bus headers are recovered exactly. Expanded complete source body and complete HLS LLVM module match without symbol changes. No synthesized function uses these AP/wide-bus definitions. Float widths, signatures, pragmas, loops and PARA_FACTOR=32 unchanged. **Canonical eligible under v2; original eligible.** |
+| `rodinia_dilate_3_pipeline_0` | Same header-only differences; its own source is byte-identical, with PARA_FACTOR=8 | Independently identical expanded body/module; no values copied from pipeline-2. GRID_ROWS=544, GRID_COLS=512, TILE_ROWS=32, TILE_COLS=128, STREL=5x5 and radius=2 preserved in both variants. **Canonical eligible under v2; original eligible.** |
+| `rodinia-knn-5-coalescing` | Header replaces unconditional coalescing `ap_uint<512>` with an `__VIVADO_HLS__` branch; false branch uses `uint32_t` and whole-word `GET_RANGE`/`SET_RANGE`. Source replaces two `.range()` operations with those macros | Installed HLS flags select the false branch: original module uses `i512*`, canonical uses `i32*`; loads/stores, extraction/insertion and resulting helper inlining differ. **Canonical ineligible; exact original-source dataset eligible separately.** |
+
+For KNN, the original extraction/insertion spans 32 bits at offsets 0..480,
+covering a 512-bit word; WIDTH_FACTOR=16 in both headers does **not** preserve
+512-bit storage in the canonical false branch. The true macro branch expands to
+the same `.range(hi,lo)` operations with harmless parentheses and the same unsigned
+32-bit payload; a separately labelled counterfactual preprocessing probe confirms
+that branch can be selected. There is no original flag evidence authorizing it
+for the canonical bundle, and its existing compiler representation must not be
+silently reinterpreted. No macro, source, header or graph identity was patched.
+
+Each Dilate module compares every helper plus `workload`, not merely a selected
+loop. SPCL compares the complete module, including signature/array-dimension HLS
+annotations. Thus the original action-labelled bodies are preserved before the
+historical generator inserts their respective measured directives. Every state
+still joins its own version/device/clock and QoR; no measurement is transferred
+between variants and no original measured directive was changed.
+
+### Versioned datasets, compiler graphs and contracts
+
+| Explicit contract / view | Eligible kernels | Interpretation |
+|---|---:|---|
+| `canonical-csv-apl-v1` alone | **38/55** | Original complete CSV/APL projection |
+| Frozen `canonical-csv-apl-plus-authenticated-sqlite-states-v1` cohort at `3053f67` | **50/55** | Original 12-kernel recovery remains reproducible |
+| Above plus `canonical-csv-apl-plus-vitis2021.1-source-correspondence-v2` | **54/55** | Four additional canonical kernels, 15 histories, 20,246 measured configurations |
+| Above plus `gnosis-measured-source-8888db17-sqlite-states-v1` for KNN | **55 distinct kernel/source versions** | 54 canonical versions plus one original measured KNN version; **not 55 canonical kernels** |
+
+`gnosis_recovery.complete_rows` reports v2 explicitly on the four newly qualified
+kernels and rejects canonical coalescing KNN. Its exact measured-source dataset
+is accessed separately:
+
+```python
+from Preprocessing.gnosis_compilation_recovery import complete_original_rows
+for row in complete_original_rows("rodinia-knn-5-coalescing"):
+    source_version = row["source_version"]  # GNWSIS-8888db17/rodinia-knn-5-coalescing
+    actions = row["source_action_states"]   # all 13 authenticated states
+```
+
+This view references, without copying or editing, the original CSV / 5,676
+configurations and L12 sidecar. Each row names the measured bundle, source version,
+new graph and original-source contract. Existing train membership is unchanged;
+canonical KNN is not included alongside it. No unresolved historical state remains
+for the original bundle; its equivalence to canonical KNN remains rejected.
+
+All five **original** bundles now have separate, compressed Polygeist v7 GEXF,
+MLIR and native compiler-analysis artifacts. Their action counts are 13 / 20 /
+35 / 6 / 5, all matched by exact compiler source location, with no action fallback.
+Compiler, generator, native extension, source, metadata, flags and transitive
+header hashes are recorded. KNN's genuine AP simulation path preserves each word
+as 8 x 64-bit storage; it is **not native HLS i512 IR**. Four array-scope warnings
+and conservative unresolved memory effects remain explicit. No fake AP header,
+scalar substitute, source rewrite or broad compiler change was introduced.
+
+These newly derived graphs do not replace RC3 graphs or authenticate numerical
+historical-GNN/GMT embeddings. The existing RC3 audit has source/metadata matches
+and all 15 additional action nodes compiler-matched for the four canonical
+recoveries. Its KNN source match still refers to the incompatible canonical
+representation. A separate measured KNN structural memory must be generated and
+validated against its exact AP graph and the frozen encoder's input contract.
+Do not reuse canonical KNN embeddings. The pre-existing ten RC3 mismatch cases
+from the first recovery remain unchanged.
+
+Follow-up validation and the exact changed-file inventory are in this new
+provenance directory's `validation_commands.json`, `integrity.json` and
+`changed_files.json`. Both recovery verifiers, canonical verification and existing
+cache verification pass. All 54 cache table hashes and all protected original
+input hashes are unchanged, including all 55 CSVs, sources, headers, mappings,
+split membership and the earlier restored metadata. Full cache regeneration
+changed only its manifest's current registry/code hashes and four explanatory
+authenticated-eligibility flags; its raw-projection flags remain false for these
+four. The existing FiLM serializer therefore still selects 37 non-test kernels.
+The initial test attempt used an interpreter without NumPy/pandas/pytest; its
+import failures are retained, followed by the successful existing environment's
+42-test run. Focused new tests reject altered original blobs/parent receipts,
+changed IR semantics and canonical KNN reuse while validating the separate join.
+
+Follow-up changes are confined to `Data/manifest.json`, the isolated cache manifest,
+`Preprocessing/consolidate_data.py`, a small shared join extraction in
+`Preprocessing/gnosis_recovery.py`, new compiler-correspondence code/tests, two
+frontend/evidence scripts under `experiments/gnosis_recovery`, the new provenance
+directory, `Data/README.md`, and this report. No canonical source/header, measured
+CSV, APL mapping, model, checkpoint, split or original receipt changed.
+
 ## Recommendation for final FiLM + historical-GNN/GMT Stage-2
 
-**Yes: 11 additional training kernels and one validation kernel (radix sort) can
-be included under the authenticated joined complete-action contract**, after
+**The four additional canonical kernels can safely become eligible for complete
+directive supervision under the explicit v2 correspondence contract.** Together
+with the first recovery, this permits 15 additional training kernels and one
+validation kernel (radix sort), after
 the explicit sidecar join is implemented in a newly versioned supervision bank
 and its targets/domains are validated. Keep the existing family split; filter
 unknown/invalid QoR and enforce per-request budget feasibility using the same
@@ -231,8 +374,19 @@ graph/action-memory interfaces, validate every supervised action's slot/mask
 semantics (including eliminated loops and LUD scopes), and enforce the historical
 GNN/GMT/checkpoint identities. Source-action eligibility alone is not Stage-2
 memory qualification. Do not modify old checkpoint contracts to bypass those checks.
-Adding a training kernel and adding radix validation targets change cohort and
+Adding training kernels and radix validation targets changes cohort and
 selection comparability: use a new run/bank ID and report that change, or hold the
-old cohort fixed for a matched comparison. Keep the five source-incompatible
-kernels excluded until their exact measured source/header identity is independently
-resolved. No automatic incorporation or training was performed.
+old cohort fixed for a matched comparison.
+
+**KNN requires the separately versioned measured source.** Its original directive
+supervision and source graph are recovered; its canonical equivalence and
+historical-GNN/GMT numerical memory are not qualified. No kernel is left without
+an authenticated original source-action dataset, but canonical KNN remains
+excluded. Do not merge the new graphs into a historical structural checkpoint
+contract or supervision bank automatically.
+
+**There is no reason to delay Stage-2 for further source recovery.** Use the
+already qualified cohort, or the 54 canonical source-eligible kernels after the
+new bank/graph/memory contract checks above. Treat original-source KNN as a
+separate follow-up unless its encoder/memory interface is qualified independently.
+No automatic bank expansion, training, synthesis or push was performed.

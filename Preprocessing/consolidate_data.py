@@ -281,6 +281,9 @@ def canonical_index():
         valid = {c: a for c, a in mapping.items() if a in definitions and a in labels and c in columns}
         csv_uncovered = sorted((labels | set(definitions))-set(valid.values()), key=lambda a: int(a[1:]))
         recovery = gnosis_recovery.validated_entry(k, ROOT)
+        if recovery and not recovery['canonical_eligible']:
+            from Preprocessing.gnosis_compilation_recovery import canonical_entry
+            recovery = canonical_entry(recovery, ROOT)
         proven = set(recovery['missing_actions']) if recovery and recovery['canonical_eligible'] else set()
         if not proven.issubset(csv_uncovered):
             raise ValueError('Recovery conflicts with canonical CSV/APL coverage: ' + k)
@@ -309,12 +312,14 @@ def canonical_index():
                         'raw_csv_complete_source_configuration_eligible': not csv_uncovered and not any(defects.values()),
                         'complete_source_configuration_eligible': not unknown and not any(defects.values()),
                         'complete_source_configuration_contract': (
-                            gnosis_recovery.CONTRACT if proven else 'canonical-csv-apl-v1' if not unknown else 'partial-csv-apl-v1'),
+                            recovery.get('contract', gnosis_recovery.CONTRACT) if proven else 'canonical-csv-apl-v1' if not unknown else 'partial-csv-apl-v1'),
                         'action_state_recovery': None if recovery is None else {
                             'registry': str(gnosis_recovery.REGISTRY),
                             'registry_sha256': sha((ROOT/gnosis_recovery.REGISTRY).read_bytes()),
                             'states': recovery['states'], 'canonical_source_compatible': recovery['canonical_eligible'],
-                            'proven_canonical_actions': sorted(proven, key=lambda a: int(a[1:]))},
+                            'proven_canonical_actions': sorted(proven, key=lambda a: int(a[1:])),
+                            **({'compilation_correspondence': recovery['compilation_correspondence']}
+                               if 'compilation_correspondence' in recovery else {})},
                         'rc3_release_source_and_metadata_match': compatible, 'historical_snapshots': snapshots})
     return {'schema': 'salt-hls-canonical-data-v1', 'split': split_record, 'kernels': kernels,
             'canonical_raw_root': 'Data/CSVS', 'shared_derived_cache': 'Data/preprocessed_CSVS',

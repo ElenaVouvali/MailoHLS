@@ -1,0 +1,65 @@
+--- measured_source/knn.cpp
++++ canonical/knn.cpp
+@@ -23,13 +23,15 @@
+                     float sum = 0.0;
+ L5:                    for (int k = 0; k < NUM_FEATURE; ++k){
+                         unsigned int range_idx = (j+k) * 32;
+-                        uint32_t feature_item = local_searchSpace[i+n].range(range_idx+31, range_idx);
++                        // uint32_t feature_item = local_searchSpace[i+n].range(range_idx+31, range_idx);
++                        uint32_t feature_item = GET_RANGE(local_searchSpace[i+n], range_idx+31, range_idx);
+                         float feature_item_value = *((float*)(&feature_item));
+                         feature_delta = feature_item_value - local_inputQuery[k];
+                         sum += feature_delta * feature_delta;
+                     }
+                     unsigned int range_idx = (((i+n)%2)*WIDTH_FACTOR/2+ j/2) * 32;
+-                    local_distance[(i+n)/2].range(range_idx+31, range_idx) = *((uint32_t *)(&sum));
++                    // local_distance[(i+n)/2].range(range_idx+31, range_idx) = *((uint32_t *)(&sum));
++                    SET_RANGE(local_distance[(i+n)/2], range_idx+31, range_idx, *((uint32_t *)(&sum)));
+                 }
+             }
+         }
+--- measured_source/knn.h
++++ canonical/knn.h
+@@ -18,15 +18,35 @@
+ const int NUM_TILES = NUM_PT_IN_SEARCHSPACE / NUM_PT_IN_BUFFER;
+ const int UNROLL_FACTOR = 2;
+ 
+-#ifdef COALESCING_5_512bit
++// #ifdef COALESCING_5_512bit
+ //#include <gmp.h>
+ //#define __gmp_const const
+-#include "ap_int.h"
+-#include <inttypes.h>
+-    const int DWIDTH = 512;
+-#define INTERFACE_WIDTH ap_uint<DWIDTH>
+-    const int WIDTH_FACTOR = DWIDTH/32;
+-#endif 
++// #include "ap_int.h"
++// #include <inttypes.h>
++//     const int DWIDTH = 512;
++// #define INTERFACE_WIDTH ap_uint<DWIDTH>
++//     const int WIDTH_FACTOR = DWIDTH/32;
++// #endif 
++
++#ifdef __VIVADO_HLS__
++  #include "ap_int.h"
++  const int DWIDTH = 512;
++  #define INTERFACE_WIDTH ap_uint<DWIDTH>
++  const int WIDTH_FACTOR = DWIDTH / 32;
++  // HLS: real bit-range operations
++  #define GET_RANGE(x, hi, lo)           (x).range((hi), (lo))
++  #define SET_RANGE(x, hi, lo, val)      (x).range((hi), (lo)) = (val)
++
++#else
++  #include <stdint.h>
++  const int DWIDTH = 512;
++  typedef uint32_t INTERFACE_WIDTH;
++  const int WIDTH_FACTOR = DWIDTH / 32;
++  #define GET_RANGE(x, hi, lo)           (x)
++  #define SET_RANGE(x, hi, lo, val)      do { (x) = (val); } while(0)
++#endif
++
++
+ 
+ // Definition for testbench
+ // void workload(

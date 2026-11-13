@@ -1,0 +1,37 @@
+--- measured_source/dilate.h
++++ canonical/dilate.h
+@@ -1,7 +1,7 @@
+ #ifndef LC_DILATE_H
+ #define LC_DILATE_H
+ 
+-#include <iostream>
++// #include <iostream>
+ #include <assert.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -33,4 +33,4 @@
+ 	float img[(GRID_ROWS+2*MAX_RADIUS)*GRID_COLS];
+ };
+ 
+-#endif+#endif
+--- measured_source/mc.h
++++ canonical/mc.h
+@@ -17,13 +17,13 @@
+ #define SIZE_3 1
+ #endif 
+ 
+-#define MARS_WIDE_BUS_TYPE ap_uint<LARGE_BUS>
++// #define MARS_WIDE_BUS_TYPE ap_uint<LARGE_BUS>
+ 
+-#include "ap_int.h"
++// #include "ap_int.h"
+ 
+-#include "mars_wide_bus.h"
+-#include "mars_wide_bus_2d.h"
++// #include "mars_wide_bus.h"
++// #include "mars_wide_bus_2d.h"
+ 
+-#include "mars_wide_bus_4d.h"
++// #include "mars_wide_bus_4d.h"
+ 
+ #endif
