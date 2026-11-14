@@ -3429,7 +3429,24 @@ class StageValSelectionCallback(TrainerCallback):
         model.eval()
 
         try:
-            rows = [self._run_case(model, case) for case in self.selection_cases]
+            import time
+            rows = []
+            for case_idx, case in enumerate(self.selection_cases, 1):
+                start_t = time.perf_counter()
+                print(
+                    f"[VAL-CASE] step={state.global_step} "
+                    f"case={case_idx}/{len(self.selection_cases)} "
+                    f"kernel={case.kernel_name} START",
+                    flush=True,
+                )
+                rows.append(self._run_case(model, case))
+                print(
+                    f"[VAL-CASE] step={state.global_step} "
+                    f"case={case_idx}/{len(self.selection_cases)} "
+                    f"kernel={case.kernel_name} "
+                    f"seconds={time.perf_counter() - start_t:.1f} END",
+                    flush=True,
+                )
             summary = summarize_selection_rows(rows)
             mean_value_acc = summary["mean_value_acc"]
             schema_compliance = summary["schema_compliance"]
@@ -7437,7 +7454,8 @@ def run_single_training(args):
             "kernel_macro_decision_accuracy_joint_actions_and_correct_budget_transitions"
         ),
         "early_stopping_patience": args.early_stopping_patience,
-        "evaluation_on_start": bool(args.eval_on_start),
+        "evaluation_on_start": bool(args.eval_on_start and not args.skip_validation),
+        "validation_skipped": bool(args.skip_validation),
         "selection_candidate_batch_size": (
             args.selection_candidate_batch_size if args.disable_structural_memory else 1
         ),
@@ -8086,7 +8104,7 @@ def run_single_training(args):
         tf32=False,
         optim="paged_adamw_8bit",
         logging_steps=10,
-        eval_strategy="steps" if val_ds is not None else "no",
+        eval_strategy="steps" if val_ds is not None and not args.skip_validation else "no",
         eval_steps=args.eval_steps,
         save_steps=args.save_steps,
         load_best_model_at_end=False,
@@ -8096,7 +8114,7 @@ def run_single_training(args):
         dataloader_pin_memory=True,
         remove_unused_columns=False,
         label_names=["labels"],   # <- add this
-        eval_on_start=args.eval_on_start,
+        eval_on_start=args.eval_on_start and not args.skip_validation,
     )
 
 
@@ -8193,7 +8211,7 @@ def run_single_training(args):
         )
     )
 
-    if selection_cases:
+    if selection_cases and not args.skip_validation:
         trainer.add_callback(
             StageValSelectionCallback(
                 tokenizer=tok,
@@ -8258,7 +8276,7 @@ def run_single_training(args):
         frozen_stage1.assert_frozen_stage1_unchanged(model, frozen_stage1_state)
         print(f"[FROZEN-STAGE1] verified sha256={frozen_stage1_state['combined_sha256']}")
 
-    if val_ds is not None:
+    if val_ds is not None and not args.skip_validation:
         trainer.evaluate(metric_key_prefix="final_eval")
 
     best_dir = os.path.join(args.output_dir, args.best_dir_name)
@@ -8657,6 +8675,10 @@ def main():
         type=int,
         default=0,
         help="Do not count validation non-improvements before this optimizer step.",
+    )
+    ap.add_argument(
+        "--skip_validation", action="store_true",
+        help="Skip initial, periodic, and final validation during training; save final weights without validation selection.",
     )
     ap.add_argument(
         "--eval_on_start", action=argparse.BooleanOptionalAction, default=True,
