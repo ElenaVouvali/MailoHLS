@@ -10,6 +10,7 @@ import numpy as np
 
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--root', type=Path, required=True)
+p.add_argument('--title', default='GAN · Stage-1 FiLM ON · Vitis HLS 2021.1')
 a = p.parse_args()
 rows = json.loads((a.root/'request_results.json').read_text())
 assert len(rows) == 18 and all(r['speedup'] is not None for r in rows)
@@ -35,7 +36,7 @@ for ax, device, prefix in zip(axes, ('ZCU104', 'U200'), ('xczu', 'xcu')):
     ax.grid(which='minor',color='white',linewidth=3)
     ax.tick_params(which='minor',bottom=False,left=False)
 fig.colorbar(im,ax=axes,label='Speedup vs. matched pragma-free baseline (cycles ratio)',shrink=.78)
-fig.suptitle('GAN · Stage-1 FiLM ON · Vitis HLS 2021.1',fontsize=16)
+fig.suptitle(a.title,fontsize=16)
 fig.supxlabel('Mean utilization = average BRAM18K / DSP / FF / LUT usage relative to full device capacity.\n'
               '† HLS estimated clock exceeds request.  ‡ At least one resource exceeds the requested budget.\n'
               'Nominal speedup uses matched requested periods; no post-route timing or functional simulation.',fontsize=9)
