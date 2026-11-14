@@ -1,0 +1,131 @@
+{
+  "arms": {
+    "A": {
+      "completed": true,
+      "elapsed_seconds": 48.31300410098629,
+      "film_gradient_norms": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "gradient_norms": [
+        0.8013248443603516,
+        0.7156069278717041,
+        0.7473610043525696,
+        0.7161340713500977,
+        0.7900713086128235,
+        0.8206582069396973
+      ],
+      "optimizer_updates": 6
+    },
+    "B": {
+      "completed": true,
+      "effective_gate_after_updates": [
+        0.1983158439397812,
+        0.1983378827571869,
+        0.1989736407995224
+      ],
+      "effective_gate_initial": [
+        0.1973753273487091,
+        0.1973753273487091,
+        0.1973753273487091
+      ],
+      "elapsed_seconds": 68.53014410001924,
+      "film_gradient_norms": [
+        0.0071677797326842605,
+        0.007688946100447317,
+        0.006480109010354661,
+        0.0076303802310763265,
+        0.006462275460453811,
+        0.006572117388107925
+      ],
+      "gate_logging_note": "training.jsonl records gates after each update; the initial effective tanh(.2) gate is recorded separately.",
+      "gradient_norms": [
+        0.8013337850570679,
+        0.7127770185470581,
+        0.7148868441581726,
+        0.7124040126800537,
+        0.7925734519958496,
+        0.8227134346961975
+      ],
+      "optimizer_updates": 6
+    }
+  },
+  "artifact_policy": "Only this compact summary is published. Model checkpoints, raw runtime caches, and detailed run artifacts remain outside Git.",
+  "comparison": {
+    "A": {
+      "groups": {
+        "complete_groups": 2,
+        "correct_both": 0,
+        "family_count": 1
+      },
+      "metrics": {
+        "macro_pair_accuracy": 0.5,
+        "macro_two_context_group_accuracy": 0.0,
+        "sft_nll": 0.9206898808479309
+      },
+      "step": 6
+    },
+    "B_OFF": {
+      "groups": {
+        "complete_groups": 2,
+        "correct_both": 0,
+        "family_count": 1
+      },
+      "metrics": {
+        "macro_pair_accuracy": 0.5,
+        "macro_two_context_group_accuracy": 0.0,
+        "sft_nll": 0.9194391369819641
+      }
+    },
+    "B_ON": {
+      "groups": {
+        "complete_groups": 2,
+        "correct_both": 0,
+        "family_count": 1
+      },
+      "metrics": {
+        "macro_pair_accuracy": 0.5,
+        "macro_two_context_group_accuracy": 0.0,
+        "sft_nll": 0.9196300506591797
+      },
+      "step": 6
+    },
+    "B_on_improves_over_B_off": false,
+    "decision": "INCONCLUSIVE_INDEPENDENT_TARGET_SWITCH_COVERAGE",
+    "delta_B_minus_A_group_accuracy": 0.0,
+    "limitations": [
+      "HLS-estimate percentage constraints",
+      "No new synthesis",
+      "Non-independent budget views",
+      "No independent device generalization",
+      "Evaluation uses fixed-prefix likelihoods, not generated QoR"
+    ],
+    "minimum_independent_validation_coverage": false,
+    "sft_nll_noninferior": true,
+    "stage1_default": "A"
+  },
+  "execution": {
+    "gpu_name": "Tesla V100-PCIE-32GB",
+    "gpu_uuid": "GPU-8c6e3ac2-5348-2b86-5514-52852fedd21f",
+    "host": "davinci",
+    "torch": "2.6.0+cu124",
+    "transformers": "4.51.0"
+  },
+  "interpretation": "Integration smoke only. Validation contains one independent family and two complete groups; no FiLM improvement or QoR claim is established.",
+  "run_id": "stage1_ab_smoke_20261112",
+  "schema": "gnosis-stage1-film-ab-smoke-summary-v1",
+  "status": "completed_smoke_inconclusive_comparison",
+  "training": {
+    "contexts": 2,
+    "eval_every": 2,
+    "physical_hls_calls": 0,
+    "stage1_parent_adapter_sha256": "28dd67b87e10852c2e25975c0330259ac2dd09c4c9dff9cf84c3fff1bc3bf164",
+    "steps_per_arm": 6,
+    "validation_pairs": 2,
+    "validation_sft": 2
+  }
+}
