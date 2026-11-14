@@ -254,3 +254,11 @@ reload, source/provenance, exact exports, summary routing/padding, nonzero
 tokenizer/edge gradients, zero-gate full-decoder behavior, checkpoint context,
 and full multi-token RHS/newline scoring. A completed GPU run and its validation
 receipt are required before learned attention figures are generated.
+
+## Frozen representation diagnosis
+
+The subsequent CPU-only [representation diagnosis](representation_diagnostics.md)
+measures all four layers, normalized memory, feature ablations and independent-family
+probes. It recommends keeping the encoder for a controlled typed-evidence trial;
+trained GMT retrieval and physical QoR remain unevaluated. Historical exports and
+figures above are preserved.

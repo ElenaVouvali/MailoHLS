@@ -1,0 +1,492 @@
+{
+  "checkpoint": {
+    "epoch_zero_based": 15,
+    "path": "/home/elvouvali/MailoHLS/artifacts/paper_gnn_20261110/latency/selected.pt",
+    "previously_trained": true,
+    "production_qualified": false,
+    "protocol": {
+      "architecture": {
+        "activation": "elu",
+        "attention_heads": 1,
+        "film": false,
+        "hardware_messages": false,
+        "hidden_dim": 64,
+        "jumping_knowledge": "max",
+        "memory_dim": 128,
+        "memory_layout": [
+          "conv_1",
+          "jk_max"
+        ],
+        "post_directive_transformer_layers": 1,
+        "pre_directive_transformer_layers": 4,
+        "target_context": "heads_only"
+      },
+      "batch_candidates": 16,
+      "budget_views": [
+        1.0,
+        0.5
+      ],
+      "data_identity_sha256": "a7b05830d084b9ea6581bfd02cbca64e5274575829e1ea68dc882673a8d42304",
+      "dropout": 0.1,
+      "epochs": 40,
+      "loss": "0.5*(smooth_l1_latency_area + smooth_l1_selected_objective) + 0.1*smooth_l1_resource + 0.05*feasible_objective_ranking",
+      "lr": 3e-05,
+      "objective": "PARETO_LATENCY",
+      "patience": 8,
+      "ranking_weight": 0.05,
+      "relative_tie": 0.05,
+      "resource_weight": 0.1,
+      "samples_per_kernel_per_epoch": 128,
+      "schema": "salt-paper-rc3-transformer4-jkmax-conv1-jk-v1",
+      "seed": 123,
+      "selection": "family_macro feasible_selection_rate DESC, conditional regret ASC, tau_b DESC, log2 MAE ASC",
+      "source_sha256": {
+        "GNN_branch/config.py": "852a0d196d1b2b9502b3d8d04896af3b4ed793b62696680b138177d0ad88167f",
+        "GNN_branch/model.py": "54c0f35b4d7807a793b7a6ce0801429a6e5620acfe4c4f1bd82bc9c975958cd9",
+        "GNN_branch/nn_att.py": "52e338c86e3e7a5fad48daaf39cdc8be8dd66cf567beb6cdc1d849dc67183474",
+        "GNN_branch/paper_protocol.py": "c6d0a596a14d032eccc124c102f901a880f687f8202de3fa248e553c0839becd",
+        "GNN_branch/train_GNN.py": "05f3f6f7e90932750da1d10ebc1e13a579e99864bda20f9aef5dbef7454782d6",
+        "GNN_branch/utils.py": "e6d7522074c29c140736a4e5a5f504a8d719253f5b71baad1714515b3e15f254",
+        "Preprocessing/create_jsonl.py": "7f88cc641001db0720717836109e14a76ef8c82e5723fda4bd269a6c149565a9",
+        "experiments/paper_gnn/data.py": "82a5198d11c5d5714b5cd19ce89ae39bf5bbee87196e751d99435f9d4e4d198a",
+        "experiments/paper_gnn/train.py": "f2ed9ec10f74d016e834b2cba5517c2f56131f1386e58de826349c58faa5b2b5"
+      }
+    },
+    "representation_schema": "salt-paper-rc3-transformer4-jkmax-conv1-jk-v1",
+    "selection": "preliminary retained by completed-study decision",
+    "sha256": "79540c9f27e4807e0c3badbd876322bbde5badd9d4a04f601b316ee75e944ee8",
+    "strict_state_loading": true,
+    "tensor_schema": {
+      "evidence": [
+        "proven",
+        "possible",
+        "not_established",
+        "not_applicable"
+      ],
+      "input_allowlist": "compiler categories, operation text, numeric compiler facts; no target/candidate/QoR/budget fields",
+      "node_categories": [
+        "action_point",
+        "constant_or_feature",
+        "control_region",
+        "memory_object",
+        "operation",
+        "ssa_value"
+      ],
+      "numeric": [
+        "loop_depth",
+        "trip_count",
+        "compiler_proven_trip_count",
+        "tcad_trip_count",
+        "lower_bound",
+        "upper_bound",
+        "step",
+        "operand_count",
+        "result_count",
+        "use_count",
+        "memory_rank",
+        "operand_index",
+        "dimension"
+      ],
+      "relations": [
+        "actual_to_formal",
+        "alias",
+        "analysis_summary",
+        "calls",
+        "contains_block",
+        "contains_operation",
+        "control_flow",
+        "declares_argument",
+        "defines",
+        "depends_on",
+        "feature",
+        "literal",
+        "loop_carried",
+        "loop_child",
+        "memory_access",
+        "next_operation",
+        "operand",
+        "owns_region",
+        "references",
+        "resolves_to",
+        "returns_to",
+        "targets"
+      ],
+      "reverse_edges": true,
+      "schema": "salt-paper-rc3-compiler-tensors-v1",
+      "source_edge_metadata": "retained verbatim in authenticated graph JSON",
+      "vocabulary": [
+        "",
+        "<unknown>",
+        "affine.for",
+        "affine.if",
+        "affine.load",
+        "affine.store",
+        "affine.yield",
+        "arith.addf",
+        "arith.addi",
+        "arith.andi",
+        "arith.cmpf",
+        "arith.cmpi",
+        "arith.constant",
+        "arith.divf",
+        "arith.divsi",
+        "arith.extf",
+        "arith.extsi",
+        "arith.extui",
+        "arith.fptosi",
+        "arith.index_cast",
+        "arith.mulf",
+        "arith.muli",
+        "arith.negf",
+        "arith.ori",
+        "arith.remsi",
+        "arith.select",
+        "arith.subf",
+        "arith.subi",
+        "arith.truncf",
+        "arith.xori",
+        "func.call",
+        "func.func",
+        "func.return",
+        "llvm.call",
+        "llvm.getelementptr",
+        "llvm.icmp",
+        "llvm.load",
+        "llvm.mlir.addressof",
+        "llvm.mlir.undef",
+        "llvm.mlir.zero",
+        "llvm.store",
+        "math.absf",
+        "math.exp",
+        "math.sqrt",
+        "memref.alloca",
+        "memref.cast",
+        "memref.get_global",
+        "memref.load",
+        "memref.store",
+        "polygeist.get_func",
+        "polygeist.memref2pointer",
+        "polygeist.pointer2memref",
+        "polygeist.subindex",
+        "scf.condition",
+        "scf.for",
+        "scf.if",
+        "scf.while",
+        "scf.yield"
+      ]
+    },
+    "updates": 4736
+  },
+  "development_kernels": 4,
+  "device": "cpu",
+  "encoder_state_unchanged": true,
+  "expensive_alignment_started": false,
+  "files": {
+    "action_feature_ablations.json": "a816acafe85cb4d5baaa5925db14d83981aa7877a519d71e366b1948839686a7",
+    "compiler_feature_coverage.json": "ba3972243b705df728df891c3acb1c85771009972768e23c8616372192c4b7f7",
+    "corpus_layerwise_metrics.json": "1c41834ea679d86270f9db5060d74373a024470b60c1e08f493a0230f1fcdc77",
+    "evidence_distinctions.json": "ad6401a591297d34ab7db72651c3e77ab5b68ebff9d488c22d74c77ff2ed7cb9",
+    "first_layer_decomposition.json": "ada9df11982a434bb99f005e72388bfa254f9b2a6099446c926c195e99a14ff3",
+    "layerwise_embeddings.npz": "4d3184d4fb409de503508f29715b942286d9c305b5a09a5b05a896e4fd38297d",
+    "layerwise_metrics.csv": "9c79584f918bd9099c6b7c22f29d841006b5a637b856c6c9f9ef039aed210853",
+    "layerwise_metrics.json": "886e99499456d61b76507c8fa9f069411d8af953a39d5a921396ed458eff7c02",
+    "layerwise_similarity.png": "563ac16e2293909a653d91168f86e763647d463de9852c34dfc948beb415fad1",
+    "layerwise_similarity.svg": "06d87debfa7099054412f789f9c69e3bf9bd1c7ebb23a755e29e079e290839bb",
+    "linear_probes.json": "493cd5826c8087ef57a0a5f1361e7fc8fd5e3acd933351830fc53e86a8020a4f",
+    "training_path_sensitivity.json": "f4835645b05f852fecd65bd2699278a6d31ed535f59d250dc679ad3054c0b393"
+  },
+  "gemv_exact_historical_memory": true,
+  "gemv_training": false,
+  "locked_test_labels_read": false,
+  "normalization": {
+    "fitted_kernels": [
+      "machsuite-gemm-blocked",
+      "machsuite-gemm-ncubed",
+      "machsuite-md-knn",
+      "machsuite-spmv-ellpack",
+      "machsuite-stencil2d",
+      "machsuite-stencil3d",
+      "rodinia-backprop-0-baseline-back",
+      "rodinia-backprop-0-baseline-forward",
+      "rodinia-backprop-1-tiling-back",
+      "rodinia-hotspot-0-baseline",
+      "rodinia-hotspot-1-tiling",
+      "rodinia-hotspot-2-pipeline",
+      "rodinia-hotspot-3-unroll",
+      "rodinia-kmeans-0-baseline",
+      "rodinia-kmeans-1-tiling",
+      "rodinia-kmeans-2-pipeline",
+      "rodinia-kmeans-3-unroll",
+      "rodinia-knn-0-baseline",
+      "rodinia-knn-1-tiling",
+      "rodinia-knn-2-pipeline",
+      "rodinia-knn-3-unroll",
+      "rodinia-knn-4-doublebuffer",
+      "rodinia-knn-5-coalescing",
+      "rodinia_cfd_flux_0_baseline_0",
+      "rodinia_cfd_step_factor_0_baseline_0",
+      "rodinia_cfd_step_factor_1_tiling_0",
+      "rodinia_cfd_step_factor_2_pipeline_0",
+      "rodinia_cfd_step_factor_3_unroll_0",
+      "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "rodinia_cfd_step_factor_5_coalescing_0",
+      "rodinia_dilate_0_baseline_0",
+      "rodinia_dilate_1_tiling_0",
+      "rodinia_dilate_2_pipeline_0",
+      "rodinia_dilate_3_pipeline_0",
+      "rodinia_lavaMD_0_baseline",
+      "rodinia_lavaMD_1_tiling_0",
+      "rodinia_lavaMD_1_tiling_1",
+      "rodinia_lavaMD_2_pipeline_0",
+      "rodinia_lc_gicov_0_baseline_0",
+      "rodinia_lc_mgvf_0_baseline_0",
+      "rodinia_lud_1_tiling_0",
+      "rodinia_streamcluster_0_baseline_0",
+      "rodinia_streamcluster_1_tiling_0",
+      "rodinia_streamcluster_2_pipeline_1",
+      "rodinia_streamcluster_3_doublebuffer_0",
+      "rodinia_streamcluster_4_coalescing_0",
+      "spcl_example_00",
+      "spcl_example_01",
+      "spcl_example_03",
+      "spcl_example_05"
+    ],
+    "layout": [
+      "conv_1",
+      "jk_max"
+    ],
+    "rms": [
+      0.20736091942981294,
+      0.3029933850176915
+    ],
+    "rule": "per-component train-kernel-balanced RMS then divide sqrt(2); no target or QoR statistics",
+    "schema": "salt-paper-memory-normalization-v1",
+    "split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c"
+  },
+  "normalization_sha256": "c93330827c7cc1dd42f0253ffdf4770e490a0c8d1e2b692284a25f6550ea7012",
+  "normalized_memory_bank_checks": [
+    {
+      "kernel": "machsuite-gemm-blocked",
+      "max_absolute_error": 2.980232238769531e-07
+    },
+    {
+      "kernel": "machsuite-gemm-ncubed",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "machsuite-md-knn",
+      "max_absolute_error": 2.384185791015625e-07
+    },
+    {
+      "kernel": "machsuite-spmv-ellpack",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "machsuite-stencil2d",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "machsuite-stencil3d",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-back",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia-backprop-0-baseline-forward",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia-backprop-1-tiling-back",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia-hotspot-0-baseline",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia-hotspot-1-tiling",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia-hotspot-2-pipeline",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia-hotspot-3-unroll",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia-kmeans-0-baseline",
+      "max_absolute_error": 2.980232238769531e-07
+    },
+    {
+      "kernel": "rodinia-kmeans-1-tiling",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia-kmeans-2-pipeline",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia-kmeans-3-unroll",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia-knn-0-baseline",
+      "max_absolute_error": 2.980232238769531e-07
+    },
+    {
+      "kernel": "rodinia-knn-1-tiling",
+      "max_absolute_error": 4.172325134277344e-07
+    },
+    {
+      "kernel": "rodinia-knn-2-pipeline",
+      "max_absolute_error": 4.172325134277344e-07
+    },
+    {
+      "kernel": "rodinia-knn-3-unroll",
+      "max_absolute_error": 4.172325134277344e-07
+    },
+    {
+      "kernel": "rodinia-knn-4-doublebuffer",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia-knn-5-coalescing",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia_cfd_flux_0_baseline_0",
+      "max_absolute_error": 2.980232238769531e-07
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_0_baseline_0",
+      "max_absolute_error": 2.980232238769531e-07
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_1_tiling_0",
+      "max_absolute_error": 4.172325134277344e-07
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_2_pipeline_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_3_unroll_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_4_doublebuffer_0",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia_cfd_step_factor_5_coalescing_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_dilate_0_baseline_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_dilate_1_tiling_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_dilate_2_pipeline_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_dilate_3_pipeline_0",
+      "max_absolute_error": 5.960464477539062e-07
+    },
+    {
+      "kernel": "rodinia_lavaMD_0_baseline",
+      "max_absolute_error": 4.470348358154297e-07
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_0",
+      "max_absolute_error": 5.960464477539062e-07
+    },
+    {
+      "kernel": "rodinia_lavaMD_1_tiling_1",
+      "max_absolute_error": 4.172325134277344e-07
+    },
+    {
+      "kernel": "rodinia_lavaMD_2_pipeline_0",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia_lc_gicov_0_baseline_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_lc_mgvf_0_baseline_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_lud_1_tiling_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_streamcluster_0_baseline_0",
+      "max_absolute_error": 2.980232238769531e-07
+    },
+    {
+      "kernel": "rodinia_streamcluster_1_tiling_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_streamcluster_2_pipeline_1",
+      "max_absolute_error": 4.76837158203125e-07
+    },
+    {
+      "kernel": "rodinia_streamcluster_3_doublebuffer_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_streamcluster_4_coalescing_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "spcl_example_00",
+      "max_absolute_error": 2.384185791015625e-07
+    },
+    {
+      "kernel": "spcl_example_01",
+      "max_absolute_error": 1.7881393432617188e-07
+    },
+    {
+      "kernel": "spcl_example_03",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "spcl_example_05",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "machsuite-sort-radix",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "machsuite-viterbi",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_pathfinder_0_baseline_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    },
+    {
+      "kernel": "rodinia_pathfinder_4_doublebuffer_0",
+      "max_absolute_error": 3.5762786865234375e-07
+    }
+  ],
+  "release_manifest_sha256": "1c75bf22bd1bc6263e68118a8438ccf3bbf1eb8e7d675149f010d6f2a0a1a6e3",
+  "schema": "salt-frozen-representation-diagnostics-v1",
+  "script_sha256": "c83f64d112d4b6b7cc086191f33c8026dbc898f46d87a318626f8be7f86f0830",
+  "split_sha256": "d0886fa8be67329b25dc6923bd6d1fb5e1372df60f2f0feffe6ad07f83ec360c",
+  "threads": 4,
+  "torch": "2.6.0+cu124",
+  "train_kernels": 50
+}
