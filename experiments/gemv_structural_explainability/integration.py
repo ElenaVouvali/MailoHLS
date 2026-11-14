@@ -14,23 +14,25 @@ from experiments.gemv_structural_explainability.memory_alignment import MemoryAl
 
 
 @contextmanager
-def aligned_runtime(production, raw_dir, mode):
+def aligned_runtime(production, raw_dir, mode, *, expected_gnn_sha256=GNN_SHA,
+                    alignment_factory=None, pretrained=None, auxiliary_weight=0.):
     from LLM_branch.common import structural_memory as common
     manifest_path = Path(raw_dir)/'manifest.json'
     manifest = json.loads(manifest_path.read_text())
-    if manifest['gnn_sha256'] != GNN_SHA:
+    if manifest['gnn_sha256'] != expected_gnn_sha256:
         raise ValueError('Alignment bank uses a different GNN')
     raw = {}
     for kernel,record in manifest['packs'].items():
         path = Path(raw_dir)/record['file']
         if sha(path) != record['sha256']: raise ValueError('Raw memory hash mismatch')
         pack = torch.load(path,map_location='cpu',weights_only=False)
-        if pack['gnn_sha256'] != GNN_SHA: raise ValueError('Raw encoder identity mismatch')
+        if pack['gnn_sha256'] != expected_gnn_sha256: raise ValueError('Raw encoder identity mismatch')
         raw[common.normalize_kname(kernel)] = pack
     old_move = production.move_structural_modules_to_model_device
     old_condition = production.LengthGroupedTrainer._condition_structural_memory_from_kernel_names
     old_get = common.get_structural_memory_pack_for_kernel
     old_dump = production.dump_json
+    old_loss = production.LengthGroupedTrainer.compute_loss
     holder = {}
 
     def move(model):
@@ -40,8 +42,12 @@ def aligned_runtime(production, raw_dir, mode):
         if not hasattr(attention,'alignment'):
             with torch.random.fork_rng(devices=[]):
                 torch.manual_seed(123)
-                attention.alignment = MemoryAlignment(manifest['edge_dim'],mode).to(
-                    device=attention.to_q.weight.device,dtype=torch.float32)
+                factory=alignment_factory or MemoryAlignment
+                attention.alignment = factory(manifest['edge_dim'],mode)
+                if pretrained is not None:
+                    state=torch.load(pretrained,map_location='cpu',weights_only=False)
+                    attention.alignment.load_state_dict(state['model'],strict=True)
+                attention.alignment.to(device=attention.to_q.weight.device,dtype=torch.float32)
         holder['alignment'] = attention.alignment
         holder['device'] = attention.to_q.weight.device
 
@@ -52,6 +58,8 @@ def aligned_runtime(production, raw_dir, mode):
         device = next(module.parameters()).device if mode!='action' else holder['device']
         pack = to_device(raw[common.normalize_kname(kernel_name)],device)
         result = module(pack)
+        if auxiliary_weight and module.training:
+            holder.setdefault('auxiliary_losses',[]).append(result['auxiliary_loss'])
         return result['memory'],result['mask'],result['relation']
 
     def condition(trainer,model,kernel_names):
@@ -65,18 +73,30 @@ def aligned_runtime(production, raw_dir, mode):
     def dump(path,payload):
         if Path(path).name=='training_contract.json':
             payload=dict(payload,structural=dict(payload.get('structural',{}),
-                embedding_mode='static_pre_npt::conv1_jkmax_raw_v1'))
-            payload = dict(payload,structural_alignment=dict(schema=SCHEMA,mode=mode,
-                raw_manifest_sha256=sha(manifest_path),gnn_sha256=GNN_SHA,
+                embedding_mode=manifest.get('exported_embedding_mode','static_pre_npt::conv1_jkmax_raw_v1')))
+            payload = dict(payload,structural_alignment=dict(schema=getattr(holder.get('alignment'),'schema',SCHEMA),mode=mode,
+                raw_manifest_sha256=sha(manifest_path),gnn_sha256=expected_gnn_sha256,
                 summary_tokens_per_action=2 if mode=='gmt' else 0,
-                raw_dir=str(Path(raw_dir).resolve()),normalization='raw first|JK states',
+                raw_dir=str(Path(raw_dir).resolve()),normalization=manifest.get('embedding_layout','raw first|JK states'),
+                pretrained_sha256=sha(pretrained) if pretrained is not None else None,
+                auxiliary_weight=auxiliary_weight,
                 trained_status='see trainer_state global_step and completion receipt'))
         return old_dump(path,payload)
+
+    def loss(trainer,model,inputs,*args,**kwargs):
+        holder['auxiliary_losses']=[]
+        result=old_loss(trainer,model,inputs,*args,**kwargs)
+        extras=holder.pop('auxiliary_losses',[])
+        if model.training and extras:
+            addition=auxiliary_weight*torch.stack(extras).mean()
+            return (result[0]+addition,result[1]) if isinstance(result,tuple) else result+addition
+        return result
 
     production.move_structural_modules_to_model_device = move
     production.LengthGroupedTrainer._condition_structural_memory_from_kernel_names = condition
     common.get_structural_memory_pack_for_kernel = get
     production.dump_json = dump
+    if auxiliary_weight:production.LengthGroupedTrainer.compute_loss=loss
     try:
         yield holder
     finally:
@@ -84,3 +104,4 @@ def aligned_runtime(production, raw_dir, mode):
         production.LengthGroupedTrainer._condition_structural_memory_from_kernel_names = old_condition
         common.get_structural_memory_pack_for_kernel = old_get
         production.dump_json = old_dump
+        production.LengthGroupedTrainer.compute_loss=old_loss

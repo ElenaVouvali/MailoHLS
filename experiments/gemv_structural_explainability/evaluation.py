@@ -268,7 +268,7 @@ def evaluate(args):
             timings['native_generation_seconds']=time.monotonic()-native_started
             model,tok=kwargs['model'],kwargs['tok']
             source_actions=domains.load_source_actions('gemv',ROOT/'evaluation_set/gemv/code_to_memory_outputs/meta')
-            domains.validate_assignments(inference.build_rhs_map_from_target(output['prediction']),source_actions)
+            domains.validate_assignments({k.upper():v for k,v in inference.build_rhs_map_from_target(output['prediction']).items()},source_actions)
             module=holder['alignment']
             device=inference.get_first_real_device(model)
             p=to_device(raw,device)
@@ -318,7 +318,7 @@ def evaluate(args):
                             # as a fixed-prefix effect estimate.
                             free=old_decode(**dict(kwargs,structural_memory=changed['memory'],
                                 structural_memory_mask=changed['mask'],structural_relation_mask=changed['relation']))
-                            domains.validate_assignments(inference.build_rhs_map_from_target(free['prediction']),source_actions)
+                            domains.validate_assignments({k.upper():v for k,v in inference.build_rhs_map_from_target(free['prediction']).items()},source_actions)
                             end_to_end.append(dict(action='L'+str(spec.action+1),intervention=spec.name,
                                 changed=free['prediction']!=output['prediction'],source_valid=True,prediction=free['prediction']))
                 attention_rows.extend(recorder.rows)
@@ -331,7 +331,7 @@ def evaluate(args):
             '--memory_dir',str(args.raw_dir/'memory'),'--kernel_name','gemv',
             '--code_file',str(ROOT/'evaluation_set/gemv/code_to_memory_outputs/meta/gemv.c'),
             '--application_dataset_dir',str(ROOT/'evaluation_set/gemv/code_to_memory_outputs/meta'),
-            '--directive_domain_registry_json',str(args.out/'gemv_domains.json'),
+            '--directive_domain_registry_json',str(args.checkpoint/'directive_domain_registry.json'),
             '--objective','latency','--clock_period','10','--available_clock_periods','10','--avail_bram','624','--avail_dsp','1728',
             '--avail_ff','460800','--avail_lut','230400','--debug_topk','10000',
             '--score_reduction','mean','--num_samples','1','--output_json',str(args.out/'native_generation.json')]

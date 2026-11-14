@@ -125,7 +125,7 @@ def train(args):
     from experiments.final_architecture_20261109.run import preflight as gpu_preflight
     started = time.monotonic()
     try:
-        receipt = gpu_preflight(args.gpu_uuid)
+        receipt = gpu_preflight(args.gpu_uuid,minimum=14000 if args.gpu_uuid=='GPU-1a87c5a7-652d-d582-29e8-a5fccb11ce35' else 24000)
     except Exception as exc:
         write_json(args.out/'alignment_attempt.json',dict(status='BLOCKED_BEFORE_ALLOCATION',
             reason=str(exc),mode=args.mode,updates=0,learned_results_available=False))
@@ -133,19 +133,28 @@ def train(args):
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_uuid
     if sha(STAGE1/'adapter_model.safetensors')!=STAGE1_SHA: raise ValueError('Wrong Stage1')
     manifest = json.loads((args.raw_dir/'manifest.json').read_text())
+    expected_gnn=manifest['gnn_sha256']
+    semantic=getattr(args,'semantic_pretraining',None)
+    if semantic:
+        from experiments.gemv_structural_explainability.final_artifacts_refinement.export import SHA as final_gnn_sha
+        if expected_gnn!=final_gnn_sha:raise ValueError('Semantic refinement requires FINAL_ARTIFACTS encoder')
+        if args.mode!='gmt':raise ValueError('Semantic checkpoint is a GMT arm; do not mislabel it as a matched baseline')
+        completed=json.loads((semantic.parent/'completion.json').read_text())
+        if completed['selected_checkpoint_sha256']!=sha(semantic):raise ValueError('Compiler pretraining checkpoint identity mismatch')
+    elif expected_gnn!=GNN_SHA:raise ValueError('Explicit semantic pretraining is required for a different encoder lineage')
     # Explicit identity transform preserves the supervisor-published raw vectors.
     # This is not represented as a fitted training RMS normalization.
     normalization=dict(schema='salt-gemv-identity-normalization-v1',
-        rule='identity; preserve exact published raw [first|JK] action states',
+        rule='identity; preserve exact authenticated exported action states',
         fitted=False,split_sha256=sha(args.data_dir/'split.json'))
     norm_path=args.raw_dir/'memory/normalization.json'
     write_json(norm_path,normalization)
     bank_manifest=dict(manifest,objective='PARETO_LATENCY',
         action_relation_schema='salt-paper-rc3-action-relations-v1',
-        gnn_checkpoint_sha256=GNN_SHA,
-        feature_schema_sha256=__import__('hashlib').sha256(json.dumps(
+        gnn_checkpoint_sha256=expected_gnn,
+        feature_schema_sha256=manifest.get('feature_schema_sha256') or __import__('hashlib').sha256(json.dumps(
             manifest['encoder']['tensor_schema'],sort_keys=True,separators=(',',':')).encode()).hexdigest(),
-        normalization_sha256=sha(norm_path),embedding_mode='static_pre_npt::conv1_jkmax_raw_v1')
+        normalization_sha256=sha(norm_path),embedding_mode=manifest.get('exported_embedding_mode','static_pre_npt::conv1_jkmax_raw_v1'))
     write_json(args.raw_dir/'memory/memory_manifest.json',bank_manifest)
     rows = [json.loads(s) for s in (args.data_dir/'stage2_pilot.jsonl').read_text().splitlines()]
     from LLM_branch.common.structural_memory import normalize_kname
@@ -163,7 +172,8 @@ def train(args):
     setarg('--epochs',100);setarg('--max_steps',args.steps)
     setarg('--selection_num_val_kernels',3)
     setarg('--initial_state_reference',args.out.parent/('initial_'+args.mode+'.json'))
-    for flag in ('--eval_steps','--save_steps','--selection_eval_steps'): setarg(flag,min(50,args.steps))
+    for flag in ('--eval_steps','--selection_eval_steps'):setarg(flag,min(args.validation_interval,args.steps))
+    setarg('--save_steps',min(50,args.steps))
     argv += ['--batch_size','1','--grad_accum','8','--budget_target_max_duplicates','0','--no-eval_on_start',
         '--memory_representation_schema',manifest['representation_schema']]
     if args.resume: argv += ['--resume_from_checkpoint',str(args.resume)]
@@ -171,7 +181,8 @@ def train(args):
         mode=args.mode,seed=123,steps=args.steps,argv=argv,preflight=receipt,
         raw_manifest_sha256=sha(args.raw_dir/'manifest.json'),
         data_sha256=sha(args.data_dir/'stage2_pilot.jsonl'),split_sha256=sha(args.data_dir/'split.json'),
-        stage1_sha256=STAGE1_SHA,gnn_sha256=GNN_SHA,summary_tokens_per_action=2,
+        stage1_sha256=STAGE1_SHA,gnn_sha256=expected_gnn,summary_tokens_per_action=2,
+        semantic_pretraining_sha256=sha(semantic) if semantic else None,
         objective='sealed multireference, equal actions/equal nonforced fields/value tokens',
         target_film=False,locked_test_evaluated=False))
     # Existing NumPy 1.26 exposes this lazy compatibility namespace only after
@@ -181,7 +192,17 @@ def train(args):
     from experiments.final_architecture_v3.supervision import corrected
     from experiments.gemv_structural_explainability.integration import aligned_runtime
     sys.argv = [sys.argv[0],*argv]
-    with corrected(production),aligned_runtime(production,args.raw_dir,args.mode):
+    options={}
+    if semantic:
+        from experiments.gemv_structural_explainability.final_artifacts_refinement.model import SemanticMemoryAlignment
+        options=dict(expected_gnn_sha256=expected_gnn,alignment_factory=SemanticMemoryAlignment,
+                     pretrained=semantic,auxiliary_weight=.1)
+        original_quant=production.BitsAndBytesConfig
+        def fp16_config(**kwargs):
+            kwargs['bnb_4bit_compute_dtype']=torch.float16
+            return original_quant(**kwargs)
+        production.BitsAndBytesConfig=fp16_config
+    with corrected(production),aligned_runtime(production,args.raw_dir,args.mode,**options):
         production.main()
     state_files=list(args.out.rglob('trainer_state.json'))
     updates=max((json.loads(p.read_text()).get('global_step',0) for p in state_files),default=0)
@@ -210,6 +231,8 @@ def main():
     p.add_argument('--reference-prefixes',type=Path,
                    help='Score all matched arms under the same saved complete prefixes')
     p.add_argument('--gradient-audit',action='store_true',help='Replay one training batch without an optimizer update')
+    p.add_argument('--semantic-pretraining',type=Path,help='Completed FINAL_ARTIFACTS compiler-fact checkpoint')
+    p.add_argument('--validation-interval',type=int,default=50)
     args = p.parse_args()
     if args.stage=='preflight': preflight(args.out)
     elif args.stage=='export': export(args)
