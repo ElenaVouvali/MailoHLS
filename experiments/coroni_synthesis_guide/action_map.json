@@ -1,0 +1,704 @@
+{
+  "derivation": "IDs/kinds/array names cross-checked between SALT request definitions and exact snapshotted declarations; lexical anchors, not HLS compiler scope paths",
+  "kernels": {
+    "GAN": {
+      "actions": [
+        {
+          "action_id": "L1",
+          "anchor": "L1:",
+          "following_source": "quantized_type xbuf[N1];",
+          "kind": "array",
+          "line": 27,
+          "variable": "xbuf"
+        },
+        {
+          "action_id": "L2",
+          "anchor": "L2:",
+          "following_source": "l_quantized_type layer_1_out[M1];",
+          "kind": "array",
+          "line": 29,
+          "variable": "layer_1_out"
+        },
+        {
+          "action_id": "L3",
+          "anchor": "L3:",
+          "following_source": "l_quantized_type layer_2_out[M2];",
+          "kind": "array",
+          "line": 32,
+          "variable": "layer_2_out"
+        },
+        {
+          "action_id": "L4",
+          "anchor": "L4:",
+          "following_source": "for (int i=0; i<N1; i++)",
+          "kind": "loop",
+          "line": 38
+        },
+        {
+          "action_id": "L5",
+          "anchor": "L5:",
+          "following_source": "for(int i=0; i<N1; i++)",
+          "kind": "loop",
+          "line": 47
+        },
+        {
+          "action_id": "L6",
+          "anchor": "L6:",
+          "following_source": "for(int j=0; j<M1; j++)",
+          "kind": "loop",
+          "line": 51
+        },
+        {
+          "action_id": "L7",
+          "anchor": "L7:",
+          "following_source": "for(int i=0; i<M1; i++)",
+          "kind": "loop",
+          "line": 60
+        },
+        {
+          "action_id": "L8",
+          "anchor": "L8:",
+          "following_source": "for(int i=0; i<M2; i++)",
+          "kind": "loop",
+          "line": 69
+        },
+        {
+          "action_id": "L9",
+          "anchor": "L9:",
+          "following_source": "for(int j=0; j<N2; j++)",
+          "kind": "loop",
+          "line": 74
+        },
+        {
+          "action_id": "L10",
+          "anchor": "L10:",
+          "following_source": "for(int i=0; i<M3; i++)",
+          "kind": "loop",
+          "line": 85
+        },
+        {
+          "action_id": "L11",
+          "anchor": "L11:",
+          "following_source": "for(int j=0; j<N3; j++)",
+          "kind": "loop",
+          "line": 90
+        }
+      ],
+      "excluded_active_headers": [
+        "ap_fixed.h"
+      ],
+      "metadata_warning": null,
+      "source": "source_snapshot/Application/GAN/network.cpp",
+      "source_sha256": "17c6f09883feb1ca7bbb6a307e9c0c261e2e27b0412f5ddc725c902cb2879123",
+      "top": "forward_propagation"
+    },
+    "chstone-aes": {
+      "actions": [
+        {
+          "action_id": "L1",
+          "anchor": "/*L1:*/",
+          "following_source": "for (i = 0; i < 16; i++)",
+          "kind": "loop",
+          "line": 288
+        },
+        {
+          "action_id": "L2",
+          "anchor": "/*L2:*/",
+          "following_source": "for (i = 0; i < 16; i++)",
+          "kind": "loop",
+          "line": 431
+        },
+        {
+          "action_id": "L3",
+          "anchor": "/*L3:*/",
+          "following_source": "for (i = 0; i < 4; ++i)",
+          "kind": "loop",
+          "line": 575
+        },
+        {
+          "action_id": "L4",
+          "anchor": "/*L4:*/",
+          "following_source": "for (i = 0; i < 4; ++i)",
+          "kind": "loop",
+          "line": 603
+        },
+        {
+          "action_id": "L5",
+          "anchor": "/*L5:*/",
+          "following_source": "for (i = 0; i < 4; ++i)",
+          "kind": "loop",
+          "line": 609
+        },
+        {
+          "action_id": "L6",
+          "anchor": "/*L6:*/",
+          "following_source": "for (i = 0; i < 4; ++i)",
+          "kind": "loop",
+          "line": 1067
+        }
+      ],
+      "excluded_active_headers": [],
+      "metadata_warning": null,
+      "source": "source_snapshot/Application/chstone-aes/kernel_placeholders.c",
+      "source_sha256": "273ffb57f9cc71fe0923ca842ff1a0a3f0599e9619616787c8cc000fad5f88b0",
+      "top": "chstone_aes"
+    },
+    "chstone-jpeg": {
+      "actions": [
+        {
+          "action_id": "L1",
+          "anchor": "/*L1:*/",
+          "following_source": "for (i = 1; i <= 16; i++)",
+          "kind": "loop",
+          "line": 1878
+        },
+        {
+          "action_id": "L2",
+          "anchor": "/*L2:*/",
+          "following_source": "for (i = 0; i < DCTSIZE2; i++)",
+          "kind": "loop",
+          "line": 1940
+        },
+        {
+          "action_id": "L3",
+          "anchor": "/*L3:*/",
+          "following_source": "for (i = 0; i < DCTSIZE2; i++)",
+          "kind": "loop",
+          "line": 2372
+        },
+        {
+          "action_id": "L4",
+          "anchor": "/*L4:*/",
+          "following_source": "for (i = 0; i < DCTSIZE2; i++)",
+          "kind": "loop",
+          "line": 2590
+        },
+        {
+          "action_id": "L5",
+          "anchor": "/*L5:*/",
+          "following_source": "int QuantBuff[DCTSIZE2];",
+          "kind": "array",
+          "line": 2631,
+          "variable": "QuantBuff"
+        },
+        {
+          "action_id": "L6",
+          "anchor": "/*L6:*/",
+          "following_source": "int HuffBuff[NUM_COMPONENT][DCTSIZE2];",
+          "kind": "array",
+          "line": 2658,
+          "variable": "HuffBuff"
+        },
+        {
+          "action_id": "L7",
+          "anchor": "/*L7:*/",
+          "following_source": "int IDCTBuff[6][DCTSIZE2];",
+          "kind": "array",
+          "line": 2660,
+          "variable": "IDCTBuff"
+        },
+        {
+          "action_id": "L8",
+          "anchor": "/*L8:*/",
+          "following_source": "for (i = 0; i < NUM_COMPONENT; i++)",
+          "kind": "loop",
+          "line": 2669
+        },
+        {
+          "action_id": "L9",
+          "anchor": "/*L9:*/",
+          "following_source": "for (i = 0; i < RGB_NUM; i++)",
+          "kind": "loop",
+          "line": 2685
+        },
+        {
+          "action_id": "L10",
+          "anchor": "/*L10:*/",
+          "following_source": "for (i = 0; i < NUM_COMPONENT; i++)",
+          "kind": "loop",
+          "line": 2704
+        },
+        {
+          "action_id": "L11",
+          "anchor": "/*L11:*/",
+          "following_source": "for (i = 0; i < RGB_NUM; i++)",
+          "kind": "loop",
+          "line": 2716
+        },
+        {
+          "action_id": "L12",
+          "anchor": "/*L12:*/",
+          "following_source": "for (i = 0; i < 4; i++)",
+          "kind": "loop",
+          "line": 2741
+        },
+        {
+          "action_id": "L13",
+          "anchor": "/*L13:*/",
+          "following_source": "for (i = 0; i < 4; i++)",
+          "kind": "loop",
+          "line": 2757
+        },
+        {
+          "action_id": "L14",
+          "anchor": "/*L14:*/",
+          "following_source": "for (i = 0; i < RGB_NUM; i++)",
+          "kind": "loop",
+          "line": 2765
+        },
+        {
+          "action_id": "L15",
+          "anchor": "/*L15:*/",
+          "following_source": "int huffsize[257];",
+          "kind": "array",
+          "line": 2968,
+          "variable": "huffsize"
+        },
+        {
+          "action_id": "L16",
+          "anchor": "/*L16:*/",
+          "following_source": "int huffcode[257];",
+          "kind": "array",
+          "line": 2970,
+          "variable": "huffcode"
+        },
+        {
+          "action_id": "L17",
+          "anchor": "/*L17:*/",
+          "following_source": "for (p = 0, i = 1; i < 17; i++)",
+          "kind": "loop",
+          "line": 2977
+        },
+        {
+          "action_id": "L18",
+          "anchor": "/*L18:*/",
+          "following_source": "for (p_dhtbl_ml = 1, p = 0, l = 1; l <= 16; l++)",
+          "kind": "loop",
+          "line": 3014
+        },
+        {
+          "action_id": "L19",
+          "anchor": "/*L19:*/",
+          "following_source": "for (i = 0; i < JPEGSIZE; i++)",
+          "kind": "loop",
+          "line": 3314
+        },
+        {
+          "action_id": "L20",
+          "anchor": "/*L20:*/",
+          "following_source": "for (i = 0; i < RGB_NUM; i++)",
+          "kind": "loop",
+          "line": 3325
+        },
+        {
+          "action_id": "L21",
+          "anchor": "/*L21:*/",
+          "following_source": "for (j = 0; j < BMP_OUT_SIZE; j++)",
+          "kind": "loop",
+          "line": 3329
+        }
+      ],
+      "excluded_active_headers": [],
+      "metadata_warning": null,
+      "source": "source_snapshot/Application/chstone-jpeg/kernel_placeholders.c",
+      "source_sha256": "93f4df95ef0fbc1a930f5ebbbf6927778f9a512008fc971bdce7afb0226eabb7",
+      "top": "chstone_jpeg"
+    },
+    "covariance": {
+      "actions": [
+        {
+          "action_id": "L1",
+          "anchor": "/*L1:*/",
+          "following_source": "for (j = 0; j < 80; j++) {",
+          "kind": "loop",
+          "line": 15
+        },
+        {
+          "action_id": "L2",
+          "anchor": "/*L2:*/",
+          "following_source": "for (i = 0; i < 100; i++) {",
+          "kind": "loop",
+          "line": 19
+        },
+        {
+          "action_id": "L3",
+          "anchor": "/*L3:*/",
+          "following_source": "for (i = 0; i < 100; i++) {",
+          "kind": "loop",
+          "line": 27
+        },
+        {
+          "action_id": "L4",
+          "anchor": "/*L4:*/",
+          "following_source": "for (j = 0; j < 80; j++) {",
+          "kind": "loop",
+          "line": 30
+        },
+        {
+          "action_id": "L5",
+          "anchor": "/*L5:*/",
+          "following_source": "for (i = 0; i < 80; i++) {",
+          "kind": "loop",
+          "line": 37
+        },
+        {
+          "action_id": "L6",
+          "anchor": "/*L6:*/",
+          "following_source": "for (j = i; j < 80; j++) {",
+          "kind": "loop",
+          "line": 40
+        },
+        {
+          "action_id": "L7",
+          "anchor": "/*L7:*/",
+          "following_source": "for (k = 0; k < 100; k++) {",
+          "kind": "loop",
+          "line": 44
+        }
+      ],
+      "excluded_active_headers": [],
+      "metadata_warning": null,
+      "source": "source_snapshot/Application/covariance/kernel_placeholders.cpp",
+      "source_sha256": "7eb548b4d27244a0cc32cbc4c2fdefceca13e82723d0264655f902a4ab646eb3",
+      "top": "kernel_covariance"
+    },
+    "jacobi-2d": {
+      "actions": [
+        {
+          "action_id": "L1",
+          "anchor": "/*L1:*/",
+          "following_source": "for (t = 0; t < 40; t++) {",
+          "kind": "loop",
+          "line": 12
+        },
+        {
+          "action_id": "L2",
+          "anchor": "/*L2:*/",
+          "following_source": "for (i = 1; i < 89; i++) {",
+          "kind": "loop",
+          "line": 15
+        },
+        {
+          "action_id": "L3",
+          "anchor": "/*L3:*/",
+          "following_source": "for (j = 1; j < 89; j++) {",
+          "kind": "loop",
+          "line": 18
+        },
+        {
+          "action_id": "L4",
+          "anchor": "/*L4:*/",
+          "following_source": "for (i = 1; i < 89; i++) {",
+          "kind": "loop",
+          "line": 26
+        },
+        {
+          "action_id": "L5",
+          "anchor": "/*L5:*/",
+          "following_source": "for (j = 1; j < 89; j++) {",
+          "kind": "loop",
+          "line": 29
+        }
+      ],
+      "excluded_active_headers": [],
+      "metadata_warning": null,
+      "source": "source_snapshot/Application/jacobi-2d/kernel_placeholders.cpp",
+      "source_sha256": "2bff53a7d04f7ada51163c3824e0b79a13e4d87ce1caf6f5bd291ef322d06d41",
+      "top": "kernel_jacobi_2d"
+    },
+    "rosetta-3d-rendering": {
+      "actions": [
+        {
+          "action_id": "L1",
+          "anchor": "/*L1:*/",
+          "following_source": "static bit8 z_buffer[MAX_X][MAX_Y];",
+          "kind": "array",
+          "line": 160,
+          "variable": "z_buffer"
+        },
+        {
+          "action_id": "L2",
+          "anchor": "/*L2:*/",
+          "following_source": "for (bit16 i = 0; i < MAX_X; i++) {",
+          "kind": "loop",
+          "line": 165
+        },
+        {
+          "action_id": "L3",
+          "anchor": "/*L3:*/",
+          "following_source": "for (bit16 j = 0; j < MAX_Y; j++) {",
+          "kind": "loop",
+          "line": 169
+        },
+        {
+          "action_id": "L4",
+          "anchor": "/*L4:*/",
+          "following_source": "for (bit16 n = 0; n < size; n++) {",
+          "kind": "loop",
+          "line": 179
+        },
+        {
+          "action_id": "L5",
+          "anchor": "/*L5:*/",
+          "following_source": "for (bit16 i = 0; i < MAX_X; i++) {",
+          "kind": "loop",
+          "line": 198
+        },
+        {
+          "action_id": "L6",
+          "anchor": "/*L6:*/",
+          "following_source": "for (bit16 j = 0; j < MAX_Y; j++) {",
+          "kind": "loop",
+          "line": 202
+        },
+        {
+          "action_id": "L7",
+          "anchor": "/*L7:*/",
+          "following_source": "for (bit16 i = 0; i < size_pixels; i++) {",
+          "kind": "loop",
+          "line": 211
+        },
+        {
+          "action_id": "L8",
+          "anchor": "/*L8:*/",
+          "following_source": "for (bit16 i = 0; i < MAX_X; i++) {",
+          "kind": "loop",
+          "line": 222
+        },
+        {
+          "action_id": "L9",
+          "anchor": "/*L9:*/",
+          "following_source": "for (bit16 j = 0; j < MAX_Y; j = j + 4) {",
+          "kind": "loop",
+          "line": 226
+        },
+        {
+          "action_id": "L10",
+          "anchor": "/*L10:*/",
+          "following_source": "CandidatePixel fragment[500];",
+          "kind": "array",
+          "line": 245,
+          "variable": "fragment"
+        },
+        {
+          "action_id": "L11",
+          "anchor": "/*L11:*/",
+          "following_source": "Pixel pixels[500];",
+          "kind": "array",
+          "line": 249,
+          "variable": "pixels"
+        },
+        {
+          "action_id": "L12",
+          "anchor": "/*L12:*/",
+          "following_source": "bit8 frame_buffer[MAX_X][MAX_Y];",
+          "kind": "array",
+          "line": 252,
+          "variable": "frame_buffer"
+        },
+        {
+          "action_id": "L13",
+          "anchor": "/*L13:*/",
+          "following_source": "bit8 max_min[5];",
+          "kind": "array",
+          "line": 256,
+          "variable": "max_min"
+        },
+        {
+          "action_id": "L14",
+          "anchor": "/*L14:*/",
+          "following_source": "bit16 max_index[1];",
+          "kind": "array",
+          "line": 258,
+          "variable": "max_index"
+        },
+        {
+          "action_id": "L15",
+          "anchor": "/*L15:*/",
+          "following_source": "for (bit16 i = 0; i < NUM_3D_TRI; i++) {",
+          "kind": "loop",
+          "line": 263
+        }
+      ],
+      "excluded_active_headers": [],
+      "metadata_warning": "Selected source is 15-action layout; kernel_info/ACTION_AUDIT are stale 12-action layout; alternate kernel.cpp labels invalid",
+      "source": "source_snapshot/Application/rosetta-3d-rendering/kernel_placeholders.cpp",
+      "source_sha256": "5ba76bbc4200c278098f3c05737a48ebb8d62487f73ae378e07204f6d38568eb",
+      "top": "rendering"
+    },
+    "serrano-kalman-filter": {
+      "actions": [
+        {
+          "action_id": "L1",
+          "anchor": "/*L1:*/",
+          "following_source": "DTYPE in_local[BATCH_SIZE_1];",
+          "kind": "array",
+          "line": 40,
+          "variable": "in_local"
+        },
+        {
+          "action_id": "L2",
+          "anchor": "/*L2:*/",
+          "following_source": "DTYPE out_local[BATCH_SIZE_1];",
+          "kind": "array",
+          "line": 42,
+          "variable": "out_local"
+        },
+        {
+          "action_id": "L3",
+          "anchor": "/*L3:*/",
+          "following_source": "for(int i = 0; i < BATCH_SIZE_1 / FLOATS_PER_ELEMENT; i++) {",
+          "kind": "loop",
+          "line": 47
+        },
+        {
+          "action_id": "L4",
+          "anchor": "/*L4:*/",
+          "following_source": "for(int j = 0; j < FLOATS_PER_ELEMENT; j++) {",
+          "kind": "loop",
+          "line": 52
+        },
+        {
+          "action_id": "L5",
+          "anchor": "/*L5:*/",
+          "following_source": "DTYPE u_hat_arr[INTERNAL_BATCHES];",
+          "kind": "array",
+          "line": 63,
+          "variable": "u_hat_arr"
+        },
+        {
+          "action_id": "L6",
+          "anchor": "/*L6:*/",
+          "following_source": "DTYPE p_arr_1[INTERNAL_BATCHES];",
+          "kind": "array",
+          "line": 65,
+          "variable": "p_arr_1"
+        },
+        {
+          "action_id": "L7",
+          "anchor": "/*L7:*/",
+          "following_source": "DTYPE k_arr[INTERNAL_BATCHES];",
+          "kind": "array",
+          "line": 67,
+          "variable": "k_arr"
+        },
+        {
+          "action_id": "L8",
+          "anchor": "/*L8:*/",
+          "following_source": "DTYPE calc_temp_arr[INTERNAL_BATCHES];",
+          "kind": "array",
+          "line": 69,
+          "variable": "calc_temp_arr"
+        },
+        {
+          "action_id": "L9",
+          "anchor": "/*L9:*/",
+          "following_source": "for (int i = 0; i < INTERNAL_BATCHES; i++) {",
+          "kind": "loop",
+          "line": 72
+        },
+        {
+          "action_id": "L10",
+          "anchor": "/*L10:*/",
+          "following_source": "for (int t = 1; t < INTERNAL_BATCH_SIZE; t++) {",
+          "kind": "loop",
+          "line": 80
+        },
+        {
+          "action_id": "L11",
+          "anchor": "/*L11:*/",
+          "following_source": "for (int i = 0; i < INTERNAL_BATCHES; i++) {",
+          "kind": "loop",
+          "line": 83
+        },
+        {
+          "action_id": "L12",
+          "anchor": "/*L12:*/",
+          "following_source": "for(int i = 0; i < BATCH_SIZE_1 / FLOATS_PER_ELEMENT; i++) {",
+          "kind": "loop",
+          "line": 99
+        },
+        {
+          "action_id": "L13",
+          "anchor": "/*L13:*/",
+          "following_source": "for(int j = 0; j < FLOATS_PER_ELEMENT; j++) {",
+          "kind": "loop",
+          "line": 104
+        }
+      ],
+      "excluded_active_headers": [],
+      "metadata_warning": null,
+      "source": "source_snapshot/Application/serrano-kalman-filter/kernel_placeholders.cpp",
+      "source_sha256": "9dc7428fe3bc05cda0b76ad267163543924d5159ceace209d42d4da3569fca7b",
+      "top": "krnl_KALMAN"
+    },
+    "syr2k": {
+      "actions": [
+        {
+          "action_id": "L1",
+          "anchor": "/*L1:*/",
+          "following_source": "for (i = 0; i < 80; i++) {",
+          "kind": "loop",
+          "line": 14
+        },
+        {
+          "action_id": "L2",
+          "anchor": "/*L2:*/",
+          "following_source": "for (j = 0; j < 80; j++) {",
+          "kind": "loop",
+          "line": 17
+        },
+        {
+          "action_id": "L3",
+          "anchor": "/*L3:*/",
+          "following_source": "for (k = 0; k < 60; k++) {",
+          "kind": "loop",
+          "line": 25
+        },
+        {
+          "action_id": "L4",
+          "anchor": "/*L4:*/",
+          "following_source": "for (j = 0; j < 80; j++) {",
+          "kind": "loop",
+          "line": 28
+        }
+      ],
+      "excluded_active_headers": [],
+      "metadata_warning": null,
+      "source": "source_snapshot/Application/syr2k/kernel_placeholders.cpp",
+      "source_sha256": "fbb2fe19822d890b00851242b5f057b7152f668d5f9a8d4e3f4f1732be6473ae",
+      "top": "kernel_syr2k"
+    },
+    "trmm-opt": {
+      "actions": [
+        {
+          "action_id": "L1",
+          "anchor": "/*L1:*/",
+          "following_source": "for (int i = 0; i < 60; i++) {",
+          "kind": "loop",
+          "line": 11
+        },
+        {
+          "action_id": "L2",
+          "anchor": "/*L2:*/",
+          "following_source": "for (int j = 0; j < 80; j++) {",
+          "kind": "loop",
+          "line": 14
+        },
+        {
+          "action_id": "L3",
+          "anchor": "/*L3:*/",
+          "following_source": "for (int k = 0; k < 60; k++) {",
+          "kind": "loop",
+          "line": 18
+        }
+      ],
+      "excluded_active_headers": [],
+      "metadata_warning": null,
+      "source": "source_snapshot/Application/trmm-opt/kernel.cpp",
+      "source_sha256": "4b413ad5d5c82c860b32845f3023e53c2b011482fe7a38ca52a646166eb11ce0",
+      "top": "kernel_trmm"
+    }
+  },
+  "schema": "coroni-nine-kernel-lexical-action-map-v1"
+}

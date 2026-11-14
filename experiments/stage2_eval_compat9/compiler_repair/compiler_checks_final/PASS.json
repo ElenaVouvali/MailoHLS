@@ -1,0 +1,197 @@
+{
+  "all_four_64_arrays_source_located": true,
+  "all_seven_action_loops_source_located": true,
+  "arrays": {
+    "L1": {
+      "locations": [
+        [
+          "source.cpp",
+          44,
+          16
+        ]
+      ],
+      "type": "memref<262144xf32>"
+    },
+    "L2": {
+      "locations": [
+        [
+          "source.cpp",
+          45,
+          16
+        ]
+      ],
+      "type": "memref<262144xf32>"
+    },
+    "L5": {
+      "locations": [
+        [
+          "source.cpp",
+          61,
+          16
+        ]
+      ],
+      "type": "memref<64xf32>"
+    },
+    "L6": {
+      "locations": [
+        [
+          "source.cpp",
+          62,
+          16
+        ]
+      ],
+      "type": "memref<64xf32>"
+    },
+    "L7": {
+      "locations": [
+        [
+          "source.cpp",
+          63,
+          16
+        ]
+      ],
+      "type": "memref<64xf32>"
+    },
+    "L8": {
+      "locations": [
+        [
+          "source.cpp",
+          64,
+          16
+        ]
+      ],
+      "type": "memref<64xf32>"
+    }
+  },
+  "commands": {
+    "original": [
+      "/home/elvouvali/tools/Polygeist/build/bin/cgeist",
+      "source.cpp",
+      "-I/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/sources/Kalman",
+      "-function=krnl_KALMAN",
+      "-S",
+      "-O0",
+      "-scal-rep=0",
+      "-mailohls-action-manifest=/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/compat9_v2_work/compiler_checks_final/actions.tsv",
+      "-print-debug-info",
+      "-memref-fullrank",
+      "-raise-scf-to-affine",
+      "-o",
+      "/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/compat9_v2_work/compiler_checks_final/original.mlir"
+    ],
+    "variant_flag_off": [
+      "/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/compat9_v2_work/compiler_action_storage_v2/bin/cgeist",
+      "source.cpp",
+      "-I/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/sources/Kalman",
+      "-function=krnl_KALMAN",
+      "-S",
+      "-O0",
+      "-scal-rep=0",
+      "-mailohls-action-manifest=/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/compat9_v2_work/compiler_checks_final/actions.tsv",
+      "-print-debug-info",
+      "-memref-fullrank",
+      "-raise-scf-to-affine",
+      "-o",
+      "/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/compat9_v2_work/compiler_checks_final/variant_flag_off.mlir"
+    ],
+    "variant_flag_on": [
+      "/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/compat9_v2_work/compiler_action_storage_v2/bin/cgeist",
+      "source.cpp",
+      "-I/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/sources/Kalman",
+      "-function=krnl_KALMAN",
+      "-S",
+      "-O0",
+      "-scal-rep=0",
+      "-mailohls-action-manifest=/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/compat9_v2_work/compiler_checks_final/actions.tsv",
+      "-print-debug-info",
+      "-memref-fullrank",
+      "-raise-scf-to-affine",
+      "--mailohls-preserve-action-storage",
+      "-o",
+      "/home/elvouvali/MailoHLS/worktrees/film-gmt-stage2-final/artifacts/stage2_eval_9_20261113/compat9_v2_work/compiler_checks_final/variant_flag_on.mlir"
+    ]
+  },
+  "comparison_normalization": "Only DLTI data-layout entry order; no emitted IR or GEXF changed",
+  "flag_off_ir_identical_except_unordered_dlti_entry_order": true,
+  "flag_off_mlir_byte_identical_to_original": false,
+  "loops": [
+    {
+      "locations": [
+        [
+          "source.cpp",
+          49,
+          25
+        ]
+      ],
+      "op": "affine.for"
+    },
+    {
+      "locations": [
+        [
+          "source.cpp",
+          52,
+          26
+        ]
+      ],
+      "op": "affine.for"
+    },
+    {
+      "locations": [
+        [
+          "source.cpp",
+          66,
+          28
+        ]
+      ],
+      "op": "affine.for"
+    },
+    {
+      "locations": [
+        [
+          "source.cpp",
+          72,
+          29
+        ]
+      ],
+      "op": "affine.for"
+    },
+    {
+      "locations": [
+        [
+          "source.cpp",
+          73,
+          30
+        ]
+      ],
+      "op": "affine.for"
+    },
+    {
+      "locations": [
+        [
+          "source.cpp",
+          87,
+          26
+        ]
+      ],
+      "op": "affine.for"
+    },
+    {
+      "locations": [
+        [
+          "source.cpp",
+          90,
+          26
+        ]
+      ],
+      "op": "affine.for"
+    }
+  ],
+  "missing_manifest_flag_rejected": true,
+  "normal_post_pass_ir": true,
+  "not_immediate": true,
+  "original_compiler_sha256": "6f22da6242249a6ca1c2a9aea88029c1ce075852fdde75340901baef49755b5d",
+  "original_mlir_sha256": "75588fdf23b419e29909abeb6c86c8c0f253241013930a84458a561bcb0f5d21",
+  "preserved_mlir_sha256": "d937bdcb4f45c2ff2783ff5c86e69209b01e950c0285d0ccfa042a7aca678225",
+  "status": "PASS",
+  "variant_compiler_sha256": "820d4d3a19d162c74169af8d10fe05703afe9b48df2b0c70dcc07a3f7ccec58b"
+}

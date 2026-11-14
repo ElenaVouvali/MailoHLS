@@ -1,0 +1,80 @@
+--- original/driver.cc
++++ source/driver.cc
+@@ -259,6 +259,11 @@
+     CanonicalizeIterations("canonicalizeiters", cl::init(400),
+                            cl::desc("Number of canonicalization iterations"));
+ 
++static cl::opt<bool> MailoHLSPreserveActionStorage(
++    "mailohls-preserve-action-storage", cl::init(false),
++    cl::desc("Evaluation-only: preserve exact manifest-marked array storage through mem2reg"),
++    cl::cat(toolOptions));
++
+ static cl::opt<std::string> MailoHLSActionManifest(
+     "mailohls-action-manifest", cl::init(""),
+     cl::desc("TSV manifest of exact MailoHLS action source locations"),
+@@ -286,8 +291,9 @@
+   MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(MarkMailoHLSArrayActionsPass)
+ 
+   explicit MarkMailoHLSArrayActionsPass(
+-      std::shared_ptr<const std::vector<MailoHLSArrayAction>> actions)
+-      : actions(std::move(actions)) {}
++      std::shared_ptr<const std::vector<MailoHLSArrayAction>> actions,
++      bool preserveStorage = false)
++      : actions(std::move(actions)), preserveStorage(preserveStorage) {}
+ 
+   void runOnOperation() override {
+     getOperation()->walk([&](mlir::Operation *op) {
+@@ -304,6 +310,8 @@
+                     mlir::StringAttr::get(op->getContext(), action.id));
+         op->setAttr("mailohls.action_kind",
+                     mlir::StringAttr::get(op->getContext(), "array"));
++        if (preserveStorage)
++          op->setAttr("mailohls.preserve_storage", mlir::UnitAttr::get(op->getContext()));
+         break;
+       }
+     });
+@@ -311,6 +319,7 @@
+ 
+ private:
+   std::shared_ptr<const std::vector<MailoHLSArrayAction>> actions;
++  bool preserveStorage;
+ };
+ 
+ static std::shared_ptr<const std::vector<MailoHLSArrayAction>>
+@@ -724,6 +733,10 @@
+   bool LinkOMP = FOpenMP;
+   pm.enableVerifier(EarlyVerifier);
+ 
++  if (MailoHLSPreserveActionStorage && MailoHLSActionManifest.empty()) {
++    llvm::errs() << "error: --mailohls-preserve-action-storage requires --mailohls-action-manifest\n";
++    return 1;
++  }
+   std::shared_ptr<const std::vector<MailoHLSArrayAction>> mailoHLSActions;
+   if (!MailoHLSActionManifest.empty()) {
+     mailoHLSActions = loadMailoHLSArrayActions(MailoHLSActionManifest);
+@@ -737,6 +750,10 @@
+   GreedyRewriteConfig canonicalizerConfig;
+   canonicalizerConfig.maxIterations = CanonicalizeIterations;
+   if (true) {
++    // The original marker runs after early promotion. Evaluation-only mode
++    // marks exact source allocations before any canonicalization/mem2reg.
++    if (MailoHLSPreserveActionStorage)
++      optPM.addPass(std::make_unique<MarkMailoHLSArrayActionsPass>(mailoHLSActions, true));
+     optPM.addPass(mlir::createCSEPass());
+     optPM.addPass(mlir::polygeist::createPolygeistCanonicalizePass(
+         canonicalizerConfig, {}, {}));
+--- original/PolygeistMem2Reg.cpp
++++ source/PolygeistMem2Reg.cpp
+@@ -1798,6 +1798,12 @@
+ }
+ 
+ bool isPromotable(mlir::Value AI) {
++  // Set only by the explicit evaluation flag on an exact manifest match.
++  // All unmarked allocation promotion and normal control-flow passes remain.
++  if (auto *allocation = AI.getDefiningOp())
++    if (allocation->hasAttr("mailohls.preserve_storage") &&
++        allocation->hasAttr("mailohls.action_id"))
++      return false;
+   std::deque<mlir::Value> list = {AI};
+ 
+   while (list.size()) {
