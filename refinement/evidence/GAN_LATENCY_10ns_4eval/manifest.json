@@ -1,0 +1,844 @@
+{
+  "actions": {
+    "L1": {
+      "dims": {
+        "1": 392
+      },
+      "kind": "array",
+      "variable": "xbuf"
+    },
+    "L10": {
+      "bound": 392,
+      "kind": "loop"
+    },
+    "L11": {
+      "bound": 50,
+      "kind": "loop"
+    },
+    "L2": {
+      "dims": {
+        "1": 30
+      },
+      "kind": "array",
+      "variable": "layer_1_out"
+    },
+    "L3": {
+      "dims": {
+        "1": 50
+      },
+      "kind": "array",
+      "variable": "layer_2_out"
+    },
+    "L4": {
+      "bound": 392,
+      "kind": "loop"
+    },
+    "L5": {
+      "bound": 392,
+      "kind": "loop"
+    },
+    "L6": {
+      "bound": 30,
+      "kind": "loop"
+    },
+    "L7": {
+      "bound": 30,
+      "kind": "loop"
+    },
+    "L8": {
+      "bound": 50,
+      "kind": "loop"
+    },
+    "L9": {
+      "bound": 30,
+      "kind": "loop"
+    }
+  },
+  "artifact_note": "No model inference or HLS synthesis performed in prepare",
+  "budget_percent": 100.0,
+  "clock_ns": 10.0,
+  "compiler_graph": {
+    "action_functions": {
+      "L1": [
+        "14"
+      ],
+      "L10": [
+        "14"
+      ],
+      "L11": [
+        "14"
+      ],
+      "L2": [
+        "14"
+      ],
+      "L3": [
+        "14"
+      ],
+      "L4": [
+        "14"
+      ],
+      "L5": [
+        "14"
+      ],
+      "L6": [
+        "14"
+      ],
+      "L7": [
+        "14"
+      ],
+      "L8": [
+        "14"
+      ],
+      "L9": [
+        "14"
+      ]
+    },
+    "action_nodes": {
+      "L1": [
+        "21659"
+      ],
+      "L10": [
+        "47436",
+        "32409"
+      ],
+      "L11": [
+        "92255",
+        "92847"
+      ],
+      "L2": [
+        "7401"
+      ],
+      "L3": [
+        "75225"
+      ],
+      "L4": [
+        "37503",
+        "17185"
+      ],
+      "L5": [
+        "53361",
+        "41761"
+      ],
+      "L6": [
+        "79111",
+        "74083"
+      ],
+      "L7": [
+        "63038",
+        "81798"
+      ],
+      "L8": [
+        "47686",
+        "52528"
+      ],
+      "L9": [
+        "37077",
+        "35601"
+      ]
+    },
+    "anchored_actions": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5",
+      "L6",
+      "L7",
+      "L8",
+      "L9",
+      "L10",
+      "L11"
+    ],
+    "array_scope_access_links": {
+      "L1": [
+        {
+          "function": "14",
+          "ir": "%xbuf = alloca [392 x %struct.ap_fixed], align 16",
+          "operation_node": "70701",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i32 0, i32 0",
+          "operation_node": "75948",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx16 = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i64 0, i64 %idxprom15",
+          "operation_node": "95984",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx28 = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i64 0, i64 %idxprom27",
+          "operation_node": "1361",
+          "scope_node": "5183"
+        }
+      ],
+      "L2": [
+        {
+          "function": "14",
+          "ir": "%layer_1_out = alloca [30 x %struct.ap_fixed.0], align 16",
+          "operation_node": "48927",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin1 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i32 0, i32 0",
+          "operation_node": "49644",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx26 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom25",
+          "operation_node": "61578",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx37 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom36",
+          "operation_node": "68684",
+          "scope_node": "15716"
+        }
+      ],
+      "L3": [
+        {
+          "function": "14",
+          "ir": "%layer_2_out = alloca [50 x %struct.ap_fixed.0], align 16",
+          "operation_node": "68147",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin8 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i32 0, i32 0",
+          "operation_node": "94910",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx86 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i64 0, i64 %idxprom85",
+          "operation_node": "87926",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx101 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i64 0, i64 %idxprom100",
+          "operation_node": "16045",
+          "scope_node": "44704"
+        }
+      ]
+    },
+    "array_scope_nodes": {
+      "layer_1_out": [
+        "15716"
+      ],
+      "layer_2_out": [
+        "44704"
+      ],
+      "xbuf": [
+        "5183"
+      ]
+    },
+    "edges": 171207,
+    "meaning": "Real ProGraML pragma->array_scope->IR access links. This does not prove loop dependence, memory bank conflicts or alias freedom.",
+    "missing_actions": [],
+    "nodes": 102643,
+    "path_name": "GAN.gexf",
+    "sha256": "1c9eccab68ce47256bd3bcb1b4371798e1da0db77243b346616b96f9638065c6"
+  },
+  "controller_sha256": "c5a7c7077c24adde96b32ee5eee34afdc0d2faeb6698b34151abb27815c56b32",
+  "diagnostic_policy": "No low-confidence Lk causal conclusions from graph proximity alone",
+  "initial_directives": [
+    {
+      "action_id": "L1",
+      "kind": "array",
+      "partition_dim": 1,
+      "partition_factor": 32,
+      "partition_type": "cyclic",
+      "variable": "xbuf"
+    },
+    {
+      "action_id": "L2",
+      "kind": "array",
+      "partition_dim": 1,
+      "partition_factor": 5,
+      "partition_type": "block",
+      "variable": "layer_1_out"
+    },
+    {
+      "action_id": "L3",
+      "kind": "array",
+      "partition_dim": 1,
+      "partition_factor": 5,
+      "partition_type": "block",
+      "variable": "layer_2_out"
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 32
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 1
+    },
+    {
+      "action_id": "L6",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L7",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L8",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 1
+    },
+    {
+      "action_id": "L9",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L10",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L11",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    }
+  ],
+  "input_hashes": {
+    "kernel_info.txt": "cc93afeefd25bf7de0769e5755fc56cef0585f6d851cc94f1bb7db6efdf27eb5",
+    "llvm_graph.gexf": "1c9eccab68ce47256bd3bcb1b4371798e1da0db77243b346616b96f9638065c6",
+    "network.h": "2c78e50aa55bbd6531884a6aab7d5262196f0881ca48466832e742bffc26ee6c",
+    "tanh.h": "52408068008dfc4a6a3c47bdef65ebcac2d9cb7d058539eca7391a712feffc32",
+    "template.cpp": "85a487965653782892e98777d3f992b641f898b85fe83671c616d4441b1edc61",
+    "weight_definitions.h": "0bf67492662b46d65bee0347e82d497b8782bf622135a2af12f7cd0aca1ef771"
+  },
+  "kernel": "GAN",
+  "loop_array_relations": [
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%xbuf = alloca [392 x %struct.ap_fixed], align 16",
+          "operation_node": "70701",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i32 0, i32 0",
+          "operation_node": "75948",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx16 = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i64 0, i64 %idxprom15",
+          "operation_node": "95984",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx28 = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i64 0, i64 %idxprom27",
+          "operation_node": "1361",
+          "scope_node": "5183"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 44
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L1",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L4",
+      "variable": "xbuf"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%xbuf = alloca [392 x %struct.ap_fixed], align 16",
+          "operation_node": "70701",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i32 0, i32 0",
+          "operation_node": "75948",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx16 = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i64 0, i64 %idxprom15",
+          "operation_node": "95984",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx28 = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i64 0, i64 %idxprom27",
+          "operation_node": "1361",
+          "scope_node": "5183"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 57
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L1",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L5",
+      "variable": "xbuf"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%layer_1_out = alloca [30 x %struct.ap_fixed.0], align 16",
+          "operation_node": "48927",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin1 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i32 0, i32 0",
+          "operation_node": "49644",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx26 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom25",
+          "operation_node": "61578",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx37 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom36",
+          "operation_node": "68684",
+          "scope_node": "15716"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "j",
+          "line": 56
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "j",
+          "line": 58
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L5",
+      "variable": "layer_1_out"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%xbuf = alloca [392 x %struct.ap_fixed], align 16",
+          "operation_node": "70701",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i32 0, i32 0",
+          "operation_node": "75948",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx16 = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i64 0, i64 %idxprom15",
+          "operation_node": "95984",
+          "scope_node": "5183"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx28 = getelementptr inbounds [392 x %struct.ap_fixed], [392 x %struct.ap_fixed]* %xbuf, i64 0, i64 %idxprom27",
+          "operation_node": "1361",
+          "scope_node": "5183"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 57
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L1",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L6",
+      "variable": "xbuf"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%layer_1_out = alloca [30 x %struct.ap_fixed.0], align 16",
+          "operation_node": "48927",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin1 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i32 0, i32 0",
+          "operation_node": "49644",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx26 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom25",
+          "operation_node": "61578",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx37 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom36",
+          "operation_node": "68684",
+          "scope_node": "15716"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "j",
+          "line": 56
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "j",
+          "line": 58
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L6",
+      "variable": "layer_1_out"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%layer_1_out = alloca [30 x %struct.ap_fixed.0], align 16",
+          "operation_node": "48927",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin1 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i32 0, i32 0",
+          "operation_node": "49644",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx26 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom25",
+          "operation_node": "61578",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx37 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom36",
+          "operation_node": "68684",
+          "scope_node": "15716"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 66
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 66
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L7",
+      "variable": "layer_1_out"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%layer_1_out = alloca [30 x %struct.ap_fixed.0], align 16",
+          "operation_node": "48927",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin1 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i32 0, i32 0",
+          "operation_node": "49644",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx26 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom25",
+          "operation_node": "61578",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx37 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom36",
+          "operation_node": "68684",
+          "scope_node": "15716"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "j",
+          "line": 79
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L8",
+      "variable": "layer_1_out"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%layer_2_out = alloca [50 x %struct.ap_fixed.0], align 16",
+          "operation_node": "68147",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin8 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i32 0, i32 0",
+          "operation_node": "94910",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx86 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i64 0, i64 %idxprom85",
+          "operation_node": "87926",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx101 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i64 0, i64 %idxprom100",
+          "operation_node": "16045",
+          "scope_node": "44704"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 82
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L3",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L8",
+      "variable": "layer_2_out"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%layer_1_out = alloca [30 x %struct.ap_fixed.0], align 16",
+          "operation_node": "48927",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin1 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i32 0, i32 0",
+          "operation_node": "49644",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx26 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom25",
+          "operation_node": "61578",
+          "scope_node": "15716"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx37 = getelementptr inbounds [30 x %struct.ap_fixed.0], [30 x %struct.ap_fixed.0]* %layer_1_out, i64 0, i64 %idxprom36",
+          "operation_node": "68684",
+          "scope_node": "15716"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "j",
+          "line": 79
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L9",
+      "variable": "layer_1_out"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%layer_2_out = alloca [50 x %struct.ap_fixed.0], align 16",
+          "operation_node": "68147",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin8 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i32 0, i32 0",
+          "operation_node": "94910",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx86 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i64 0, i64 %idxprom85",
+          "operation_node": "87926",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx101 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i64 0, i64 %idxprom100",
+          "operation_node": "16045",
+          "scope_node": "44704"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "j",
+          "line": 95
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L3",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L10",
+      "variable": "layer_2_out"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "14",
+          "ir": "%layer_2_out = alloca [50 x %struct.ap_fixed.0], align 16",
+          "operation_node": "68147",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%array.begin8 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i32 0, i32 0",
+          "operation_node": "94910",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx86 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i64 0, i64 %idxprom85",
+          "operation_node": "87926",
+          "scope_node": "44704"
+        },
+        {
+          "function": "14",
+          "ir": "%arrayidx101 = getelementptr inbounds [50 x %struct.ap_fixed.0], [50 x %struct.ap_fixed.0]* %layer_2_out, i64 0, i64 %idxprom100",
+          "operation_node": "16045",
+          "scope_node": "44704"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "j",
+          "line": 95
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L3",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L11",
+      "variable": "layer_2_out"
+    }
+  ],
+  "loop_spans": {
+    "L10": {
+      "end": 99,
+      "iterator": "i",
+      "start": 86
+    },
+    "L11": {
+      "end": 97,
+      "iterator": "j",
+      "start": 91
+    },
+    "L4": {
+      "end": 45,
+      "iterator": "i",
+      "start": 40
+    },
+    "L5": {
+      "end": 60,
+      "iterator": "i",
+      "start": 48
+    },
+    "L6": {
+      "end": 59,
+      "iterator": "j",
+      "start": 52
+    },
+    "L7": {
+      "end": 67,
+      "iterator": "i",
+      "start": 62
+    },
+    "L8": {
+      "end": 83,
+      "iterator": "i",
+      "start": 70
+    },
+    "L9": {
+      "end": 81,
+      "iterator": "j",
+      "start": 75
+    }
+  },
+  "max_evaluations": 4,
+  "part": "xczu7ev-ffvc1156-2-e",
+  "schema": "cg-bdr-v0.1-research",
+  "settings": [
+    "config_array_partition -complete_threshold 0 -throughput_driven off",
+    "config_compile -pipeline_loops 0"
+  ],
+  "source_identity": "/home/elvouvali/cg_bdr_dac/repo_main/evaluation_set/GAN/code_to_memory_outputs/meta/GAN_placeholders.cpp",
+  "template_suffix": ".cpp",
+  "top": "forward_propagation"
+}

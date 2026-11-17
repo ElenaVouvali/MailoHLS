@@ -1,0 +1,541 @@
+{
+  "evaluations": [
+    {
+      "directives": [
+        {
+          "action_id": "L1",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 32,
+          "partition_type": "cyclic",
+          "variable": "xbuf"
+        },
+        {
+          "action_id": "L2",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 5,
+          "partition_type": "block",
+          "variable": "layer_1_out"
+        },
+        {
+          "action_id": "L3",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 5,
+          "partition_type": "block",
+          "variable": "layer_2_out"
+        },
+        {
+          "action_id": "L4",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 32
+        },
+        {
+          "action_id": "L5",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 1
+        },
+        {
+          "action_id": "L6",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        },
+        {
+          "action_id": "L7",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        },
+        {
+          "action_id": "L8",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 1
+        },
+        {
+          "action_id": "L9",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        },
+        {
+          "action_id": "L10",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 0
+        },
+        {
+          "action_id": "L11",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        }
+      ],
+      "result": {
+        "diagnostics": [
+          {
+            "affected_loops": [
+              "L6",
+              "L5"
+            ],
+            "array": "layer_1_out_V_0",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-880] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('layer_1_out_V_0_addr_write_ln58', candidate.cpp:58) of variable 'add_ln712_7' on array 'layer_1_out_V_0' and 'load' operation ('layer_1_out_V_0_load_5', candidate.cpp:56) on array 'layer_1_out_V_0'.",
+            "reported_loop": "L5",
+            "source_line": 58,
+            "type": "recurrence"
+          },
+          {
+            "affected_loops": [
+              "L6",
+              "L5"
+            ],
+            "array": "layer_1_out_V_0",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_3', candidate.cpp:56) on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+            "reported_loop": "L5",
+            "source_line": 56,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L6",
+              "L5"
+            ],
+            "array": "layer_1_out_V_0",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_5', candidate.cpp:56) on array 'layer_1_out_V_0' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+            "reported_loop": "L5",
+            "source_line": 56,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L6",
+              "L5"
+            ],
+            "array": "layer_1_out_V_0",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_4_write_ln58', candidate.cpp:58) of variable 'add_ln712_3' on array 'layer_1_out_V_0' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+            "reported_loop": "L5",
+            "source_line": 58,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L6",
+              "L5"
+            ],
+            "array": "layer_1_out_V_0",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln58', candidate.cpp:58) of variable 'add_ln712_5' on array 'layer_1_out_V_0' due to limited memory ports (II = 5). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+            "reported_loop": "L5",
+            "source_line": 58,
+            "type": "memory_ports"
+          }
+        ],
+        "duration_seconds": 75.141,
+        "error": null,
+        "index": 1,
+        "log_sha256": "722dbc9c83be04ae8d1d90b37230d4a6ad7d54f74d80254fab56bc9a43997b7f",
+        "metrics": {
+          "budget_feasible": true,
+          "estimated_clock_ns": 6.947,
+          "hls_estimated_clock_within_target": true,
+          "latency_cycles": 3133,
+          "loop_summary": [
+            {
+              "achieved_ii": null,
+              "latency": 294,
+              "name": "L7"
+            }
+          ],
+          "resources": {
+            "bram": 81,
+            "dsp": 80,
+            "ff": 6507,
+            "lut": 16752
+          },
+          "utilization_percent": {
+            "bram": 12.98076923076923,
+            "dsp": 4.62962962962963,
+            "ff": 1.412109375,
+            "lut": 7.270833333333333
+          }
+        },
+        "report_sha256": "4c493734481eeb2bafc8ec0daf3fe4f021150b65b98ec888c1171f468a1912bd",
+        "source_sha256": "819a4ccf2876db603c46bd72b286c0c5b76cf7cbf9307503c1a9fe591153f758",
+        "synthesis_status": "success",
+        "tcl_sha256": "9d92a076716747e12cec48242ff534c6201cddd976f05e41e9883c01342a259d",
+        "tool": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+        "tool_mode": "VITIS_HLS",
+        "work_dir": "projects/eval-01"
+      },
+      "selection": {
+        "changed_actions": [],
+        "evidence": {},
+        "kind": "initial_mailohls",
+        "reason": "Initial model configuration",
+        "signature": "f5597279ea5641c2457dfc7e2d007e5e85e135c497e9a10f16493b74d56534e3"
+      },
+      "signature": "f5597279ea5641c2457dfc7e2d007e5e85e135c497e9a10f16493b74d56534e3"
+    },
+    {
+      "directives": [
+        {
+          "action_id": "L1",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 32,
+          "partition_type": "cyclic",
+          "variable": "xbuf"
+        },
+        {
+          "action_id": "L2",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 10,
+          "partition_type": "cyclic",
+          "variable": "layer_1_out"
+        },
+        {
+          "action_id": "L3",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 5,
+          "partition_type": "block",
+          "variable": "layer_2_out"
+        },
+        {
+          "action_id": "L4",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 32
+        },
+        {
+          "action_id": "L5",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 1
+        },
+        {
+          "action_id": "L6",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        },
+        {
+          "action_id": "L7",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        },
+        {
+          "action_id": "L8",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 1
+        },
+        {
+          "action_id": "L9",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        },
+        {
+          "action_id": "L10",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 0
+        },
+        {
+          "action_id": "L11",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        }
+      ],
+      "result": {
+        "diagnostics": [
+          {
+            "affected_loops": [
+              "L6",
+              "L5"
+            ],
+            "array": "layer_1_out_V_0",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-880] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('layer_1_out_V_0_addr_write_ln58', candidate.cpp:58) of variable 'add_ln712_2' on array 'layer_1_out_V_0' and 'load' operation ('layer_1_out_V_0_load_2', candidate.cpp:56) on array 'layer_1_out_V_0'.",
+            "reported_loop": "L5",
+            "source_line": 58,
+            "type": "recurrence"
+          },
+          {
+            "affected_loops": [
+              "L6",
+              "L5"
+            ],
+            "array": "layer_1_out_V_0",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln58', candidate.cpp:58) of variable 'add_ln712' on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+            "reported_loop": "L5",
+            "source_line": 58,
+            "type": "memory_ports"
+          }
+        ],
+        "duration_seconds": 68.792,
+        "error": null,
+        "index": 2,
+        "log_sha256": "14372bea0272ac2528a69e8e22cadd943d475c5193906c692f88560be1cbf305",
+        "metrics": {
+          "budget_feasible": true,
+          "estimated_clock_ns": 6.947,
+          "hls_estimated_clock_within_target": true,
+          "latency_cycles": 1668,
+          "loop_summary": [
+            {
+              "achieved_ii": null,
+              "latency": 6,
+              "name": "L7"
+            }
+          ],
+          "resources": {
+            "bram": 81,
+            "dsp": 80,
+            "ff": 5073,
+            "lut": 15204
+          },
+          "utilization_percent": {
+            "bram": 12.98076923076923,
+            "dsp": 4.62962962962963,
+            "ff": 1.1009114583333333,
+            "lut": 6.598958333333333
+          }
+        },
+        "report_sha256": "601504d108f148bece3bf53639762fc34227883cb9c28328191ac7c950270233",
+        "source_sha256": "769ce34eafa43ce97fe1debb39198153193db5fd9af96f43c4ae2bada37d3003",
+        "synthesis_status": "success",
+        "tcl_sha256": "9d92a076716747e12cec48242ff534c6201cddd976f05e41e9883c01342a259d",
+        "tool": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+        "tool_mode": "VITIS_HLS",
+        "work_dir": "projects/eval-02"
+      },
+      "selection": {
+        "changed_actions": [
+          "L2"
+        ],
+        "evidence": {
+          "LLVM_action_anchors": [
+            "L6",
+            "L2"
+          ],
+          "alias_proven": false,
+          "diagnostic": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_3', candidate.cpp:56) on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+          "source_accesses": [
+            {
+              "consecutive_for_this_loop": true,
+              "index": "j",
+              "line": 56
+            },
+            {
+              "consecutive_for_this_loop": true,
+              "index": "j",
+              "line": 58
+            }
+          ],
+          "source_array_match": {
+            "hls_array": "layer_1_out_V_0",
+            "match_kind": "vitis_generated_V_numeric_suffix",
+            "source_array": "layer_1_out",
+            "source_line": 56,
+            "source_text": "l_quantized_type last = (i==0) ? (l_quantized_type) 0 : layer_1_out[j];",
+            "warning": "Vitis-derived name matching is attribution, not bank/alias proof"
+          }
+        },
+        "kind": "banking_style_and_factor",
+        "priority": 115,
+        "reason": "Measured memory-port pressure; consecutive accesses with loop unroll higher than bank count: test cyclic mapping with sufficient nominal banks",
+        "signature": "e11a90ec6c3d12fcfa70e82cd1732f224d25fc90dd8b6c618ad35763c4218dce"
+      },
+      "signature": "e11a90ec6c3d12fcfa70e82cd1732f224d25fc90dd8b6c618ad35763c4218dce"
+    },
+    {
+      "directives": [
+        {
+          "action_id": "L1",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 32,
+          "partition_type": "cyclic",
+          "variable": "xbuf"
+        },
+        {
+          "action_id": "L2",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 15,
+          "partition_type": "cyclic",
+          "variable": "layer_1_out"
+        },
+        {
+          "action_id": "L3",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 5,
+          "partition_type": "block",
+          "variable": "layer_2_out"
+        },
+        {
+          "action_id": "L4",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 32
+        },
+        {
+          "action_id": "L5",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 1
+        },
+        {
+          "action_id": "L6",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        },
+        {
+          "action_id": "L7",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        },
+        {
+          "action_id": "L8",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 1
+        },
+        {
+          "action_id": "L9",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        },
+        {
+          "action_id": "L10",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 0
+        },
+        {
+          "action_id": "L11",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 10
+        }
+      ],
+      "result": {
+        "diagnostics": [
+          {
+            "affected_loops": [
+              "L6",
+              "L5"
+            ],
+            "array": "layer_1_out_V_0",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-880] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('layer_1_out_V_0_addr_write_ln58', candidate.cpp:58) of variable 'add_ln712_16' on array 'layer_1_out_V_0' and 'load' operation ('layer_1_out_V_0_load_1', candidate.cpp:56) on array 'layer_1_out_V_0'.",
+            "reported_loop": "L5",
+            "source_line": 58,
+            "type": "recurrence"
+          }
+        ],
+        "duration_seconds": 70.068,
+        "error": null,
+        "index": 3,
+        "log_sha256": "004ed90f369d53d8b8b755e1471218ed2866d4cd365174c3397d739734bc4bd4",
+        "metrics": {
+          "budget_feasible": true,
+          "estimated_clock_ns": 6.947,
+          "hls_estimated_clock_within_target": true,
+          "latency_cycles": 1389,
+          "loop_summary": [
+            {
+              "achieved_ii": null,
+              "latency": 120,
+              "name": "L7"
+            }
+          ],
+          "resources": {
+            "bram": 81,
+            "dsp": 87,
+            "ff": 5028,
+            "lut": 16279
+          },
+          "utilization_percent": {
+            "bram": 12.98076923076923,
+            "dsp": 5.034722222222222,
+            "ff": 1.0911458333333333,
+            "lut": 7.065538194444445
+          }
+        },
+        "report_sha256": "a6b55dc2586b3556bbfd6e1681da86d8f5991cb6743333347be4c1091aecf30f",
+        "source_sha256": "c20c64789baf50a87d0414649b4469b15599c65c9d5d841b6025f567a19920ac",
+        "synthesis_status": "success",
+        "tcl_sha256": "9d92a076716747e12cec48242ff534c6201cddd976f05e41e9883c01342a259d",
+        "tool": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+        "tool_mode": "VITIS_HLS",
+        "work_dir": "projects/eval-03"
+      },
+      "selection": {
+        "changed_actions": [
+          "L2"
+        ],
+        "evidence": {
+          "LLVM_action_anchors": [
+            "L5",
+            "L2"
+          ],
+          "alias_proven": false,
+          "diagnostic": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln58', candidate.cpp:58) of variable 'add_ln712' on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+          "source_accesses": [
+            {
+              "consecutive_for_this_loop": false,
+              "index": "j",
+              "line": 56
+            },
+            {
+              "consecutive_for_this_loop": false,
+              "index": "j",
+              "line": 58
+            }
+          ],
+          "source_array_match": {
+            "hls_array": "layer_1_out_V_0",
+            "match_kind": "vitis_generated_V_numeric_suffix",
+            "source_array": "layer_1_out",
+            "source_line": 58,
+            "source_text": "layer_1_out[j] = last + term;",
+            "warning": "Vitis-derived name matching is attribution, not bank/alias proof"
+          }
+        },
+        "kind": "banking_factor",
+        "priority": 85,
+        "reason": "Vitis identified memory-port contention; test one legal increase in banks with resource headroom",
+        "signature": "9a3c20d0c368923685484a7885326f99041b4a562166ddd9be6d1ff048f5719b"
+      },
+      "signature": "9a3c20d0c368923685484a7885326f99041b4a562166ddd9be6d1ff048f5719b"
+    }
+  ],
+  "stop": null
+}

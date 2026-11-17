@@ -1,0 +1,951 @@
+
+****** Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)
+  **** SW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021
+  **** IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+    ** Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+
+source /opt/Xilinx/Vitis_HLS/2021.1/scripts/vitis_hls/hls.tcl -notrace
+INFO: Applying HLS Y2K22 patch v1.2 for IP revision
+INFO: [HLS 200-10] Running '/opt/Xilinx/Vitis_HLS/2021.1/bin/unwrapped/lnx64.o/vitis_hls'
+INFO: [HLS 200-10] For user 'bonus24' on host 'coroni' (Linux_x86_64 version 4.15.0-213-generic) on Mon Nov 16 16:48:57 EET 2026
+INFO: [HLS 200-10] On os Ubuntu 18.04.6 LTS
+INFO: [HLS 200-10] In directory '/home/bonus24/cg_bdr_six_v02/syr2k_LATENCY_10ns_4eval/projects/eval-01'
+Sourcing Tcl script 'run_hls.tcl'
+INFO: [HLS 200-1510] Running: open_project -reset hls_project 
+INFO: [HLS 200-10] Creating and opening project '/home/bonus24/cg_bdr_six_v02/syr2k_LATENCY_10ns_4eval/projects/eval-01/hls_project'.
+INFO: [HLS 200-1510] Running: set_top kernel_syr2k 
+INFO: [HLS 200-1510] Running: add_files -cflags -I/opt/Xilinx/Vitis_HLS/2021.1/include candidate.cpp 
+INFO: [HLS 200-10] Adding design file 'candidate.cpp' to the project
+INFO: [HLS 200-1510] Running: open_solution -reset solution1 -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/home/bonus24/cg_bdr_six_v02/syr2k_LATENCY_10ns_4eval/projects/eval-01/hls_project/solution1'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+WARNING: [HLS 200-40] No /home/bonus24/cg_bdr_six_v02/syr2k_LATENCY_10ns_4eval/projects/eval-01/hls_project/solution1/solution1.aps file found.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xczu7ev-ffvc1156-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xczu7ev-ffvc1156-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 10 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 10ns.
+INFO: [HLS 200-1510] Running: config_array_partition -complete_threshold 0 -throughput_driven off 
+INFO: [XFORM 203-102] Size-based automatic array partition disabled.
+INFO: [HLS 200-1510] Running: config_compile -pipeline_loops 0 
+INFO: [XFORM 203-1171] Pipeline the innermost loop with trip count more than 0 or its parent loop when its trip count is less than or equal 0.
+INFO: [HLS 200-1510] Running: csynth_design 
+INFO: [HLS 200-111] Finished File checks and directory preparation: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0 seconds; current allocated memory: 213.555 MB.
+INFO: [HLS 200-10] Analyzing design file 'candidate.cpp' ... 
+INFO: [HLS 200-111] Finished Source Code Analysis and Preprocessing: CPU user time: 0.97 seconds. CPU system time: 0.61 seconds. Elapsed time: 0.82 seconds; current allocated memory: 214.215 MB.
+INFO: [HLS 200-777] Using interface defaults for 'Vivado' flow target.
+INFO: [HLS 214-279] Initial Interval estimation mode is set into default.
+INFO: [HLS 214-284] Auto array partition mode is set into default.
+INFO: [HLS 214-188] Unrolling loop 'L1' (candidate.cpp:14:5) in function 'kernel_syr2k' partially with a factor of 8 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:17:5) in function 'kernel_syr2k' partially with a factor of 8 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L3' (candidate.cpp:25:5) in function 'kernel_syr2k' partially with a factor of 4 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:17:5) in function 'kernel_syr2k' partially with a factor of 8 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L3' (candidate.cpp:25:5) in function 'kernel_syr2k' partially with a factor of 4 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:17:5) in function 'kernel_syr2k' partially with a factor of 8 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L3' (candidate.cpp:25:5) in function 'kernel_syr2k' partially with a factor of 4 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:17:5) in function 'kernel_syr2k' partially with a factor of 8 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L3' (candidate.cpp:25:5) in function 'kernel_syr2k' partially with a factor of 4 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:17:5) in function 'kernel_syr2k' partially with a factor of 8 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L3' (candidate.cpp:25:5) in function 'kernel_syr2k' partially with a factor of 4 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:17:5) in function 'kernel_syr2k' partially with a factor of 8 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L3' (candidate.cpp:25:5) in function 'kernel_syr2k' partially with a factor of 4 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:17:5) in function 'kernel_syr2k' partially with a factor of 8 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L3' (candidate.cpp:25:5) in function 'kernel_syr2k' partially with a factor of 4 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:17:5) in function 'kernel_syr2k' partially with a factor of 8 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L3' (candidate.cpp:25:5) in function 'kernel_syr2k' partially with a factor of 4 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+INFO: [HLS 214-188] Unrolling loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' partially with a factor of 2 (candidate.cpp:8:0)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L4' (candidate.cpp:28:5) in function 'kernel_syr2k' with estimated II increased from II=1 to II=2 because of limited port on variable 'C' (candidate.cpp:28:5)
+INFO: [HLS 214-270] Starting automatic array partition analysis...
+INFO: [HLS 200-111] Finished Compiling Optimization and Transform: CPU user time: 12.55 seconds. CPU system time: 0.68 seconds. Elapsed time: 12.6 seconds; current allocated memory: 228.491 MB.
+INFO: [HLS 200-111] Finished Checking Pragmas: CPU user time: 0 seconds. CPU system time: 0 seconds. Elapsed time: 0 seconds; current allocated memory: 228.492 MB.
+INFO: [HLS 200-10] Starting code transformations ...
+INFO: [HLS 200-111] Finished Standard Transforms: CPU user time: 0.12 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.14 seconds; current allocated memory: 236.434 MB.
+INFO: [HLS 200-10] Checking synthesizability ...
+INFO: [HLS 200-111] Finished Checking Synthesizability: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.16 seconds; current allocated memory: 231.905 MB.
+INFO: [HLS 200-111] Finished Loop, function and other optimizations: CPU user time: 0.81 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.84 seconds; current allocated memory: 260.781 MB.
+WARNING: [HLS 200-960] Cannot flatten loop 'L3' (candidate.cpp:11:7) in function 'kernel_syr2k' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+WARNING: [HLS 200-960] Cannot flatten loop 'L3' (candidate.cpp:11:7) in function 'kernel_syr2k' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+WARNING: [HLS 200-960] Cannot flatten loop 'L3' (candidate.cpp:11:7) in function 'kernel_syr2k' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+WARNING: [HLS 200-960] Cannot flatten loop 'L3' (candidate.cpp:11:7) in function 'kernel_syr2k' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+WARNING: [HLS 200-960] Cannot flatten loop 'L3' (candidate.cpp:11:7) in function 'kernel_syr2k' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+WARNING: [HLS 200-960] Cannot flatten loop 'L3' (candidate.cpp:11:7) in function 'kernel_syr2k' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+WARNING: [HLS 200-960] Cannot flatten loop 'L3' (candidate.cpp:11:7) in function 'kernel_syr2k' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+WARNING: [HLS 200-960] Cannot flatten loop 'L3' (candidate.cpp:11:7) in function 'kernel_syr2k' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+WARNING: [HLS 200-960] Cannot flatten loop 'L1' (candidate.cpp:9:7) in function 'kernel_syr2k' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+INFO: [HLS 200-111] Finished Architecture Synthesis: CPU user time: 2.79 seconds. CPU system time: 0.11 seconds. Elapsed time: 2.9 seconds; current allocated memory: 580.857 MB.
+INFO: [HLS 200-10] Starting hardware synthesis ...
+INFO: [HLS 200-10] Synthesizing 'kernel_syr2k' ...
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L4' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L4' (loop 'L4'): Unable to schedule 'load' operation ('C_load_6', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.23 seconds. CPU system time: 0.04 seconds. Elapsed time: 0.27 seconds; current allocated memory: 582.824 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.16 seconds. CPU system time: 0 seconds. Elapsed time: 0.17 seconds; current allocated memory: 583.348 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L41' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L41' (loop 'L4'): Unable to schedule 'load' operation ('C_load_10', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.29 seconds. CPU system time: 0 seconds. Elapsed time: 0.29 seconds; current allocated memory: 583.691 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 584.198 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L42' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L42' (loop 'L4'): Unable to schedule 'load' operation ('C_load_16', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.28 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.29 seconds; current allocated memory: 584.539 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.17 seconds; current allocated memory: 585.044 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L43' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L43' (loop 'L4'): Unable to schedule 'load' operation ('C_load_9', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.29 seconds. CPU system time: 0 seconds. Elapsed time: 0.29 seconds; current allocated memory: 585.384 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 585.892 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L44' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L44' (loop 'L4'): Unable to schedule 'load' operation ('C_load_6', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.28 seconds. CPU system time: 0 seconds. Elapsed time: 0.29 seconds; current allocated memory: 586.272 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.17 seconds; current allocated memory: 586.773 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L45' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L45' (loop 'L4'): Unable to schedule 'load' operation ('C_load_5', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.29 seconds. CPU system time: 0 seconds. Elapsed time: 0.3 seconds; current allocated memory: 587.114 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.17 seconds; current allocated memory: 587.618 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L46' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L46' (loop 'L4'): Unable to schedule 'load' operation ('C_load_4', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.3 seconds; current allocated memory: 587.960 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.17 seconds; current allocated memory: 588.460 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L47' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L47' (loop 'L4'): Unable to schedule 'load' operation ('C_load_3', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.29 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.29 seconds; current allocated memory: 588.805 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.17 seconds; current allocated memory: 589.307 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L48' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L48' (loop 'L4'): Unable to schedule 'load' operation ('C_load_2', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0 seconds. Elapsed time: 0.29 seconds; current allocated memory: 589.655 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.17 seconds; current allocated memory: 590.183 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L49' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L49' (loop 'L4'): Unable to schedule 'load' operation ('C_load_1', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.28 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.3 seconds; current allocated memory: 590.525 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 591.029 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L410' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L410' (loop 'L4'): Unable to schedule 'load' operation ('C_load_29', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.29 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.3 seconds; current allocated memory: 591.374 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 591.874 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L411' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L411' (loop 'L4'): Unable to schedule 'load' operation ('C_load_28', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0 seconds. Elapsed time: 0.31 seconds; current allocated memory: 592.217 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 592.721 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L412' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L412' (loop 'L4'): Unable to schedule 'load' operation ('C_load_27', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0 seconds. Elapsed time: 0.3 seconds; current allocated memory: 593.064 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 593.564 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L413' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L413' (loop 'L4'): Unable to schedule 'load' operation ('C_load_26', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.3 seconds; current allocated memory: 593.906 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.17 seconds; current allocated memory: 594.411 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L414' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L414' (loop 'L4'): Unable to schedule 'load' operation ('C_load_25', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.3 seconds; current allocated memory: 594.755 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 595.255 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L415' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L415' (loop 'L4'): Unable to schedule 'load' operation ('C_load_24', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0 seconds. Elapsed time: 0.3 seconds; current allocated memory: 595.599 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.19 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 596.102 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L416' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L416' (loop 'L4'): Unable to schedule 'load' operation ('C_load_23', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0 seconds. Elapsed time: 0.3 seconds; current allocated memory: 596.476 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 596.976 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L417' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L417' (loop 'L4'): Unable to schedule 'load' operation ('C_load_22', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.29 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.31 seconds; current allocated memory: 597.320 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 597.822 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L418' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L418' (loop 'L4'): Unable to schedule 'load' operation ('C_load_21', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.31 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.32 seconds; current allocated memory: 598.167 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.22 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.23 seconds; current allocated memory: 598.667 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L419' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L419' (loop 'L4'): Unable to schedule 'load' operation ('C_load_20', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.34 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.36 seconds; current allocated memory: 599.010 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.19 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 599.513 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L420' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L420' (loop 'L4'): Unable to schedule 'load' operation ('C_load_19', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.29 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.3 seconds; current allocated memory: 599.856 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 600.357 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L421' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L421' (loop 'L4'): Unable to schedule 'load' operation ('C_load_18', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.31 seconds. CPU system time: 0 seconds. Elapsed time: 0.31 seconds; current allocated memory: 600.699 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.17 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.19 seconds; current allocated memory: 601.203 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L422' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L422' (loop 'L4'): Unable to schedule 'load' operation ('C_load_17', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.29 seconds. CPU system time: 0 seconds. Elapsed time: 0.3 seconds; current allocated memory: 601.546 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 602.048 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L423' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L423' (loop 'L4'): Unable to schedule 'load' operation ('C_load_16', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.31 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.3 seconds; current allocated memory: 602.391 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 602.896 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L424' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L424' (loop 'L4'): Unable to schedule 'load' operation ('C_load_15', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.31 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.31 seconds; current allocated memory: 603.237 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.19 seconds; current allocated memory: 603.739 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L425' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L425' (loop 'L4'): Unable to schedule 'load' operation ('C_load_14', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.31 seconds; current allocated memory: 604.086 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.19 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 604.589 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L426' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L426' (loop 'L4'): Unable to schedule 'load' operation ('C_load_13', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.31 seconds. CPU system time: 0 seconds. Elapsed time: 0.32 seconds; current allocated memory: 604.932 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 605.434 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L427' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L427' (loop 'L4'): Unable to schedule 'load' operation ('C_load_12', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.3 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.31 seconds; current allocated memory: 605.779 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 606.283 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L428' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L428' (loop 'L4'): Unable to schedule 'load' operation ('C_load_11', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.32 seconds. CPU system time: 0 seconds. Elapsed time: 0.32 seconds; current allocated memory: 606.654 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.19 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.19 seconds; current allocated memory: 607.156 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L429' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L429' (loop 'L4'): Unable to schedule 'load' operation ('C_load_10', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.33 seconds. CPU system time: 0 seconds. Elapsed time: 0.33 seconds; current allocated memory: 607.500 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.19 seconds; current allocated memory: 608.005 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L430' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L430' (loop 'L4'): Unable to schedule 'load' operation ('C_load_8', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.31 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.32 seconds; current allocated memory: 608.377 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.18 seconds. CPU system time: 0 seconds. Elapsed time: 0.18 seconds; current allocated memory: 608.879 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k_Pipeline_L431' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L431' (loop 'L4'): Unable to schedule 'load' operation ('C_load_7', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 2, Depth = 22, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.31 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.32 seconds; current allocated memory: 609.221 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.19 seconds. CPU system time: 0 seconds. Elapsed time: 0.19 seconds; current allocated memory: 609.727 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_syr2k' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 2.11 seconds. CPU system time: 0.02 seconds. Elapsed time: 2.12 seconds; current allocated memory: 614.195 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 3.46 seconds. CPU system time: 0 seconds. Elapsed time: 3.47 seconds; current allocated memory: 622.015 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L4' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L4' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L4'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 3.44 seconds. CPU system time: 0.02 seconds. Elapsed time: 3.46 seconds; current allocated memory: 623.065 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L41' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L41' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L41'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.34 seconds. CPU system time: 0 seconds. Elapsed time: 0.34 seconds; current allocated memory: 625.509 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L42' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L42' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L42'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.32 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.33 seconds; current allocated memory: 627.937 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L43' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L43' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L43'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.31 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.33 seconds; current allocated memory: 630.394 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L44' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L44' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L44'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.32 seconds. CPU system time: 0 seconds. Elapsed time: 0.32 seconds; current allocated memory: 632.842 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L45' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L45' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L45'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0 seconds. Elapsed time: 0.33 seconds; current allocated memory: 635.320 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L46' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L46' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L46'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.33 seconds; current allocated memory: 637.773 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L47' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L47' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L47'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0 seconds. Elapsed time: 0.33 seconds; current allocated memory: 640.199 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L48' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L48' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L48'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0 seconds. Elapsed time: 0.34 seconds; current allocated memory: 642.646 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L49' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L49' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L49'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.33 seconds; current allocated memory: 645.072 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L410' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L410' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L410'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.34 seconds; current allocated memory: 647.519 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L411' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L411' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L411'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.34 seconds; current allocated memory: 649.936 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L412' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L412' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L412'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.33 seconds; current allocated memory: 652.387 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L413' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L413' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L413'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.32 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.34 seconds; current allocated memory: 654.835 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L414' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L414' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L414'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.34 seconds; current allocated memory: 657.312 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L415' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L415' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L415'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.34 seconds; current allocated memory: 659.767 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L416' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L416' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L416'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.34 seconds; current allocated memory: 662.188 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L417' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L417' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L417'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.34 seconds. CPU system time: 0 seconds. Elapsed time: 0.34 seconds; current allocated memory: 664.635 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L418' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L418' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L418'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0 seconds. Elapsed time: 0.34 seconds; current allocated memory: 667.083 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L419' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L419' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L419'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.34 seconds; current allocated memory: 669.513 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L420' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L420' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L420'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.34 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.35 seconds; current allocated memory: 671.962 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L421' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L421' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L421'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.35 seconds. CPU system time: 0 seconds. Elapsed time: 0.35 seconds; current allocated memory: 674.379 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L422' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L422' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L422'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.34 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.35 seconds; current allocated memory: 676.830 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L423' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L423' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L423'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.34 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.35 seconds; current allocated memory: 679.277 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L424' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L424' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L424'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.33 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.35 seconds; current allocated memory: 681.730 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L425' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L425' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L425'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.36 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.37 seconds; current allocated memory: 684.188 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L426' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L426' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L426'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.36 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.37 seconds; current allocated memory: 686.605 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L427' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L427' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L427'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.36 seconds. CPU system time: 0 seconds. Elapsed time: 0.37 seconds; current allocated memory: 689.053 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L428' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L428' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L428'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.35 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.36 seconds; current allocated memory: 691.504 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L429' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L429' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L429'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.35 seconds. CPU system time: 0 seconds. Elapsed time: 0.35 seconds; current allocated memory: 693.922 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L430' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L430' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L430'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.34 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.35 seconds; current allocated memory: 696.370 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k_Pipeline_L431' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_syr2k_Pipeline_L431' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k_Pipeline_L431'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.34 seconds. CPU system time: 0 seconds. Elapsed time: 0.35 seconds; current allocated memory: 698.809 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_syr2k' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_syr2k/alpha' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_syr2k/beta' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_syr2k/C' to 'ap_memory'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_syr2k/A' to 'ap_memory'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_syr2k/B' to 'ap_memory'.
+INFO: [RTGEN 206-500] Setting interface mode on function 'kernel_syr2k' to 'ap_ctrl_hs'.
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 4 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_syr2k'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 1.06 seconds. CPU system time: 0.03 seconds. Elapsed time: 1.09 seconds; current allocated memory: 720.417 MB.
+INFO: [HLS 200-111] Finished Generating all RTL models: CPU user time: 8.16 seconds. CPU system time: 0.05 seconds. Elapsed time: 8.22 seconds; current allocated memory: 743.919 MB.
+INFO: [HLS 200-111] Finished Updating report files: CPU user time: 1.6 seconds. CPU system time: 0.02 seconds. Elapsed time: 1.62 seconds; current allocated memory: 755.171 MB.
+INFO: [VHDL 208-304] Generating VHDL RTL for kernel_syr2k.
+INFO: [VLOG 209-307] Generating Verilog RTL for kernel_syr2k.
+INFO: [HLS 200-790] **** Loop Constraint Status: All loop constraints were NOT satisfied.
+INFO: [HLS 200-789] **** Estimated Fmax: 133.79 MHz
+INFO: [HLS 200-111] Finished Command csynth_design CPU user time: 63.37 seconds. CPU system time: 2.11 seconds. Elapsed time: 64.18 seconds; current allocated memory: 755.158 MB.
+INFO: [HLS 200-112] Total CPU user time: 65.88 seconds. Total CPU system time: 2.87 seconds. Total elapsed time: 66.39 seconds; peak allocated memory: 755.171 MB.
+INFO: [Common 17-206] Exiting vitis_hls at Mon Nov 16 16:50:03 2026...

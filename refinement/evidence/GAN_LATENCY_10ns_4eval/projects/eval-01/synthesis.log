@@ -1,0 +1,446 @@
+
+****** Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)
+  **** SW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021
+  **** IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+    ** Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+
+source /opt/Xilinx/Vitis_HLS/2021.1/scripts/vitis_hls/hls.tcl -notrace
+INFO: Applying HLS Y2K22 patch v1.2 for IP revision
+INFO: [HLS 200-10] Running '/opt/Xilinx/Vitis_HLS/2021.1/bin/unwrapped/lnx64.o/vitis_hls'
+INFO: [HLS 200-10] For user 'bonus24' on host 'coroni' (Linux_x86_64 version 4.15.0-213-generic) on Mon Nov 16 15:50:32 EET 2026
+INFO: [HLS 200-10] On os Ubuntu 18.04.6 LTS
+INFO: [HLS 200-10] In directory '/home/bonus24/cg_bdr_six_v02/GAN_LATENCY_10ns_4eval/projects/eval-01'
+Sourcing Tcl script 'run_hls.tcl'
+INFO: [HLS 200-1510] Running: open_project -reset hls_project 
+INFO: [HLS 200-10] Creating and opening project '/home/bonus24/cg_bdr_six_v02/GAN_LATENCY_10ns_4eval/projects/eval-01/hls_project'.
+INFO: [HLS 200-1510] Running: set_top forward_propagation 
+INFO: [HLS 200-1510] Running: add_files -cflags -I/opt/Xilinx/Vitis_HLS/2021.1/include candidate.cpp 
+INFO: [HLS 200-10] Adding design file 'candidate.cpp' to the project
+INFO: [HLS 200-1510] Running: open_solution -reset solution1 -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/home/bonus24/cg_bdr_six_v02/GAN_LATENCY_10ns_4eval/projects/eval-01/hls_project/solution1'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+WARNING: [HLS 200-40] No /home/bonus24/cg_bdr_six_v02/GAN_LATENCY_10ns_4eval/projects/eval-01/hls_project/solution1/solution1.aps file found.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xczu7ev-ffvc1156-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xczu7ev-ffvc1156-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 10 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 10ns.
+INFO: [HLS 200-1510] Running: config_array_partition -complete_threshold 0 -throughput_driven off 
+INFO: [XFORM 203-102] Size-based automatic array partition disabled.
+INFO: [HLS 200-1510] Running: config_compile -pipeline_loops 0 
+INFO: [XFORM 203-1171] Pipeline the innermost loop with trip count more than 0 or its parent loop when its trip count is less than or equal 0.
+INFO: [HLS 200-1510] Running: csynth_design 
+INFO: [HLS 200-111] Finished File checks and directory preparation: CPU user time: 0 seconds. CPU system time: 0 seconds. Elapsed time: 0 seconds; current allocated memory: 213.570 MB.
+INFO: [HLS 200-10] Analyzing design file 'candidate.cpp' ... 
+WARNING: [HLS 207-5301] unused parameter 'print': /opt/Xilinx/Vitis_HLS/2021.1/include/ap_int_base.h:792:16
+WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:26:9
+WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:27:9
+WARNING: [HLS 207-1017] unknown pragma ignored: ./network.h:28:9
+INFO: [HLS 200-111] Finished Source Code Analysis and Preprocessing: CPU user time: 20.49 seconds. CPU system time: 0.96 seconds. Elapsed time: 20.22 seconds; current allocated memory: 215.193 MB.
+INFO: [HLS 200-777] Using interface defaults for 'Vivado' flow target.
+INFO: [HLS 214-279] Initial Interval estimation mode is set into default.
+INFO: [HLS 214-284] Auto array partition mode is set into default.
+INFO: [HLS 214-188] Unrolling loop 'L11' (candidate.cpp:91:6) in function 'forward_propagation' partially with a factor of 10 (candidate.cpp:27:0)
+INFO: [HLS 214-188] Unrolling loop 'L9' (candidate.cpp:75:5) in function 'forward_propagation' partially with a factor of 10 (candidate.cpp:27:0)
+INFO: [HLS 214-188] Unrolling loop 'L7' (candidate.cpp:62:5) in function 'forward_propagation' partially with a factor of 10 (candidate.cpp:27:0)
+INFO: [HLS 214-188] Unrolling loop 'L6' (candidate.cpp:52:5) in function 'forward_propagation' partially with a factor of 10 (candidate.cpp:27:0)
+INFO: [HLS 214-178] Inlining function 'ReLU(ap_fixed<17, 9, (ap_q_mode)0, (ap_o_mode)3, 0>)' into 'forward_propagation(float*, float*)' (candidate.cpp:27:0)
+INFO: [HLS 214-178] Inlining function 'tanh(ap_fixed<17, 9, (ap_q_mode)0, (ap_o_mode)3, 0>)' into 'forward_propagation(float*, float*)' (candidate.cpp:27:0)
+INFO: [HLS 214-270] Starting automatic array partition analysis...
+INFO: [HLS 214-270] Inferring complete partitioning for array 'W1' on dimension 2 (./weight_definitions.h:1:0)
+INFO: [HLS 214-270] Inferring complete partitioning for array 'W2' on dimension 1 (./weight_definitions.h:396:0)
+INFO: [HLS 214-270] Inferring complete partitioning for array 'W3' on dimension 1 (./weight_definitions.h:429:0)
+INFO: [HLS 200-111] Finished Compiling Optimization and Transform: CPU user time: 14.71 seconds. CPU system time: 0.89 seconds. Elapsed time: 15.62 seconds; current allocated memory: 217.702 MB.
+INFO: [HLS 200-111] Finished Checking Pragmas: CPU user time: 0 seconds. CPU system time: 0 seconds. Elapsed time: 0.01 seconds; current allocated memory: 217.704 MB.
+INFO: [HLS 200-10] Starting code transformations ...
+INFO: [HLS 200-111] Finished Standard Transforms: CPU user time: 0.14 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.15 seconds; current allocated memory: 233.205 MB.
+INFO: [HLS 200-10] Checking synthesizability ...
+WARNING: [SYNCHK 200-23] /opt/Xilinx/Vitis_HLS/2021.1/include/ap_fixed_base.h:600: variable-indexed range selection may cause suboptimal QoR.
+INFO: [SYNCHK 200-10] 0 error(s), 1 warning(s).
+INFO: [HLS 200-111] Finished Checking Synthesizability: CPU user time: 0.24 seconds. CPU system time: 0 seconds. Elapsed time: 0.26 seconds; current allocated memory: 251.941 MB.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L5' (candidate.cpp:48) in function 'forward_propagation' for pipelining.
+WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L6' (candidate.cpp:52) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L8' (candidate.cpp:70) in function 'forward_propagation' for pipelining.
+WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L9' (candidate.cpp:74) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L10' (candidate.cpp:86) in function 'forward_propagation' for pipelining.
+WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L11' (candidate.cpp:90) because its parent loop or function is pipelined.
+INFO: [XFORM 203-501] Unrolling loop 'L4' (candidate.cpp:40) in function 'forward_propagation' partially with a factor of 32.
+INFO: [HLS 200-489] Unrolling loop 'L6' (candidate.cpp:52) in function 'forward_propagation' completely with a factor of 3.
+INFO: [HLS 200-489] Unrolling loop 'L9' (candidate.cpp:74) in function 'forward_propagation' completely with a factor of 3.
+INFO: [HLS 200-489] Unrolling loop 'L11' (candidate.cpp:90) in function 'forward_propagation' completely with a factor of 5.
+INFO: [XFORM 203-101] Partitioning array 'xbuf.V' (candidate.cpp:28) in dimension 1 with a cyclic factor 32.
+INFO: [XFORM 203-101] Partitioning array 'layer_1_out.V' (candidate.cpp:30) in dimension 1 with a block factor 5.
+INFO: [XFORM 203-101] Partitioning array 'layer_2_out.V' (candidate.cpp:32) in dimension 1 with a block factor 5.
+INFO: [XFORM 203-101] Partitioning array 'W1.V'  in dimension 2 completely.
+INFO: [XFORM 203-101] Partitioning array 'W2.V'  in dimension 1 completely.
+INFO: [XFORM 203-101] Partitioning array 'W3.V'  in dimension 1 completely.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 5 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 5 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 5 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 5 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 5 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 5 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 5 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 5 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock in function 'forward_propagation'... converting 3 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:86:14) in function 'forward_propagation'... converting 12 basic blocks.
+INFO: [XFORM 203-11] Balancing expressions in function 'forward_propagation' (candidate.cpp:26)...314 expression(s) balanced.
+INFO: [HLS 200-111] Finished Loop, function and other optimizations: CPU user time: 1.74 seconds. CPU system time: 0.03 seconds. Elapsed time: 1.77 seconds; current allocated memory: 303.987 MB.
+INFO: [HLS 200-472] Inferring partial write operation for 'layer_1_out.V[1]' (candidate.cpp:66:18)
+INFO: [HLS 200-472] Inferring partial write operation for 'layer_1_out.V[0]' (candidate.cpp:58:19)
+INFO: [HLS 200-472] Inferring partial write operation for 'layer_2_out.V[0]' (candidate.cpp:82:18)
+INFO: [HLS 200-472] Inferring partial write operation for 'xbuf.V[31]' (candidate.cpp:44:11)
+INFO: [HLS 200-111] Finished Architecture Synthesis: CPU user time: 1.03 seconds. CPU system time: 0.01 seconds. Elapsed time: 1.04 seconds; current allocated memory: 361.547 MB.
+INFO: [HLS 200-10] Starting hardware synthesis ...
+INFO: [HLS 200-10] Synthesizing 'forward_propagation' ...
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'forward_propagation_Pipeline_L4' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L4'.
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 1, Depth = 2, loop 'L4'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.36 seconds. CPU system time: 0.06 seconds. Elapsed time: 0.55 seconds; current allocated memory: 365.833 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.16 seconds. CPU system time: 0 seconds. Elapsed time: 0.15 seconds; current allocated memory: 367.032 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'forward_propagation_Pipeline_L5' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L5'.
+WARNING: [HLS 200-880] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('layer_1_out_V_0_addr_write_ln58', candidate.cpp:58) of variable 'add_ln712_7' on array 'layer_1_out_V_0' and 'load' operation ('layer_1_out_V_0_load_5', candidate.cpp:56) on array 'layer_1_out_V_0'.
+Resolution: For help on HLS 200-880 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-880.html
+WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_3', candidate.cpp:56) on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_5', candidate.cpp:56) on array 'layer_1_out_V_0' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_4_write_ln58', candidate.cpp:58) of variable 'add_ln712_3' on array 'layer_1_out_V_0' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln58', candidate.cpp:58) of variable 'add_ln712_5' on array 'layer_1_out_V_0' due to limited memory ports (II = 5). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 6, Depth = 6, loop 'L5'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 2.76 seconds. CPU system time: 0.02 seconds. Elapsed time: 2.79 seconds; current allocated memory: 368.859 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.34 seconds. CPU system time: 0 seconds. Elapsed time: 0.35 seconds; current allocated memory: 371.178 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'forward_propagation_Pipeline_L8' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_29) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_28) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_27) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_26) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_25) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_24) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_23) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_22) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_21) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_20) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_19) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_18) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_17) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_16) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_15) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_14) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_13) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_12) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_11) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_10) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_9) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_8) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_7) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_6) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_5) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_4) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_3) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_2) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_1) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171) to 3 in order to utilize available DSP registers.
+INFO: [SCHED 204-61] Pipelining loop 'L8'.
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 1, Depth = 5, loop 'L8'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.86 seconds. CPU system time: 0.03 seconds. Elapsed time: 0.9 seconds; current allocated memory: 372.774 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.31 seconds. CPU system time: 0.04 seconds. Elapsed time: 0.35 seconds; current allocated memory: 374.811 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'forward_propagation_Pipeline_L10' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_78) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_77) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_76) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_75) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_74) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_73) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_72) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_71) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_70) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_69) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_68) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_67) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_66) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_65) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_64) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_63) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_62) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_61) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_60) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_59) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_58) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_57) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_56) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_55) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_54) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_53) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_52) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_51) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_50) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_49) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_48) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_47) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_46) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_45) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_44) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_43) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_42) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_41) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_40) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_39) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_38) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_37) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_36) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_35) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_34) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_33) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_32) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_31) to 3 in order to utilize available DSP registers.
+INFO: [HLS 200-486] Changing DSP48 latency (root=mul_ln1171_30) to 3 in order to utilize available DSP registers.
+INFO: [SCHED 204-61] Pipelining loop 'L10'.
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 1, Depth = 7, loop 'L10'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 0.99 seconds. CPU system time: 0.08 seconds. Elapsed time: 1.08 seconds; current allocated memory: 376.921 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 0.45 seconds. CPU system time: 0.04 seconds. Elapsed time: 0.49 seconds; current allocated memory: 379.733 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'forward_propagation' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 1.2 seconds. CPU system time: 0.05 seconds. Elapsed time: 1.26 seconds; current allocated memory: 381.777 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 1.14 seconds. CPU system time: 0.01 seconds. Elapsed time: 1.16 seconds; current allocated memory: 385.375 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'forward_propagation_Pipeline_L4' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'forward_propagation_Pipeline_L4' pipeline 'L4' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Finished creating RTL model for 'forward_propagation_Pipeline_L4'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 1.63 seconds. CPU system time: 0 seconds. Elapsed time: 1.64 seconds; current allocated memory: 387.196 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'forward_propagation_Pipeline_L5' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-100] Generating core module 'mul_8s_10s_18_1_1': 16 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_9s_10s_19_1_1': 14 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'forward_propagation_Pipeline_L5'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 0.77 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.79 seconds; current allocated memory: 396.732 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'forward_propagation_Pipeline_L8' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'forward_propagation_Pipeline_L8' pipeline 'L8' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'mul_mul_17s_10s_27_4_1': 11 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_mul_17s_7s_24_4_1': 4 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_mul_17s_9s_26_4_1': 15 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'forward_propagation_Pipeline_L8'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 1.53 seconds. CPU system time: 0.04 seconds. Elapsed time: 1.56 seconds; current allocated memory: 409.433 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'forward_propagation_Pipeline_L10' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'forward_propagation_Pipeline_L10' pipeline 'L10' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'mul_mul_16ns_10s_26_4_1': 21 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_mul_16ns_8s_24_4_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_mul_16ns_9s_25_4_1': 28 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'forward_propagation_Pipeline_L10'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 1.77 seconds. CPU system time: 0.04 seconds. Elapsed time: 1.81 seconds; current allocated memory: 422.446 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'forward_propagation' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-500] Setting interface mode on port 'forward_propagation/x' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'forward_propagation/y' to 'ap_vld'.
+INFO: [RTGEN 206-500] Setting interface mode on function 'forward_propagation' to 'ap_ctrl_hs'.
+INFO: [RTGEN 206-100] Generating core module 'fpext_32ns_64_2_no_dsp_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_5ns_7ns_11_1_1': 3 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mul_6ns_8ns_13_1_1': 7 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'mux_564_17_1_1': 6 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'urem_5ns_4ns_5_9_seq_1': 3 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'urem_6ns_4ns_6_10_seq_1': 7 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'forward_propagation'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 2.06 seconds. CPU system time: 0.04 seconds. Elapsed time: 2.09 seconds; current allocated memory: 440.093 MB.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_0' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_1' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_2' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_3' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_4' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_5' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_6' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_7' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_8' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_9' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_10' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_11' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_12' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_13' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_14' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_15' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_16' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_17' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_18' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_19' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_20' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_21' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_22' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_23' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_24' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_25' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_26' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_27' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_28' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L5_W1_V_29' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_0' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_1' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_2' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_3' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_4' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_5' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_6' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_7' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_8' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_9' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_10' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_11' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_12' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_13' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_14' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_15' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_16' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_17' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_18' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_19' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_20' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_21' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_22' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_23' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_24' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_25' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_26' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_27' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_28' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L8_W2_V_29' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_0' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_1' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_2' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_3' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_4' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_5' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_6' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_7' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_8' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_9' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_10' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_11' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_12' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_13' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_14' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_15' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_16' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_17' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_18' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_19' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_20' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_21' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_22' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_23' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_24' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_25' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_26' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_27' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_28' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_29' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_30' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_31' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_32' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_33' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_34' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_35' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_36' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_37' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_38' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_39' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_40' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_41' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_42' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_43' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_44' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_45' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_46' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_47' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_48' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_W3_V_49' using auto ROMs.
+INFO: [RTMG 210-279] Implementing memory 'forward_propagation_forward_propagation_Pipeline_L10_tanh_vals_V' using auto ROMs.
+INFO: [RTMG 210-278] Implementing memory 'forward_propagation_xbuf_V_0_ram (RAM)' using auto RAMs.
+INFO: [RTMG 210-278] Implementing memory 'forward_propagation_xbuf_V_8_ram (RAM)' using auto RAMs.
+INFO: [RTMG 210-278] Implementing memory 'forward_propagation_layer_1_out_V_0_ram (RAM)' using auto RAMs.
+INFO: [RTMG 210-278] Implementing memory 'forward_propagation_layer_2_out_V_0_ram (RAM)' using auto RAMs.
+INFO: [HLS 200-111] Finished Generating all RTL models: CPU user time: 13.95 seconds. CPU system time: 0.19 seconds. Elapsed time: 14.17 seconds; current allocated memory: 454.830 MB.
+INFO: [HLS 200-111] Finished Updating report files: CPU user time: 0.59 seconds. CPU system time: 0.02 seconds. Elapsed time: 0.61 seconds; current allocated memory: 464.674 MB.
+INFO: [VHDL 208-304] Generating VHDL RTL for forward_propagation.
+INFO: [VLOG 209-307] Generating Verilog RTL for forward_propagation.
+INFO: [HLS 200-790] **** Loop Constraint Status: All loop constraints were NOT satisfied.
+INFO: [HLS 200-789] **** Estimated Fmax: 143.95 MHz
+INFO: [HLS 200-111] Finished Command csynth_design CPU user time: 69.34 seconds. CPU system time: 2.58 seconds. Elapsed time: 70.92 seconds; current allocated memory: 464.665 MB.
+INFO: [HLS 200-112] Total CPU user time: 71.61 seconds. Total CPU system time: 3.34 seconds. Total elapsed time: 72.93 seconds; peak allocated memory: 464.674 MB.
+INFO: [Common 17-206] Exiting vitis_hls at Mon Nov 16 15:51:45 2026...

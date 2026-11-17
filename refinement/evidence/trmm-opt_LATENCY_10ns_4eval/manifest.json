@@ -1,0 +1,115 @@
+{
+  "actions": {
+    "L1": {
+      "bound": 60,
+      "kind": "loop"
+    },
+    "L2": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L3": {
+      "bound": 60,
+      "kind": "loop"
+    }
+  },
+  "artifact_note": "No model inference or HLS synthesis performed in prepare",
+  "budget_percent": 100.0,
+  "clock_ns": 10.0,
+  "compiler_graph": {
+    "action_functions": {
+      "L1": [
+        "0"
+      ],
+      "L2": [
+        "0"
+      ],
+      "L3": [
+        "0"
+      ]
+    },
+    "action_nodes": {
+      "L1": [
+        "39",
+        "21"
+      ],
+      "L2": [
+        "137",
+        "147"
+      ],
+      "L3": [
+        "175",
+        "109"
+      ]
+    },
+    "anchored_actions": [
+      "L1",
+      "L2",
+      "L3"
+    ],
+    "array_scope_access_links": {},
+    "array_scope_nodes": {},
+    "edges": 298,
+    "meaning": "Real ProGraML pragma->array_scope->IR access links. This does not prove loop dependence, memory bank conflicts or alias freedom.",
+    "missing_actions": [],
+    "nodes": 187,
+    "path_name": "trmm-opt.gexf",
+    "sha256": "e9ce2f669fc62fa15cca85e0c717d170140a168a27a77a9680e00e14452c8eee"
+  },
+  "controller_sha256": "c5a7c7077c24adde96b32ee5eee34afdc0d2faeb6698b34151abb27815c56b32",
+  "diagnostic_policy": "No low-confidence Lk causal conclusions from graph proximity alone",
+  "initial_directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "input_hashes": {
+    "kernel_info.txt": "6553e5a88210142ccb0b2fd57972c8ad220844628ece1dd4eb72df36b5d19697",
+    "llvm_graph.gexf": "e9ce2f669fc62fa15cca85e0c717d170140a168a27a77a9680e00e14452c8eee",
+    "template.cpp": "a8df1ab7c31e885b1d327491b6d6083346f81b9eaafd68f35276899979a2f5ac"
+  },
+  "kernel": "trmm-opt",
+  "loop_array_relations": [],
+  "loop_spans": {
+    "L1": {
+      "end": 27,
+      "iterator": "i",
+      "start": 11
+    },
+    "L2": {
+      "end": 26,
+      "iterator": "j",
+      "start": 14
+    },
+    "L3": {
+      "end": 24,
+      "iterator": "k",
+      "start": 18
+    }
+  },
+  "max_evaluations": 4,
+  "part": "xczu7ev-ffvc1156-2-e",
+  "schema": "cg-bdr-v0.1-research",
+  "settings": [
+    "config_array_partition -complete_threshold 0 -throughput_driven off",
+    "config_compile -pipeline_loops 0"
+  ],
+  "source_identity": "/home/elvouvali/cg_bdr_dac/repo_main/evaluation_set/trmm-opt/kernel_placeholders.cpp",
+  "template_suffix": ".cpp",
+  "top": "kernel_trmm"
+}

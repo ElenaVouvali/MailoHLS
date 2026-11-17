@@ -1,0 +1,178 @@
+{
+  "evaluations": [
+    {
+      "directives": [
+        {
+          "action_id": "L1",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 2,
+          "partition_type": "cyclic",
+          "variable": "in_local"
+        },
+        {
+          "action_id": "L2",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 4,
+          "partition_type": "cyclic",
+          "variable": "out_local"
+        },
+        {
+          "action_id": "L3",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 0
+        },
+        {
+          "action_id": "L4",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 2
+        },
+        {
+          "action_id": "L5",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 2,
+          "partition_type": "block",
+          "variable": "u_hat_arr"
+        },
+        {
+          "action_id": "L6",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 2,
+          "partition_type": "block",
+          "variable": "p_arr_1"
+        },
+        {
+          "action_id": "L7",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 2,
+          "partition_type": "cyclic",
+          "variable": "k_arr"
+        },
+        {
+          "action_id": "L8",
+          "kind": "array",
+          "partition_dim": 1,
+          "partition_factor": 2,
+          "partition_type": "cyclic",
+          "variable": "calc_temp_arr"
+        },
+        {
+          "action_id": "L9",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 2
+        },
+        {
+          "action_id": "L10",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 2
+        },
+        {
+          "action_id": "L11",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 0
+        },
+        {
+          "action_id": "L12",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 0
+        },
+        {
+          "action_id": "L13",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 0
+        }
+      ],
+      "result": {
+        "diagnostics": [
+          {
+            "affected_loops": [
+              "L4",
+              "L3"
+            ],
+            "array": "in_local_V_0",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-880] The II Violation in module 'krnl_KALMAN_Pipeline_L3' (loop 'L3'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('in_local_V_0_addr_3_write_ln61', candidate.cpp:61) of variable 'select_ln580_27' on array 'in_local_V_0' and 'store' operation ('in_local_V_0_addr_1_write_ln61', candidate.cpp:61) of variable 'select_ln580_11' on array 'in_local_V_0'.",
+            "reported_loop": "L3",
+            "source_line": 61,
+            "type": "recurrence"
+          },
+          {
+            "affected_loops": [
+              "L4",
+              "L3"
+            ],
+            "array": "in_local_V_1",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-880] The II Violation in module 'krnl_KALMAN_Pipeline_L3' (loop 'L3'): Unable to enforce a carried dependence constraint (II = 2, distance = 1, offset = 1) between 'store' operation ('in_local_V_1_addr_3_write_ln61', candidate.cpp:61) of variable 'select_ln580_31' on array 'in_local_V_1' and 'store' operation ('in_local_V_1_addr_1_write_ln61', candidate.cpp:61) of variable 'select_ln580_15' on array 'in_local_V_1'.",
+            "reported_loop": "L3",
+            "source_line": 61,
+            "type": "recurrence"
+          }
+        ],
+        "duration_seconds": 31.688,
+        "error": null,
+        "index": 1,
+        "log_sha256": "e318e4a9b96ad9a6dc0477ccff1a391560663b70a292366a8d219d75df1abace",
+        "metrics": {
+          "budget_feasible": true,
+          "estimated_clock_ns": 7.3,
+          "hls_estimated_clock_within_target": true,
+          "latency_cycles": 536502,
+          "loop_summary": [
+            {
+              "achieved_ii": null,
+              "latency": 96,
+              "name": "L9"
+            },
+            {
+              "achieved_ii": null,
+              "latency": 405307,
+              "name": "L10"
+            }
+          ],
+          "resources": {
+            "bram": 604,
+            "dsp": 4,
+            "ff": 7062,
+            "lut": 19074
+          },
+          "utilization_percent": {
+            "bram": 96.7948717948718,
+            "dsp": 0.23148148148148148,
+            "ff": 1.5325520833333333,
+            "lut": 8.278645833333334
+          }
+        },
+        "report_sha256": "928eec01138d3f1e1f626666f518b2b144a81dcb6834d2b25cf3fe9da7ee0a6c",
+        "source_sha256": "5efc118093017694a7f29beabdb61fec0af83c09c39ab84419b0d0bc961a9bff",
+        "synthesis_status": "success",
+        "tcl_sha256": "47f59a1ef8eb984fb1fb410cd5812606d6363f130f542374ecbf68ee7c606dba",
+        "tool": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+        "tool_mode": "VITIS_HLS",
+        "work_dir": "projects/eval-01"
+      },
+      "selection": {
+        "changed_actions": [],
+        "evidence": {},
+        "kind": "initial_mailohls",
+        "reason": "Initial model configuration",
+        "signature": "f4c353224f85e646ab640f9552a89faaf5eaadcfe74f0767495fdfbbe349b074"
+      },
+      "signature": "f4c353224f85e646ab640f9552a89faaf5eaadcfe74f0767495fdfbbe349b074"
+    }
+  ],
+  "stop": null
+}

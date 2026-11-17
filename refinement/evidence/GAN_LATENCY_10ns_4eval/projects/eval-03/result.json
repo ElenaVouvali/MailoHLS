@@ -1,0 +1,53 @@
+{
+  "diagnostics": [
+    {
+      "affected_loops": [
+        "L6",
+        "L5"
+      ],
+      "array": "layer_1_out_V_0",
+      "attribution": "source_line+LLVM_action_anchor",
+      "evidence": "explicit_vitis_log",
+      "raw": "WARNING: [HLS 200-880] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('layer_1_out_V_0_addr_write_ln58', candidate.cpp:58) of variable 'add_ln712_16' on array 'layer_1_out_V_0' and 'load' operation ('layer_1_out_V_0_load_1', candidate.cpp:56) on array 'layer_1_out_V_0'.",
+      "reported_loop": "L5",
+      "source_line": 58,
+      "type": "recurrence"
+    }
+  ],
+  "duration_seconds": 70.068,
+  "error": null,
+  "index": 3,
+  "log_sha256": "004ed90f369d53d8b8b755e1471218ed2866d4cd365174c3397d739734bc4bd4",
+  "metrics": {
+    "budget_feasible": true,
+    "estimated_clock_ns": 6.947,
+    "hls_estimated_clock_within_target": true,
+    "latency_cycles": 1389,
+    "loop_summary": [
+      {
+        "achieved_ii": null,
+        "latency": 120,
+        "name": "L7"
+      }
+    ],
+    "resources": {
+      "bram": 81,
+      "dsp": 87,
+      "ff": 5028,
+      "lut": 16279
+    },
+    "utilization_percent": {
+      "bram": 12.98076923076923,
+      "dsp": 5.034722222222222,
+      "ff": 1.0911458333333333,
+      "lut": 7.065538194444445
+    }
+  },
+  "report_sha256": "a6b55dc2586b3556bbfd6e1681da86d8f5991cb6743333347be4c1091aecf30f",
+  "source_sha256": "c20c64789baf50a87d0414649b4469b15599c65c9d5d841b6025f567a19920ac",
+  "synthesis_status": "success",
+  "tcl_sha256": "9d92a076716747e12cec48242ff534c6201cddd976f05e41e9883c01342a259d",
+  "tool": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+  "tool_mode": "VITIS_HLS",
+  "work_dir": "projects/eval-03"
+}

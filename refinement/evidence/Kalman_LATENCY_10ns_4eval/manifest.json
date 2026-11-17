@@ -1,0 +1,1471 @@
+{
+  "actions": {
+    "L1": {
+      "dims": {
+        "1": 262144
+      },
+      "kind": "array",
+      "variable": "in_local"
+    },
+    "L10": {
+      "bound": 4095,
+      "kind": "loop"
+    },
+    "L11": {
+      "bound": 64,
+      "kind": "loop"
+    },
+    "L12": {
+      "bound": 32768,
+      "kind": "loop"
+    },
+    "L13": {
+      "bound": 8,
+      "kind": "loop"
+    },
+    "L2": {
+      "dims": {
+        "1": 262144
+      },
+      "kind": "array",
+      "variable": "out_local"
+    },
+    "L3": {
+      "bound": 32768,
+      "kind": "loop"
+    },
+    "L4": {
+      "bound": 8,
+      "kind": "loop"
+    },
+    "L5": {
+      "dims": {
+        "1": 64
+      },
+      "kind": "array",
+      "variable": "u_hat_arr"
+    },
+    "L6": {
+      "dims": {
+        "1": 64
+      },
+      "kind": "array",
+      "variable": "p_arr_1"
+    },
+    "L7": {
+      "dims": {
+        "1": 64
+      },
+      "kind": "array",
+      "variable": "k_arr"
+    },
+    "L8": {
+      "dims": {
+        "1": 64
+      },
+      "kind": "array",
+      "variable": "calc_temp_arr"
+    },
+    "L9": {
+      "bound": 64,
+      "kind": "loop"
+    }
+  },
+  "artifact_note": "No model inference or HLS synthesis performed in prepare",
+  "budget_percent": 100.0,
+  "clock_ns": 10.0,
+  "compiler_graph": {
+    "action_functions": {
+      "L1": [
+        "0"
+      ],
+      "L10": [
+        "0"
+      ],
+      "L11": [
+        "0"
+      ],
+      "L12": [
+        "0"
+      ],
+      "L13": [
+        "0"
+      ],
+      "L2": [
+        "0"
+      ],
+      "L3": [
+        "0"
+      ],
+      "L4": [
+        "0"
+      ],
+      "L5": [
+        "0"
+      ],
+      "L6": [
+        "0"
+      ],
+      "L7": [
+        "0"
+      ],
+      "L8": [
+        "0"
+      ],
+      "L9": [
+        "0"
+      ]
+    },
+    "action_nodes": {
+      "L1": [
+        "223"
+      ],
+      "L10": [
+        "626",
+        "408"
+      ],
+      "L11": [
+        "226",
+        "112"
+      ],
+      "L12": [
+        "559",
+        "324"
+      ],
+      "L13": [
+        "355",
+        "329"
+      ],
+      "L2": [
+        "149"
+      ],
+      "L3": [
+        "496",
+        "658"
+      ],
+      "L4": [
+        "456",
+        "284"
+      ],
+      "L5": [
+        "44"
+      ],
+      "L6": [
+        "359"
+      ],
+      "L7": [
+        "573"
+      ],
+      "L8": [
+        "70"
+      ],
+      "L9": [
+        "548",
+        "484"
+      ]
+    },
+    "anchored_actions": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5",
+      "L6",
+      "L7",
+      "L8",
+      "L9",
+      "L10",
+      "L11",
+      "L12",
+      "L13"
+    ],
+    "array_scope_access_links": {
+      "L1": [
+        {
+          "function": "0",
+          "ir": "%in_local = alloca [262144 x float], align 16",
+          "operation_node": "111",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx13 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom12",
+          "operation_node": "583",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx24 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom23",
+          "operation_node": "614",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx64 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom63",
+          "operation_node": "471",
+          "scope_node": "407"
+        }
+      ],
+      "L2": [
+        {
+          "function": "0",
+          "ir": "%out_local = alloca [262144 x float], align 16",
+          "operation_node": "643",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx33 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom32",
+          "operation_node": "76",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx85 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom84",
+          "operation_node": "138",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx105 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom104",
+          "operation_node": "118",
+          "scope_node": "45"
+        }
+      ],
+      "L5": [
+        {
+          "function": "0",
+          "ir": "%u_hat_arr = alloca [64 x float], align 16",
+          "operation_node": "635",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx26 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom25",
+          "operation_node": "153",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx30 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom29",
+          "operation_node": "183",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx58 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom57",
+          "operation_node": "558",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx66 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom65",
+          "operation_node": "535",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx71 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom70",
+          "operation_node": "103",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx81 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom80",
+          "operation_node": "306",
+          "scope_node": "4"
+        }
+      ],
+      "L6": [
+        {
+          "function": "0",
+          "ir": "%p_arr_1 = alloca [64 x float], align 16",
+          "operation_node": "312",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx28 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom27",
+          "operation_node": "578",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx46 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom45",
+          "operation_node": "544",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx53 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom52",
+          "operation_node": "96",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx79 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom78",
+          "operation_node": "386",
+          "scope_node": "458"
+        }
+      ],
+      "L7": [
+        {
+          "function": "0",
+          "ir": "%k_arr = alloca [64 x float], align 16",
+          "operation_node": "81",
+          "scope_node": "87"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx56 = getelementptr inbounds [64 x float], [64 x float]* %k_arr, i64 0, i64 %idxprom55",
+          "operation_node": "549",
+          "scope_node": "87"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx60 = getelementptr inbounds [64 x float], [64 x float]* %k_arr, i64 0, i64 %idxprom59",
+          "operation_node": "221",
+          "scope_node": "87"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx73 = getelementptr inbounds [64 x float], [64 x float]* %k_arr, i64 0, i64 %idxprom72",
+          "operation_node": "52",
+          "scope_node": "87"
+        }
+      ],
+      "L8": [
+        {
+          "function": "0",
+          "ir": "%calc_temp_arr = alloca [64 x float], align 16",
+          "operation_node": "596",
+          "scope_node": "233"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx49 = getelementptr inbounds [64 x float], [64 x float]* %calc_temp_arr, i64 0, i64 %idxprom48",
+          "operation_node": "131",
+          "scope_node": "233"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx51 = getelementptr inbounds [64 x float], [64 x float]* %calc_temp_arr, i64 0, i64 %idxprom50",
+          "operation_node": "78",
+          "scope_node": "233"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx76 = getelementptr inbounds [64 x float], [64 x float]* %calc_temp_arr, i64 0, i64 %idxprom75",
+          "operation_node": "595",
+          "scope_node": "233"
+        }
+      ]
+    },
+    "array_scope_nodes": {
+      "calc_temp_arr": [
+        "233"
+      ],
+      "in_local": [
+        "407"
+      ],
+      "k_arr": [
+        "87"
+      ],
+      "out_local": [
+        "45"
+      ],
+      "p_arr_1": [
+        "458"
+      ],
+      "u_hat_arr": [
+        "4"
+      ]
+    },
+    "edges": 1263,
+    "meaning": "Real ProGraML pragma->array_scope->IR access links. This does not prove loop dependence, memory bank conflicts or alias freedom.",
+    "missing_actions": [],
+    "nodes": 704,
+    "path_name": "Kalman.gexf",
+    "sha256": "7712239a9c6501bed145db7c92902acf97cb50e666db6fa1f44098b2236b4707"
+  },
+  "controller_sha256": "c5a7c7077c24adde96b32ee5eee34afdc0d2faeb6698b34151abb27815c56b32",
+  "diagnostic_policy": "No low-confidence Lk causal conclusions from graph proximity alone",
+  "initial_directives": [
+    {
+      "action_id": "L1",
+      "kind": "array",
+      "partition_dim": 1,
+      "partition_factor": 2,
+      "partition_type": "cyclic",
+      "variable": "in_local"
+    },
+    {
+      "action_id": "L2",
+      "kind": "array",
+      "partition_dim": 1,
+      "partition_factor": 4,
+      "partition_type": "cyclic",
+      "variable": "out_local"
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L5",
+      "kind": "array",
+      "partition_dim": 1,
+      "partition_factor": 2,
+      "partition_type": "block",
+      "variable": "u_hat_arr"
+    },
+    {
+      "action_id": "L6",
+      "kind": "array",
+      "partition_dim": 1,
+      "partition_factor": 2,
+      "partition_type": "block",
+      "variable": "p_arr_1"
+    },
+    {
+      "action_id": "L7",
+      "kind": "array",
+      "partition_dim": 1,
+      "partition_factor": 2,
+      "partition_type": "cyclic",
+      "variable": "k_arr"
+    },
+    {
+      "action_id": "L8",
+      "kind": "array",
+      "partition_dim": 1,
+      "partition_factor": 2,
+      "partition_type": "cyclic",
+      "variable": "calc_temp_arr"
+    },
+    {
+      "action_id": "L9",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L10",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L11",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L12",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L13",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "input_hashes": {
+    "kernel_info.txt": "9372ad6094e1dfb5db64bcd3f9bc5a4c0da1f4eb46cc3afddefea69e8e5bd400",
+    "llvm_graph.gexf": "7712239a9c6501bed145db7c92902acf97cb50e666db6fa1f44098b2236b4707",
+    "template.cpp": "b9decff29b96c13d5cba3197e802eef0a2ffdfb6badfa57a3aab347e8c1d4e33"
+  },
+  "kernel": "Kalman",
+  "loop_array_relations": [
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%in_local = alloca [262144 x float], align 16",
+          "operation_node": "111",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx13 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom12",
+          "operation_node": "583",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx24 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom23",
+          "operation_node": "614",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx64 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom63",
+          "operation_node": "471",
+          "scope_node": "407"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "counter",
+          "line": 61
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L1",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L3",
+      "variable": "in_local"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%in_local = alloca [262144 x float], align 16",
+          "operation_node": "111",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx13 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom12",
+          "operation_node": "583",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx24 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom23",
+          "operation_node": "614",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx64 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom63",
+          "operation_node": "471",
+          "scope_node": "407"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "counter",
+          "line": 61
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L1",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L4",
+      "variable": "in_local"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%in_local = alloca [262144 x float], align 16",
+          "operation_node": "111",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx13 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom12",
+          "operation_node": "583",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx24 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom23",
+          "operation_node": "614",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx64 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom63",
+          "operation_node": "471",
+          "scope_node": "407"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i*INTERNAL_BATCH_SIZE",
+          "line": 79
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L1",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L9",
+      "variable": "in_local"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%out_local = alloca [262144 x float], align 16",
+          "operation_node": "643",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx33 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom32",
+          "operation_node": "76",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx85 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom84",
+          "operation_node": "138",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx105 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom104",
+          "operation_node": "118",
+          "scope_node": "45"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i*INTERNAL_BATCH_SIZE",
+          "line": 81
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L9",
+      "variable": "out_local"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%u_hat_arr = alloca [64 x float], align 16",
+          "operation_node": "635",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx26 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom25",
+          "operation_node": "153",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx30 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom29",
+          "operation_node": "183",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx58 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom57",
+          "operation_node": "558",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx66 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom65",
+          "operation_node": "535",
+          "scope_node": "4"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 79
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 81
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L5",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L9",
+      "variable": "u_hat_arr"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%p_arr_1 = alloca [64 x float], align 16",
+          "operation_node": "312",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx28 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom27",
+          "operation_node": "578",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx46 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom45",
+          "operation_node": "544",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx53 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom52",
+          "operation_node": "96",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx79 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom78",
+          "operation_node": "386",
+          "scope_node": "458"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 80
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L6",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L9",
+      "variable": "p_arr_1"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%in_local = alloca [262144 x float], align 16",
+          "operation_node": "111",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx13 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom12",
+          "operation_node": "583",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx24 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom23",
+          "operation_node": "614",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx64 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom63",
+          "operation_node": "471",
+          "scope_node": "407"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i*INTERNAL_BATCH_SIZE+t",
+          "line": 94
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L1",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L10",
+      "variable": "in_local"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%out_local = alloca [262144 x float], align 16",
+          "operation_node": "643",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx33 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom32",
+          "operation_node": "76",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx85 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom84",
+          "operation_node": "138",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx105 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom104",
+          "operation_node": "118",
+          "scope_node": "45"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i*INTERNAL_BATCH_SIZE+t",
+          "line": 98
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L10",
+      "variable": "out_local"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%u_hat_arr = alloca [64 x float], align 16",
+          "operation_node": "635",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx26 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom25",
+          "operation_node": "153",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx30 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom29",
+          "operation_node": "183",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx58 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom57",
+          "operation_node": "558",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx66 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom65",
+          "operation_node": "535",
+          "scope_node": "4"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 94
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 94
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 94
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 98
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L5",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L10",
+      "variable": "u_hat_arr"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%p_arr_1 = alloca [64 x float], align 16",
+          "operation_node": "312",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx28 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom27",
+          "operation_node": "578",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx46 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom45",
+          "operation_node": "544",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx53 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom52",
+          "operation_node": "96",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx79 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom78",
+          "operation_node": "386",
+          "scope_node": "458"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 90
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 92
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 96
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L6",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L10",
+      "variable": "p_arr_1"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%k_arr = alloca [64 x float], align 16",
+          "operation_node": "81",
+          "scope_node": "87"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx56 = getelementptr inbounds [64 x float], [64 x float]* %k_arr, i64 0, i64 %idxprom55",
+          "operation_node": "549",
+          "scope_node": "87"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx60 = getelementptr inbounds [64 x float], [64 x float]* %k_arr, i64 0, i64 %idxprom59",
+          "operation_node": "221",
+          "scope_node": "87"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx73 = getelementptr inbounds [64 x float], [64 x float]* %k_arr, i64 0, i64 %idxprom72",
+          "operation_node": "52",
+          "scope_node": "87"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 92
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 94
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 96
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L7",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L10",
+      "variable": "k_arr"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%calc_temp_arr = alloca [64 x float], align 16",
+          "operation_node": "596",
+          "scope_node": "233"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx49 = getelementptr inbounds [64 x float], [64 x float]* %calc_temp_arr, i64 0, i64 %idxprom48",
+          "operation_node": "131",
+          "scope_node": "233"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx51 = getelementptr inbounds [64 x float], [64 x float]* %calc_temp_arr, i64 0, i64 %idxprom50",
+          "operation_node": "78",
+          "scope_node": "233"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx76 = getelementptr inbounds [64 x float], [64 x float]* %calc_temp_arr, i64 0, i64 %idxprom75",
+          "operation_node": "595",
+          "scope_node": "233"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 90
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 92
+        },
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i",
+          "line": 96
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L8",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L10",
+      "variable": "calc_temp_arr"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%in_local = alloca [262144 x float], align 16",
+          "operation_node": "111",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx13 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom12",
+          "operation_node": "583",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx24 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom23",
+          "operation_node": "614",
+          "scope_node": "407"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx64 = getelementptr inbounds [262144 x float], [262144 x float]* %in_local, i64 0, i64 %idxprom63",
+          "operation_node": "471",
+          "scope_node": "407"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i*INTERNAL_BATCH_SIZE+t",
+          "line": 94
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L1",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L11",
+      "variable": "in_local"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%out_local = alloca [262144 x float], align 16",
+          "operation_node": "643",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx33 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom32",
+          "operation_node": "76",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx85 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom84",
+          "operation_node": "138",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx105 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom104",
+          "operation_node": "118",
+          "scope_node": "45"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "i*INTERNAL_BATCH_SIZE+t",
+          "line": 98
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L11",
+      "variable": "out_local"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%u_hat_arr = alloca [64 x float], align 16",
+          "operation_node": "635",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx26 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom25",
+          "operation_node": "153",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx30 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom29",
+          "operation_node": "183",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx58 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom57",
+          "operation_node": "558",
+          "scope_node": "4"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx66 = getelementptr inbounds [64 x float], [64 x float]* %u_hat_arr, i64 0, i64 %idxprom65",
+          "operation_node": "535",
+          "scope_node": "4"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 94
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 94
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 94
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 98
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L5",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L11",
+      "variable": "u_hat_arr"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%p_arr_1 = alloca [64 x float], align 16",
+          "operation_node": "312",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx28 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom27",
+          "operation_node": "578",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx46 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom45",
+          "operation_node": "544",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx53 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom52",
+          "operation_node": "96",
+          "scope_node": "458"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx79 = getelementptr inbounds [64 x float], [64 x float]* %p_arr_1, i64 0, i64 %idxprom78",
+          "operation_node": "386",
+          "scope_node": "458"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 90
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 92
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 96
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L6",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L11",
+      "variable": "p_arr_1"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%k_arr = alloca [64 x float], align 16",
+          "operation_node": "81",
+          "scope_node": "87"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx56 = getelementptr inbounds [64 x float], [64 x float]* %k_arr, i64 0, i64 %idxprom55",
+          "operation_node": "549",
+          "scope_node": "87"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx60 = getelementptr inbounds [64 x float], [64 x float]* %k_arr, i64 0, i64 %idxprom59",
+          "operation_node": "221",
+          "scope_node": "87"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx73 = getelementptr inbounds [64 x float], [64 x float]* %k_arr, i64 0, i64 %idxprom72",
+          "operation_node": "52",
+          "scope_node": "87"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 92
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 94
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 96
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L7",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L11",
+      "variable": "k_arr"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%calc_temp_arr = alloca [64 x float], align 16",
+          "operation_node": "596",
+          "scope_node": "233"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx49 = getelementptr inbounds [64 x float], [64 x float]* %calc_temp_arr, i64 0, i64 %idxprom48",
+          "operation_node": "131",
+          "scope_node": "233"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx51 = getelementptr inbounds [64 x float], [64 x float]* %calc_temp_arr, i64 0, i64 %idxprom50",
+          "operation_node": "78",
+          "scope_node": "233"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx76 = getelementptr inbounds [64 x float], [64 x float]* %calc_temp_arr, i64 0, i64 %idxprom75",
+          "operation_node": "595",
+          "scope_node": "233"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 90
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 92
+        },
+        {
+          "consecutive_for_this_loop": true,
+          "index": "i",
+          "line": 96
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L8",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L11",
+      "variable": "calc_temp_arr"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%out_local = alloca [262144 x float], align 16",
+          "operation_node": "643",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx33 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom32",
+          "operation_node": "76",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx85 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom84",
+          "operation_node": "138",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx105 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom104",
+          "operation_node": "118",
+          "scope_node": "45"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "counter",
+          "line": 112
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L12",
+      "variable": "out_local"
+    },
+    {
+      "LLVM_access_links": [
+        {
+          "function": "0",
+          "ir": "%out_local = alloca [262144 x float], align 16",
+          "operation_node": "643",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx33 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom32",
+          "operation_node": "76",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx85 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom84",
+          "operation_node": "138",
+          "scope_node": "45"
+        },
+        {
+          "function": "0",
+          "ir": "%arrayidx105 = getelementptr inbounds [262144 x float], [262144 x float]* %out_local, i64 0, i64 %idxprom104",
+          "operation_node": "118",
+          "scope_node": "45"
+        }
+      ],
+      "accesses": [
+        {
+          "consecutive_for_this_loop": false,
+          "index": "counter",
+          "line": 112
+        }
+      ],
+      "alias_or_bank_proof": false,
+      "array": "L2",
+      "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+      "loop": "L13",
+      "variable": "out_local"
+    }
+  ],
+  "loop_spans": {
+    "L10": {
+      "end": 100,
+      "iterator": "t",
+      "start": 84
+    },
+    "L11": {
+      "end": 99,
+      "iterator": "i",
+      "start": 87
+    },
+    "L12": {
+      "end": 120,
+      "iterator": "i",
+      "start": 103
+    },
+    "L13": {
+      "end": 117,
+      "iterator": "j",
+      "start": 108
+    },
+    "L3": {
+      "end": 65,
+      "iterator": "i",
+      "start": 51
+    },
+    "L4": {
+      "end": 64,
+      "iterator": "j",
+      "start": 56
+    },
+    "L9": {
+      "end": 82,
+      "iterator": "i",
+      "start": 76
+    }
+  },
+  "max_evaluations": 4,
+  "part": "xczu7ev-ffvc1156-2-e",
+  "schema": "cg-bdr-v0.1-research",
+  "settings": [
+    "config_array_partition -complete_threshold 0 -throughput_driven off",
+    "config_compile -pipeline_loops 0"
+  ],
+  "source_identity": "/home/elvouvali/cg_bdr_dac/repo_main/evaluation_set/serrano-kalman-filter/code_to_memory_outputs/meta/serrano-kalman-filter_placeholders.cpp",
+  "template_suffix": ".cpp",
+  "top": "krnl_KALMAN"
+}

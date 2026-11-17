@@ -1,0 +1,516 @@
+
+****** Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)
+  **** SW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021
+  **** IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+    ** Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+
+source /opt/Xilinx/Vitis_HLS/2021.1/scripts/vitis_hls/hls.tcl -notrace
+INFO: Applying HLS Y2K22 patch v1.2 for IP revision
+INFO: [HLS 200-10] Running '/opt/Xilinx/Vitis_HLS/2021.1/bin/unwrapped/lnx64.o/vitis_hls'
+INFO: [HLS 200-10] For user 'bonus24' on host 'coroni' (Linux_x86_64 version 4.15.0-213-generic) on Mon Nov 16 16:52:08 EET 2026
+INFO: [HLS 200-10] On os Ubuntu 18.04.6 LTS
+INFO: [HLS 200-10] In directory '/home/bonus24/cg_bdr_six_v02/trmm-opt_LATENCY_10ns_4eval/projects/eval-01'
+Sourcing Tcl script 'run_hls.tcl'
+INFO: [HLS 200-1510] Running: open_project -reset hls_project 
+INFO: [HLS 200-10] Creating and opening project '/home/bonus24/cg_bdr_six_v02/trmm-opt_LATENCY_10ns_4eval/projects/eval-01/hls_project'.
+INFO: [HLS 200-1510] Running: set_top kernel_trmm 
+INFO: [HLS 200-1510] Running: add_files -cflags -I/opt/Xilinx/Vitis_HLS/2021.1/include candidate.cpp 
+INFO: [HLS 200-10] Adding design file 'candidate.cpp' to the project
+INFO: [HLS 200-1510] Running: open_solution -reset solution1 -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/home/bonus24/cg_bdr_six_v02/trmm-opt_LATENCY_10ns_4eval/projects/eval-01/hls_project/solution1'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+WARNING: [HLS 200-40] No /home/bonus24/cg_bdr_six_v02/trmm-opt_LATENCY_10ns_4eval/projects/eval-01/hls_project/solution1/solution1.aps file found.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xczu7ev-ffvc1156-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xczu7ev-ffvc1156-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 10 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 10ns.
+INFO: [HLS 200-1510] Running: config_array_partition -complete_threshold 0 -throughput_driven off 
+INFO: [XFORM 203-102] Size-based automatic array partition disabled.
+INFO: [HLS 200-1510] Running: config_compile -pipeline_loops 0 
+INFO: [XFORM 203-1171] Pipeline the innermost loop with trip count more than 0 or its parent loop when its trip count is less than or equal 0.
+INFO: [HLS 200-1510] Running: csynth_design 
+INFO: [HLS 200-111] Finished File checks and directory preparation: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0.01 seconds; current allocated memory: 213.555 MB.
+INFO: [HLS 200-10] Analyzing design file 'candidate.cpp' ... 
+INFO: [HLS 200-111] Finished Source Code Analysis and Preprocessing: CPU user time: 1.21 seconds. CPU system time: 0.67 seconds. Elapsed time: 0.94 seconds; current allocated memory: 214.213 MB.
+INFO: [HLS 200-777] Using interface defaults for 'Vivado' flow target.
+INFO: [HLS 214-279] Initial Interval estimation mode is set into default.
+INFO: [HLS 214-284] Auto array partition mode is set into default.
+INFO: [HLS 214-188] Unrolling loop 'L1' (candidate.cpp:11:5) in function 'kernel_trmm' partially with a factor of 10 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' partially with a factor of 2 (candidate.cpp:7:0)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L2' (candidate.cpp:14:5) in function 'kernel_trmm' with estimated II increased from II=1 to II=3 because of limited port on variable 'B' (candidate.cpp:14:5)
+INFO: [HLS 214-270] Starting automatic array partition analysis...
+INFO: [HLS 200-111] Finished Compiling Optimization and Transform: CPU user time: 5.14 seconds. CPU system time: 0.57 seconds. Elapsed time: 5.67 seconds; current allocated memory: 217.367 MB.
+INFO: [HLS 200-111] Finished Checking Pragmas: CPU user time: 0.01 seconds. CPU system time: 0 seconds. Elapsed time: 0 seconds; current allocated memory: 217.368 MB.
+INFO: [HLS 200-10] Starting code transformations ...
+INFO: [HLS 200-111] Finished Standard Transforms: CPU user time: 0.06 seconds. CPU system time: 0 seconds. Elapsed time: 0.06 seconds; current allocated memory: 219.989 MB.
+INFO: [HLS 200-10] Checking synthesizability ...
+INFO: [HLS 200-111] Finished Checking Synthesizability: CPU user time: 0.05 seconds. CPU system time: 0 seconds. Elapsed time: 0.05 seconds; current allocated memory: 218.680 MB.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L2' (candidate.cpp:14) in function 'kernel_trmm' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L3' (candidate.cpp:17) because its parent loop or function is pipelined.
+INFO: [HLS 200-489] Unrolling loop 'L3' (candidate.cpp:17) in function 'kernel_trmm' completely with a factor of 60.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 237 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 237 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 229 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 225 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 221 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 217 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 213 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 209 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 205 basic blocks.
+INFO: [XFORM 203-401] Performing if-conversion on hyperblock from (candidate.cpp:14:14) in function 'kernel_trmm'... converting 201 basic blocks.
+INFO: [HLS 200-111] Finished Loop, function and other optimizations: CPU user time: 16.6 seconds. CPU system time: 0.18 seconds. Elapsed time: 16.79 seconds; current allocated memory: 266.286 MB.
+WARNING: [HLS 200-960] Cannot flatten loop 'L1' (candidate.cpp:11:14) in function 'kernel_trmm' more than one sub loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+INFO: [HLS 200-111] Finished Architecture Synthesis: CPU user time: 3.41 seconds. CPU system time: 0.05 seconds. Elapsed time: 3.47 seconds; current allocated memory: 410.889 MB.
+INFO: [HLS 200-10] Starting hardware synthesis ...
+INFO: [HLS 200-10] Synthesizing 'kernel_trmm' ...
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L2' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_510', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_520', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_1', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_530', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_687', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_703', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_711', candidate.cpp:22) on array 'B' due to limited memory ports (II = 59). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_712', candidate.cpp:22) on array 'B' due to limited memory ports (II = 60). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 61, Depth = 366, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 8.37 seconds. CPU system time: 0.06 seconds. Elapsed time: 8.43 seconds; current allocated memory: 420.228 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 3.39 seconds. CPU system time: 0.04 seconds. Elapsed time: 3.43 seconds; current allocated memory: 428.829 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L21' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_551', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_561', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_4', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_571', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_647', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_663', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_671', candidate.cpp:22) on array 'B' due to limited memory ports (II = 59). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 60, Depth = 360, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 8.17 seconds. CPU system time: 0.04 seconds. Elapsed time: 8.21 seconds; current allocated memory: 433.520 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 3.36 seconds. CPU system time: 0 seconds. Elapsed time: 3.37 seconds; current allocated memory: 441.953 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L22' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_542', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_552', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_8', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_562', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_599', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_615', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_619', candidate.cpp:22) on array 'B' due to limited memory ports (II = 55). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_621', candidate.cpp:22) on array 'B' due to limited memory ports (II = 57). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_622', candidate.cpp:22) on array 'B' due to limited memory ports (II = 58). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 59, Depth = 354, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 9.67 seconds. CPU system time: 0.02 seconds. Elapsed time: 9.7 seconds; current allocated memory: 446.593 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 3.27 seconds. CPU system time: 0.01 seconds. Elapsed time: 3.29 seconds; current allocated memory: 454.902 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L23' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_514', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_515', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_12', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_516', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_547', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_563', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_567', candidate.cpp:22) on array 'B' due to limited memory ports (II = 55). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_569', candidate.cpp:22) on array 'B' due to limited memory ports (II = 57). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 58, Depth = 348, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 8.59 seconds. CPU system time: 0.01 seconds. Elapsed time: 8.61 seconds; current allocated memory: 459.455 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 3.21 seconds. CPU system time: 0.01 seconds. Elapsed time: 3.22 seconds; current allocated memory: 467.591 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L24' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_456', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_457', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_16', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_458', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_489', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_505', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_509', candidate.cpp:22) on array 'B' due to limited memory ports (II = 55). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_510', candidate.cpp:22) on array 'B' due to limited memory ports (II = 56). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 57, Depth = 342, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 8.44 seconds. CPU system time: 0.02 seconds. Elapsed time: 8.46 seconds; current allocated memory: 472.072 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 3.15 seconds. CPU system time: 0.01 seconds. Elapsed time: 3.16 seconds; current allocated memory: 480.069 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L25' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_392', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_393', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_20', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_394', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_425', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_441', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_445', candidate.cpp:22) on array 'B' due to limited memory ports (II = 55). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 56, Depth = 336, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 8.31 seconds. CPU system time: 0.01 seconds. Elapsed time: 8.32 seconds; current allocated memory: 484.455 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 3.07 seconds. CPU system time: 0.01 seconds. Elapsed time: 3.09 seconds; current allocated memory: 492.254 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L26' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_320', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_321', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_24', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_322', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_353', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_369', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_371', candidate.cpp:22) on array 'B' due to limited memory ports (II = 53). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_372', candidate.cpp:22) on array 'B' due to limited memory ports (II = 54). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 55, Depth = 330, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 7.91 seconds. CPU system time: 0.03 seconds. Elapsed time: 7.93 seconds; current allocated memory: 496.571 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 3.02 seconds. CPU system time: 0.01 seconds. Elapsed time: 3.03 seconds; current allocated memory: 504.217 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L27' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_240', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_241', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_28', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_242', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_273', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_289', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_291', candidate.cpp:22) on array 'B' due to limited memory ports (II = 53). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 54, Depth = 324, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 7.1 seconds. CPU system time: 0 seconds. Elapsed time: 7.12 seconds; current allocated memory: 508.447 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 2.96 seconds. CPU system time: 0 seconds. Elapsed time: 2.97 seconds; current allocated memory: 515.953 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L28' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_151', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_152', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_32', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_153', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_184', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_200', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_201', candidate.cpp:22) on array 'B' due to limited memory ports (II = 52). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 53, Depth = 318, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 6.91 seconds. CPU system time: 0.02 seconds. Elapsed time: 6.93 seconds; current allocated memory: 520.113 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 2.91 seconds. CPU system time: 0.01 seconds. Elapsed time: 2.94 seconds; current allocated memory: 527.447 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm_Pipeline_L29' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L2'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_52', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_53', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_36', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_54', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_85', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_101', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 52, Depth = 312, loop 'L2'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 6.15 seconds. CPU system time: 0.03 seconds. Elapsed time: 6.18 seconds; current allocated memory: 531.514 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 2.84 seconds. CPU system time: 0.01 seconds. Elapsed time: 2.85 seconds; current allocated memory: 538.658 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_trmm' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 5.37 seconds. CPU system time: 0.02 seconds. Elapsed time: 5.39 seconds; current allocated memory: 548.428 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 7.4 seconds. CPU system time: 0.04 seconds. Elapsed time: 7.43 seconds; current allocated memory: 563.795 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L2' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L2' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L2'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 11.31 seconds. CPU system time: 0.03 seconds. Elapsed time: 11.35 seconds; current allocated memory: 573.843 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L21' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L21' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L21'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 4.46 seconds. CPU system time: 0.05 seconds. Elapsed time: 4.53 seconds; current allocated memory: 602.798 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L22' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L22' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L22'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 4.21 seconds. CPU system time: 0.04 seconds. Elapsed time: 4.26 seconds; current allocated memory: 631.240 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L23' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L23' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L23'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 4.16 seconds. CPU system time: 0.03 seconds. Elapsed time: 4.19 seconds; current allocated memory: 659.296 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L24' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L24' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L24'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 4.06 seconds. CPU system time: 0.04 seconds. Elapsed time: 4.1 seconds; current allocated memory: 686.894 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L25' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L25' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L25'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 3.96 seconds. CPU system time: 0.03 seconds. Elapsed time: 4 seconds; current allocated memory: 714.025 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L26' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L26' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L26'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 3.92 seconds. CPU system time: 0.06 seconds. Elapsed time: 3.99 seconds; current allocated memory: 740.568 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L27' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L27' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L27'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 3.87 seconds. CPU system time: 0.03 seconds. Elapsed time: 3.92 seconds; current allocated memory: 766.549 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L28' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L28' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L28'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 3.74 seconds. CPU system time: 0.07 seconds. Elapsed time: 3.82 seconds; current allocated memory: 792.019 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm_Pipeline_L29' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_trmm_Pipeline_L29' pipeline 'L2' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm_Pipeline_L29'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 3.72 seconds. CPU system time: 0.07 seconds. Elapsed time: 3.79 seconds; current allocated memory: 817.160 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_trmm' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_trmm/alpha' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_trmm/A' to 'ap_memory'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_trmm/B' to 'ap_memory'.
+INFO: [RTGEN 206-500] Setting interface mode on function 'kernel_trmm' to 'ap_ctrl_hs'.
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_trmm'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 5.01 seconds. CPU system time: 0.05 seconds. Elapsed time: 5.08 seconds; current allocated memory: 865.009 MB.
+INFO: [HLS 200-111] Finished Generating all RTL models: CPU user time: 27.17 seconds. CPU system time: 0.25 seconds. Elapsed time: 27.42 seconds; current allocated memory: 924.831 MB.
+INFO: [HLS 200-111] Finished Updating report files: CPU user time: 1.92 seconds. CPU system time: 0.01 seconds. Elapsed time: 1.94 seconds; current allocated memory: 951.618 MB.
+INFO: [VHDL 208-304] Generating VHDL RTL for kernel_trmm.
+INFO: [VLOG 209-307] Generating Verilog RTL for kernel_trmm.
+INFO: [HLS 200-790] **** Loop Constraint Status: All loop constraints were NOT satisfied.
+INFO: [HLS 200-789] **** Estimated Fmax: 127.89 MHz
+INFO: [HLS 200-111] Finished Command csynth_design CPU user time: 231.69 seconds. CPU system time: 2.65 seconds. Elapsed time: 233.6 seconds; current allocated memory: 951.604 MB.
+INFO: [HLS 200-112] Total CPU user time: 234.39 seconds. Total CPU system time: 3.46 seconds. Total elapsed time: 235.94 seconds; peak allocated memory: 951.618 MB.
+INFO: [Common 17-206] Exiting vitis_hls at Mon Nov 16 16:56:04 2026...

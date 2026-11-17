@@ -1,0 +1,225 @@
+
+****** Vitis HLS - High-Level Synthesis from C, C++ and OpenCL v2021.1 (64-bit)
+  **** SW Build 3247384 on Thu Jun 10 19:36:07 MDT 2021
+  **** IP Build 3246043 on Fri Jun 11 00:30:35 MDT 2021
+    ** Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+
+source /opt/Xilinx/Vitis_HLS/2021.1/scripts/vitis_hls/hls.tcl -notrace
+INFO: Applying HLS Y2K22 patch v1.2 for IP revision
+INFO: [HLS 200-10] Running '/opt/Xilinx/Vitis_HLS/2021.1/bin/unwrapped/lnx64.o/vitis_hls'
+INFO: [HLS 200-10] For user 'bonus24' on host 'coroni' (Linux_x86_64 version 4.15.0-213-generic) on Mon Nov 16 16:36:08 EET 2026
+INFO: [HLS 200-10] On os Ubuntu 18.04.6 LTS
+INFO: [HLS 200-10] In directory '/home/bonus24/cg_bdr_six_v02/covariance_LATENCY_10ns_4eval/projects/eval-02'
+Sourcing Tcl script 'run_hls.tcl'
+INFO: [HLS 200-1510] Running: open_project -reset hls_project 
+INFO: [HLS 200-10] Creating and opening project '/home/bonus24/cg_bdr_six_v02/covariance_LATENCY_10ns_4eval/projects/eval-02/hls_project'.
+INFO: [HLS 200-1510] Running: set_top kernel_covariance 
+INFO: [HLS 200-1510] Running: add_files -cflags -I/opt/Xilinx/Vitis_HLS/2021.1/include candidate.cpp 
+INFO: [HLS 200-10] Adding design file 'candidate.cpp' to the project
+INFO: [HLS 200-1510] Running: open_solution -reset solution1 -flow_target vivado 
+INFO: [HLS 200-10] Creating and opening solution '/home/bonus24/cg_bdr_six_v02/covariance_LATENCY_10ns_4eval/projects/eval-02/hls_project/solution1'.
+INFO: [HLS 200-10] Cleaning up the solution database.
+WARNING: [HLS 200-40] No /home/bonus24/cg_bdr_six_v02/covariance_LATENCY_10ns_4eval/projects/eval-02/hls_project/solution1/solution1.aps file found.
+INFO: [HLS 200-1505] Using flow_target 'vivado'
+Resolution: For help on HLS 200-1505 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-1505.html
+INFO: [HLS 200-1510] Running: set_part xczu7ev-ffvc1156-2-e 
+INFO: [HLS 200-1611] Setting target device to 'xczu7ev-ffvc1156-2-e'
+INFO: [HLS 200-1510] Running: create_clock -period 10 -name default 
+INFO: [SYN 201-201] Setting up clock 'default' with a period of 10ns.
+INFO: [HLS 200-1510] Running: config_array_partition -complete_threshold 0 -throughput_driven off 
+INFO: [XFORM 203-102] Size-based automatic array partition disabled.
+INFO: [HLS 200-1510] Running: config_compile -pipeline_loops 0 
+INFO: [XFORM 203-1171] Pipeline the innermost loop with trip count more than 0 or its parent loop when its trip count is less than or equal 0.
+INFO: [HLS 200-1510] Running: csynth_design 
+INFO: [HLS 200-111] Finished File checks and directory preparation: CPU user time: 0.01 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.01 seconds; current allocated memory: 213.555 MB.
+INFO: [HLS 200-10] Analyzing design file 'candidate.cpp' ... 
+WARNING: [HLS 207-5301] unused parameter 'm': candidate.cpp:6:80
+WARNING: [HLS 207-5301] unused parameter 'n': candidate.cpp:6:87
+INFO: [HLS 200-111] Finished Source Code Analysis and Preprocessing: CPU user time: 0.79 seconds. CPU system time: 0.46 seconds. Elapsed time: 0.78 seconds; current allocated memory: 214.762 MB.
+INFO: [HLS 200-777] Using interface defaults for 'Vivado' flow target.
+INFO: [HLS 214-279] Initial Interval estimation mode is set into default.
+INFO: [HLS 214-284] Auto array partition mode is set into default.
+INFO: [HLS 214-188] Unrolling loop 'L2' (candidate.cpp:19:5) in function 'kernel_covariance' partially with a factor of 10 (candidate.cpp:10:0)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L1' (candidate.cpp:15:5) in function 'kernel_covariance' with estimated II increased from II=1 to II=50 because of limited port on variable 'data' (candidate.cpp:15:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L3' (candidate.cpp:27:5) in function 'kernel_covariance' with estimated II increased from II=1 to II=80 because of limited port on variable 'data' (candidate.cpp:27:5)
+WARNING: [HLS 214-281] Estimating pipelined loop 'L5' (candidate.cpp:37:5) in function 'kernel_covariance' with estimated II increased from II=1 to II=100 because of limited port on variable 'data' (candidate.cpp:37:5)
+INFO: [HLS 214-270] Starting automatic array partition analysis...
+INFO: [HLS 200-111] Finished Compiling Optimization and Transform: CPU user time: 5.51 seconds. CPU system time: 0.41 seconds. Elapsed time: 5.93 seconds; current allocated memory: 216.744 MB.
+INFO: [HLS 200-111] Finished Checking Pragmas: CPU user time: 0 seconds. CPU system time: 0 seconds. Elapsed time: 0 seconds; current allocated memory: 216.745 MB.
+INFO: [HLS 200-10] Starting code transformations ...
+INFO: [HLS 200-111] Finished Standard Transforms: CPU user time: 0.02 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.03 seconds; current allocated memory: 218.125 MB.
+INFO: [HLS 200-10] Checking synthesizability ...
+INFO: [HLS 200-111] Finished Checking Synthesizability: CPU user time: 0.02 seconds. CPU system time: 0 seconds. Elapsed time: 0.03 seconds; current allocated memory: 217.329 MB.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L1' (candidate.cpp:12) in function 'kernel_covariance' for pipelining.
+WARNING: [XFORM 203-503] Ignored partial unroll directive for loop 'L2' (candidate.cpp:11) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L3' (candidate.cpp:11) in function 'kernel_covariance' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L4' (candidate.cpp:12) because its parent loop or function is pipelined.
+INFO: [XFORM 203-502] Unrolling all sub-loops inside loop 'L5' (candidate.cpp:11) in function 'kernel_covariance' for pipelining.
+WARNING: [XFORM 203-505] Ignored pipeline directive for loop 'L7' (candidate.cpp:13) because its parent loop or function is pipelined.
+INFO: [HLS 200-489] Unrolling loop 'L2' (candidate.cpp:11) in function 'kernel_covariance' completely with a factor of 10.
+INFO: [HLS 200-489] Unrolling loop 'L4' (candidate.cpp:12) in function 'kernel_covariance' completely with a factor of 80.
+WARNING: [HLS 200-932] Cannot unroll loop 'L6' (candidate.cpp:12) in function 'kernel_covariance' completely: variable loop bound.
+INFO: [HLS 200-489] Unrolling loop 'L7' (candidate.cpp:13) in function 'kernel_covariance' completely with a factor of 100.
+INFO: [HLS 200-111] Finished Loop, function and other optimizations: CPU user time: 0.87 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.87 seconds; current allocated memory: 241.099 MB.
+WARNING: [HLS 200-960] Cannot flatten loop 'L5' (candidate.cpp:11:7) in function 'kernel_covariance' the outer loop is not a perfect loop.
+Resolution: For help on HLS 200-960 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-960.html
+INFO: [HLS 200-111] Finished Architecture Synthesis: CPU user time: 2.02 seconds. CPU system time: 0.02 seconds. Elapsed time: 2.04 seconds; current allocated memory: 277.734 MB.
+INFO: [HLS 200-10] Starting hardware synthesis ...
+INFO: [HLS 200-10] Synthesizing 'kernel_covariance' ...
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_covariance_Pipeline_L1' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L1'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_1', candidate.cpp:22) on array 'data' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_3', candidate.cpp:22) on array 'data' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_5', candidate.cpp:22) on array 'data' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_7', candidate.cpp:22) on array 'data' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_69', candidate.cpp:22) on array 'data' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_85', candidate.cpp:22) on array 'data' due to limited memory ports (II = 43). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_93', candidate.cpp:22) on array 'data' due to limited memory ports (II = 47). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_97', candidate.cpp:22) on array 'data' due to limited memory ports (II = 49). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 50, Depth = 527, loop 'L1'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 6.18 seconds. CPU system time: 0.04 seconds. Elapsed time: 6.24 seconds; current allocated memory: 281.875 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 5.19 seconds. CPU system time: 0.02 seconds. Elapsed time: 5.22 seconds; current allocated memory: 286.635 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_covariance_Pipeline_L3' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+INFO: [SCHED 204-61] Pipelining loop 'L3'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_100', candidate.cpp:33) on array 'data' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_102', candidate.cpp:33) on array 'data' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_104', candidate.cpp:33) on array 'data' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_106', candidate.cpp:33) on array 'data' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_152_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_187', candidate.cpp:33 on array 'data' due to limited memory ports (II = 67). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_166_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_215', candidate.cpp:33 on array 'data' due to limited memory ports (II = 74). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_174_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_231', candidate.cpp:33 on array 'data' due to limited memory ports (II = 78). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_176_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_235', candidate.cpp:33 on array 'data' due to limited memory ports (II = 79). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 80, Depth = 160, loop 'L3'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 7.31 seconds. CPU system time: 0.01 seconds. Elapsed time: 7.33 seconds; current allocated memory: 289.329 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 1.46 seconds. CPU system time: 0 seconds. Elapsed time: 1.47 seconds; current allocated memory: 293.106 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_covariance_Pipeline_L6' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+WARNING: [SCHED 204-65] Unable to satisfy pipeline directive for function 'kernel_covariance_Pipeline_L6': contains subloop(s) that are not unrolled.
+INFO: [SCHED 204-61] Pipelining loop 'L6'.
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_1', candidate.cpp:47) on array 'data' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_3', candidate.cpp:47) on array 'data' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_5', candidate.cpp:47) on array 'data' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_7', candidate.cpp:47) on array 'data' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_69', candidate.cpp:47) on array 'data' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_85', candidate.cpp:47) on array 'data' due to limited memory ports (II = 43). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_93', candidate.cpp:47) on array 'data' due to limited memory ports (II = 47). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_97', candidate.cpp:47) on array 'data' due to limited memory ports (II = 49). Please consider using a memory core with more ports or partitioning the array 'data'.
+Resolution: For help on HLS 200-885 see www.xilinx.com/cgi-bin/docs/rdoc?v=2021.1;t=hls+guidance;d=200-885.html
+INFO: [HLS 200-1470] Pipelining result : Target II = 1, Final II = 50, Depth = 534, loop 'L6'
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 6.02 seconds. CPU system time: 0.04 seconds. Elapsed time: 6.07 seconds; current allocated memory: 297.039 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 4.05 seconds. CPU system time: 0.02 seconds. Elapsed time: 4.08 seconds; current allocated memory: 304.023 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-42] -- Implementing module 'kernel_covariance' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [SCHED 204-11] Starting scheduling ...
+WARNING: [SCHED 204-67] Unable to satisfy pipeline directive for loop 'L5': contains subfunction 'kernel_covariance_Pipeline_L6' which is not pipelined.
+INFO: [SCHED 204-11] Finished scheduling.
+INFO: [HLS 200-111] Finished Scheduling: CPU user time: 2.7 seconds. CPU system time: 0.02 seconds. Elapsed time: 2.72 seconds; current allocated memory: 306.419 MB.
+INFO: [BIND 205-100] Starting micro-architecture generation ...
+INFO: [BIND 205-101] Performing variable lifetime analysis.
+INFO: [BIND 205-101] Exploring resource sharing.
+INFO: [BIND 205-101] Binding ...
+INFO: [BIND 205-100] Finished micro-architecture generation.
+INFO: [HLS 200-111] Finished Binding: CPU user time: 1.15 seconds. CPU system time: 0 seconds. Elapsed time: 1.15 seconds; current allocated memory: 309.952 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_covariance_Pipeline_L1' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_covariance_Pipeline_L1' pipeline 'L1' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'ddiv_64ns_64ns_64_22_no_dsp_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_covariance_Pipeline_L1'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 1.78 seconds. CPU system time: 0 seconds. Elapsed time: 1.79 seconds; current allocated memory: 316.771 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_covariance_Pipeline_L3' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_covariance_Pipeline_L3' pipeline 'L3' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dsub_64ns_64ns_64_5_full_dsp_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_covariance_Pipeline_L3'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 2.43 seconds. CPU system time: 0.02 seconds. Elapsed time: 2.46 seconds; current allocated memory: 334.473 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_covariance_Pipeline_L6' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-1030] Apply Unified Pipeline Control on module 'kernel_covariance_Pipeline_L6' pipeline 'L6' pipeline type 'loop pipeline'
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'ddiv_64ns_64ns_64_22_no_dsp_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dmul_64ns_64ns_64_5_max_dsp_1': 2 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_covariance_Pipeline_L6'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 2.06 seconds. CPU system time: 0.02 seconds. Elapsed time: 2.1 seconds; current allocated memory: 354.523 MB.
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [HLS 200-10] -- Generating RTL for module 'kernel_covariance' 
+INFO: [HLS 200-10] ----------------------------------------------------------------
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_covariance/m' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_covariance/n' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_covariance/float_n' to 'ap_none'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_covariance/data' to 'ap_memory'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_covariance/cov' to 'ap_memory'.
+INFO: [RTGEN 206-500] Setting interface mode on port 'kernel_covariance/mean' to 'ap_memory'.
+INFO: [RTGEN 206-500] Setting interface mode on function 'kernel_covariance' to 'ap_ctrl_hs'.
+WARNING: [RTGEN 206-101] Port 'kernel_covariance/m' has no fanin or fanout and is left dangling.
+               Please use C simulation to confirm this function argument can be read from or written to.
+WARNING: [RTGEN 206-101] Port 'kernel_covariance/n' has no fanin or fanout and is left dangling.
+               Please use C simulation to confirm this function argument can be read from or written to.
+INFO: [RTGEN 206-104] Estimated max fanout for 'kernel_covariance' is 6414 from HDL expression: (1'b1 == ap_CS_fsm_state96)
+INFO: [RTGEN 206-100] Generating core module 'dadd_64ns_64ns_64_5_full_dsp_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'dadddsub_64ns_64ns_64_5_full_dsp_1': 1 instance(s).
+INFO: [RTGEN 206-100] Generating core module 'ddiv_64ns_64ns_64_22_no_dsp_1': 1 instance(s).
+INFO: [RTGEN 206-100] Finished creating RTL model for 'kernel_covariance'.
+INFO: [HLS 200-111] Finished Creating RTL model: CPU user time: 3.84 seconds. CPU system time: 0.04 seconds. Elapsed time: 3.88 seconds; current allocated memory: 375.165 MB.
+INFO: [HLS 200-111] Finished Generating all RTL models: CPU user time: 3.94 seconds. CPU system time: 0.07 seconds. Elapsed time: 4.01 seconds; current allocated memory: 389.898 MB.
+INFO: [HLS 200-111] Finished Updating report files: CPU user time: 0.79 seconds. CPU system time: 0.01 seconds. Elapsed time: 0.8 seconds; current allocated memory: 398.434 MB.
+INFO: [VHDL 208-304] Generating VHDL RTL for kernel_covariance.
+INFO: [VLOG 209-307] Generating Verilog RTL for kernel_covariance.
+INFO: [HLS 200-790] **** Loop Constraint Status: All loop constraints were NOT satisfied.
+INFO: [HLS 200-789] **** Estimated Fmax: 130.34 MHz
+INFO: [HLS 200-111] Finished Command csynth_design CPU user time: 58.17 seconds. CPU system time: 1.24 seconds. Elapsed time: 59.05 seconds; current allocated memory: 398.420 MB.
+INFO: [HLS 200-112] Total CPU user time: 62.13 seconds. Total CPU system time: 1.93 seconds. Total elapsed time: 61.91 seconds; peak allocated memory: 398.434 MB.
+INFO: [Common 17-206] Exiting vitis_hls at Mon Nov 16 16:37:10 2026...

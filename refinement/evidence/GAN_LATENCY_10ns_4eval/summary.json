@@ -1,0 +1,265 @@
+{
+  "best": {
+    "best_directives": [
+      {
+        "action_id": "L1",
+        "kind": "array",
+        "partition_dim": 1,
+        "partition_factor": 32,
+        "partition_type": "cyclic",
+        "variable": "xbuf"
+      },
+      {
+        "action_id": "L2",
+        "kind": "array",
+        "partition_dim": 1,
+        "partition_factor": 15,
+        "partition_type": "cyclic",
+        "variable": "layer_1_out"
+      },
+      {
+        "action_id": "L3",
+        "kind": "array",
+        "partition_dim": 1,
+        "partition_factor": 5,
+        "partition_type": "block",
+        "variable": "layer_2_out"
+      },
+      {
+        "action_id": "L4",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 32
+      },
+      {
+        "action_id": "L5",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 1
+      },
+      {
+        "action_id": "L6",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 10
+      },
+      {
+        "action_id": "L7",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 10
+      },
+      {
+        "action_id": "L8",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 1
+      },
+      {
+        "action_id": "L9",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 10
+      },
+      {
+        "action_id": "L10",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      },
+      {
+        "action_id": "L11",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 10
+      }
+    ],
+    "best_evaluation": 3,
+    "best_latency_cycles": 1389,
+    "best_resources": {
+      "bram": 81,
+      "dsp": 87,
+      "ff": 5028,
+      "lut": 16279
+    },
+    "improvement_percent": 55.665496329396746,
+    "initial_latency_cycles": 3133
+  },
+  "bottleneck_migration": [
+    {
+      "index": 1,
+      "initial_bottleneck_signatures_not_observed": 0,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 2,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    },
+    {
+      "index": 2,
+      "initial_bottleneck_signatures_not_observed": 0,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 2,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    },
+    {
+      "index": 3,
+      "initial_bottleneck_signatures_not_observed": 1,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 1,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    }
+  ],
+  "budget_percent": 100.0,
+  "charged_evaluations": 3,
+  "clock_ns": 10.0,
+  "kernel": "GAN",
+  "limitations": [
+    "HLS estimate only, no place-and-route",
+    "LLVM action anchors do not prove alias or dependence",
+    "Loop source span parsing is intentionally restricted",
+    "No functional equivalence or cosimulation validated"
+  ],
+  "max_evaluations": 4,
+  "objective": "LATENCY",
+  "part": "xczu7ev-ffvc1156-2-e",
+  "stop": null,
+  "timeline": [
+    {
+      "changed_actions": [],
+      "diagnostics": [
+        {
+          "affected_loops": [
+            "L6",
+            "L5"
+          ],
+          "array": "layer_1_out_V_0",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-880] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('layer_1_out_V_0_addr_write_ln58', candidate.cpp:58) of variable 'add_ln712_7' on array 'layer_1_out_V_0' and 'load' operation ('layer_1_out_V_0_load_5', candidate.cpp:56) on array 'layer_1_out_V_0'.",
+          "reported_loop": "L5",
+          "source_line": 58,
+          "type": "recurrence"
+        },
+        {
+          "affected_loops": [
+            "L6",
+            "L5"
+          ],
+          "array": "layer_1_out_V_0",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_3', candidate.cpp:56) on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+          "reported_loop": "L5",
+          "source_line": 56,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L6",
+            "L5"
+          ],
+          "array": "layer_1_out_V_0",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('layer_1_out_V_0_load_5', candidate.cpp:56) on array 'layer_1_out_V_0' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+          "reported_loop": "L5",
+          "source_line": 56,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L6",
+            "L5"
+          ],
+          "array": "layer_1_out_V_0",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_4_write_ln58', candidate.cpp:58) of variable 'add_ln712_3' on array 'layer_1_out_V_0' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+          "reported_loop": "L5",
+          "source_line": 58,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L6",
+            "L5"
+          ],
+          "array": "layer_1_out_V_0",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln58', candidate.cpp:58) of variable 'add_ln712_5' on array 'layer_1_out_V_0' due to limited memory ports (II = 5). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+          "reported_loop": "L5",
+          "source_line": 58,
+          "type": "memory_ports"
+        }
+      ],
+      "feasible": true,
+      "index": 1,
+      "kind": "initial_mailohls",
+      "latency": 3133,
+      "why": "Initial model configuration"
+    },
+    {
+      "changed_actions": [
+        "L2"
+      ],
+      "diagnostics": [
+        {
+          "affected_loops": [
+            "L6",
+            "L5"
+          ],
+          "array": "layer_1_out_V_0",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-880] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('layer_1_out_V_0_addr_write_ln58', candidate.cpp:58) of variable 'add_ln712_2' on array 'layer_1_out_V_0' and 'load' operation ('layer_1_out_V_0_load_2', candidate.cpp:56) on array 'layer_1_out_V_0'.",
+          "reported_loop": "L5",
+          "source_line": 58,
+          "type": "recurrence"
+        },
+        {
+          "affected_loops": [
+            "L6",
+            "L5"
+          ],
+          "array": "layer_1_out_V_0",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to schedule 'store' operation ('layer_1_out_V_0_addr_2_write_ln58', candidate.cpp:58) of variable 'add_ln712' on array 'layer_1_out_V_0' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'layer_1_out_V_0'.",
+          "reported_loop": "L5",
+          "source_line": 58,
+          "type": "memory_ports"
+        }
+      ],
+      "feasible": true,
+      "index": 2,
+      "kind": "banking_style_and_factor",
+      "latency": 1668,
+      "why": "Measured memory-port pressure; consecutive accesses with loop unroll higher than bank count: test cyclic mapping with sufficient nominal banks"
+    },
+    {
+      "changed_actions": [
+        "L2"
+      ],
+      "diagnostics": [
+        {
+          "affected_loops": [
+            "L6",
+            "L5"
+          ],
+          "array": "layer_1_out_V_0",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-880] The II Violation in module 'forward_propagation_Pipeline_L5' (loop 'L5'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('layer_1_out_V_0_addr_write_ln58', candidate.cpp:58) of variable 'add_ln712_16' on array 'layer_1_out_V_0' and 'load' operation ('layer_1_out_V_0_load_1', candidate.cpp:56) on array 'layer_1_out_V_0'.",
+          "reported_loop": "L5",
+          "source_line": 58,
+          "type": "recurrence"
+        }
+      ],
+      "feasible": true,
+      "index": 3,
+      "kind": "banking_factor",
+      "latency": 1389,
+      "why": "Vitis identified memory-port contention; test one legal increase in banks with resource headroom"
+    }
+  ]
+}

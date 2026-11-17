@@ -1,0 +1,207 @@
+{
+  "actions": {
+    "L1": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L2": {
+      "bound": 100,
+      "kind": "loop"
+    },
+    "L3": {
+      "bound": 100,
+      "kind": "loop"
+    },
+    "L4": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L5": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L6": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L7": {
+      "bound": 100,
+      "kind": "loop"
+    }
+  },
+  "artifact_note": "No model inference or HLS synthesis performed in prepare",
+  "budget_percent": 100.0,
+  "clock_ns": 10.0,
+  "compiler_graph": {
+    "action_functions": {
+      "L1": [
+        "0"
+      ],
+      "L2": [
+        "0"
+      ],
+      "L3": [
+        "0"
+      ],
+      "L4": [
+        "0"
+      ],
+      "L5": [
+        "0"
+      ],
+      "L6": [
+        "0"
+      ],
+      "L7": [
+        "0"
+      ]
+    },
+    "action_nodes": {
+      "L1": [
+        "2",
+        "68"
+      ],
+      "L2": [
+        "1",
+        "110"
+      ],
+      "L3": [
+        "251",
+        "394"
+      ],
+      "L4": [
+        "200",
+        "334"
+      ],
+      "L5": [
+        "219",
+        "242"
+      ],
+      "L6": [
+        "299",
+        "298"
+      ],
+      "L7": [
+        "249",
+        "152"
+      ]
+    },
+    "anchored_actions": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5",
+      "L6",
+      "L7"
+    ],
+    "array_scope_access_links": {},
+    "array_scope_nodes": {},
+    "edges": 684,
+    "meaning": "Real ProGraML pragma->array_scope->IR access links. This does not prove loop dependence, memory bank conflicts or alias freedom.",
+    "missing_actions": [],
+    "nodes": 425,
+    "path_name": "covariance.gexf",
+    "sha256": "cdc00b29ac13fc05c5752eb671ea3b2a7e08627b4013231f926e954d6fa4ecff"
+  },
+  "controller_sha256": "c5a7c7077c24adde96b32ee5eee34afdc0d2faeb6698b34151abb27815c56b32",
+  "diagnostic_policy": "No low-confidence Lk causal conclusions from graph proximity alone",
+  "initial_directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L6",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L7",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "input_hashes": {
+    "kernel_info.txt": "a155498307bb5cd73d67fc72b4271604525231aaff45d9c3f4452780492c41e0",
+    "llvm_graph.gexf": "cdc00b29ac13fc05c5752eb671ea3b2a7e08627b4013231f926e954d6fa4ecff",
+    "template.cpp": "2586e28622dfb0d83073457db13fa2fde8fcc5726bb73b2b8f73ba83b7f5c9f4"
+  },
+  "kernel": "covariance",
+  "loop_array_relations": [],
+  "loop_spans": {
+    "L1": {
+      "end": 25,
+      "iterator": "j",
+      "start": 15
+    },
+    "L2": {
+      "end": 23,
+      "iterator": "i",
+      "start": 19
+    },
+    "L3": {
+      "end": 35,
+      "iterator": "i",
+      "start": 27
+    },
+    "L4": {
+      "end": 34,
+      "iterator": "j",
+      "start": 30
+    },
+    "L5": {
+      "end": 52,
+      "iterator": "i",
+      "start": 37
+    },
+    "L6": {
+      "end": 51,
+      "iterator": "j",
+      "start": 40
+    },
+    "L7": {
+      "end": 48,
+      "iterator": "k",
+      "start": 44
+    }
+  },
+  "max_evaluations": 4,
+  "part": "xczu7ev-ffvc1156-2-e",
+  "schema": "cg-bdr-v0.1-research",
+  "settings": [
+    "config_array_partition -complete_threshold 0 -throughput_driven off",
+    "config_compile -pipeline_loops 0"
+  ],
+  "source_identity": "/home/elvouvali/cg_bdr_dac/repo_main/evaluation_set/covariance/kernel_placeholders.cpp",
+  "template_suffix": ".cpp",
+  "top": "kernel_covariance"
+}

@@ -1,0 +1,2122 @@
+{
+  "best": {
+    "best_directives": [
+      {
+        "action_id": "L1",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 10
+      },
+      {
+        "action_id": "L2",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 2
+      },
+      {
+        "action_id": "L3",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      }
+    ],
+    "best_evaluation": 1,
+    "best_latency_cycles": 154261,
+    "best_resources": {
+      "bram": 0,
+      "dsp": 28,
+      "ff": 237223,
+      "lut": 156025
+    },
+    "improvement_percent": 0.0,
+    "initial_latency_cycles": 154261
+  },
+  "bottleneck_migration": [
+    {
+      "index": 1,
+      "initial_bottleneck_signatures_not_observed": 0,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 2,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    },
+    {
+      "index": 2,
+      "initial_bottleneck_signatures_not_observed": 1,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 1,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    }
+  ],
+  "budget_percent": 100.0,
+  "charged_evaluations": 2,
+  "clock_ns": 10.0,
+  "kernel": "trmm-opt",
+  "limitations": [
+    "HLS estimate only, no place-and-route",
+    "LLVM action anchors do not prove alias or dependence",
+    "Loop source span parsing is intentionally restricted",
+    "No functional equivalence or cosimulation validated"
+  ],
+  "max_evaluations": 4,
+  "objective": "LATENCY",
+  "part": "xczu7ev-ffvc1156-2-e",
+  "stop": null,
+  "timeline": [
+    {
+      "changed_actions": [],
+      "diagnostics": [
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_510', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_520', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_1', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_530', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_687', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_703', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_711', candidate.cpp:22) on array 'B' due to limited memory ports (II = 59). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_712', candidate.cpp:22) on array 'B' due to limited memory ports (II = 60). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_551', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_561', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_4', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_571', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_647', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_663', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_671', candidate.cpp:22) on array 'B' due to limited memory ports (II = 59). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_542', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_552', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_8', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_562', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_599', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_615', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_619', candidate.cpp:22) on array 'B' due to limited memory ports (II = 55). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_621', candidate.cpp:22) on array 'B' due to limited memory ports (II = 57). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_622', candidate.cpp:22) on array 'B' due to limited memory ports (II = 58). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_514', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_515', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_12', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_516', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_547', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_563', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_567', candidate.cpp:22) on array 'B' due to limited memory ports (II = 55). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_569', candidate.cpp:22) on array 'B' due to limited memory ports (II = 57). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_456', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_457', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_16', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_458', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_489', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_505', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_509', candidate.cpp:22) on array 'B' due to limited memory ports (II = 55). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_510', candidate.cpp:22) on array 'B' due to limited memory ports (II = 56). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_392', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_393', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_20', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_394', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_425', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_441', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_445', candidate.cpp:22) on array 'B' due to limited memory ports (II = 55). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_320', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_321', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_24', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_322', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_353', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_369', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_371', candidate.cpp:22) on array 'B' due to limited memory ports (II = 53). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_372', candidate.cpp:22) on array 'B' due to limited memory ports (II = 54). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_240', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_241', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_28', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_242', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_273', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_289', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_291', candidate.cpp:22) on array 'B' due to limited memory ports (II = 53). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_151', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_152', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_32', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_153', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_184', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_200', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_201', candidate.cpp:22) on array 'B' due to limited memory ports (II = 52). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_52', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_53', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_36', candidate.cpp:17) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 17,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_54', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_85', candidate.cpp:22) on array 'B' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_101', candidate.cpp:22) on array 'B' due to limited memory ports (II = 51). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        }
+      ],
+      "feasible": true,
+      "index": 1,
+      "kind": "initial_mailohls",
+      "latency": 154261,
+      "why": "Initial model configuration"
+    },
+    {
+      "changed_actions": [
+        "L2"
+      ],
+      "diagnostics": [
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_4', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_6', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_12', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_21', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_279', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_340', candidate.cpp:22) on array 'B' due to limited memory ports (II = 27). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_344', candidate.cpp:22) on array 'B' due to limited memory ports (II = 29). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L2' (loop 'L2'): Unable to schedule 'load' operation ('B_load_346', candidate.cpp:22) on array 'B' due to limited memory ports (II = 30). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_16', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_20', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_28', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_38', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_308', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_324', candidate.cpp:22) on array 'B' due to limited memory ports (II = 27). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L21' (loop 'L2'): Unable to schedule 'load' operation ('B_load_328', candidate.cpp:22) on array 'B' due to limited memory ports (II = 29). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_19', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_23', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_32', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_43', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_287', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_303', candidate.cpp:22) on array 'B' due to limited memory ports (II = 27). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L22' (loop 'L2'): Unable to schedule 'load' operation ('B_load_307', candidate.cpp:22) on array 'B' due to limited memory ports (II = 29). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_26', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_31', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_42', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_55', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_264', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_280', candidate.cpp:22) on array 'B' due to limited memory ports (II = 27). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L23' (loop 'L2'): Unable to schedule 'load' operation ('B_load_282', candidate.cpp:22) on array 'B' due to limited memory ports (II = 28). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_35', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_41', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_54', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_69', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_238', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_254', candidate.cpp:22) on array 'B' due to limited memory ports (II = 27). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L24' (loop 'L2'): Unable to schedule 'load' operation ('B_load_256', candidate.cpp:22) on array 'B' due to limited memory ports (II = 28). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_46', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_53', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_68', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_85', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_207', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L25' (loop 'L2'): Unable to schedule 'load' operation ('B_load_223', candidate.cpp:22) on array 'B' due to limited memory ports (II = 27). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_59', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_67', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_84', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_103', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_172', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L26' (loop 'L2'): Unable to schedule 'load' operation ('B_load_188', candidate.cpp:22) on array 'B' due to limited memory ports (II = 27). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_74', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_83', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_102', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_132', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_140', candidate.cpp:22) on array 'B' due to limited memory ports (II = 23). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_144', candidate.cpp:22) on array 'B' due to limited memory ports (II = 25). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L27' (loop 'L2'): Unable to schedule 'load' operation ('B_load_146', candidate.cpp:22) on array 'B' due to limited memory ports (II = 26). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_51', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_52', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_54', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_56', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_86', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_94', candidate.cpp:22) on array 'B' due to limited memory ports (II = 23). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_98', candidate.cpp:22) on array 'B' due to limited memory ports (II = 25). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L28' (loop 'L2'): Unable to schedule 'load' operation ('B_load_100', candidate.cpp:22) on array 'B' due to limited memory ports (II = 26). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_2', candidate.cpp:22) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_3', candidate.cpp:22) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_5', candidate.cpp:22) on array 'B' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_7', candidate.cpp:22) on array 'B' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_37', candidate.cpp:22) on array 'B' due to limited memory ports (II = 19). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_45', candidate.cpp:22) on array 'B' due to limited memory ports (II = 23). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "affected_loops": [
+            "L3",
+            "L2",
+            "L1"
+          ],
+          "array": "B",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_trmm_Pipeline_L29' (loop 'L2'): Unable to schedule 'load' operation ('B_load_49', candidate.cpp:22) on array 'B' due to limited memory ports (II = 25). Please consider using a memory core with more ports or partitioning the array 'B'.",
+          "reported_loop": "L2",
+          "source_line": 22,
+          "type": "memory_ports"
+        }
+      ],
+      "feasible": true,
+      "index": 2,
+      "kind": "reduce_memory_port_concurrency",
+      "latency": 155611,
+      "why": "Explicit Vitis memory-port conflict in this scheduled loop: test a bounded reduction in concurrent accesses"
+    }
+  ]
+}

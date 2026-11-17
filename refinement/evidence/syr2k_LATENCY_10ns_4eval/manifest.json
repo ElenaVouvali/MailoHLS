@@ -1,0 +1,138 @@
+{
+  "actions": {
+    "L1": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L2": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L3": {
+      "bound": 60,
+      "kind": "loop"
+    },
+    "L4": {
+      "bound": 80,
+      "kind": "loop"
+    }
+  },
+  "artifact_note": "No model inference or HLS synthesis performed in prepare",
+  "budget_percent": 100.0,
+  "clock_ns": 10.0,
+  "compiler_graph": {
+    "action_functions": {
+      "L1": [
+        "0"
+      ],
+      "L2": [
+        "0"
+      ],
+      "L3": [
+        "0"
+      ],
+      "L4": [
+        "0"
+      ]
+    },
+    "action_nodes": {
+      "L1": [
+        "52",
+        "57"
+      ],
+      "L2": [
+        "166",
+        "140"
+      ],
+      "L3": [
+        "182",
+        "117"
+      ],
+      "L4": [
+        "188",
+        "217"
+      ]
+    },
+    "anchored_actions": [
+      "L1",
+      "L2",
+      "L3",
+      "L4"
+    ],
+    "array_scope_access_links": {},
+    "array_scope_nodes": {},
+    "edges": 434,
+    "meaning": "Real ProGraML pragma->array_scope->IR access links. This does not prove loop dependence, memory bank conflicts or alias freedom.",
+    "missing_actions": [],
+    "nodes": 271,
+    "path_name": "syr2k.gexf",
+    "sha256": "14de04f3aae9414b581bcb8113a4b80c92f2a17727167023f1fae82db59a1967"
+  },
+  "controller_sha256": "c5a7c7077c24adde96b32ee5eee34afdc0d2faeb6698b34151abb27815c56b32",
+  "diagnostic_policy": "No low-confidence Lk causal conclusions from graph proximity alone",
+  "initial_directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 8
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 8
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 4
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 2
+    }
+  ],
+  "input_hashes": {
+    "kernel_info.txt": "ab6b58669c20ccfcf13a355f8a3b183eb2d82fd7543af7f2fb7e30e2fbe4ed2b",
+    "llvm_graph.gexf": "14de04f3aae9414b581bcb8113a4b80c92f2a17727167023f1fae82db59a1967",
+    "template.cpp": "29aa8c17999424f63cd167442567e5ee8c52a6f9cc438e0a7f715e020cc96665"
+  },
+  "kernel": "syr2k",
+  "loop_array_relations": [],
+  "loop_spans": {
+    "L1": {
+      "end": 37,
+      "iterator": "i",
+      "start": 14
+    },
+    "L2": {
+      "end": 23,
+      "iterator": "j",
+      "start": 17
+    },
+    "L3": {
+      "end": 36,
+      "iterator": "k",
+      "start": 25
+    },
+    "L4": {
+      "end": 35,
+      "iterator": "j",
+      "start": 28
+    }
+  },
+  "max_evaluations": 4,
+  "part": "xczu7ev-ffvc1156-2-e",
+  "schema": "cg-bdr-v0.1-research",
+  "settings": [
+    "config_array_partition -complete_threshold 0 -throughput_driven off",
+    "config_compile -pipeline_loops 0"
+  ],
+  "source_identity": "/home/elvouvali/cg_bdr_dac/repo_main/evaluation_set/syr2k/kernel_placeholders.cpp",
+  "template_suffix": ".cpp",
+  "top": "kernel_syr2k"
+}

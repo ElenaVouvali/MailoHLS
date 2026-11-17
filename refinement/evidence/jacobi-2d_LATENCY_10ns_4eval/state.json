@@ -1,0 +1,1879 @@
+{
+  "evaluations": [
+    {
+      "directives": [
+        {
+          "action_id": "L1",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 0
+        },
+        {
+          "action_id": "L2",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 32
+        },
+        {
+          "action_id": "L3",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 0
+        },
+        {
+          "action_id": "L4",
+          "kind": "loop",
+          "pipeline_ii": 0,
+          "unroll_factor": 32
+        },
+        {
+          "action_id": "L5",
+          "kind": "loop",
+          "pipeline_ii": 1,
+          "unroll_factor": 0
+        }
+      ],
+      "result": {
+        "diagnostics": [
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('A_load_1', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('A_load_3', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L31' (loop 'L3'): Unable to schedule 'load' operation ('A_load_32', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L31' (loop 'L3'): Unable to schedule 'load' operation ('A_load_34', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L32' (loop 'L3'): Unable to schedule 'load' operation ('A_load_37', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L32' (loop 'L3'): Unable to schedule 'load' operation ('A_load_39', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L33' (loop 'L3'): Unable to schedule 'load' operation ('A_load_30', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L33' (loop 'L3'): Unable to schedule 'load' operation ('A_load_32', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L34' (loop 'L3'): Unable to schedule 'load' operation ('A_load_18', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L34' (loop 'L3'): Unable to schedule 'load' operation ('A_load_20', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L35' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L35' (loop 'L3'): Unable to schedule 'load' operation ('A_load_16', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L36' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L36' (loop 'L3'): Unable to schedule 'load' operation ('A_load_13', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L37' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L37' (loop 'L3'): Unable to schedule 'load' operation ('A_load_10', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L38' (loop 'L3'): Unable to schedule 'load' operation ('A_load_5', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L38' (loop 'L3'): Unable to schedule 'load' operation ('A_load_7', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L39' (loop 'L3'): Unable to schedule 'load' operation ('A_load_1', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L39' (loop 'L3'): Unable to schedule 'load' operation ('A_load_3', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L310' (loop 'L3'): Unable to schedule 'load' operation ('A_load_71', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L310' (loop 'L3'): Unable to schedule 'load' operation ('A_load_73', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L311' (loop 'L3'): Unable to schedule 'load' operation ('A_load_75', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L311' (loop 'L3'): Unable to schedule 'load' operation ('A_load_77', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L312' (loop 'L3'): Unable to schedule 'load' operation ('A_load_79', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L312' (loop 'L3'): Unable to schedule 'load' operation ('A_load_81', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L313' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L313' (loop 'L3'): Unable to schedule 'load' operation ('A_load_84', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L314' (loop 'L3'): Unable to schedule 'load' operation ('A_load_79', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L314' (loop 'L3'): Unable to schedule 'load' operation ('A_load_81', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L315' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L315' (loop 'L3'): Unable to schedule 'load' operation ('A_load_77', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L316' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L316' (loop 'L3'): Unable to schedule 'load' operation ('A_load_74', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L317' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L317' (loop 'L3'): Unable to schedule 'load' operation ('A_load_71', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L318' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L318' (loop 'L3'): Unable to schedule 'load' operation ('A_load_68', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L319' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L319' (loop 'L3'): Unable to schedule 'load' operation ('A_load_65', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L320' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L320' (loop 'L3'): Unable to schedule 'load' operation ('A_load_62', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L321' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L321' (loop 'L3'): Unable to schedule 'load' operation ('A_load_59', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L322' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L322' (loop 'L3'): Unable to schedule 'load' operation ('A_load_56', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L323' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L323' (loop 'L3'): Unable to schedule 'load' operation ('A_load_53', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L324' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L324' (loop 'L3'): Unable to schedule 'load' operation ('A_load_50', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L325' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L325' (loop 'L3'): Unable to schedule 'load' operation ('A_load_47', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L326' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L326' (loop 'L3'): Unable to schedule 'load' operation ('A_load_44', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L327' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L327' (loop 'L3'): Unable to schedule 'load' operation ('A_load_41', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L328' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L328' (loop 'L3'): Unable to schedule 'load' operation ('A_load_38', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L329' (loop 'L3'): Unable to schedule 'load' operation ('A_load', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L329' (loop 'L3'): Unable to schedule 'load' operation ('A_load_35', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L330' (loop 'L3'): Unable to schedule 'load' operation ('A_load_26', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L330' (loop 'L3'): Unable to schedule 'load' operation ('A_load_28', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L331' (loop 'L3'): Unable to schedule 'load' operation ('A_load_22', candidate.cpp:21) on array 'A' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 21,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L3",
+              "L2",
+              "L1"
+            ],
+            "array": "A",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L331' (loop 'L3'): Unable to schedule 'load' operation ('A_load_24', candidate.cpp:22) on array 'A' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'A'.",
+            "reported_loop": "L3",
+            "source_line": 22,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('B_load_1', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L5' (loop 'L5'): Unable to schedule 'load' operation ('B_load_3', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L532' (loop 'L5'): Unable to schedule 'load' operation ('B_load_33', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L532' (loop 'L5'): Unable to schedule 'load' operation ('B_load_35', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L533' (loop 'L5'): Unable to schedule 'load' operation ('B_load_38', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L533' (loop 'L5'): Unable to schedule 'load' operation ('B_load_40', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L534' (loop 'L5'): Unable to schedule 'load' operation ('B_load_43', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L534' (loop 'L5'): Unable to schedule 'load' operation ('B_load_45', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L535' (loop 'L5'): Unable to schedule 'load' operation ('B_load_48', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L535' (loop 'L5'): Unable to schedule 'load' operation ('B_load_50', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L536' (loop 'L5'): Unable to schedule 'load' operation ('B_load_52', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L536' (loop 'L5'): Unable to schedule 'load' operation ('B_load_54', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L537' (loop 'L5'): Unable to schedule 'load' operation ('B_load_56', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L537' (loop 'L5'): Unable to schedule 'load' operation ('B_load_58', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L538' (loop 'L5'): Unable to schedule 'load' operation ('B_load_60', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L538' (loop 'L5'): Unable to schedule 'load' operation ('B_load_62', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L539' (loop 'L5'): Unable to schedule 'load' operation ('B_load_64', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L539' (loop 'L5'): Unable to schedule 'load' operation ('B_load_66', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L540' (loop 'L5'): Unable to schedule 'load' operation ('B_load_68', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L540' (loop 'L5'): Unable to schedule 'load' operation ('B_load_70', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L541' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L541' (loop 'L5'): Unable to schedule 'load' operation ('B_load_72', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L542' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L542' (loop 'L5'): Unable to schedule 'load' operation ('B_load_69', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L543' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L543' (loop 'L5'): Unable to schedule 'load' operation ('B_load_66', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L544' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L544' (loop 'L5'): Unable to schedule 'load' operation ('B_load_63', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L545' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L545' (loop 'L5'): Unable to schedule 'load' operation ('B_load_60', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L546' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L546' (loop 'L5'): Unable to schedule 'load' operation ('B_load_57', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L547' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L547' (loop 'L5'): Unable to schedule 'load' operation ('B_load_54', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L548' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L548' (loop 'L5'): Unable to schedule 'load' operation ('B_load_51', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L549' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L549' (loop 'L5'): Unable to schedule 'load' operation ('B_load_48', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L550' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L550' (loop 'L5'): Unable to schedule 'load' operation ('B_load_45', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L551' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L551' (loop 'L5'): Unable to schedule 'load' operation ('B_load_42', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L552' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L552' (loop 'L5'): Unable to schedule 'load' operation ('B_load_39', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L553' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L553' (loop 'L5'): Unable to schedule 'load' operation ('B_load_36', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L554' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L554' (loop 'L5'): Unable to schedule 'load' operation ('B_load_33', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L555' (loop 'L5'): Unable to schedule 'load' operation ('B_load', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L555' (loop 'L5'): Unable to schedule 'load' operation ('B_load_30', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L556' (loop 'L5'): Unable to schedule 'load' operation ('B_load_25', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L556' (loop 'L5'): Unable to schedule 'load' operation ('B_load_27', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L557' (loop 'L5'): Unable to schedule 'load' operation ('B_load_21', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L557' (loop 'L5'): Unable to schedule 'load' operation ('B_load_23', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L558' (loop 'L5'): Unable to schedule 'load' operation ('B_load_17', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L558' (loop 'L5'): Unable to schedule 'load' operation ('B_load_19', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L559' (loop 'L5'): Unable to schedule 'load' operation ('B_load_13', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L559' (loop 'L5'): Unable to schedule 'load' operation ('B_load_15', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L560' (loop 'L5'): Unable to schedule 'load' operation ('B_load_9', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L560' (loop 'L5'): Unable to schedule 'load' operation ('B_load_11', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L561' (loop 'L5'): Unable to schedule 'load' operation ('B_load_5', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L561' (loop 'L5'): Unable to schedule 'load' operation ('B_load_7', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L562' (loop 'L5'): Unable to schedule 'load' operation ('B_load_1', candidate.cpp:32) on array 'B' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 32,
+            "type": "memory_ports"
+          },
+          {
+            "affected_loops": [
+              "L5",
+              "L4",
+              "L1"
+            ],
+            "array": "B",
+            "attribution": "source_line+LLVM_action_anchor",
+            "evidence": "explicit_vitis_log",
+            "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_jacobi_2d_Pipeline_L562' (loop 'L5'): Unable to schedule 'load' operation ('B_load_3', candidate.cpp:33) on array 'B' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'B'.",
+            "reported_loop": "L5",
+            "source_line": 33,
+            "type": "memory_ports"
+          }
+        ],
+        "duration_seconds": 81.319,
+        "error": null,
+        "index": 1,
+        "log_sha256": "3e4ee4a07bbfc8a20f0600b4d73c4ea72b72a4a04b53fc84a96652ffa34b152a",
+        "metrics": {
+          "budget_feasible": true,
+          "estimated_clock_ns": 7.042,
+          "hls_estimated_clock_within_target": true,
+          "latency_cycles": 1494521,
+          "loop_summary": [
+            {
+              "achieved_ii": null,
+              "latency": 1494520,
+              "name": "L1"
+            }
+          ],
+          "resources": {
+            "bram": 0,
+            "dsp": 25,
+            "ff": 41009,
+            "lut": 33602
+          },
+          "utilization_percent": {
+            "bram": 0.0,
+            "dsp": 1.4467592592592593,
+            "ff": 8.899522569444445,
+            "lut": 14.58420138888889
+          }
+        },
+        "report_sha256": "67d0a8842800f151f7d4ce58f7047e2e8ef99fa3486491e99328df7bea90c5ad",
+        "source_sha256": "474b9396109f07366f0bcf3310d7951c9abea81b4eb0cc1d6d17525aa675a621",
+        "synthesis_status": "success",
+        "tcl_sha256": "13ee98817769db9d5a9f83ab099615349240b2b8123646258efe7ed827505397",
+        "tool": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+        "tool_mode": "VITIS_HLS",
+        "work_dir": "projects/eval-01"
+      },
+      "selection": {
+        "changed_actions": [],
+        "evidence": {},
+        "kind": "initial_mailohls",
+        "reason": "Initial model configuration",
+        "signature": "58461ccbe78dea1a503970a04c1fdc27bb46eed478d7a1a7392d9f8a466de87d"
+      },
+      "signature": "58461ccbe78dea1a503970a04c1fdc27bb46eed478d7a1a7392d9f8a466de87d"
+    }
+  ],
+  "stop": null
+}
