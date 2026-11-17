@@ -1,0 +1,125 @@
+{
+  "controller_sha256": "01e3a18aac4aa92531c1b54893f2b242a015b1c3c9af7acb0d6bc4e2211988ff",
+  "semantics_sha256": "a8e2f4b59957eefa258695f17ab4e7ed57b07a411a10101f04dcad277f103a81",
+  "verified_evaluations": 9,
+  "selection_metric": "Best-caseLatency",
+  "new_hls_calls": 0,
+  "gan_v2_run_present": false,
+  "kernels": [
+    {
+      "kernel": "covariance",
+      "recorded_evaluations": 2,
+      "initial_best_cycles": 59643,
+      "selected_best_cycles": 59643,
+      "selected_evaluation": 1,
+      "selected_worst_cycles": 375643,
+      "speedup": 1.0,
+      "initial_report_matches_earlier_snapshot": true
+    },
+    {
+      "kernel": "jacobi-2d",
+      "recorded_evaluations": 1,
+      "initial_best_cycles": 1494521,
+      "selected_best_cycles": 1494521,
+      "selected_evaluation": 1,
+      "selected_worst_cycles": 1494521,
+      "speedup": 1.0,
+      "initial_report_matches_earlier_snapshot": true
+    },
+    {
+      "kernel": "syr2k",
+      "recorded_evaluations": 2,
+      "initial_best_cycles": 511371,
+      "selected_best_cycles": 511371,
+      "selected_evaluation": 1,
+      "selected_worst_cycles": 549771,
+      "speedup": 1.0,
+      "initial_report_matches_earlier_snapshot": true
+    },
+    {
+      "kernel": "trmm-opt",
+      "recorded_evaluations": 2,
+      "initial_best_cycles": 154261,
+      "selected_best_cycles": 154261,
+      "selected_evaluation": 1,
+      "selected_worst_cycles": 154261,
+      "speedup": 1.0,
+      "initial_report_matches_earlier_snapshot": true
+    },
+    {
+      "kernel": "Kalman",
+      "recorded_evaluations": 2,
+      "initial_best_cycles": 536502,
+      "selected_best_cycles": 536502,
+      "selected_evaluation": 1,
+      "selected_worst_cycles": 536502,
+      "speedup": 1.0,
+      "initial_report_matches_earlier_snapshot": true
+    }
+  ],
+  "trials": [
+    {
+      "kernel": "covariance",
+      "evaluation": 1,
+      "kind": "initial_mailohls",
+      "best_cycles": 59643,
+      "worst_cycles": 375643
+    },
+    {
+      "kernel": "covariance",
+      "evaluation": 2,
+      "kind": "loop_only_port_relief",
+      "best_cycles": 59643,
+      "worst_cycles": 375643
+    },
+    {
+      "kernel": "jacobi-2d",
+      "evaluation": 1,
+      "kind": "initial_mailohls",
+      "best_cycles": 1494521,
+      "worst_cycles": 1494521
+    },
+    {
+      "kernel": "syr2k",
+      "evaluation": 1,
+      "kind": "initial_mailohls",
+      "best_cycles": 511371,
+      "worst_cycles": 549771
+    },
+    {
+      "kernel": "syr2k",
+      "evaluation": 2,
+      "kind": "loop_only_port_relief",
+      "best_cycles": 516171,
+      "worst_cycles": 554571
+    },
+    {
+      "kernel": "trmm-opt",
+      "evaluation": 1,
+      "kind": "initial_mailohls",
+      "best_cycles": 154261,
+      "worst_cycles": 154261
+    },
+    {
+      "kernel": "trmm-opt",
+      "evaluation": 2,
+      "kind": "loop_only_port_relief",
+      "best_cycles": 155611,
+      "worst_cycles": 155611
+    },
+    {
+      "kernel": "Kalman",
+      "evaluation": 1,
+      "kind": "initial_mailohls",
+      "best_cycles": 536502,
+      "worst_cycles": 536502
+    },
+    {
+      "kernel": "Kalman",
+      "evaluation": 2,
+      "kind": "parent_child_pipeline_relocation",
+      "best_cycles": 798640,
+      "worst_cycles": 798640
+    }
+  ]
+}

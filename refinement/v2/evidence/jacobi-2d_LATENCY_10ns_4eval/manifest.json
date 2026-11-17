@@ -1,0 +1,429 @@
+{
+  "actions": {
+    "L1": {
+      "bound": 40,
+      "kind": "loop"
+    },
+    "L2": {
+      "bound": 89,
+      "kind": "loop"
+    },
+    "L3": {
+      "bound": 89,
+      "kind": "loop"
+    },
+    "L4": {
+      "bound": 89,
+      "kind": "loop"
+    },
+    "L5": {
+      "bound": 89,
+      "kind": "loop"
+    }
+  },
+  "artifact_note": "No model inference or HLS synthesis performed in prepare",
+  "budget_percent": 100.0,
+  "clock_ns": 10.0,
+  "compiler_graph": {
+    "action_functions": {
+      "L1": [
+        "0"
+      ],
+      "L2": [
+        "0"
+      ],
+      "L3": [
+        "0"
+      ],
+      "L4": [
+        "0"
+      ],
+      "L5": [
+        "0"
+      ]
+    },
+    "action_nodes": {
+      "L1": [
+        "3",
+        "276"
+      ],
+      "L2": [
+        "317",
+        "282"
+      ],
+      "L3": [
+        "191",
+        "164"
+      ],
+      "L4": [
+        "131",
+        "55"
+      ],
+      "L5": [
+        "143",
+        "196"
+      ]
+    },
+    "anchored_actions": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5"
+    ],
+    "array_scope_access_links": {},
+    "array_scope_nodes": {},
+    "edges": 634,
+    "meaning": "Real ProGraML pragma->array_scope->IR access links. This does not prove loop dependence, memory bank conflicts or alias freedom.",
+    "missing_actions": [],
+    "nodes": 389,
+    "path_name": "jacobi-2d.gexf",
+    "sha256": "40b3bd36e686bb824b9390ccebb5e538bbd630c0a39a1ac6977128a9775df54b"
+  },
+  "controller_sha256": "01e3a18aac4aa92531c1b54893f2b242a015b1c3c9af7acb0d6bc4e2211988ff",
+  "diagnostic_policy": "No low-confidence Lk causal conclusions from graph proximity alone",
+  "initial_directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 32
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 32
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "input_hashes": {
+    "kernel_info.txt": "986f6ad3326f8b4d417e4120264f5288393043c593b93376de9bf6583fea662f",
+    "llvm_graph.gexf": "40b3bd36e686bb824b9390ccebb5e538bbd630c0a39a1ac6977128a9775df54b",
+    "template.cpp": "d467158400f2377660b4ffff9567ebeb762032912a8594908e37a444d8151162"
+  },
+  "kernel": "jacobi-2d",
+  "loop_array_relations": [],
+  "loop_spans": {
+    "L1": {
+      "end": 36,
+      "iterator": "t",
+      "start": 12
+    },
+    "L2": {
+      "end": 24,
+      "iterator": "i",
+      "start": 15
+    },
+    "L3": {
+      "end": 23,
+      "iterator": "j",
+      "start": 18
+    },
+    "L4": {
+      "end": 35,
+      "iterator": "i",
+      "start": 26
+    },
+    "L5": {
+      "end": 34,
+      "iterator": "j",
+      "start": 29
+    }
+  },
+  "max_evaluations": 4,
+  "objective_metric": "best_case_latency_cycles",
+  "part": "xczu7ev-ffvc1156-2-e",
+  "schema": "cg-bdr-v2-research",
+  "semantic_v2": {
+    "array_accessing_loops": {
+      "A": [
+        "L3",
+        "L5"
+      ],
+      "B": [
+        "L3",
+        "L5"
+      ]
+    },
+    "caveats": [
+      "Source containment does not prove matching LLVM LoopInfo loop IDs",
+      "Array-access regex is a source hint, not alias/dependence analysis",
+      "No true recurrence is inferred from an accumulation operator alone"
+    ],
+    "direct_statements": {
+      "L1": [
+        {
+          "accesses": [],
+          "line": 25,
+          "possible_accumulation": false,
+          "text": ""
+        },
+        {
+          "accesses": [],
+          "line": 36,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L2": [
+        {
+          "accesses": [],
+          "line": 24,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L3": [
+        {
+          "accesses": [
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "B",
+              "role": "write_or_update"
+            },
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i",
+                "j - 1"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i",
+                "1 + j"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 21,
+          "possible_accumulation": false,
+          "text": "B[i][j] = 0.2 * (A[i][j] + A[i][j - 1] + A[i][1 + j]"
+        },
+        {
+          "accesses": [
+            {
+              "indices": [
+                "1 + i",
+                "j"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i - 1",
+                "j"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 22,
+          "possible_accumulation": false,
+          "text": "+ A[1 + i][j] + A[i - 1][j]);"
+        },
+        {
+          "accesses": [],
+          "line": 23,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L4": [
+        {
+          "accesses": [],
+          "line": 35,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L5": [
+        {
+          "accesses": [
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "A",
+              "role": "write_or_update"
+            },
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i",
+                "j - 1"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i",
+                "1 + j"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 32,
+          "possible_accumulation": false,
+          "text": "A[i][j] = 0.2 * (B[i][j] + B[i][j - 1] + B[i][1 + j]"
+        },
+        {
+          "accesses": [
+            {
+              "indices": [
+                "1 + i",
+                "j"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i - 1",
+                "j"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 33,
+          "possible_accumulation": false,
+          "text": "+ B[1 + i][j] + B[i - 1][j]);"
+        },
+        {
+          "accesses": [],
+          "line": 34,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ]
+    },
+    "llvm_action_anchors": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5"
+    ],
+    "loop_children": {
+      "L1": [
+        "L2",
+        "L4"
+      ],
+      "L2": [
+        "L3"
+      ],
+      "L3": [],
+      "L4": [
+        "L5"
+      ],
+      "L5": []
+    },
+    "loop_edges": [
+      {
+        "from": "L1",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L2"
+      },
+      {
+        "from": "L2",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L3"
+      },
+      {
+        "from": "L1",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L4"
+      },
+      {
+        "from": "L4",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L5"
+      }
+    ],
+    "loop_parent": {
+      "L1": null,
+      "L2": "L1",
+      "L3": "L2",
+      "L4": "L1",
+      "L5": "L4"
+    },
+    "schema": "action-semantics-v2-source-supported",
+    "source_shared_memory_hints": [
+      {
+        "a": "L3",
+        "array": "A",
+        "b": "L5",
+        "dependence_proven": false,
+        "overlapping_indices_proven": false,
+        "provenance": "same_source_array_token_direct_access"
+      },
+      {
+        "a": "L3",
+        "array": "B",
+        "b": "L5",
+        "dependence_proven": false,
+        "overlapping_indices_proven": false,
+        "provenance": "same_source_array_token_direct_access"
+      }
+    ]
+  },
+  "semantics_sha256": "a8e2f4b59957eefa258695f17ab4e7ed57b07a411a10101f04dcad277f103a81",
+  "settings": [
+    "config_array_partition -complete_threshold 0 -throughput_driven off",
+    "config_compile -pipeline_loops 0"
+  ],
+  "source_identity": "/home/elvouvali/cg_bdr_dac/repo_main/evaluation_set/jacobi-2d/kernel_placeholders.cpp",
+  "template_suffix": ".cpp",
+  "top": "kernel_jacobi_2d"
+}

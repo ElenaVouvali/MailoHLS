@@ -1,0 +1,392 @@
+{
+  "action_constraint_graph": {
+    "disclaimer": "Graph encodes attributed evidence; a path is not a proof of effective QoR or alias freedom",
+    "edges": [
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L1",
+        "relation": "controls",
+        "to": "loop:L1"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L2",
+        "relation": "controls",
+        "to": "loop:L2"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L3",
+        "relation": "controls",
+        "to": "loop:L3"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L4",
+        "relation": "controls",
+        "to": "loop:L4"
+      },
+      {
+        "alias_or_loopinfo_proof": false,
+        "evidence": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "from": "loop:L1",
+        "relation": "contains",
+        "to": "loop:L2"
+      },
+      {
+        "alias_or_loopinfo_proof": false,
+        "evidence": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "from": "loop:L1",
+        "relation": "contains",
+        "to": "loop:L3"
+      },
+      {
+        "alias_or_loopinfo_proof": false,
+        "evidence": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "from": "loop:L3",
+        "relation": "contains",
+        "to": "loop:L4"
+      },
+      {
+        "array": "C",
+        "dependence_proven": false,
+        "evidence": "same_source_array_token_direct_access",
+        "from": "loop:L2",
+        "relation": "source_shared_memory_hint",
+        "to": "loop:L4"
+      }
+    ],
+    "nodes": {
+      "action:L1": {
+        "Lk": "L1",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L2": {
+        "Lk": "L2",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L3": {
+        "Lk": "L3",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L4": {
+        "Lk": "L4",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "loop:L1": {
+        "Lk": "L1",
+        "criticality": {
+          "provenance": "kernel_info_only_not_measured_criticality",
+          "source_bound": 80,
+          "tier": "unmeasured_loop",
+          "value": null
+        },
+        "type": "source_loop"
+      },
+      "loop:L2": {
+        "Lk": "L2",
+        "criticality": {
+          "provenance": "kernel_info_only_not_measured_criticality",
+          "source_bound": 80,
+          "tier": "unmeasured_loop",
+          "value": null
+        },
+        "type": "source_loop"
+      },
+      "loop:L3": {
+        "Lk": "L3",
+        "criticality": {
+          "provenance": "kernel_info_only_not_measured_criticality",
+          "source_bound": 60,
+          "tier": "unmeasured_loop",
+          "value": null
+        },
+        "type": "source_loop"
+      },
+      "loop:L4": {
+        "Lk": "L4",
+        "criticality": {
+          "provenance": "kernel_info_only_not_measured_criticality",
+          "source_bound": 80,
+          "tier": "unmeasured_loop",
+          "value": null
+        },
+        "type": "source_loop"
+      }
+    },
+    "schema": "cg-bdr-action-constraint-graph-v2"
+  },
+  "diagnostics": [],
+  "duration_seconds": 50.374,
+  "error": null,
+  "index": 2,
+  "log_sha256": "ad3df6f69842b0a038e837284d0a05e1e6c93b07c23cbcda86f380a575f79083",
+  "metrics": {
+    "budget_feasible": true,
+    "estimated_clock_ns": 7.475,
+    "hls_estimated_clock_within_target": true,
+    "latency_best_cycles": 516171,
+    "latency_cycles": 516171,
+    "latency_worst_cycles": 554571,
+    "loop_summary": [
+      {
+        "achieved_ii": null,
+        "latency": null,
+        "name": "L1"
+      }
+    ],
+    "resources": {
+      "bram": 0,
+      "dsp": 50,
+      "ff": 35147,
+      "lut": 21858
+    },
+    "utilization_percent": {
+      "bram": 0.0,
+      "dsp": 2.8935185185185186,
+      "ff": 7.627387152777778,
+      "lut": 9.486979166666666
+    }
+  },
+  "report_sha256": "92878238e580c8df191ebfbb534b559fabdc7fe65e51e3c2eb8e3633cbe3920d",
+  "schedule_results": [
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 22,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    }
+  ],
+  "source_sha256": "42a2eff56ce3fb13cbc81328e9c97862d3c60bb1cc0935a176d756da5909626d",
+  "synthesis_status": "success",
+  "tcl_sha256": "d2094943c2a83317dc09785b5e4a31fb85dc130e454994dd61355c8278d48151",
+  "tool": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+  "tool_mode": "VITIS_HLS",
+  "work_dir": "projects/eval-02"
+}

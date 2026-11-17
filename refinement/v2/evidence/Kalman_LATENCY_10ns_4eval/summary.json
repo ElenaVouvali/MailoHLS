@@ -1,0 +1,197 @@
+{
+  "best": {
+    "best_directives": [
+      {
+        "action_id": "L1",
+        "kind": "array",
+        "partition_dim": 1,
+        "partition_factor": 2,
+        "partition_type": "cyclic",
+        "variable": "in_local"
+      },
+      {
+        "action_id": "L2",
+        "kind": "array",
+        "partition_dim": 1,
+        "partition_factor": 4,
+        "partition_type": "cyclic",
+        "variable": "out_local"
+      },
+      {
+        "action_id": "L3",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      },
+      {
+        "action_id": "L4",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 2
+      },
+      {
+        "action_id": "L5",
+        "kind": "array",
+        "partition_dim": 1,
+        "partition_factor": 2,
+        "partition_type": "block",
+        "variable": "u_hat_arr"
+      },
+      {
+        "action_id": "L6",
+        "kind": "array",
+        "partition_dim": 1,
+        "partition_factor": 2,
+        "partition_type": "block",
+        "variable": "p_arr_1"
+      },
+      {
+        "action_id": "L7",
+        "kind": "array",
+        "partition_dim": 1,
+        "partition_factor": 2,
+        "partition_type": "cyclic",
+        "variable": "k_arr"
+      },
+      {
+        "action_id": "L8",
+        "kind": "array",
+        "partition_dim": 1,
+        "partition_factor": 2,
+        "partition_type": "cyclic",
+        "variable": "calc_temp_arr"
+      },
+      {
+        "action_id": "L9",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 2
+      },
+      {
+        "action_id": "L10",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 2
+      },
+      {
+        "action_id": "L11",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      },
+      {
+        "action_id": "L12",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      },
+      {
+        "action_id": "L13",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      }
+    ],
+    "best_evaluation": 1,
+    "best_latency_cycles": 536502,
+    "best_latency_worst_cycles": 536502,
+    "best_resources": {
+      "bram": 604,
+      "dsp": 4,
+      "ff": 7062,
+      "lut": 19074
+    },
+    "improvement_percent": 0.0,
+    "initial_latency_cycles": 536502,
+    "initial_latency_worst_cycles": 536502,
+    "objective_metric": "best_case_latency_cycles"
+  },
+  "bottleneck_migration": [
+    {
+      "index": 1,
+      "initial_bottleneck_signatures_not_observed": 0,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 2,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    },
+    {
+      "index": 2,
+      "initial_bottleneck_signatures_not_observed": 2,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 0,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    }
+  ],
+  "budget_percent": 100.0,
+  "charged_evaluations": 2,
+  "clock_ns": 10.0,
+  "kernel": "Kalman",
+  "limitations": [
+    "HLS estimate only, no place-and-route",
+    "LLVM LoopInfo, SCEV, MemorySSA are supplementary only; source-to-LLVM dependence proofs not implemented",
+    "LLVM action anchors do not prove alias or dependence",
+    "Loop source span parsing is intentionally restricted",
+    "No functional equivalence or cosimulation validated"
+  ],
+  "max_evaluations": 4,
+  "objective": "LATENCY",
+  "objective_metric": "best_case_latency_cycles",
+  "part": "xczu7ev-ffvc1156-2-e",
+  "stop": null,
+  "timeline": [
+    {
+      "changed_actions": [],
+      "diagnostics": [
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "in_local_V_0",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-880] The II Violation in module 'krnl_KALMAN_Pipeline_L3' (loop 'L3'): Unable to enforce a carried dependence constraint (II = 1, distance = 1, offset = 1) between 'store' operation ('in_local_V_0_addr_3_write_ln61', candidate.cpp:61) of variable 'select_ln580_27' on array 'in_local_V_0' and 'store' operation ('in_local_V_0_addr_1_write_ln61', candidate.cpp:61) of variable 'select_ln580_11' on array 'in_local_V_0'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 61,
+          "type": "recurrence"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "in_local_V_1",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-880] The II Violation in module 'krnl_KALMAN_Pipeline_L3' (loop 'L3'): Unable to enforce a carried dependence constraint (II = 2, distance = 1, offset = 1) between 'store' operation ('in_local_V_1_addr_3_write_ln61', candidate.cpp:61) of variable 'select_ln580_31' on array 'in_local_V_1' and 'store' operation ('in_local_V_1_addr_1_write_ln61', candidate.cpp:61) of variable 'select_ln580_15' on array 'in_local_V_1'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 61,
+          "type": "recurrence"
+        }
+      ],
+      "feasible": true,
+      "index": 1,
+      "kind": "initial_mailohls",
+      "latency": 536502,
+      "latency_worst": 536502,
+      "why": "Initial model configuration"
+    },
+    {
+      "changed_actions": [
+        "L3",
+        "L4"
+      ],
+      "diagnostics": [],
+      "feasible": true,
+      "index": 2,
+      "kind": "parent_child_pipeline_relocation",
+      "latency": 798640,
+      "latency_worst": 798640,
+      "why": "HLS measured a parent pipeline stall; move pipelining toward an anchored child loop"
+    }
+  ]
+}

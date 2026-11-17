@@ -1,0 +1,561 @@
+{
+  "action_constraint_graph": {
+    "disclaimer": "Graph encodes attributed evidence; a path is not a proof of effective QoR or alias freedom",
+    "edges": [
+      {
+        "evidence": "array_scope_action_anchor",
+        "from": "action:L1",
+        "relation": "controls",
+        "to": "array:L1"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L10",
+        "relation": "controls",
+        "to": "loop:L10"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L11",
+        "relation": "controls",
+        "to": "loop:L11"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L12",
+        "relation": "controls",
+        "to": "loop:L12"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L13",
+        "relation": "controls",
+        "to": "loop:L13"
+      },
+      {
+        "evidence": "array_scope_action_anchor",
+        "from": "action:L2",
+        "relation": "controls",
+        "to": "array:L2"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L3",
+        "relation": "controls",
+        "to": "loop:L3"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L4",
+        "relation": "controls",
+        "to": "loop:L4"
+      },
+      {
+        "evidence": "array_scope_action_anchor",
+        "from": "action:L5",
+        "relation": "controls",
+        "to": "array:L5"
+      },
+      {
+        "evidence": "array_scope_action_anchor",
+        "from": "action:L6",
+        "relation": "controls",
+        "to": "array:L6"
+      },
+      {
+        "evidence": "array_scope_action_anchor",
+        "from": "action:L7",
+        "relation": "controls",
+        "to": "array:L7"
+      },
+      {
+        "evidence": "array_scope_action_anchor",
+        "from": "action:L8",
+        "relation": "controls",
+        "to": "array:L8"
+      },
+      {
+        "evidence": "Lk_source_marker+ProGraML_action_anchor",
+        "from": "action:L9",
+        "relation": "controls",
+        "to": "loop:L9"
+      },
+      {
+        "alias_or_loopinfo_proof": false,
+        "evidence": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "from": "loop:L3",
+        "relation": "contains",
+        "to": "loop:L4"
+      },
+      {
+        "alias_or_loopinfo_proof": false,
+        "evidence": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "from": "loop:L10",
+        "relation": "contains",
+        "to": "loop:L11"
+      },
+      {
+        "alias_or_loopinfo_proof": false,
+        "evidence": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "from": "loop:L12",
+        "relation": "contains",
+        "to": "loop:L13"
+      },
+      {
+        "array": "in_local",
+        "dependence_proven": false,
+        "evidence": "same_source_array_token_direct_access",
+        "from": "loop:L4",
+        "relation": "source_shared_memory_hint",
+        "to": "loop:L9"
+      },
+      {
+        "array": "in_local",
+        "dependence_proven": false,
+        "evidence": "same_source_array_token_direct_access",
+        "from": "loop:L4",
+        "relation": "source_shared_memory_hint",
+        "to": "loop:L11"
+      },
+      {
+        "array": "in_local",
+        "dependence_proven": false,
+        "evidence": "same_source_array_token_direct_access",
+        "from": "loop:L9",
+        "relation": "source_shared_memory_hint",
+        "to": "loop:L11"
+      },
+      {
+        "array": "out_local",
+        "dependence_proven": false,
+        "evidence": "same_source_array_token_direct_access",
+        "from": "loop:L9",
+        "relation": "source_shared_memory_hint",
+        "to": "loop:L11"
+      },
+      {
+        "array": "p_arr_1",
+        "dependence_proven": false,
+        "evidence": "same_source_array_token_direct_access",
+        "from": "loop:L9",
+        "relation": "source_shared_memory_hint",
+        "to": "loop:L11"
+      },
+      {
+        "array": "u_hat_arr",
+        "dependence_proven": false,
+        "evidence": "same_source_array_token_direct_access",
+        "from": "loop:L9",
+        "relation": "source_shared_memory_hint",
+        "to": "loop:L11"
+      },
+      {
+        "array": "out_local",
+        "dependence_proven": false,
+        "evidence": "same_source_array_token_direct_access",
+        "from": "loop:L9",
+        "relation": "source_shared_memory_hint",
+        "to": "loop:L13"
+      },
+      {
+        "array": "out_local",
+        "dependence_proven": false,
+        "evidence": "same_source_array_token_direct_access",
+        "from": "loop:L11",
+        "relation": "source_shared_memory_hint",
+        "to": "loop:L13"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L3",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L1"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L4",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L1"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L9",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L1"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L9",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L2"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L9",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L5"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L9",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L6"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L10",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L1"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L10",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L2"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L10",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L5"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L10",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L6"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L10",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L7"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L10",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L8"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L11",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L1"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L11",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L2"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L11",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L5"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L11",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L6"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L11",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L7"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L11",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L8"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L12",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L2"
+      },
+      {
+        "evidence": "direct_source_access+LLVM_pragma_scope_access_link_same_function",
+        "from": "loop:L13",
+        "physical_bank_proven": false,
+        "relation": "source_accesses",
+        "to": "array:L2"
+      }
+    ],
+    "nodes": {
+      "action:L1": {
+        "Lk": "L1",
+        "action_kind": "array",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L10": {
+        "Lk": "L10",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L11": {
+        "Lk": "L11",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L12": {
+        "Lk": "L12",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L13": {
+        "Lk": "L13",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L2": {
+        "Lk": "L2",
+        "action_kind": "array",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L3": {
+        "Lk": "L3",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L4": {
+        "Lk": "L4",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L5": {
+        "Lk": "L5",
+        "action_kind": "array",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L6": {
+        "Lk": "L6",
+        "action_kind": "array",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L7": {
+        "Lk": "L7",
+        "action_kind": "array",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L8": {
+        "Lk": "L8",
+        "action_kind": "array",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "action:L9": {
+        "Lk": "L9",
+        "action_kind": "loop",
+        "type": "editable_pragma",
+        "verified_ProGraML_anchor": true
+      },
+      "array:L1": {
+        "type": "source_array",
+        "variable": "in_local"
+      },
+      "array:L2": {
+        "type": "source_array",
+        "variable": "out_local"
+      },
+      "array:L5": {
+        "type": "source_array",
+        "variable": "u_hat_arr"
+      },
+      "array:L6": {
+        "type": "source_array",
+        "variable": "p_arr_1"
+      },
+      "array:L7": {
+        "type": "source_array",
+        "variable": "k_arr"
+      },
+      "array:L8": {
+        "type": "source_array",
+        "variable": "calc_temp_arr"
+      },
+      "loop:L10": {
+        "Lk": "L10",
+        "criticality": {
+          "provenance": "Vitis_CSynth_SummaryOfLoopLatency",
+          "tier": "measured_loop",
+          "value": 405307
+        },
+        "type": "source_loop"
+      },
+      "loop:L11": {
+        "Lk": "L11",
+        "criticality": {
+          "provenance": "kernel_info_only_not_measured_criticality",
+          "source_bound": 64,
+          "tier": "unmeasured_loop",
+          "value": null
+        },
+        "type": "source_loop"
+      },
+      "loop:L12": {
+        "Lk": "L12",
+        "criticality": {
+          "provenance": "kernel_info_only_not_measured_criticality",
+          "source_bound": 32768,
+          "tier": "unmeasured_loop",
+          "value": null
+        },
+        "type": "source_loop"
+      },
+      "loop:L13": {
+        "Lk": "L13",
+        "criticality": {
+          "provenance": "kernel_info_only_not_measured_criticality",
+          "source_bound": 8,
+          "tier": "unmeasured_loop",
+          "value": null
+        },
+        "type": "source_loop"
+      },
+      "loop:L3": {
+        "Lk": "L3",
+        "criticality": {
+          "provenance": "Vitis_CSynth_SummaryOfLoopLatency",
+          "tier": "measured_loop",
+          "value": 360448
+        },
+        "type": "source_loop"
+      },
+      "loop:L4": {
+        "Lk": "L4",
+        "criticality": {
+          "provenance": "kernel_info_only_not_measured_criticality",
+          "source_bound": 8,
+          "tier": "unmeasured_loop",
+          "value": null
+        },
+        "type": "source_loop"
+      },
+      "loop:L9": {
+        "Lk": "L9",
+        "criticality": {
+          "provenance": "Vitis_CSynth_SummaryOfLoopLatency",
+          "tier": "measured_loop",
+          "value": 96
+        },
+        "type": "source_loop"
+      }
+    },
+    "schema": "cg-bdr-action-constraint-graph-v2"
+  },
+  "diagnostics": [],
+  "duration_seconds": 25.0,
+  "error": null,
+  "index": 2,
+  "log_sha256": "5d0d8bd7544e184c9a6833a4bb856138e4e6b5a69a04daf0218ed870c25e35dd",
+  "metrics": {
+    "budget_feasible": true,
+    "estimated_clock_ns": 7.3,
+    "hls_estimated_clock_within_target": true,
+    "latency_best_cycles": 798640,
+    "latency_cycles": 798640,
+    "latency_worst_cycles": 798640,
+    "loop_summary": [
+      {
+        "achieved_ii": null,
+        "latency": 360448,
+        "name": "L3"
+      },
+      {
+        "achieved_ii": null,
+        "latency": 96,
+        "name": "L9"
+      },
+      {
+        "achieved_ii": null,
+        "latency": 405307,
+        "name": "L10"
+      }
+    ],
+    "resources": {
+      "bram": 604,
+      "dsp": 4,
+      "ff": 6686,
+      "lut": 19795
+    },
+    "utilization_percent": {
+      "bram": 96.7948717948718,
+      "dsp": 0.23148148148148148,
+      "ff": 1.4509548611111112,
+      "lut": 8.59157986111111
+    }
+  },
+  "report_sha256": "548ba9a53090a10b7147e0c2fcfa3a2ebb24c5b6fd889a2624a9cf353ae7fa45",
+  "schedule_results": [
+    {
+      "achieved_ii": 1,
+      "loop": "L4",
+      "pipeline_depth": 3,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L11",
+      "pipeline_depth": 33,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L11",
+      "pipeline_depth": 33,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    },
+    {
+      "achieved_ii": 1,
+      "loop": "L12",
+      "pipeline_depth": 5,
+      "source": "vitis_hls_scheduling_log",
+      "target_ii": 1
+    }
+  ],
+  "source_sha256": "de331c84b4c193a61c914c01ef3a24be7d7e302bb84958c0415b660cd1904645",
+  "synthesis_status": "success",
+  "tcl_sha256": "47f59a1ef8eb984fb1fb410cd5812606d6363f130f542374ecbf68ee7c606dba",
+  "tool": "/opt/Xilinx/Vitis_HLS/2021.1/bin/vitis_hls",
+  "tool_mode": "VITIS_HLS",
+  "work_dir": "projects/eval-02"
+}

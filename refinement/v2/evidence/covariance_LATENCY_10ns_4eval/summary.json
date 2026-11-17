@@ -1,0 +1,855 @@
+{
+  "best": {
+    "best_directives": [
+      {
+        "action_id": "L1",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      },
+      {
+        "action_id": "L2",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 10
+      },
+      {
+        "action_id": "L3",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      },
+      {
+        "action_id": "L4",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      },
+      {
+        "action_id": "L5",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      },
+      {
+        "action_id": "L6",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 2
+      },
+      {
+        "action_id": "L7",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 0
+      }
+    ],
+    "best_evaluation": 1,
+    "best_latency_cycles": 59643,
+    "best_latency_worst_cycles": 375643,
+    "best_resources": {
+      "bram": 0,
+      "dsp": 28,
+      "ff": 48163,
+      "lut": 20006
+    },
+    "improvement_percent": 0.0,
+    "initial_latency_cycles": 59643,
+    "initial_latency_worst_cycles": 375643,
+    "objective_metric": "best_case_latency_cycles"
+  },
+  "bottleneck_migration": [
+    {
+      "index": 1,
+      "initial_bottleneck_signatures_not_observed": 0,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 3,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    },
+    {
+      "index": 2,
+      "initial_bottleneck_signatures_not_observed": 0,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 3,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    }
+  ],
+  "budget_percent": 100.0,
+  "charged_evaluations": 2,
+  "clock_ns": 10.0,
+  "kernel": "covariance",
+  "limitations": [
+    "HLS estimate only, no place-and-route",
+    "LLVM LoopInfo, SCEV, MemorySSA are supplementary only; source-to-LLVM dependence proofs not implemented",
+    "LLVM action anchors do not prove alias or dependence",
+    "Loop source span parsing is intentionally restricted",
+    "No functional equivalence or cosimulation validated"
+  ],
+  "max_evaluations": 4,
+  "objective": "LATENCY",
+  "objective_metric": "best_case_latency_cycles",
+  "part": "xczu7ev-ffvc1156-2-e",
+  "stop": null,
+  "timeline": [
+    {
+      "changed_actions": [],
+      "diagnostics": [
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_1', candidate.cpp:22) on array 'data' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_3', candidate.cpp:22) on array 'data' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_5', candidate.cpp:22) on array 'data' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_7', candidate.cpp:22) on array 'data' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_69', candidate.cpp:22) on array 'data' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_85', candidate.cpp:22) on array 'data' due to limited memory ports (II = 43). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_93', candidate.cpp:22) on array 'data' due to limited memory ports (II = 47). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_97', candidate.cpp:22) on array 'data' due to limited memory ports (II = 49). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_100', candidate.cpp:33) on array 'data' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_102', candidate.cpp:33) on array 'data' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_104', candidate.cpp:33) on array 'data' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_106', candidate.cpp:33) on array 'data' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_152_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_187', candidate.cpp:33 on array 'data' due to limited memory ports (II = 67). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_166_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_215', candidate.cpp:33 on array 'data' due to limited memory ports (II = 74). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_174_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_231', candidate.cpp:33 on array 'data' due to limited memory ports (II = 78). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_176_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_235', candidate.cpp:33 on array 'data' due to limited memory ports (II = 79). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_1', candidate.cpp:47) on array 'data' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_3', candidate.cpp:47) on array 'data' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_5', candidate.cpp:47) on array 'data' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_7', candidate.cpp:47) on array 'data' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_69', candidate.cpp:47) on array 'data' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_85', candidate.cpp:47) on array 'data' due to limited memory ports (II = 43). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_93', candidate.cpp:47) on array 'data' due to limited memory ports (II = 47). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_97', candidate.cpp:47) on array 'data' due to limited memory ports (II = 49). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        }
+      ],
+      "feasible": true,
+      "index": 1,
+      "kind": "initial_mailohls",
+      "latency": 59643,
+      "latency_worst": 375643,
+      "why": "Initial model configuration"
+    },
+    {
+      "changed_actions": [
+        "L6"
+      ],
+      "diagnostics": [
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_1', candidate.cpp:22) on array 'data' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_3', candidate.cpp:22) on array 'data' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_5', candidate.cpp:22) on array 'data' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_7', candidate.cpp:22) on array 'data' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_69', candidate.cpp:22) on array 'data' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_85', candidate.cpp:22) on array 'data' due to limited memory ports (II = 43). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_93', candidate.cpp:22) on array 'data' due to limited memory ports (II = 47). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L2",
+          "affected_loops": [
+            "L2",
+            "L1"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L1' (loop 'L1'): Unable to schedule 'load' operation ('data_load_97', candidate.cpp:22) on array 'data' due to limited memory ports (II = 49). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L1",
+          "scheduled_loop": "L1",
+          "source_line": 22,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_100', candidate.cpp:33) on array 'data' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_102', candidate.cpp:33) on array 'data' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_104', candidate.cpp:33) on array 'data' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'load' operation ('data_load_106', candidate.cpp:33) on array 'data' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_152_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_187', candidate.cpp:33 on array 'data' due to limited memory ports (II = 67). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_166_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_215', candidate.cpp:33 on array 'data' due to limited memory ports (II = 74). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_174_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_231', candidate.cpp:33 on array 'data' due to limited memory ports (II = 78). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L3' (loop 'L3'): Unable to schedule 'store' operation ('data_addr_176_write_ln33', candidate.cpp:33) of variable 'bitcast_ln33_235', candidate.cpp:33 on array 'data' due to limited memory ports (II = 79). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L3",
+          "scheduled_loop": "L3",
+          "source_line": 33,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_1', candidate.cpp:47) on array 'data' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_3', candidate.cpp:47) on array 'data' due to limited memory ports (II = 2). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_5', candidate.cpp:47) on array 'data' due to limited memory ports (II = 3). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_7', candidate.cpp:47) on array 'data' due to limited memory ports (II = 4). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_69', candidate.cpp:47) on array 'data' due to limited memory ports (II = 35). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_85', candidate.cpp:47) on array 'data' due to limited memory ports (II = 43). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_93', candidate.cpp:47) on array 'data' due to limited memory ports (II = 47). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L7",
+          "affected_loops": [
+            "L7",
+            "L6",
+            "L5"
+          ],
+          "array": "data",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_covariance_Pipeline_L6' (loop 'L6'): Unable to schedule 'load' operation ('data_load_97', candidate.cpp:47) on array 'data' due to limited memory ports (II = 49). Please consider using a memory core with more ports or partitioning the array 'data'.",
+          "reported_loop": "L6",
+          "scheduled_loop": "L6",
+          "source_line": 47,
+          "type": "memory_ports"
+        }
+      ],
+      "feasible": true,
+      "index": 2,
+      "kind": "loop_only_port_relief",
+      "latency": 59643,
+      "latency_worst": 375643,
+      "why": "Measured scheduling II stall; test one limited reduction in loop access concurrency"
+    }
+  ]
+}

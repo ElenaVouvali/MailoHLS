@@ -5,12 +5,14 @@ This branch preserves the original MailoHLS implementation at the
 uses LLVM IR, ProGraML graphs, and GNN embeddings for the LLM pragma generator.
 Experimental MLIR source present in that historical snapshot is also preserved.
 
-The optional [CG-BDR refinement mechanism](refinement/README.md) adds bounded,
-compiler-grounded HLS feedback after an initial directive prediction. It is the
-exact controller tested on six kernels with Vitis HLS 2021.1: at most four HLS
-evaluations per kernel, including the initial configuration. Its measured
-campaign, native report audit, usage and offline tests are included separately
-from the historical model and graph pipeline. It does not retrain Stage-3 DPO.
+The current optional [CG-BDR v2 refinement prototype](refinement/v2/README.md)
+adds bounded, constraint-grounded HLS feedback after an initial directive
+prediction, with source-supported loop semantics and measured scheduling-II
+checks. The exact November 17 code and its five-kernel recorded evidence are
+included. The [earlier six-kernel version](refinement/README.md) remains available
+with its own measurements and metric contract. Both use at most four HLS
+evaluations per kernel, including the initial configuration. Neither retrains
+Stage-3 DPO or changes the original LLVM/model pipeline.
 
 | Branch | Version |
 | --- | --- |
@@ -29,8 +31,10 @@ source changes first.
 - `LLM_branch/inference/`: inference and evaluation scripts.
 - `preprocessing/`, `notebooks/`: original data preparation and notebooks.
 - `requirements.txt`: historical environment dependencies.
-- `refinement/`: tested post-inference CG-BDR controller, optional LLVM graph
-  preparation helper, offline tests and authenticated six-kernel evidence.
+- `refinement/v2/`: current post-inference refinement prototype, semantic facts,
+  scheduling-aware repair contracts, offline tests and five-kernel evidence.
+- `refinement/`: earlier controller, LLVM graph preparation helper, offline
+  tests and authenticated six-kernel evidence, preserved for reproducibility.
 
 This is an archival implementation. Some original scripts contain machine-specific
 paths; configure those paths and provide the original data/checkpoints before

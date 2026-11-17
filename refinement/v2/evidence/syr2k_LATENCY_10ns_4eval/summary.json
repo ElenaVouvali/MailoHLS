@@ -1,0 +1,612 @@
+{
+  "best": {
+    "best_directives": [
+      {
+        "action_id": "L1",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 8
+      },
+      {
+        "action_id": "L2",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 8
+      },
+      {
+        "action_id": "L3",
+        "kind": "loop",
+        "pipeline_ii": 0,
+        "unroll_factor": 4
+      },
+      {
+        "action_id": "L4",
+        "kind": "loop",
+        "pipeline_ii": 1,
+        "unroll_factor": 2
+      }
+    ],
+    "best_evaluation": 1,
+    "best_latency_cycles": 511371,
+    "best_latency_worst_cycles": 549771,
+    "best_resources": {
+      "bram": 0,
+      "dsp": 50,
+      "ff": 55655,
+      "lut": 35129
+    },
+    "improvement_percent": 0.0,
+    "initial_latency_cycles": 511371,
+    "initial_latency_worst_cycles": 549771,
+    "objective_metric": "best_case_latency_cycles"
+  },
+  "bottleneck_migration": [
+    {
+      "index": 1,
+      "initial_bottleneck_signatures_not_observed": 0,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 1,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    },
+    {
+      "index": 2,
+      "initial_bottleneck_signatures_not_observed": 1,
+      "new_bottleneck_signatures": 0,
+      "observed_bottlenecks": 0,
+      "warning": "A disappearing diagnostic is not automatically proof the hardware bottleneck was solved"
+    }
+  ],
+  "budget_percent": 100.0,
+  "charged_evaluations": 2,
+  "clock_ns": 10.0,
+  "kernel": "syr2k",
+  "limitations": [
+    "HLS estimate only, no place-and-route",
+    "LLVM LoopInfo, SCEV, MemorySSA are supplementary only; source-to-LLVM dependence proofs not implemented",
+    "LLVM action anchors do not prove alias or dependence",
+    "Loop source span parsing is intentionally restricted",
+    "No functional equivalence or cosimulation validated"
+  ],
+  "max_evaluations": 4,
+  "objective": "LATENCY",
+  "objective_metric": "best_case_latency_cycles",
+  "part": "xczu7ev-ffvc1156-2-e",
+  "stop": null,
+  "timeline": [
+    {
+      "changed_actions": [],
+      "diagnostics": [
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L4' (loop 'L4'): Unable to schedule 'load' operation ('C_load_6', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L41' (loop 'L4'): Unable to schedule 'load' operation ('C_load_10', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L42' (loop 'L4'): Unable to schedule 'load' operation ('C_load_16', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L43' (loop 'L4'): Unable to schedule 'load' operation ('C_load_9', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L44' (loop 'L4'): Unable to schedule 'load' operation ('C_load_6', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L45' (loop 'L4'): Unable to schedule 'load' operation ('C_load_5', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L46' (loop 'L4'): Unable to schedule 'load' operation ('C_load_4', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L47' (loop 'L4'): Unable to schedule 'load' operation ('C_load_3', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L48' (loop 'L4'): Unable to schedule 'load' operation ('C_load_2', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L49' (loop 'L4'): Unable to schedule 'load' operation ('C_load_1', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L410' (loop 'L4'): Unable to schedule 'load' operation ('C_load_29', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L411' (loop 'L4'): Unable to schedule 'load' operation ('C_load_28', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L412' (loop 'L4'): Unable to schedule 'load' operation ('C_load_27', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L413' (loop 'L4'): Unable to schedule 'load' operation ('C_load_26', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L414' (loop 'L4'): Unable to schedule 'load' operation ('C_load_25', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L415' (loop 'L4'): Unable to schedule 'load' operation ('C_load_24', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L416' (loop 'L4'): Unable to schedule 'load' operation ('C_load_23', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L417' (loop 'L4'): Unable to schedule 'load' operation ('C_load_22', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L418' (loop 'L4'): Unable to schedule 'load' operation ('C_load_21', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L419' (loop 'L4'): Unable to schedule 'load' operation ('C_load_20', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L420' (loop 'L4'): Unable to schedule 'load' operation ('C_load_19', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L421' (loop 'L4'): Unable to schedule 'load' operation ('C_load_18', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L422' (loop 'L4'): Unable to schedule 'load' operation ('C_load_17', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L423' (loop 'L4'): Unable to schedule 'load' operation ('C_load_16', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L424' (loop 'L4'): Unable to schedule 'load' operation ('C_load_15', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L425' (loop 'L4'): Unable to schedule 'load' operation ('C_load_14', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L426' (loop 'L4'): Unable to schedule 'load' operation ('C_load_13', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L427' (loop 'L4'): Unable to schedule 'load' operation ('C_load_12', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L428' (loop 'L4'): Unable to schedule 'load' operation ('C_load_11', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L429' (loop 'L4'): Unable to schedule 'load' operation ('C_load_10', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L430' (loop 'L4'): Unable to schedule 'load' operation ('C_load_8', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        },
+        {
+          "access_owning_loop": "L4",
+          "affected_loops": [
+            "L4",
+            "L3",
+            "L1"
+          ],
+          "array": "C",
+          "attribution": "source_line+LLVM_action_anchor",
+          "evidence": "explicit_vitis_log",
+          "raw": "WARNING: [HLS 200-885] The II Violation in module 'kernel_syr2k_Pipeline_L431' (loop 'L4'): Unable to schedule 'load' operation ('C_load_7', candidate.cpp:32) on array 'C' due to limited memory ports (II = 1). Please consider using a memory core with more ports or partitioning the array 'C'.",
+          "reported_loop": "L4",
+          "scheduled_loop": "L4",
+          "source_line": 32,
+          "type": "memory_ports"
+        }
+      ],
+      "feasible": true,
+      "index": 1,
+      "kind": "initial_mailohls",
+      "latency": 511371,
+      "latency_worst": 549771,
+      "why": "Initial model configuration"
+    },
+    {
+      "changed_actions": [
+        "L4"
+      ],
+      "diagnostics": [],
+      "feasible": true,
+      "index": 2,
+      "kind": "loop_only_port_relief",
+      "latency": 516171,
+      "latency_worst": 554571,
+      "why": "Measured scheduling II stall; test one limited reduction in loop access concurrency"
+    }
+  ]
+}

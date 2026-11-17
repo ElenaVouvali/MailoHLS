@@ -1,5 +1,10 @@
 # Tested LLVM-action-grounded refinement
 
+**The newer November 17 v2 prototype is now published in
+[`v2/`](v2/README.md).** Use `python3 refinement/v2/cg_bdr.py` for v2.
+This page and `refinement/cg_bdr.py` retain the earlier six-kernel version and
+its exact evidence. Their sealed bundle formats and latency objectives differ.
+
 CG-BDR is an optional post-inference refinement step for the original MailoHLS
 LLVM/ProGraML pipeline. It freezes the initial prediction, synthesizes it, maps
 explicit Vitis diagnostics to source actions and LLVM graph anchors, and tests
@@ -11,8 +16,8 @@ weights or replace Stage-3 DPO.
 `cg_bdr_six_v02` campaign on 16 November 2026. Its SHA-256 is
 `c5a7c7077c24adde96b32ee5eee34afdc0d2faeb6698b34151abb27815c56b32`.
 The bundle schema remains `cg-bdr-v0.1-research`, as it was in the measured runs.
-A separate `cg_bdr_v2_20261117` semantic prototype is not substituted for this
-controller or its results.
+The separate `cg_bdr_v2_20261117` semantic prototype is preserved under `v2/`,
+alongside this controller and its results.
 
 ## Measured scope
 

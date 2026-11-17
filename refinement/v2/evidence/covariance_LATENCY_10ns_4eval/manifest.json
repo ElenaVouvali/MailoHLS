@@ -1,0 +1,554 @@
+{
+  "actions": {
+    "L1": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L2": {
+      "bound": 100,
+      "kind": "loop"
+    },
+    "L3": {
+      "bound": 100,
+      "kind": "loop"
+    },
+    "L4": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L5": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L6": {
+      "bound": 80,
+      "kind": "loop"
+    },
+    "L7": {
+      "bound": 100,
+      "kind": "loop"
+    }
+  },
+  "artifact_note": "No model inference or HLS synthesis performed in prepare",
+  "budget_percent": 100.0,
+  "clock_ns": 10.0,
+  "compiler_graph": {
+    "action_functions": {
+      "L1": [
+        "0"
+      ],
+      "L2": [
+        "0"
+      ],
+      "L3": [
+        "0"
+      ],
+      "L4": [
+        "0"
+      ],
+      "L5": [
+        "0"
+      ],
+      "L6": [
+        "0"
+      ],
+      "L7": [
+        "0"
+      ]
+    },
+    "action_nodes": {
+      "L1": [
+        "2",
+        "68"
+      ],
+      "L2": [
+        "1",
+        "110"
+      ],
+      "L3": [
+        "251",
+        "394"
+      ],
+      "L4": [
+        "200",
+        "334"
+      ],
+      "L5": [
+        "219",
+        "242"
+      ],
+      "L6": [
+        "299",
+        "298"
+      ],
+      "L7": [
+        "249",
+        "152"
+      ]
+    },
+    "anchored_actions": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5",
+      "L6",
+      "L7"
+    ],
+    "array_scope_access_links": {},
+    "array_scope_nodes": {},
+    "edges": 684,
+    "meaning": "Real ProGraML pragma->array_scope->IR access links. This does not prove loop dependence, memory bank conflicts or alias freedom.",
+    "missing_actions": [],
+    "nodes": 425,
+    "path_name": "covariance.gexf",
+    "sha256": "cdc00b29ac13fc05c5752eb671ea3b2a7e08627b4013231f926e954d6fa4ecff"
+  },
+  "controller_sha256": "01e3a18aac4aa92531c1b54893f2b242a015b1c3c9af7acb0d6bc4e2211988ff",
+  "diagnostic_policy": "No low-confidence Lk causal conclusions from graph proximity alone",
+  "initial_directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 10
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L6",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 2
+    },
+    {
+      "action_id": "L7",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "input_hashes": {
+    "kernel_info.txt": "a155498307bb5cd73d67fc72b4271604525231aaff45d9c3f4452780492c41e0",
+    "llvm_graph.gexf": "cdc00b29ac13fc05c5752eb671ea3b2a7e08627b4013231f926e954d6fa4ecff",
+    "template.cpp": "2586e28622dfb0d83073457db13fa2fde8fcc5726bb73b2b8f73ba83b7f5c9f4"
+  },
+  "kernel": "covariance",
+  "loop_array_relations": [],
+  "loop_spans": {
+    "L1": {
+      "end": 25,
+      "iterator": "j",
+      "start": 15
+    },
+    "L2": {
+      "end": 23,
+      "iterator": "i",
+      "start": 19
+    },
+    "L3": {
+      "end": 35,
+      "iterator": "i",
+      "start": 27
+    },
+    "L4": {
+      "end": 34,
+      "iterator": "j",
+      "start": 30
+    },
+    "L5": {
+      "end": 52,
+      "iterator": "i",
+      "start": 37
+    },
+    "L6": {
+      "end": 51,
+      "iterator": "j",
+      "start": 40
+    },
+    "L7": {
+      "end": 48,
+      "iterator": "k",
+      "start": 44
+    }
+  },
+  "max_evaluations": 4,
+  "objective_metric": "best_case_latency_cycles",
+  "part": "xczu7ev-ffvc1156-2-e",
+  "schema": "cg-bdr-v2-research",
+  "semantic_v2": {
+    "array_accessing_loops": {
+      "cov": [
+        "L6",
+        "L7"
+      ],
+      "data": [
+        "L2",
+        "L4",
+        "L7"
+      ],
+      "mean": [
+        "L1",
+        "L2",
+        "L4"
+      ]
+    },
+    "caveats": [
+      "Source containment does not prove matching LLVM LoopInfo loop IDs",
+      "Array-access regex is a source hint, not alias/dependence analysis",
+      "No true recurrence is inferred from an accumulation operator alone"
+    ],
+    "direct_statements": {
+      "L1": [
+        {
+          "accesses": [
+            {
+              "indices": [
+                "j"
+              ],
+              "name": "mean",
+              "role": "write_or_update"
+            }
+          ],
+          "line": 18,
+          "possible_accumulation": false,
+          "text": "mean[j] = 0.0;"
+        },
+        {
+          "accesses": [
+            {
+              "indices": [
+                "j"
+              ],
+              "name": "mean",
+              "role": "write_or_update"
+            }
+          ],
+          "line": 24,
+          "possible_accumulation": true,
+          "text": "mean[j] /= float_n;"
+        },
+        {
+          "accesses": [],
+          "line": 25,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L2": [
+        {
+          "accesses": [
+            {
+              "indices": [
+                "j"
+              ],
+              "name": "mean",
+              "role": "write_or_update"
+            },
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "data",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 22,
+          "possible_accumulation": true,
+          "text": "mean[j] += data[i][j];"
+        },
+        {
+          "accesses": [],
+          "line": 23,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L3": [
+        {
+          "accesses": [],
+          "line": 35,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L4": [
+        {
+          "accesses": [
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "data",
+              "role": "write_or_update"
+            },
+            {
+              "indices": [
+                "j"
+              ],
+              "name": "mean",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 33,
+          "possible_accumulation": true,
+          "text": "data[i][j] -= mean[j];"
+        },
+        {
+          "accesses": [],
+          "line": 34,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L5": [
+        {
+          "accesses": [],
+          "line": 52,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L6": [
+        {
+          "accesses": [
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "cov",
+              "role": "write_or_update"
+            }
+          ],
+          "line": 43,
+          "possible_accumulation": false,
+          "text": "cov[i][j] = 0.0;"
+        },
+        {
+          "accesses": [
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "cov",
+              "role": "write_or_update"
+            }
+          ],
+          "line": 49,
+          "possible_accumulation": true,
+          "text": "cov[i][j] /= float_n - 1.0;"
+        },
+        {
+          "accesses": [
+            {
+              "indices": [
+                "j",
+                "i"
+              ],
+              "name": "cov",
+              "role": "write_or_update"
+            },
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "cov",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 50,
+          "possible_accumulation": true,
+          "text": "cov[j][i] = cov[i][j];"
+        },
+        {
+          "accesses": [],
+          "line": 51,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L7": [
+        {
+          "accesses": [
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "cov",
+              "role": "write_or_update"
+            },
+            {
+              "indices": [
+                "k",
+                "i"
+              ],
+              "name": "data",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "k",
+                "j"
+              ],
+              "name": "data",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 47,
+          "possible_accumulation": true,
+          "text": "cov[i][j] += data[k][i] * data[k][j];"
+        },
+        {
+          "accesses": [],
+          "line": 48,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ]
+    },
+    "llvm_action_anchors": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5",
+      "L6",
+      "L7"
+    ],
+    "loop_children": {
+      "L1": [
+        "L2"
+      ],
+      "L2": [],
+      "L3": [
+        "L4"
+      ],
+      "L4": [],
+      "L5": [
+        "L6"
+      ],
+      "L6": [
+        "L7"
+      ],
+      "L7": []
+    },
+    "loop_edges": [
+      {
+        "from": "L1",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L2"
+      },
+      {
+        "from": "L3",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L4"
+      },
+      {
+        "from": "L5",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L6"
+      },
+      {
+        "from": "L6",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L7"
+      }
+    ],
+    "loop_parent": {
+      "L1": null,
+      "L2": "L1",
+      "L3": null,
+      "L4": "L3",
+      "L5": null,
+      "L6": "L5",
+      "L7": "L6"
+    },
+    "schema": "action-semantics-v2-source-supported",
+    "source_shared_memory_hints": [
+      {
+        "a": "L1",
+        "array": "mean",
+        "b": "L4",
+        "dependence_proven": false,
+        "overlapping_indices_proven": false,
+        "provenance": "same_source_array_token_direct_access"
+      },
+      {
+        "a": "L2",
+        "array": "data",
+        "b": "L4",
+        "dependence_proven": false,
+        "overlapping_indices_proven": false,
+        "provenance": "same_source_array_token_direct_access"
+      },
+      {
+        "a": "L2",
+        "array": "mean",
+        "b": "L4",
+        "dependence_proven": false,
+        "overlapping_indices_proven": false,
+        "provenance": "same_source_array_token_direct_access"
+      },
+      {
+        "a": "L2",
+        "array": "data",
+        "b": "L7",
+        "dependence_proven": false,
+        "overlapping_indices_proven": false,
+        "provenance": "same_source_array_token_direct_access"
+      },
+      {
+        "a": "L4",
+        "array": "data",
+        "b": "L7",
+        "dependence_proven": false,
+        "overlapping_indices_proven": false,
+        "provenance": "same_source_array_token_direct_access"
+      }
+    ]
+  },
+  "semantics_sha256": "a8e2f4b59957eefa258695f17ab4e7ed57b07a411a10101f04dcad277f103a81",
+  "settings": [
+    "config_array_partition -complete_threshold 0 -throughput_driven off",
+    "config_compile -pipeline_loops 0"
+  ],
+  "source_identity": "/home/elvouvali/cg_bdr_dac/repo_main/evaluation_set/covariance/kernel_placeholders.cpp",
+  "template_suffix": ".cpp",
+  "top": "kernel_covariance"
+}
