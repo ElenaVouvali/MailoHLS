@@ -1,0 +1,479 @@
+{
+  "actions": {
+    "L1": {
+      "bound": 40,
+      "kind": "loop"
+    },
+    "L2": {
+      "bound": 89,
+      "kind": "loop"
+    },
+    "L3": {
+      "bound": 89,
+      "kind": "loop"
+    },
+    "L4": {
+      "bound": 89,
+      "kind": "loop"
+    },
+    "L5": {
+      "bound": 89,
+      "kind": "loop"
+    }
+  },
+  "artifact_note": "Preparation only; zero HLS calls",
+  "budget_percent": 100,
+  "capacities": {
+    "bram": 624,
+    "dsp": 1728,
+    "ff": 460800,
+    "lut": 230400
+  },
+  "clock_ns": 10,
+  "code_hashes": {
+    "../v2/cg_bdr.py": "01e3a18aac4aa92531c1b54893f2b242a015b1c3c9af7acb0d6bc4e2211988ff",
+    "../v2/semantic_v2.py": "a8e2f4b59957eefa258695f17ab4e7ed57b07a411a10101f04dcad277f103a81",
+    "cg_bdr.py": "c853c767e4e36d2ea772b3bfdddf823e2abeb377c41de87314716f752855aa72",
+    "rank_v3.py": "cb55282db0b91f262d9d4a05a3449d1219530400345624510f6b9e2956f5eebf",
+    "runner_v3.py": "30fda6c87daf62de25a24c654c61e2b1c0f7d6aafb6be6d913b35cf960f2c17c",
+    "semantic_v3.py": "f3c2a11454d5caaa5972c2103fa94b990f7bfc727cbb56826ac291618fda11bb"
+  },
+  "compiler_graph": {
+    "action_functions": {
+      "L1": [
+        "0"
+      ],
+      "L2": [
+        "0"
+      ],
+      "L3": [
+        "0"
+      ],
+      "L4": [
+        "0"
+      ],
+      "L5": [
+        "0"
+      ]
+    },
+    "action_nodes": {
+      "L1": [
+        "3",
+        "276"
+      ],
+      "L2": [
+        "317",
+        "282"
+      ],
+      "L3": [
+        "191",
+        "164"
+      ],
+      "L4": [
+        "131",
+        "55"
+      ],
+      "L5": [
+        "143",
+        "196"
+      ]
+    },
+    "anchored_actions": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5"
+    ],
+    "array_scope_access_links": {},
+    "array_scope_nodes": {},
+    "edges": 634,
+    "meaning": "Real ProGraML pragma->array_scope->IR access links. This does not prove loop dependence, memory bank conflicts or alias freedom.",
+    "missing_actions": [],
+    "nodes": 389,
+    "path_name": "llvm_graph.gexf",
+    "sha256": "40b3bd36e686bb824b9390ccebb5e538bbd630c0a39a1ac6977128a9775df54b"
+  },
+  "extraction_provenance": {
+    "archive": "/home/elvouvali/MailoHLS-CG-BDR-V3/refinement/v2/evidence/jacobi-2d_LATENCY_10ns_4eval",
+    "archive_manifest_sha256": "a2afe8a1cac59f743829aef86b3711660f1a802324093c23f5f956b5b2f4f6bc",
+    "archive_unmodified": true,
+    "compressed_graph_sha256": "60e7e24f62421034c8f9cd7a23278fc697030ed46c4da348ff403a3fbaa0baae"
+  },
+  "frozen_experiment_signature": "c96a22e3b001f0b340b899e5b1819e2114f8785f40d5950599ee6217c94c48ba",
+  "hls_version": "2021.1",
+  "initial_directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 32
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 32
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "initial_prediction_sha256": "5899d3408d0684b2d9fec8b5b302f269e641053293d728b7c6790c9a46cda308",
+  "input_hashes": {
+    "kernel_info.txt": "986f6ad3326f8b4d417e4120264f5288393043c593b93376de9bf6583fea662f",
+    "llvm_graph.gexf": "40b3bd36e686bb824b9390ccebb5e538bbd630c0a39a1ac6977128a9775df54b",
+    "template.cpp": "d467158400f2377660b4ffff9567ebeb762032912a8594908e37a444d8151162"
+  },
+  "kernel": "jacobi-2d",
+  "loop_array_relations": [],
+  "loop_spans": {
+    "L1": {
+      "end": 36,
+      "iterator": "t",
+      "start": 12
+    },
+    "L2": {
+      "end": 24,
+      "iterator": "i",
+      "start": 15
+    },
+    "L3": {
+      "end": 23,
+      "iterator": "j",
+      "start": 18
+    },
+    "L4": {
+      "end": 35,
+      "iterator": "i",
+      "start": 26
+    },
+    "L5": {
+      "end": 34,
+      "iterator": "j",
+      "start": 29
+    }
+  },
+  "max_evaluations": 4,
+  "objective_metric": "best_case_latency_cycles",
+  "part": "xczu7ev-ffvc1156-2-e",
+  "policy": "graph",
+  "schema": "cg-bdr-v3.0-best-case-sealed",
+  "semantic_v3": {
+    "array_accessing_loops": {
+      "A": [
+        "L3",
+        "L5"
+      ],
+      "B": [
+        "L3",
+        "L5"
+      ]
+    },
+    "caveats": [
+      "Source containment does not prove matching LLVM LoopInfo loop IDs",
+      "Array-access regex is a source hint, not alias/dependence analysis",
+      "No true recurrence is inferred from an accumulation operator alone"
+    ],
+    "direct_statements": {
+      "L1": [
+        {
+          "accesses": [],
+          "line": 25,
+          "possible_accumulation": false,
+          "text": ""
+        },
+        {
+          "accesses": [],
+          "line": 36,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L2": [
+        {
+          "accesses": [],
+          "line": 24,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L3": [
+        {
+          "accesses": [
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "B",
+              "role": "write_or_update"
+            },
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i",
+                "j - 1"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i",
+                "1 + j"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 21,
+          "possible_accumulation": false,
+          "text": "B[i][j] = 0.2 * (A[i][j] + A[i][j - 1] + A[i][1 + j]"
+        },
+        {
+          "accesses": [
+            {
+              "indices": [
+                "1 + i",
+                "j"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i - 1",
+                "j"
+              ],
+              "name": "A",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 22,
+          "possible_accumulation": false,
+          "text": "+ A[1 + i][j] + A[i - 1][j]);"
+        },
+        {
+          "accesses": [],
+          "line": 23,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L4": [
+        {
+          "accesses": [],
+          "line": 35,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ],
+      "L5": [
+        {
+          "accesses": [
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "A",
+              "role": "write_or_update"
+            },
+            {
+              "indices": [
+                "i",
+                "j"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i",
+                "j - 1"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i",
+                "1 + j"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 32,
+          "possible_accumulation": false,
+          "text": "A[i][j] = 0.2 * (B[i][j] + B[i][j - 1] + B[i][1 + j]"
+        },
+        {
+          "accesses": [
+            {
+              "indices": [
+                "1 + i",
+                "j"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            },
+            {
+              "indices": [
+                "i - 1",
+                "j"
+              ],
+              "name": "B",
+              "role": "read_or_unknown"
+            }
+          ],
+          "line": 33,
+          "possible_accumulation": false,
+          "text": "+ B[1 + i][j] + B[i - 1][j]);"
+        },
+        {
+          "accesses": [],
+          "line": 34,
+          "possible_accumulation": false,
+          "text": "}"
+        }
+      ]
+    },
+    "llvm_action_anchors": [
+      "L1",
+      "L2",
+      "L3",
+      "L4",
+      "L5"
+    ],
+    "loop_children": {
+      "L1": [
+        "L2",
+        "L4"
+      ],
+      "L2": [
+        "L3"
+      ],
+      "L3": [],
+      "L4": [
+        "L5"
+      ],
+      "L5": []
+    },
+    "loop_edges": [
+      {
+        "from": "L1",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L2"
+      },
+      {
+        "from": "L2",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L3"
+      },
+      {
+        "from": "L1",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L4"
+      },
+      {
+        "from": "L4",
+        "kind": "contains",
+        "llvm_loopinfo_correspondence": "unverified",
+        "provenance": "labeled_C++_source_spans+LLVM_pragma_action_anchors",
+        "to": "L5"
+      }
+    ],
+    "loop_parent": {
+      "L1": null,
+      "L2": "L1",
+      "L3": "L2",
+      "L4": "L1",
+      "L5": "L4"
+    },
+    "schema": "action-semantics-v3-source-observations",
+    "source_shared_memory_hints": [
+      {
+        "a": "L3",
+        "array": "A",
+        "b": "L5",
+        "dependence_proven": false,
+        "overlapping_indices_proven": false,
+        "provenance": "same_source_array_token_direct_access"
+      },
+      {
+        "a": "L3",
+        "array": "B",
+        "b": "L5",
+        "dependence_proven": false,
+        "overlapping_indices_proven": false,
+        "provenance": "same_source_array_token_direct_access"
+      }
+    ],
+    "trip_counts": {
+      "L1": {
+        "count": 40,
+        "provenance": "literal_source_unit_stride_loop_not_metadata_bound",
+        "source_line": 12
+      },
+      "L2": {
+        "count": 88,
+        "provenance": "literal_source_unit_stride_loop_not_metadata_bound",
+        "source_line": 15
+      },
+      "L3": {
+        "count": 88,
+        "provenance": "literal_source_unit_stride_loop_not_metadata_bound",
+        "source_line": 18
+      },
+      "L4": {
+        "count": 88,
+        "provenance": "literal_source_unit_stride_loop_not_metadata_bound",
+        "source_line": 26
+      },
+      "L5": {
+        "count": 88,
+        "provenance": "literal_source_unit_stride_loop_not_metadata_bound",
+        "source_line": 29
+      }
+    }
+  },
+  "settings": [
+    "config_array_partition -complete_threshold 0 -throughput_driven off",
+    "config_compile -pipeline_loops 0"
+  ],
+  "template_suffix": ".cpp",
+  "tool_flags": [
+    "-I/opt/Xilinx/Vitis_HLS/2021.1/include"
+  ],
+  "top": "kernel_jacobi_2d"
+}

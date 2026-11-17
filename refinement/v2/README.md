@@ -1,5 +1,9 @@
 # CG-BDR v2 refinement prototype
 
+The current [V3 mechanism](../v3/README.md) and its
+[first campaign](../v3/first_campaign/README.md) are available separately.
+This page preserves the V2 implementation and its own recorded results.
+
 This is the exact November 17, 2026 refinement prototype from Coroni's
 `/home/bonus24/cg_bdr_v2_20261117`, published on the `llvm-ir` branch.
 It is an optional post-inference step; model weights, Stage-3 DPO and the original

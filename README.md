@@ -5,14 +5,18 @@ This branch preserves the original MailoHLS implementation at the
 uses LLVM IR, ProGraML graphs, and GNN embeddings for the LLM pragma generator.
 Experimental MLIR source present in that historical snapshot is also preserved.
 
-The current optional [CG-BDR v2 refinement prototype](refinement/v2/README.md)
+The current optional [CG-BDR v3 refinement mechanism](refinement/v3/README.md)
 adds bounded, constraint-grounded HLS feedback after an initial directive
-prediction, with source-supported loop semantics and measured scheduling-II
-checks. The exact November 17 code and its five-kernel recorded evidence are
-included. The [earlier six-kernel version](refinement/README.md) remains available
-with its own measurements and metric contract. Both use at most four HLS
-evaluations per kernel, including the initial configuration. Neither retrains
-Stage-3 DPO or changes the original LLVM/model pipeline.
+prediction. It preserves scheduling variants, attributes diagnostics to source
+actions and LLVM anchors, proposes small repairs, and retains the best measured
+feasible incumbent. Its [first campaign](refinement/v3/first_campaign/README.md)
+contains six verified baseline reuses and one new Jacobi synthesis: the candidate
+regressed and the baseline was retained. No V3 latency gain is claimed.
+The [v2 prototype](refinement/v2/README.md) and
+[earlier six-kernel version](refinement/README.md) retain their separate evidence
+and metric contracts. Refinement uses at most four evaluations per kernel,
+including baseline, and does not retrain Stage-3 DPO or change the original
+LLVM/model pipeline.
 
 | Branch | Version |
 | --- | --- |
@@ -31,7 +35,9 @@ source changes first.
 - `LLM_branch/inference/`: inference and evaluation scripts.
 - `preprocessing/`, `notebooks/`: original data preparation and notebooks.
 - `requirements.txt`: historical environment dependencies.
-- `refinement/v2/`: current post-inference refinement prototype, semantic facts,
+- `refinement/v3/`: current refinement mechanism, deterministic ranker, semantic
+  attribution, Coroni workflow, offline tests, checkpoint replay and first-run evidence.
+- `refinement/v2/`: earlier post-inference refinement prototype, semantic facts,
   scheduling-aware repair contracts, offline tests and five-kernel evidence.
 - `refinement/`: earlier controller, LLVM graph preparation helper, offline
   tests and authenticated six-kernel evidence, preserved for reproducibility.

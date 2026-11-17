@@ -1,0 +1,54 @@
+{
+  "budget_feasible": true,
+  "budget_percent": 100.0,
+  "clock_period_ns": 10.0,
+  "device": "xczu7ev-ffvc1156-2-e",
+  "directives": [
+    {
+      "action_id": "L1",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L2",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 32
+    },
+    {
+      "action_id": "L3",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    },
+    {
+      "action_id": "L4",
+      "kind": "loop",
+      "pipeline_ii": 0,
+      "unroll_factor": 32
+    },
+    {
+      "action_id": "L5",
+      "kind": "loop",
+      "pipeline_ii": 1,
+      "unroll_factor": 0
+    }
+  ],
+  "estimated_clock_period_ns": 7.042,
+  "kernel": "jacobi-2d",
+  "latency": 1494521,
+  "objective": "LATENCY",
+  "resource_utilization_percent": {
+    "bram": 0.0,
+    "dsp": 1.4467592592592593,
+    "ff": 8.899522569444445,
+    "lut": 14.58420138888889
+  },
+  "resources": {
+    "bram": 0,
+    "dsp": 25,
+    "ff": 41009,
+    "lut": 33602
+  }
+}

@@ -1,5 +1,9 @@
 # Tested LLVM-action-grounded refinement
 
+**The current V3 mechanism is published in [`v3/`](v3/README.md), with its
+[first measured campaign](v3/first_campaign/README.md).** Earlier results below
+remain attributed to their original controller.
+
 **The newer November 17 v2 prototype is now published in
 [`v2/`](v2/README.md).** Use `python3 refinement/v2/cg_bdr.py` for v2.
 This page and `refinement/cg_bdr.py` retain the earlier six-kernel version and
